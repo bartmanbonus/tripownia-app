@@ -1,24 +1,15 @@
-# Tripownia MVP
+# Tripownia.pl
 
-MVP serwisu rekomendacyjnego Tripownia.pl.
+Next.js app for Tripownia.pl.
 
-## Funkcje
-- hero z wyszukiwaniem,
-- sekcja „Dziś bralibyśmy te”,
-- Tripownia Score,
-- filtrowanie po potrzebie,
-- filtr budżetowy,
-- „Zaskocz mnie”,
-- responsywny layout,
-- gotowe miejsce pod afiliacyjne CTA.
+## Prosta struktura
 
-## Start
-```bash
-npm install
-npm run dev
-```
+- `app/page.tsx` — strona główna
+- `app/oferta/[id]/page.tsx` — szablon konkretnej oferty
+- `app/[...slug]/page.tsx` — wszystkie pozostałe podstrony (poradniki, kierunki, parkingi, atrakcje, eSIM i treści z WordPressa)
+- `components/` — komponenty UI
+- `lib/` — oferty, partnerzy afiliacyjni i logika
+- `data/legacy-content.json` — treści zmigrowane z WordPressa
+- `public/` — logo i pliki statyczne
 
-Otwórz http://localhost:3000
-
-## Co dalej
-Podmień dane w `lib/offers.ts` na dane z API / CMS / importera ofert i w `OfferCard.tsx` podłącz prawdziwe linki afiliacyjne.
+Nie dodawaj osobnych `globals.css`, `layout.tsx` ani luźnych `page.tsx` poza strukturą `app/`.
