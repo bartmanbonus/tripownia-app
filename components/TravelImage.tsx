@@ -2,21 +2,24 @@
 
 import { useEffect, useState } from "react";
 
-export default function TravelImage({ src, alt, className = "" }: { src?: string; alt: string; className?: string; seed?: string | number }) {
+export default function TravelImage({
+  src,
+  alt,
+  className = "",
+}: {
+  src?: string;
+  alt: string;
+  className?: string;
+}) {
   const [failed, setFailed] = useState(!src);
-  const [current, setCurrent] = useState(src || "");
 
   useEffect(() => {
-    setCurrent(src || "");
     setFailed(!src);
   }, [src]);
 
-  if (failed || !current) {
-    return <div className={`tripownia-image-placeholder ${className}`} role="img" aria-label={alt}>
-      <div className="tripownia-placeholder-mark">TRIPOWNIA.PL</div>
-      <div className="tripownia-placeholder-copy">Zdjęcie kierunku pojawi się po weryfikacji oferty</div>
-    </div>;
+  if (!src || failed) {
+    return <div className={`tripownia-image-empty ${className}`} role="img" aria-label={alt} />;
   }
 
-  return <img src={current} alt={alt} className={className} loading="lazy" onError={() => setFailed(true)} />;
+  return <img src={src} alt={alt} className={className} loading="lazy" onError={() => setFailed(true)} />;
 }
