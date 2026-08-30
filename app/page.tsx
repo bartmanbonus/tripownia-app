@@ -16,7 +16,7 @@ const categories = [
 
 export default function Home() {
   const [category, setCategory] = useState<string | null>(null);
-  const [budget, setBudget] = useState(1500);
+  const [budget, setBudget] = useState(2500);
   const [surprise, setSurprise] = useState<(typeof offers)[number] | null>(null);
   const [favorites, setFavorites] = useState(0);
   const filtered = useMemo(() => offers.filter(o => (!category || o.category.includes(category)) && o.price <= budget), [category, budget]);
@@ -54,7 +54,7 @@ export default function Home() {
       <div className="cards-grid filtered-grid">{filtered.map(o=><OfferCard offer={o} key={o.id}/>)}</div>
     </section>
 
-    <section className="budget-wrap" id="budzet"><div className="shell budget-grid"><div><div className="kicker light">💸 BUDŻET NA OSOBĘ</div><h2>Mam {budget} zł.<br/>Gdzie mogę polecieć?</h2><p>Ustaw kwotę, a Tripownia pokaże tylko wyjazdy, które mieszczą się w Twoim budżecie.</p><input type="range" min="500" max="4000" step="100" value={budget} onChange={e=>setBudget(Number(e.target.value))}/><div className="range-labels"><span>500 zł</span><strong>{budget} zł</strong><span>4000 zł</span></div></div>
+    <section className="budget-wrap" id="budzet"><div className="shell budget-grid"><div><div className="kicker light">💸 BUDŻET NA OSOBĘ</div><h2>Mam {budget} zł.<br/>Gdzie mogę polecieć?</h2><p>Ustaw kwotę, a Tripownia pokaże tylko wyjazdy, które mieszczą się w Twoim budżecie.</p><input type="range" min="500" max="5000" step="100" value={budget} onChange={e=>setBudget(Number(e.target.value))}/><div className="range-labels"><span>500 zł</span><strong>{budget} zł</strong><span>5000 zł</span></div></div>
       <div className="surprise-card"><Sparkles size={30}/><h3>Nie wiesz gdzie?</h3><p>Daj nam budżet i daj się zaskoczyć.</p><button onClick={pickSurprise}><Dice5 size={18}/> Zaskocz mnie</button>{surprise && <Link className="surprise-result" href={`/oferta/${surprise.id}`}>{surprise.flag} <strong>{surprise.city}</strong><span>{surprise.price} zł/os. · {surprise.score}/10 →</span></Link>}</div></div></section>
 
     <section className="section shell score-section" id="score"><div className="score-copy"><div className="kicker">TRIPOWNIA SCORE</div><h2>Cena to dopiero początek.</h2><p>Oceniamy wyjazd całościowo: cenę, pogodę, hotel, termin i lot. Dzięki temu od razu wiesz, czy oferta jest naprawdę dobra.</p></div><div className="score-box"><div className="bigscore">9,6<span>/10</span></div>{[['Cena','10/10'],['Pogoda','8/10'],['Hotel','9/10'],['Termin','10/10'],['Lot','9/10']].map(([a,b])=><div className="score-row" key={a}><span>{a}</span><strong>{b}</strong></div>)}<div className="verdict">🔥 BIERZEMY</div></div></section>
