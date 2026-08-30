@@ -5,7 +5,7 @@ export type Offer = {
   id: number; flag: string; city: string; country: string; price: number; departure: string; airportCode: string;
   nights: number; weather: string; score: number; tag: "BIERZEMY" | "DOBRA OPCJA" | "OKAZJA"; reason: string;
   image: string; category: string[]; hotel: string; board: string; dates: string; partner: PartnerKey; affiliateUrl: string; linkType?: "search" | "exact";
-, linkType:"search"};
+};
 
 const esky = (arrivalPlaces: string, stayLength = "2:7") => partners.esky.buildUrl(`https://www2.esky.pl/lot+hotel/portfolio?rooms%5B0%5D%5Badults%5D=2&datesTab=flexDates&stayLength=${stayLength}&arrivalPlaces=${arrivalPlaces}&context=pl-packages`);
 
