@@ -7,7 +7,7 @@ export default function SiteHeader() {
   return (
     <header className="nav shell site-nav">
       <Link className="brand-logo" href="/" aria-label="Tripownia.pl">
-        <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={190} height={150} priority />
+        <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={240} height={240} priority />
       </Link>
       <nav>
         <Link href="/okazje">Okazje</Link>
