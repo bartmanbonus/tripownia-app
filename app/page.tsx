@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Flame, Search, Sparkles, Sun, WalletCards, PlaneTakeoff, Palmtree, Building2, Dice5, Heart } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
+import SearchHub from "@/components/SearchHub";
 import { offers } from "@/lib/offers";
 
 const categories = [
@@ -25,12 +26,12 @@ export default function Home() {
     update(); window.addEventListener("tripownia-favorites-updated", update); return () => window.removeEventListener("tripownia-favorites-updated", update);
   }, []);
   function pickSurprise() { const pool = offers.filter(o => o.price <= budget); setSurprise(pool[Math.floor(Math.random() * pool.length)] ?? offers[0]); }
-  function showTrips() { document.getElementById("inspiracje")?.scrollIntoView({ behavior: "smooth" }); }
+  function showTrips() { document.getElementById("wyszukiwarka")?.scrollIntoView({ behavior: "smooth" }); }
 
   return <main>
     <header className="nav shell">
       <Link className="brand-logo" href="/" aria-label="Tripownia.pl"><Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={190} height={150} priority /></Link>
-      <nav><a href="#okazje">Okazje</a><a href="#inspiracje">Inspiracje</a><a href="#budzet">Mam budżet</a><a href="#score">Jak oceniamy?</a></nav>
+      <nav><a href="#wyszukiwarka">Szukaj</a><a href="#okazje">Okazje</a><a href="#inspiracje">Inspiracje</a><a href="#budzet">Mam budżet</a></nav>
       <button className="nav-cta" onClick={()=>document.getElementById("inspiracje")?.scrollIntoView({behavior:"smooth"})}><Heart size={16}/> Ulubione {favorites > 0 && <b>{favorites}</b>}</button>
     </header>
 
@@ -42,6 +43,8 @@ export default function Home() {
       <div className="trustline">Bez miliona wyników. Tylko to, co sami byśmy rozważyli.</div></div>
       <div className="hero-brand-card"><Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={520} height={420} priority /><div className="hero-brand-tag">Podróże, które warto brać.</div></div>
     </div></section>
+
+    <SearchHub />
 
     <section className="section shell" id="okazje"><div className="section-heading"><div><div className="kicker">🔥 SELEKCJA DNIA</div><h2>Dziś bralibyśmy te</h2></div><a href="#inspiracje">Zobacz wszystkie <ArrowRight size={16}/></a></div><div className="cards-grid">{offers.slice(0,3).map(o => <OfferCard offer={o} key={o.id}/>)}</div></section>
 
