@@ -1,35 +1,37 @@
 "use client";
 
+import Link from "next/link";
 import { Heart, Plane, Moon, Sun, ArrowRight } from "lucide-react";
 import type { Offer } from "@/lib/offers";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function OfferCard({ offer }: { offer: Offer }) {
   const [liked, setLiked] = useState(false);
+  useEffect(() => {
+    const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
+    setLiked(ids.includes(offer.id));
+  }, [offer.id]);
+  function toggleLike() {
+    const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
+    const next = ids.includes(offer.id) ? ids.filter(id => id !== offer.id) : [...ids, offer.id];
+    localStorage.setItem("tripownia-favorites", JSON.stringify(next));
+    setLiked(next.includes(offer.id));
+    window.dispatchEvent(new Event("tripownia-favorites-updated"));
+  }
   return (
     <article className="offer-card">
-      <div className="offer-image" style={{ backgroundImage: `url(${offer.image})` }}>
+      <Link href={`/oferta/${offer.id}`} className="offer-image" style={{ backgroundImage: `url(${offer.image})` }} aria-label={`Otwórz ofertę ${offer.city}`}>
         <span className={`badge ${offer.tag === "BIERZEMY" ? "hot" : ""}`}>{offer.tag}</span>
-        <button className="heart" aria-label="Dodaj do ulubionych" onClick={() => setLiked(!liked)}>
-          <Heart size={20} fill={liked ? "currentColor" : "none"} />
-        </button>
-      </div>
+      </Link>
+      <button className="heart" aria-label="Dodaj do ulubionych" onClick={toggleLike}>
+        <Heart size={20} fill={liked ? "currentColor" : "none"} />
+      </button>
       <div className="offer-body">
-        <div className="offer-topline">
-          <div>
-            <div className="eyebrow">{offer.flag} {offer.country}</div>
-            <h3>{offer.city}</h3>
-          </div>
-          <div className="score"><strong>{offer.score}</strong><span>/10</span></div>
-        </div>
+        <div className="offer-topline"><div><div className="eyebrow">{offer.flag} {offer.country}</div><h3>{offer.city}</h3></div><div className="score"><strong>{offer.score}</strong><span>/10</span></div></div>
         <div className="price">od <strong>{offer.price} zł</strong> <span>/ os.</span></div>
-        <div className="meta">
-          <span><Plane size={15}/> {offer.departure}</span>
-          <span><Moon size={15}/> {offer.nights} noce</span>
-          <span><Sun size={15}/> {offer.weather}</span>
-        </div>
+        <div className="meta"><span><Plane size={15}/> {offer.departure}</span><span><Moon size={15}/> {offer.nights} noce</span><span><Sun size={15}/> {offer.weather}</span></div>
         <p>{offer.reason}</p>
-        <button className="card-cta">Sprawdź ofertę <ArrowRight size={17}/></button>
+        <Link className="card-cta" href={`/oferta/${offer.id}`}>Sprawdź ofertę <ArrowRight size={17}/></Link>
       </div>
     </article>
   );
