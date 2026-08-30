@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Plane, Moon, Sun, ArrowRight, ExternalLink } from "lucide-react";
+import { Heart, Plane, Moon, Sun, ArrowRight } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { useEffect, useState } from "react";
@@ -24,16 +24,14 @@ export default function OfferCard({ offer }: { offer: Offer }) {
       <Link href={`/oferta/${offer.id}`} className="offer-image" style={{ backgroundImage: `url(${offer.image})` }} aria-label={`Otwórz ofertę ${offer.city}`}>
         <span className={`badge ${offer.tag === "BIERZEMY" ? "hot" : ""}`}>{offer.tag}</span>
       </Link>
-      <button className="heart" aria-label="Dodaj do ulubionych" onClick={toggleLike}>
-        <Heart size={20} fill={liked ? "currentColor" : "none"} />
-      </button>
+      <button className="heart" aria-label="Dodaj do ulubionych" onClick={toggleLike}><Heart size={20} fill={liked ? "currentColor" : "none"}/></button>
       <div className="offer-body">
         <div className="offer-topline"><div><div className="eyebrow">{offer.flag} {offer.country}</div><h3>{offer.city}</h3></div><div className="score"><strong>{offer.score}</strong><span>/10</span></div></div>
         <div className="price">od <strong>{offer.price} zł</strong> <span>/ os.</span></div>
-        <div className="partner-chip">Źródło: <strong>{partners[offer.partner].name}</strong></div>
+        <div className="partner-chip">Oferta znaleziona w: <strong>{partners[offer.partner].name}</strong></div>
         <div className="meta"><span><Plane size={15}/> {offer.departure}</span><span><Moon size={15}/> {offer.nights} noce</span><span><Sun size={15}/> {offer.weather}</span></div>
         <p>{offer.reason}</p>
-        <a className="card-cta" href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Sprawdź cenę u partnera <ExternalLink size={17}/></a>
+        <Link className="card-cta" href={`/oferta/${offer.id}`}>Zobacz ofertę na Tripowni <ArrowRight size={17}/></Link>
       </div>
     </article>
   );
