@@ -36,7 +36,7 @@ export default function Home() {
       <div className="hero-copy"><div className="pill"><Flame size={16}/> Codziennie nowe selekcje</div>
       <h1>Nie szukaj godzinami.<br/><span>My szukamy. Ty lecisz.</span></h1>
       <p>Wyniki Tripownia.pl pokazują tylko te podróże, które naprawdę mają sens: dobra cena, sensowny lot, dobry termin i kierunek wart wyjazdu.</p>
-      <div className="searchbar"><div><small>Skąd?</small><strong>Warszawa + Modlin</strong></div><div><small>Kiedy?</small><strong>Dowolnie</strong></div><div><small>Na ile?</small><strong>2–7 nocy</strong></div><button onClick={showTrips}><Search size={18}/> Pokaż dobre wyjazdy</button></div>
+      <div className="searchbar"><div><small>Skąd?</small><strong>Wszystkie lotniska</strong></div><div><small>Dokąd?</small><strong>Gdziekolwiek</strong></div><div><small>Na ile?</small><strong>Dowolnie</strong></div><button onClick={showTrips}><Search size={18}/> Ustaw filtry</button></div>
       <div className="trustline">Bez miliona wyników. Tylko to, co sami byśmy rozważyli.</div></div>
       <div className="hero-brand-card"><Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={520} height={420} priority /><div className="hero-brand-tag">Podróże, które warto brać.</div></div>
     </div></section>
