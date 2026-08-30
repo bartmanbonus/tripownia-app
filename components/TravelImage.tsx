@@ -1,14 +1,22 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function TravelImage({ src, alt, className = "", seed }: { src?: string; alt: string; className?: string; seed: string | number }) {
-  const fallback = useMemo(() => `https://picsum.photos/seed/${encodeURIComponent(String(seed))}/1200/800`, [seed]);
-  const [current, setCurrent] = useState(src || fallback);
+export default function TravelImage({ src, alt, className = "" }: { src?: string; alt: string; className?: string; seed?: string | number }) {
+  const [failed, setFailed] = useState(!src);
+  const [current, setCurrent] = useState(src || "");
 
   useEffect(() => {
-    setCurrent(src || fallback);
-  }, [src, fallback]);
+    setCurrent(src || "");
+    setFailed(!src);
+  }, [src]);
 
-  return <img src={current} alt={alt} className={className} loading="lazy" onError={() => { if (current !== fallback) setCurrent(fallback); }} />;
+  if (failed || !current) {
+    return <div className={`tripownia-image-placeholder ${className}`} role="img" aria-label={alt}>
+      <div className="tripownia-placeholder-mark">TRIPOWNIA.PL</div>
+      <div className="tripownia-placeholder-copy">Zdjęcie kierunku pojawi się po weryfikacji oferty</div>
+    </div>;
+  }
+
+  return <img src={current} alt={alt} className={className} loading="lazy" onError={() => setFailed(true)} />;
 }
