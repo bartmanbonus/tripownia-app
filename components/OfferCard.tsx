@@ -5,7 +5,6 @@ import { Heart, Plane, Moon, Sun, ArrowRight } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { useEffect, useState } from "react";
-import TravelImage from "./TravelImage";
 
 export default function OfferCard({ offer }: { offer: Offer }) {
   const [liked, setLiked] = useState(false);
@@ -22,8 +21,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   }
   return (
     <article className="offer-card">
-      <Link href={`/oferta/${offer.id}`} className="offer-image" aria-label={`Otwórz ofertę ${offer.city}`}>
-        <TravelImage src={offer.image} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" seed={`offer-${offer.id}-${offer.city}`} />
+      <Link href={`/oferta/${offer.id}`} className="offer-image" style={{ backgroundImage: `url(${offer.image})` }} aria-label={`Otwórz ofertę ${offer.city}`}>
         <span className={`badge ${offer.tag === "BIERZEMY" ? "hot" : ""}`}>{offer.tag}</span>
       </Link>
       <button className="heart" aria-label="Dodaj do ulubionych" onClick={toggleLike}><Heart size={20} fill={liked ? "currentColor" : "none"}/></button>
