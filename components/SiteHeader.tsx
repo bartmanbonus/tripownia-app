@@ -17,7 +17,7 @@ export default function SiteHeader() {
         <Link href="/poradniki">Poradniki</Link>
         <Link href="/parkingi">Parkingi</Link>
       </nav>
-      <Link className="nav-cta nav-search-link" href="/#wyszukiwarka">Szukaj wyjazdu</Link>
+      <Link className="nav-cta nav-search-link" href="/#wyszukiwarka">Wyniki Tripownia.pl</Link>
     </header>
   );
 }
