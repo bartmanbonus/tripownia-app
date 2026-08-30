@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Flame, Search, Sparkles, Sun, WalletCards, PlaneTakeoff, Palmtree, Building2, Dice5, Heart } from "lucide-react";
@@ -29,13 +31,8 @@ export default function Home() {
   function showTrips() { document.getElementById("wyszukiwarka")?.scrollIntoView({ behavior: "smooth" }); }
 
   return <main>
-    <header className="nav shell">
-      <Link className="brand-logo" href="/" aria-label="Tripownia.pl"><Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={190} height={150} priority /></Link>
-      <nav><a href="#wyszukiwarka">Szukaj</a><a href="#okazje">Okazje</a><a href="#inspiracje">Inspiracje</a><a href="#budzet">Mam budżet</a></nav>
-      <button className="nav-cta" onClick={()=>document.getElementById("inspiracje")?.scrollIntoView({behavior:"smooth"})}><Heart size={16}/> Ulubione {favorites > 0 && <b>{favorites}</b>}</button>
-    </header>
-
-    <section className="hero"><div className="shell hero-inner">
+    <SiteHeader />
+<section className="hero"><div className="shell hero-inner">
       <div className="hero-copy"><div className="pill"><Flame size={16}/> Codziennie nowe selekcje</div>
       <h1>Nie szukaj godzinami.<br/><span>My szukamy. Ty lecisz.</span></h1>
       <p>Tripownia wybiera podróże, które naprawdę mają sens: dobra cena, sensowny lot, dobry termin i kierunek wart wyjazdu.</p>
@@ -46,7 +43,7 @@ export default function Home() {
 
     <SearchHub />
 
-    <section className="section shell" id="okazje"><div className="section-heading"><div><div className="kicker">🔥 SELEKCJA DNIA</div><h2>Dziś bralibyśmy te</h2></div><a href="#inspiracje">Zobacz wszystkie <ArrowRight size={16}/></a></div><div className="cards-grid">{offers.slice(0,3).map(o => <OfferCard offer={o} key={o.id}/>)}</div></section>
+    <section className="section shell" id="okazje"><div className="section-heading"><div><div className="kicker">🔥 SELEKCJA DNIA</div><h2>Dziś bralibyśmy te</h2></div><Link href="/okazje">Zobacz wszystkie <ArrowRight size={16}/></Link></div><div className="cards-grid">{offers.slice(0,3).map(o => <OfferCard offer={o} key={o.id}/>)}</div></section>
 
     <section className="section shell" id="inspiracje"><div className="section-heading"><div><div className="kicker">✨ ZACZNIJ OD POTRZEBY</div><h2>Na jaki wyjazd masz dziś ochotę?</h2></div></div>
       <div className="category-grid">{categories.map(c => { const Icon=c.icon; return <button key={c.id} className={`category ${category===c.id?"active":""}`} onClick={()=>setCategory(category===c.id?null:c.id)}><Icon size={22}/><span>{c.label}</span></button> })}</div>
@@ -57,8 +54,9 @@ export default function Home() {
     <section className="budget-wrap" id="budzet"><div className="shell budget-grid"><div><div className="kicker light">💸 BUDŻET NA OSOBĘ</div><h2>Mam {budget} zł.<br/>Gdzie mogę polecieć?</h2><p>Ustaw kwotę, a Tripownia pokaże tylko wyjazdy, które mieszczą się w Twoim budżecie.</p><input type="range" min="500" max="5000" step="100" value={budget} onChange={e=>setBudget(Number(e.target.value))}/><div className="range-labels"><span>500 zł</span><strong>{budget} zł</strong><span>5000 zł</span></div></div>
       <div className="surprise-card"><Sparkles size={30}/><h3>Nie wiesz gdzie?</h3><p>Daj nam budżet i daj się zaskoczyć.</p><button onClick={pickSurprise}><Dice5 size={18}/> Zaskocz mnie</button>{surprise && <Link className="surprise-result" href={`/oferta/${surprise.id}`}>{surprise.flag} <strong>{surprise.city}</strong><span>{surprise.price} zł/os. · {surprise.score}/10 →</span></Link>}</div></div></section>
 
-    <section className="section shell score-section" id="score"><div className="score-copy"><div className="kicker">TRIPOWNIA SCORE</div><h2>Cena to dopiero początek.</h2><p>Oceniamy wyjazd całościowo: cenę, pogodę, hotel, termin i lot. Dzięki temu od razu wiesz, czy oferta jest naprawdę dobra.</p></div><div className="score-box"><div className="bigscore">9,6<span>/10</span></div>{[['Cena','10/10'],['Pogoda','8/10'],['Hotel','9/10'],['Termin','10/10'],['Lot','9/10']].map(([a,b])=><div className="score-row" key={a}><span>{a}</span><strong>{b}</strong></div>)}<div className="verdict">🔥 BIERZEMY</div></div></section>
 
-    <footer className="footer"><div className="shell"><Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={150} height={120}/><p>My szukamy. Ty lecisz. ✈️</p></div></footer>
-  </main>;
+    <section className="section shell content-hubs"><div className="section-heading"><div><div className="kicker">ODKRYWAJ TRIPOWNIĘ</div><h2>Nie tylko oferty. Zostań z nami dłużej.</h2></div></div><div className="hub-grid"><Link href="/kierunki"><strong>🌍 Kierunki</strong><span>Malta, Grecja, Włochy, Hiszpania i dziesiątki inspiracji.</span></Link><Link href="/city-break-2"><strong>🏙 City break</strong><span>Krótkie wyjazdy, gotowe pomysły i aktualne okazje.</span></Link><Link href="/last-minute"><strong>🏖 Wakacje i Last Minute</strong><span>All Inclusive, słońce i wyjazdy z polskich lotnisk.</span></Link><Link href="/poradniki"><strong>🧭 Poradniki</strong><span>Formalności, lotniska, bagaż i praktyczne wskazówki.</span></Link><Link href="/parkingi"><strong>🚗 Parkingi</strong><span>Najpierw wybierz lotnisko, potem przejdź do rezerwacji.</span></Link><Link href="/atrakcje"><strong>🎟 Atrakcje</strong><span>Co robić na miejscu i gdzie kupować bilety.</span></Link></div></section>
+    <section className="section shell score-section" id="score"><div className="score-copy"><div className="kicker">TRIPOWNIA SCORE</div><h2>Cena to dopiero początek.</h2><p>Oceniamy wyjazd całościowo: cenę, pogodę, hotel, termin i lot. Dzięki temu od razu wiesz, czy oferta jest naprawdę dobra.</p></div><div className="score-box"><div className="bigscore">9,6<span>/10</span></div>{[['Cena','10/10'],['Pogoda','8/10'],['Hotel','9/10'],['Termin','10/10'],['Lot','9/10']].map(([a,b])=><div className="score-row" key={a}><span>{a}</span><strong>{b}</strong></div>)}<div className="verdict">🔥 BIERZEMY</div></div></section>
+    <SiteFooter />
+</main>;
 }
