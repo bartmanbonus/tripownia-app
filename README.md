@@ -1,15 +1,9 @@
 # Tripownia.pl
 
-Next.js app for Tripownia.pl.
+Clean application baseline (v22).
 
-## Prosta struktura
-
-- `app/page.tsx` — strona główna
-- `app/oferta/[id]/page.tsx` — szablon konkretnej oferty
-- `app/[...slug]/page.tsx` — wszystkie pozostałe podstrony (poradniki, kierunki, parkingi, atrakcje, eSIM i treści z WordPressa)
-- `components/` — komponenty UI
-- `lib/` — oferty, partnerzy afiliacyjni i logika
-- `data/legacy-content.json` — treści zmigrowane z WordPressa
-- `public/` — logo i pliki statyczne
-
-Nie dodawaj osobnych `globals.css`, `layout.tsx` ani luźnych `page.tsx` poza strukturą `app/`.
+- One root stylesheet: `app/globals.css`
+- One dynamic content router: `app/[...slug]/page.tsx`
+- Offer detail route: `app/oferta/[id]/page.tsx`
+- No cumulative v2/v3/v5/v8 CSS patches
+- Offer images render only when explicitly verified in `lib/verifiedImages.ts`
