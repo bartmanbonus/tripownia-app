@@ -1,5 +1,6 @@
 import type { PartnerKey } from "./partners";
 import { partners } from "./partners";
+import publishedOverridesRaw from "@/data/offer-overrides.json";
 
 export type AvailabilityStatus = "available" | "unknown" | "expired";
 
@@ -28,6 +29,7 @@ export type Offer = {
   destinationUrl?: string;
   affiliateUrl: string;
   linkType?: "search" | "exact";
+  linkMatch?: "exact" | "parameters" | "destination" | "unsafe";
   transferIncluded?: boolean;
   baggageIncluded?: boolean;
 };
@@ -71,7 +73,7 @@ const eximDestination = (path: string) => {
   return { destinationUrl, affiliateUrl: partners.exim.buildUrl(destinationUrl) };
 };
 
-export const offers: Offer[] = [
+const baseOffers: Offer[] = [
   { id:1, flag:"🇲🇹", city:"Malta", country:"Malta", price:699, departure:"Warszawa Modlin", airportCode:"WMI", nights:3, weather:"20°C", score:9.6, tag:"BIERZEMY", reason:"Bardzo dobra cena, sensowny termin i świetny kierunek na szybki city break.", image:"https://images.unsplash.com/photo-1514222134-b57cbb8ce073?auto=format&fit=crop&w=1600&q=80", category:["city","tanio","cieplo","weekend"], hotel:"St. Julian's Bay", board:"Bez wyżywienia", dates:"23–26 listopada 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"co-MT", stayLength:"3:3", airportCode:"WMI", departureDate:"2026-11-23", returnDate:"2026-11-26" }) , linkType:"search"},
   { id:2, flag:"🇪🇸", city:"Barcelona", country:"Hiszpania", price:1099, departure:"Warszawa", airportCode:"WAW", nights:3, weather:"22°C", score:9.2, tag:"DOBRA OPCJA", reason:"Dobry balans ceny, lotu i lokalizacji. Idealny krótki wypad.", image:"https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=1600&q=80", category:["city","weekend","cieplo"], hotel:"Hotel w centrum", board:"Śniadanie", dates:"wybrane terminy jesień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-BCN", stayLength:"3:3", airportCode:"WAW" }) , linkType:"search"},
   { id:3, flag:"🇹🇳", city:"Djerba", country:"Tunezja", price:1799, departure:"Warszawa", airportCode:"WAW", nights:7, weather:"26°C", score:9.4, tag:"BIERZEMY", reason:"7 nocy All Inclusive i ciepło — bardzo mocna relacja ceny do długości wyjazdu.", image:"https://images.unsplash.com/photo-1548018560-c7196548e84d?auto=format&fit=crop&w=1600&q=80", category:["plaza","cieplo","allinclusive"], hotel:"Resort 4★", board:"All Inclusive", dates:"wybrane terminy jesień 2026", partner:"exim", transferIncluded:true, ...eximDestination("/kierunki/tunezja/djerba"), linkType:"search"},
@@ -109,6 +111,58 @@ export const offers: Offer[] = [
   { id:35, flag:"🇵🇹", city:"Madera", country:"Portugalia", price:2599, departure:"Warszawa", airportCode:"WAW", nights:7, weather:"23°C", score:9.4, tag:"BIERZEMY", reason:"Dla osób, które chcą połączyć naturę, trekking i łagodny klimat przez cały rok.", image:"https://images.unsplash.com/photo-1548690395-0f879ee131bd?auto=format&fit=crop&w=1600&q=80", category:["cieplo","plaza"], hotel:"Hotel 4★", board:"Śniadanie", dates:"jesień–zima 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"co-PT", stayLength:"7:7", airportCode:"WAW" }) , linkType:"search"},
   { id:36, flag:"🇪🇸", city:"Malaga", country:"Hiszpania", price:1199, departure:"Warszawa", airportCode:"WAW", nights:4, weather:"24°C", score:9.2, tag:"BIERZEMY", reason:"Ciepła Andaluzja, plaża i stare miasto w jednym wyjeździe.", image:"https://images.unsplash.com/photo-1509840841025-9088ba78a826?auto=format&fit=crop&w=1600&q=80", category:["city","plaza","cieplo"], hotel:"Hotel 3★", board:"Śniadanie", dates:"jesień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-AGP", stayLength:"3:5", airportCode:"WAW" }) , linkType:"search"}
 ];
+
+
+export function getLinkMatch(offer: Offer): "exact" | "parameters" | "destination" | "unsafe" {
+  if (offer.linkMatch) return offer.linkMatch;
+  if (offer.linkType === "exact") return "exact";
+  if (offer.partner === "esky") return "parameters";
+  if (offer.partner === "tui") return "unsafe";
+  if (offer.destinationUrl) return "destination";
+  return "unsafe";
+}
+
+export function linkPromiseLabel(offer: Offer) {
+  const match = getLinkMatch(offer);
+  if (match === "exact") return "konkretna oferta";
+  if (match === "parameters") return "wyszukiwanie z parametrami";
+  if (match === "destination") return "strona kierunku";
+  return "link niespójny";
+}
+
+type PublishedOverride = {
+  hidden?: boolean;
+  featured?: boolean;
+  price?: number;
+  affiliateUrl?: string;
+  imageUrl?: string;
+  note?: string;
+  updatedAt?: string;
+};
+
+export const publishedOfferOverrides = publishedOverridesRaw as Record<string, PublishedOverride>;
+
+export const offers: Offer[] = baseOffers
+  .map((offer) => ({ ...offer, linkMatch: getLinkMatch(offer) }))
+  .filter((offer) => offer.linkMatch !== "unsafe")
+  .filter((offer) => !publishedOfferOverrides[String(offer.id)]?.hidden)
+  .map((offer) => {
+    const override = publishedOfferOverrides[String(offer.id)];
+    if (!override) return offer;
+    return {
+      ...offer,
+      price: typeof override.price === "number" ? override.price : offer.price,
+      affiliateUrl: override.affiliateUrl || offer.affiliateUrl,
+      reason: override.note || offer.reason,
+      image: override.imageUrl || offer.image,
+    };
+  });
+
+export const featuredOfferIds = new Set(
+  Object.entries(publishedOfferOverrides)
+    .filter(([, value]) => Boolean(value.featured))
+    .map(([id]) => Number(id))
+);
 
 export const airportOptions = [
   { code: "WAW", label: "Warszawa Chopina" },
