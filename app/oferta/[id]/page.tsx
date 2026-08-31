@@ -7,7 +7,6 @@ import SiteFooter from "@/components/SiteFooter";
 import TravelImage from "@/components/TravelImage";
 import { offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
-import { getVerifiedImage } from "@/lib/verifiedImages";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
@@ -21,15 +20,13 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
   const o=offers.find(x=>x.id===Number(id));
   if(!o) notFound();
   const p=partners[o.partner];
-  const verifiedImage = getVerifiedImage(o.city);
-
   return <main>
     <SiteHeader/>
     <div className="shell">
       <div className="offer-detail-top"><Link href="/okazje"><ArrowLeft size={17}/> Wróć do okazji</Link></div>
       <section className="detail-hero">
         <div className="detail-image">
-          <TravelImage src={verifiedImage} alt={`${o.city}, ${o.country}`} className="detail-photo-img"/>
+          <TravelImage src={o.image} alt={`${o.city}, ${o.country}`} className="detail-photo-img"/>
           <span className={`badge ${o.tag==='BIERZEMY'?'hot':''}`}>{o.tag}</span>
         </div>
         <div className="detail-copy">
