@@ -3,12 +3,17 @@ import { notFound } from "next/navigation";
 import UnifiedPage from "@/components/UnifiedPage";
 import { findLegacy, legacyItems } from "@/lib/legacy";
 
-const systemPaths = ["okazje", "poradniki", "parkingi", "atrakcje", "esim"];
+const systemPaths = new Set(["/okazje", "/poradniki", "/parkingi", "/atrakcje", "/esim"]);
 
 export async function generateStaticParams() {
-  const legacy = legacyItems.map(item => ({ slug: item.path.split("/").filter(Boolean) }));
-  const system = systemPaths.map(path => ({ slug: [path] }));
-  return [...system, ...legacy];
+  const paths = new Set<string>();
+
+  for (const item of legacyItems) paths.add(item.path.replace(/^\//, ""));
+  for (const path of systemPaths) paths.add(path.replace(/^\//, ""));
+
+  return [...paths]
+    .filter(Boolean)
+    .map((path) => ({ slug: path.split("/").filter(Boolean) }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
@@ -31,7 +36,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function RoutePage({ params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
   const path = "/" + slug.join("/");
-  const content = <UnifiedPage path={path} />;
-  if (!systemPaths.includes(slug[0]) && !findLegacy(path)) notFound();
-  return content;
+  const isSystemPath = systemPaths.has(path);
+  const legacyItem = findLegacy(path);
+
+  if (!isSystemPath && !legacyItem) notFound();
+
+  return <UnifiedPage path={path} />;
 }
