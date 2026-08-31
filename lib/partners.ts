@@ -67,8 +67,22 @@ export const partners: Record<PartnerKey, Partner> = {
     description: "Pakiety wielu touroperatorów",
     commissionType: "cps",
     trackingId: "3212",
-    buildUrl: () =>
-      "https://www.wakacje.pl/?utm_source=travellead&utm_medium=cps&utm_campaign=3212-tripownia.pl&a_cid=11111111&a_aid=3212",
+    buildUrl: (destinationUrl = "https://www.wakacje.pl/") => {
+      const url = new URL(destinationUrl);
+
+      // Zachowujemy konkretną ścieżkę oferty/hotelu i tylko dokładamy tracking.
+      // Dzięki temu deep link nie wraca na homepage Wakacje.pl.
+      url.searchParams.set("utm_source", "travellead");
+      url.searchParams.set("utm_medium", "cps");
+      url.searchParams.set("utm_campaign", "3212-tripownia.pl");
+      url.searchParams.set("a_aid", "3212");
+
+      if (!url.searchParams.has("a_cid")) {
+        url.searchParams.set("a_cid", "tripownia");
+      }
+
+      return url.toString();
+    },
   },
   exim: {
     key: "exim",
