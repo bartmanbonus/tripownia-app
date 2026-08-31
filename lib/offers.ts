@@ -58,6 +58,7 @@ const esky = ({
   url.searchParams.set("departurePlaces", departurePlace);
   url.searchParams.set("selectedDeparturePlaces", departurePlace);
   url.searchParams.set("context", "pl-packages");
+  url.searchParams.set("sort[TotalPrice]", "asc");
   if (departureDate) url.searchParams.set("departureDate", departureDate);
   if (returnDate) url.searchParams.set("returnDate", returnDate);
   return partners.esky.buildUrl(url.toString());
