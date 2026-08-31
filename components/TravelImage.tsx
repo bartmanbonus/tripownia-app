@@ -18,8 +18,25 @@ export default function TravelImage({
   }, [src]);
 
   if (!src || failed) {
-    return <div className={`tripownia-image-empty ${className}`} role="img" aria-label={alt} />;
+    return (
+      <div className={`tripownia-image-empty ${className}`} role="img" aria-label={alt}>
+        <div className="tripownia-image-empty-inner">
+          <span className="tripownia-image-mark">✈</span>
+          <strong>{alt}</strong>
+          <small>Tripownia.pl</small>
+        </div>
+      </div>
+    );
   }
 
-  return <img src={src} alt={alt} className={className} loading="lazy" onError={() => setFailed(true)} />;
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={className}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+    />
+  );
 }
