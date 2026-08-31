@@ -26,7 +26,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       <div className="offer-detail-top"><Link href="/okazje"><ArrowLeft size={17}/> Wróć do okazji</Link></div>
       <section className="detail-hero">
         <div className="detail-image">
-          <TravelImage src={o.image} alt={`${o.city}, ${o.country}`} className="detail-photo-img"/>
+          <TravelImage city={o.city} country={o.country} alt={`${o.city}, ${o.country}`} className="detail-photo-img"/>
           <span className={`badge ${o.tag==='BIERZEMY'?'hot':''}`}>{o.tag}</span>
         </div>
         <div className="detail-copy">
