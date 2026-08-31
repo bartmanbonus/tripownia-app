@@ -213,6 +213,9 @@ body {
 
 .offer-body {
   padding: 19px;
+  display: flex;
+  flex-direction: column;
+  min-height: 330px;
 }
 
 .offer-topline {
@@ -281,6 +284,7 @@ body {
   line-height: 1.5;
   font-size: 13px;
   min-height: 58px;
+  margin-bottom: 18px;
 }
 
 .category-grid {
@@ -603,6 +607,9 @@ body {
   box-shadow: 0 8px 30px rgba(255,102,34,.08);
   position: relative;
   transition: .2s ease;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .offer-card:hover {
@@ -611,12 +618,16 @@ body {
 }
 
 .offer-image {
-  height: 250px;
+  aspect-ratio: 16 / 10;
+  height: auto;
+  min-height: 0;
   background-size: cover;
   background-position: center;
   position: relative;
-  background-color: #fff0e6;
+  background-color: #fff4ec;
   display: block;
+  overflow: hidden;
+  flex: 0 0 auto;
 }
 
 .heart {
@@ -638,6 +649,7 @@ body {
   background: #f3f1eb;
   color: var(--ink);
   text-decoration: none;
+  margin-top: auto;
 }
 
 .results-info {
@@ -1519,6 +1531,51 @@ body {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.tripownia-image-empty {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 78% 18%, rgba(255,255,255,.8) 0 8%, transparent 9%),
+    linear-gradient(145deg, #ffefe4 0%, #ffd2b6 42%, #ff8a2a 100%);
+  color: #1d1d1b;
+}
+
+.tripownia-image-empty-inner {
+  text-align: center;
+  padding: 24px;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+}
+
+.tripownia-image-empty-inner strong {
+  font-size: clamp(19px, 2vw, 27px);
+  line-height: 1.1;
+  max-width: 260px;
+}
+
+.tripownia-image-empty-inner small {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(29,29,27,.65);
+}
+
+.tripownia-image-mark {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,.78);
+  font-size: 23px;
+  box-shadow: 0 8px 24px rgba(99,45,15,.12);
 }
 
 .detail-image {
