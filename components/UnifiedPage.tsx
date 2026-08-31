@@ -7,6 +7,7 @@ import { legacyPosts, findLegacy } from "@/lib/legacy";
 import { isInternalAlias } from "@/lib/internalAliases";
 import { offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
+import PlanningInterest from "@/components/PlanningInterest";
 
 type ServiceType = "parkingi" | "atrakcje" | "esim" | "ubezpieczenia" | "transfery" | "wynajem-auta";
 
@@ -60,7 +61,7 @@ function PlanningPage() {
     ["Majówka 2027", "City breaki i krótkie wyjazdy z wykorzystaniem dni wolnych."],
     ["Lato 2027", "First minute, rodzinne wakacje i popularne kierunki plażowe."],
   ];
-  return <main><SiteHeader/><section className="shell hub-page"><div className="kicker">PLANUJ WCZEŚNIEJ</div><h1>Nie każdy wyjazd jest na jutro</h1><p className="hub-lead">Tripownia ma pomagać również wtedy, gdy planujesz kilka miesięcy do przodu. Zamiast zgadywać, czy „teraz jest tanio”, pokazujemy aktualne opcje i obserwujemy rynek.</p><div className="plan-ahead-grid">{periods.map(([title,desc])=><Link className="plan-ahead-card" href="/#wyszukiwarka" key={title}><small>PLAN PODRÓŻY</small><strong>{title}</strong><span>{desc}</span><b>Sprawdź kierunki →</b></Link>)}</div><div className="service-panel" style={{marginTop:28}}><div><h2>Docelowo: alert ceny</h2><p>Użytkownik wybierze okres, lotnisko i budżet. System będzie mógł zapamiętać zainteresowanie i poinformować o dobrej ofercie albo spadku ceny.</p></div><div><h2>Bez fałszywych obietnic</h2><p>Nie zakładamy, że wcześniejsza rezerwacja zawsze oznacza najniższą cenę. Pokazujemy bieżące dane i warunki konkretnej oferty.</p></div></div></section><SiteFooter/></main>;
+  return <main><SiteHeader/><section className="shell hub-page"><div className="kicker">PLANUJ WCZEŚNIEJ</div><h1>Nie każdy wyjazd jest na jutro</h1><p className="hub-lead">Tripownia ma pomagać również wtedy, gdy planujesz kilka miesięcy do przodu. Zamiast zgadywać, czy „teraz jest tanio”, pokazujemy aktualne opcje i obserwujemy rynek.</p><div className="plan-ahead-grid">{periods.map(([title,desc])=><Link className="plan-ahead-card" href="/#wyszukiwarka" key={title}><small>PLAN PODRÓŻY</small><strong>{title}</strong><span>{desc}</span><b>Sprawdź kierunki →</b></Link>)}</div><div className="service-panel" style={{marginTop:28}}><div><h2>Docelowo: alert ceny</h2><p>Użytkownik wybierze okres, lotnisko i budżet. System będzie mógł zapamiętać zainteresowanie i poinformować o dobrej ofercie albo spadku ceny.</p></div><div><h2>Bez fałszywych obietnic</h2><p>Nie zakładamy, że wcześniejsza rezerwacja zawsze oznacza najniższą cenę. Pokazujemy bieżące dane i warunki konkretnej oferty.</p></div></div><PlanningInterest/></section><SiteFooter/></main>;
 }
 
 function humanize(path: string) {
