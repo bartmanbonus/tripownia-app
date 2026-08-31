@@ -4,7 +4,10 @@ import AdminOfferAudit from "@/components/AdminOfferAudit";
 import AdminOfferEditor from "@/components/AdminOfferEditor";
 import AdminPublishPanel from "@/components/AdminPublishPanel";
 
-export const metadata = { title: "Panel administracyjny | Tripownia.pl" };
+export const metadata = {
+  title: "Panel administracyjny | Tripownia.pl",
+  robots: { index: false, follow: false },
+};
 
 export default function AdminPage() {
   return (
