@@ -5,7 +5,7 @@ import { ArrowLeft, ExternalLink, MapPin, Moon, Plane, Sun, Utensils } from "luc
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TravelImage from "@/components/TravelImage";
-import { offers } from "@/lib/offers";
+import { getLinkMatch, offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import BeforeYouGo from "@/components/BeforeYouGo";
 
@@ -21,6 +21,9 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
   const o=offers.find(x=>x.id===Number(id));
   if(!o) notFound();
   const p=partners[o.partner];
+  const linkMatch = getLinkMatch(o);
+  const isExact = linkMatch === "exact";
+  const isParameterized = linkMatch === "parameters";
   return <main>
     <SiteHeader/>
     <div className="shell">
@@ -33,13 +36,21 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
         <div className="detail-copy">
           <div className="eyebrow">{o.flag} {o.country}</div>
           <h1>{o.city}</h1>
-          <div className="detail-score"><strong>{o.score}</strong><span>/10 Tripownia Score</span></div>
-          <div className="detail-price">od <strong>{o.price} zł</strong> / os.</div>
-          <div className="price-status detail-price-status">Cena z zapisanej selekcji Tripowni — nie jest oznaczona jako cena live.</div>
+          <div className="detail-score"><strong>{o.score}</strong><span>/10 Tripownia poleca</span></div>
+          <div className="detail-price">{isExact ? "od" : "ostatnio od"} <strong>{o.price} zł</strong> / os.</div>
+          <div className="price-status detail-price-status">
+            {isExact
+              ? "Cena dotyczy konkretnej zapisanej oferty. Aktualną cenę i dostępność potwierdza partner."
+              : isParameterized
+                ? "To cena z ostatniej selekcji Tripowni. Link otwiera wyszukiwanie z możliwie zbliżonymi parametrami, a aktualne wyniki mogą się różnić."
+                : "To cena orientacyjna z ostatniej selekcji Tripowni. Link otwiera stronę kierunku, a nie dokładnie tę samą ofertę."}
+          </div>
           <p className="detail-lead">{o.reason}</p>
           <div className="detail-meta">
             <span><Plane/> {o.departure}</span><span><Moon/> {o.nights} nocy</span>
-            <span><Sun/> {o.weather}</span><span><Utensils/> {o.board}</span><span><MapPin/> {o.hotel}</span>
+            <span><Sun/> {o.weather}</span>
+            {isExact && <><span><Utensils/> {o.board}</span><span><MapPin/> {o.hotel}</span></>}
+            {!isExact && <span><MapPin/> {o.city}</span>}
           </div>
           <div className="detail-source">Źródło ceny: <strong>{p.name}</strong></div>
           {o.availabilityStatus === "expired" ? (
@@ -47,12 +58,18 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           ) : (
             <>
               <a className="primary-cta" href={o.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
-                {o.linkType === "exact" ? `Otwórz ofertę u ${p.name}` : `Sprawdź aktualne wyniki u ${p.name}`} <ExternalLink size={18}/>
+                {isExact
+                  ? `Sprawdź tę ofertę u ${p.name}`
+                  : isParameterized
+                    ? `Sprawdź aktualne wyniki u ${p.name}`
+                    : `Zobacz aktualne oferty: ${o.city} u ${p.name}`} <ExternalLink size={18}/>
               </a>
               <small className="affiliate-note">
-                {o.linkType === "exact"
+                {isExact
                   ? "Link prowadzi do konkretnej oferty partnera. Cena i dostępność mogą się zmienić."
-                  : "Link prowadzi do wyszukiwania lub strony kierunku odpowiadającej rekomendacji. Zapisana cena na Tripowni może różnić się od aktualnej ceny partnera."}
+                  : isParameterized
+                    ? "Przekazujemy partnerowi kierunek i dostępne parametry wyszukiwania. Partner pokazuje aktualne hotele i ceny."
+                    : "Link prowadzi do aktualnej strony kierunku partnera. Nie obiecujemy, że pierwsza widoczna oferta będzie odpowiadała zapisanej wcześniej cenie lub hotelowi."}
               </small>
             </>
           )}
