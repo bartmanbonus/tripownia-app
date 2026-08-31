@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import TravelImage from "@/components/TravelImage";
 import { offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
+import BeforeYouGo from "@/components/BeforeYouGo";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
@@ -57,6 +58,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           )}
         </div>
       </section>
+      <BeforeYouGo city={o.city} country={o.country} transferIncluded={o.transferIncluded}/>
     </div>
     <SiteFooter/>
   </main>;
