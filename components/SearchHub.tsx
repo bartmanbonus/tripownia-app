@@ -6,8 +6,13 @@ import OfferCard from "./OfferCard";
 import { airportOptions, destinationOptions, offers } from "@/lib/offers";
 
 const tabs = [
-  { id: "inspiracje", label: "Inspiracje" }, { id: "lot-hotel", label: "Lot + hotel" }, { id: "wakacje", label: "Wakacje" },
-  { id: "atrakcje", label: "Atrakcje" }, { id: "parking", label: "Parkingi" }, { id: "esim", label: "eSIM" },
+  { id: "inspiracje", label: "Inspiracje" },
+  { id: "city-break", label: "City break" },
+  { id: "lot-hotel", label: "Lot + hotel" },
+  { id: "wakacje", label: "Wakacje" },
+  { id: "atrakcje", label: "Atrakcje" },
+  { id: "parking", label: "Parkingi" },
+  { id: "esim", label: "eSIM" },
 ];
 
 function MultiSelect({
@@ -76,21 +81,53 @@ export default function SearchHub() {
   const airportSelectOptions = airportOptions.map(a => ({ value: a.code, label: a.label }));
   const destinationSelectOptions = destinationOptions.map(place => ({ value: place, label: place }));
 
-  const results = useMemo(() => offers.filter((offer) => {
-    const destinationMatch = !selectedDestinations.length || selectedDestinations.some(item => item === offer.country || item === `${offer.city}, ${offer.country}`);
-    const departureMatch = !selectedAirports.length || selectedAirports.includes(offer.airportCode);
-    const budgetMatch = offer.price <= budget;
-    const durationMatch = duration === "all" || (duration === "short" ? offer.nights <= 4 : duration === "week" ? offer.nights >= 5 && offer.nights <= 8 : offer.nights > 8);
-    const boardMatch = board === "all" || (board === "ai" ? offer.board.toLowerCase().includes("all inclusive") : !offer.board.toLowerCase().includes("all inclusive"));
-    const tabMatch = tab === "lot-hotel" ? offer.partner === "esky" : tab === "wakacje" ? ["wakacje","exim","tui"].includes(offer.partner) : true;
-    return destinationMatch && departureMatch && budgetMatch && durationMatch && boardMatch && tabMatch;
-  }), [selectedAirports, selectedDestinations, budget, duration, board, tab]);
+  const results = useMemo(() => offers
+    .filter((offer) => {
+      const destinationMatch = !selectedDestinations.length || selectedDestinations.some(item => item === offer.country || item === `${offer.city}, ${offer.country}`);
+      const departureMatch = !selectedAirports.length || selectedAirports.includes(offer.airportCode);
+      const budgetMatch = offer.price <= budget;
+
+      const tripDays = offer.nights + 1;
+      const durationMatch =
+        tab === "wakacje"
+          ? tripDays >= 6 && tripDays <= 10
+          : duration === "all" ||
+            (duration === "short"
+              ? offer.nights <= 4
+              : duration === "week"
+                ? offer.nights >= 5 && offer.nights <= 8
+                : offer.nights > 8);
+
+      const boardName = offer.board.toLowerCase();
+      const isAI = boardName.includes("all inclusive");
+      const isHB = boardName.includes("half board") || boardName.includes("hb") || boardName.includes("2 posił");
+      const hasBreakfast = boardName.includes("śniad");
+
+      const boardMatch =
+        board === "all" ||
+        (board === "ai" && isAI) ||
+        (board === "hb" && isHB) ||
+        (board === "breakfast" && hasBreakfast);
+
+      const tabMatch =
+        tab === "city-break"
+          ? offer.category.includes("city") && offer.nights <= 4 && hasBreakfast
+          : tab === "lot-hotel"
+            ? offer.partner === "esky"
+            : tab === "wakacje"
+              ? ["wakacje", "exim", "tui"].includes(offer.partner) && (isAI || isHB)
+              : true;
+
+      return destinationMatch && departureMatch && budgetMatch && durationMatch && boardMatch && tabMatch;
+    })
+    .sort((a, b) => a.price - b.price),
+  [selectedAirports, selectedDestinations, budget, duration, board, tab]);
 
   const specialistPath = tab === "atrakcje" ? "/atrakcje" : tab === "parking" ? "/parkingi" : tab === "esim" ? "/esim" : null;
   const shown = results.slice(0, visible);
 
   return <section className="search-hub shell" id="wyszukiwarka">
-    <div className="search-tabs">{tabs.map(item => <button key={item.id} onClick={() => { setTab(item.id); setSearched(false); setVisible(12); }} className={tab === item.id ? "active" : ""}>{item.label}</button>)}</div>
+    <div className="search-tabs">{tabs.map(item => <button key={item.id} onClick={() => { setTab(item.id); setBoard("all"); setSearched(false); setVisible(12); }} className={tab === item.id ? "active" : ""}>{item.label}</button>)}</div>
 
     {specialistPath ? <div className="special-search"><div className="special-icon">{tab === "parking" ? <Car/> : tab === "atrakcje" ? <Compass/> : <MapPin/>}</div><div><small>Wyniki Tripownia.pl najpierw pokazują kontekst</small><h3>{tab === "parking" ? "Znajdź parking przy lotnisku" : tab === "atrakcje" ? "Znajdź atrakcje na miejscu" : "Internet na wyjazd bez roamingu"}</h3><p>Zobacz wskazówki i opcje na Tripowni. Dopiero przy konkretnej rezerwacji przejdziesz do partnera.</p></div><a className="primary-cta compact" href={specialistPath}>Przejdź do działu →</a></div> : <>
       <div className="compact-search-row">
@@ -99,7 +136,12 @@ export default function SearchHub() {
 
         <label className="compact-select"><span><CalendarDays size={16}/> Na ile?</span><select value={duration} onChange={e=>{setDuration(e.target.value);setVisible(12)}}><option value="all">Dowolnie</option><option value="short">2–4 noce</option><option value="week">5–8 nocy</option><option value="long">9+ nocy</option></select></label>
         <label className="compact-select"><span><WalletCards size={16}/> Budżet / os.</span><select value={budget} onChange={e=>{setBudget(Number(e.target.value));setVisible(12)}}><option value="1000">do 1 000 zł</option><option value="1500">do 1 500 zł</option><option value="2000">do 2 000 zł</option><option value="3000">do 3 000 zł</option><option value="5000">do 5 000 zł</option><option value="10000">bez ograniczenia</option></select></label>
-        <label className="compact-select"><span><Users size={16}/> Wyżywienie</span><select value={board} onChange={e=>{setBoard(e.target.value);setVisible(12)}}><option value="all">Dowolne</option><option value="ai">All Inclusive</option><option value="other">Bez All Inclusive</option></select></label>
+        <label className="compact-select"><span><Users size={16}/> Wyżywienie</span><select value={board} onChange={e=>{setBoard(e.target.value);setVisible(12)}}>
+          <option value="all">Dowolne</option>
+          {tab === "wakacje" && <><option value="ai">All Inclusive</option><option value="hb">HB / 2 posiłki</option></>}
+          {tab === "city-break" && <option value="breakfast">Śniadanie</option>}
+          {!["wakacje","city-break"].includes(tab) && <><option value="ai">All Inclusive</option><option value="hb">HB / 2 posiłki</option><option value="breakfast">Śniadanie</option></>}
+        </select></label>
         <button className="search-submit compact-submit" onClick={()=>{setSearched(true);setVisible(12)}}><Search size={19}/> Pokaż wyniki</button>
       </div>
 
