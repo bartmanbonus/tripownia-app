@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Plane, Moon, Sun, ArrowRight } from "lucide-react";
+import { Heart, Plane, Moon, Sun, ArrowRight, Clock3 } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import TravelImage from "@/components/TravelImage";
@@ -37,7 +37,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           <div className="score"><strong>{offer.score}</strong><span>/10</span></div>
         </div>
         <div className="price">od <strong>{offer.price} zł</strong> <span>/ os.</span></div>
-        <div className="price-status">Cena z zapisanej selekcji · aktualną cenę sprawdzisz u partnera</div>
+        <div className="price-status"><Clock3 size={13}/> {offer.linkType === "exact" ? "Konkretna oferta · cena może zmienić się u partnera" : "Cena z selekcji · link otwiera aktualne wyniki dla kierunku"}</div>
         <div className="partner-chip">Rekomendacja Tripownia.pl · partner: <strong>{partners[offer.partner].name}</strong></div>
         <div className="meta">
           <span><Plane size={15}/> {offer.departure}</span>
