@@ -106,3 +106,29 @@ export const offers: Offer[] = [
   { id:35, flag:"🇵🇹", city:"Madera", country:"Portugalia", price:2599, departure:"Warszawa", airportCode:"WAW", nights:7, weather:"23°C", score:9.4, tag:"BIERZEMY", reason:"Dla osób, które chcą połączyć naturę, trekking i łagodny klimat przez cały rok.", image:"https://images.unsplash.com/photo-1548690395-0f879ee131bd?auto=format&fit=crop&w=1600&q=80", category:["cieplo","plaza"], hotel:"Hotel 4★", board:"Śniadanie", dates:"jesień–zima 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"co-PT", stayLength:"7:7", airportCode:"WAW" }) , linkType:"search"},
   { id:36, flag:"🇪🇸", city:"Malaga", country:"Hiszpania", price:1199, departure:"Warszawa", airportCode:"WAW", nights:4, weather:"24°C", score:9.2, tag:"BIERZEMY", reason:"Ciepła Andaluzja, plaża i stare miasto w jednym wyjeździe.", image:"https://images.unsplash.com/photo-1509840841025-9088ba78a826?auto=format&fit=crop&w=1600&q=80", category:["city","plaza","cieplo"], hotel:"Hotel 3★", board:"Śniadanie", dates:"jesień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-AGP", stayLength:"3:5", airportCode:"WAW" }) , linkType:"search"}
 ];
+
+export const airportOptions = [
+  { code: "WAW", label: "Warszawa Chopina" },
+  { code: "WMI", label: "Warszawa Modlin" },
+  { code: "KRK", label: "Kraków" },
+  { code: "KTW", label: "Katowice" },
+  { code: "GDN", label: "Gdańsk" },
+  { code: "WRO", label: "Wrocław" },
+  { code: "POZ", label: "Poznań" },
+  { code: "RZE", label: "Rzeszów" },
+  { code: "LCJ", label: "Łódź" },
+  { code: "LUZ", label: "Lublin" },
+  { code: "SZZ", label: "Szczecin" },
+  { code: "BZG", label: "Bydgoszcz" },
+  { code: "IEG", label: "Zielona Góra" },
+];
+
+export const destinationOptions = Array.from(
+  new Set(
+    offers.flatMap((offer) => [
+      offer.country,
+      `${offer.city}, ${offer.country}`,
+    ])
+  )
+).sort((a, b) => a.localeCompare(b, "pl"));
+
