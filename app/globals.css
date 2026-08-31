@@ -1,6 +1,4 @@
-/* Tripownia — clean stylesheet v22
-   Consolidated from previous v2/v3/v5/v8 patches.
-   No cumulative override layers: each exact selector is defined once per scope. */
+/* Tripownia.pl — główny arkusz stylów */
 :root {
   --bg: #fbfaf7;
   --ink: #141414;
