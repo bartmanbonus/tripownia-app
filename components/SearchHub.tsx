@@ -4,6 +4,7 @@ import { useMemo, useRef, useState, useEffect } from "react";
 import { CalendarDays, Car, Compass, MapPin, Search, Users, WalletCards, PlaneTakeoff, Check, ChevronDown, X } from "lucide-react";
 import OfferCard from "./OfferCard";
 import { airportOptions, destinationOptions, offers } from "@/lib/offers";
+import { matchesPreset, recommendationScore, type SmartPreset } from "@/lib/offerQuality";
 
 const tabs = [
   { id: "inspiracje", label: "Inspiracje" },
@@ -77,6 +78,8 @@ export default function SearchHub() {
   const [board, setBoard] = useState("all");
   const [searched, setSearched] = useState(false);
   const [visible, setVisible] = useState(12);
+  const [preset, setPreset] = useState<SmartPreset>("all");
+  const [sort, setSort] = useState<"recommended" | "price" | "score">("recommended");
 
   const airportSelectOptions = airportOptions.map(a => ({ value: a.code, label: a.label }));
   const destinationSelectOptions = destinationOptions.map(place => ({ value: place, label: place }));
@@ -86,6 +89,7 @@ export default function SearchHub() {
       const destinationMatch = !selectedDestinations.length || selectedDestinations.some(item => item === offer.country || item === `${offer.city}, ${offer.country}`);
       const departureMatch = !selectedAirports.length || selectedAirports.includes(offer.airportCode);
       const budgetMatch = offer.price <= budget;
+      const presetMatch = matchesPreset(offer, preset);
 
       const tripDays = offer.nights + 1;
       const durationMatch =
@@ -118,15 +122,30 @@ export default function SearchHub() {
               ? ["wakacje", "exim", "tui"].includes(offer.partner) && (isAI || isHB)
               : true;
 
-      return destinationMatch && departureMatch && budgetMatch && durationMatch && boardMatch && tabMatch;
+      return destinationMatch && departureMatch && budgetMatch && durationMatch && boardMatch && tabMatch && presetMatch;
     })
-    .sort((a, b) => a.price - b.price),
-  [selectedAirports, selectedDestinations, budget, duration, board, tab]);
+    .sort((a, b) => {
+      if (sort === "price") return a.price - b.price;
+      if (sort === "score") return b.score - a.score;
+      return recommendationScore(b, preset) - recommendationScore(a, preset);
+    }),
+  [selectedAirports, selectedDestinations, budget, duration, board, tab, preset, sort]);
 
   const specialistPath = tab === "atrakcje" ? "/atrakcje" : tab === "parking" ? "/parkingi" : tab === "esim" ? "/esim" : null;
   const shown = results.slice(0, visible);
 
+  const presetButtons: { id: SmartPreset; label: string; emoji: string }[] = [
+    { id: "all", label: "Dla mnie", emoji: "✨" },
+    { id: "cheap", label: "Najtaniej", emoji: "💸" },
+    { id: "warm", label: "Chcę ciepła", emoji: "☀️" },
+    { id: "city", label: "City break", emoji: "🏙️" },
+    { id: "allinclusive", label: "All Inclusive", emoji: "🍹" },
+    { id: "discover", label: "Coś mniej oczywistego", emoji: "🧭" },
+  ];
+
   return <section className="search-hub shell" id="wyszukiwarka">
+    <div className="smart-finder-head"><div><small>POWIEDZ TYLKO, NA CO MASZ OCHOTĘ</small><h2>Tripownia zawęzi wybór za Ciebie</h2><p>Nie przekopuj setek ofert. Zacznij od jednego pomysłu albo ustaw dokładne filtry.</p></div></div>
+    <div className="smart-presets">{presetButtons.map(item => <button type="button" key={item.id} className={preset === item.id ? "active" : ""} onClick={() => { setPreset(item.id); setSearched(true); setVisible(12); }}><span>{item.emoji}</span>{item.label}</button>)}</div>
     <div className="search-tabs">{tabs.map(item => <button key={item.id} onClick={() => { setTab(item.id); setBoard("all"); setSearched(false); setVisible(12); }} className={tab === item.id ? "active" : ""}>{item.label}</button>)}</div>
 
     {specialistPath ? <div className="special-search"><div className="special-icon">{tab === "parking" ? <Car/> : tab === "atrakcje" ? <Compass/> : <MapPin/>}</div><div><small>Wyniki Tripownia.pl najpierw pokazują kontekst</small><h3>{tab === "parking" ? "Znajdź parking przy lotnisku" : tab === "atrakcje" ? "Znajdź atrakcje na miejscu" : "Internet na wyjazd bez roamingu"}</h3><p>Zobacz wskazówki i opcje na Tripowni. Dopiero przy konkretnej rezerwacji przejdziesz do partnera.</p></div><a className="primary-cta compact" href={specialistPath}>Przejdź do działu →</a></div> : <>
@@ -145,7 +164,7 @@ export default function SearchHub() {
         <button className="search-submit compact-submit" onClick={()=>{setSearched(true);setVisible(12)}}><Search size={19}/> Pokaż wyniki</button>
       </div>
 
-      {(searched || tab === "inspiracje" || tab === "lot-hotel" || tab === "wakacje") && <div className="search-results-block"><div className="search-results-heading"><div><small>WYNIKI TRIPOWNIA.PL</small><h3>{results.length ? `${results.length} dopasowanych ofert` : "Nie znaleźliśmy oferty"}</h3></div><span>Najpierw pokazujemy wynik na Tripownia.pl. Dopiero potem możesz przejść do partnera przez link afiliacyjny.</span></div><div className="cards-grid">{shown.map(o => <OfferCard key={o.id} offer={o}/>)}</div>{results.length > visible && <div style={{display:"flex",justifyContent:"center",marginTop:24}}><button className="search-submit" onClick={()=>setVisible(v=>v+12)}>Pokaż więcej ({results.length-visible})</button></div>}{!results.length && <div className="empty-search">Spróbuj wybrać „Gdziekolwiek”, zwiększ budżet albo zaznacz mniej filtrów.</div>}</div>}
+      {(searched || tab === "inspiracje" || tab === "lot-hotel" || tab === "wakacje") && <div className="search-results-block"><div className="search-results-heading"><div><small>WYNIKI TRIPOWNIA.PL</small><h3>{results.length ? `${results.length} dopasowanych ofert` : "Nie znaleźliśmy oferty"}</h3><span>Najpierw pokazujemy wynik na Tripownia.pl. Dopiero potem możesz przejść do partnera przez link afiliacyjny.</span></div><label className="results-sort">Sortuj<select value={sort} onChange={e=>setSort(e.target.value as "recommended" | "price" | "score")}><option value="recommended">Polecane przez Tripownię</option><option value="price">Najniższa cena</option><option value="score">Najwyższa ocena</option></select></label></div><div className="cards-grid">{shown.map(o => <OfferCard key={o.id} offer={o}/>)}</div>{results.length > visible && <div style={{display:"flex",justifyContent:"center",marginTop:24}}><button className="search-submit" onClick={()=>setVisible(v=>v+12)}>Pokaż więcej ({results.length-visible})</button></div>}{!results.length && <div className="empty-search">Spróbuj wybrać „Gdziekolwiek”, zwiększ budżet albo zaznacz mniej filtrów.</div>}<div className="future-planner-nudge"><div><strong>🗓️ Szukasz Sylwestra, ferii, Majówki albo lata 2027?</strong><span>Nie udajemy, że mamy aktualną cenę, jeśli partner jeszcze jej nie podał. Zobacz planer i wróć do konkretnych ofert, gdy są dostępne.</span></div><a href="/planowanie-podrozy">Planuj z wyprzedzeniem →</a></div></div>}
     </>}
   </section>;
 }
