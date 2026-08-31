@@ -25,7 +25,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   return (
     <article className="offer-card">
       <Link href={`/oferta/${offer.id}`} className="offer-image" aria-label={`Otwórz ofertę ${offer.city}`}>
-        <TravelImage src={offer.image} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" />
+        <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" />
         <span className={`badge ${offer.tag === "BIERZEMY" ? "hot" : ""}`}>{offer.tag}</span>
       </Link>
       <button className="heart" aria-label="Dodaj do ulubionych" onClick={toggleLike}>
