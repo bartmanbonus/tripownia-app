@@ -7,6 +7,7 @@ type Props = {
   country: string;
   alt: string;
   className?: string;
+  overrideSrc?: string;
 };
 
 type ApiResponse = {
@@ -16,7 +17,7 @@ type ApiResponse = {
 
 const memoryCache = new Map<string, string>();
 
-export default function TravelImage({ city, country, alt, className = "" }: Props) {
+export default function TravelImage({ city, country, alt, className = "", overrideSrc }: Props) {
   const cacheKey = `${city}|${country}`;
   const [src, setSrc] = useState<string | null>(() => memoryCache.get(cacheKey) || null);
   const [loading, setLoading] = useState(!memoryCache.has(cacheKey));
@@ -50,6 +51,18 @@ export default function TravelImage({ city, country, alt, className = "" }: Prop
 
     return () => controller.abort();
   }, [cacheKey, city, country]);
+
+  if (overrideSrc) {
+    return (
+      <img
+        src={overrideSrc}
+        alt={alt}
+        className={className}
+        loading="lazy"
+        decoding="async"
+      />
+    );
+  }
 
   if (loading || failed || !src) {
     return (
