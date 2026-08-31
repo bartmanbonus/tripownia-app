@@ -1,6 +1,7 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AdminOfferAudit from "@/components/AdminOfferAudit";
+import AdminOfferEditor from "@/components/AdminOfferEditor";
 
 export const metadata = { title: "Panel administracyjny | Tripownia.pl" };
 
@@ -20,6 +21,9 @@ export default function AdminPage() {
         <div className="admin-alert">
           <strong>Najważniejsza zasada:</strong>
           <span>Oferta bez konkretnego deeplinku albo daty sprawdzenia ceny nie może udawać oferty live.</span>
+        </div>
+        <div className="admin-panel">
+          <AdminOfferEditor/>
         </div>
         <div className="admin-panel">
           <div className="admin-panel-head">
