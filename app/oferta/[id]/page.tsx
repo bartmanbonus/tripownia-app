@@ -51,6 +51,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <span><Sun/> {o.weather}</span>
             {isExact && <><span><Utensils/> {o.board}</span><span><MapPin/> {o.hotel}</span></>}
             {!isExact && <span><MapPin/> {o.city}</span>}
+            {o.mealPreference === "breakfast" && <span><Utensils/> Śniadanie — wybierz filtr u eSky</span>}
           </div>
           <div className="detail-source">Źródło ceny: <strong>{p.name}</strong></div>
           {o.availabilityStatus === "expired" ? (
@@ -68,7 +69,9 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
                 {isExact
                   ? "Link prowadzi do konkretnej oferty partnera. Cena i dostępność mogą się zmienić."
                   : isParameterized
-                    ? "Przekazujemy partnerowi kierunek i dostępne parametry wyszukiwania. Partner pokazuje aktualne hotele i ceny."
+                    ? o.mealPreference === "breakfast"
+                      ? "Przekazujemy partnerowi kierunek, lotnisko i długość pobytu. Po przejściu do eSky wybierz filtr „Śniadanie” — Tripownia rekomenduje city breaki w tej wersji."
+                      : "Przekazujemy partnerowi kierunek i dostępne parametry wyszukiwania. Partner pokazuje aktualne hotele i ceny."
                     : "Link prowadzi do aktualnej strony kierunku partnera. Nie obiecujemy, że pierwsza widoczna oferta będzie odpowiadała zapisanej wcześniej cenie lub hotelowi."}
               </small>
             </>
