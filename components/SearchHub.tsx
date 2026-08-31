@@ -69,7 +69,19 @@ function MultiSelect({
   </div>;
 }
 
-export default function SearchHub() {
+type SearchHubProps = {
+  initialAirports?: string[];
+  initialDestinations?: string[];
+  initialDuration?: string;
+  searchRequest?: number;
+};
+
+export default function SearchHub({
+  initialAirports = [],
+  initialDestinations = [],
+  initialDuration = "all",
+  searchRequest = 0,
+}: SearchHubProps) {
   const [tab, setTab] = useState("inspiracje");
   const [selectedAirports, setSelectedAirports] = useState<string[]>([]);
   const [selectedDestinations, setSelectedDestinations] = useState<string[]>([]);
@@ -80,6 +92,15 @@ export default function SearchHub() {
   const [visible, setVisible] = useState(12);
   const [preset, setPreset] = useState<SmartPreset>("all");
   const [sort, setSort] = useState<"recommended" | "price" | "score">("recommended");
+
+  useEffect(() => {
+    if (!searchRequest) return;
+    setSelectedAirports(initialAirports);
+    setSelectedDestinations(initialDestinations);
+    setDuration(initialDuration);
+    setSearched(true);
+    setVisible(12);
+  }, [searchRequest, initialAirports, initialDestinations, initialDuration]);
 
   const airportSelectOptions = airportOptions.map(a => ({ value: a.code, label: a.label }));
   const destinationSelectOptions = destinationOptions.map(place => ({ value: place, label: place }));

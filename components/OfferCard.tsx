@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star } from "lucide-react";
 import type { Offer } from "@/lib/offers";
+import { featuredOfferIds, publishedOfferOverrides, getLinkMatch } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import TravelImage from "@/components/TravelImage";
 import { useEffect, useMemo, useState } from "react";
@@ -23,8 +24,12 @@ export default function OfferCard({ offer }: { offer: Offer }) {
     return () => window.removeEventListener("tripownia-offer-overrides-updated", load as EventListener);
   }, [offer.id]);
 
+  const publishedOverride = publishedOfferOverrides[String(offer.id)] || {};
   const displayPrice = override.price ?? offer.price;
   const displayUrl = override.affiliateUrl || offer.affiliateUrl;
+  const displayImage = override.imageUrl || publishedOverride.imageUrl;
+  const isFeatured = override.featured ?? featuredOfferIds.has(offer.id);
+  const linkMatch = getLinkMatch(offer);
 
   function toggleLike() {
     const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
@@ -37,17 +42,17 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   if (override.hidden) return null;
 
   return (
-    <article className={`offer-card ${override.featured ? "offer-card-featured" : ""}`}>
+    <article className={`offer-card ${isFeatured ? "offer-card-featured" : ""}`}>
       <Link href={`/oferta/${offer.id}`} className="offer-image" aria-label={`Otwórz ofertę ${offer.city}`}>
         <TravelImage
           city={offer.city}
           country={offer.country}
           alt={`${offer.city}, ${offer.country}`}
           className="offer-photo-img"
-          overrideSrc={override.imageUrl}
+          overrideSrc={displayImage}
         />
         <span className={`badge ${offer.tag === "BIERZEMY" ? "hot" : ""}`}>{offer.tag}</span>
-        {override.featured && <span className="admin-featured-badge"><Star size={12} fill="currentColor"/> HIT</span>}
+        {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor"/> HIT</span>}
       </Link>
 
       <button className="heart" aria-label="Dodaj do ulubionych" onClick={toggleLike}>
@@ -64,9 +69,11 @@ export default function OfferCard({ offer }: { offer: Offer }) {
 
         <div className="price-status">
           <Clock3 size={13}/>
-          {offer.linkType === "exact"
-            ? "Konkretna oferta · cena może zmienić się u partnera"
-            : "Cena z selekcji · link otwiera aktualne wyniki dla kierunku"}
+          {linkMatch === "exact"
+            ? "Konkretna oferta · sprawdź aktualną cenę u partnera"
+            : linkMatch === "parameters"
+              ? "Ostatnio od tej ceny · link otwiera wyszukiwanie z podobnymi parametrami"
+              : "Cena z ostatniej selekcji · link otwiera aktualne oferty dla kierunku"}
         </div>
 
         <div className="partner-chip">
