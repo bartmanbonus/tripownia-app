@@ -2174,3 +2174,6 @@ body {
   .hero-searchbar select{max-width:none}
   .hero-searchbar button{margin-top:10px;width:100%;justify-content:center}
 }
+
+/* v45 — preferencja wyżywienia city break */
+.meal-preference-chip{margin-top:8px;padding:8px 10px;border-radius:9px;background:#fff8e8;border:1px solid #f1dfb7;font-size:10px;font-weight:800;color:#6f5724}
