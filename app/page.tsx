@@ -9,7 +9,7 @@ import { ArrowRight, Flame, Search, Sparkles, Sun, WalletCards, PlaneTakeoff, Pa
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
 import TodayResults from "@/components/TodayResults";
-import { offers } from "@/lib/offers";
+import { airportOptions, destinationOptions, offers } from "@/lib/offers";
 
 const categories = [
   { id: "cieplo", label: "Chcę słońca", icon: Sun }, { id: "tanio", label: "Polecieć tanio", icon: WalletCards },
@@ -22,6 +22,10 @@ export default function Home() {
   const [budget, setBudget] = useState(2500);
   const [surprise, setSurprise] = useState<(typeof offers)[number] | null>(null);
   const [favorites, setFavorites] = useState(0);
+  const [heroAirport, setHeroAirport] = useState("all");
+  const [heroDestination, setHeroDestination] = useState("all");
+  const [heroDuration, setHeroDuration] = useState("all");
+  const [searchRequest, setSearchRequest] = useState(0);
   const filtered = useMemo(() => offers.filter(o => (!category || o.category.includes(category)) && o.price <= budget), [category, budget]);
 
   useEffect(() => {
@@ -29,7 +33,10 @@ export default function Home() {
     update(); window.addEventListener("tripownia-favorites-updated", update); return () => window.removeEventListener("tripownia-favorites-updated", update);
   }, []);
   function pickSurprise() { const pool = offers.filter(o => o.price <= budget); setSurprise(pool[Math.floor(Math.random() * pool.length)] ?? offers[0]); }
-  function showTrips() { document.getElementById("wyszukiwarka")?.scrollIntoView({ behavior: "smooth" }); }
+  function showTrips() {
+    setSearchRequest(v => v + 1);
+    setTimeout(() => document.getElementById("wyszukiwarka")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+  }
 
   return <main>
     <SiteHeader />
@@ -37,12 +44,22 @@ export default function Home() {
       <div className="hero-copy"><div className="pill"><Flame size={16}/> Codziennie nowe selekcje</div>
       <h1>Nie szukaj godzinami.<br/><span>My szukamy. Ty lecisz.</span></h1>
       <p>Wyniki Tripownia.pl pokazują tylko te podróże, które naprawdę mają sens: dobra cena, sensowny lot, dobry termin i kierunek wart wyjazdu.</p>
-      <div className="searchbar"><div><small>Skąd?</small><strong>Wszystkie lotniska</strong></div><div><small>Dokąd?</small><strong>Gdziekolwiek</strong></div><div><small>Na ile?</small><strong>Dowolnie</strong></div><button onClick={showTrips}><Search size={18}/> Ustaw filtry</button></div>
+      <div className="searchbar hero-searchbar">
+        <label><small>Skąd?</small><select value={heroAirport} onChange={e=>setHeroAirport(e.target.value)}><option value="all">Wszystkie lotniska</option>{airportOptions.map(a=><option key={a.code} value={a.code}>{a.label}</option>)}</select></label>
+        <label><small>Dokąd?</small><select value={heroDestination} onChange={e=>setHeroDestination(e.target.value)}><option value="all">Gdziekolwiek</option>{destinationOptions.map(d=><option key={d} value={d}>{d}</option>)}</select></label>
+        <label><small>Na ile?</small><select value={heroDuration} onChange={e=>setHeroDuration(e.target.value)}><option value="all">Dowolnie</option><option value="short">2–4 noce</option><option value="week">5–8 nocy</option><option value="long">9+ nocy</option></select></label>
+        <button type="button" onClick={showTrips}><Search size={18}/> Pokaż wyniki</button>
+      </div>
       <div className="trustline">Bez miliona wyników. Tylko to, co sami byśmy rozważyli.</div></div>
       <div className="hero-brand-card"><Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={520} height={420} priority /><div className="hero-brand-tag">Podróże, które warto brać.</div></div>
     </div></section>
 
-    <SearchHub />
+    <SearchHub
+      initialAirports={heroAirport === "all" ? [] : [heroAirport]}
+      initialDestinations={heroDestination === "all" ? [] : [heroDestination]}
+      initialDuration={heroDuration}
+      searchRequest={searchRequest}
+    />
     <TodayResults />
 
     <section className="section shell" id="okazje"><div className="section-heading"><div><div className="kicker">WYNIKI TRIPOWNIA.PL</div><h2>Dziś bralibyśmy te</h2></div><Link href="/okazje">Zobacz wszystkie <ArrowRight size={16}/></Link></div><div className="cards-grid">{offers.slice(0,3).map(o => <OfferCard offer={o} key={o.id}/>)}</div></section>

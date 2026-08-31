@@ -2161,3 +2161,16 @@ body {
 
 /* v42 — publikacja GitHub -> Vercel, bez bazy */
 .admin-publish-panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px}.admin-publish-copy{display:flex;gap:14px;align-items:flex-start}.admin-publish-copy>svg{flex:none;margin-top:3px}.admin-publish-copy h2{margin:3px 0 6px;font-size:24px}.admin-publish-copy p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}.admin-publish-copy code{background:var(--soft);padding:2px 5px;border-radius:5px}.admin-publish-not-ready{margin-top:16px;background:#fff8df;border:1px solid #eee0a8;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;color:#695a27}.admin-publish-not-ready strong{font-size:12px}.admin-publish-not-ready span{font-size:11px;line-height:1.45}.admin-publish-form{display:flex;gap:8px;align-items:end;margin-top:16px}.admin-publish-form label{display:flex;flex-direction:column;gap:5px;font-size:11px;font-weight:850;flex:1;max-width:340px}.admin-publish-form input{border:1px solid var(--line);border-radius:10px;padding:11px}.admin-publish-form button{border:0;background:var(--accent);color:#fff;border-radius:10px;padding:11px 14px;font-weight:900;display:flex;align-items:center;gap:6px}.admin-publish-form button:disabled{opacity:.55}.admin-publish-status{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:11px;line-height:1.45}.admin-publish-safety{display:flex;align-items:flex-start;gap:7px;margin-top:13px;color:var(--muted);font-size:10px}.spin{animation:tripownia-spin .9s linear infinite}@keyframes tripownia-spin{to{transform:rotate(360deg)}}@media(max-width:620px){.admin-publish-form{flex-direction:column;align-items:stretch}.admin-publish-form label{max-width:none}}
+
+/* v44 — działająca wyszukiwarka hero */
+.hero-searchbar label{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0;padding:0 20px;border-right:1px solid var(--line)}
+.hero-searchbar label:first-child{padding-left:0}
+.hero-searchbar label small{font-size:11px;color:var(--muted)}
+.hero-searchbar select{width:100%;max-width:250px;border:0;background:transparent;color:var(--ink);font:inherit;font-size:14px;font-weight:850;outline:0;cursor:pointer;padding:0 24px 0 0}
+.hero-searchbar button{white-space:nowrap}
+@media(max-width:800px){
+  .hero-searchbar{display:grid!important;grid-template-columns:1fr!important;gap:0!important;padding:10px!important}
+  .hero-searchbar label{padding:11px 8px!important;border-right:0!important;border-bottom:1px solid var(--line)}
+  .hero-searchbar select{max-width:none}
+  .hero-searchbar button{margin-top:10px;width:100%;justify-content:center}
+}
