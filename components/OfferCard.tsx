@@ -40,6 +40,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           <div className="score"><strong>{offer.score}</strong><span>/10</span></div>
         </div>
         <div className="price">od <strong>{offer.price} zł</strong> <span>/ os.</span></div>
+        <div className="price-status">Cena z zapisanej selekcji · aktualną cenę sprawdzisz u partnera</div>
         <div className="partner-chip">Rekomendacja Tripownia.pl · partner: <strong>{partners[offer.partner].name}</strong></div>
         <div className="meta">
           <span><Plane size={15}/> {offer.departure}</span>
