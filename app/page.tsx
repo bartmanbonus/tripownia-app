@@ -8,6 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Flame, Search, Sparkles, Sun, WalletCards, PlaneTakeoff, Palmtree, Building2, Dice5 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
+import TodayResults from "@/components/TodayResults";
 import { offers } from "@/lib/offers";
 
 const categories = [
@@ -42,6 +43,7 @@ export default function Home() {
     </div></section>
 
     <SearchHub />
+    <TodayResults />
 
     <section className="section shell" id="okazje"><div className="section-heading"><div><div className="kicker">WYNIKI TRIPOWNIA.PL</div><h2>Dziś bralibyśmy te</h2></div><Link href="/okazje">Zobacz wszystkie <ArrowRight size={16}/></Link></div><div className="cards-grid">{offers.slice(0,3).map(o => <OfferCard offer={o} key={o.id}/>)}</div></section>
 
