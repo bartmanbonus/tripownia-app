@@ -1917,3 +1917,8 @@ body {
   }
 
 }
+
+/* P0 integrity: price freshness / expired-state messaging */
+.price-status{font-size:12px;line-height:1.35;color:#7b746f;margin-top:-4px;margin-bottom:10px}
+.detail-price-status{margin-top:6px;margin-bottom:14px;max-width:560px}
+.expired-offer{padding:14px 16px;border:1px solid #e7d9cf;border-radius:12px;background:#fff8f3;font-weight:700;color:#7a3d22}
