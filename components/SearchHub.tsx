@@ -7,6 +7,42 @@ import { airportOptions, destinationOptions, offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { matchesPreset, recommendationScore, type SmartPreset } from "@/lib/offerQuality";
 
+
+const flightDestinations: Record<string, { eskyType: "ap" | "ci" | "co"; eskyCode: string; slug: string; kiwiCode: string }> = {
+  "malta": { eskyType: "co", eskyCode: "mt", slug: "malta", kiwiCode: "MLA" },
+  "barcelona": { eskyType: "ci", eskyCode: "bcn", slug: "barcelona", kiwiCode: "BCN" },
+  "rzym": { eskyType: "ci", eskyCode: "rom", slug: "rzym", kiwiCode: "ROM" },
+  "porto": { eskyType: "ci", eskyCode: "opo", slug: "porto", kiwiCode: "OPO" },
+  "alicante": { eskyType: "ci", eskyCode: "alc", slug: "alicante", kiwiCode: "ALC" },
+  "pafos": { eskyType: "ci", eskyCode: "pfo", slug: "pafos", kiwiCode: "PFO" },
+  "madera": { eskyType: "ap", eskyCode: "fnc", slug: "funchal-madera", kiwiCode: "FNC" },
+  "teneryfa": { eskyType: "co", eskyCode: "es", slug: "hiszpania", kiwiCode: "TCI" },
+  "fuerteventura": { eskyType: "ap", eskyCode: "fue", slug: "fuerteventura", kiwiCode: "FUE" },
+  "majorka": { eskyType: "ap", eskyCode: "pmi", slug: "palma-de-mallorca", kiwiCode: "PMI" },
+  "malaga": { eskyType: "ci", eskyCode: "agp", slug: "malaga", kiwiCode: "AGP" },
+  "bergamo": { eskyType: "ci", eskyCode: "bgy", slug: "bergamo", kiwiCode: "BGY" },
+  "londyn": { eskyType: "ci", eskyCode: "lon", slug: "londyn", kiwiCode: "LON" },
+  "paryz": { eskyType: "ci", eskyCode: "par", slug: "paryz", kiwiCode: "PAR" },
+  "paryż": { eskyType: "ci", eskyCode: "par", slug: "paryz", kiwiCode: "PAR" },
+  "wieden": { eskyType: "ci", eskyCode: "vie", slug: "wieden", kiwiCode: "VIE" },
+  "wiedeń": { eskyType: "ci", eskyCode: "vie", slug: "wieden", kiwiCode: "VIE" },
+  "budapeszt": { eskyType: "ci", eskyCode: "bud", slug: "budapeszt", kiwiCode: "BUD" },
+  "praga": { eskyType: "ci", eskyCode: "prg", slug: "praga", kiwiCode: "PRG" },
+  "split": { eskyType: "ci", eskyCode: "spu", slug: "split", kiwiCode: "SPU" },
+  "neapol": { eskyType: "ci", eskyCode: "nap", slug: "neapol", kiwiCode: "NAP" },
+  "sewilla": { eskyType: "ci", eskyCode: "svq", slug: "sewilla", kiwiCode: "SVQ" },
+  "amsterdam": { eskyType: "ci", eskyCode: "ams", slug: "amsterdam", kiwiCode: "AMS" },
+  "kopenhaga": { eskyType: "ci", eskyCode: "cph", slug: "kopenhaga", kiwiCode: "CPH" },
+  "dubaj": { eskyType: "ci", eskyCode: "dxb", slug: "dubaj", kiwiCode: "DXB" },
+  "japonia": { eskyType: "co", eskyCode: "jp", slug: "japonia", kiwiCode: "TYO" },
+  "islandia": { eskyType: "co", eskyCode: "is", slug: "islandia", kiwiCode: "REK" },
+  "norwegia": { eskyType: "co", eskyCode: "no", slug: "norwegia", kiwiCode: "OSL" },
+};
+
+function normalizeFlightPlace(value: string) {
+  return value.trim().replace(/,.*$/, "").toLocaleLowerCase("pl");
+}
+
 const tabs = [
   { id: "inspiracje", label: "Inspiracje" },
   { id: "city-break", label: "City break" },
@@ -104,6 +140,19 @@ export default function SearchHub({
     setVisible(12);
   }, [searchRequest, initialAirports, initialDestinations, initialDuration]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const requestedTab = params.get("trip");
+    if (requestedTab && tabs.some(item => item.id === requestedTab)) {
+      setTab(requestedTab);
+      setSearched(true);
+    }
+    if (params.get("focus") === "destination") {
+      window.setTimeout(() => document.getElementById("tripownia-search-query")?.focus(), 250);
+    }
+  }, []);
+
   const airportSelectOptions = airportOptions.map(a => ({ value: a.code, label: a.label }));
   const destinationSelectOptions = destinationOptions.map(place => ({ value: place, label: place }));
 
@@ -186,13 +235,33 @@ export default function SearchHub({
   const displayed = displayResults.slice(0, visible);
 
   const partnerQuery = (selectedDestinations[0] || query.trim() || "wakacje").replace(/,.*$/, "").trim();
+  const normalizedPartnerQuery = normalizeFlightPlace(partnerQuery);
+  const flightDestination = flightDestinations[normalizedPartnerQuery];
+  const flightOrigin = selectedAirports[0] || "";
+
   const bookingSearchUrl = useMemo(() => {
     const url = new URL("https://www.booking.com/searchresults.html");
     if (partnerQuery && partnerQuery !== "wakacje") url.searchParams.set("ss", partnerQuery);
     return partners.booking.buildUrl(url.toString());
   }, [partnerQuery]);
-  const eskySearchUrl = partners.esky.buildUrl();
-  const kiwiSearchUrl = partners.kiwi.buildUrl();
+
+  const eskyFlightUrl = useMemo(() => {
+    if (!flightDestination) return partners.esky.buildUrl("https://www.esky.pl/tanie-loty/");
+    const fromPart = flightOrigin ? `ap/${flightOrigin.toLowerCase()}` : "0/0";
+    const destination = `${flightDestination.eskyType}/${flightDestination.eskyCode}/${flightDestination.slug}`;
+    return partners.esky.buildUrl(`https://www.esky.pl/tanie-loty/${fromPart}/${destination}`);
+  }, [flightDestination, flightOrigin]);
+
+  const kiwiSearchUrl = useMemo(() => {
+    const deep = new URL("https://www.kiwi.com/deep");
+    deep.searchParams.set("from", flightOrigin || "anywhere");
+    deep.searchParams.set("to", flightDestination?.kiwiCode || "anywhere");
+    deep.searchParams.set("sort", "price");
+    deep.searchParams.set("asc", "1");
+    deep.searchParams.set("currency", "PLN");
+    deep.searchParams.set("locale", "pl");
+    return partners.kiwi.buildUrl(deep.toString());
+  }, [flightDestination, flightOrigin]);
   const hasActiveFilters =
     Boolean(query.trim()) ||
     selectedAirports.length > 0 ||
@@ -281,9 +350,10 @@ export default function SearchHub({
       </div>}
 
       {(searched || tab === "inspiracje" || tab === "lot-hotel" || tab === "wakacje") && <div className="search-results-block"><div className="search-results-heading"><div><small>WYNIKI TRIPOWNIA.PL</small><h3>{results.length ? `${results.length} dopasowanych ofert` : `${fallbackOffers.length} najbliższych propozycji + wyszukiwanie u partnerów`}</h3><span>Najpierw pokazujemy wynik na Tripownia.pl. Dopiero potem możesz przejść do partnera przez link afiliacyjny.</span></div><label className="results-sort">Sortuj<select value={sort} onChange={e=>setSort(e.target.value as "recommended" | "price" | "score")}><option value="recommended">Polecane przez Tripownię</option><option value="price">Najniższa cena</option><option value="score">Najwyższa ocena</option></select></label></div><div className="cards-grid">{displayed.map(o => <OfferCard key={o.id} offer={o}/>)}</div>{displayResults.length > visible && <div style={{display:"flex",justifyContent:"center",marginTop:24}}><button className="search-submit" onClick={()=>setVisible(v=>v+12)}>Pokaż więcej ({displayResults.length-visible})</button></div>}{!results.length && <div className="search-fallback">
-        <div className="search-fallback-head"><small>POZA DZISIEJSZĄ SELEKCJĄ</small><h4>Nie ma identycznej kombinacji? Pokazujemy najbliższe sensowne oferty i szukamy dalej.</h4><p>Wyniki powyżej są najbliższym dopasowaniem z Tripownii. Poniżej możesz od razu przejść do pełnej oferty partnerów afiliacyjnych.</p></div>
-        <div className="partner-live-search"><div><strong>🔎 Szukaj dalej: {partnerQuery === "wakacje" ? "dowolny kierunek" : partnerQuery}</strong><span>Ceny i dostępność sprawdzisz już bezpośrednio u partnera.</span></div><div className="partner-live-actions"><a href={eskySearchUrl} target="_blank" rel="sponsored noopener noreferrer">✈️ Lot + hotel w eSky</a><a href={bookingSearchUrl} target="_blank" rel="sponsored noopener noreferrer">🏨 Noclegi Booking</a><a href={kiwiSearchUrl} target="_blank" rel="sponsored noopener noreferrer">🛫 Loty Kiwi.com</a></div></div>
-      </div>}<div className="empty-search-nudge"><div><strong>Chcesz zacząć szerzej?</strong><span>Wyczyść część filtrów albo zobacz wszystkie aktualnie wybrane okazje Tripownii.</span></div><a href="/okazje">Zobacz wszystkie okazje →</a></div></div>}
+        <div className="search-fallback-head"><small>POZA DZISIEJSZĄ SELEKCJĄ</small><h4>Nie ma identycznej kombinacji? Pokazujemy najbliższe sensowne oferty i szukamy dalej.</h4><p>Wyniki powyżej są najbliższym dopasowaniem z Tripownii.</p></div>
+      </div>}
+      <div className="partner-live-search"><div><strong>🔎 Pełny rynek: {partnerQuery === "wakacje" ? "dowolny kierunek" : partnerQuery}</strong><span>Po naszych rekomendacjach możesz od razu porównać loty i noclegi u partnerów.</span></div><div className="partner-live-actions"><a href={eskyFlightUrl} target="_blank" rel="sponsored noopener noreferrer">✈️ Tanie loty eSky</a><a href={kiwiSearchUrl} target="_blank" rel="sponsored noopener noreferrer">🛫 Kiwi — najniższa cena</a><a href={bookingSearchUrl} target="_blank" rel="sponsored noopener noreferrer">🏨 Noclegi Booking</a></div></div>
+      <div className="empty-search-nudge"><div><strong>Chcesz zacząć szerzej?</strong><span>Wyczyść część filtrów albo zobacz wszystkie aktualnie wybrane okazje Tripownii.</span></div><a href="/okazje">Zobacz wszystkie okazje →</a></div></div>}
     </>}
   </section>;
 }
