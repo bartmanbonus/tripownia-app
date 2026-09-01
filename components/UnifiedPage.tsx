@@ -59,6 +59,130 @@ function humanize(path: string) {
     .replace(/\b\w/g, (m) => m.toUpperCase());
 }
 
+
+const experiencePages: Record<string, {
+  kicker: string;
+  title: string;
+  season: string;
+  lead: string;
+  highlights: string[];
+}> = {
+  "/islandia-zorza-polarna": {
+    kicker: "PODRÓŻ PO PRZEŻYCIA",
+    title: "🌌 Zorza na Islandii",
+    season: "Najlepszy czas: wrzesień–marzec",
+    lead: "Wyjazd planowany pod ciemne noce, geotermię, wodospady i szansę zobaczenia zorzy polarnej — nie tylko pod sam Reykjavik.",
+    highlights: [
+      "Najwięcej godzin ciemności przypada na późną jesień i zimę.",
+      "Zorzę warto łączyć z Golden Circle, gorącymi źródłami i południowym wybrzeżem.",
+      "Nie da się zagwarantować zorzy — pogoda i aktywność słoneczna decydują o widoczności.",
+    ],
+  },
+  "/japonia-kwitnienie-wisni": {
+    kicker: "PODRÓŻ PO PRZEŻYCIA",
+    title: "🌸 Kwitnienie wiśni w Japonii",
+    season: "Najczęściej: marzec–kwiecień",
+    lead: "Podróż układana pod sakurę. Termin kwitnienia zmienia się z roku na rok i różni się pomiędzy południem, Tokio, Kioto i północą Japonii.",
+    highlights: [
+      "Tokio i Kioto zwykle są najmocniej oblegane w szczycie sezonu.",
+      "Warto zostawić elastyczność między miastami zamiast przywiązywać cały wyjazd do jednego dnia.",
+      "Prognozy kwitnienia najlepiej weryfikować ponownie krótko przed wyjazdem.",
+    ],
+  },
+  "/norwegia-fiordy": {
+    kicker: "PODRÓŻ PO PRZEŻYCIA",
+    title: "🏔️ Fiordy i białe noce",
+    season: "Najlepszy czas: maj–wrzesień",
+    lead: "Długie dni, trekking, wodospady i drogi widokowe. To kierunek, w którym pora roku mocno zmienia możliwości zwiedzania.",
+    highlights: [
+      "Późna wiosna i lato dają najwięcej czasu na trasy widokowe.",
+      "Czerwiec i lipiec oznaczają bardzo długie dni, szczególnie im dalej na północ.",
+      "Na trekkingach warunki mogą zmieniać się szybko nawet w środku lata.",
+    ],
+  },
+  "/nowa-zelandia-najlepszy-czas": {
+    kicker: "PODRÓŻ PO PRZEŻYCIA",
+    title: "🥾 Nowa Zelandia",
+    season: "Najlepszy czas: listopad–marzec",
+    lead: "Road trip, góry, trekking i lato na południowej półkuli. Taki wyjazd warto planować pod pogodę i trasę, a nie tylko pod najtańszy lot.",
+    highlights: [
+      "Grudzień–luty to lato i jednocześnie najbardziej popularny okres.",
+      "Wyspa Północna i Południowa mają różny klimat oraz zupełnie inne tempo podróży.",
+      "Przy krótszym wyjeździe lepiej wybrać jedną wyspę niż próbować zobaczyć wszystko.",
+    ],
+  },
+};
+
+function ExperiencePage({ path }: { path: string }) {
+  const page = experiencePages[path];
+  if (!page) return null;
+
+  const active = offers
+    .filter(o => o.availabilityStatus !== "expired")
+    .sort((a,b) => b.score - a.score)
+    .slice(0,4);
+
+  return <main>
+    <SiteHeader/>
+    <section className="shell experience-detail-page">
+      <div className="kicker">{page.kicker}</div>
+      <h1>{page.title}</h1>
+      <div className="experience-season">{page.season}</div>
+      <p className="hub-lead">{page.lead}</p>
+
+      <div className="experience-checklist">
+        {page.highlights.map((item, i) => <div key={item}>
+          <span>{i + 1}</span>
+          <p>{item}</p>
+        </div>)}
+      </div>
+
+      <div className="experience-actions">
+        <Link className="primary-cta" href="/#wyszukiwarka">Sprawdź aktualne okazje →</Link>
+        <Link className="secondary-cta" href="/podroze-po-przezycia">← Kalendarz przeżyć</Link>
+      </div>
+
+      <section className="experience-current-offers">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">AKTUALNIE W TRIPOWNI</div>
+            <h2>Inne podróże, które warto sprawdzić</h2>
+            <p>Jeśli dziś nie mamy konkretnej oferty pod to przeżycie, nie podstawiamy przypadkowego linku. Pokazujemy tylko aktywne propozycje z bazy Tripowni.</p>
+          </div>
+        </div>
+        <div className="cards-grid">{active.map(o => <OfferCard key={o.id} offer={o}/>)}</div>
+      </section>
+    </section>
+    <SiteFooter/>
+  </main>;
+}
+
+function ExperiencesCalendarPage() {
+  const cards = [
+    ["/islandia-zorza-polarna","WRZESIEŃ–MARZEC","🌌 Zorza na Islandii","Ciemne noce, wodospady, geotermia i polowanie na zorzę."],
+    ["/japonia-kwitnienie-wisni","WIOSNA","🌸 Kwitnienie wiśni w Japonii","Wyjazd planowany pod sakurę, a nie tylko pod Tokio i Kioto."],
+    ["/norwegia-fiordy","MAJ–WRZESIEŃ","🏔️ Fiordy i białe noce","Długie dni, trekking i spektakularne trasy widokowe."],
+    ["/nowa-zelandia-najlepszy-czas","LISTOPAD–MARZEC","🥾 Nowa Zelandia","Road trip, góry i lato na południowej półkuli."],
+  ] as const;
+
+  return <main>
+    <SiteHeader/>
+    <section className="shell hub-page experience-calendar-page">
+      <div className="kicker">PODRÓŻE PO PRZEŻYCIA</div>
+      <h1>Kalendarz przeżyć</h1>
+      <p className="hub-lead">Niektóre podróże mają sens właśnie w konkretnym momencie roku. Wybierz zjawisko lub doświadczenie, a zobaczysz, kiedy i jak warto je zaplanować.</p>
+      <div className="discovery-grid">
+        {cards.map(([href, season, title, text]) =>
+          <Link key={href} className="discovery-card experience-calendar-card" href={href}>
+            <small>{season}</small><strong>{title}</strong><span>{text}</span><b>Otwórz →</b>
+          </Link>
+        )}
+      </div>
+    </section>
+    <SiteFooter/>
+  </main>;
+}
+
 function AliasLandingPage({ path }: { path: string }) {
   const title = humanize(path);
   const q = decodeURIComponent(path).toLocaleLowerCase("pl").replace(/[-/]/g," ");
@@ -107,6 +231,8 @@ export default function UnifiedPage({ path }: { path: string }) {
   if (path === "/ubezpieczenia") return <ServicePage type="ubezpieczenia"/>;
   if (path === "/transfery") return <ServicePage type="transfery"/>;
   if (path === "/wynajem-auta") return <ServicePage type="wynajem-auta"/>;
+  if (path === "/podroze-po-przezycia") return <ExperiencesCalendarPage/>;
+  if (experiencePages[path]) return <ExperiencePage path={path}/>;
 
   const item = findLegacy(path);
   if (item) return <LegacyPage item={item}/>;
