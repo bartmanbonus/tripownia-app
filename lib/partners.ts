@@ -48,6 +48,21 @@ function buildTradeDoublerDeepLink({
   return `${host}?${params.toString()}`;
 }
 
+
+export function buildEskyFlightsUrl(destinationUrl = "https://www.esky.pl/tanie-loty/") {
+  const url = new URL(destinationUrl);
+  url.searchParams.set("partner_id", "TRIPOWNIAPL");
+  return url.toString();
+}
+
+export function buildEskyPackagesUrl(destinationUrl = "https://www2.esky.pl/lot+hotel/portfolio?context=pl-packages") {
+  const url = new URL(destinationUrl);
+  url.searchParams.set("partner_id", "TRIPOWNIAPLPACKAGES");
+  if (!url.searchParams.has("context")) url.searchParams.set("context", "pl-packages");
+  if (!url.searchParams.has("sort[TotalPrice]")) url.searchParams.set("sort[TotalPrice]", "asc");
+  return url.toString();
+}
+
 export const partners: Record<PartnerKey, Partner> = {
   esky: {
     key: "esky",
@@ -56,13 +71,8 @@ export const partners: Record<PartnerKey, Partner> = {
     description: "Lot + hotel i city breaki",
     commissionType: "unknown",
     trackingId: "TRIPOWNIAPLPACKAGES",
-    buildUrl: (destinationUrl = "https://www2.esky.pl/lot+hotel/portfolio?context=pl-packages") => {
-      const url = new URL(destinationUrl);
-      if (!url.searchParams.has("partner_id")) {
-        url.searchParams.set("partner_id", "TRIPOWNIAPLPACKAGES");
-      }
-      return url.toString();
-    },
+    buildUrl: (destinationUrl = "https://www2.esky.pl/lot+hotel/portfolio?context=pl-packages") =>
+      buildEskyPackagesUrl(destinationUrl),
   },
   wakacje: {
     key: "wakacje",
@@ -183,10 +193,12 @@ export const partners: Record<PartnerKey, Partner> = {
     commissionType: "unknown",
     trackingId: "7PnrR4dn",
     buildUrl: (destinationUrl) => {
-      const shmarker = process.env.NEXT_PUBLIC_KIWI_SHMARKER;
-      if (destinationUrl && shmarker) {
+      // 740301 pochodzi z działającej konfiguracji Travelpayouts Tripownii.
+      // ENV może go nadpisać bez zmiany kodu.
+      const shmarker = process.env.NEXT_PUBLIC_KIWI_SHMARKER || "740301";
+      if (destinationUrl) {
         const params = new URLSearchParams({
-          shmarker: `${shmarker}.tripownia`,
+          shmarker: `${shmarker}.TRIPOWNIAPL`,
           promo_id: "3791",
           source_type: "customlink",
           type: "click",
@@ -194,8 +206,6 @@ export const partners: Record<PartnerKey, Partner> = {
         });
         return `https://c111.travelpayouts.com/click?${params.toString()}`;
       }
-      // Obecny link z panelu Travelpayouts/Kiwi — afiliacja działa, ale sam skrót
-      // nie pozwala bezpiecznie przekazać parametrów wyszukiwania.
       return "https://kiwi.tpk.lv/7PnrR4dn";
     },
   },
