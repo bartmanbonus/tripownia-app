@@ -139,6 +139,7 @@ type PublishedOverride = {
   note?: string;
   updatedAt?: string;
   linkMatch?: "exact" | "parameters" | "destination";
+  availabilityStatus?: AvailabilityStatus;
 };
 
 export const publishedOfferOverrides = publishedOverridesRaw as Record<string, PublishedOverride>;
@@ -155,6 +156,7 @@ export const offers: Offer[] = baseOffers
       reason: override?.note || offer.reason,
       image: override?.imageUrl || offer.image,
       linkMatch: override?.linkMatch || offer.linkMatch,
+      availabilityStatus: override?.availabilityStatus || offer.availabilityStatus,
     };
     return { ...merged, linkMatch: getLinkMatch(merged) };
   })

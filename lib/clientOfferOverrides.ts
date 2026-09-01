@@ -7,6 +7,7 @@ export type OfferOverride = {
   note?: string;
   updatedAt?: string;
   linkMatch?: "exact" | "parameters" | "destination";
+  availabilityStatus?: "available" | "unknown" | "expired";
 };
 
 export type OfferOverrides = Record<string, OfferOverride>;
