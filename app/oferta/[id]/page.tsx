@@ -10,6 +10,7 @@ import { partners } from "@/lib/partners";
 import BeforeYouGo from "@/components/BeforeYouGo";
 import FavoriteButton from "@/components/FavoriteButton";
 import OfferCard from "@/components/OfferCard";
+import SocialShare from "@/components/SocialShare";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
@@ -89,15 +90,11 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <span>📅 {o.dates}</span>
           </div>
           <div className="detail-source">Źródło ceny: <strong>{p.name}</strong></div>
-          <div className="share-box">
-            <div><small>UDOSTĘPNIJ OKAZJĘ</small><strong>Wyślij komuś, z kim polecisz</strong></div>
-            <div className="share-row">
-              <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(`https://tripownia.pl/oferta/${o.id}`)}`} target="_blank" rel="noopener noreferrer">Facebook</a>
-              <a href={`https://wa.me/?text=${encodeURIComponent(`${o.city} z ${o.departure} — ostatnio od ${o.price} zł/os. https://tripownia.pl/oferta/${o.id}`)}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>
-              <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(`https://tripownia.pl/oferta/${o.id}`)}`} target="_blank" rel="noopener noreferrer">LinkedIn</a>
-              <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`${o.city} — ${o.nights} nocy, ostatnio od ${o.price} zł/os.`)}&url=${encodeURIComponent(`https://tripownia.pl/oferta/${o.id}`)}`} target="_blank" rel="noopener noreferrer">X</a>
-            </div>
-          </div>
+          <SocialShare
+            url={`https://tripownia.pl/oferta/${o.id}`}
+            title={`${o.city} — okazja Tripownia.pl`}
+            text={`${o.city} z ${o.departure} — ${o.nights} nocy, ostatnio od ${o.price} zł/os.`}
+          />
           <div className="booking-summary" aria-label="Podsumowanie oferty">
             <div><small>Kierunek</small><strong>{o.city}, {o.country}</strong></div>
             <div><small>Termin</small><strong>{o.dates}</strong></div>
