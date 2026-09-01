@@ -2597,3 +2597,34 @@ body {
 .big-partner-grid>a{display:flex;flex-direction:column;min-height:178px;padding:22px;border:1px solid #e9e1dc;border-radius:22px;background:#fff;color:#1f1f1f;text-decoration:none;box-shadow:0 12px 32px rgba(30,30,30,.04);transition:.18s}.big-partner-grid>a:hover{transform:translateY(-2px);border-color:#ffb697}.big-partner-grid>a>span{font-size:26px}.big-partner-grid strong{font-size:17px;margin:9px 0 5px}.big-partner-grid small{color:var(--muted);font-size:12px;line-height:1.4}.big-partner-grid b{margin-top:auto;padding-top:16px;color:var(--accent);font-size:12px}
 @media(max-width:1100px){.sales-hero-inner{grid-template-columns:1fr}.destination-sales-grid{grid-template-columns:1fr}.big-partner-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.sales-hero{padding-top:44px}.sales-hero h1{font-size:44px;letter-spacing:-2px}.sales-partner-strip,.big-partner-grid{grid-template-columns:1fr}.sales-hero-box{padding:22px}}
+
+
+/* v76 — CMS + tracking afiliacyjny */
+.admin-tracking-panel code{
+  background:#f5f1eb;
+  border:1px solid var(--line);
+  border-radius:7px;
+  padding:2px 6px;
+  font-size:12px;
+}
+.admin-tracking-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+  margin:18px 0;
+}
+.admin-tracking-grid>div{
+  background:#fffaf7;
+  border:1px solid #f0dfd6;
+  border-radius:16px;
+  padding:18px;
+}
+.admin-tracking-grid small,
+.admin-tracking-grid strong,
+.admin-tracking-grid span{display:block}
+.admin-tracking-grid small{font-size:10px;letter-spacing:1px;font-weight:900;color:var(--accent);margin-bottom:7px}
+.admin-tracking-grid strong{font-size:15px;margin-bottom:5px}
+.admin-tracking-grid span{font-size:12px;color:var(--muted);line-height:1.45}
+@media(max-width:760px){
+  .admin-tracking-grid{grid-template-columns:1fr}
+}
