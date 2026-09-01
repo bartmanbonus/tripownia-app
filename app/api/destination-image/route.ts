@@ -78,7 +78,14 @@ export async function GET(request: NextRequest) {
   }
 
   const rule = getDestinationImageRule(city, country);
-  const image = await searchWikimedia(rule.query);
+  const image = rule.localPath
+    ? {
+        url: rule.localPath,
+        source: "local" as const,
+        sourcePage: null,
+        title: rule.label,
+      }
+    : await searchWikimedia(rule.query);
 
   return NextResponse.json(
     {
