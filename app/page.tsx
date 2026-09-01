@@ -4,16 +4,15 @@ import Image from "next/image";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowRight, Flame, Search, Sparkles, Dice5 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { airportOptions, destinationOptions, offers } from "@/lib/offers";
-
-const todaysOffers = [...offers].filter(o => o.availabilityStatus !== "expired").sort((a,b) => b.score - a.score || a.price - b.price).slice(0,8);
+import { airportOptions, destinationOptions, getDailyOffers, offers } from "@/lib/offers";
 
 
 export default function Home() {
+  const todaysOffers = useMemo(() => getDailyOffers(offers, 8), []);
   const [budget, setBudget] = useState(2500);
   const [surprise, setSurprise] = useState<(typeof offers)[number] | null>(null);
   const [heroAirport, setHeroAirport] = useState("all");
@@ -43,7 +42,7 @@ export default function Home() {
       <div className="hero-brand-card"><Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={520} height={420} priority /><div className="hero-brand-tag">Podróże, które warto brać.</div></div>
     </div></section>
 
-    <section className="section shell" id="okazje"><div className="section-heading"><div><div className="kicker">DZISIEJSZA SELEKCJA</div><h2>Dziś bralibyśmy te</h2><p>Stała pula wybranych ofert. Cena i dostępność są potwierdzane po przejściu do partnera.</p></div><Link href="/okazje">Zobacz wszystkie <ArrowRight size={16}/></Link></div><div className="cards-grid">{todaysOffers.map(o => <OfferCard offer={o} key={o.id}/>)}</div></section>
+    <section className="section shell" id="okazje"><div className="section-heading"><div><div className="kicker">DZISIEJSZA SELEKCJA</div><h2>Dziś bralibyśmy te</h2><p>Nowa selekcja codziennie o 12:00. Pula pozostaje stała do kolejnej publikacji; cena i dostępność są potwierdzane u partnera.</p></div><Link href="/okazje">Zobacz wszystkie <ArrowRight size={16}/></Link></div><div className="cards-grid">{todaysOffers.map(o => <OfferCard offer={o} key={o.id}/>)}</div></section>
 
     <SearchHub
       initialAirports={heroAirport === "all" ? [] : [heroAirport]}
