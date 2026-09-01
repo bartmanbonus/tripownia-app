@@ -113,12 +113,47 @@ const experiencePages: Record<string, {
   },
 };
 
+const experienceOfferConfig: Record<string, {
+  terms: string[];
+  heading: string;
+  emptyText: string;
+}> = {
+  "/islandia-zorza-polarna": {
+    terms: ["islandia", "reykjavik"],
+    heading: "Aktualne okazje na Islandię",
+    emptyText: "Dziś nie mamy aktywnej oferty na Islandię. Gdy pojawi się w bazie Tripowni, pokażemy ją tutaj automatycznie.",
+  },
+  "/japonia-kwitnienie-wisni": {
+    terms: ["japonia", "tokio", "tokyo", "kioto", "kyoto", "osaka"],
+    heading: "Aktualne okazje do Japonii 🇯🇵",
+    emptyText: "Dziś nie mamy aktywnej oferty do Japonii. Gdy pojawi się Tokio, Kioto, Osaka lub inna oferta japońska, pokażemy ją tutaj automatycznie.",
+  },
+  "/norwegia-fiordy": {
+    terms: ["norwegia", "oslo", "bergen", "fiord"],
+    heading: "Aktualne okazje do Norwegii",
+    emptyText: "Dziś nie mamy aktywnej oferty do Norwegii. Gdy pojawi się w bazie Tripowni, pokażemy ją tutaj automatycznie.",
+  },
+  "/nowa-zelandia-najlepszy-czas": {
+    terms: ["nowa zelandia", "auckland", "queenstown"],
+    heading: "Aktualne okazje do Nowej Zelandii",
+    emptyText: "Dziś nie mamy aktywnej oferty do Nowej Zelandii. Gdy pojawi się w bazie Tripowni, pokażemy ją tutaj automatycznie.",
+  },
+};
+
 function ExperiencePage({ path }: { path: string }) {
   const page = experiencePages[path];
   if (!page) return null;
 
-  const active = offers
+  const offerConfig = experienceOfferConfig[path];
+  const directOffers = offers
     .filter(o => o.availabilityStatus !== "expired")
+    .filter(o => {
+      if (!offerConfig) return false;
+      const haystack = [o.city, o.country, o.hotel, o.board, ...o.category]
+        .join(" ")
+        .toLocaleLowerCase("pl");
+      return offerConfig.terms.some(term => haystack.includes(term.toLocaleLowerCase("pl")));
+    })
     .sort((a,b) => b.score - a.score)
     .slice(0,4);
 
@@ -138,19 +173,21 @@ function ExperiencePage({ path }: { path: string }) {
       </div>
 
       <div className="experience-actions">
-        <Link className="primary-cta" href="/#wyszukiwarka">Sprawdź aktualne okazje →</Link>
+        <a className="primary-cta" href="#aktualne-oferty">Sprawdź aktualne okazje →</a>
         <Link className="secondary-cta" href="/podroze-po-przezycia">← Kalendarz przeżyć</Link>
       </div>
 
-      <section className="experience-current-offers">
+      <section className="experience-current-offers" id="aktualne-oferty">
         <div className="section-heading">
           <div>
             <div className="kicker">AKTUALNIE W TRIPOWNI</div>
-            <h2>Inne podróże, które warto sprawdzić</h2>
-            <p>Jeśli dziś nie mamy konkretnej oferty pod to przeżycie, nie podstawiamy przypadkowego linku. Pokazujemy tylko aktywne propozycje z bazy Tripowni.</p>
+            <h2>{offerConfig?.heading || "Aktualne okazje"}</h2>
+            <p>{directOffers.length
+              ? "Pokazujemy tylko aktywne propozycje z bazy Tripowni pasujące do tego kierunku."
+              : offerConfig?.emptyText || "Dziś nie mamy aktywnej oferty dla tego kierunku."}</p>
           </div>
         </div>
-        <div className="cards-grid">{active.map(o => <OfferCard key={o.id} offer={o}/>)}</div>
+        {directOffers.length > 0 && <div className="cards-grid">{directOffers.map(o => <OfferCard key={o.id} offer={o}/>)}</div>}
       </section>
     </section>
     <SiteFooter/>
