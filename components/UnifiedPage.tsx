@@ -60,6 +60,25 @@ function humanize(path: string) {
 }
 
 
+function buildExperienceEskyUrl(arrivalPlaces: string) {
+  const url = new URL("https://www2.esky.pl/lot+hotel/portfolio");
+  url.searchParams.set("rooms[0][adults]", "2");
+  url.searchParams.set("datesTab", "flexDates");
+  url.searchParams.set("stayLength", "5:10");
+  url.searchParams.set("arrivalPlaces", arrivalPlaces);
+  url.searchParams.set("departurePlaces", "ap-WAW");
+  url.searchParams.set("selectedDeparturePlaces", "ap-WAW");
+  url.searchParams.set("context", "pl-packages");
+  url.searchParams.set("sort[TotalPrice]", "asc");
+  return partners.esky.buildUrl(url.toString());
+}
+
+function buildExperienceBookingUrl(query: string) {
+  const url = new URL("https://www.booking.com/searchresults.html");
+  url.searchParams.set("ss", query);
+  return partners.booking.buildUrl(url.toString());
+}
+
 const experiencePages: Record<string, {
   kicker: string;
   title: string;
@@ -117,26 +136,36 @@ const experienceOfferConfig: Record<string, {
   terms: string[];
   heading: string;
   emptyText: string;
+  eskyArrival: string;
+  bookingQuery: string;
 }> = {
   "/islandia-zorza-polarna": {
     terms: ["islandia", "reykjavik"],
     heading: "Aktualne okazje na Islandię",
-    emptyText: "Dziś nie mamy aktywnej oferty na Islandię. Gdy pojawi się w bazie Tripowni, pokażemy ją tutaj automatycznie.",
+    emptyText: "Nie mamy dziś zapisanej karty cenowej na Islandię, ale możesz od razu sprawdzić aktualne wyniki u naszych partnerów.",
+    eskyArrival: "co-IS",
+    bookingQuery: "Islandia",
   },
   "/japonia-kwitnienie-wisni": {
     terms: ["japonia", "tokio", "tokyo", "kioto", "kyoto", "osaka"],
     heading: "Aktualne okazje do Japonii 🇯🇵",
-    emptyText: "Dziś nie mamy aktywnej oferty do Japonii. Gdy pojawi się Tokio, Kioto, Osaka lub inna oferta japońska, pokażemy ją tutaj automatycznie.",
+    emptyText: "Nie mamy dziś zapisanej karty cenowej do Japonii, ale możesz od razu sprawdzić aktualne wyniki u naszych partnerów.",
+    eskyArrival: "co-JP",
+    bookingQuery: "Japonia",
   },
   "/norwegia-fiordy": {
     terms: ["norwegia", "oslo", "bergen", "fiord"],
     heading: "Aktualne okazje do Norwegii",
-    emptyText: "Dziś nie mamy aktywnej oferty do Norwegii. Gdy pojawi się w bazie Tripowni, pokażemy ją tutaj automatycznie.",
+    emptyText: "Nie mamy dziś zapisanej karty cenowej do Norwegii, ale możesz od razu sprawdzić aktualne wyniki u naszych partnerów.",
+    eskyArrival: "co-NO",
+    bookingQuery: "Norwegia",
   },
   "/nowa-zelandia-najlepszy-czas": {
     terms: ["nowa zelandia", "auckland", "queenstown"],
     heading: "Aktualne okazje do Nowej Zelandii",
-    emptyText: "Dziś nie mamy aktywnej oferty do Nowej Zelandii. Gdy pojawi się w bazie Tripowni, pokażemy ją tutaj automatycznie.",
+    emptyText: "Nie mamy dziś zapisanej karty cenowej do Nowej Zelandii, ale możesz od razu sprawdzić aktualne wyniki u naszych partnerów.",
+    eskyArrival: "co-NZ",
+    bookingQuery: "Nowa Zelandia",
   },
 };
 
@@ -187,7 +216,10 @@ function ExperiencePage({ path }: { path: string }) {
               : offerConfig?.emptyText || "Dziś nie mamy aktywnej oferty dla tego kierunku."}</p>
           </div>
         </div>
-        {directOffers.length > 0 && <div className="cards-grid">{directOffers.map(o => <OfferCard key={o.id} offer={o}/>)}</div>}
+        {directOffers.length > 0 ? <div className="cards-grid">{directOffers.map(o => <OfferCard key={o.id} offer={o}/>)}</div> : offerConfig && <div className="experience-affiliate-fallback">
+          <a href={buildExperienceEskyUrl(offerConfig.eskyArrival)} target="_blank" rel="sponsored noopener noreferrer">✈️ Sprawdź lot + hotel w eSky →</a>
+          <a href={buildExperienceBookingUrl(offerConfig.bookingQuery)} target="_blank" rel="sponsored noopener noreferrer">🏨 Sprawdź noclegi w Booking.com →</a>
+        </div>}
       </section>
     </section>
     <SiteFooter/>
@@ -196,11 +228,11 @@ function ExperiencePage({ path }: { path: string }) {
 
 function ExperiencesCalendarPage() {
   const cards = [
-    ["/islandia-zorza-polarna","WRZESIEŃ–MARZEC","🌌 Zorza na Islandii","Ciemne noce, wodospady, geotermia i polowanie na zorzę."],
-    ["/japonia-kwitnienie-wisni","WIOSNA","🌸 Kwitnienie wiśni w Japonii","Wyjazd planowany pod sakurę, a nie tylko pod Tokio i Kioto."],
-    ["/norwegia-fiordy","MAJ–WRZESIEŃ","🏔️ Fiordy i białe noce","Długie dni, trekking i spektakularne trasy widokowe."],
-    ["/nowa-zelandia-najlepszy-czas","LISTOPAD–MARZEC","🥾 Nowa Zelandia","Road trip, góry i lato na południowej półkuli."],
-  ] as const;
+    { href:"/islandia-zorza-polarna", season:"WRZESIEŃ–MARZEC", title:"🌌 Zorza na Islandii", text:"Ciemne noce, wodospady, geotermia i polowanie na zorzę.", eskyArrival:"co-IS", bookingQuery:"Islandia" },
+    { href:"/japonia-kwitnienie-wisni", season:"WIOSNA", title:"🌸 Kwitnienie wiśni w Japonii", text:"Wyjazd planowany pod sakurę, a nie tylko pod Tokio i Kioto.", eskyArrival:"co-JP", bookingQuery:"Japonia" },
+    { href:"/norwegia-fiordy", season:"MAJ–WRZESIEŃ", title:"🏔️ Fiordy i białe noce", text:"Długie dni, trekking i spektakularne trasy widokowe.", eskyArrival:"co-NO", bookingQuery:"Norwegia" },
+    { href:"/nowa-zelandia-najlepszy-czas", season:"LISTOPAD–MARZEC", title:"🥾 Nowa Zelandia", text:"Road trip, góry i lato na południowej półkuli.", eskyArrival:"co-NZ", bookingQuery:"Nowa Zelandia" },
+  ];
 
   return <main>
     <SiteHeader/>
@@ -209,10 +241,17 @@ function ExperiencesCalendarPage() {
       <h1>Kalendarz przeżyć</h1>
       <p className="hub-lead">Niektóre podróże mają sens właśnie w konkretnym momencie roku. Wybierz zjawisko lub doświadczenie, a zobaczysz, kiedy i jak warto je zaplanować.</p>
       <div className="discovery-grid">
-        {cards.map(([href, season, title, text]) =>
-          <Link key={href} className="discovery-card experience-calendar-card" href={href}>
-            <small>{season}</small><strong>{title}</strong><span>{text}</span><b>Otwórz →</b>
-          </Link>
+        {cards.map((card) =>
+          <article key={card.href} className="discovery-card experience-calendar-card">
+            <small>{card.season}</small>
+            <strong>{card.title}</strong>
+            <span>{card.text}</span>
+            <div className="experience-card-actions">
+              <Link href={card.href}>Przewodnik →</Link>
+              <a href={buildExperienceEskyUrl(card.eskyArrival)} target="_blank" rel="sponsored noopener noreferrer">✈️ Oferty eSky</a>
+              <a href={buildExperienceBookingUrl(card.bookingQuery)} target="_blank" rel="sponsored noopener noreferrer">🏨 Noclegi</a>
+            </div>
+          </article>
         )}
       </div>
     </section>
