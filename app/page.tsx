@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
@@ -31,29 +30,15 @@ export default function Home() {
     <SiteHeader />
 <section className="hero"><div className="shell hero-inner">
       <div className="hero-copy"><div className="pill"><Flame size={16}/> Codziennie wybrane okazje</div>
-      <h1>Najlepsze okazje podróżnicze<br/><span>w jednym miejscu.</span></h1>
-      <p>Codziennie wybieramy najciekawsze loty, city breaki i wakacje. Ty wybierasz ofertę, a rezerwujesz bezpośrednio u sprawdzonego partnera.</p>
+      <h1>Znajdź podróż, którą<br/><span>naprawdę warto zarezerwować.</span></h1>
+      <p>Tripownia łączy nasze codzienne rekomendacje z wyszukiwaniem u sprawdzonych partnerów. Możesz zacząć od gotowej okazji albo wpisać własny kierunek i szukać szerzej.</p>
       <div className="searchbar hero-searchbar">
         <label><small>Skąd?</small><select value={heroAirport} onChange={e=>setHeroAirport(e.target.value)}><option value="all">Wszystkie lotniska</option>{airportOptions.map(a=><option key={a.code} value={a.code}>{a.label}</option>)}</select></label>
         <label><small>Dokąd?</small><select value={heroDestination} onChange={e=>setHeroDestination(e.target.value)}><option value="all">Gdziekolwiek</option>{destinationOptions.map(d=><option key={d} value={d}>{d}</option>)}</select></label>
         <label><small>Na ile?</small><select value={heroDuration} onChange={e=>setHeroDuration(e.target.value)}><option value="all">Dowolnie</option><option value="short">2–4 noce</option><option value="week">5–8 nocy</option><option value="long">9+ nocy</option></select></label>
         <button type="button" onClick={showTrips}><Search size={18}/> Pokaż wyniki</button>
       </div>
-      <div className="trustline">Bez setek przypadkowych wyników. Tylko wybrane przez Tripownię propozycje.</div></div>
-      <div className="hero-brand-card"><Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={520} height={420} priority /><div className="hero-brand-tag">Podróże, które warto brać.</div></div>
-    </div></section>
-
-    <section className="section shell" id="okazje"><div className="section-heading"><div><div className="kicker">DZISIEJSZA SELEKCJA</div><h2>Dziś bralibyśmy te</h2><p>Nowa selekcja codziennie o 12:00. Pula pozostaje stała do kolejnej publikacji; cena i dostępność są potwierdzane u partnera.</p></div><Link href="/okazje">Zobacz wszystkie <ArrowRight size={16}/></Link></div><div className="cards-grid">{todaysOffers.map(o => <OfferCard offer={o} key={o.id}/>)}</div></section>
-
-    <SearchHub
-      initialAirports={heroAirport === "all" ? [] : [heroAirport]}
-      initialDestinations={heroDestination === "all" ? [] : [heroDestination]}
-      initialDuration={heroDuration}
-      searchRequest={searchRequest}
-    />
-
-    <section className="budget-wrap" id="budzet"><div className="shell budget-grid"><div><div className="kicker light">WYNIKI TRIPOWNIA.PL</div><h2>Mam {budget} zł.<br/>Gdzie mogę polecieć?</h2><p>Ustaw kwotę, a Tripownia pokaże tylko wyjazdy, które mieszczą się w Twoim budżecie.</p><input type="range" min="500" max="5000" step="100" value={budget} onChange={e=>setBudget(Number(e.target.value))}/><div className="range-labels"><span>500 zł</span><strong>{budget} zł</strong><span>5000 zł</span></div></div>
-      <div className="surprise-card"><Sparkles size={30}/><h3>Nie wiesz gdzie?</h3><p>Daj nam budżet i daj się zaskoczyć.</p><button onClick={pickSurprise}><Dice5 size={18}/> Zaskocz mnie</button>{surprise && <Link className="surprise-result" href={`/oferta/${surprise.id}`}>{surprise.flag} <strong>{surprise.city}</strong><span>{surprise.price} zł/os. · {surprise.score}/10 →</span></Link>}</div></div></section>
+      <div className="trustline">Najpierw nasze wybrane okazje. Gdy ich brakuje — możesz szukać dalej u sprawdzonych partnerów.</div></div></div></section>
 
 
     <section className="section shell" id="odkrywaj"><div className="section-heading"><div><div className="kicker">NIE TYLKO KLASYKI</div><h2>Masz już za sobą Barcelonę i Rzym?</h2></div></div><div className="discovery-grid">
