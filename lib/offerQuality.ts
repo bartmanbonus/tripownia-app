@@ -47,3 +47,47 @@ export function recommendationScore(offer: Offer, preset: SmartPreset) {
   if (preset === "warm" && offer.category.includes("cieplo")) score += 5;
   return score;
 }
+
+
+export type OfferQualityIssue = {
+  code: "expired" | "unknown-status" | "stale-price" | "weak-link" | "missing-price-date";
+  label: string;
+  severity: "high" | "medium" | "low";
+};
+
+export function getPriceAgeDays(priceCheckedAt?: string, now = new Date()) {
+  if (!priceCheckedAt) return null;
+  const checked = new Date(priceCheckedAt);
+  if (Number.isNaN(checked.getTime())) return null;
+  return Math.max(0, Math.floor((now.getTime() - checked.getTime()) / 86400000));
+}
+
+export function isPriceStale(priceCheckedAt?: string, maxAgeDays = 2, now = new Date()) {
+  const age = getPriceAgeDays(priceCheckedAt, now);
+  return age === null ? true : age > maxAgeDays;
+}
+
+export function getOfferQualityIssues(offer: {
+  availabilityStatus?: "available" | "unknown" | "expired";
+  priceCheckedAt?: string;
+  linkMatch?: "exact" | "parameters" | "destination" | "unsafe";
+}) {
+  const issues: OfferQualityIssue[] = [];
+  if (offer.availabilityStatus === "expired") {
+    issues.push({ code: "expired", label: "Oferta wygasła", severity: "high" });
+  } else if (!offer.availabilityStatus || offer.availabilityStatus === "unknown") {
+    issues.push({ code: "unknown-status", label: "Dostępność do sprawdzenia", severity: "medium" });
+  }
+
+  if (!offer.priceCheckedAt) {
+    issues.push({ code: "missing-price-date", label: "Brak daty sprawdzenia ceny", severity: "medium" });
+  } else if (isPriceStale(offer.priceCheckedAt)) {
+    issues.push({ code: "stale-price", label: "Cena starsza niż 48 h", severity: "medium" });
+  }
+
+  if (offer.linkMatch === "destination" || offer.linkMatch === "parameters" || offer.linkMatch === "unsafe") {
+    issues.push({ code: "weak-link", label: "Brak deeplinku do konkretnej oferty", severity: offer.linkMatch === "unsafe" ? "high" : "low" });
+  }
+
+  return issues;
+}
