@@ -3,6 +3,7 @@ import SiteFooter from "@/components/SiteFooter";
 import AdminOfferAudit from "@/components/AdminOfferAudit";
 import AdminOfferEditor from "@/components/AdminOfferEditor";
 import AdminPublishPanel from "@/components/AdminPublishPanel";
+import AdminSocialDrafts from "@/components/AdminSocialDrafts";
 import { offers, getLinkMatch } from "@/lib/offers";
 import { getOfferQualityIssues } from "@/lib/offerQuality";
 
@@ -36,6 +37,10 @@ export default function AdminPage() {
         </div>
         <div className="admin-panel">
           <AdminOfferEditor/>
+        </div>
+        <div className="admin-panel">
+          <div className="admin-panel-head"><div><h2>Social automaty</h2><p>Wybierz ofertę, wygeneruj gotowy post i opublikuj dopiero po sprawdzeniu ceny oraz linku.</p></div></div>
+          <AdminSocialDrafts/>
         </div>
         <div className="admin-panel">
           <div className="admin-panel-head">
