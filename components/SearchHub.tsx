@@ -108,6 +108,7 @@ export default function SearchHub({
 
   const results = useMemo(() => offers
     .filter((offer) => {
+      if (offer.availabilityStatus === "expired") return false;
       const normalizedQuery = query.trim().toLocaleLowerCase("pl");
       const searchable = `${offer.city} ${offer.country} ${offer.hotel} ${offer.board} ${offer.departure} ${offer.reason}`.toLocaleLowerCase("pl");
       const queryMatch = !normalizedQuery || searchable.includes(normalizedQuery);
@@ -158,6 +159,27 @@ export default function SearchHub({
 
   const specialistPath = tab === "atrakcje" ? "/atrakcje" : tab === "parking" ? "/parkingi" : tab === "esim" ? "/esim" : null;
   const shown = results.slice(0, visible);
+  const hasActiveFilters =
+    Boolean(query.trim()) ||
+    selectedAirports.length > 0 ||
+    selectedDestinations.length > 0 ||
+    budget !== 5000 ||
+    duration !== "all" ||
+    board !== "all" ||
+    preset !== "all";
+
+  function clearFilters() {
+    setQuery("");
+    setSelectedAirports([]);
+    setSelectedDestinations([]);
+    setBudget(5000);
+    setDuration("all");
+    setBoard("all");
+    setPreset("all");
+    setSort("recommended");
+    setVisible(12);
+    setSearched(false);
+  }
 
   const presetButtons: { id: SmartPreset; label: string; emoji: string }[] = [
     { id: "all", label: "Dla mnie", emoji: "✨" },
@@ -201,6 +223,19 @@ export default function SearchHub({
         </select></label>
         <button className="search-submit compact-submit" onClick={()=>{setSearched(true);setVisible(12)}}><Search size={19}/> Pokaż wyniki</button>
       </div>
+
+      {hasActiveFilters && <div className="active-filter-bar">
+        <div className="active-filter-chips">
+          {query.trim() && <span>🔎 {query.trim()}</span>}
+          {selectedAirports.map(code => <span key={`a-${code}`}>✈ {code}</span>)}
+          {selectedDestinations.map(place => <span key={`d-${place}`}>📍 {place}</span>)}
+          {budget !== 5000 && <span>💳 do {budget.toLocaleString("pl-PL")} zł</span>}
+          {duration !== "all" && <span>📅 {duration === "short" ? "2–4 noce" : duration === "week" ? "5–8 nocy" : "9+ nocy"}</span>}
+          {board !== "all" && <span>🍽 {board === "ai" ? "All Inclusive" : board === "hb" ? "HB / 2 posiłki" : "Śniadanie"}</span>}
+          {preset !== "all" && <span>✨ {presetButtons.find(x => x.id === preset)?.label}</span>}
+        </div>
+        <button type="button" onClick={clearFilters}>Wyczyść filtry</button>
+      </div>}
 
       {(searched || tab === "inspiracje" || tab === "lot-hotel" || tab === "wakacje") && <div className="search-results-block"><div className="search-results-heading"><div><small>WYNIKI TRIPOWNIA.PL</small><h3>{results.length ? `${results.length} dopasowanych ofert` : "Nie znaleźliśmy oferty"}</h3><span>Najpierw pokazujemy wynik na Tripownia.pl. Dopiero potem możesz przejść do partnera przez link afiliacyjny.</span></div><label className="results-sort">Sortuj<select value={sort} onChange={e=>setSort(e.target.value as "recommended" | "price" | "score")}><option value="recommended">Polecane przez Tripownię</option><option value="price">Najniższa cena</option><option value="score">Najwyższa ocena</option></select></label></div><div className="cards-grid">{shown.map(o => <OfferCard key={o.id} offer={o}/>)}</div>{results.length > visible && <div style={{display:"flex",justifyContent:"center",marginTop:24}}><button className="search-submit" onClick={()=>setVisible(v=>v+12)}>Pokaż więcej ({results.length-visible})</button></div>}{!results.length && <div className="empty-search">Spróbuj wybrać „Gdziekolwiek”, zwiększ budżet albo zaznacz mniej filtrów.</div>}<div className="empty-search-nudge"><div><strong>Nie widzisz nic dla siebie?</strong><span>Poszerz lotniska, zwiększ budżet albo wybierz „Gdziekolwiek”. Tripownia pokazuje tylko oferty, które mamy obecnie w bazie.</span></div><a href="/okazje">Zobacz wszystkie okazje →</a></div></div>}
     </>}
