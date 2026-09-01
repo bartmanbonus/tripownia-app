@@ -29,7 +29,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const displayUrl = override.affiliateUrl || offer.affiliateUrl;
   const displayImage = override.imageUrl || publishedOverride.imageUrl;
   const isFeatured = override.featured ?? featuredOfferIds.has(offer.id);
-  const linkMatch = getLinkMatch(offer);
+  const linkMatch = override.linkMatch || getLinkMatch(offer);
 
   function toggleLike() {
     const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];

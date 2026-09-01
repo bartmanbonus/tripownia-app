@@ -128,6 +128,19 @@ export default function AdminOfferEditor() {
               />
             </label>
 
+            <label>
+              Dokąd naprawdę prowadzi link?
+              <select
+                value={draft.linkMatch ?? offer.linkMatch ?? "parameters"}
+                onChange={e => update("linkMatch", e.target.value as OfferOverride["linkMatch"])}
+              >
+                <option value="exact">Konkretna oferta / hotel / pakiet</option>
+                <option value="parameters">Wyniki z przekazanymi parametrami</option>
+                <option value="destination">Tylko strona kierunku</option>
+              </select>
+              <small>„Konkretna oferta” wybierz dopiero po ręcznym sprawdzeniu deeplinku u partnera.</small>
+            </label>
+
             <label className="admin-form-wide">
               Własne zdjęcie — URL
               <input
@@ -151,7 +164,7 @@ export default function AdminOfferEditor() {
 
           <div className="admin-current-info">
             <div><small>Partner</small><strong>{offer.partner}</strong></div>
-            <div><small>Typ linku</small><strong>{offer.linkType === "exact" ? "deeplink" : "wyniki / kierunek"}</strong></div>
+            <div><small>Typ linku</small><strong>{draft.linkMatch === "exact" || offer.linkMatch === "exact" ? "konkretna oferta" : draft.linkMatch === "destination" || offer.linkMatch === "destination" ? "strona kierunku" : "wyniki z parametrami"}</strong></div>
             <div><small>Termin</small><strong>{offer.dates}</strong></div>
             <div><small>Hotel</small><strong>{offer.hotel}</strong></div>
           </div>
