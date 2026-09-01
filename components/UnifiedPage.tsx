@@ -190,6 +190,89 @@ function ExperiencesCalendarPage() {
   return <main><SiteHeader/><section className="shell hub-page experience-calendar-page"><div className="kicker">PODRÓŻE PO PRZEŻYCIA</div><h1>Kalendarz przeżyć</h1><p className="hub-lead">Niektóre podróże mają sens właśnie w konkretnym momencie roku. Wybierz doświadczenie, a dostaniesz sezon, wskazówki i od razu ścieżkę do aktualnych ofert.</p><div className="discovery-grid">{cards.map(([href, season, title, text]) => <Link key={href} className="discovery-card experience-calendar-card" href={href}><small>{season}</small><strong>{title}</strong><span>{text}</span><b>Zobacz terminy i oferty →</b></Link>)}</div></section><SiteFooter/></main>;
 }
 
+
+function buildEskyFlightsUrl(destination = "") {
+  const base = destination
+    ? `https://www.esky.pl/tanie-loty/?to=${encodeURIComponent(destination)}`
+    : "https://www.esky.pl/tanie-loty/";
+  const url = new URL(base);
+  url.searchParams.set("partner_id", "TRIPOWNIAPL");
+  return url.toString();
+}
+
+function buildKiwiPriceUrl(destination = "") {
+  const deep = new URL("https://www.kiwi.com/deep");
+  deep.searchParams.set("from", "WAW");
+  deep.searchParams.set("to", destination || "anywhere");
+  deep.searchParams.set("sort", "price");
+  deep.searchParams.set("asc", "1");
+  deep.searchParams.set("currency", "PLN");
+  deep.searchParams.set("locale", "pl");
+  return partners.kiwi.buildUrl(deep.toString());
+}
+
+function PurchaseLinks({ query, kiwiCode = "" }: { query: string; kiwiCode?: string }) {
+  const booking = partners.booking.buildUrl(`https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(query)}`);
+  const eskyFlights = buildEskyFlightsUrl(query);
+  const kiwi = buildKiwiPriceUrl(kiwiCode || query);
+  const eskyPackage = partners.esky.buildUrl(`https://www2.esky.pl/lot+hotel/portfolio?rooms%5B0%5D%5Badults%5D=2&datesTab=flexDates&context=pl-packages&sort%5BTotalPrice%5D=asc&partner_id=TRIPOWNIAPLPACKAGES`);
+
+  return <div className="sales-partner-strip">
+    <a href={eskyFlights} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>Loty eSky</strong><small>partner_id=TRIPOWNIAPL</small></div><b>Sprawdź →</b></a>
+    <a href={kiwi} target="_blank" rel="sponsored noopener noreferrer"><span>🛫</span><div><strong>Kiwi.com</strong><small>Sortowanie od najniższej ceny</small></div><b>Sprawdź →</b></a>
+    <a href={booking} target="_blank" rel="sponsored noopener noreferrer"><span>🏨</span><div><strong>Booking.com</strong><small>Noclegi dla: {query}</small></div><b>Sprawdź →</b></a>
+    <a href={eskyPackage} target="_blank" rel="sponsored noopener noreferrer"><span>🧳</span><div><strong>eSky Lot + Hotel</strong><small>TRIPOWNIAPLPACKAGES</small></div><b>Sprawdź →</b></a>
+  </div>;
+}
+
+function CityBreakPage() {
+  const cityOffers = offers
+    .filter(o => o.availabilityStatus !== "expired")
+    .filter(o => o.category.includes("city") || o.nights <= 5)
+    .sort((a,b) => a.price - b.price)
+    .slice(0,8);
+  const cities = [
+    ["Rzym","ROM","🇮🇹"],["Barcelona","BCN","🇪🇸"],["Porto","OPO","🇵🇹"],["Malta","MLA","🇲🇹"],
+    ["Budapeszt","BUD","🇭🇺"],["Wiedeń","VIE","🇦🇹"],["Praga","PRG","🇨🇿"],["Paryż","PAR","🇫🇷"],
+  ] as const;
+  return <main><SiteHeader/>
+    <section className="sales-hero sales-hero-city"><div className="shell sales-hero-inner"><div><div className="kicker">CITY BREAK</div><h1>Krótki wyjazd. Konkretna cena. Rezerwacja bez krążenia po stronach.</h1><p>Najpierw pokazujemy aktualne okazje Tripownii. Jeśli chcesz szukać szerzej, przechodzisz od razu do lotów, noclegów albo pakietu Lot + Hotel.</p><div className="sales-hero-actions"><Link className="primary-cta" href="/?trip=city-break#wyszukiwarka">Ustaw własne parametry →</Link><a className="secondary-cta" href="#city-oferty">Zobacz najtańsze teraz</a></div></div><div className="sales-hero-box"><small>NAJSZYBSZA ŚCIEŻKA</small><strong>2–5 nocy</strong><span>Weekend, długi weekend albo kilka dni poza sezonem.</span><ul><li>lot + nocleg</li><li>sortowanie po cenie</li><li>zakup u partnera</li></ul></div></div></section>
+    <section className="shell sales-page" id="city-oferty"><div className="section-heading"><div><div className="kicker">NAJTAŃSZE CITY BREAKI</div><h2>Oferty, od których warto zacząć</h2><p>Nie chowamy ofert za kolejnym kliknięciem. Otwórz kartę, sprawdź szczegóły i przejdź do rezerwacji.</p></div></div><div className="cards-grid">{cityOffers.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>
+    <section className="shell sales-page"><div className="section-heading"><div><div className="kicker">POPULARNE TERAZ</div><h2>Wybierz miasto i od razu sprawdź zakup</h2></div></div><div className="destination-sales-grid">{cities.map(([name,code,flag])=><div key={name} className="destination-sales-card"><span>{flag}</span><strong>{name}</strong><p>Loty, noclegi i pakiety w jednym miejscu.</p><PurchaseLinks query={name} kiwiCode={code}/></div>)}</div></section>
+    <SiteFooter/></main>;
+}
+
+function LastMinutePage() {
+  const lastMinute = offers
+    .filter(o => o.availabilityStatus !== "expired")
+    .filter(o => o.nights >= 5 || o.category.includes("allinclusive") || o.category.includes("plaza"))
+    .sort((a,b) => a.price - b.price)
+    .slice(0,8);
+  const wakacjeUrl = partners.wakacje.buildUrl("https://www.wakacje.pl/lastminute/");
+  const eximUrl = partners.exim.buildUrl("https://www.exim.pl/");
+  return <main><SiteHeader/>
+    <section className="sales-hero sales-hero-last"><div className="shell sales-hero-inner"><div><div className="kicker">LAST MINUTE</div><h1>Najbliższy wyjazd ma prowadzić do ceny, nie do kolejnego poradnika.</h1><p>Aktualne wakacje, All Inclusive i ciepłe kierunki. Najpierw konkretne oferty Tripownii, potem pełne wyszukiwanie partnerów.</p><div className="sales-hero-actions"><Link className="primary-cta" href="/?trip=wakacje#wyszukiwarka">Znajdź po swoich parametrach →</Link><a className="secondary-cta" href="#last-oferty">Pokaż oferty</a></div></div><div className="sales-hero-box hot"><small>SZYBKIE FILTRY</small><strong>Wyjazd w najbliższym terminie</strong><span>Najpierw cena i dostępność, potem dodatki.</span><div className="sales-quick-tags"><span>🍹 All Inclusive</span><span>☀️ Ciepło</span><span>✈️ Z Polski</span><span>💸 Od najtańszych</span></div></div></div></section>
+    <section className="shell sales-page" id="last-oferty"><div className="section-heading"><div><div className="kicker">AKTUALNE LAST MINUTE</div><h2>Najtańsze aktywne propozycje</h2></div></div><div className="cards-grid">{lastMinute.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>
+    <section className="shell sales-page"><div className="section-heading"><div><div className="kicker">SZUKAJ SZERZEJ</div><h2>Nie znalazłaś idealnej oferty?</h2><p>Przejdź do partnera z gotową ścieżką zakupową, zamiast wracać do Google.</p></div></div><div className="big-partner-grid"><a href={wakacjeUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏖️</span><strong>Wakacje.pl Last Minute</strong><small>Pakiety wielu organizatorów</small><b>Sprawdź oferty →</b></a><a href={eximUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🌴</span><strong>EXIM Tours</strong><small>Wakacje i czartery</small><b>Sprawdź oferty →</b></a><a href={partners.esky.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><span>🧳</span><strong>eSky Lot + Hotel</strong><small>Sortuj po najniższej cenie</small><b>Sprawdź pakiety →</b></a><a href={buildEskyFlightsUrl()} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><strong>Same loty eSky</strong><small>partner_id=TRIPOWNIAPL</small><b>Szukaj lotów →</b></a></div></section>
+    <SiteFooter/></main>;
+}
+
+function DirectionsPage() {
+  const popular = [
+    ["Malta","MLA","🇲🇹"],["Cypr","PFO","🇨🇾"],["Madera","FNC","🇵🇹"],["Egipt","HRG","🇪🇬"],
+    ["Turcja","AYT","🇹🇷"],["Albania","TIA","🇦🇱"],["Rzym","ROM","🇮🇹"],["Barcelona","BCN","🇪🇸"],
+  ] as const;
+  const exotic = [
+    ["Malediwy","MLE","🏝️"],["Zanzibar","ZNZ","🌴"],["Tajlandia","BKK","🇹🇭"],["Sri Lanka","CMB","🇱🇰"],
+    ["Wietnam","SGN","🇻🇳"],["Japonia","TYO","🇯🇵"],["Mauritius","MRU","🇲🇺"],["Nowa Zelandia","AKL","🇳🇿"],
+  ] as const;
+  return <main><SiteHeader/>
+    <section className="sales-hero sales-hero-directions"><div className="shell sales-hero-inner"><div><div className="kicker">KIERUNKI</div><h1>Wybierz miejsce. My od razu pokażemy Ci, gdzie sprawdzić cenę.</h1><p>Kierunki nie są już katalogiem do czytania. Każdy prowadzi do aktualnych ofert Tripownii oraz lotów, noclegów i pakietów u partnerów.</p><div className="sales-hero-actions"><Link className="primary-cta" href="/?trip=inspiracje&focus=destination#wyszukiwarka">Wpisz własny kierunek →</Link><a className="secondary-cta" href="#popularne-kierunki">Zobacz popularne</a></div></div><div className="sales-hero-box"><small>JAK CHCESZ WYJECHAĆ?</small><div className="sales-quick-tags"><Link href="/?trip=city-break#wyszukiwarka">🏙 City break</Link><Link href="/?trip=wakacje#wyszukiwarka">🏖 Wakacje</Link><Link href="/egzotyka-zima">🌴 Egzotyka</Link><Link href="/podroze-po-przezycia">✨ Przeżycia</Link></div></div></div></section>
+    <section className="shell sales-page" id="popularne-kierunki"><div className="section-heading"><div><div className="kicker">POPULARNE TERAZ</div><h2>Kierunki, które warto sprawdzić najpierw</h2></div></div><div className="destination-sales-grid">{popular.map(([name,code,flag])=><div key={name} className="destination-sales-card"><span>{flag}</span><strong>{name}</strong><p>Sprawdź lot, hotel i pakiet bez kolejnego wyszukiwania.</p><PurchaseLinks query={name} kiwiCode={code}/></div>)}</div></section>
+    <section className="shell sales-page"><div className="section-heading"><div><div className="kicker">EGZOTYKA</div><h2>Dalej niż Europa</h2><p>Najpierw wybierz kierunek, potem porównaj lot i nocleg. Przy dalekich trasach cena samego lotu nie mówi wszystkiego.</p></div></div><div className="destination-sales-grid exotic-grid">{exotic.map(([name,code,flag])=><div key={name} className="destination-sales-card exotic"><span>{flag}</span><strong>{name}</strong><p>Loty i noclegi z bezpośrednim przejściem do partnerów.</p><PurchaseLinks query={name} kiwiCode={code}/></div>)}</div></section>
+    <SiteFooter/></main>;
+}
+
 function AliasLandingPage({ path }: { path: string }) {
   const title = humanize(path);
   const q = decodeURIComponent(path).toLocaleLowerCase("pl").replace(/[-/]/g," ");
@@ -240,6 +323,10 @@ export default function UnifiedPage({ path }: { path: string }) {
   if (path === "/wynajem-auta") return <ServicePage type="wynajem-auta"/>;
   if (path === "/podroze-po-przezycia") return <ExperiencesCalendarPage/>;
   if (experiencePages[path]) return <ExperiencePage path={path}/>;
+
+  if (path === "/city-break-2") return <CityBreakPage/>;
+  if (path === "/last-minute") return <LastMinutePage/>;
+  if (path === "/kierunki") return <DirectionsPage/>;
 
   const item = findLegacy(path);
   if (item) return <LegacyPage item={item}/>;

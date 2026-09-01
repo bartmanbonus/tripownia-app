@@ -12,7 +12,7 @@ export default function SiteHeader() {
       <nav>
         <Link href="/okazje">Okazje</Link>
         <Link href="/city-break-2">City break</Link>
-        <Link href="/last-minute">Wakacje</Link>
+        <Link href="/last-minute">Last minute</Link>
         <Link href="/kierunki">Kierunki</Link>
         <Link href="/poradniki">Poradniki</Link>
         <Link href="/ulubione">♡ Ulubione</Link>
