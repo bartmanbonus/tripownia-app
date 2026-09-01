@@ -33,6 +33,18 @@ export async function GET(
     return NextResponse.redirect(new URL(`/oferta/${offerId}`, request.url), 307);
   }
 
+  const source = request.nextUrl.searchParams.get("source") || "offer_detail";
+  console.info("[tripownia_affiliate_click]", JSON.stringify({
+    event: "affiliate_click",
+    ts: new Date().toISOString(),
+    partner: offer.partner,
+    source,
+    offer: offer.id,
+    destination: `${offer.city}, ${offer.country}`,
+    targetHost: target.hostname,
+    path: request.nextUrl.pathname,
+  }));
+
   const response = NextResponse.redirect(target, 307);
   response.headers.set("Cache-Control", "no-store");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
