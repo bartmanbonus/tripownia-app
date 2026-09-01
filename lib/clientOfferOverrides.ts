@@ -6,6 +6,7 @@ export type OfferOverride = {
   imageUrl?: string;
   note?: string;
   updatedAt?: string;
+  linkMatch?: "exact" | "parameters" | "destination";
 };
 
 export type OfferOverrides = Record<string, OfferOverride>;

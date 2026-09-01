@@ -138,31 +138,64 @@ type PublishedOverride = {
   imageUrl?: string;
   note?: string;
   updatedAt?: string;
+  linkMatch?: "exact" | "parameters" | "destination";
 };
 
 export const publishedOfferOverrides = publishedOverridesRaw as Record<string, PublishedOverride>;
 
 export const offers: Offer[] = baseOffers
-  .map((offer) => ({ ...offer, linkMatch: getLinkMatch(offer) }))
-  .filter((offer) => offer.linkMatch !== "unsafe")
   .filter((offer) => !publishedOfferOverrides[String(offer.id)]?.hidden)
   .map((offer) => {
     const override = publishedOfferOverrides[String(offer.id)];
-    if (!override) return offer;
-    return {
+    const merged: Offer = {
       ...offer,
-      price: typeof override.price === "number" ? override.price : offer.price,
-      affiliateUrl: override.affiliateUrl || offer.affiliateUrl,
-      reason: override.note || offer.reason,
-      image: override.imageUrl || offer.image,
+      price: typeof override?.price === "number" ? override.price : offer.price,
+      affiliateUrl: override?.affiliateUrl || offer.affiliateUrl,
+      reason: override?.note || offer.reason,
+      image: override?.imageUrl || offer.image,
+      linkMatch: override?.linkMatch || offer.linkMatch,
     };
-  });
+    return { ...merged, linkMatch: getLinkMatch(merged) };
+  })
+  .filter((offer) => offer.linkMatch !== "unsafe");
 
 export const featuredOfferIds = new Set(
   Object.entries(publishedOfferOverrides)
     .filter(([, value]) => Boolean(value.featured))
     .map(([id]) => Number(id))
 );
+
+export function getDailyOffers(source: Offer[] = offers, limit = 8, now = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", hourCycle: "h23",
+  }).formatToParts(now);
+  const part = (type: string) => parts.find(x => x.type === type)?.value || "";
+  const hour = Number(part("hour"));
+  const effective = new Date(now.getTime() - (hour < 12 ? 86400000 : 0));
+  const key = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(effective);
+
+  let seed = Array.from(key).reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) >>> 0, 2166136261);
+  const random = () => {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  };
+  const active = source.filter(o => o.availabilityStatus !== "expired");
+  const rank = (pool: Offer[]) => pool
+    .map(o => ({ o, value: o.score * 10 + (o.tag === "BIERZEMY" ? 5 : o.tag === "OKAZJA" ? 2 : 0) + random() * 8 }))
+    .sort((a, b) => b.value - a.value || a.o.price - b.o.price)
+    .map(x => x.o);
+
+  const exact = active.filter(o => getLinkMatch(o) === "exact");
+  const parameterized = active.filter(o => getLinkMatch(o) === "parameters");
+  const destination = active.filter(o => getLinkMatch(o) === "destination");
+
+  return [...rank(exact), ...rank(parameterized), ...rank(destination)]
+    .filter((o, index, all) => all.findIndex(x => x.id === o.id) === index)
+    .slice(0, limit);
+}
 
 export const airportOptions = [
   { code: "WAW", label: "Warszawa Chopina" },
