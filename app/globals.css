@@ -2185,3 +2185,71 @@ body {
 .search-text-field input{border:0;outline:0;background:transparent;width:100%;font:inherit;color:var(--ink);font-size:14px;font-weight:700}
 .search-text-field input::placeholder{color:#9a8c82;font-weight:600}
 .search-text-field button{border:0;background:transparent;display:grid;place-items:center;color:#8b6a55;cursor:pointer;padding:6px}
+
+
+/* v48 — mobile UX, aktywne filtry i konwersja strony oferty */
+.active-filter-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  margin:16px 0 4px;padding:10px 12px;border:1px solid var(--line);
+  border-radius:14px;background:#fff
+}
+.active-filter-chips{display:flex;flex-wrap:wrap;gap:7px}
+.active-filter-chips span{
+  display:inline-flex;align-items:center;min-height:30px;padding:5px 9px;
+  border-radius:999px;background:var(--soft);font-size:11px;font-weight:800;color:var(--ink)
+}
+.active-filter-bar>button{
+  border:0;background:transparent;color:var(--accent);font-weight:900;
+  font-size:11px;cursor:pointer;white-space:nowrap
+}
+.booking-summary{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:16px 0
+}
+.booking-summary>div{
+  border:1px solid var(--line);background:#fff;border-radius:12px;padding:11px 12px
+}
+.booking-summary small,.booking-summary strong{display:block}
+.booking-summary small{font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.booking-summary strong{font-size:12px;line-height:1.35}
+.mobile-booking-bar{display:none}
+
+@media(max-width:820px){
+  .site-nav{align-items:center;gap:10px;overflow:visible}
+  .site-nav .brand-logo{flex:none}
+  .site-nav nav{
+    display:flex!important;flex:1;overflow-x:auto;gap:6px;padding:4px 2px;
+    scrollbar-width:none;scroll-snap-type:x proximity
+  }
+  .site-nav nav::-webkit-scrollbar{display:none}
+  .site-nav nav a{
+    flex:none;white-space:nowrap;scroll-snap-align:start;padding:8px 9px;border-radius:999px;background:#fff
+  }
+  .site-nav .nav-cta{display:none}
+}
+
+@media(max-width:700px){
+  .active-filter-bar{align-items:flex-start;flex-direction:column}
+  .active-filter-bar>button{padding:4px 2px}
+  .booking-summary{grid-template-columns:1fr 1fr}
+  .mobile-booking-bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));
+    background:rgba(255,255,255,.96);backdrop-filter:blur(12px);
+    border-top:1px solid var(--line);box-shadow:0 -10px 30px rgba(0,0,0,.08)
+  }
+  .mobile-booking-bar div{min-width:0}
+  .mobile-booking-bar small,.mobile-booking-bar strong{display:block}
+  .mobile-booking-bar small{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .mobile-booking-bar strong{font-size:14px;margin-top:2px}
+  .mobile-booking-bar a{
+    flex:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    min-height:44px;padding:0 16px;border-radius:12px;background:var(--accent);color:#fff;
+    text-decoration:none;font-size:12px;font-weight:900
+  }
+  body:has(.mobile-booking-bar){padding-bottom:74px}
+}
+
+@media(max-width:480px){
+  .booking-summary{grid-template-columns:1fr}
+}
