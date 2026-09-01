@@ -4,6 +4,7 @@ import AdminOfferAudit from "@/components/AdminOfferAudit";
 import AdminOfferEditor from "@/components/AdminOfferEditor";
 import AdminPublishPanel from "@/components/AdminPublishPanel";
 import AdminSocialDrafts from "@/components/AdminSocialDrafts";
+import AdminAffiliateDashboard from "@/components/AdminAffiliateDashboard";
 import { offers, getLinkMatch } from "@/lib/offers";
 import { getOfferQualityIssues } from "@/lib/offerQuality";
 
@@ -43,20 +44,7 @@ export default function AdminPage() {
         </div>
 
         <div className="admin-panel admin-tracking-panel">
-          <div className="admin-panel-head">
-            <div>
-              <h2>Tracking klików afiliacyjnych</h2>
-              <p>Każde wyjście przez przyciski zakupowe zapisuje zdarzenie <code>tripownia_affiliate_click</code> po stronie serwera.</p>
-            </div>
-          </div>
-          <div className="admin-tracking-grid">
-            <div><small>PARTNER</small><strong>eSky / Kiwi / Booking / Wakacje / EXIM</strong><span>rozpoznawany przy każdym kliknięciu</span></div>
-            <div><small>ŹRÓDŁO CTA</small><strong>search / oferta / mobile</strong><span>widać, skąd użytkownik przeszedł</span></div>
-            <div><small>KIERUNEK / OFERTA</small><strong>ID + destination</strong><span>pozwala porównać skuteczność konkretnych okazji</span></div>
-          </div>
-          <div className="admin-local-warning">
-            <span><strong>Gdzie są dane?</strong> W logach Functions/Runtime projektu Vercel wyszukaj frazę <code>tripownia_affiliate_click</code>. To jest tracking serwerowy — nie znika po zamknięciu przeglądarki użytkownika. Do wykresów i stałej historii w panelu potrzebujemy później bazy lub narzędzia analitycznego.</span>
-          </div>
+          <AdminAffiliateDashboard/>
         </div>
 
         <div className="admin-panel">
