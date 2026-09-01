@@ -821,7 +821,8 @@ body {
   }
 
   .detail-image {
-    min-height: 420px;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
   }
 
   .detail-copy h1 {
@@ -847,7 +848,8 @@ body {
   }
 
   .detail-image {
-    min-height: 300px;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
     border-radius: 20px;
   }
 
@@ -1577,7 +1579,8 @@ body {
 }
 
 .detail-image {
-  min-height: 570px;
+  min-height: 0;
+  aspect-ratio: 16 / 9;
   background-size: cover;
   background-position: center;
   border-radius: 30px;
