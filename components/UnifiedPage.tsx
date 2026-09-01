@@ -60,112 +60,65 @@ function humanize(path: string) {
 }
 
 
-function buildExperienceEskyUrl(arrivalPlaces: string) {
-  const url = new URL("https://www2.esky.pl/lot+hotel/portfolio");
-  url.searchParams.set("rooms[0][adults]", "2");
-  url.searchParams.set("datesTab", "flexDates");
-  url.searchParams.set("stayLength", "5:10");
-  url.searchParams.set("arrivalPlaces", arrivalPlaces);
-  url.searchParams.set("departurePlaces", "ap-WAW");
-  url.searchParams.set("selectedDeparturePlaces", "ap-WAW");
-  url.searchParams.set("context", "pl-packages");
-  url.searchParams.set("sort[TotalPrice]", "asc");
-  return partners.esky.buildUrl(url.toString());
-}
-
-function buildExperienceBookingUrl(query: string) {
-  const url = new URL("https://www.booking.com/searchresults.html");
-  url.searchParams.set("ss", query);
-  return partners.booking.buildUrl(url.toString());
-}
-
 const experiencePages: Record<string, {
   kicker: string;
   title: string;
   season: string;
   lead: string;
   highlights: string[];
+  keywords: string[];
+  partnerQuery: string;
+  kiwiCode: string;
+  eskyCountryCode?: string;
+  eskySlug?: string;
 }> = {
   "/islandia-zorza-polarna": {
-    kicker: "PODRÓŻ PO PRZEŻYCIA",
-    title: "🌌 Zorza na Islandii",
-    season: "Najlepszy czas: wrzesień–marzec",
+    kicker: "PODRÓŻ PO PRZEŻYCIA", title: "🌌 Zorza na Islandii", season: "Najlepszy czas: wrzesień–marzec",
     lead: "Wyjazd planowany pod ciemne noce, geotermię, wodospady i szansę zobaczenia zorzy polarnej — nie tylko pod sam Reykjavik.",
-    highlights: [
-      "Najwięcej godzin ciemności przypada na późną jesień i zimę.",
-      "Zorzę warto łączyć z Golden Circle, gorącymi źródłami i południowym wybrzeżem.",
-      "Nie da się zagwarantować zorzy — pogoda i aktywność słoneczna decydują o widoczności.",
-    ],
+    highlights: ["Najwięcej godzin ciemności przypada na późną jesień i zimę.","Zorzę warto łączyć z Golden Circle, gorącymi źródłami i południowym wybrzeżem.","Nie da się zagwarantować zorzy — pogoda i aktywność słoneczna decydują o widoczności."],
+    keywords:["islandia","reykjavik"], partnerQuery:"Islandia", kiwiCode:"REK", eskyCountryCode:"is", eskySlug:"islandia",
   },
   "/japonia-kwitnienie-wisni": {
-    kicker: "PODRÓŻ PO PRZEŻYCIA",
-    title: "🌸 Kwitnienie wiśni w Japonii",
-    season: "Najczęściej: marzec–kwiecień",
+    kicker: "PODRÓŻ PO PRZEŻYCIA", title: "🌸 Kwitnienie wiśni w Japonii", season: "Najczęściej: marzec–kwiecień",
     lead: "Podróż układana pod sakurę. Termin kwitnienia zmienia się z roku na rok i różni się pomiędzy południem, Tokio, Kioto i północą Japonii.",
-    highlights: [
-      "Tokio i Kioto zwykle są najmocniej oblegane w szczycie sezonu.",
-      "Warto zostawić elastyczność między miastami zamiast przywiązywać cały wyjazd do jednego dnia.",
-      "Prognozy kwitnienia najlepiej weryfikować ponownie krótko przed wyjazdem.",
-    ],
+    highlights: ["Tokio i Kioto zwykle są najmocniej oblegane w szczycie sezonu.","Warto zostawić elastyczność między miastami zamiast przywiązywać cały wyjazd do jednego dnia.","Prognozy kwitnienia najlepiej weryfikować ponownie krótko przed wyjazdem."],
+    keywords:["japonia","tokio","tokyo","kioto","kyoto","osaka"], partnerQuery:"Japonia", kiwiCode:"TYO", eskyCountryCode:"jp", eskySlug:"japonia",
   },
   "/norwegia-fiordy": {
-    kicker: "PODRÓŻ PO PRZEŻYCIA",
-    title: "🏔️ Fiordy i białe noce",
-    season: "Najlepszy czas: maj–wrzesień",
+    kicker: "PODRÓŻ PO PRZEŻYCIA", title: "🏔️ Fiordy i białe noce", season: "Najlepszy czas: maj–wrzesień",
     lead: "Długie dni, trekking, wodospady i drogi widokowe. To kierunek, w którym pora roku mocno zmienia możliwości zwiedzania.",
-    highlights: [
-      "Późna wiosna i lato dają najwięcej czasu na trasy widokowe.",
-      "Czerwiec i lipiec oznaczają bardzo długie dni, szczególnie im dalej na północ.",
-      "Na trekkingach warunki mogą zmieniać się szybko nawet w środku lata.",
-    ],
+    highlights: ["Późna wiosna i lato dają najwięcej czasu na trasy widokowe.","Czerwiec i lipiec oznaczają bardzo długie dni, szczególnie im dalej na północ.","Na trekkingach warunki mogą zmieniać się szybko nawet w środku lata."],
+    keywords:["norwegia","oslo","bergen","fiord"], partnerQuery:"Norwegia", kiwiCode:"OSL", eskyCountryCode:"no", eskySlug:"norwegia",
   },
   "/nowa-zelandia-najlepszy-czas": {
-    kicker: "PODRÓŻ PO PRZEŻYCIA",
-    title: "🥾 Nowa Zelandia",
-    season: "Najlepszy czas: listopad–marzec",
+    kicker: "PODRÓŻ PO PRZEŻYCIA", title: "🥾 Nowa Zelandia", season: "Najlepszy czas: listopad–marzec",
     lead: "Road trip, góry, trekking i lato na południowej półkuli. Taki wyjazd warto planować pod pogodę i trasę, a nie tylko pod najtańszy lot.",
-    highlights: [
-      "Grudzień–luty to lato i jednocześnie najbardziej popularny okres.",
-      "Wyspa Północna i Południowa mają różny klimat oraz zupełnie inne tempo podróży.",
-      "Przy krótszym wyjeździe lepiej wybrać jedną wyspę niż próbować zobaczyć wszystko.",
-    ],
+    highlights: ["Grudzień–luty to lato i jednocześnie najbardziej popularny okres.","Wyspa Północna i Południowa mają różny klimat oraz zupełnie inne tempo podróży.","Przy krótszym wyjeździe lepiej wybrać jedną wyspę niż próbować zobaczyć wszystko."],
+    keywords:["nowa zelandia","auckland","queenstown"], partnerQuery:"Nowa Zelandia", kiwiCode:"AKL",
   },
-};
-
-const experienceOfferConfig: Record<string, {
-  terms: string[];
-  heading: string;
-  emptyText: string;
-  eskyArrival: string;
-  bookingQuery: string;
-}> = {
-  "/islandia-zorza-polarna": {
-    terms: ["islandia", "reykjavik"],
-    heading: "Aktualne okazje na Islandię",
-    emptyText: "Nie mamy dziś zapisanej karty cenowej na Islandię, ale możesz od razu sprawdzić aktualne wyniki u naszych partnerów.",
-    eskyArrival: "co-IS",
-    bookingQuery: "Islandia",
+  "/jarmarki-bozonarodzeniowe": {
+    kicker:"PODRÓŻ PO PRZEŻYCIA", title:"🎄 Jarmarki bożonarodzeniowe", season:"Najlepszy czas: koniec listopada–grudzień",
+    lead:"Krótki zimowy city break z iluminacjami, jarmarkiem i świątecznym klimatem. Tu ważniejsza od samej ceny jest lokalizacja i dobry termin.",
+    highlights:["Wiedeń, Praga i Budapeszt są najłatwiejsze na 2–3 noce.","Weekendy są najdroższe — warto sprawdzać niedziela–wtorek lub środek tygodnia.","Hotel blisko centrum ogranicza koszty i czas dojazdów."],
+    keywords:["wiedeń","wieden","praga","budapeszt","niemcy","drezno","berlin"], partnerQuery:"Wiedeń", kiwiCode:"VIE",
   },
-  "/japonia-kwitnienie-wisni": {
-    terms: ["japonia", "tokio", "tokyo", "kioto", "kyoto", "osaka"],
-    heading: "Aktualne okazje do Japonii 🇯🇵",
-    emptyText: "Nie mamy dziś zapisanej karty cenowej do Japonii, ale możesz od razu sprawdzić aktualne wyniki u naszych partnerów.",
-    eskyArrival: "co-JP",
-    bookingQuery: "Japonia",
+  "/holandia-tulipany": {
+    kicker:"PODRÓŻ PO PRZEŻYCIA", title:"🌷 Tulipany w Holandii", season:"Najlepszy czas: kwiecień–początek maja",
+    lead:"Amsterdam plus ogrody i pola tulipanów. Najlepszy efekt daje połączenie miasta z jednodniowym wypadem poza centrum.",
+    highlights:["Szczyt kwitnienia zależy od pogody.","Keukenhof warto rezerwować wcześniej w popularne weekendy.","Amsterdam nie musi być jedyną bazą — sprawdź też Haarlem i Leiden."],
+    keywords:["amsterdam","holandia","niderlandy"], partnerQuery:"Amsterdam", kiwiCode:"AMS",
   },
-  "/norwegia-fiordy": {
-    terms: ["norwegia", "oslo", "bergen", "fiord"],
-    heading: "Aktualne okazje do Norwegii",
-    emptyText: "Nie mamy dziś zapisanej karty cenowej do Norwegii, ale możesz od razu sprawdzić aktualne wyniki u naszych partnerów.",
-    eskyArrival: "co-NO",
-    bookingQuery: "Norwegia",
+  "/safari-kenia-tanzania": {
+    kicker:"PODRÓŻ PO PRZEŻYCIA", title:"🦁 Safari w Kenii i Tanzanii", season:"Najlepszy czas: czerwiec–październik",
+    lead:"Safari warto planować pod migracje zwierząt, porę suchą i logistykę parków — dopiero potem pod samą cenę lotu.",
+    highlights:["Masai Mara i Serengeti dają zupełnie inne warianty trasy.","Pora sucha poprawia widoczność zwierząt, ale podnosi ceny.","Po safari można dołożyć kilka dni na Zanzibarze lub Diani Beach."],
+    keywords:["kenia","nairobi","tanzania","zanzibar"], partnerQuery:"Kenia", kiwiCode:"NBO",
   },
-  "/nowa-zelandia-najlepszy-czas": {
-    terms: ["nowa zelandia", "auckland", "queenstown"],
-    heading: "Aktualne okazje do Nowej Zelandii",
-    emptyText: "Nie mamy dziś zapisanej karty cenowej do Nowej Zelandii, ale możesz od razu sprawdzić aktualne wyniki u naszych partnerów.",
-    eskyArrival: "co-NZ",
-    bookingQuery: "Nowa Zelandia",
+  "/egzotyka-zima": {
+    kicker:"PODRÓŻ PO PRZEŻYCIA", title:"🌴 Egzotyka zimą", season:"Najlepszy czas: listopad–marzec",
+    lead:"Kiedy w Polsce jest zimno, część Azji, Karaibów i Oceanu Indyjskiego wchodzi w najlepszy sezon pogodowy.",
+    highlights:["Tajlandia, Zanzibar i Malediwy to mocne kierunki na polską zimę.","Cena lotu to tylko część budżetu — porównuj też transfery i standard noclegu.","Przy dalekim locie zwykle opłaca się zostać minimum 8–10 nocy."],
+    keywords:["malediwy","mauritius","seszele","zanzibar","bali","tajlandia","phuket","sri lanka","dominikana","meksyk","wietnam"], partnerQuery:"Malediwy", kiwiCode:"MLE",
   },
 };
 
@@ -173,18 +126,27 @@ function ExperiencePage({ path }: { path: string }) {
   const page = experiencePages[path];
   if (!page) return null;
 
-  const offerConfig = experienceOfferConfig[path];
-  const directOffers = offers
+  const active = offers
     .filter(o => o.availabilityStatus !== "expired")
     .filter(o => {
-      if (!offerConfig) return false;
-      const haystack = [o.city, o.country, o.hotel, o.board, ...o.category]
-        .join(" ")
-        .toLocaleLowerCase("pl");
-      return offerConfig.terms.some(term => haystack.includes(term.toLocaleLowerCase("pl")));
+      const haystack = `${o.city} ${o.country} ${o.hotel} ${o.reason} ${o.category.join(" ")}`.toLocaleLowerCase("pl");
+      return page.keywords.some(k => haystack.includes(k.toLocaleLowerCase("pl")));
     })
     .sort((a,b) => b.score - a.score)
     .slice(0,4);
+
+  const bookingUrl = partners.booking.buildUrl(`https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(page.partnerQuery)}`);
+  const kiwiDeep = new URL("https://www.kiwi.com/deep");
+  kiwiDeep.searchParams.set("from", "WAW");
+  kiwiDeep.searchParams.set("to", page.kiwiCode);
+  kiwiDeep.searchParams.set("sort", "price");
+  kiwiDeep.searchParams.set("asc", "1");
+  kiwiDeep.searchParams.set("currency", "PLN");
+  kiwiDeep.searchParams.set("locale", "pl");
+  const kiwiUrl = partners.kiwi.buildUrl(kiwiDeep.toString());
+  const eskyUrl = page.eskyCountryCode && page.eskySlug
+    ? partners.esky.buildUrl(`https://www.esky.pl/tanie-loty/0/0/co/${page.eskyCountryCode}/${page.eskySlug}`)
+    : partners.esky.buildUrl("https://www.esky.pl/tanie-loty/");
 
   return <main>
     <SiteHeader/>
@@ -193,33 +155,20 @@ function ExperiencePage({ path }: { path: string }) {
       <h1>{page.title}</h1>
       <div className="experience-season">{page.season}</div>
       <p className="hub-lead">{page.lead}</p>
-
-      <div className="experience-checklist">
-        {page.highlights.map((item, i) => <div key={item}>
-          <span>{i + 1}</span>
-          <p>{item}</p>
-        </div>)}
-      </div>
-
+      <div className="experience-checklist">{page.highlights.map((item, i) => <div key={item}><span>{i + 1}</span><p>{item}</p></div>)}</div>
       <div className="experience-actions">
-        <a className="primary-cta" href="#aktualne-oferty">Sprawdź aktualne okazje →</a>
+        <Link className="primary-cta" href={`/?focus=destination#wyszukiwarka`}>Szukaj po swoich parametrach →</Link>
         <Link className="secondary-cta" href="/podroze-po-przezycia">← Kalendarz przeżyć</Link>
       </div>
 
-      <section className="experience-current-offers" id="aktualne-oferty">
-        <div className="section-heading">
-          <div>
-            <div className="kicker">AKTUALNIE W TRIPOWNI</div>
-            <h2>{offerConfig?.heading || "Aktualne okazje"}</h2>
-            <p>{directOffers.length
-              ? "Pokazujemy tylko aktywne propozycje z bazy Tripowni pasujące do tego kierunku."
-              : offerConfig?.emptyText || "Dziś nie mamy aktywnej oferty dla tego kierunku."}</p>
-          </div>
+      <section className="experience-current-offers">
+        <div className="section-heading"><div><div className="kicker">AKTUALNIE W TRIPOWNI</div><h2>{active.length ? `Aktualne okazje: ${page.partnerQuery}` : `Sprawdź aktualne ceny: ${page.partnerQuery}`}</h2><p>{active.length ? "Najpierw pokazujemy dopasowane aktywne oferty z bazy Tripowni." : "Nie mamy dziś zapisanej karty cenowej dokładnie pod to przeżycie. Nie pokazujemy losowych ofert — przejdź od razu do aktualnego wyszukiwania partnerów."}</p></div></div>
+        {active.length > 0 && <div className="cards-grid">{active.map(o => <OfferCard key={o.id} offer={o}/>)}</div>}
+        <div className="experience-partner-grid">
+          <a href={eskyUrl} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>Loty w eSky</strong><small>Kierunek ustawiony na {page.partnerQuery}</small></div><b>Sprawdź →</b></a>
+          <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🛫</span><div><strong>Loty w Kiwi.com</strong><small>Cel ustawiony · sortowanie od najniższej ceny</small></div><b>Sprawdź →</b></a>
+          <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏨</span><div><strong>Noclegi Booking.com</strong><small>Wyszukiwanie dla: {page.partnerQuery}</small></div><b>Sprawdź →</b></a>
         </div>
-        {directOffers.length > 0 ? <div className="cards-grid">{directOffers.map(o => <OfferCard key={o.id} offer={o}/>)}</div> : offerConfig && <div className="experience-affiliate-fallback">
-          <a href={buildExperienceEskyUrl(offerConfig.eskyArrival)} target="_blank" rel="sponsored noopener noreferrer">✈️ Sprawdź lot + hotel w eSky →</a>
-          <a href={buildExperienceBookingUrl(offerConfig.bookingQuery)} target="_blank" rel="sponsored noopener noreferrer">🏨 Sprawdź noclegi w Booking.com →</a>
-        </div>}
       </section>
     </section>
     <SiteFooter/>
@@ -228,58 +177,17 @@ function ExperiencePage({ path }: { path: string }) {
 
 function ExperiencesCalendarPage() {
   const cards = [
-    { href:"/islandia-zorza-polarna", season:"WRZESIEŃ–MARZEC", title:"🌌 Zorza na Islandii", text:"Ciemne noce, wodospady, geotermia i polowanie na zorzę.", terms:["islandia","reykjavik"], eskyArrival:"co-IS", bookingQuery:"Islandia" },
-    { href:"/japonia-kwitnienie-wisni", season:"WIOSNA", title:"🌸 Kwitnienie wiśni w Japonii", text:"Wyjazd planowany pod sakurę, a nie tylko pod Tokio i Kioto.", terms:["japonia","tokio","tokyo","kioto","kyoto","osaka"], eskyArrival:"co-JP", bookingQuery:"Japonia" },
-    { href:"/norwegia-fiordy", season:"MAJ–WRZESIEŃ", title:"🏔️ Fiordy i białe noce", text:"Długie dni, trekking i spektakularne trasy widokowe.", terms:["norwegia","oslo","bergen","fiord"], eskyArrival:"co-NO", bookingQuery:"Norwegia" },
-    { href:"/nowa-zelandia-najlepszy-czas", season:"LISTOPAD–MARZEC", title:"🥾 Nowa Zelandia", text:"Road trip, góry i lato na południowej półkuli.", terms:["nowa zelandia","auckland","queenstown"], eskyArrival:"co-NZ", bookingQuery:"Nowa Zelandia" },
-  ];
+    ["/islandia-zorza-polarna","WRZESIEŃ–MARZEC","🌌 Zorza na Islandii","Ciemne noce, wodospady, geotermia i polowanie na zorzę."],
+    ["/japonia-kwitnienie-wisni","MARZEC–KWIECIEŃ","🌸 Kwitnienie wiśni w Japonii","Wyjazd planowany pod sakurę, a nie tylko pod Tokio i Kioto."],
+    ["/norwegia-fiordy","MAJ–WRZESIEŃ","🏔️ Fiordy i białe noce","Długie dni, trekking i spektakularne trasy widokowe."],
+    ["/nowa-zelandia-najlepszy-czas","LISTOPAD–MARZEC","🥾 Nowa Zelandia","Road trip, góry i lato na południowej półkuli."],
+    ["/jarmarki-bozonarodzeniowe","LISTOPAD–GRUDZIEŃ","🎄 Jarmarki bożonarodzeniowe","Wiedeń, Praga, Budapeszt i świąteczne city breaki."],
+    ["/holandia-tulipany","KWIECIEŃ–MAJ","🌷 Tulipany w Holandii","Amsterdam, Keukenhof i kolorowe pola kwiatów."],
+    ["/safari-kenia-tanzania","CZERWIEC–PAŹDZIERNIK","🦁 Safari w Afryce","Kenia i Tanzania planowane pod porę suchą i migracje."],
+    ["/egzotyka-zima","LISTOPAD–MARZEC","🌴 Egzotyka zimą","Malediwy, Zanzibar, Tajlandia i inne kierunki w najlepszym sezonie."],
+  ] as const;
 
-  const activeOffers = offers.filter(o => o.availabilityStatus !== "expired");
-
-  return <main>
-    <SiteHeader/>
-    <section className="shell hub-page experience-calendar-page">
-      <div className="kicker">PODRÓŻE PO PRZEŻYCIA</div>
-      <h1>Kalendarz przeżyć</h1>
-      <p className="hub-lead">Niektóre podróże mają sens właśnie w konkretnym momencie roku. Wybierz zjawisko lub doświadczenie, a od razu sprawdzisz też aktualne możliwości wyjazdu.</p>
-      <div className="experience-calendar-list">
-        {cards.map((card) => {
-          const matched = activeOffers
-            .filter(o => {
-              const haystack = [o.city, o.country, o.hotel, o.board, ...o.category].join(" ").toLocaleLowerCase("pl");
-              return card.terms.some(term => haystack.includes(term.toLocaleLowerCase("pl")));
-            })
-            .sort((a,b) => b.score - a.score)
-            .slice(0,3);
-
-          return <section key={card.href} className="experience-calendar-block">
-            <article className="discovery-card experience-calendar-card">
-              <small>{card.season}</small>
-              <strong>{card.title}</strong>
-              <span>{card.text}</span>
-              <div className="experience-card-actions">
-                <Link href={card.href}>Przewodnik →</Link>
-              </div>
-            </article>
-
-            <div className="experience-calendar-offers">
-              <div className="experience-calendar-offers-head">
-                <strong>Aktualne oferty</strong>
-                <span>{matched.length ? "Znalezione w Tripowni" : "Szukaj u partnerów"}</span>
-              </div>
-              {matched.length ? <div className="experience-mini-offers">
-                {matched.map(o => <OfferCard key={o.id} offer={o}/>) }
-              </div> : <div className="experience-affiliate-fallback compact">
-                <a href={buildExperienceEskyUrl(card.eskyArrival)} target="_blank" rel="sponsored noopener noreferrer">✈️ Lot + hotel w eSky →</a>
-                <a href={buildExperienceBookingUrl(card.bookingQuery)} target="_blank" rel="sponsored noopener noreferrer">🏨 Noclegi w Booking.com →</a>
-              </div>}
-            </div>
-          </section>;
-        })}
-      </div>
-    </section>
-    <SiteFooter/>
-  </main>;
+  return <main><SiteHeader/><section className="shell hub-page experience-calendar-page"><div className="kicker">PODRÓŻE PO PRZEŻYCIA</div><h1>Kalendarz przeżyć</h1><p className="hub-lead">Niektóre podróże mają sens właśnie w konkretnym momencie roku. Wybierz doświadczenie, a dostaniesz sezon, wskazówki i od razu ścieżkę do aktualnych ofert.</p><div className="discovery-grid">{cards.map(([href, season, title, text]) => <Link key={href} className="discovery-card experience-calendar-card" href={href}><small>{season}</small><strong>{title}</strong><span>{text}</span><b>Zobacz terminy i oferty →</b></Link>)}</div></section><SiteFooter/></main>;
 }
 
 function AliasLandingPage({ path }: { path: string }) {
