@@ -3,7 +3,6 @@ import SiteFooter from "@/components/SiteFooter";
 import AdminOfferAudit from "@/components/AdminOfferAudit";
 import AdminOfferEditor from "@/components/AdminOfferEditor";
 import AdminPublishPanel from "@/components/AdminPublishPanel";
-import AdminSocialDrafts from "@/components/AdminSocialDrafts";
 
 export const metadata = {
   title: "Panel administracyjny | Tripownia.pl",
@@ -11,6 +10,9 @@ export const metadata = {
 };
 
 export default function AdminPage() {
+  const offersNeedingReview = offers.filter(offer => getOfferQualityIssues(offer).some(issue => issue.severity !== "low")).length;
+  const expiredOffers = offers.filter(offer => offer.availabilityStatus === "expired").length;
+  const exactLinks = offers.filter(offer => offer.linkMatch === "exact").length;
   return (
     <main>
       <SiteHeader/>
@@ -32,9 +34,6 @@ export default function AdminPage() {
         </div>
         <div className="admin-panel">
           <AdminOfferEditor/>
-        </div>
-        <div className="admin-panel">
-          <AdminSocialDrafts/>
         </div>
         <div className="admin-panel">
           <div className="admin-panel-head">
