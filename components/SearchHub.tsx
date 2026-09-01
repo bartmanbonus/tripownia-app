@@ -142,11 +142,11 @@ export default function SearchHub({
 
       const tabMatch =
         tab === "city-break"
-          ? offer.category.includes("city") && offer.nights <= 4 && hasBreakfast
+          ? offer.category.includes("city") && offer.nights <= 5
           : tab === "lot-hotel"
-            ? offer.partner === "esky"
+            ? ["esky", "booking", "kiwi"].includes(offer.partner) || offer.category.includes("city")
             : tab === "wakacje"
-              ? ["wakacje", "exim", "tui"].includes(offer.partner) && (isAI || isHB)
+              ? offer.nights >= 5 || offer.category.includes("plaza") || isAI || isHB
               : true;
 
       return queryMatch && destinationMatch && departureMatch && budgetMatch && durationMatch && boardMatch && tabMatch && presetMatch;
@@ -159,26 +159,31 @@ export default function SearchHub({
   [selectedAirports, selectedDestinations, budget, duration, board, tab, preset, sort, query]);
 
   const specialistPath = tab === "atrakcje" ? "/atrakcje" : tab === "parking" ? "/parkingi" : tab === "esim" ? "/esim" : null;
-  const shown = results.slice(0, visible);
-
   const fallbackOffers = useMemo(() => {
     if (results.length) return [];
+    const normalizedQuery = query.trim().toLocaleLowerCase("pl");
     return offers
       .filter(o => o.availabilityStatus !== "expired")
       .map(o => {
-        let points = o.score;
-        if (selectedAirports.includes(o.airportCode)) points += 4;
-        if (o.price <= budget) points += 3;
-        if (duration === "short" && o.nights <= 4) points += 2;
-        if (duration === "week" && o.nights >= 5 && o.nights <= 8) points += 2;
-        if (duration === "long" && o.nights > 8) points += 2;
-        if (preset !== "all" && matchesPreset(o, preset)) points += 3;
+        let points = o.score * 10;
+        const searchable = `${o.city} ${o.country} ${o.hotel} ${o.reason}`.toLocaleLowerCase("pl");
+        if (normalizedQuery && searchable.includes(normalizedQuery)) points += 40;
+        if (selectedDestinations.some(item => item === o.country || item === `${o.city}, ${o.country}`)) points += 50;
+        if (selectedAirports.includes(o.airportCode)) points += 20;
+        if (o.price <= budget) points += 10;
+        if (duration === "short" && o.nights <= 4) points += 8;
+        if (duration === "week" && o.nights >= 5 && o.nights <= 8) points += 8;
+        if (duration === "long" && o.nights > 8) points += 8;
+        if (preset !== "all" && matchesPreset(o, preset)) points += 12;
         return { o, points };
       })
       .sort((a,b) => b.points - a.points || a.o.price - b.o.price)
-      .slice(0, 4)
+      .slice(0, 8)
       .map(x => x.o);
-  }, [results.length, selectedAirports, budget, duration, preset]);
+  }, [results.length, selectedAirports, selectedDestinations, budget, duration, preset, query]);
+
+  const displayResults = results.length ? results : fallbackOffers;
+  const displayed = displayResults.slice(0, visible);
 
   const partnerQuery = (selectedDestinations[0] || query.trim() || "wakacje").replace(/,.*$/, "").trim();
   const bookingSearchUrl = useMemo(() => {
@@ -266,9 +271,8 @@ export default function SearchHub({
         <button type="button" onClick={clearFilters}>Wyczyść filtry</button>
       </div>}
 
-      {(searched || tab === "inspiracje" || tab === "lot-hotel" || tab === "wakacje") && <div className="search-results-block"><div className="search-results-heading"><div><small>WYNIKI TRIPOWNIA.PL</small><h3>{results.length ? `${results.length} dopasowanych ofert` : "Nie mamy dokładnego dopasowania w dzisiejszej selekcji"}</h3><span>Najpierw pokazujemy wynik na Tripownia.pl. Dopiero potem możesz przejść do partnera przez link afiliacyjny.</span></div><label className="results-sort">Sortuj<select value={sort} onChange={e=>setSort(e.target.value as "recommended" | "price" | "score")}><option value="recommended">Polecane przez Tripownię</option><option value="price">Najniższa cena</option><option value="score">Najwyższa ocena</option></select></label></div><div className="cards-grid">{shown.map(o => <OfferCard key={o.id} offer={o}/>)}</div>{results.length > visible && <div style={{display:"flex",justifyContent:"center",marginTop:24}}><button className="search-submit" onClick={()=>setVisible(v=>v+12)}>Pokaż więcej ({results.length-visible})</button></div>}{!results.length && <div className="search-fallback">
-        <div className="search-fallback-head"><small>POZA DZISIEJSZĄ SELEKCJĄ</small><h4>Nie mamy tej kombinacji w zapisanych okazjach — ale nie kończymy wyszukiwania.</h4><p>Najpierw pokazujemy najbliższe propozycje z Tripownii, a poniżej możesz przeszukać pełną ofertę partnerów afiliacyjnych.</p></div>
-        {fallbackOffers.length > 0 && <><div className="fallback-label">Najbliższe propozycje Tripownii</div><div className="cards-grid fallback-cards">{fallbackOffers.map(o => <OfferCard key={`fallback-${o.id}`} offer={o}/>)}</div></>}
+      {(searched || tab === "inspiracje" || tab === "lot-hotel" || tab === "wakacje") && <div className="search-results-block"><div className="search-results-heading"><div><small>WYNIKI TRIPOWNIA.PL</small><h3>{results.length ? `${results.length} dopasowanych ofert` : `${fallbackOffers.length} najbliższych propozycji + wyszukiwanie u partnerów`}</h3><span>Najpierw pokazujemy wynik na Tripownia.pl. Dopiero potem możesz przejść do partnera przez link afiliacyjny.</span></div><label className="results-sort">Sortuj<select value={sort} onChange={e=>setSort(e.target.value as "recommended" | "price" | "score")}><option value="recommended">Polecane przez Tripownię</option><option value="price">Najniższa cena</option><option value="score">Najwyższa ocena</option></select></label></div><div className="cards-grid">{displayed.map(o => <OfferCard key={o.id} offer={o}/>)}</div>{displayResults.length > visible && <div style={{display:"flex",justifyContent:"center",marginTop:24}}><button className="search-submit" onClick={()=>setVisible(v=>v+12)}>Pokaż więcej ({displayResults.length-visible})</button></div>}{!results.length && <div className="search-fallback">
+        <div className="search-fallback-head"><small>POZA DZISIEJSZĄ SELEKCJĄ</small><h4>Nie ma identycznej kombinacji? Pokazujemy najbliższe sensowne oferty i szukamy dalej.</h4><p>Wyniki powyżej są najbliższym dopasowaniem z Tripownii. Poniżej możesz od razu przejść do pełnej oferty partnerów afiliacyjnych.</p></div>
         <div className="partner-live-search"><div><strong>🔎 Szukaj dalej: {partnerQuery === "wakacje" ? "dowolny kierunek" : partnerQuery}</strong><span>Ceny i dostępność sprawdzisz już bezpośrednio u partnera.</span></div><div className="partner-live-actions"><a href={eskySearchUrl} target="_blank" rel="sponsored noopener noreferrer">✈️ Lot + hotel w eSky</a><a href={bookingSearchUrl} target="_blank" rel="sponsored noopener noreferrer">🏨 Noclegi Booking</a><a href={kiwiSearchUrl} target="_blank" rel="sponsored noopener noreferrer">🛫 Loty Kiwi.com</a></div></div>
       </div>}<div className="empty-search-nudge"><div><strong>Chcesz zacząć szerzej?</strong><span>Wyczyść część filtrów albo zobacz wszystkie aktualnie wybrane okazje Tripownii.</span></div><a href="/okazje">Zobacz wszystkie okazje →</a></div></div>}
     </>}
