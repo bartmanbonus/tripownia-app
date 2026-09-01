@@ -6,7 +6,7 @@ import LegacyPage from "@/components/LegacyPage";
 import { legacyPosts, findLegacy } from "@/lib/legacy";
 import { isInternalAlias } from "@/lib/internalAliases";
 import { offers } from "@/lib/offers";
-import { partners } from "@/lib/partners";
+import { buildEskyFlightsUrl as affiliateEskyFlightsUrl, buildEskyPackagesUrl, partners } from "@/lib/partners";
 
 type ServiceType = "parkingi" | "atrakcje" | "esim" | "ubezpieczenia" | "transfery" | "wynajem-auta";
 
@@ -195,9 +195,7 @@ function buildEskyFlightsUrl(destination = "") {
   const base = destination
     ? `https://www.esky.pl/tanie-loty/?to=${encodeURIComponent(destination)}`
     : "https://www.esky.pl/tanie-loty/";
-  const url = new URL(base);
-  url.searchParams.set("partner_id", "TRIPOWNIAPL");
-  return url.toString();
+  return affiliateEskyFlightsUrl(base);
 }
 
 function buildKiwiPriceUrl(destination = "") {
@@ -215,7 +213,7 @@ function PurchaseLinks({ query, kiwiCode = "" }: { query: string; kiwiCode?: str
   const booking = partners.booking.buildUrl(`https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(query)}`);
   const eskyFlights = buildEskyFlightsUrl(query);
   const kiwi = buildKiwiPriceUrl(kiwiCode || query);
-  const eskyPackage = partners.esky.buildUrl(`https://www2.esky.pl/lot+hotel/portfolio?rooms%5B0%5D%5Badults%5D=2&datesTab=flexDates&context=pl-packages&sort%5BTotalPrice%5D=asc&partner_id=TRIPOWNIAPLPACKAGES`);
+  const eskyPackage = buildEskyPackagesUrl(`https://www2.esky.pl/lot+hotel/portfolio?rooms%5B0%5D%5Badults%5D=2&datesTab=flexDates&context=pl-packages&sort%5BTotalPrice%5D=asc`);
 
   return <div className="sales-partner-strip">
     <a href={eskyFlights} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>Loty eSky</strong><small>partner_id=TRIPOWNIAPL</small></div><b>Sprawdź →</b></a>
@@ -253,7 +251,7 @@ function LastMinutePage() {
   return <main><SiteHeader/>
     <section className="sales-hero sales-hero-last"><div className="shell sales-hero-inner"><div><div className="kicker">LAST MINUTE</div><h1>Najbliższy wyjazd ma prowadzić do ceny, nie do kolejnego poradnika.</h1><p>Aktualne wakacje, All Inclusive i ciepłe kierunki. Najpierw konkretne oferty Tripownii, potem pełne wyszukiwanie partnerów.</p><div className="sales-hero-actions"><Link className="primary-cta" href="/?trip=wakacje#wyszukiwarka">Znajdź po swoich parametrach →</Link><a className="secondary-cta" href="#last-oferty">Pokaż oferty</a></div></div><div className="sales-hero-box hot"><small>SZYBKIE FILTRY</small><strong>Wyjazd w najbliższym terminie</strong><span>Najpierw cena i dostępność, potem dodatki.</span><div className="sales-quick-tags"><span>🍹 All Inclusive</span><span>☀️ Ciepło</span><span>✈️ Z Polski</span><span>💸 Od najtańszych</span></div></div></div></section>
     <section className="shell sales-page" id="last-oferty"><div className="section-heading"><div><div className="kicker">AKTUALNE LAST MINUTE</div><h2>Najtańsze aktywne propozycje</h2></div></div><div className="cards-grid">{lastMinute.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>
-    <section className="shell sales-page"><div className="section-heading"><div><div className="kicker">SZUKAJ SZERZEJ</div><h2>Nie znalazłaś idealnej oferty?</h2><p>Przejdź do partnera z gotową ścieżką zakupową, zamiast wracać do Google.</p></div></div><div className="big-partner-grid"><a href={wakacjeUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏖️</span><strong>Wakacje.pl Last Minute</strong><small>Pakiety wielu organizatorów</small><b>Sprawdź oferty →</b></a><a href={eximUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🌴</span><strong>EXIM Tours</strong><small>Wakacje i czartery</small><b>Sprawdź oferty →</b></a><a href={partners.esky.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><span>🧳</span><strong>eSky Lot + Hotel</strong><small>Sortuj po najniższej cenie</small><b>Sprawdź pakiety →</b></a><a href={buildEskyFlightsUrl()} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><strong>Same loty eSky</strong><small>partner_id=TRIPOWNIAPL</small><b>Szukaj lotów →</b></a></div></section>
+    <section className="shell sales-page"><div className="section-heading"><div><div className="kicker">SZUKAJ SZERZEJ</div><h2>Nie znalazłaś idealnej oferty?</h2><p>Przejdź do partnera z gotową ścieżką zakupową, zamiast wracać do Google.</p></div></div><div className="big-partner-grid"><a href={wakacjeUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏖️</span><strong>Wakacje.pl Last Minute</strong><small>Pakiety wielu organizatorów</small><b>Sprawdź oferty →</b></a><a href={eximUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🌴</span><strong>EXIM Tours</strong><small>Wakacje i czartery</small><b>Sprawdź oferty →</b></a><a href={buildEskyPackagesUrl()} target="_blank" rel="sponsored noopener noreferrer"><span>🧳</span><strong>eSky Lot + Hotel</strong><small>Sortuj po najniższej cenie</small><b>Sprawdź pakiety →</b></a><a href={buildEskyFlightsUrl()} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><strong>Same loty eSky</strong><small>partner_id=TRIPOWNIAPL</small><b>Szukaj lotów →</b></a></div></section>
     <SiteFooter/></main>;
 }
 

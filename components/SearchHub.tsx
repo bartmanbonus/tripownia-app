@@ -4,7 +4,7 @@ import { useMemo, useRef, useState, useEffect } from "react";
 import { CalendarDays, Car, Compass, MapPin, Search, Users, WalletCards, PlaneTakeoff, Check, ChevronDown, X } from "lucide-react";
 import OfferCard from "./OfferCard";
 import { airportOptions, destinationOptions, offers } from "@/lib/offers";
-import { partners } from "@/lib/partners";
+import { buildEskyFlightsUrl, partners } from "@/lib/partners";
 import { matchesPreset, recommendationScore, type SmartPreset } from "@/lib/offerQuality";
 
 
@@ -261,10 +261,10 @@ export default function SearchHub({
   }, [partnerQuery]);
 
   const eskyFlightUrl = useMemo(() => {
-    if (!flightDestination) return partners.esky.buildUrl("https://www.esky.pl/tanie-loty/");
+    if (!flightDestination) return buildEskyFlightsUrl("https://www.esky.pl/tanie-loty/");
     const fromPart = flightOrigin ? `ap/${flightOrigin.toLowerCase()}` : "0/0";
     const destination = `${flightDestination.eskyType}/${flightDestination.eskyCode}/${flightDestination.slug}`;
-    return partners.esky.buildUrl(`https://www.esky.pl/tanie-loty/${fromPart}/${destination}`);
+    return buildEskyFlightsUrl(`https://www.esky.pl/tanie-loty/${fromPart}/${destination}`);
   }, [flightDestination, flightOrigin]);
 
   const kiwiSearchUrl = useMemo(() => {
