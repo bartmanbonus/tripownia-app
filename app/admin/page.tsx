@@ -3,6 +3,7 @@ import SiteFooter from "@/components/SiteFooter";
 import AdminOfferAudit from "@/components/AdminOfferAudit";
 import AdminOfferEditor from "@/components/AdminOfferEditor";
 import AdminPublishPanel from "@/components/AdminPublishPanel";
+import AdminSocialDrafts from "@/components/AdminSocialDrafts";
 
 export const metadata = {
   title: "Panel administracyjny | Tripownia.pl",
@@ -31,6 +32,9 @@ export default function AdminPage() {
         </div>
         <div className="admin-panel">
           <AdminOfferEditor/>
+        </div>
+        <div className="admin-panel">
+          <AdminSocialDrafts/>
         </div>
         <div className="admin-panel">
           <div className="admin-panel-head">
