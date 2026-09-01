@@ -5,6 +5,7 @@ import { Download, ExternalLink, Filter, Image as ImageIcon, Search, ShieldCheck
 import { offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { offerQualityIssues, offerQualityScore } from "@/lib/offerQuality";
+import { getLinkMatch } from "@/lib/offers";
 
 type AuditFilter = "all" | "problem" | "exact" | "search" | "expired";
 
@@ -18,8 +19,8 @@ export default function AdminOfferAudit() {
   const [query, setQuery] = useState("");
 
   const stats = useMemo(() => {
-    const exact = offers.filter(o => o.linkType === "exact").length;
-    const search = offers.filter(o => o.linkType !== "exact").length;
+    const exact = offers.filter(o => getLinkMatch(o) === "exact").length;
+    const search = offers.filter(o => getLinkMatch(o) !== "exact").length;
     const expired = offers.filter(o => o.availabilityStatus === "expired").length;
     const needsWork = offers.filter(o => offerQualityIssues(o).length > 0).length;
     const avg = Math.round(
@@ -35,8 +36,8 @@ export default function AdminOfferAudit() {
       const matchesFilter =
         filter === "all" ? true :
         filter === "problem" ? issues.length > 0 :
-        filter === "exact" ? o.linkType === "exact" :
-        filter === "search" ? o.linkType !== "exact" :
+        filter === "exact" ? getLinkMatch(o) === "exact" :
+        filter === "search" ? getLinkMatch(o) !== "exact" :
         o.availabilityStatus === "expired";
 
       const matchesQuery = !q || [
@@ -54,7 +55,7 @@ export default function AdminOfferAudit() {
     ];
     const rows = shown.map(o => [
       o.id, o.city, o.country, o.departure, o.price, partners[o.partner].name,
-      o.linkType === "exact" ? "deeplink" : "wyniki/kierunek",
+      getLinkMatch(o) === "exact" ? "deeplink" : getLinkMatch(o) === "parameters" ? "parametry" : "kierunek",
       offerQualityScore(o),
       offerQualityIssues(o).join(" | "),
       o.availabilityStatus ?? "unknown",
@@ -156,8 +157,14 @@ export default function AdminOfferAudit() {
                     <small>{o.board}</small>
                   </td>
                   <td>
-                    <span className={o.linkType === "exact" ? "admin-good" : "admin-warn"}>
-                      {o.linkType === "exact" ? "konkretna oferta" : "wyniki / kierunek"}
+                    <span className={getLinkMatch(o) === "exact" ? "admin-good" : "admin-warn"}>
+                      {getLinkMatch(o) === "exact"
+                        ? "konkretna oferta"
+                        : getLinkMatch(o) === "parameters"
+                          ? "wyniki z parametrami"
+                          : getLinkMatch(o) === "destination"
+                            ? "strona kierunku"
+                            : "link do sprawdzenia"}
                     </span>
                     <small className="admin-date-check">
                       {o.priceCheckedAt ? `Cena: ${o.priceCheckedAt}` : "brak daty ceny"}
