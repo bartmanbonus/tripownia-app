@@ -9,21 +9,27 @@ export function isLessObvious(offer: Offer) {
 }
 
 export function offerQualityIssues(offer: Offer) {
-  const issues: string[] = [];
-  if (offer.linkType !== "exact") issues.push("brak konkretnego deeplinku");
-  if (!offer.priceCheckedAt) issues.push("brak daty sprawdzenia ceny");
-  if (!offer.destinationUrl && offer.linkType !== "exact") issues.push("link tylko do wyszukiwania");
-  if (offer.availabilityStatus === "expired") issues.push("oferta wygasła");
-  return issues;
+  return getOfferQualityIssues({
+    availabilityStatus: offer.availabilityStatus,
+    priceCheckedAt: offer.priceCheckedAt,
+    linkMatch: offer.linkMatch ?? (offer.linkType === "exact" ? "exact" : offer.destinationUrl ? "destination" : "parameters"),
+  }).map(issue => issue.label);
 }
 
 export function offerQualityScore(offer: Offer) {
-  let score = 100;
-  if (offer.linkType !== "exact") score -= 25;
-  if (!offer.priceCheckedAt) score -= 15;
-  if (!offer.destinationUrl && offer.linkType !== "exact") score -= 10;
-  if (offer.availabilityStatus === "expired") score = 0;
-  return Math.max(0, score);
+  const issues = getOfferQualityIssues({
+    availabilityStatus: offer.availabilityStatus,
+    priceCheckedAt: offer.priceCheckedAt,
+    linkMatch: offer.linkMatch ?? (offer.linkType === "exact" ? "exact" : offer.destinationUrl ? "destination" : "parameters"),
+  });
+
+  if (offer.availabilityStatus === "expired") return 0;
+
+  const penalty = issues.reduce((sum, issue) => {
+    return sum + (issue.severity === "high" ? 35 : issue.severity === "medium" ? 15 : 5);
+  }, 0);
+
+  return Math.max(0, 100 - penalty);
 }
 
 export type SmartPreset = "all" | "cheap" | "warm" | "city" | "allinclusive" | "discover";
