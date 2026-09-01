@@ -2253,3 +2253,11 @@ body {
 @media(max-width:480px){
   .booking-summary{grid-template-columns:1fr}
 }
+
+
+/* v50 — status ofert i ulubione po wygaśnięciu */
+.offer-card-expired{opacity:.82}
+.offer-card-expired .offer-image{filter:saturate(.6)}
+.offer-card-expired .price{color:var(--muted)}
+.favorites-expired-heading,.favorites-alternatives{margin-top:42px}
+.favorites-expired-heading p{max-width:680px;color:var(--muted);line-height:1.55;margin:6px 0 0}
