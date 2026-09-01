@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { offers } from "@/lib/offers";
+import { recordClick } from "@/lib/clickStats";
 
 function safeExternalUrl(value: string) {
   try {
@@ -48,6 +49,13 @@ export async function GET(
   const response = NextResponse.redirect(target, 307);
   response.headers.set("Cache-Control", "no-store");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+
+  recordClick(request, response, {
+    partner: offer.partner,
+    source,
+    offer: String(offer.id),
+    destination: `${offer.city}, ${offer.country}`,
+  });
 
   const cookieName = `tripownia_click_${offerId}`;
   const previous = Number(request.cookies.get(cookieName)?.value || "0");
