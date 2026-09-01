@@ -3,6 +3,8 @@ import SiteFooter from "@/components/SiteFooter";
 import AdminOfferAudit from "@/components/AdminOfferAudit";
 import AdminOfferEditor from "@/components/AdminOfferEditor";
 import AdminPublishPanel from "@/components/AdminPublishPanel";
+import { offers } from "@/lib/offers";
+import { getOfferQualityIssues } from "@/lib/offerQuality";
 
 export const metadata = {
   title: "Panel administracyjny | Tripownia.pl",
