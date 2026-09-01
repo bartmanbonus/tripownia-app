@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star } from "lucide-react";
 import type { Offer } from "@/lib/offers";
-import { featuredOfferIds, publishedOfferOverrides, getLinkMatch } from "@/lib/offers";
+import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import TravelImage from "@/components/TravelImage";
 import { useEffect, useMemo, useState } from "react";
@@ -30,6 +30,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const displayImage = override.imageUrl || publishedOverride.imageUrl;
   const isFeatured = override.featured ?? featuredOfferIds.has(offer.id);
   const linkMatch = override.linkMatch || getLinkMatch(offer);
+  const checkedAt = formatPriceCheckedAt(override.updatedAt || offer.priceCheckedAt);
 
   function toggleLike() {
     const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
@@ -70,10 +71,10 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         <div className="price-status">
           <Clock3 size={13}/>
           {linkMatch === "exact"
-            ? "Konkretna oferta · sprawdź aktualną cenę u partnera"
+            ? `Konkretna oferta${checkedAt ? ` · cena sprawdzona ${checkedAt}` : ""}`
             : linkMatch === "parameters"
-              ? "Ostatnio od tej ceny · link otwiera wyszukiwanie z podobnymi parametrami"
-              : "Cena z ostatniej selekcji · link otwiera aktualne oferty dla kierunku"}
+              ? `Ostatnio od tej ceny${checkedAt ? ` · aktualizacja ${checkedAt}` : ""} · link otwiera podobne parametry`
+              : `Cena z ostatniej selekcji${checkedAt ? ` · aktualizacja ${checkedAt}` : ""} · link otwiera kierunek`}
         </div>
 
         <div className="partner-chip">
