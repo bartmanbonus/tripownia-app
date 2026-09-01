@@ -130,6 +130,7 @@ export default function SearchHub({
   const [preset, setPreset] = useState<SmartPreset>("all");
   const [sort, setSort] = useState<"recommended" | "price" | "score">("recommended");
   const [query, setQuery] = useState("");
+  const [exotic, setExotic] = useState(false);
 
   useEffect(() => {
     if (!searchRequest) return;
@@ -156,6 +157,14 @@ export default function SearchHub({
   const airportSelectOptions = airportOptions.map(a => ({ value: a.code, label: a.label }));
   const destinationSelectOptions = destinationOptions.map(place => ({ value: place, label: place }));
 
+  const exoticKeywords = [
+    "malediwy","mauritius","seszele","zanzibar","bali","indonezja","tajlandia",
+    "phuket","krabi","koh samui","sri lanka","dominikana","meksyk","riviera maya",
+    "kuba","jamajka","barbados","aruba","bora bora","oman","dubaj","abu dhabi",
+    "katar","wyspy zielonego przylądka","cabo verde","kenia","tanzania","wietnam",
+    "filipiny","malezja","singapur","japonia","nowa zelandia","australia","rpa"
+  ];
+
   const results = useMemo(() => offers
     .filter((offer) => {
       if (offer.availabilityStatus === "expired") return false;
@@ -166,6 +175,8 @@ export default function SearchHub({
       const departureMatch = !selectedAirports.length || selectedAirports.includes(offer.airportCode);
       const budgetMatch = offer.price <= budget;
       const presetMatch = matchesPreset(offer, preset);
+      const exoticSearchable = `${offer.city} ${offer.country} ${offer.hotel}`.toLocaleLowerCase("pl");
+      const exoticMatch = !exotic || exoticKeywords.some(keyword => exoticSearchable.includes(keyword));
 
       const tripDays = offer.nights + 1;
       const durationMatch =
@@ -198,14 +209,14 @@ export default function SearchHub({
               ? offer.nights >= 5 || offer.category.includes("plaza") || isAI || isHB
               : true;
 
-      return queryMatch && destinationMatch && departureMatch && budgetMatch && durationMatch && boardMatch && tabMatch && presetMatch;
+      return queryMatch && destinationMatch && departureMatch && budgetMatch && durationMatch && boardMatch && tabMatch && presetMatch && exoticMatch;
     })
     .sort((a, b) => {
       if (sort === "price") return a.price - b.price;
       if (sort === "score") return b.score - a.score;
       return recommendationScore(b, preset) - recommendationScore(a, preset);
     }),
-  [selectedAirports, selectedDestinations, budget, duration, board, tab, preset, sort, query]);
+  [selectedAirports, selectedDestinations, budget, duration, board, tab, preset, sort, query, exotic]);
 
   const specialistPath = tab === "atrakcje" ? "/atrakcje" : tab === "parking" ? "/parkingi" : tab === "esim" ? "/esim" : null;
   const fallbackOffers = useMemo(() => {
@@ -224,12 +235,16 @@ export default function SearchHub({
         if (duration === "week" && o.nights >= 5 && o.nights <= 8) points += 8;
         if (duration === "long" && o.nights > 8) points += 8;
         if (preset !== "all" && matchesPreset(o, preset)) points += 12;
+        if (exotic) {
+          const exoticSearchable = `${o.city} ${o.country} ${o.hotel}`.toLocaleLowerCase("pl");
+          points += exoticKeywords.some(keyword => exoticSearchable.includes(keyword)) ? 60 : -40;
+        }
         return { o, points };
       })
       .sort((a,b) => b.points - a.points || a.o.price - b.o.price)
       .slice(0, 8)
       .map(x => x.o);
-  }, [results.length, selectedAirports, selectedDestinations, budget, duration, preset, query]);
+  }, [results.length, selectedAirports, selectedDestinations, budget, duration, preset, query, exotic]);
 
   const displayResults = results.length ? results : fallbackOffers;
   const displayed = displayResults.slice(0, visible);
@@ -269,7 +284,8 @@ export default function SearchHub({
     budget !== 5000 ||
     duration !== "all" ||
     board !== "all" ||
-    preset !== "all";
+    preset !== "all" ||
+    exotic;
 
   function runSearch() {
     setSearched(true);
@@ -287,6 +303,7 @@ export default function SearchHub({
     setDuration("all");
     setBoard("all");
     setPreset("all");
+    setExotic(false);
     setSort("recommended");
     setVisible(12);
     setSearched(false);
@@ -303,7 +320,10 @@ export default function SearchHub({
 
   return <section className="search-hub shell" id="wyszukiwarka">
     <div className="smart-finder-head"><div><small>POWIEDZ TYLKO, NA CO MASZ OCHOTĘ</small><h2>Tripownia zawęzi wybór za Ciebie</h2><p>Nie przekopuj setek ofert. Zacznij od jednego pomysłu albo ustaw dokładne filtry.</p></div></div>
-    <div className="smart-presets">{presetButtons.map(item => <button type="button" key={item.id} className={preset === item.id ? "active" : ""} onClick={() => { setPreset(item.id); setSearched(true); setVisible(12); }}><span>{item.emoji}</span>{item.label}</button>)}</div>
+    <div className="smart-presets">
+      {presetButtons.map(item => <button type="button" key={item.id} className={!exotic && preset === item.id ? "active" : ""} onClick={() => { setExotic(false); setPreset(item.id); setSearched(true); setVisible(12); }}><span>{item.emoji}</span>{item.label}</button>)}
+      <button type="button" className={exotic ? "active" : ""} onClick={() => { setExotic(true); setPreset("all"); setSearched(true); setVisible(12); }}><span>🌴</span>Egzotyka</button>
+    </div>
     <div className="search-tabs">{tabs.map(item => <button key={item.id} onClick={() => { setTab(item.id); setBoard("all"); setSearched(false); setVisible(12); }} className={tab === item.id ? "active" : ""}>{item.label}</button>)}</div>
 
     {specialistPath ? <div className="special-search"><div className="special-icon">{tab === "parking" ? <Car/> : tab === "atrakcje" ? <Compass/> : <MapPin/>}</div><div><small>Wyniki Tripownia.pl najpierw pokazują kontekst</small><h3>{tab === "parking" ? "Znajdź parking przy lotnisku" : tab === "atrakcje" ? "Znajdź atrakcje na miejscu" : "Internet na wyjazd bez roamingu"}</h3><p>Zobacz wskazówki i opcje na Tripowni. Dopiero przy konkretnej rezerwacji przejdziesz do partnera.</p></div><a className="primary-cta compact" href={specialistPath}>Przejdź do działu →</a></div> : <>
