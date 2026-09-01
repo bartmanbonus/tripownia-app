@@ -3,7 +3,7 @@ import SiteFooter from "@/components/SiteFooter";
 import AdminOfferAudit from "@/components/AdminOfferAudit";
 import AdminOfferEditor from "@/components/AdminOfferEditor";
 import AdminPublishPanel from "@/components/AdminPublishPanel";
-import { offers } from "@/lib/offers";
+import { offers, getLinkMatch } from "@/lib/offers";
 import { getOfferQualityIssues } from "@/lib/offerQuality";
 
 export const metadata = {
@@ -14,7 +14,7 @@ export const metadata = {
 export default function AdminPage() {
   const offersNeedingReview = offers.filter(offer => getOfferQualityIssues(offer).some(issue => issue.severity !== "low")).length;
   const expiredOffers = offers.filter(offer => offer.availabilityStatus === "expired").length;
-  const exactLinks = offers.filter(offer => offer.linkMatch === "exact").length;
+  const exactLinks = offers.filter(offer => getLinkMatch(offer) === "exact").length;
   return (
     <main>
       <SiteHeader/>
