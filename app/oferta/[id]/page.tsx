@@ -99,7 +99,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
           ) : (
             <>
-              <a className="primary-cta" href={o.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
+              <a className="primary-cta" href={`/go/${o.id}`} target="_blank" rel="sponsored noopener noreferrer">
                 {isExact
                   ? `Sprawdź tę ofertę u ${p.name}`
                   : isParameterized
@@ -120,7 +120,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
       {o.availabilityStatus !== "expired" && <div className="mobile-booking-bar">
         <div><small>{isExact ? "Konkretna oferta" : "Ostatnio od"}</small><strong>{o.price} zł / os.</strong></div>
-        <a href={o.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
+        <a href={`/go/${o.id}`} target="_blank" rel="sponsored noopener noreferrer">
           {isExact ? "Rezerwuj" : "Sprawdź cenę"} <ExternalLink size={16}/>
         </a>
       </div>}
