@@ -38,7 +38,22 @@ export default function Home() {
         <label><small>Na ile?</small><select value={heroDuration} onChange={e=>setHeroDuration(e.target.value)}><option value="all">Dowolnie</option><option value="short">2–4 noce</option><option value="week">5–8 nocy</option><option value="long">9+ nocy</option></select></label>
         <button type="button" onClick={showTrips}><Search size={18}/> Pokaż wyniki</button>
       </div>
-      <div className="trustline">Najpierw nasze wybrane okazje. Gdy ich brakuje — możesz szukać dalej u sprawdzonych partnerów.</div></div></div></section>
+      <div className="trustline">Najpierw nasze wybrane okazje. Gdy ich brakuje — możesz szukać dalej u sprawdzonych partnerów.</div></div>
+      <aside className="hero-daily-panel">
+        <div className="hero-daily-icon"><Sparkles size={22}/></div>
+        <div className="kicker">DZISIAJ W TRIPOWNI</div>
+        <h2>{todaysOffers.length} wybranych okazji</h2>
+        <p>Nie pokazujemy setek przypadkowych wyników. Codziennie wybieramy propozycje, które naprawdę warto sprawdzić.</p>
+        <div className="hero-daily-time"><Flame size={17}/><div><strong>Nowa selekcja codziennie o 12:00</strong><span>Po południu zajrzyj po świeże ceny i nowe kierunki.</span></div></div>
+        <ul><li>Loty, city breaki i wakacje</li><li>Ocena ceny, terminu i pogody</li><li>Rezerwacja bezpośrednio u partnera</li></ul>
+        <a href="#dzisiejsze-okazje" className="hero-daily-cta">Zobacz dzisiejsze okazje <ArrowRight size={17}/></a>
+      </aside>
+    </div></section>
+
+    <section className="section shell daily-offers-section" id="dzisiejsze-okazje">
+      <div className="section-heading daily-offers-heading"><div><div className="kicker">DZISIAJ W TRIPOWNI</div><h2>Okazje wybrane na dziś</h2><p>Aktualna selekcja jest widoczna od razu po wejściu. <strong>Codziennie o 12:00 dokładamy nowe propozycje.</strong></p></div><Link href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link></div>
+      <div className="daily-offers-grid">{todaysOffers.map(offer=><OfferCard key={offer.id} offer={offer}/>)}</div>
+    </section>
 
 
     <section className="section shell" id="odkrywaj"><div className="section-heading"><div><div className="kicker">NIE TYLKO KLASYKI</div><h2>Masz już za sobą Barcelonę i Rzym?</h2></div></div><div className="discovery-grid">
