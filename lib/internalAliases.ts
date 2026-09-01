@@ -2,6 +2,11 @@
 // These paths used to point to pages that are not present in the migrated content.
 export const internalAliasPaths = new Set<string>([
   '/dubaj',
+  '/podroze-po-przezycia',
+  '/islandia-zorza-polarna',
+  '/japonia-kwitnienie-wisni',
+  '/norwegia-fiordy',
+  '/nowa-zelandia-najlepszy-czas',
   '/madera',
   '/maroko',
   '/afryka',

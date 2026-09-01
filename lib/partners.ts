@@ -7,7 +7,9 @@ export type PartnerKey =
   | "seeplaces"
   | "holidaypark"
   | "fonia"
-  | "parklot";
+  | "parklot"
+  | "kiwi"
+  | "booking";
 
 export type Partner = {
   key: PartnerKey;
@@ -171,6 +173,29 @@ export const partners: Record<PartnerKey, Partner> = {
         destinationUrl,
       }),
   },
+  kiwi: {
+    key: "kiwi",
+    name: "Kiwi.com",
+    category: "travel",
+    description: "Loty i elastyczne wyszukiwanie połączeń",
+    commissionType: "unknown",
+    trackingId: "7PnrR4dn",
+    buildUrl: () => "https://kiwi.tpk.lv/7PnrR4dn",
+  },
+  booking: {
+    key: "booking",
+    name: "Booking.com",
+    category: "hotel",
+    description: "Noclegi i hotele",
+    commissionType: "unknown",
+    trackingId: "818288",
+    buildUrl: (destinationUrl = "https://www.booking.com/") => {
+      const url = new URL(destinationUrl);
+      url.searchParams.set("aid", "818288");
+      return url.toString();
+    },
+  },
+
   parklot: {
     key: "parklot",
     name: "Parklot.pl",
