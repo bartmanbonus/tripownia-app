@@ -2536,3 +2536,35 @@ body {
 .share-actions{display:flex;flex-direction:column;align-items:flex-end;gap:9px}.share-native{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:12px;background:#ff5a24;color:#fff;padding:10px 14px;font-weight:900;cursor:pointer}
 .share-row button{display:inline-flex;align-items:center;gap:5px;padding:8px 10px;border-radius:10px;border:1px solid #e7ddd6;background:#fff;color:#29231f;font-size:11px;font-weight:850;cursor:pointer}.share-row button:hover{border-color:#ffb99d;color:var(--accent)}
 @media(max-width:850px){.share-actions{align-items:flex-start;width:100%}.share-native{width:100%;justify-content:center}.share-row{width:100%}.share-row a,.share-row button{flex:1 1 auto;text-align:center;justify-content:center}}
+
+/* v72 — Social Center: posty ofertowe pod Facebooka */
+.social-admin-page{padding-bottom:80px}
+.admin-social-entry .admin-panel-head{align-items:center;gap:24px}
+.admin-social-entry .primary-cta{white-space:nowrap}
+.social-center{margin-top:30px}
+.social-center-toolbar{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:18px;padding:20px;background:#fff;border:1px solid #eee4df;border-radius:20px;box-shadow:0 12px 38px rgba(34,34,34,.05)}
+.social-center-toolbar label,.social-tone-picker{display:flex;flex-direction:column;gap:8px}
+.social-center-toolbar label>span,.social-tone-picker>span{font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#796f69}
+.social-center-toolbar select{min-height:48px;padding:0 14px;border:1px solid #ded7d3;border-radius:13px;background:#fff;font:inherit;font-weight:700;color:#24211f}
+.social-tone-picker>div{display:flex;gap:8px;flex-wrap:wrap}
+.social-tone-picker button{min-height:48px;padding:0 15px;border:1px solid #e2d8d2;border-radius:13px;background:#fff;font-weight:800;cursor:pointer}
+.social-tone-picker button.active{background:#171717;color:#fff;border-color:#171717}
+.social-center-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr);gap:24px;margin-top:22px;align-items:start}
+.social-preview-card{overflow:hidden;background:#fff;border:1px solid #e6e0dc;border-radius:20px;box-shadow:0 14px 40px rgba(31,31,31,.07)}
+.social-preview-head{display:flex;align-items:center;gap:11px;padding:16px 18px}
+.social-preview-logo{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:#ff6a45;color:#fff;font-weight:1000;font-size:19px}
+.social-preview-head strong,.social-preview-head span{display:block}.social-preview-head strong{font-size:14px}.social-preview-head span{margin-top:2px;color:#777;font-size:11px}
+.social-preview-text{padding:2px 18px 16px;white-space:pre-wrap;font-size:14px;line-height:1.55;color:#262626}
+.social-preview-card>img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;background:#f1eeeb}
+.social-link-preview{padding:13px 18px 16px;background:#f5f5f5;border-top:1px solid #e7e7e7}
+.social-link-preview small,.social-link-preview strong,.social-link-preview span{display:block}.social-link-preview small{font-size:10px;color:#777;letter-spacing:.08em}.social-link-preview strong{font-size:16px;margin:3px 0}.social-link-preview span{font-size:12px;color:#666}
+.social-publish-panel{background:#fff;border:1px solid #eee4df;border-radius:20px;padding:24px;box-shadow:0 14px 40px rgba(31,31,31,.06)}
+.social-publish-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:999px;background:#eef8f0;color:#29773a;font-size:10px;font-weight:1000;letter-spacing:.05em}
+.social-publish-panel h2{margin:12px 0 5px;font-size:26px;letter-spacing:-.7px}.social-publish-panel>p{margin:0 0 17px;color:#706963;font-size:13px;line-height:1.5}
+.social-publish-panel textarea{width:100%;resize:vertical;min-height:240px;padding:14px;border:1px solid #ded7d3;border-radius:14px;background:#fbfaf9;font:500 13px/1.55 inherit;color:#272321}
+.social-publish-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.social-publish-actions button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:45px;border:1px solid #ddd3cd;border-radius:12px;background:#fff;font-weight:900;cursor:pointer}
+.social-facebook-button{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:12px;min-height:48px;border-radius:13px;background:#1877f2;color:#fff!important;text-decoration:none;font-weight:1000}
+.social-offer-check{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:10px;color:#3f3935!important;font-size:12px;font-weight:800;text-decoration:none}
+.social-publish-note{margin-top:16px;padding:12px 13px;border-radius:12px;background:#fff6ed;color:#7c5c45;font-size:11px;line-height:1.5}
+@media(max-width:1000px){.social-center-toolbar,.social-center-grid{grid-template-columns:1fr}}
+@media(max-width:620px){.social-publish-actions{grid-template-columns:1fr}.social-center-toolbar,.social-publish-panel{padding:16px}}
