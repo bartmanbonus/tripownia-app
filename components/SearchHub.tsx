@@ -202,6 +202,14 @@ export default function SearchHub({
     board !== "all" ||
     preset !== "all";
 
+  function runSearch() {
+    setSearched(true);
+    setVisible(12);
+    if (typeof window !== "undefined" && window.location.hash !== "#wyszukiwarka") {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}#wyszukiwarka`);
+    }
+  }
+
   function clearFilters() {
     setQuery("");
     setSelectedAirports([]);
@@ -234,9 +242,10 @@ export default function SearchHub({
         <label className="search-text-field">
           <Search size={17}/>
           <input
+            id="tripownia-search-query"
             value={query}
             onChange={e => { setQuery(e.target.value); setVisible(12); }}
-            onKeyDown={e => { if (e.key === "Enter") { setSearched(true); setVisible(12); } }}
+            onKeyDown={e => { if (e.key === "Enter") runSearch(); }}
             placeholder="Wpisz kierunek, miasto albo hotel, np. Rzym lub Resort 4★"
             aria-label="Szukaj po kierunku, mieście lub hotelu"
           />
@@ -255,7 +264,7 @@ export default function SearchHub({
           {tab === "city-break" && <option value="breakfast">Śniadanie</option>}
           {!["wakacje","city-break"].includes(tab) && <><option value="ai">All Inclusive</option><option value="hb">HB / 2 posiłki</option><option value="breakfast">Śniadanie</option></>}
         </select></label>
-        <button className="search-submit compact-submit" onClick={()=>{setSearched(true);setVisible(12)}}><Search size={19}/> Pokaż wyniki</button>
+        <button type="button" className="search-submit compact-submit" onClick={runSearch}><Search size={19}/> Pokaż wyniki</button>
       </div>
 
       {hasActiveFilters && <div className="active-filter-bar">
