@@ -2261,3 +2261,26 @@ body {
 .offer-card-expired .price{color:var(--muted)}
 .favorites-expired-heading,.favorites-alternatives{margin-top:42px}
 .favorites-expired-heading p{max-width:680px;color:var(--muted);line-height:1.55;margin:6px 0 0}
+
+
+/* v51 — kontrola świeżości cen i jakości ofert */
+.admin-quality-summary{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0
+}
+.admin-quality-summary>div{
+  border:1px solid var(--line);border-radius:14px;background:#fff;padding:14px
+}
+.admin-quality-summary small,.admin-quality-summary strong{display:block}
+.admin-quality-summary small{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.admin-quality-summary strong{font-size:24px;margin-top:5px}
+.audit-issues{display:flex;flex-wrap:wrap;gap:5px;max-width:260px}
+.audit-issue,.audit-ok{
+  display:inline-flex;padding:4px 7px;border-radius:999px;font-size:9px;font-weight:900;line-height:1.2
+}
+.audit-ok{background:#ecfdf3;color:#067647}
+.audit-issue.high{background:#fef3f2;color:#b42318}
+.audit-issue.medium{background:#fffaeb;color:#b54708}
+.audit-issue.low{background:#f2f4f7;color:#475467}
+@media(max-width:700px){
+  .admin-quality-summary{grid-template-columns:1fr}
+}
