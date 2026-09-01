@@ -2473,3 +2473,28 @@ body {
   .daily-offers-grid{grid-template-columns:1fr}
   .daily-offers-heading{align-items:flex-start;flex-direction:column}
 }
+
+
+/* v66: działający punkt wejścia do wyszukiwarki */
+.hub-grid .hub-action-card {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  font: inherit;
+  transition: .2s;
+}
+.hub-grid .hub-action-card:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(0,0,0,.07); }
+.hub-grid .hub-action-card strong { font-size: 18px; }
+.hub-grid .hub-action-card span { color: var(--muted); line-height: 1.45; font-size: 13px; }
+.hub-grid .hub-action-card em { color: #f04a23; font-style: normal; font-weight: 800; font-size: 13px; margin-top: 4px; }
+#wyszukiwarka { scroll-margin-top: 90px; }
+#tripownia-search-query:focus { outline: 3px solid rgba(242,101,34,.18); outline-offset: 2px; }
