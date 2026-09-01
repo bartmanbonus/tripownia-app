@@ -89,6 +89,12 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <span>📅 {o.dates}</span>
           </div>
           <div className="detail-source">Źródło ceny: <strong>{p.name}</strong></div>
+          <div className="booking-summary" aria-label="Podsumowanie oferty">
+            <div><small>Kierunek</small><strong>{o.city}, {o.country}</strong></div>
+            <div><small>Termin</small><strong>{o.dates}</strong></div>
+            <div><small>Długość</small><strong>{o.nights} nocy</strong></div>
+            <div><small>Wyżywienie</small><strong>{o.board}</strong></div>
+          </div>
           {o.availabilityStatus === "expired" ? (
             <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
           ) : (
@@ -112,6 +118,12 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
         </div>
       </section>
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
+      {o.availabilityStatus !== "expired" && <div className="mobile-booking-bar">
+        <div><small>{isExact ? "Konkretna oferta" : "Ostatnio od"}</small><strong>{o.price} zł / os.</strong></div>
+        <a href={o.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
+          {isExact ? "Rezerwuj" : "Sprawdź cenę"} <ExternalLink size={16}/>
+        </a>
+      </div>}
       <BeforeYouGo city={o.city} country={o.country} transferIncluded={o.transferIncluded}/>
     </div>
     <SiteFooter/>
