@@ -11,7 +11,7 @@ export default function SiteFooter() {
           <Link href="/" className="footer-logo" aria-label="Tripownia.pl — strona główna">
             <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={180} height={180} />
           </Link>
-          <p><strong>My szukamy. Ty lecisz.</strong><br/>Inspiracje, porównanie ofert i praktyczne przygotowanie podróży w jednym miejscu.</p>
+          <p><strong>My szukamy. Ty lecisz.</strong><br/>Wybrane okazje podróżnicze i konkretne propozycje w jednym miejscu.</p>
           <a className="footer-mail" href="mailto:kontakt@tripownia.pl">kontakt@tripownia.pl</a>
         </div>
 
@@ -21,7 +21,7 @@ export default function SiteFooter() {
           <Link href="/city-break-2">City break</Link>
           <Link href="/last-minute">Last minute</Link>
           <Link href="/kierunki">Kierunki</Link>
-          <Link href="/planowanie-podrozy">Planuj z wyprzedzeniem</Link>
+          <Link href="/ulubione">Ulubione</Link>
         </div>
 
         <div className="footer-column">

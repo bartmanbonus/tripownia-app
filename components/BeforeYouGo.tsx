@@ -115,7 +115,7 @@ export default function BeforeYouGo({
           </span>
 
           <Link href="/transfery">
-            Zaplanuj dojazd →
+            Sprawdź dojazd →
           </Link>
         </article>
 

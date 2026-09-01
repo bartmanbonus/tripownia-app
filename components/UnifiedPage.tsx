@@ -7,7 +7,6 @@ import { legacyPosts, findLegacy } from "@/lib/legacy";
 import { isInternalAlias } from "@/lib/internalAliases";
 import { offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
-import PlanningInterest from "@/components/PlanningInterest";
 
 type ServiceType = "parkingi" | "atrakcje" | "esim" | "ubezpieczenia" | "transfery" | "wynajem-auta";
 
@@ -21,9 +20,9 @@ function ServicePage({ type }: { type: ServiceType }) {
     },
     atrakcje: {
       kicker: "DODATEK DO PODRÓŻY", title: "Atrakcje i bilety na miejscu",
-      lead: "Najpierw wybierz kierunek i plan wyjazdu, potem dobierz wycieczki, bilety i atrakcje.",
+      lead: "Najpierw wybierz konkretny kierunek i termin, potem dobierz wycieczki, bilety i atrakcje.",
       partner: partners.getyourguide,
-      bullets: ["Sprawdź, ile masz realnie czasu na miejscu.", "Wybierz 1–2 najważniejsze atrakcje zamiast przeładowywać plan.", "Na końcu sprawdź dostępność i cenę u partnera."],
+      bullets: ["Sprawdź, ile masz realnie czasu na miejscu.", "Wybierz 1–2 najważniejsze atrakcje zamiast kupować wszystko na zapas.", "Na końcu sprawdź dostępność i cenę u partnera."],
     },
     esim: {
       kicker: "DODATEK DO PODRÓŻY", title: "eSIM i internet w podróży",
@@ -54,16 +53,6 @@ function ServicePage({ type }: { type: ServiceType }) {
   return <main><SiteHeader/><section className="shell service-page"><div className="kicker">{config.kicker}</div><h1>{config.title}</h1><p className="hub-lead">{config.lead}</p><div className="service-panel"><div><h2>Co sprawdzić?</h2><ul>{config.bullets.map((b)=><li key={b}>{b}</li>)}</ul></div><div className="service-cta">{config.partner ? <><strong>{config.partner.name}</strong><p>Do partnera przejdziesz dopiero na końcu. Link jest afiliacyjny i może naliczyć Tripowni prowizję bez dodatkowego kosztu dla Ciebie.</p><a href={config.partner.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Przejdź do {config.partner.name} →</a></> : <><strong>Porównywarka w przygotowaniu</strong><p>Nie wysyłamy Cię na przypadkową stronę tylko po to, żeby mieć link. Gdy dodamy sprawdzonego partnera, pojawi się tu konkretna opcja.</p><Link href="/poradniki">Zobacz poradniki →</Link></>}</div></div></section><SiteFooter/></main>;
 }
 
-function PlanningPage() {
-  const periods = [
-    ["Sylwester 2026/27", "Miasta, słońce i dalsze kierunki na przełom roku."],
-    ["Ferie 2027", "Wyjazdy rodzinne, narty i ciepłe kierunki w środku zimy."],
-    ["Majówka 2027", "City breaki i krótkie wyjazdy z wykorzystaniem dni wolnych."],
-    ["Lato 2027", "First minute, rodzinne wakacje i popularne kierunki plażowe."],
-  ];
-  return <main><SiteHeader/><section className="shell hub-page"><div className="kicker">PLANUJ WCZEŚNIEJ</div><h1>Nie każdy wyjazd jest na jutro</h1><p className="hub-lead">Tripownia ma pomagać również wtedy, gdy planujesz kilka miesięcy do przodu. Zamiast zgadywać, czy „teraz jest tanio”, pokazujemy aktualne opcje i obserwujemy rynek.</p><div className="plan-ahead-grid">{periods.map(([title,desc])=><Link className="plan-ahead-card" href="/#wyszukiwarka" key={title}><small>PLAN PODRÓŻY</small><strong>{title}</strong><span>{desc}</span><b>Sprawdź kierunki →</b></Link>)}</div><div className="service-panel" style={{marginTop:28}}><div><h2>Docelowo: alert ceny</h2><p>Użytkownik wybierze okres, lotnisko i budżet. System będzie mógł zapamiętać zainteresowanie i poinformować o dobrej ofercie albo spadku ceny.</p></div><div><h2>Bez fałszywych obietnic</h2><p>Nie zakładamy, że wcześniejsza rezerwacja zawsze oznacza najniższą cenę. Pokazujemy bieżące dane i warunki konkretnej oferty.</p></div></div><PlanningInterest/></section><SiteFooter/></main>;
-}
-
 function humanize(path: string) {
   return decodeURIComponent(path.split("/").filter(Boolean).pop() || "Podróże")
     .replace(/-/g, " ")
@@ -89,7 +78,6 @@ export default function UnifiedPage({ path }: { path: string }) {
   if (path === "/ubezpieczenia") return <ServicePage type="ubezpieczenia"/>;
   if (path === "/transfery") return <ServicePage type="transfery"/>;
   if (path === "/wynajem-auta") return <ServicePage type="wynajem-auta"/>;
-  if (path === "/planowanie-podrozy") return <PlanningPage/>;
 
   const item = findLegacy(path);
   if (item) return <LegacyPage item={item}/>;

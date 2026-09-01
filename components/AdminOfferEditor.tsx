@@ -168,7 +168,7 @@ export default function AdminOfferEditor() {
 
           <div className="admin-local-warning">
             <Upload size={17}/>
-            <span><strong>To jeszcze nie publikuje zmian dla wszystkich użytkowników.</strong> Wersja v41 służy do przetestowania CMS-u na jednej przeglądarce. Po podpięciu Supabase te same pola zapiszemy do wspólnej bazy.</span>
+            <span><strong>To jeszcze nie publikuje zmian dla wszystkich użytkowników.</strong> Wersja robocza działa lokalnie w tej przeglądarce. Publikacja dla wszystkich użytkowników wymaga zapisania zmian po stronie serwera lub do wspólnego źródła danych — bez narzucania konkretnej technologii.</span>
           </div>
         </div>
       </div>
