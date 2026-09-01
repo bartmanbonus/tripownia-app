@@ -5,7 +5,7 @@ import { ArrowLeft, ExternalLink, MapPin, Moon, Plane, Sun, Utensils } from "luc
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TravelImage from "@/components/TravelImage";
-import { getLinkMatch, offers } from "@/lib/offers";
+import { formatPriceCheckedAt, getLinkMatch, offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import BeforeYouGo from "@/components/BeforeYouGo";
 import FavoriteButton from "@/components/FavoriteButton";
@@ -15,7 +15,19 @@ export async function generateStaticParams(){ return offers.map(o=>({id:String(o
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
   const {id}=await params;
   const o=offers.find(x=>x.id===Number(id));
-  return o?{title:`${o.city} z ${o.departure} | Tripownia`,description:o.reason}:{};
+  if (!o) return {};
+  const title = `${o.city} z ${o.departure} od ${o.price} zł | Tripownia`;
+  const description = `${o.city}, ${o.nights} nocy, ${o.board}. ${o.reason}`;
+  return {
+    title,
+    description,
+    alternates: { canonical: `/oferta/${o.id}` },
+    openGraph: {
+      title, description, type: "website", url: `/oferta/${o.id}`,
+      images: o.image ? [{ url: o.image, alt: `${o.city}, ${o.country}` }] : undefined,
+    },
+    twitter: { card: "summary_large_image", title, description, images: o.image ? [o.image] : undefined },
+  };
 }
 
 export default async function OfferPage({params}:{params:Promise<{id:string}>}){
@@ -26,12 +38,29 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
   const linkMatch = getLinkMatch(o);
   const isExact = linkMatch === "exact";
   const isParameterized = linkMatch === "parameters";
+  const checkedAt = formatPriceCheckedAt(o.priceCheckedAt);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: `${o.city} — ${o.nights} nocy`,
+    description: o.reason,
+    image: o.image,
+    brand: { "@type": "Brand", name: "Tripownia" },
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "PLN",
+      price: o.price,
+      availability: o.availabilityStatus === "expired" ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+      url: `https://tripownia.pl/oferta/${o.id}`,
+    },
+  };
   const similar = offers
     .filter(x => x.id !== o.id && x.availabilityStatus !== "expired" && (x.country === o.country || x.category.some(c => o.category.includes(c))))
     .sort((a,b) => Math.abs(a.price - o.price) - Math.abs(b.price - o.price))
     .slice(0,3);
   return <main>
     <SiteHeader/>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
     <div className="shell">
       <div className="offer-detail-top"><Link href="/okazje"><ArrowLeft size={17}/> Wróć do okazji</Link></div>
       <section className="detail-hero">
@@ -47,10 +76,10 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           <div className="detail-price">{isExact ? "od" : "ostatnio od"} <strong>{o.price} zł</strong> / os.</div>
           <div className="price-status detail-price-status">
             {isExact
-              ? "Cena dotyczy konkretnej zapisanej oferty. Aktualną cenę i dostępność potwierdza partner."
+              ? `Cena dotyczy konkretnej zapisanej oferty.${checkedAt ? ` Ostatnia aktualizacja: ${checkedAt}.` : ""} Aktualną cenę i dostępność potwierdza partner.`
               : isParameterized
-                ? "To cena z ostatniej selekcji Tripowni. Link otwiera wyszukiwanie z możliwie zbliżonymi parametrami, a aktualne wyniki mogą się różnić."
-                : "To cena orientacyjna z ostatniej selekcji Tripowni. Link otwiera stronę kierunku, a nie dokładnie tę samą ofertę."}
+                ? `To cena z ostatniej selekcji Tripowni.${checkedAt ? ` Ostatnia aktualizacja: ${checkedAt}.` : ""} Link otwiera wyszukiwanie z możliwie zbliżonymi parametrami, a aktualne wyniki mogą się różnić.`
+                : `To cena orientacyjna z ostatniej selekcji Tripowni.${checkedAt ? ` Ostatnia aktualizacja: ${checkedAt}.` : ""} Link otwiera stronę kierunku, a nie dokładnie tę samą ofertę.`}
           </div>
           <p className="detail-lead">{o.reason}</p>
           <div className="detail-meta">
