@@ -55,6 +55,12 @@ export default function Home() {
       <div className="daily-offers-grid">{todaysOffers.map(offer=><OfferCard key={offer.id} offer={offer}/>)}</div>
     </section>
 
+    <SearchHub
+      initialAirports={heroAirport === "all" ? [] : [heroAirport]}
+      initialDestinations={heroDestination === "all" ? [] : [heroDestination]}
+      initialDuration={heroDuration}
+      searchRequest={searchRequest}
+    />
 
     <section className="section shell" id="odkrywaj"><div className="section-heading"><div><div className="kicker">NIE TYLKO KLASYKI</div><h2>Masz już za sobą Barcelonę i Rzym?</h2></div></div><div className="discovery-grid">
       <Link className="discovery-card" href="/maroko"><small>BLISKA EGZOTYKA</small><strong>🇲🇦 Maroko</strong><span>Kolor, jedzenie, pustynia i zupełnie inny klimat bez lotu na drugi koniec świata.</span></Link>
