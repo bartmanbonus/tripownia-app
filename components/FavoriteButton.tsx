@@ -7,12 +7,21 @@ export default function FavoriteButton({ offerId }: { offerId: number }) {
   const [liked, setLiked] = useState(false);
 
   useEffect(() => {
-    try {
-      const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
-      setLiked(ids.includes(offerId));
-    } catch {
-      setLiked(false);
-    }
+    const load = () => {
+      try {
+        const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
+        setLiked(ids.includes(offerId));
+      } catch {
+        setLiked(false);
+      }
+    };
+    load();
+    window.addEventListener("tripownia-favorites-updated", load);
+    window.addEventListener("storage", load);
+    return () => {
+      window.removeEventListener("tripownia-favorites-updated", load);
+      window.removeEventListener("storage", load);
+    };
   }, [offerId]);
 
   function toggle() {

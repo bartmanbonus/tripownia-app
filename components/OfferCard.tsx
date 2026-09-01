@@ -21,7 +21,13 @@ export default function OfferCard({ offer }: { offer: Offer }) {
     };
     load();
     window.addEventListener("tripownia-offer-overrides-updated", load as EventListener);
-    return () => window.removeEventListener("tripownia-offer-overrides-updated", load as EventListener);
+    window.addEventListener("tripownia-favorites-updated", load as EventListener);
+    window.addEventListener("storage", load);
+    return () => {
+      window.removeEventListener("tripownia-offer-overrides-updated", load as EventListener);
+      window.removeEventListener("tripownia-favorites-updated", load as EventListener);
+      window.removeEventListener("storage", load);
+    };
   }, [offer.id]);
 
   const publishedOverride = publishedOfferOverrides[String(offer.id)] || {};
@@ -31,6 +37,8 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const isFeatured = override.featured ?? featuredOfferIds.has(offer.id);
   const linkMatch = override.linkMatch || getLinkMatch(offer);
   const checkedAt = formatPriceCheckedAt(override.updatedAt || offer.priceCheckedAt);
+  const availabilityStatus = override.availabilityStatus ?? offer.availabilityStatus ?? "unknown";
+  const isExpired = availabilityStatus === "expired";
 
   function toggleLike() {
     const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
@@ -43,7 +51,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   if (override.hidden) return null;
 
   return (
-    <article className={`offer-card ${isFeatured ? "offer-card-featured" : ""}`}>
+    <article className={`offer-card ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}>
       <Link href={`/oferta/${offer.id}`} className="offer-image" aria-label={`Otwórz ofertę ${offer.city}`}>
         <TravelImage
           city={offer.city}
@@ -52,7 +60,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           className="offer-photo-img"
           overrideSrc={displayImage}
         />
-        <span className={`badge ${offer.tag === "BIERZEMY" ? "hot" : ""}`}>{offer.tag}</span>
+        <span className={`badge ${offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
         {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor"/> HIT</span>}
       </Link>
 
@@ -70,11 +78,13 @@ export default function OfferCard({ offer }: { offer: Offer }) {
 
         <div className="price-status">
           <Clock3 size={13}/>
-          {linkMatch === "exact"
-            ? `Konkretna oferta${checkedAt ? ` · cena sprawdzona ${checkedAt}` : ""}`
-            : linkMatch === "parameters"
-              ? `Ostatnio od tej ceny${checkedAt ? ` · aktualizacja ${checkedAt}` : ""} · link otwiera podobne parametry`
-              : `Cena z ostatniej selekcji${checkedAt ? ` · aktualizacja ${checkedAt}` : ""} · link otwiera kierunek`}
+          {isExpired
+            ? "Ta oferta wygasła — na stronie pokażemy podobne aktualne propozycje"
+            : linkMatch === "exact"
+              ? `Konkretna oferta${checkedAt ? ` · cena sprawdzona ${checkedAt}` : ""}`
+              : linkMatch === "parameters"
+                ? `Ostatnio od tej ceny${checkedAt ? ` · aktualizacja ${checkedAt}` : ""} · link otwiera podobne parametry`
+                : `Cena z ostatniej selekcji${checkedAt ? ` · aktualizacja ${checkedAt}` : ""} · link otwiera kierunek`}
         </div>
 
         <div className="partner-chip">
@@ -90,7 +100,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         <p>{override.note || offer.reason}</p>
 
         <Link className="card-cta" href={`/oferta/${offer.id}`}>
-          Zobacz ofertę na Tripowni <ArrowRight size={17}/>
+          {isExpired ? "Zobacz podobne oferty" : "Zobacz ofertę na Tripowni"} <ArrowRight size={17}/>
         </Link>
 
         {override.affiliateUrl && (

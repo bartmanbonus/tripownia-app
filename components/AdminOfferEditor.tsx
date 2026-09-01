@@ -78,7 +78,7 @@ export default function AdminOfferEditor() {
               >
                 <span>{o.flag}</span>
                 <div><strong>{o.city}</strong><small>{o.price} zł · {o.departure}</small></div>
-                {(ov.featured || ov.hidden || ov.price || ov.affiliateUrl || ov.imageUrl) && <b>zmieniona</b>}
+                {(ov.featured || ov.hidden || ov.price || ov.affiliateUrl || ov.imageUrl || ov.availabilityStatus) && <b>zmieniona</b>}
               </button>
             );
           })}
@@ -129,6 +129,19 @@ export default function AdminOfferEditor() {
             </label>
 
             <label>
+              Status oferty
+              <select
+                value={draft.availabilityStatus ?? offer.availabilityStatus ?? "unknown"}
+                onChange={e => update("availabilityStatus", e.target.value as OfferOverride["availabilityStatus"])}
+              >
+                <option value="available">Dostępna</option>
+                <option value="unknown">Do ponownego sprawdzenia</option>
+                <option value="expired">Wygasła</option>
+              </select>
+              <small>Wygasła oferta zostaje pod swoim adresem, ale nie pojawia się w wyszukiwarce ani selekcji dziennej.</small>
+            </label>
+
+            <label>
               Dokąd naprawdę prowadzi link?
               <select
                 value={draft.linkMatch ?? offer.linkMatch ?? "parameters"}
@@ -167,6 +180,7 @@ export default function AdminOfferEditor() {
             <div><small>Typ linku</small><strong>{draft.linkMatch === "exact" || offer.linkMatch === "exact" ? "konkretna oferta" : draft.linkMatch === "destination" || offer.linkMatch === "destination" ? "strona kierunku" : "wyniki z parametrami"}</strong></div>
             <div><small>Termin</small><strong>{offer.dates}</strong></div>
             <div><small>Hotel</small><strong>{offer.hotel}</strong></div>
+            <div><small>Status</small><strong>{(draft.availabilityStatus ?? offer.availabilityStatus ?? "unknown") === "available" ? "dostępna" : (draft.availabilityStatus ?? offer.availabilityStatus ?? "unknown") === "expired" ? "wygasła" : "do sprawdzenia"}</strong></div>
           </div>
 
           <div className="admin-editor-actions">

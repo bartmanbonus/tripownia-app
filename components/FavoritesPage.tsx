@@ -21,10 +21,21 @@ export default function FavoritesPage() {
     };
     load();
     window.addEventListener("tripownia-favorites-updated", load);
-    return () => window.removeEventListener("tripownia-favorites-updated", load);
+    window.addEventListener("storage", load);
+    return () => {
+      window.removeEventListener("tripownia-favorites-updated", load);
+      window.removeEventListener("storage", load);
+    };
   }, []);
 
   const favorites = useMemo(() => ids.map(id => offers.find(o => o.id === id)).filter(Boolean), [ids]);
+  const activeFavorites = favorites.filter(o => o?.availabilityStatus !== "expired");
+  const expiredFavorites = favorites.filter(o => o?.availabilityStatus === "expired");
+  const favoriteIds = new Set(favorites.map(o => o?.id).filter(Boolean));
+  const alternatives = offers
+    .filter(o => o.availabilityStatus !== "expired" && !favoriteIds.has(o.id))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 4);
 
   return <main>
     <SiteHeader />
@@ -34,7 +45,20 @@ export default function FavoritesPage() {
       <p className="hub-lead">Oferty zapisane na tym urządzeniu. Nie musisz zakładać konta ani się logować.</p>
 
       {favorites.length ? (
-        <div className="cards-grid">{favorites.map(o => o ? <OfferCard key={o.id} offer={o}/> : null)}</div>
+        <>
+          {activeFavorites.length > 0 && <>
+            <div className="section-heading"><div><div className="kicker">AKTUALNE</div><h2>Zapisane oferty</h2></div></div>
+            <div className="cards-grid">{activeFavorites.map(o => o ? <OfferCard key={o.id} offer={o}/> : null)}</div>
+          </>}
+          {expiredFavorites.length > 0 && <>
+            <div className="section-heading favorites-expired-heading"><div><div className="kicker">WYGASŁE</div><h2>Zapisane wcześniej</h2><p>Nie usuwamy ich automatycznie — możesz wrócić do oferty i zobaczyć podobne aktualne propozycje.</p></div></div>
+            <div className="cards-grid">{expiredFavorites.map(o => o ? <OfferCard key={o.id} offer={o}/> : null)}</div>
+          </>}
+          {expiredFavorites.length > 0 && alternatives.length > 0 && <>
+            <div className="section-heading favorites-alternatives"><div><div className="kicker">ZAMIAST WYGASŁYCH</div><h2>Aktualne propozycje</h2></div></div>
+            <div className="cards-grid">{alternatives.map(o => <OfferCard key={o.id} offer={o}/>)}</div>
+          </>}
+        </>
       ) : (
         <div className="favorites-empty">
           <Heart size={34}/>
