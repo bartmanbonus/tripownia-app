@@ -228,31 +228,54 @@ function ExperiencePage({ path }: { path: string }) {
 
 function ExperiencesCalendarPage() {
   const cards = [
-    { href:"/islandia-zorza-polarna", season:"WRZESIEŃ–MARZEC", title:"🌌 Zorza na Islandii", text:"Ciemne noce, wodospady, geotermia i polowanie na zorzę.", eskyArrival:"co-IS", bookingQuery:"Islandia" },
-    { href:"/japonia-kwitnienie-wisni", season:"WIOSNA", title:"🌸 Kwitnienie wiśni w Japonii", text:"Wyjazd planowany pod sakurę, a nie tylko pod Tokio i Kioto.", eskyArrival:"co-JP", bookingQuery:"Japonia" },
-    { href:"/norwegia-fiordy", season:"MAJ–WRZESIEŃ", title:"🏔️ Fiordy i białe noce", text:"Długie dni, trekking i spektakularne trasy widokowe.", eskyArrival:"co-NO", bookingQuery:"Norwegia" },
-    { href:"/nowa-zelandia-najlepszy-czas", season:"LISTOPAD–MARZEC", title:"🥾 Nowa Zelandia", text:"Road trip, góry i lato na południowej półkuli.", eskyArrival:"co-NZ", bookingQuery:"Nowa Zelandia" },
+    { href:"/islandia-zorza-polarna", season:"WRZESIEŃ–MARZEC", title:"🌌 Zorza na Islandii", text:"Ciemne noce, wodospady, geotermia i polowanie na zorzę.", terms:["islandia","reykjavik"], eskyArrival:"co-IS", bookingQuery:"Islandia" },
+    { href:"/japonia-kwitnienie-wisni", season:"WIOSNA", title:"🌸 Kwitnienie wiśni w Japonii", text:"Wyjazd planowany pod sakurę, a nie tylko pod Tokio i Kioto.", terms:["japonia","tokio","tokyo","kioto","kyoto","osaka"], eskyArrival:"co-JP", bookingQuery:"Japonia" },
+    { href:"/norwegia-fiordy", season:"MAJ–WRZESIEŃ", title:"🏔️ Fiordy i białe noce", text:"Długie dni, trekking i spektakularne trasy widokowe.", terms:["norwegia","oslo","bergen","fiord"], eskyArrival:"co-NO", bookingQuery:"Norwegia" },
+    { href:"/nowa-zelandia-najlepszy-czas", season:"LISTOPAD–MARZEC", title:"🥾 Nowa Zelandia", text:"Road trip, góry i lato na południowej półkuli.", terms:["nowa zelandia","auckland","queenstown"], eskyArrival:"co-NZ", bookingQuery:"Nowa Zelandia" },
   ];
+
+  const activeOffers = offers.filter(o => o.availabilityStatus !== "expired");
 
   return <main>
     <SiteHeader/>
     <section className="shell hub-page experience-calendar-page">
       <div className="kicker">PODRÓŻE PO PRZEŻYCIA</div>
       <h1>Kalendarz przeżyć</h1>
-      <p className="hub-lead">Niektóre podróże mają sens właśnie w konkretnym momencie roku. Wybierz zjawisko lub doświadczenie, a zobaczysz, kiedy i jak warto je zaplanować.</p>
-      <div className="discovery-grid">
-        {cards.map((card) =>
-          <article key={card.href} className="discovery-card experience-calendar-card">
-            <small>{card.season}</small>
-            <strong>{card.title}</strong>
-            <span>{card.text}</span>
-            <div className="experience-card-actions">
-              <Link href={card.href}>Przewodnik →</Link>
-              <a href={buildExperienceEskyUrl(card.eskyArrival)} target="_blank" rel="sponsored noopener noreferrer">✈️ Oferty eSky</a>
-              <a href={buildExperienceBookingUrl(card.bookingQuery)} target="_blank" rel="sponsored noopener noreferrer">🏨 Noclegi</a>
+      <p className="hub-lead">Niektóre podróże mają sens właśnie w konkretnym momencie roku. Wybierz zjawisko lub doświadczenie, a od razu sprawdzisz też aktualne możliwości wyjazdu.</p>
+      <div className="experience-calendar-list">
+        {cards.map((card) => {
+          const matched = activeOffers
+            .filter(o => {
+              const haystack = [o.city, o.country, o.hotel, o.board, ...o.category].join(" ").toLocaleLowerCase("pl");
+              return card.terms.some(term => haystack.includes(term.toLocaleLowerCase("pl")));
+            })
+            .sort((a,b) => b.score - a.score)
+            .slice(0,3);
+
+          return <section key={card.href} className="experience-calendar-block">
+            <article className="discovery-card experience-calendar-card">
+              <small>{card.season}</small>
+              <strong>{card.title}</strong>
+              <span>{card.text}</span>
+              <div className="experience-card-actions">
+                <Link href={card.href}>Przewodnik →</Link>
+              </div>
+            </article>
+
+            <div className="experience-calendar-offers">
+              <div className="experience-calendar-offers-head">
+                <strong>Aktualne oferty</strong>
+                <span>{matched.length ? "Znalezione w Tripowni" : "Szukaj u partnerów"}</span>
+              </div>
+              {matched.length ? <div className="experience-mini-offers">
+                {matched.map(o => <OfferCard key={o.id} offer={o}/>) }
+              </div> : <div className="experience-affiliate-fallback compact">
+                <a href={buildExperienceEskyUrl(card.eskyArrival)} target="_blank" rel="sponsored noopener noreferrer">✈️ Lot + hotel w eSky →</a>
+                <a href={buildExperienceBookingUrl(card.bookingQuery)} target="_blank" rel="sponsored noopener noreferrer">🏨 Noclegi w Booking.com →</a>
+              </div>}
             </div>
-          </article>
-        )}
+          </section>;
+        })}
       </div>
     </section>
     <SiteFooter/>
