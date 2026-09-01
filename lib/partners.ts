@@ -1,3 +1,5 @@
+declare const process: { env: Record<string, string | undefined> };
+
 export type PartnerKey =
   | "esky"
   | "wakacje"
@@ -180,7 +182,22 @@ export const partners: Record<PartnerKey, Partner> = {
     description: "Loty i elastyczne wyszukiwanie połączeń",
     commissionType: "unknown",
     trackingId: "7PnrR4dn",
-    buildUrl: () => "https://kiwi.tpk.lv/7PnrR4dn",
+    buildUrl: (destinationUrl) => {
+      const shmarker = process.env.NEXT_PUBLIC_KIWI_SHMARKER;
+      if (destinationUrl && shmarker) {
+        const params = new URLSearchParams({
+          shmarker: `${shmarker}.tripownia`,
+          promo_id: "3791",
+          source_type: "customlink",
+          type: "click",
+          custom_url: destinationUrl,
+        });
+        return `https://c111.travelpayouts.com/click?${params.toString()}`;
+      }
+      // Obecny link z panelu Travelpayouts/Kiwi — afiliacja działa, ale sam skrót
+      // nie pozwala bezpiecznie przekazać parametrów wyszukiwania.
+      return "https://kiwi.tpk.lv/7PnrR4dn";
+    },
   },
   booking: {
     key: "booking",
