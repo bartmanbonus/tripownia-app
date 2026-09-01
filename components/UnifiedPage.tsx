@@ -61,10 +61,39 @@ function humanize(path: string) {
 
 function AliasLandingPage({ path }: { path: string }) {
   const title = humanize(path);
-  const q = decodeURIComponent(path).toLowerCase().replace(/[-/]/g," ");
-  const related = offers.filter(o => q.includes(o.city.toLowerCase()) || q.includes(o.country.toLowerCase()) || o.category.some(c => q.includes(c))).slice(0,6);
-  const shown = related.length ? related : offers.slice(0,6);
-  return <main><SiteHeader/><section className="shell hub-page"><div className="kicker">TRIPOWNIA</div><h1>{title}</h1><p className="hub-lead">Ten stary odnośnik został zachowany po migracji strony. Zamiast błędu 404 pokazujemy aktualne propozycje i prowadzimy dalej po Tripowni.</p><div className="cards-grid">{shown.map(o=><OfferCard key={o.id} offer={o}/>)}</div><div style={{marginTop:30}}><Link className="primary-cta" href="/#wyszukiwarka">Ustaw własne filtry →</Link></div></section><SiteFooter/></main>;
+  const q = decodeURIComponent(path).toLocaleLowerCase("pl").replace(/[-/]/g," ");
+  const active = offers.filter(o => o.availabilityStatus !== "expired");
+  const related = active.filter(o => {
+    const haystack = [
+      o.city,
+      o.country,
+      o.hotel,
+      o.board,
+      ...o.category,
+    ].join(" ").toLocaleLowerCase("pl");
+    return q.split(/\s+/).filter(Boolean).some(token => token.length > 2 && haystack.includes(token));
+  }).slice(0,6);
+  const shown = related.length ? related : active.slice(0,6);
+  const hasDirectMatches = related.length > 0;
+
+  return <main>
+    <SiteHeader/>
+    <section className="shell hub-page">
+      <div className="kicker">INSPIRACJE TRIPOWNI</div>
+      <h1>{title}</h1>
+      <p className="hub-lead">
+        {hasDirectMatches
+          ? `Zebraliśmy aktualne propozycje pasujące do tematu „${title}”. Otwórz ofertę na Tripowni, sprawdź szczegóły i dopiero potem przejdź do partnera.`
+          : `Sprawdź aktualne okazje i inspiracje Tripowni związane z tematem „${title}”. Jeśli nie ma dziś dokładnego dopasowania, pokażemy najciekawsze aktywne propozycje.`}
+      </p>
+      <div className="cards-grid">{shown.map(o=><OfferCard key={o.id} offer={o}/>)}</div>
+      <div style={{marginTop:30,display:"flex",gap:10,flexWrap:"wrap"}}>
+        <Link className="primary-cta" href="/#wyszukiwarka">Wyszukaj po swojemu →</Link>
+        <Link className="secondary-cta" href="/okazje">Zobacz wszystkie okazje</Link>
+      </div>
+    </section>
+    <SiteFooter/>
+  </main>;
 }
 
 export default function UnifiedPage({ path }: { path: string }) {
