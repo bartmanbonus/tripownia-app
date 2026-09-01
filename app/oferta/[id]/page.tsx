@@ -8,6 +8,8 @@ import TravelImage from "@/components/TravelImage";
 import { getLinkMatch, offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import BeforeYouGo from "@/components/BeforeYouGo";
+import FavoriteButton from "@/components/FavoriteButton";
+import OfferCard from "@/components/OfferCard";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
@@ -19,11 +21,15 @@ export async function generateMetadata({params}:{params:Promise<{id:string}>}):P
 export default async function OfferPage({params}:{params:Promise<{id:string}>}){
   const {id}=await params;
   const o=offers.find(x=>x.id===Number(id));
-  if(!o) notFound();
+  if(!o) return notFound();
   const p=partners[o.partner];
   const linkMatch = getLinkMatch(o);
   const isExact = linkMatch === "exact";
   const isParameterized = linkMatch === "parameters";
+  const similar = offers
+    .filter(x => x.id !== o.id && x.availabilityStatus !== "expired" && (x.country === o.country || x.category.some(c => o.category.includes(c))))
+    .sort((a,b) => Math.abs(a.price - o.price) - Math.abs(b.price - o.price))
+    .slice(0,3);
   return <main>
     <SiteHeader/>
     <div className="shell">
@@ -37,6 +43,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           <div className="eyebrow">{o.flag} {o.country}</div>
           <h1>{o.city}</h1>
           <div className="detail-score"><strong>{o.score}</strong><span>/10 Tripownia poleca</span></div>
+          <FavoriteButton offerId={o.id}/>
           <div className="detail-price">{isExact ? "od" : "ostatnio od"} <strong>{o.price} zł</strong> / os.</div>
           <div className="price-status detail-price-status">
             {isExact
@@ -49,13 +56,12 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           <div className="detail-meta">
             <span><Plane/> {o.departure}</span><span><Moon/> {o.nights} nocy</span>
             <span><Sun/> {o.weather}</span>
-            {isExact && <><span><Utensils/> {o.board}</span><span><MapPin/> {o.hotel}</span></>}
-            {!isExact && <span><MapPin/> {o.city}</span>}
-            {o.mealPreference === "breakfast" && <span><Utensils/> Śniadanie — wybierz filtr u eSky</span>}
+            <span><Utensils/> {o.board}</span><span><MapPin/> {o.hotel}</span>
+            <span>📅 {o.dates}</span>
           </div>
           <div className="detail-source">Źródło ceny: <strong>{p.name}</strong></div>
           {o.availabilityStatus === "expired" ? (
-            <div className="expired-offer">Ta oferta wygasła. Wróć do okazji i wybierz aktualną alternatywę.</div>
+            <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
           ) : (
             <>
               <a className="primary-cta" href={o.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
@@ -69,15 +75,14 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
                 {isExact
                   ? "Link prowadzi do konkretnej oferty partnera. Cena i dostępność mogą się zmienić."
                   : isParameterized
-                    ? o.mealPreference === "breakfast"
-                      ? "Przekazujemy partnerowi kierunek, lotnisko i długość pobytu. Po przejściu do eSky wybierz filtr „Śniadanie” — Tripownia rekomenduje city breaki w tej wersji."
-                      : "Przekazujemy partnerowi kierunek i dostępne parametry wyszukiwania. Partner pokazuje aktualne hotele i ceny."
+                    ? "Przekazujemy partnerowi kierunek i dostępne parametry wyszukiwania. Partner pokazuje aktualne hotele i ceny."
                     : "Link prowadzi do aktualnej strony kierunku partnera. Nie obiecujemy, że pierwsza widoczna oferta będzie odpowiadała zapisanej wcześniej cenie lub hotelowi."}
               </small>
             </>
           )}
         </div>
       </section>
+      {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
       <BeforeYouGo city={o.city} country={o.country} transferIncluded={o.transferIncluded}/>
     </div>
     <SiteFooter/>
