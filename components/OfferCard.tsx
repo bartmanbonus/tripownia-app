@@ -8,6 +8,7 @@ import { partners } from "@/lib/partners";
 import TravelImage from "@/components/TravelImage";
 import { useEffect, useMemo, useState } from "react";
 import { getOfferOverride, type OfferOverride } from "@/lib/clientOfferOverrides";
+import { isPriceStale } from "@/lib/offerQuality";
 
 export default function OfferCard({ offer }: { offer: Offer }) {
   const [liked, setLiked] = useState(false);
