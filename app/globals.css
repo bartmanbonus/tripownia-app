@@ -2405,3 +2405,20 @@ body {
 .partner-live-actions a{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px;text-decoration:none;color:var(--ink);font-size:12px;font-weight:850;white-space:nowrap}
 .partner-live-actions a:hover{border-color:#ffb185;background:#fff8f3}
 @media(max-width:850px){.partner-live-search{align-items:flex-start;flex-direction:column}.partner-live-actions{justify-content:flex-start}.hero-copy h1 br{display:none}}
+
+
+/* Kalendarz przeżyć — widoczne oferty przy każdym kierunku */
+.experience-calendar-list{display:grid;gap:28px;margin-top:34px}
+.experience-calendar-block{display:grid;grid-template-columns:minmax(280px,.78fr) minmax(0,1.7fr);gap:18px;align-items:stretch}
+.experience-calendar-block .experience-calendar-card{height:100%;margin:0}
+.experience-calendar-offers{background:#fff;border:1px solid var(--line);border-radius:24px;padding:20px;min-width:0}
+.experience-calendar-offers-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.experience-calendar-offers-head strong{font-size:18px}
+.experience-calendar-offers-head span{font-size:12px;font-weight:800;color:var(--accent);background:#fff1ec;border-radius:999px;padding:7px 10px}
+.experience-mini-offers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.experience-mini-offers .offer-card{min-width:0}
+.experience-affiliate-fallback.compact{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0}
+.experience-affiliate-fallback.compact a{min-height:76px;display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;border-radius:16px;background:var(--soft);color:var(--ink);font-weight:850;text-decoration:none;border:1px solid var(--line)}
+.experience-affiliate-fallback.compact a:hover{border-color:#ffc5b4;background:#fff5f1}
+@media(max-width:980px){.experience-calendar-block{grid-template-columns:1fr}.experience-mini-offers{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.experience-mini-offers,.experience-affiliate-fallback.compact{grid-template-columns:1fr}}
