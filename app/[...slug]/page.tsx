@@ -17,6 +17,24 @@ export async function generateStaticParams() {
   return [...paths].filter(Boolean).map((path) => ({ slug: path.split("/").filter(Boolean) }));
 }
 
+
+function canonicalMetadata(path: string, meta: Metadata): Metadata {
+  return {
+    ...meta,
+    alternates: { canonical: path },
+    openGraph: {
+      ...(meta.openGraph || {}),
+      url: path,
+    },
+  };
+}
+
+function shouldNoIndex(path: string) {
+  return path.startsWith("/produkt/") ||
+    path === "/tripownia-pl/sklep" ||
+    path === "/indywidualne-planowanie-podrozy-bez-ukrytych-kosztow";
+}
+
 function humanize(path: string) {
   const last = decodeURIComponent(path.split("/").filter(Boolean).pop() || "Tripownia");
   return last.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
@@ -36,10 +54,22 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     "/wynajem-auta": { title: "Wynajem auta na wakacje | Tripownia.pl", description: "Na co uważać przy wynajmie samochodu za granicą." },
     "/admin": { title: "Panel administracyjny | Tripownia.pl" },
   };
-  if (fixed[path]) return fixed[path];
+  if (fixed[path]) return canonicalMetadata(path, fixed[path]);
   const item = findLegacy(path);
-  if (item) return { title: item.title, description: item.description || undefined };
-  if (isInternalAlias(path)) return { title: `${humanize(path)} | Tripownia.pl`, description: "Inspiracje i aktualne propozycje Tripowni dla tego tematu." };
+  if (item) {
+    return canonicalMetadata(path, {
+      title: item.title,
+      description: item.description || undefined,
+      robots: shouldNoIndex(path) ? { index: false, follow: true } : undefined,
+    });
+  }
+  if (isInternalAlias(path)) {
+    return canonicalMetadata(path, {
+      title: `${humanize(path)} | Tripownia.pl`,
+      description: `Aktualne propozycje, inspiracje i praktyczne informacje: ${humanize(path)}.`,
+      robots: shouldNoIndex(path) ? { index: false, follow: true } : undefined,
+    });
+  }
   return {};
 }
 
