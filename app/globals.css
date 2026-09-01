@@ -2294,3 +2294,41 @@ body {
 .admin-affiliate-note strong{font-size:12px}
 .admin-affiliate-note span{font-size:11px;line-height:1.5;color:var(--muted)}
 .admin-affiliate-note code{font-weight:900;color:var(--ink)}
+
+
+/* v53 — zaufanie przy przejściu do partnera */
+.partner-handoff-note{
+  display:flex;align-items:flex-start;gap:8px;margin:10px 0 14px;padding:10px 12px;
+  border:1px solid var(--line);border-radius:12px;background:var(--soft);
+  font-size:10px;line-height:1.5;color:var(--muted)
+}
+.partner-handoff-note svg{flex:none;margin-top:1px;color:var(--accent)}
+.partner-handoff-note strong{color:var(--ink)}
+
+
+/* v56 — strony „Podróże po przeżycia” */
+.experience-detail-page{padding-top:56px;padding-bottom:72px}
+.experience-detail-page>h1{max-width:900px;margin:8px 0 8px;font-size:clamp(38px,5vw,66px);line-height:1.02}
+.experience-season{
+  display:inline-flex;margin:8px 0 14px;padding:8px 11px;border-radius:999px;
+  background:var(--soft);font-size:11px;font-weight:900;color:var(--accent)
+}
+.experience-detail-page>.hub-lead{max-width:800px}
+.experience-checklist{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:28px 0
+}
+.experience-checklist>div{
+  display:flex;gap:11px;border:1px solid var(--line);border-radius:16px;background:#fff;padding:16px
+}
+.experience-checklist>div>span{
+  flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;
+  background:var(--soft);font-size:11px;font-weight:900;color:var(--accent)
+}
+.experience-checklist p{margin:2px 0 0;font-size:12px;line-height:1.55}
+.experience-actions{display:flex;gap:10px;flex-wrap:wrap;margin:24px 0 48px}
+.experience-current-offers{margin-top:28px}
+.experience-calendar-card b{display:block;margin-top:12px;font-size:11px;color:var(--accent)}
+@media(max-width:800px){
+  .experience-checklist{grid-template-columns:1fr}
+  .experience-detail-page{padding-top:34px}
+}
