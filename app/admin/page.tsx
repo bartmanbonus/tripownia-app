@@ -18,9 +18,9 @@ export default function AdminPage() {
         <h1>Kontrola ofert i jakości danych</h1>
         <p className="hub-lead">
           Tu kontrolujemy to, co użytkownik faktycznie zobaczy: cenę, partnera, typ linku,
-          kompletność danych i przypisanie zdjęcia. To jest panel operacyjny v1 — jeszcze
-          bez zapisu do wspólnej bazy. Edycję i publikowanie jednym kliknięciem podłączymy
-          po spięciu Supabase.
+          kompletność danych i przypisanie zdjęcia. Panel może działać bez Supabase —
+          wersje robocze zapisujemy lokalnie, a publikację można wysłać do repozytorium GitHub
+          i wdrożyć przez Vercel.
         </p>
         <div className="admin-alert">
           <strong>Najważniejsza zasada:</strong>
