@@ -36,9 +36,11 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const displayImage = override.imageUrl || publishedOverride.imageUrl;
   const isFeatured = override.featured ?? featuredOfferIds.has(offer.id);
   const linkMatch = override.linkMatch || getLinkMatch(offer);
-  const checkedAt = formatPriceCheckedAt(override.updatedAt || offer.priceCheckedAt);
+  const effectiveCheckedAt = override.updatedAt || offer.priceCheckedAt;
+  const checkedAt = formatPriceCheckedAt(effectiveCheckedAt);
   const availabilityStatus = override.availabilityStatus ?? offer.availabilityStatus ?? "unknown";
   const isExpired = availabilityStatus === "expired";
+  const stalePrice = !isExpired && isPriceStale(effectiveCheckedAt);
 
   function toggleLike() {
     const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
@@ -80,11 +82,13 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           <Clock3 size={13}/>
           {isExpired
             ? "Ta oferta wygasła — na stronie pokażemy podobne aktualne propozycje"
-            : linkMatch === "exact"
-              ? `Konkretna oferta${checkedAt ? ` · cena sprawdzona ${checkedAt}` : ""}`
-              : linkMatch === "parameters"
-                ? `Ostatnio od tej ceny${checkedAt ? ` · aktualizacja ${checkedAt}` : ""} · link otwiera podobne parametry`
-                : `Cena z ostatniej selekcji${checkedAt ? ` · aktualizacja ${checkedAt}` : ""} · link otwiera kierunek`}
+            : stalePrice
+              ? `Cena wymaga ponownego sprawdzenia${checkedAt ? ` · ostatnio ${checkedAt}` : ""}`
+              : linkMatch === "exact"
+                ? `Konkretna oferta${checkedAt ? ` · cena sprawdzona ${checkedAt}` : ""}`
+                : linkMatch === "parameters"
+                  ? `Ostatnio od tej ceny${checkedAt ? ` · aktualizacja ${checkedAt}` : ""} · link otwiera podobne parametry`
+                  : `Cena z ostatniej selekcji${checkedAt ? ` · aktualizacja ${checkedAt}` : ""} · link otwiera kierunek`}
         </div>
 
         <div className="partner-chip">
