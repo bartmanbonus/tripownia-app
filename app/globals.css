@@ -3563,3 +3563,22 @@ body {
 .hero-daily-stat>span,.hero-daily-stat div span{display:block;color:var(--muted);font-size:10px;line-height:1.25}
 .hero-daily-stat div strong{display:block;margin-bottom:2px;font-size:11px}
 @media(max-width:560px){.hero-daily-stats{grid-template-columns:1fr}.hero-daily-stat>strong{font-size:23px}}
+
+
+/* V90J — live search partnerów: eSky + Wakacje.pl */
+.partner-live-search{margin-top:18px;padding:20px;border:1px solid #dfe7ed;border-radius:20px;background:linear-gradient(135deg,#f7fbff 0%,#fff 55%,#fff8f3 100%)}
+.partner-live-intro{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:16px}
+.partner-live-intro small{display:block;color:#f45122;font-size:9px;font-weight:950;letter-spacing:.1em}
+.partner-live-intro h4{margin:5px 0 6px;font-size:22px;line-height:1.1}
+.partner-live-intro p{margin:0;max-width:780px;color:#6b645e;font-size:12px;line-height:1.55}
+.partner-live-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.partner-live-card{min-width:0;padding:14px;border:1px solid #ebe4dc;border-radius:17px;background:#fff;box-shadow:0 7px 20px rgba(37,28,20,.04)}
+.partner-live-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.partner-live-head>span{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:#fff2e9;font-size:18px}
+.partner-live-head strong{display:block;font-size:13px;line-height:1.2}
+.partner-live-head small{display:block;margin-top:3px;color:#85786f;font-size:10px}
+.partner-widget-shell{min-height:122px;overflow:visible}
+.partner-widget-wakacje{min-height:132px}
+.partner-live-note{margin:11px 2px 0;color:#8a7f76;font-size:10px;line-height:1.45}
+@media(max-width:900px){.partner-live-grid{grid-template-columns:1fr}.partner-live-card{padding:12px}}
+@media(max-width:620px){.partner-live-search{padding:14px;border-radius:16px}.partner-live-intro h4{font-size:18px}}
