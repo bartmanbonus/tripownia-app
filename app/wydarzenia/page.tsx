@@ -7,6 +7,7 @@ import {
   formatKickoff,
   getSportsTrips,
   sportsClubs,
+  sportsCompetitions,
   sportsDepartures,
 } from "@/lib/sportsEvents";
 
@@ -48,16 +49,9 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
   const selectedPeople = [1, 2, 3, 4].includes(parsedPeople) ? parsedPeople : 2;
 
   const months: string[] = Array.from(new Set<string>(trips.map(trip => monthValue(trip.kickoff))));
-  const competitionMap = new Map<string, { code: string; name: string }>();
-  for (const trip of trips) {
-    const code = trip.competitionCode || trip.competition;
-    competitionMap.set(code, { code, name: trip.competition });
-  }
-  const competitions = Array.from(competitionMap.values());
-
   const filteredTrips = trips.filter(trip => {
     if (selectedClub && trip.clubSlug !== selectedClub) return false;
-    if (selectedCompetition && (trip.competitionCode || trip.competition) !== selectedCompetition) return false;
+    if (selectedCompetition && trip.competitionCode !== selectedCompetition) return false;
     if (selectedMonth && monthValue(trip.kickoff) !== selectedMonth) return false;
     return true;
   });
@@ -133,7 +127,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
             <span>Rozgrywki</span>
             <select name="competition" defaultValue={selectedCompetition}>
               <option value="">Wszystkie ligi</option>
-              {competitions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}
+              {sportsCompetitions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}
             </select>
           </label>
 
@@ -204,7 +198,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                   <div className="sports-auto-plan">
                     <div><small>WYLOT</small><b>{links.departureDate}</b></div>
                     <div><small>POWRÓT</small><b>{links.returnDate}</b></div>
-                    <div><small>TRASA</small><b>{activeDeparture.label} → {trip.city}</b></div>
+                    <div><small>TRASA</small><b>{activeDeparture.label} → {links.arrivalLabel}</b></div>
                   </div>
 
                   <div className="sports-event-actions">
@@ -217,7 +211,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                   <div className="sports-event-cta">
                     <span>🔥 Pomysł Tripownii:</span>
                     <b>
-                      {activeDeparture.label} → {trip.city}. Wylot {links.departureDate}, mecz {trip.kickoff.slice(0, 10)}, powrót {links.returnDate}. Wszystko w linkach ustawione automatycznie.
+                      {activeDeparture.label} → {links.arrivalLabel}. Wylot {links.departureDate}, mecz {trip.kickoff.slice(0, 10)}, powrót {links.returnDate}. Wszystko w linkach ustawione automatycznie.
                     </b>
                   </div>
                 </article>
