@@ -5,7 +5,12 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin", "/api/"],
+      disallow: [
+        "/admin/",
+        "/api/",
+        "/go/",
+        "/out/",
+      ],
     },
     sitemap: "https://tripownia.pl/sitemap.xml",
     host: "https://tripownia.pl",
