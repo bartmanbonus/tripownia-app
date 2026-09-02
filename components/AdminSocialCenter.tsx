@@ -112,14 +112,9 @@ Jeśli ten kierunek chodzi Ci po głowie, to jest moment, żeby sprawdzić cenę
   };
 
   const text = linkPlacement === "post"
-    ? `${baseTexts[tone]}
+    ? `${baseTexts[tone]}\n\n👉 Sprawdź aktualną cenę: ${url}`
+    : `${baseTexts[tone]}\n\n👇 Link do oferty w pierwszym komentarzu`;
 
-👉 Sprawdź aktualną cenę: ${url}`
-    : `${baseTexts[tone]}
-
-👇 Link do oferty w pierwszym komentarzu`;
-
-  const text = texts[tone];
   const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
   const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
   const xUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(`${offer.city} od ${offer.price} zł/os. — Tripownia.pl`)}`;
@@ -259,7 +254,7 @@ Jeśli ten kierunek chodzi Ci po głowie, to jest moment, żeby sprawdzić cenę
           </a>
 
           <div className="social-publish-note">
-            Facebook i Instagram nie pozwalają zwykłej stronie internetowej automatycznie publikować pełnych postów na profilu. Ta wersja przygotowuje treść, kolejkę i linki do publikacji. Domyślnie link jest ustawiony jako „w pierwszym komentarzu”, żeby post nie zaczynał się od surowego URL-a. Pełna automatyzacja wymaga Meta Graph API i uprawnień strony.
+            Facebook i Instagram nie pozwalają zwykłej stronie internetowej automatycznie publikować pełnych postów na profilu. Ta wersja przygotowuje treść, kolejkę i linki do publikacji. Pełna automatyzacja wymaga Meta Graph API i uprawnień strony.
           </div>
         </aside>
       </div>
