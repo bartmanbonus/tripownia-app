@@ -51,6 +51,13 @@ export default function AdminPage() {
             <b style={ctaStyle}>Zobacz landingi →</b>
           </Link>
 
+          <Link href="/wydarzenia" style={cardStyle}>
+            <span style={iconStyle}>⚽</span>
+            <strong style={titleStyle}>Wydarzenia</strong>
+            <span style={textStyle}>Terminarze meczów, loty i noclegi zsynchronizowane automatycznie.</span>
+            <b style={ctaStyle}>Otwórz wydarzenia →</b>
+          </Link>
+
           <Link href="/polska" style={cardStyle}>
             <span style={iconStyle}>🇵🇱</span>
             <strong style={titleStyle}>Polska</strong>
