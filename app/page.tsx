@@ -3,8 +3,8 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { ArrowRight, Flame, Sparkles, Dice5 } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
 import { offers } from "@/lib/offers";
@@ -30,9 +30,12 @@ const LOCAL_IMAGE_BY_CITY: Record<string, string> = {
   teneryfa: "/images/destinations/teneryfa.jpg",
   fuerteventura: "/images/destinations/fuerteventura.jpg",
   santorini: "/images/destinations/santorini.jpg",
-  rodos: "/images/destinations/rodos.jpg",
-  pafos: "/images/destinations/pafos.jpg",
-  sycylia: "/images/destinations/sycylia.jpg",
+  rodos: "/images/destinations/Rodos.jpg",
+  pafos: "/images/destinations/Pafos.jpg",
+  sycylia: "/images/destinations/Sycylia.jpg",
+  "marsa alam": "/images/destinations/Marsa_Alam.jpg",
+  "sloneczny brzeg": "/images/destinations/Sloneczny_Brzeg.jpg",
+  "riwiera albanska": "/images/destinations/Riwiera_Albanska.jpg",
   mediolan: "/images/destinations/mediolan.jpg",
   wenecja: "/images/destinations/wenecja.jpg",
   wieden: "/images/destinations/wieden.jpg",
@@ -167,11 +170,12 @@ export default function Home() {
       if (hit) picked.push(hit);
     }
     for (const offer of active) {
-      if (picked.length >= 8) break;
+      if (picked.length >= 12) break;
       if (!picked.some(p => p.id === offer.id)) picked.push(offer);
     }
-    return picked.slice(0, 8);
+    return picked.slice(0, 12);
   }, []);
+  const offersRailRef = useRef<HTMLDivElement>(null);
   const [budget, setBudget] = useState(2500);
   const SURPRISES = [
     {flag:"🇯🇴",city:"Amman + Wadi Rum",price:1900,hook:"Pustynia, Petra i noc pod gwiazdami — zamiast kolejnego city breaku.",query:"Amman Jordania"},
@@ -184,6 +188,15 @@ export default function Home() {
     {flag:"🇵🇹",city:"Azory",price:2300,hook:"Wulkany, wieloryby i zielone wyspy na środku Atlantyku.",query:"Ponta Delgada Azory"}
   ];
   const [surprise, setSurprise] = useState<(typeof SURPRISES)[number] | null>(null);
+
+
+  function moveOffersRail(direction: -1 | 1) {
+    const rail = offersRailRef.current;
+    if (!rail) return;
+    const card = rail.querySelector<HTMLElement>(".offer-card");
+    const step = card ? card.getBoundingClientRect().width + 18 : 360;
+    rail.scrollBy({ left: direction * step * 2, behavior: "smooth" });
+  }
 
   function pickSurprise() {
     const pool = SURPRISES.filter(o => o.price <= Math.max(budget,1500));
@@ -198,12 +211,33 @@ export default function Home() {
       <SiteHeader />
 
       <section className="hero hero-clean">
-        <div className="shell hero-inner hero-inner-clean">
+        <div className="shell hero-inner hero-inner-clean hero-inner-restored">
           <div className="hero-copy hero-copy-clean">
             <div className="pill"><Flame size={16}/> Codziennie wybrane okazje</div>
             <h1>Najlepsze okazje podróżnicze<br/><span>w jednym miejscu.</span></h1>
             <p>Wybieramy konkretne wyjazdy, ale możesz też samodzielnie przeszukać cały świat — od city breaku po Nową Zelandię.</p>
           </div>
+
+          <aside className="hero-daily-panel hero-radar-panel" aria-label="Na radarze Tripowni dzisiaj">
+            <div className="hero-daily-icon">✦</div>
+            <div className="kicker">NA RADARZE DZISIAJ</div>
+            <h2>Co warto kliknąć teraz?</h2>
+            <p>Nie przypadkowe kierunki — trzy propozycje wyciągnięte z dzisiejszej selekcji.</p>
+            <div className="hero-daily-stats">
+              <div className="hero-daily-stat"><strong>{todaysOffers.length}</strong><span>nowych okazji dzisiaj</span></div>
+              <div className="hero-daily-stat"><Clock3 size={17}/><div><strong>Kolejna aktualizacja</strong><span>jutro o 12:00 czasu polskiego</span></div></div>
+            </div>
+            <div className="hero-radar-list">
+              {todaysOffers.slice(0,3).map((offer, index) => (
+                <Link href={`/oferta/${offer.id}`} className="hero-radar-offer" key={offer.id}>
+                  <span>{offer.flag}</span>
+                  <div><small>{index === 0 ? "🔥 NAJLEPSZY STRZAŁ" : index === 1 ? "✨ WARTO SPRAWDZIĆ" : "🌍 COŚ INNEGO"}</small><strong>{offer.city}</strong></div>
+                  <b>od {offer.price.toLocaleString("pl-PL")} zł →</b>
+                </Link>
+              ))}
+            </div>
+            <Link className="hero-daily-cta" href="#okazje"><span>Zobacz dzisiejsze okazje</span><ArrowRight size={16}/></Link>
+          </aside>
         </div>
       </section>
 
@@ -218,7 +252,15 @@ export default function Home() {
           </div>
           <Link href="/okazje">Zobacz wszystkie <ArrowRight size={16}/></Link>
         </div>
-        <div className="cards-grid">{todaysOffers.map(o => <OfferCard offer={o} key={o.id}/>)}</div>
+        <div className="daily-carousel-wrap">
+          <div className="daily-carousel-controls" aria-label="Sterowanie karuzelą ofert">
+            <button type="button" onClick={() => moveOffersRail(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={18}/></button>
+            <button type="button" onClick={() => moveOffersRail(1)} aria-label="Następne oferty"><ArrowRight size={18}/></button>
+          </div>
+          <div className="daily-carousel" ref={offersRailRef}>
+            {todaysOffers.map(o => <div className="daily-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}
+          </div>
+        </div>
       </section>
 
       <section className="section shell streaming-discovery" aria-label="Odkrywaj Tripownię">

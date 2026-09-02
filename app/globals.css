@@ -3510,3 +3510,56 @@ body {
 .experience-concrete-cta{display:flex!important;align-items:center;justify-content:center;padding:11px 12px!important;border:0!important;border-radius:11px;background:#111;color:#fff!important;text-align:center}
 .experience-concrete-card:hover .experience-concrete-cta{background:#f45122}
 @media(max-width:760px){.global-search-result{align-items:flex-start;flex-direction:column}.global-search-actions{width:100%}.global-search-actions a{flex:1}.quick-destination-grid{display:grid;grid-template-columns:1fr 1fr}.quick-destination-grid button{justify-content:flex-start;border-radius:12px}.surprise-result-v2{grid-template-columns:auto 1fr}}
+
+/* V90H — przywrócony panel hero bez logo + pełna karuzela ofert */
+.hero-clean{padding:58px 0 30px!important}
+.hero-inner-clean.hero-inner-restored{
+  display:grid!important;
+  grid-template-columns:minmax(0,1.42fr) minmax(340px,.58fr)!important;
+  gap:46px!important;
+  align-items:center!important;
+  max-width:1440px!important;
+}
+.hero-inner-restored .hero-copy-clean{max-width:980px!important}
+.hero-radar-panel{display:block!important;min-height:0!important;padding:26px!important;background:rgba(255,255,255,.88)!important;backdrop-filter:blur(12px)}
+.hero-radar-panel .hero-daily-icon{margin-bottom:8px}
+.hero-radar-panel h2{font-size:30px!important;margin:7px 0 9px!important}
+.hero-radar-panel>p{margin-bottom:15px!important}
+.hero-radar-panel .hero-daily-time{margin-bottom:12px!important}
+.hero-radar-list{display:grid;gap:8px;margin:0 0 14px}
+.hero-radar-offer{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 12px;border:1px solid #ece5de;border-radius:13px;background:#fff;color:var(--ink);text-decoration:none;transition:.16s ease}
+.hero-radar-offer:hover{border-color:#f3a07b;transform:translateY(-1px)}
+.hero-radar-offer>span{font-size:22px}
+.hero-radar-offer div{min-width:0}.hero-radar-offer small{display:block;margin-bottom:2px;color:var(--accent);font-size:8px;font-weight:950;letter-spacing:.06em}.hero-radar-offer strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px}.hero-radar-offer b{font-size:11px;white-space:nowrap}
+
+.daily-carousel-wrap{position:relative}
+.daily-carousel-controls{display:flex;justify-content:flex-end;gap:8px;margin:-4px 0 12px}
+.daily-carousel-controls button{width:42px;height:42px;border:1px solid #e7e0da;border-radius:999px;background:#fff;color:var(--ink);display:grid;place-items:center;cursor:pointer;box-shadow:0 7px 18px rgba(32,22,14,.055);transition:.16s ease}
+.daily-carousel-controls button:hover{border-color:#f3a07b;background:#fff7f2;transform:translateY(-1px)}
+.daily-carousel{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:2px 2px 18px;scrollbar-width:none}
+.daily-carousel::-webkit-scrollbar{display:none}
+.daily-carousel-item{flex:0 0 clamp(290px,28vw,390px);min-width:0;scroll-snap-align:start}
+.daily-carousel-item>.offer-card{height:100%}
+
+@media(max-width:1050px){
+  .hero-inner-clean.hero-inner-restored{grid-template-columns:1fr!important;gap:22px!important}
+  .hero-radar-panel{max-width:none!important}
+  .daily-carousel-item{flex-basis:clamp(285px,43vw,360px)}
+}
+@media(max-width:680px){
+  .hero-clean{padding:36px 0 18px!important}
+  .hero-radar-panel{padding:20px!important}
+  .hero-radar-offer{grid-template-columns:auto minmax(0,1fr)}
+  .hero-radar-offer b{grid-column:2;justify-self:start}
+  .daily-carousel-controls{margin-top:0}
+  .daily-carousel-item{flex-basis:86vw}
+}
+
+
+/* v90i — licznik dzisiejszych okazji + kolejna aktualizacja */
+.hero-daily-stats{display:grid;grid-template-columns:1fr 1.35fr;gap:8px;margin:0 0 14px}
+.hero-daily-stat{display:flex;align-items:center;gap:9px;min-width:0;padding:11px 12px;border:1px solid #ece5de;border-radius:13px;background:#fff}
+.hero-daily-stat>strong{font-size:27px;line-height:1;color:var(--accent)}
+.hero-daily-stat>span,.hero-daily-stat div span{display:block;color:var(--muted);font-size:10px;line-height:1.25}
+.hero-daily-stat div strong{display:block;margin-bottom:2px;font-size:11px}
+@media(max-width:560px){.hero-daily-stats{grid-template-columns:1fr}.hero-daily-stat>strong{font-size:23px}}
