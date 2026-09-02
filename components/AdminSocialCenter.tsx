@@ -1,16 +1,31 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Check, Copy, ExternalLink, Facebook, Link2, Sparkles } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Check, Copy, ExternalLink, Facebook, Link2, Sparkles,
+  Linkedin, MessageCircle, CalendarClock, Trash2, Plus, Send
+} from "lucide-react";
 import { offers } from "@/lib/offers";
 
 type Tone = "short" | "sales" | "daily";
+type QueueItem = {
+  id: string;
+  offerId: number;
+  tone: Tone;
+  text: string;
+  url: string;
+  scheduledAt: string;
+  status: "draft" | "ready";
+  createdAt: string;
+};
 
 const tones: { id: Tone; label: string }[] = [
   { id: "short", label: "Krótki" },
   { id: "sales", label: "Sprzedażowy" },
   { id: "daily", label: "Okazja dnia" },
 ];
+
+const QUEUE_KEY = "tripownia-social-queue-v2";
 
 function slugify(value: string) {
   return value
@@ -21,6 +36,16 @@ function slugify(value: string) {
     .replace(/^-|-$/g, "");
 }
 
+function readQueue(): QueueItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const parsed = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function AdminSocialCenter() {
   const activeOffers = useMemo(
     () => offers.filter((offer) => offer.availabilityStatus !== "expired"),
@@ -29,6 +54,10 @@ export default function AdminSocialCenter() {
   const [id, setId] = useState(activeOffers[0]?.id ?? 1);
   const [tone, setTone] = useState<Tone>("sales");
   const [copied, setCopied] = useState<"text" | "link" | null>(null);
+  const [scheduledAt, setScheduledAt] = useState("");
+  const [queue, setQueue] = useState<QueueItem[]>([]);
+
+  useEffect(() => setQueue(readQueue()), []);
 
   const offer = useMemo(
     () => activeOffers.find((item) => item.id === id) ?? activeOffers[0],
@@ -41,18 +70,69 @@ export default function AdminSocialCenter() {
   const hashtag = slugify(offer.city);
 
   const texts: Record<Tone, string> = {
-    short: `${offer.flag} ${offer.city} od ${offer.price} zł/os. ✈️\n${offer.nights} nocy · wylot: ${offer.departure}\n\nSprawdź szczegóły i aktualną cenę: ${url}\n\n#tripownia #podroze #${hashtag}`,
-    sales: `${offer.flag} ${offer.city} — ta oferta naprawdę zwraca uwagę 👀\n\n✈️ Wylot: ${offer.departure}\n🏨 ${offer.nights} nocy · ${offer.hotel}\n🍽️ ${offer.board}\n💰 ostatnio od ${offer.price} zł/os.\n\n${offer.reason}\n\n👉 Zobacz szczegóły i sprawdź aktualną cenę: ${url}\n\n#tripownia #okazjepodroznicze #wakacje #${hashtag}`,
-    daily: `🔥 OKAZJA DNIA: ${offer.city} ${offer.flag}\n\nOd ${offer.price} zł/os. za ${offer.nights} nocy z wylotem z ${offer.departure}.\n\n${offer.reason}\n\nJeśli ten kierunek jest na Twojej liście — warto sprawdzić teraz 👇\n${url}\n\n#tripownia #okazjadnia #podroze #${hashtag}`,
+    short: `${offer.flag} ${offer.city} od ${offer.price} zł/os. ✈️
+${offer.nights} nocy · wylot: ${offer.departure}
+
+Sprawdź szczegóły i aktualną cenę: ${url}
+
+#tripownia #podroze #${hashtag}`,
+    sales: `${offer.flag} ${offer.city} — ta oferta naprawdę zwraca uwagę 👀
+
+✈️ Wylot: ${offer.departure}
+🏨 ${offer.nights} nocy · ${offer.hotel}
+🍽️ ${offer.board}
+💰 ostatnio od ${offer.price} zł/os.
+
+${offer.reason}
+
+👉 Zobacz szczegóły i sprawdź aktualną cenę: ${url}
+
+#tripownia #okazjepodroznicze #wakacje #${hashtag}`,
+    daily: `🔥 OKAZJA DNIA: ${offer.city} ${offer.flag}
+
+Od ${offer.price} zł/os. za ${offer.nights} nocy z wylotem z ${offer.departure}.
+
+${offer.reason}
+
+Jeśli ten kierunek jest na Twojej liście — warto sprawdzić teraz 👇
+${url}
+
+#tripownia #okazjadnia #podroze #${hashtag}`,
   };
 
   const text = texts[tone];
   const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+  const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+  const xUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(`${offer.city} od ${offer.price} zł/os. — Tripownia.pl`)}`;
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`;
 
   async function copy(value: string, type: "text" | "link") {
     await navigator.clipboard.writeText(value);
     setCopied(type);
     window.setTimeout(() => setCopied(null), 1500);
+  }
+
+  function saveQueue(next: QueueItem[]) {
+    setQueue(next);
+    localStorage.setItem(QUEUE_KEY, JSON.stringify(next));
+  }
+
+  function addToQueue() {
+    const item: QueueItem = {
+      id: `${Date.now()}-${offer.id}`,
+      offerId: offer.id,
+      tone,
+      text,
+      url,
+      scheduledAt,
+      status: scheduledAt ? "ready" : "draft",
+      createdAt: new Date().toISOString(),
+    };
+    saveQueue([item, ...queue].slice(0, 50));
+  }
+
+  function removeFromQueue(queueId: string) {
+    saveQueue(queue.filter(item => item.id !== queueId));
   }
 
   return (
@@ -68,6 +148,7 @@ export default function AdminSocialCenter() {
             ))}
           </select>
         </label>
+
         <div className="social-tone-picker">
           <span>Styl posta</span>
           <div>
@@ -83,6 +164,11 @@ export default function AdminSocialCenter() {
             ))}
           </div>
         </div>
+
+        <label>
+          <span>Planowana publikacja</span>
+          <input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} />
+        </label>
       </div>
 
       <div className="social-center-grid">
@@ -91,7 +177,7 @@ export default function AdminSocialCenter() {
             <div className="social-preview-logo">T</div>
             <div>
               <strong>Tripownia.pl</strong>
-              <span>Post na Facebooka · podgląd</span>
+              <span>Post social · podgląd</span>
             </div>
           </div>
           <div className="social-preview-text">{text}</div>
@@ -105,8 +191,8 @@ export default function AdminSocialCenter() {
 
         <aside className="social-publish-panel">
           <div className="social-publish-badge"><Sparkles size={16}/> GOTOWE DO PUBLIKACJI</div>
-          <h2>Post pod Facebooka</h2>
-          <p>Oferta, zdjęcie, cena i link są pobierane z Tripownii. Przed publikacją potwierdź aktualną cenę u partnera.</p>
+          <h2>Post z aktualnej oferty</h2>
+          <p>Treść, zdjęcie, cena i link są pobierane z Tripownii. Przed publikacją potwierdź cenę u partnera.</p>
 
           <textarea value={text} readOnly rows={13} />
 
@@ -117,20 +203,59 @@ export default function AdminSocialCenter() {
             <button type="button" onClick={() => copy(url, "link")}>
               {copied === "link" ? <Check size={17}/> : <Link2 size={17}/>} {copied === "link" ? "Skopiowano" : "Kopiuj link"}
             </button>
+            <button type="button" onClick={addToQueue}>
+              <Plus size={17}/> Dodaj do kolejki
+            </button>
           </div>
 
-          <a className="social-facebook-button" href={facebookUrl} target="_blank" rel="noreferrer">
-            <Facebook size={18}/> Otwórz udostępnianie na Facebooku
-          </a>
+          <div className="social-channel-grid">
+            <a href={facebookUrl} target="_blank" rel="noreferrer"><Facebook size={18}/> Facebook</a>
+            <a href={linkedInUrl} target="_blank" rel="noreferrer"><Linkedin size={18}/> LinkedIn</a>
+            <a href={xUrl} target="_blank" rel="noreferrer"><Send size={18}/> X</a>
+            <a href={whatsappUrl} target="_blank" rel="noreferrer"><MessageCircle size={18}/> WhatsApp</a>
+          </div>
+
           <a className="social-offer-check" href={`/oferta/${offer.id}`} target="_blank" rel="noreferrer">
             Sprawdź ofertę przed publikacją <ExternalLink size={15}/>
           </a>
 
           <div className="social-publish-note">
-            Facebook nie pozwala stronie zewnętrznej automatycznie wkleić pełnego tekstu do okna publikacji. Dlatego jednym kliknięciem kopiujesz gotowy tekst, a drugim otwierasz udostępnianie konkretnej oferty.
+            Facebook i Instagram nie pozwalają zwykłej stronie internetowej automatycznie publikować pełnych postów na profilu. Ta wersja przygotowuje treść, kolejkę i linki do publikacji. Pełna automatyzacja wymaga Meta Graph API i uprawnień strony.
           </div>
         </aside>
       </div>
+
+      <section className="social-queue">
+        <div className="admin-panel-head">
+          <div>
+            <h2>Kolejka postów</h2>
+            <p>Plan roboczy zapisuje się lokalnie w tej przeglądarce. Po podpięciu API tę samą kolejkę możemy wykorzystać do automatycznej publikacji.</p>
+          </div>
+          <span className="social-queue-count"><CalendarClock size={16}/> {queue.length} w kolejce</span>
+        </div>
+
+        {!queue.length ? (
+          <div className="social-queue-empty">Nie ma jeszcze żadnych postów w kolejce.</div>
+        ) : (
+          <div className="social-queue-list">
+            {queue.map(item => {
+              const qOffer = activeOffers.find(o => o.id === item.offerId);
+              return (
+                <article key={item.id}>
+                  <div>
+                    <small>{item.scheduledAt ? new Date(item.scheduledAt).toLocaleString("pl-PL") : "bez terminu"}</small>
+                    <strong>{qOffer ? `${qOffer.flag} ${qOffer.city}` : `Oferta #${item.offerId}`}</strong>
+                    <span>{item.tone === "daily" ? "Okazja dnia" : item.tone === "sales" ? "Sprzedażowy" : "Krótki"}</span>
+                  </div>
+                  <button type="button" onClick={() => removeFromQueue(item.id)} aria-label="Usuń z kolejki">
+                    <Trash2 size={16}/>
+                  </button>
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

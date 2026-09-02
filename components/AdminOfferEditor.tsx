@@ -57,8 +57,8 @@ export default function AdminOfferEditor() {
     <div className="admin-editor">
       <div className="admin-editor-head">
         <div>
-          <h2>Edytor wersji roboczej</h2>
-          <p>Zmiany zapisują się lokalnie w tej przeglądarce i od razu wpływają na karty ofert na Tripowni.</p>
+          <h2>CMS ofert</h2>
+          <p>Edytuj cenę, link afiliacyjny, status, zdjęcie, opis i wyróżnienie. Zapis lokalny daje podgląd, a przycisk publikacji w panelu wysyła zatwierdzone zmiany do wspólnej wersji serwisu, jeśli publikacja GitHub/Vercel jest skonfigurowana.</p>
         </div>
         <button type="button" className="admin-json-export" onClick={exportJson}>
           <Download size={16}/> Eksport zmian JSON
@@ -185,10 +185,10 @@ export default function AdminOfferEditor() {
 
           <div className="admin-editor-actions">
             <button type="button" className="admin-save-draft" onClick={save}>
-              <Save size={16}/> {saved ? "Zapisano" : "Zapisz wersję roboczą"}
+              <Save size={16}/> {saved ? "Zapisano" : "Zapisz zmianę w CMS"}
             </button>
             <button type="button" className="admin-reset-draft" onClick={reset}>
-              <Trash2 size={16}/> Usuń lokalne zmiany
+              <Trash2 size={16}/> Cofnij zmiany
             </button>
             <a href={`/oferta/${offer.id}`} target="_blank">Otwórz ofertę →</a>
           </div>
