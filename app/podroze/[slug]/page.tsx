@@ -7,6 +7,7 @@ import OfferCard from "@/components/OfferCard";
 import { offers } from "@/lib/offers";
 import { buildEskyFlightsUrl, buildEskyPackagesUrl, partners } from "@/lib/partners";
 import { getSeoLanding, seoLandings } from "@/lib/seoLandings";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -84,6 +85,11 @@ export default async function SeoLandingPage({ params }: PageProps) {
   return (
     <main>
       <SiteHeader />
+      <BreadcrumbSchema items={[
+        { name: "Tripownia", url: "https://tripownia.pl/" },
+        { name: "Pomysły na podróże", url: "https://tripownia.pl/podroze" },
+        { name: page.title, url: `https://tripownia.pl/podroze/${page.slug}` },
+      ]}/>
 
       <section className="seo-landing-hero">
         <div className="shell">
@@ -141,9 +147,17 @@ export default async function SeoLandingPage({ params }: PageProps) {
         </p>
       </section>
 
-      <section className="shell seo-related">
-        <Link href="/podroze">← Wszystkie pomysły na podróże</Link>
-        <Link href="/kierunki">Zobacz wszystkie kierunki →</Link>
+      <section className="shell seo-related-block">
+        <div className="kicker">MOŻE CIĘ TEŻ ZAINTERESOWAĆ</div>
+        <div className="seo-related-links">
+          {seoLandings.filter(item => item.slug !== page.slug).slice(0, 4).map(item => (
+            <Link key={item.slug} href={`/podroze/${item.slug}`}>{item.title} →</Link>
+          ))}
+        </div>
+        <div className="seo-related">
+          <Link href="/podroze">← Wszystkie pomysły na podróże</Link>
+          <Link href="/kierunki">Zobacz wszystkie kierunki →</Link>
+        </div>
       </section>
 
       <SiteFooter />
