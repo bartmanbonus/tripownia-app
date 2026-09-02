@@ -21,6 +21,7 @@ export default function SiteFooter() {
           <Link href="/city-break-2">City break</Link>
           <Link href="/last-minute">Last minute</Link>
           <Link href="/kierunki">Kierunki</Link>
+          <Link href="/polska">Polska</Link>
           <Link href="/ulubione">Ulubione</Link>
         </div>
 
@@ -40,6 +41,7 @@ export default function SiteFooter() {
           <p>Be in IT<br/>ul. Batalionów Chłopskich 77E/11<br/>01-305 Warszawa</p>
           <Link href="/regulamin">Regulamin</Link>
           <Link href="/polityka-prywatnosci">Polityka prywatności</Link>
+          <Link href="/informacja-afiliacyjna">Informacja afiliacyjna</Link>
         </div>
       </div>
       <div className="shell footer-bottom">
