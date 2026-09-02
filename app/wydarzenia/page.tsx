@@ -7,7 +7,6 @@ import {
   formatKickoff,
   getSportsTrips,
   sportsClubs,
-  sportsCompetitions,
   sportsDepartures,
 } from "@/lib/sportsEvents";
 
@@ -18,6 +17,14 @@ export const metadata: Metadata = {
 };
 
 export const revalidate = 21600;
+
+const sportsCompetitions = [
+  { code: "PL", name: "Premier League" },
+  { code: "PD", name: "La Liga" },
+  { code: "SA", name: "Serie A" },
+  { code: "BL1", name: "Bundesliga" },
+  { code: "CL", name: "Liga Mistrzów" },
+] as const;
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
