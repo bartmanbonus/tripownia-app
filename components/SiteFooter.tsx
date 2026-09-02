@@ -22,6 +22,7 @@ export default function SiteFooter() {
           <Link href="/last-minute">Last minute</Link>
           <Link href="/kierunki">Kierunki</Link>
           <Link href="/polska">Polska</Link>
+          <Link href="/wydarzenia">Wydarzenia sportowe</Link>
           <Link href="/ulubione">Ulubione</Link>
         </div>
 
