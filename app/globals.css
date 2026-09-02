@@ -3207,3 +3207,152 @@ body {
   .sports-filter-actions>*{flex:1}
   .sports-auto-plan{grid-template-columns:1fr}
 }
+
+/* v88 — menu: widoczne Przeżycia + ciaśniejsza nawigacja desktop */
+@media (min-width:1051px){
+  .site-nav{gap:12px}
+  .site-nav .brand-logo{width:166px;min-width:166px}
+  .site-nav nav{flex:1;justify-content:center;gap:13px;min-width:0}
+  .site-nav nav a{font-size:12.5px;white-space:nowrap}
+  .site-nav .nav-cta{padding:10px 12px;font-size:12px;white-space:nowrap}
+}
+
+/* v88 — mocniej rozwinięta sekcja Przeżycia na stronie głównej */
+.experience-home-grid{margin-bottom:18px}
+.experience-signals-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-top:16px;
+}
+.experience-signal{
+  min-height:128px;
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:linear-gradient(145deg,#fff,#faf8f5);
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:7px;
+}
+.experience-signal>span{font-size:26px}
+.experience-signal>strong{font-size:14px}
+.experience-signal>small{font-size:11px;line-height:1.55;color:var(--muted)}
+
+/* v88 — pełny landing /podroze-po-przezycia */
+.experience-expanded-page{background:#fff}
+.experience-expanded-hero{
+  padding:82px 0 70px;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  background:
+    radial-gradient(circle at 85% 15%,rgba(255,164,92,.18),transparent 30%),
+    radial-gradient(circle at 10% 85%,rgba(89,145,206,.12),transparent 28%),
+    #fbfaf8;
+}
+.experience-expanded-hero h1{
+  max-width:980px;
+  margin:14px 0 18px;
+  font-size:clamp(48px,6.4vw,82px);
+  line-height:.98;
+  letter-spacing:-4px;
+}
+.experience-expanded-hero p{max-width:820px;font-size:19px;line-height:1.65;color:var(--muted)}
+.experience-season-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}
+.experience-season-nav a{
+  display:inline-flex;
+  align-items:center;
+  min-height:38px;
+  padding:0 14px;
+  border:1px solid #e6ddd6;
+  border-radius:999px;
+  background:#fff;
+  color:var(--ink);
+  text-decoration:none;
+  font-size:12px;
+  font-weight:900;
+}
+.experience-season-nav a:hover{border-color:#f26522;color:#f26522}
+.experience-planning-section{padding-bottom:28px}
+.experience-planning-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.experience-planning-card{
+  min-height:180px;
+  padding:22px;
+  border:1px solid var(--line);
+  border-radius:20px;
+  background:#fff;
+}
+.experience-planning-card>span{font-size:31px}
+.experience-planning-card>strong{display:block;margin:14px 0 7px;font-size:17px}
+.experience-planning-card>p{margin:0;font-size:13px;line-height:1.6;color:var(--muted)}
+.experience-expanded-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.experience-expanded-card{
+  scroll-margin-top:96px;
+  padding:24px;
+  border:1px solid var(--line);
+  border-radius:24px;
+  background:#fff;
+  box-shadow:0 12px 34px rgba(0,0,0,.035);
+}
+.experience-expanded-card-top{display:flex;align-items:flex-start;gap:15px;padding-bottom:17px;border-bottom:1px solid var(--line)}
+.experience-expanded-card-top>span{font-size:34px;line-height:1}
+.experience-expanded-card-top small{display:block;margin-bottom:5px;font-size:9px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:#d65028}
+.experience-expanded-card-top h2{margin:0;font-size:23px;letter-spacing:-.5px}
+.experience-expanded-lead{font-size:14px;line-height:1.65;color:#363636;margin:18px 0}
+.experience-expanded-meta{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.experience-expanded-meta>div{padding:13px;border-radius:13px;background:#f8f7f5}
+.experience-expanded-meta small{font-size:8px;font-weight:900;letter-spacing:.6px;color:#78716c}
+.experience-expanded-meta p{margin:6px 0 0;font-size:11px;line-height:1.55;color:#59544f}
+.experience-expanded-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.experience-expanded-actions a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:39px;
+  padding:0 13px;
+  border-radius:10px;
+  background:#151515;
+  color:#fff;
+  text-decoration:none;
+  font-size:11px;
+  font-weight:900;
+}
+.experience-expanded-actions a+ a{background:#f6f3ef;color:var(--ink)}
+.experience-final-cta{
+  margin-top:16px;
+  margin-bottom:78px;
+  padding:34px;
+  border-radius:26px;
+  background:#11151a;
+  color:#fff;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:30px;
+  align-items:center;
+}
+.experience-final-cta .kicker{color:#ff9a62}
+.experience-final-cta h2{max-width:780px;margin:9px 0 9px;font-size:34px;line-height:1.08;letter-spacing:-1.2px}
+.experience-final-cta p{margin:0;max-width:740px;color:#bdc3ca;line-height:1.55}
+.experience-final-actions{display:flex;flex-direction:column;gap:8px;min-width:215px}
+.experience-final-actions a{padding:12px 14px;border-radius:11px;background:#fff;color:#151515;text-decoration:none;font-size:12px;font-weight:900;text-align:center}
+.experience-final-actions a+ a{background:#242a31;color:#fff}
+
+@media(max-width:1000px){
+  .experience-signals-grid,.experience-planning-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .experience-expanded-grid{grid-template-columns:1fr}
+  .experience-final-cta{grid-template-columns:1fr}
+  .experience-final-actions{flex-direction:row;min-width:0}
+}
+@media(max-width:680px){
+  .experience-signals-grid,.experience-planning-grid{grid-template-columns:1fr}
+  .experience-expanded-hero{padding:54px 0 48px}
+  .experience-expanded-hero h1{font-size:44px;letter-spacing:-2.5px}
+  .experience-expanded-hero p{font-size:16px}
+  .experience-expanded-card{padding:19px;border-radius:19px}
+  .experience-expanded-meta{grid-template-columns:1fr}
+  .experience-expanded-actions a{flex:1 1 100%}
+  .experience-final-cta{padding:24px;border-radius:20px}
+  .experience-final-cta h2{font-size:28px}
+  .experience-final-actions{flex-direction:column}
+}
