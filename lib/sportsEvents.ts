@@ -1,4 +1,9 @@
-import { buildEskyFlightsUrl, partners } from "@/lib/partners";
+export type SportsDeparture = {
+  code: string;
+  label: string;
+  flightPath: string;
+  packageValue: string;
+};
 
 export type SportsClub = {
   slug: string;
@@ -7,6 +12,8 @@ export type SportsClub = {
   city: string;
   country: string;
   airportCode: string;
+  flightDestinationPath: string;
+  packageArrivalCode: string;
   competitionCodes: string[];
   ticketUrl: string;
   emoji: string;
@@ -20,6 +27,7 @@ export type SportsTrip = {
   city: string;
   country: string;
   competition: string;
+  competitionCode: string;
   kickoff: string;
   venue?: string | null;
   source: "football-data" | "seed";
@@ -29,6 +37,18 @@ export type SportsTrip = {
   packageUrl: string;
 };
 
+export const sportsDepartures: SportsDeparture[] = [
+  { code: "WAWA", label: "Warszawa — Chopin + Modlin", flightPath: "mp/WAWA", packageValue: "ap-WAW,ap-WMI" },
+  { code: "KRK", label: "Kraków", flightPath: "ap/KRK", packageValue: "ap-KRK" },
+  { code: "GDN", label: "Gdańsk", flightPath: "ap/GDN", packageValue: "ap-GDN" },
+  { code: "KTW", label: "Katowice", flightPath: "ap/KTW", packageValue: "ap-KTW" },
+  { code: "WRO", label: "Wrocław", flightPath: "ap/WRO", packageValue: "ap-WRO" },
+  { code: "POZ", label: "Poznań", flightPath: "ap/POZ", packageValue: "ap-POZ" },
+  { code: "RZE", label: "Rzeszów", flightPath: "ap/RZE", packageValue: "ap-RZE" },
+  { code: "LUZ", label: "Lublin", flightPath: "ap/LUZ", packageValue: "ap-LUZ" },
+  { code: "SZZ", label: "Szczecin", flightPath: "ap/SZZ", packageValue: "ap-SZZ" },
+];
+
 export const sportsClubs: SportsClub[] = [
   {
     slug: "fc-barcelona",
@@ -37,6 +57,8 @@ export const sportsClubs: SportsClub[] = [
     city: "Barcelona",
     country: "Hiszpania",
     airportCode: "BCN",
+    flightDestinationPath: "mp/BARC",
+    packageArrivalCode: "ci-BCN",
     competitionCodes: ["PD", "CL"],
     ticketUrl: "https://www.fcbarcelona.com/en/tickets/football",
     emoji: "🔵🔴",
@@ -48,6 +70,8 @@ export const sportsClubs: SportsClub[] = [
     city: "Mediolan",
     country: "Włochy",
     airportCode: "MIL",
+    flightDestinationPath: "mp/MILA",
+    packageArrivalCode: "ci-MIL",
     competitionCodes: ["SA", "CL"],
     ticketUrl: "https://www.inter.it/en/tickets",
     emoji: "⚫🔵",
@@ -59,6 +83,8 @@ export const sportsClubs: SportsClub[] = [
     city: "Madryt",
     country: "Hiszpania",
     airportCode: "MAD",
+    flightDestinationPath: "mp/MADR",
+    packageArrivalCode: "ci-MAD",
     competitionCodes: ["PD", "CL"],
     ticketUrl: "https://www.realmadrid.com/en-US/tickets",
     emoji: "⚪",
@@ -70,6 +96,8 @@ export const sportsClubs: SportsClub[] = [
     city: "Mediolan",
     country: "Włochy",
     airportCode: "MIL",
+    flightDestinationPath: "mp/MILA",
+    packageArrivalCode: "ci-MIL",
     competitionCodes: ["SA", "CL"],
     ticketUrl: "https://www.acmilan.com/en/tickets",
     emoji: "🔴⚫",
@@ -81,6 +109,8 @@ export const sportsClubs: SportsClub[] = [
     city: "Monachium",
     country: "Niemcy",
     airportCode: "MUC",
+    flightDestinationPath: "ap/MUC",
+    packageArrivalCode: "ci-MUC",
     competitionCodes: ["BL1", "CL"],
     ticketUrl: "https://fcbayern.com/en/tickets",
     emoji: "🔴⚪",
@@ -92,6 +122,8 @@ export const sportsClubs: SportsClub[] = [
     city: "Londyn",
     country: "Wielka Brytania",
     airportCode: "LON",
+    flightDestinationPath: "mp/LOND",
+    packageArrivalCode: "ci-LON",
     competitionCodes: ["PL", "CL"],
     ticketUrl: "https://www.arsenal.com/tickets",
     emoji: "🔴",
@@ -103,6 +135,8 @@ export const sportsClubs: SportsClub[] = [
     city: "Liverpool",
     country: "Wielka Brytania",
     airportCode: "LPL",
+    flightDestinationPath: "ap/LPL",
+    packageArrivalCode: "ci-LPL",
     competitionCodes: ["PL", "CL"],
     ticketUrl: "https://www.liverpoolfc.com/tickets",
     emoji: "🔴",
@@ -140,23 +174,95 @@ function clubMatchesTeam(club: SportsClub, name?: string | null) {
   );
 }
 
+export function getSportsTravelWindow(kickoff: string, nights = 3) {
+  const safeNights = [2, 3, 4].includes(nights) ? nights : 3;
+  const match = new Date(kickoff);
+  const departure = new Date(Date.UTC(match.getUTCFullYear(), match.getUTCMonth(), match.getUTCDate()));
+  departure.setUTCDate(departure.getUTCDate() - 1);
+  const returning = addDays(departure, safeNights);
+
+  return {
+    nights: safeNights,
+    departureDate: isoDate(departure),
+    returnDate: isoDate(returning),
+    checkin: isoDate(departure),
+    checkout: isoDate(returning),
+  };
+}
+
+export function buildSportsTripLinks(
+  trip: Pick<SportsTrip, "clubSlug" | "kickoff" | "city" | "ticketUrl">,
+  departureCode = "WAWA",
+  nights = 3,
+  passengers = 2,
+) {
+  const club = sportsClubs.find(item => item.slug === trip.clubSlug);
+  const departure = sportsDepartures.find(item => item.code === departureCode) || sportsDepartures[0];
+  const window = getSportsTravelWindow(trip.kickoff, nights);
+  const safePassengers = [1, 2, 3, 4].includes(passengers) ? passengers : 2;
+
+  if (!club) {
+    return {
+      ...window,
+      departureLabel: departure.label,
+      arrivalLabel: trip.city,
+      flightUrl: "#",
+      hotelUrl: "#",
+      packageUrl: "#",
+      ticketUrl: trip.ticketUrl,
+    };
+  }
+
+  const flightUrl = new URL(`https://www2.esky.pl/flights/search/${departure.flightPath}/${club.flightDestinationPath}`);
+  flightUrl.searchParams.set("departureDate", window.departureDate);
+  flightUrl.searchParams.set("returnDate", window.returnDate);
+  flightUrl.searchParams.set("pa", String(safePassengers));
+  flightUrl.searchParams.set("py", "0");
+  flightUrl.searchParams.set("pc", "0");
+  flightUrl.searchParams.set("pi", "0");
+  flightUrl.searchParams.set("sc", "economy");
+  flightUrl.searchParams.set("partner_id", "TRIPOWNIAPL");
+  flightUrl.searchParams.set("flexDatesOffset", "0");
+
+  const hotelUrl = new URL("https://www.booking.com/searchresults.pl.html");
+  hotelUrl.searchParams.set("ss", club.city);
+  hotelUrl.searchParams.set("checkin", window.checkin);
+  hotelUrl.searchParams.set("checkout", window.checkout);
+  hotelUrl.searchParams.set("group_adults", String(safePassengers));
+  hotelUrl.searchParams.set("no_rooms", "1");
+  hotelUrl.searchParams.set("group_children", "0");
+  hotelUrl.searchParams.set("aid", "818288");
+
+  const packageUrl = new URL("https://www2.esky.pl/lot+hotel/portfolio");
+  packageUrl.searchParams.set("rooms[0][adults]", String(safePassengers));
+  packageUrl.searchParams.set("datesTab", "flexDates");
+  packageUrl.searchParams.set("departureDate", window.departureDate);
+  packageUrl.searchParams.set("returnDate", window.returnDate);
+  packageUrl.searchParams.set("stayLength", `${window.nights}:${window.nights}`);
+  packageUrl.searchParams.set("departurePlaces", departure.packageValue);
+  packageUrl.searchParams.set("arrivalPlaces", club.packageArrivalCode);
+  packageUrl.searchParams.set("context", "pl-packages");
+  packageUrl.searchParams.set("eventSourceComponent", "plp-qsf");
+  packageUrl.searchParams.set("sort[TotalPrice]", "asc");
+  packageUrl.searchParams.set("partner_id", "TRIPOWNIAPLPACKAGES");
+
+  return {
+    ...window,
+    departureLabel: departure.label,
+    arrivalLabel: club.city,
+    flightUrl: flightUrl.toString(),
+    hotelUrl: hotelUrl.toString(),
+    packageUrl: packageUrl.toString(),
+    ticketUrl: trip.ticketUrl,
+  };
+}
+
 function makeTrip(club: SportsClub, match: FootballDataMatch, source: SportsTrip["source"]): SportsTrip | null {
   const home = match.homeTeam?.name || match.homeTeam?.shortName || "";
   const away = match.awayTeam?.name || match.awayTeam?.shortName || "";
   if (!clubMatchesTeam(club, home)) return null;
 
-  const hotelUrl = partners.booking.buildUrl(
-    `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(club.city)}`
-  );
-  const flightUrl = buildEskyFlightsUrl(
-    `https://www.esky.pl/tanie-loty/?to=${encodeURIComponent(club.airportCode)}`
-  );
-
-  const packageUrl = partners.esky.buildUrl(
-    "https://www2.esky.pl/lot+hotel/portfolio?context=pl-packages"
-  );
-
-  return {
+  const baseTrip = {
     id: String(match.id),
     clubSlug: club.slug,
     club: club.displayName,
@@ -164,13 +270,20 @@ function makeTrip(club: SportsClub, match: FootballDataMatch, source: SportsTrip
     city: club.city,
     country: club.country,
     competition: match.competition?.name || match.competition?.code || "Mecz",
+    competitionCode: match.competition?.code || "",
     kickoff: match.utcDate,
     venue: match.venue,
     source,
     ticketUrl: club.ticketUrl,
-    flightUrl,
-    hotelUrl,
-    packageUrl,
+  };
+
+  const links = buildSportsTripLinks(baseTrip, "WAWA", 3, 2);
+
+  return {
+    ...baseTrip,
+    flightUrl: links.flightUrl,
+    hotelUrl: links.hotelUrl,
+    packageUrl: links.packageUrl,
   };
 }
 
@@ -183,16 +296,21 @@ async function fetchCompetitionMatches(code: string, dateFrom: string, dateTo: s
   url.searchParams.set("dateTo", dateTo);
   url.searchParams.set("status", "SCHEDULED");
 
-  const response = await fetch(url, {
-    headers: { "X-Auth-Token": token },
-    next: { revalidate: 21600 },
-  });
+  try {
+    const response = await fetch(url, {
+      headers: { "X-Auth-Token": token },
+      next: { revalidate: 21600 },
+    });
 
-  if (!response.ok) return [];
-  const data = await response.json();
-  return Array.isArray(data.matches) ? data.matches : [];
+    if (!response.ok) return [];
+    const data = await response.json();
+    return Array.isArray(data.matches) ? data.matches : [];
+  } catch {
+    return [];
+  }
 }
 
+// Fallback tylko techniczny. Gdy FOOTBALL_DATA_API_KEY działa, live terminarze mają pierwszeństwo.
 const seedMatches: FootballDataMatch[] = [
   { id: 100001, utcDate: "2026-09-09T16:45:00Z", status: "SCHEDULED", venue: "Spotify Camp Nou", competition: { name: "UEFA Champions League", code: "CL" }, homeTeam: { name: "FC Barcelona" }, awayTeam: { name: "Feyenoord Rotterdam" } },
   { id: 100002, utcDate: "2026-09-16T19:30:00Z", status: "SCHEDULED", venue: "Spotify Camp Nou", competition: { name: "La Liga", code: "PD" }, homeTeam: { name: "FC Barcelona" }, awayTeam: { name: "Racing Santander" } },
@@ -206,6 +324,7 @@ export async function getSportsTrips(daysAhead = 120): Promise<SportsTrip[]> {
   const now = new Date();
   const dateFrom = isoDate(now);
   const dateTo = isoDate(addDays(now, daysAhead));
+
   const codes = [...new Set(sportsClubs.flatMap(club => club.competitionCodes))];
   const groups = await Promise.all(codes.map(code => fetchCompetitionMatches(code, dateFrom, dateTo)));
   const liveMatches = groups.flat();
@@ -227,7 +346,7 @@ export async function getSportsTrips(daysAhead = 120): Promise<SportsTrip[]> {
   return [...deduped.values()]
     .filter(trip => new Date(trip.kickoff).getTime() >= now.getTime())
     .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
-    .slice(0, 40);
+    .slice(0, 60);
 }
 
 export function formatKickoff(iso: string) {
