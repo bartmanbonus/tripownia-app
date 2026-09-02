@@ -75,7 +75,26 @@ const experienceCards = [
 ];
 
 export default function Home() {
-  const todaysOffers = useMemo(() => getDailyOffers(offers, 8), []);
+  const todaysOffers = useMemo(() => {
+    const daily = getDailyOffers(offers, Math.max(16, offers.length));
+    const active = daily.filter(o => o.availabilityStatus !== "expired");
+    const buckets = [
+      (o: (typeof offers)[number]) => /japon|tajland|bali|wietnam|zanzibar|kenia|tanzan|malediw|mauritius|meksyk|usa|nowy jork|dubaj|emirat/i.test(`${o.city} ${o.country}`),
+      (o: (typeof offers)[number]) => /all|wakac|plaż|resort|morze/i.test(`${o.board} ${(o.category || []).join(" ")}`),
+      (o: (typeof offers)[number]) => /city|weekend|krót/i.test((o.category || []).join(" ")),
+      (o: (typeof offers)[number]) => /sport|mecz|event|przeży|safari|zorza|sakura/i.test(`${o.reason || ""} ${(o.category || []).join(" ")}`),
+    ];
+    const picked: typeof active = [];
+    for (const match of buckets) {
+      const hit = active.find(o => !picked.some(p => p.id === o.id) && match(o));
+      if (hit) picked.push(hit);
+    }
+    for (const offer of active) {
+      if (picked.length >= 8) break;
+      if (!picked.some(p => p.id === offer.id)) picked.push(offer);
+    }
+    return picked.slice(0, 8);
+  }, []);
   const [budget, setBudget] = useState(2500);
   const [surprise, setSurprise] = useState<(typeof offers)[number] | null>(null);
   const [heroAirport, setHeroAirport] = useState("all");
@@ -150,6 +169,17 @@ export default function Home() {
           <Link href="/okazje">Zobacz wszystkie <ArrowRight size={16}/></Link>
         </div>
         <div className="cards-grid">{todaysOffers.map(o => <OfferCard offer={o} key={o.id}/>)}</div>
+      </section>
+
+      <section className="section shell streaming-discovery" aria-label="Odkrywaj Tripownię">
+        <div className="section-heading"><div><div className="kicker">ODKRYWAJ, NIE TYLKO SZUKAJ</div><h2>Co dziś brzmi jak Twój wyjazd?</h2><p>Krótki weekend, wielka podróż, sport albo coś, co pamięta się latami. Przewijaj jak bibliotekę inspiracji.</p></div></div>
+        <div className="streaming-rail">
+          <Link href="/okazje" className="streaming-tile"><small>⚡ NA SZYBKO</small><strong>Weekend, który ratuje tydzień</strong><span>City breaki i krótkie wypady bez planowania pół roku wcześniej.</span></Link>
+          <Link href="/dalekie-podroze" className="streaming-tile"><small>🌏 DALEJ</small><strong>Europa to dziś za mało</strong><span>Wietnam, Japonia, Bali, Nowy Jork i kierunki na większą podróż.</span></Link>
+          <Link href="/podroze-po-przezycia" className="streaming-tile"><small>✨ PO PRZEŻYCIA</small><strong>Nie jedź tylko „gdzieś”</strong><span>Zorza, sakura, safari, fiordy, jarmarki i podróże pod właściwy moment.</span></Link>
+          <Link href="/wydarzenia" className="streaming-tile"><small>⚽ SPORT</small><strong>Lecimy na mecz?</strong><span>Barcelona, Inter i inne wydarzenia jako najlepszy pretekst do wyjazdu.</span></Link>
+          <Link href="/egzotyka-zima" className="streaming-tile"><small>🌴 UCIECZKA OD ZIMY</small><strong>30°C zamiast skrobania szyb</strong><span>Tropiki dobrane do sezonu, nie tylko do najniższej ceny.</span></Link>
+        </div>
       </section>
 
       <SearchHub
