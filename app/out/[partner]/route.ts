@@ -6,9 +6,13 @@ const allowedHosts: Record<string, string[]> = {
   kiwi: ["kiwi.com", "www.kiwi.com", "c111.travelpayouts.com", "kiwi.tpk.lv"],
   booking: ["booking.com", "www.booking.com"],
   wakacje: ["wakacje.pl", "www.wakacje.pl"],
-  exim: ["exim.pl", "www.exim.pl"],
-  getyourguide: ["getyourguide.com", "www.getyourguide.com"],
-  klook: ["klook.com", "www.klook.com"],
+  exim: ["exim.pl", "www.exim.pl", "reklamy.exim.pl"],
+  tui: ["tui.pl", "www.tui.pl", "clk.tradedoubler.com"],
+  getyourguide: ["getyourguide.com", "www.getyourguide.com", "getyourguide.pl", "www.getyourguide.pl", "clk.tradedoubler.com"],
+  seeplaces: ["seeplaces.com", "www.seeplaces.com", "ad.seeplaces.com"],
+  holidaypark: ["holidaypark.pl", "www.holidaypark.pl", "visit.holidaypark.pl"],
+  fonia: ["fonia.app", "www.fonia.app", "clk.tradedoubler.com"],
+  parklot: ["parklot.pl", "www.parklot.pl"],
 };
 
 function hostAllowed(partner: string, url: URL) {
