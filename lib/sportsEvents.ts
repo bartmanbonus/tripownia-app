@@ -148,7 +148,6 @@ function makeTrip(club: SportsClub, match: FootballDataMatch, source: SportsTrip
   const hotelUrl = partners.booking.buildUrl(
     `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(club.city)}`
   );
-
   const flightUrl = buildEskyFlightsUrl(
     `https://www.esky.pl/tanie-loty/?to=${encodeURIComponent(club.airportCode)}`
   );
@@ -194,7 +193,6 @@ async function fetchCompetitionMatches(code: string, dateFrom: string, dateTo: s
   return Array.isArray(data.matches) ? data.matches : [];
 }
 
-// Fallback tylko na start. Po dodaniu FOOTBALL_DATA_API_KEY live terminarze zastąpią te rekordy.
 const seedMatches: FootballDataMatch[] = [
   { id: 100001, utcDate: "2026-09-09T16:45:00Z", status: "SCHEDULED", venue: "Spotify Camp Nou", competition: { name: "UEFA Champions League", code: "CL" }, homeTeam: { name: "FC Barcelona" }, awayTeam: { name: "Feyenoord Rotterdam" } },
   { id: 100002, utcDate: "2026-09-16T19:30:00Z", status: "SCHEDULED", venue: "Spotify Camp Nou", competition: { name: "La Liga", code: "PD" }, homeTeam: { name: "FC Barcelona" }, awayTeam: { name: "Racing Santander" } },
@@ -208,7 +206,6 @@ export async function getSportsTrips(daysAhead = 120): Promise<SportsTrip[]> {
   const now = new Date();
   const dateFrom = isoDate(now);
   const dateTo = isoDate(addDays(now, daysAhead));
-
   const codes = [...new Set(sportsClubs.flatMap(club => club.competitionCodes))];
   const groups = await Promise.all(codes.map(code => fetchCompetitionMatches(code, dateFrom, dateTo)));
   const liveMatches = groups.flat();
