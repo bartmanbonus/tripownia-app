@@ -20,9 +20,9 @@ type QueueItem = {
 };
 
 const tones: { id: Tone; label: string }[] = [
-  { id: "short", label: "Krótki" },
-  { id: "sales", label: "Sprzedażowy" },
-  { id: "daily", label: "Okazja dnia" },
+  { id: "short", label: "💸 Cena robi robotę" },
+  { id: "sales", label: "😍 Emocjonalny" },
+  { id: "daily", label: "🔥 FOMO / Lecimy?" },
 ];
 
 const QUEUE_KEY = "tripownia-social-queue-v2";
@@ -55,6 +55,7 @@ export default function AdminSocialCenter() {
   const [tone, setTone] = useState<Tone>("sales");
   const [copied, setCopied] = useState<"text" | "link" | null>(null);
   const [scheduledAt, setScheduledAt] = useState("");
+  const [linkPlacement, setLinkPlacement] = useState<"comment" | "post">("comment");
   const [queue, setQueue] = useState<QueueItem[]>([]);
 
   useEffect(() => setQueue(readQueue()), []);
@@ -69,14 +70,21 @@ export default function AdminSocialCenter() {
   const url = `https://tripownia.pl/oferta/${offer.id}`;
   const hashtag = slugify(offer.city);
 
-  const texts: Record<Tone, string> = {
-    short: `${offer.flag} ${offer.city} od ${offer.price} zł/os. ✈️
-${offer.nights} nocy · wylot: ${offer.departure}
+  const baseTexts: Record<Tone, string> = {
+    short: `${offer.flag} ${offer.city} za ${offer.price} zł/os.? 👀
 
-Sprawdź szczegóły i aktualną cenę: ${url}
+To jest ten moment, kiedy zaczynasz liczyć dni do wyjazdu.
+
+✈️ Wylot: ${offer.departure}
+🏨 ${offer.nights} nocy · ${offer.hotel}
+🍽️ ${offer.board}
+
+${offer.reason}
+
+Sprawdź, zanim cena zrobi swoje ✈️
 
 #tripownia #podroze #${hashtag}`,
-    sales: `${offer.flag} ${offer.city} — ta oferta naprawdę zwraca uwagę 👀
+    sales: `Piątek: praca. Chwilę później: ${offer.city}. Brzmi lepiej? ${offer.flag}
 
 ✈️ Wylot: ${offer.departure}
 🏨 ${offer.nights} nocy · ${offer.hotel}
@@ -85,20 +93,31 @@ Sprawdź szczegóły i aktualną cenę: ${url}
 
 ${offer.reason}
 
-👉 Zobacz szczegóły i sprawdź aktualną cenę: ${url}
+To nie jest „kolejna oferta”.
+To jest dobry pretekst, żeby naprawdę gdzieś polecieć. 😏
 
 #tripownia #okazjepodroznicze #wakacje #${hashtag}`,
-    daily: `🔥 OKAZJA DNIA: ${offer.city} ${offer.flag}
+    daily: `🔥 SERIO, ZA TYLE MOŻNA LECIEĆ DO ${offer.city.toLocaleUpperCase("pl")}?
 
 Od ${offer.price} zł/os. za ${offer.nights} nocy z wylotem z ${offer.departure}.
 
 ${offer.reason}
 
-Jeśli ten kierunek jest na Twojej liście — warto sprawdzić teraz 👇
-${url}
+Taniej może być.
+Drożej — bardzo możliwe. 👀
+
+Jeśli ten kierunek chodzi Ci po głowie, to jest moment, żeby sprawdzić cenę.
 
 #tripownia #okazjadnia #podroze #${hashtag}`,
   };
+
+  const text = linkPlacement === "post"
+    ? `${baseTexts[tone]}
+
+👉 Sprawdź aktualną cenę: ${url}`
+    : `${baseTexts[tone]}
+
+👇 Link do oferty w pierwszym komentarzu`;
 
   const text = texts[tone];
   const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
@@ -165,6 +184,26 @@ ${url}
           </div>
         </div>
 
+        <div className="social-tone-picker">
+          <span>Link do oferty</span>
+          <div>
+            <button
+              type="button"
+              className={linkPlacement === "comment" ? "active" : ""}
+              onClick={() => setLinkPlacement("comment")}
+            >
+              💬 W komentarzu
+            </button>
+            <button
+              type="button"
+              className={linkPlacement === "post" ? "active" : ""}
+              onClick={() => setLinkPlacement("post")}
+            >
+              🔗 W treści
+            </button>
+          </div>
+        </div>
+
         <label>
           <span>Planowana publikacja</span>
           <input type="datetime-local" value={scheduledAt} onChange={e => setScheduledAt(e.target.value)} />
@@ -201,7 +240,7 @@ ${url}
               {copied === "text" ? <Check size={17}/> : <Copy size={17}/>} {copied === "text" ? "Skopiowano" : "Kopiuj tekst"}
             </button>
             <button type="button" onClick={() => copy(url, "link")}>
-              {copied === "link" ? <Check size={17}/> : <Link2 size={17}/>} {copied === "link" ? "Skopiowano" : "Kopiuj link"}
+              {copied === "link" ? <Check size={17}/> : <Link2 size={17}/>} {copied === "link" ? "Skopiowano" : (linkPlacement === "comment" ? "Kopiuj link do komentarza" : "Kopiuj link")}
             </button>
             <button type="button" onClick={addToQueue}>
               <Plus size={17}/> Dodaj do kolejki
@@ -220,7 +259,7 @@ ${url}
           </a>
 
           <div className="social-publish-note">
-            Facebook i Instagram nie pozwalają zwykłej stronie internetowej automatycznie publikować pełnych postów na profilu. Ta wersja przygotowuje treść, kolejkę i linki do publikacji. Pełna automatyzacja wymaga Meta Graph API i uprawnień strony.
+            Facebook i Instagram nie pozwalają zwykłej stronie internetowej automatycznie publikować pełnych postów na profilu. Ta wersja przygotowuje treść, kolejkę i linki do publikacji. Domyślnie link jest ustawiony jako „w pierwszym komentarzu”, żeby post nie zaczynał się od surowego URL-a. Pełna automatyzacja wymaga Meta Graph API i uprawnień strony.
           </div>
         </aside>
       </div>
