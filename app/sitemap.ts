@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/city-break-2`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE_URL}/last-minute`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE_URL}/kierunki`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${BASE_URL}/polska`, lastModified: now, changeFrequency: "weekly", priority: 0.85 },
     { url: `${BASE_URL}/podroze`, lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: `${BASE_URL}/podroze-po-przezycia`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE_URL}/poradniki`, lastModified: now, changeFrequency: "weekly", priority: 0.75 },
