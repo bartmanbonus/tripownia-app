@@ -192,77 +192,117 @@ function ExperiencePage({ path }: { path: string }) {
   </main>;
 }
 
-function experienceOffers(path: string, limit = 2) {
-  const page = experiencePages[path];
-  if (!page) return [];
-  return offers
-    .filter(o => o.availabilityStatus !== "expired")
-    .filter(o => {
-      const haystack = `${o.city} ${o.country} ${o.hotel} ${o.reason} ${o.category.join(" ")}`.toLocaleLowerCase("pl");
-      return page.keywords.some(k => haystack.includes(k.toLocaleLowerCase("pl")));
-    })
-    .sort((a,b) => b.score - a.score)
-    .slice(0, limit);
+
+type ExperienceTripSuggestion = {
+  flag: string;
+  city: string;
+  country: string;
+  airport: string;
+  from: string;
+  to: string;
+  nights: number;
+  tag: string;
+  note: string;
+  image: string;
+};
+
+const experienceTrips: Record<string, ExperienceTripSuggestion[]> = {
+  "/islandia-zorza-polarna": [
+    {flag:"🇮🇸",city:"Reykjavík",country:"Islandia",airport:"KEF",from:"2026-11-19",to:"2026-11-23",nights:4,tag:"ZORZA + GEOTERMIA",note:"Reykjavík, Golden Circle i wieczorne polowanie na zorzę.",image:"/images/destinations/reykjavik.jpg"},
+    {flag:"🇳🇴",city:"Tromsø",country:"Norwegia",airport:"TOS",from:"2027-01-14",to:"2027-01-18",nights:4,tag:"ARKTYCZNA NORWEGIA",note:"Najmocniejsza norweska baza na zorzę, fiordy i zimowe aktywności.",image:"/images/destinations/oslo.jpg"},
+    {flag:"🇫🇮",city:"Rovaniemi",country:"Finlandia",airport:"RVN",from:"2026-12-03",to:"2026-12-07",nights:4,tag:"LAPONIA",note:"Zorza, śnieg i arktyczny klimat — gotowy zimowy city break.",image:"/images/destinations/helsinki.jpg"},
+  ],
+  "/japonia-kwitnienie-wisni": [
+    {flag:"🇯🇵",city:"Tokio",country:"Japonia",airport:"NRT",from:"2027-03-27",to:"2027-04-06",nights:10,tag:"SAKURA",note:"Tokio w sezonie kwitnienia + czas na jednodniowe wypady.",image:"/images/destinations/tokio.jpg"},
+    {flag:"🇯🇵",city:"Osaka + Kioto",country:"Japonia",airport:"KIX",from:"2027-03-30",to:"2027-04-09",nights:10,tag:"KIOTO I SAKURA",note:"Baza w Kansai: Kioto, Osaka, Nara i świątynie wśród kwitnących wiśni.",image:"/images/destinations/tokio.jpg"},
+    {flag:"🇯🇵",city:"Tokio + Osaka",country:"Japonia",airport:"HND",from:"2027-04-01",to:"2027-04-13",nights:12,tag:"JAPONIA PEŁNIEJ",note:"Dłuższy wariant dla tych, którzy chcą połączyć dwa największe regiony.",image:"/images/destinations/tokio.jpg"},
+  ],
+  "/norwegia-fiordy": [
+    {flag:"🇳🇴",city:"Bergen",country:"Norwegia",airport:"BGO",from:"2027-05-20",to:"2027-05-25",nights:5,tag:"FIORDY",note:"Najlepsza baza na norweskie fiordy i rejsy widokowe.",image:"/images/destinations/oslo.jpg"},
+    {flag:"🇳🇴",city:"Oslo",country:"Norwegia",airport:"OSL",from:"2027-06-03",to:"2027-06-07",nights:4,tag:"DŁUGIE DNI",note:"Oslo + szybki wypad w naturę i bardzo długie letnie wieczory.",image:"/images/destinations/oslo.jpg"},
+    {flag:"🇳🇴",city:"Stavanger",country:"Norwegia",airport:"SVG",from:"2027-06-17",to:"2027-06-22",nights:5,tag:"PREIKESTOLEN",note:"Kierunek pod trekking, fiord Lysefjord i spektakularne widoki.",image:"/images/destinations/oslo.jpg"},
+  ],
+  "/nowa-zelandia-najlepszy-czas": [
+    {flag:"🇳🇿",city:"Auckland",country:"Nowa Zelandia",airport:"AKL",from:"2027-01-13",to:"2027-01-27",nights:14,tag:"WYSPA PÓŁNOCNA",note:"Auckland jako start road tripu po północnej części kraju.",image:"/images/destinations/nowa-zelandia.jpg"},
+    {flag:"🇳🇿",city:"Queenstown",country:"Nowa Zelandia",airport:"ZQN",from:"2027-02-03",to:"2027-02-17",nights:14,tag:"WYSPA POŁUDNIOWA",note:"Góry, jeziora i jeden z najlepszych regionów na road trip.",image:"/images/destinations/nowa-zelandia.jpg"},
+    {flag:"🇳🇿",city:"Christchurch",country:"Nowa Zelandia",airport:"CHC",from:"2027-02-10",to:"2027-02-24",nights:14,tag:"ROAD TRIP",note:"Dobry punkt startowy do trasy przez Alpy Południowe.",image:"/images/destinations/nowa-zelandia.jpg"},
+  ],
+  "/jarmarki-bozonarodzeniowe": [
+    {flag:"🇦🇹",city:"Wiedeń",country:"Austria",airport:"VIE",from:"2026-12-04",to:"2026-12-07",nights:3,tag:"JARMARK",note:"Klasyk: Rathausplatz, Schönbrunn i trzy noce w świątecznym Wiedniu.",image:"/images/destinations/wieden.jpg"},
+    {flag:"🇨🇿",city:"Praga",country:"Czechy",airport:"PRG",from:"2026-12-11",to:"2026-12-14",nights:3,tag:"JARMARK",note:"Rynek Staromiejski, Most Karola i zimowa Praga na weekend.",image:"/images/destinations/praga.jpg"},
+    {flag:"🇭🇺",city:"Budapeszt",country:"Węgry",airport:"BUD",from:"2026-12-17",to:"2026-12-20",nights:3,tag:"JARMARK + TERMY",note:"Świąteczny klimat połączony z termami i wieczornym Dunajem.",image:"/images/destinations/budapeszt.jpg"},
+  ],
+  "/holandia-tulipany": [
+    {flag:"🇳🇱",city:"Amsterdam",country:"Holandia",airport:"AMS",from:"2027-04-15",to:"2027-04-19",nights:4,tag:"TULIPANY",note:"Amsterdam + jednodniowy wypad do Keukenhof w środku sezonu.",image:"/images/destinations/amsterdam.jpg"},
+    {flag:"🇳🇱",city:"Haarlem",country:"Holandia",airport:"AMS",from:"2027-04-22",to:"2027-04-26",nights:4,tag:"Pola kwiatów",note:"Spokojniejsza baza bliżej pól tulipanów i wybrzeża.",image:"/images/destinations/amsterdam.jpg"},
+    {flag:"🇳🇱",city:"Leiden",country:"Holandia",airport:"AMS",from:"2027-04-29",to:"2027-05-03",nights:4,tag:"HOLANDIA WIOSNĄ",note:"Kanały, mniejsze miasto i łatwy dojazd do ogrodów oraz pól.",image:"/images/destinations/amsterdam.jpg"},
+  ],
+  "/safari-kenia-tanzania": [
+    {flag:"🇰🇪",city:"Nairobi",country:"Kenia",airport:"NBO",from:"2027-07-08",to:"2027-07-18",nights:10,tag:"SAFARI KENIA",note:"Start pod Masai Mara i klasyczne safari w porze suchej.",image:"/images/destinations/zanzibar.jpg"},
+    {flag:"🇹🇿",city:"Kilimandżaro",country:"Tanzania",airport:"JRO",from:"2027-08-12",to:"2027-08-22",nights:10,tag:"SERENGETI",note:"Najlepsza baza pod Serengeti, Ngorongoro i północ Tanzanii.",image:"/images/destinations/zanzibar.jpg"},
+    {flag:"🇹🇿",city:"Zanzibar",country:"Tanzania",airport:"ZNZ",from:"2027-09-02",to:"2027-09-12",nights:10,tag:"SAFARI + PLAŻA",note:"Wariant dla tych, którzy po safari chcą odpocząć nad oceanem.",image:"/images/destinations/zanzibar.jpg"},
+  ],
+  "/egzotyka-zima": [
+    {flag:"🇲🇻",city:"Malediwy",country:"Malediwy",airport:"MLE",from:"2027-01-21",to:"2027-01-30",nights:9,tag:"SUCHA PORA",note:"Rajskie atole w jednym z najlepszych pogodowo miesięcy.",image:"/images/destinations/malediwy.jpg"},
+    {flag:"🇹🇿",city:"Zanzibar",country:"Tanzania",airport:"ZNZ",from:"2027-02-04",to:"2027-02-13",nights:9,tag:"ZIMA W SŁOŃCU",note:"Ocean, Stone Town i plaże w środku polskiej zimy.",image:"/images/destinations/zanzibar.jpg"},
+    {flag:"🇹🇭",city:"Phuket",country:"Tajlandia",airport:"HKT",from:"2027-02-18",to:"2027-02-28",nights:10,tag:"TAJLANDIA",note:"Ciepło, wyspy i bardzo dobry moment pogodowy na południe Tajlandii.",image:"/images/destinations/phuket.jpg"},
+  ],
+};
+
+function curatedTripUrl(trip: ExperienceTripSuggestion) {
+  const query = `loty Warszawa ${trip.city} ${trip.country} ${trip.from} ${trip.to}`;
+  return `https://www.google.com/travel/flights?hl=pl&q=${encodeURIComponent(query)}`;
 }
 
-function experienceSearchLinks(path: string) {
-  const page = experiencePages[path];
-  if (!page) return null;
-  const bookingUrl = partners.booking.buildUrl(`https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(page.partnerQuery)}`);
-  const kiwiDeep = new URL("https://www.kiwi.com/deep");
-  kiwiDeep.searchParams.set("from", "WAW");
-  kiwiDeep.searchParams.set("to", page.kiwiCode);
-  kiwiDeep.searchParams.set("sort", "price");
-  kiwiDeep.searchParams.set("asc", "1");
-  kiwiDeep.searchParams.set("currency", "PLN");
-  kiwiDeep.searchParams.set("locale", "pl");
-  const kiwiUrl = partners.kiwi.buildUrl(kiwiDeep.toString());
-  return { bookingUrl, kiwiUrl, destination: page.partnerQuery };
+function formatTripDate(value: string) {
+  return new Intl.DateTimeFormat("pl-PL", {day:"2-digit",month:"short",year:"numeric",timeZone:"Europe/Warsaw"}).format(new Date(`${value}T12:00:00Z`));
+}
+
+function ExperienceTripCards({ path }: { path: string }) {
+  const trips = experienceTrips[path] || [];
+  return <div className="experience-concrete-grid">
+    {trips.map((trip) => <a className="experience-concrete-card" href={curatedTripUrl(trip)} target="_blank" rel="sponsored noopener noreferrer" key={`${path}-${trip.city}`}>
+      <div className="experience-concrete-photo" style={{backgroundImage:`linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.58)),url('${trip.image}')`}}>
+        <span>{trip.flag} {trip.country}</span>
+        <b>{trip.tag}</b>
+      </div>
+      <div className="experience-concrete-body">
+        <small>KONKRETNY WYJAZD</small>
+        <h3>{trip.city}</h3>
+        <div className="experience-concrete-meta"><span>📅 {formatTripDate(trip.from)} – {formatTripDate(trip.to)}</span><span>🌙 {trip.nights} nocy</span><span>✈️ Warszawa → {trip.airport}</span></div>
+        <p>{trip.note}</p>
+        <strong className="experience-concrete-cta">✈️ Sprawdź loty na ten dokładny wyjazd →</strong>
+      </div>
+    </a>)}
+  </div>;
 }
 
 function ExperiencesCalendarPage() {
   const cards = [
-    ["/islandia-zorza-polarna","WRZESIEŃ–MARZEC","🌌 Zorza na Islandii","Ciemne noce, wodospady, geotermia i polowanie na zorzę."],
-    ["/japonia-kwitnienie-wisni","MARZEC–KWIECIEŃ","🌸 Kwitnienie wiśni w Japonii","Wyjazd planowany pod sakurę, a nie tylko pod Tokio i Kioto."],
-    ["/norwegia-fiordy","MAJ–WRZESIEŃ","🏔️ Fiordy i białe noce","Długie dni, trekking i spektakularne trasy widokowe."],
-    ["/nowa-zelandia-najlepszy-czas","LISTOPAD–MARZEC","🥾 Nowa Zelandia","Road trip, góry i lato na południowej półkuli."],
-    ["/jarmarki-bozonarodzeniowe","LISTOPAD–GRUDZIEŃ","🎄 Jarmarki bożonarodzeniowe","Wiedeń, Praga, Budapeszt i świąteczne city breaki."],
-    ["/holandia-tulipany","KWIECIEŃ–MAJ","🌷 Tulipany w Holandii","Amsterdam, Keukenhof i kolorowe pola kwiatów."],
-    ["/safari-kenia-tanzania","CZERWIEC–PAŹDZIERNIK","🦁 Safari w Afryce","Kenia i Tanzania planowane pod porę suchą i migracje."],
-    ["/egzotyka-zima","LISTOPAD–MARZEC","🌴 Egzotyka zimą","Malediwy, Zanzibar, Tajlandia i inne kierunki w najlepszym sezonie."],
+    ["/islandia-zorza-polarna","WRZESIEŃ–MARZEC","🌌 Zorza polarna","Islandia, północ Norwegii i Laponia — od razu z gotowymi wariantami wyjazdu."],
+    ["/japonia-kwitnienie-wisni","MARZEC–KWIECIEŃ","🌸 Kwitnienie wiśni w Japonii","Tokio, Osaka i Kioto w terminach ustawionych pod sezon sakury."],
+    ["/norwegia-fiordy","MAJ–WRZESIEŃ","🏔️ Fiordy i białe noce","Bergen, Oslo i Stavanger — trzy różne sposoby na Norwegię."],
+    ["/nowa-zelandia-najlepszy-czas","LISTOPAD–MARZEC","🥾 Nowa Zelandia","Auckland, Queenstown i Christchurch jako konkretne początki road tripu."],
+    ["/jarmarki-bozonarodzeniowe","LISTOPAD–GRUDZIEŃ","🎄 Jarmarki bożonarodzeniowe","Wiedeń, Praga i Budapeszt w gotowych grudniowych terminach."],
+    ["/holandia-tulipany","KWIECIEŃ–MAJ","🌷 Tulipany w Holandii","Amsterdam, Haarlem i Leiden — trzy bazy na sezon tulipanów."],
+    ["/safari-kenia-tanzania","CZERWIEC–PAŹDZIERNIK","🦁 Safari w Afryce","Nairobi, Kilimandżaro i Zanzibar — konkretne wejścia w Kenię i Tanzanię."],
+    ["/egzotyka-zima","LISTOPAD–MARZEC","🌴 Egzotyka zimą","Malediwy, Zanzibar i Phuket w terminach ustawionych na zimowe słońce."],
   ] as const;
 
   return <main><SiteHeader/>
     <section className="shell hub-page experience-calendar-page">
       <div className="kicker">PODRÓŻE PO PRZEŻYCIA</div>
-      <h1>Wybierz przeżycie. My pokażemy Ci konkretny wyjazd.</h1>
-      <p className="hub-lead">Tu nie kończymy na inspiracji. Przy każdym pomyśle pokazujemy aktualne okazje z Tripowni, a jeśli dziś nie mamy gotowej karty cenowej — ustawione wyszukiwanie dokładnie na ten kierunek.</p>
+      <h1>Nie tylko inspiracja. Od razu wybierz konkretny wyjazd.</h1>
+      <p className="hub-lead">Każde przeżycie ma już gotowe propozycje: konkretny kierunek, długość, termin i ustawiony lot z Warszawy. Klikasz wariant i sprawdzasz właśnie ten wyjazd — bez wracania do ogólnej wyszukiwarki.</p>
 
       <div className="experience-live-list">
-        {cards.map(([href, season, title, text]) => {
-          const live = experienceOffers(href, 2);
-          const search = experienceSearchLinks(href);
-          return <section className="experience-live-row" key={href}>
-            <div className="experience-live-head">
-              <div>
-                <small>{season}</small>
-                <h2>{title}</h2>
-                <p>{text}</p>
-              </div>
-              <Link href={href}>Dlaczego właśnie wtedy? →</Link>
-            </div>
-
-            {live.length > 0 ?
-              <div className="experience-live-offers">{live.map(o => <OfferCard key={o.id} offer={experienceImage(o)}/>)}</div>
-              : search && <div className="experience-live-fallback">
-                  <div><span>🔥</span><div><small>SPRAWDŹ TERAZ</small><strong>{search.destination} — konkretne ceny na Twój termin</strong><p>Dziś nie mamy zapisanej gotowej okazji dla tego przeżycia. Otwieramy już ustawiony kierunek zamiast pokazywać przypadkową ofertę.</p></div></div>
-                  <div className="experience-live-fallback-actions">
-                    <a href={search.kiwiUrl} target="_blank" rel="sponsored noopener noreferrer">✈️ Sprawdź loty</a>
-                    <a href={search.bookingUrl} target="_blank" rel="sponsored noopener noreferrer">🏨 Sprawdź noclegi</a>
-                  </div>
-                </div>}
-          </section>;
-        })}
+        {cards.map(([href, season, title, text]) => <section className="experience-live-row" key={href}>
+          <div className="experience-live-head">
+            <div><small>{season}</small><h2>{title}</h2><p>{text}</p></div>
+            <Link href={href}>Jak zaplanować to przeżycie? →</Link>
+          </div>
+          <ExperienceTripCards path={href}/>
+        </section>)}
       </div>
     </section>
     <SiteFooter/>

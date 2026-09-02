@@ -25,6 +25,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [open,setOpen]=useState<"from"|"to"|null>(null);
   const [destinationQuery,setDestinationQuery]=useState("");
   const [submitted,setSubmitted]=useState(0);
+  const [activeTab,setActiveTab]=useState("Inspiracje");
 
   useEffect(()=>{setAirports(initialAirports);setDestinations(initialDestinations);setDuration(initialDuration||"all")},[initialAirports.join("|"),initialDestinations.join("|"),initialDuration]);
   useEffect(()=>{if(searchRequest>0)setSubmitted(v=>v+1)},[searchRequest]);
@@ -53,16 +54,39 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   function toggleDestination(v:string){setCustomDestination("");setDestinations(prev=>prev.includes(v)?prev.filter(x=>x!==v):[...prev,v])}
   function useCustom(){const v=destinationQuery.trim();if(!v)return;setDestinations([]);setCustomDestination(v);setOpen(null);setDestinationQuery("")}
   function clearAll(){setAirports([]);setDestinations([]);setCustomDestination("");setDuration("all");setBudget("5000");setBoard("all");setText("");setDestinationQuery("")}
+  function pickDestination(label:string, opts?:{duration?:string;budget?:string;board?:string}){
+    setDestinations([label]); setCustomDestination(""); setText(""); setDestinationQuery("");
+    if(opts?.duration)setDuration(opts.duration); if(opts?.budget)setBudget(opts.budget); if(opts?.board)setBoard(opts.board);
+    setOpen(null); setSubmitted(v=>v+1);
+  }
+  function chooseTab(tab:string){
+    setActiveTab(tab);
+    if(tab==="Inspiracje") return;
+    if(tab==="City break") pickDestination("Rzym, Włochy",{duration:"short"});
+    if(tab==="Lot + hotel") pickDestination("Barcelona, Hiszpania",{duration:"short"});
+    if(tab==="Wakacje") pickDestination("Djerba, Tunezja",{duration:"week",board:"all inclusive"});
+    if(tab==="Atrakcje") pickDestination("Paryż, Francja",{duration:"short"});
+    if(tab==="Parkingi") window.location.href="/parkingi";
+    if(tab==="eSIM") window.location.href="/esim";
+  }
   const activeChips=[...(airports.length?[`✈ ${selectedFromLabel}`]:[]),...(selectedTo.length?[`🌍 ${selectedToLabel}`]:[]),...(duration!=="all"?[`📅 ${duration==="short"?"2–4 noce":duration==="week"?"5–8 nocy":"9+ nocy"}`]:[]),...(budget!=="5000"?[`💰 do ${Number(budget).toLocaleString("pl-PL")} zł`]:[]),...(board!=="all"?[`🍽 ${board}`]:[])];
 
   const queryDestination=selectedTo[0]||text||"";
   const booking=`https://www.booking.com/searchresults.pl.html?aid=818288&ss=${encodeURIComponent(queryDestination)}`;
   const flights=`https://www.google.com/travel/flights?hl=pl&q=${encodeURIComponent(`loty ${selectedFromLabel} ${queryDestination}`)}`;
+  const hasDestination=Boolean(queryDestination.trim());
+  const quickPicks=[
+    ["🏛️","City break: Rzym","Rzym, Włochy",{duration:"short"}],
+    ["☀️","Ciepło zimą: Teneryfa","Teneryfa, Hiszpania",{duration:"week"}],
+    ["🏖️","All Inclusive: Djerba","Djerba, Tunezja",{duration:"week",board:"all inclusive"}],
+    ["💶","Tanio: Bergamo","Bergamo, Włochy",{duration:"short",budget:"1000"}],
+    ["🌴","Egzotyka: Zanzibar","Zanzibar, Tanzania",{duration:"long"}]
+  ] as const;
 
   return <section className="section shell" id="wyszukiwarka">
     <div className="search-hub">
       <div className="search-tabs">
-        {['Inspiracje','City break','Lot + hotel','Wakacje','Atrakcje','Parkingi','eSIM'].map((x,i)=><button key={x} className={i===0?'active':''} type="button">{x}</button>)}
+        {['Inspiracje','City break','Lot + hotel','Wakacje','Atrakcje','Parkingi','eSIM'].map(x=><button key={x} className={activeTab===x?'active':''} type="button" onClick={()=>chooseTab(x)}>{x}</button>)}
       </div>
 
       <div className="search-text-row"><div className="search-text-field"><Search size={18}/><input value={text} onChange={e=>setText(e.target.value)} placeholder="Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam lub Resort 4★"/>{text&&<button onClick={()=>setText("")} aria-label="Wyczyść"><X size={16}/></button>}</div></div>
@@ -91,8 +115,19 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
 
       <div className="active-filter-bar"><div className="active-filter-chips">{activeChips.length?activeChips.map(x=><span key={x}>{x}</span>):<span>🌍 Cały świat</span>}</div><button onClick={clearAll}>Wyczyść filtry</button></div>
 
-      <div className="search-results-block"><div className="search-results-heading"><div><small>WYNIKI TRIPOWNIA.PL</small><h3>{results.length} dopasowanych ofert</h3></div><span>Najpierw pokazujemy konkretne okazje z Tripowni. Jeśli nie mamy jeszcze gotowej karty dla wybranego miejsca, możesz od razu przejść do pełnego wyszukiwania partnera.</span></div>
-        {results.length>0?<div className="cards-grid">{results.slice(0,8).map((o:any)=><OfferCard key={o.id} offer={o}/>)}</div>:<div className="empty-search"><strong>Nie mamy dziś gotowej okazji dla „{queryDestination||'tych parametrów'}”.</strong><p style={{margin:'7px 0 12px'}}>To nie blokuje wyszukiwania — sprawdź ten kierunek bezpośrednio w pełnej bazie lotów i noclegów.</p><div style={{display:'flex',gap:8,flexWrap:'wrap'}}><a className="card-cta" href={booking} target="_blank" rel="nofollow sponsored">🏨 Szukaj noclegów</a><a className="card-cta" href={flights} target="_blank" rel="nofollow">✈️ Szukaj lotów</a></div></div>}
+      <div className="quick-destination-wrap">
+        <small>POPULARNE WYBORY — OD RAZU Z MIEJSCEM</small>
+        <div className="quick-destination-grid">{quickPicks.map(([icon,label,dest,opts])=><button key={dest} type="button" onClick={()=>pickDestination(dest,opts)}><span>{icon}</span><strong>{label}</strong></button>)}</div>
+      </div>
+
+      <div className="search-results-block">
+        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Własne okazje Tripowni są wyróżniane, ale wyszukiwarka nie kończy się na naszej bazie. Każdy wpisany kierunek możesz od razu sprawdzić w pełnej bazie lotów i noclegów.</span></div>
+        {results.length>0&&<><div className="partner-search-banner"><div><small>⭐ OKAZJE TRIPOWNI</small><strong>{results.length} własnych propozycji pasuje do parametrów</strong></div></div><div className="cards-grid">{results.slice(0,8).map((o:any)=><OfferCard key={o.id} offer={o}/>)}</div></>}
+        {hasDestination&&<div className="global-search-result">
+          <div><small>🌍 PEŁNE WYSZUKIWANIE</small><h4>{queryDestination}</h4><p>Sprawdź ten kierunek niezależnie od tego, czy dziś jest w dziennej selekcji Tripowni.</p></div>
+          <div className="global-search-actions"><a href={flights} target="_blank" rel="nofollow noopener noreferrer">✈️ Loty do {queryDestination}</a><a href={booking} target="_blank" rel="nofollow sponsored noopener noreferrer">🏨 Noclegi w {queryDestination}</a></div>
+        </div>}
+        {!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
       </div>
     </div>
   </section>
