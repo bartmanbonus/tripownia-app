@@ -173,11 +173,24 @@ export default function Home() {
     return picked.slice(0, 8);
   }, []);
   const [budget, setBudget] = useState(2500);
-  const [surprise, setSurprise] = useState<(typeof offers)[number] | null>(null);
+  const SURPRISES = [
+    {flag:"🇯🇴",city:"Amman + Wadi Rum",price:1900,hook:"Pustynia, Petra i noc pod gwiazdami — zamiast kolejnego city breaku.",query:"Amman Jordania"},
+    {flag:"🇬🇪",city:"Tbilisi",price:1200,hook:"Wino, góry Kaukazu i kuchnia, dla której warto polecieć choćby na 4 dni.",query:"Tbilisi Gruzja"},
+    {flag:"🇲🇦",city:"Marrakesz",price:1500,hook:"Medyna, Atlas i nocleg w riadzie — bardzo dużo wrażeń za jeden weekend.",query:"Marrakesz Maroko"},
+    {flag:"🇮🇸",city:"Reykjavík",price:2400,hook:"Zorza, gorące źródła i krajobraz, który wygląda jak inna planeta.",query:"Reykjavik Islandia"},
+    {flag:"🇹🇷",city:"Kapadocja",price:1800,hook:"Balony o świcie, skalne miasta i kilka dni kompletnie poza codziennością.",query:"Kayseri Kapadocja"},
+    {flag:"🇹🇿",city:"Zanzibar",price:4200,hook:"Ocean, Stone Town i afrykański klimat — kiedy Europa to zdecydowanie za mało.",query:"Zanzibar Tanzania"},
+    {flag:"🇯🇵",city:"Tokio",price:4900,hook:"Neony, ramen o północy i totalny reset kulturowy. To już jest prawdziwe zaskoczenie.",query:"Tokio Japonia"},
+    {flag:"🇵🇹",city:"Azory",price:2300,hook:"Wulkany, wieloryby i zielone wyspy na środku Atlantyku.",query:"Ponta Delgada Azory"}
+  ];
+  const [surprise, setSurprise] = useState<(typeof SURPRISES)[number] | null>(null);
 
   function pickSurprise() {
-    const pool = offers.filter(o => o.price <= budget);
-    setSurprise(pool[Math.floor(Math.random() * pool.length)] ?? offers[0]);
+    const pool = SURPRISES.filter(o => o.price <= Math.max(budget,1500));
+    const source = pool.length ? pool : SURPRISES;
+    let next = source[Math.floor(Math.random() * source.length)];
+    if (surprise && source.length > 1 && next.city === surprise.city) next = source[(source.indexOf(next)+1)%source.length];
+    setSurprise(next);
   }
 
   return (
@@ -232,9 +245,9 @@ export default function Home() {
             <Sparkles size={30}/><h3>Nie wiesz gdzie?</h3><p>Daj nam budżet i daj się zaskoczyć.</p>
             <button onClick={pickSurprise}><Dice5 size={18}/> Zaskocz mnie</button>
             {surprise && (
-              <Link className="surprise-result" href={`/oferta/${surprise.id}`}>
-                {surprise.flag} <strong>{surprise.city}</strong><span>{surprise.price} zł/os. · {surprise.score}/10 →</span>
-              </Link>
+              <a className="surprise-result surprise-result-v2" href={`https://www.google.com/travel/flights?hl=pl&q=${encodeURIComponent(`loty Warszawa ${surprise.query}`)}`} target="_blank" rel="nofollow noopener noreferrer">
+                <span className="surprise-flag">{surprise.flag}</span><strong>{surprise.city}</strong><em>{surprise.hook}</em><span>orientacyjnie od {surprise.price.toLocaleString("pl-PL")} zł/os. · sprawdź ten kierunek →</span>
+              </a>
             )}
           </div>
         </div>

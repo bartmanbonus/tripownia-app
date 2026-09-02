@@ -3467,3 +3467,46 @@ body {
 #wyszukiwarka{scroll-margin-top:92px}
 #wyszukiwarka .search-hub{margin-top:0!important}
 @media(max-width:850px){.hero-clean{padding:38px 0 10px!important}.hero-copy-clean h1 br{display:none}.hero-copy-clean h1{font-size:clamp(42px,10vw,64px)!important}}
+
+/* v90f — Podróże po przeżycia: każdy blok prowadzi do konkretnego wariantu wyjazdu */
+.experience-concrete-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.experience-concrete-card{overflow:hidden;border:1px solid #e8e2dc;border-radius:20px;background:#fff;color:var(--ink);text-decoration:none;box-shadow:0 10px 28px rgba(31,22,15,.05);transition:.18s ease}
+.experience-concrete-card:hover{transform:translateY(-3px);border-color:#efb398;box-shadow:0 16px 38px rgba(31,22,15,.10)}
+.experience-concrete-photo{display:flex;min-height:168px;flex-direction:column;justify-content:space-between;padding:14px;background-position:center;background-size:cover;color:#fff}
+.experience-concrete-photo span,.experience-concrete-photo b{width:max-content;max-width:100%;padding:7px 10px;border-radius:999px;background:rgba(13,13,13,.72);backdrop-filter:blur(7px);font-size:10px;font-weight:900;letter-spacing:.04em}
+.experience-concrete-photo b{align-self:flex-start;background:#f45122;color:#fff}
+.experience-concrete-body{padding:16px}
+.experience-concrete-body>small{display:block;margin-bottom:5px;color:#f45122;font-size:9px;font-weight:950;letter-spacing:.09em}
+.experience-concrete-body h3{margin:0 0 11px;font-size:23px;letter-spacing:-.5px}
+.experience-concrete-meta{display:grid;gap:6px;margin-bottom:11px}
+.experience-concrete-meta span{color:#514b45;font-size:11px;font-weight:750;line-height:1.35}
+.experience-concrete-body p{min-height:42px;margin:0 0 13px;color:#6a645e;font-size:12px;line-height:1.5}
+.experience-concrete-body>strong{display:block;padding-top:12px;border-top:1px solid #eee8e2;color:#111;font-size:12px;font-weight:900}
+@media(max-width:980px){.experience-concrete-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.experience-concrete-grid{grid-template-columns:1fr}.experience-concrete-photo{min-height:190px}.experience-concrete-body p{min-height:0}}
+
+/* V90G — pełne wyszukiwanie + konkretne skróty */
+.quick-destination-wrap{margin:18px 0 4px;padding:16px 18px;border:1px solid #eee7e0;border-radius:18px;background:#fffdfa}
+.quick-destination-wrap>small{display:block;margin-bottom:10px;color:#6d6259;font-size:10px;font-weight:950;letter-spacing:.08em}
+.quick-destination-grid{display:flex;flex-wrap:wrap;gap:8px}
+.quick-destination-grid button{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid #e7dfd7;border-radius:999px;background:#fff;color:#241e19;font:inherit;font-size:11px;font-weight:850;cursor:pointer;transition:.16s ease}
+.quick-destination-grid button:hover{border-color:#f4a37e;background:#fff3ec;transform:translateY(-1px)}
+.quick-destination-grid button span{font-size:14px}
+.partner-search-banner{display:flex;align-items:center;justify-content:space-between;margin:12px 0;padding:11px 14px;border-radius:13px;background:#fff7f1;border:1px solid #ffd7c4}
+.partner-search-banner small{display:block;color:#f45122;font-size:9px;font-weight:950;letter-spacing:.08em}
+.partner-search-banner strong{font-size:12px}
+.global-search-result{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-top:16px;padding:20px;border:1px solid #dfe7ed;border-radius:18px;background:linear-gradient(135deg,#f7fbff,#fff)}
+.global-search-result small{color:#f45122;font-size:9px;font-weight:950;letter-spacing:.09em}
+.global-search-result h4{margin:4px 0 5px;font-size:22px}
+.global-search-result p{margin:0;color:#6b645e;font-size:12px;line-height:1.5}
+.global-search-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.global-search-actions a{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:10px 14px;border-radius:12px;background:#111;color:#fff;text-decoration:none;font-size:11px;font-weight:900}
+.global-search-actions a:last-child{background:#f45122}
+.surprise-result-v2{display:grid!important;grid-template-columns:auto 1fr;gap:3px 9px!important;align-items:center!important;text-align:left!important}
+.surprise-result-v2 .surprise-flag{grid-row:1/4;font-size:29px!important}
+.surprise-result-v2 strong{font-size:17px!important}
+.surprise-result-v2 em{font-style:normal;color:#61574f;font-size:11px;line-height:1.35}
+.surprise-result-v2>span:last-child{font-size:10px!important;color:#f45122!important;font-weight:900!important}
+.experience-concrete-cta{display:flex!important;align-items:center;justify-content:center;padding:11px 12px!important;border:0!important;border-radius:11px;background:#111;color:#fff!important;text-align:center}
+.experience-concrete-card:hover .experience-concrete-cta{background:#f45122}
+@media(max-width:760px){.global-search-result{align-items:flex-start;flex-direction:column}.global-search-actions{width:100%}.global-search-actions a{flex:1}.quick-destination-grid{display:grid;grid-template-columns:1fr 1fr}.quick-destination-grid button{justify-content:flex-start;border-radius:12px}.surprise-result-v2{grid-template-columns:auto 1fr}}
