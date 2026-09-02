@@ -11,6 +11,7 @@ import BeforeYouGo from "@/components/BeforeYouGo";
 import FavoriteButton from "@/components/FavoriteButton";
 import OfferCard from "@/components/OfferCard";
 import SocialShare from "@/components/SocialShare";
+import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
@@ -28,6 +29,9 @@ export async function generateMetadata({params}:{params:Promise<{id:string}>}):P
       images: o.image ? [{ url: o.image, alt: `${o.city}, ${o.country}` }] : undefined,
     },
     twitter: { card: "summary_large_image", title, description, images: o.image ? [o.image] : undefined },
+    robots: o.availabilityStatus === "expired"
+      ? { index: false, follow: true }
+      : { index: true, follow: true },
   };
 }
 
@@ -61,6 +65,11 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
     .slice(0,3);
   return <main>
     <SiteHeader/>
+    <BreadcrumbSchema items={[
+      { name: "Tripownia", url: "https://tripownia.pl/" },
+      { name: "Okazje", url: "https://tripownia.pl/okazje" },
+      { name: `${o.city} — ${o.nights} nocy`, url: `https://tripownia.pl/oferta/${o.id}` },
+    ]}/>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
     <div className="shell">
       <div className="offer-detail-top"><Link href="/okazje"><ArrowLeft size={17}/> Wróć do okazji</Link></div>
