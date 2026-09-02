@@ -7,6 +7,7 @@ import { legacyPosts, findLegacy } from "@/lib/legacy";
 import { isInternalAlias } from "@/lib/internalAliases";
 import { offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
+import AdminStudio from "@/components/AdminStudio";
 
 type ServiceType = "parkingi" | "atrakcje" | "esim" | "ubezpieczenia" | "transfery" | "wynajem-auta";
 
@@ -309,6 +310,8 @@ function AliasLandingPage({ path }: { path: string }) {
 }
 
 export default function UnifiedPage({ path }: { path: string }) {
+  if (path === "/admin") return <><SiteHeader/><AdminStudio offers={offers}/><SiteFooter/></>;
+
   if (path === "/okazje") return <main><SiteHeader/><section className="shell hub-page"><div className="kicker">AKTUALNE OKAZJE</div><h1>Podróże, które warto sprawdzić</h1><p className="hub-lead">Najpierw otwierasz ofertę na Tripowni, sprawdzasz ocenę i szczegóły, a dopiero potem przechodzisz do partnera.</p><div className="cards-grid">{offers.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section><SiteFooter/></main>;
 
   if (path === "/poradniki") return <main><SiteHeader/><section className="shell hub-page"><div className="kicker">MAGAZYN TRIPOWNI</div><h1>Poradniki podróżnicze</h1><p className="hub-lead">Dotychczasowe artykuły Tripowni w jednym miejscu.</p><div className="article-grid">{legacyPosts.map(p=><Link key={p.path} href={p.path}><span>PORADNIK</span><strong>{p.title}</strong><p>{p.description}</p><b>Czytaj →</b></Link>)}</div></section><SiteFooter/></main>;
