@@ -12,6 +12,7 @@ export type SportsClub = {
   city: string;
   country: string;
   airportCode: string;
+  flightAirportLabel: string;
   flightDestinationPath: string;
   packageArrivalCode: string;
   competitionCodes: string[];
@@ -37,6 +38,14 @@ export type SportsTrip = {
   packageUrl: string;
 };
 
+export const sportsCompetitions = [
+  { code: "PL", name: "Premier League" },
+  { code: "PD", name: "La Liga" },
+  { code: "SA", name: "Serie A" },
+  { code: "BL1", name: "Bundesliga" },
+  { code: "CL", name: "Liga Mistrzów" },
+] as const;
+
 export const sportsDepartures: SportsDeparture[] = [
   { code: "WAWA", label: "Warszawa — Chopin + Modlin", flightPath: "mp/WAWA", packageValue: "ap-WAW,ap-WMI" },
   { code: "KRK", label: "Kraków", flightPath: "ap/KRK", packageValue: "ap-KRK" },
@@ -57,7 +66,8 @@ export const sportsClubs: SportsClub[] = [
     city: "Barcelona",
     country: "Hiszpania",
     airportCode: "BCN",
-    flightDestinationPath: "mp/BARC",
+    flightAirportLabel: "Barcelona (BCN)",
+    flightDestinationPath: "ap/BCN",
     packageArrivalCode: "ci-BCN",
     competitionCodes: ["PD", "CL"],
     ticketUrl: "https://www.fcbarcelona.com/en/tickets/football",
@@ -65,12 +75,13 @@ export const sportsClubs: SportsClub[] = [
   },
   {
     slug: "inter-mediolan",
-    names: ["FC Internazionale Milano", "Inter Milan", "Inter Milano", "Internazionale"],
+    names: ["FC Internazionale Milano", "Inter Milan", "Inter Milano", "Internazionale", "Inter"],
     displayName: "Inter Mediolan",
     city: "Mediolan",
     country: "Włochy",
-    airportCode: "MIL",
-    flightDestinationPath: "mp/MILA",
+    airportCode: "MXP",
+    flightAirportLabel: "Mediolan Malpensa (MXP)",
+    flightDestinationPath: "ap/MXP",
     packageArrivalCode: "ci-MIL",
     competitionCodes: ["SA", "CL"],
     ticketUrl: "https://www.inter.it/en/tickets",
@@ -83,7 +94,8 @@ export const sportsClubs: SportsClub[] = [
     city: "Madryt",
     country: "Hiszpania",
     airportCode: "MAD",
-    flightDestinationPath: "mp/MADR",
+    flightAirportLabel: "Madryt (MAD)",
+    flightDestinationPath: "ap/MAD",
     packageArrivalCode: "ci-MAD",
     competitionCodes: ["PD", "CL"],
     ticketUrl: "https://www.realmadrid.com/en-US/tickets",
@@ -95,8 +107,9 @@ export const sportsClubs: SportsClub[] = [
     displayName: "AC Milan",
     city: "Mediolan",
     country: "Włochy",
-    airportCode: "MIL",
-    flightDestinationPath: "mp/MILA",
+    airportCode: "MXP",
+    flightAirportLabel: "Mediolan Malpensa (MXP)",
+    flightDestinationPath: "ap/MXP",
     packageArrivalCode: "ci-MIL",
     competitionCodes: ["SA", "CL"],
     ticketUrl: "https://www.acmilan.com/en/tickets",
@@ -109,6 +122,7 @@ export const sportsClubs: SportsClub[] = [
     city: "Monachium",
     country: "Niemcy",
     airportCode: "MUC",
+    flightAirportLabel: "Monachium (MUC)",
     flightDestinationPath: "ap/MUC",
     packageArrivalCode: "ci-MUC",
     competitionCodes: ["BL1", "CL"],
@@ -121,12 +135,69 @@ export const sportsClubs: SportsClub[] = [
     displayName: "Arsenal",
     city: "Londyn",
     country: "Wielka Brytania",
-    airportCode: "LON",
-    flightDestinationPath: "mp/LOND",
+    airportCode: "STN",
+    flightAirportLabel: "Londyn Stansted (STN)",
+    flightDestinationPath: "ap/STN",
     packageArrivalCode: "ci-LON",
     competitionCodes: ["PL", "CL"],
     ticketUrl: "https://www.arsenal.com/tickets",
     emoji: "🔴",
+  },
+  {
+    slug: "chelsea",
+    names: ["Chelsea FC", "Chelsea"],
+    displayName: "Chelsea",
+    city: "Londyn",
+    country: "Wielka Brytania",
+    airportCode: "STN",
+    flightAirportLabel: "Londyn Stansted (STN)",
+    flightDestinationPath: "ap/STN",
+    packageArrivalCode: "ci-LON",
+    competitionCodes: ["PL", "CL"],
+    ticketUrl: "https://www.chelseafc.com/en/tickets",
+    emoji: "🔵",
+  },
+  {
+    slug: "tottenham",
+    names: ["Tottenham Hotspur FC", "Tottenham Hotspur", "Tottenham", "Spurs"],
+    displayName: "Tottenham",
+    city: "Londyn",
+    country: "Wielka Brytania",
+    airportCode: "STN",
+    flightAirportLabel: "Londyn Stansted (STN)",
+    flightDestinationPath: "ap/STN",
+    packageArrivalCode: "ci-LON",
+    competitionCodes: ["PL", "CL"],
+    ticketUrl: "https://www.tottenhamhotspur.com/tickets/",
+    emoji: "⚪🔵",
+  },
+  {
+    slug: "manchester-city",
+    names: ["Manchester City FC", "Manchester City", "Man City"],
+    displayName: "Manchester City",
+    city: "Manchester",
+    country: "Wielka Brytania",
+    airportCode: "MAN",
+    flightAirportLabel: "Manchester (MAN)",
+    flightDestinationPath: "ap/MAN",
+    packageArrivalCode: "ci-MAN",
+    competitionCodes: ["PL", "CL"],
+    ticketUrl: "https://www.mancity.com/tickets",
+    emoji: "🔵⚪",
+  },
+  {
+    slug: "manchester-united",
+    names: ["Manchester United FC", "Manchester United", "Man United", "Man Utd"],
+    displayName: "Manchester United",
+    city: "Manchester",
+    country: "Wielka Brytania",
+    airportCode: "MAN",
+    flightAirportLabel: "Manchester (MAN)",
+    flightDestinationPath: "ap/MAN",
+    packageArrivalCode: "ci-MAN",
+    competitionCodes: ["PL"],
+    ticketUrl: "https://www.manutd.com/en/tickets-and-hospitality",
+    emoji: "🔴⚫",
   },
   {
     slug: "liverpool",
@@ -135,6 +206,7 @@ export const sportsClubs: SportsClub[] = [
     city: "Liverpool",
     country: "Wielka Brytania",
     airportCode: "LPL",
+    flightAirportLabel: "Liverpool (LPL)",
     flightDestinationPath: "ap/LPL",
     packageArrivalCode: "ci-LPL",
     competitionCodes: ["PL", "CL"],
@@ -172,6 +244,10 @@ function clubMatchesTeam(club: SportsClub, name?: string | null) {
   return club.names.some(alias =>
     normalized === normalize(alias) || normalized.includes(normalize(alias))
   );
+}
+
+function isUpcomingMatch(match: FootballDataMatch) {
+  return match.status === "SCHEDULED" || match.status === "TIMED";
 }
 
 export function getSportsTravelWindow(kickoff: string, nights = 3) {
@@ -213,6 +289,8 @@ export function buildSportsTripLinks(
     };
   }
 
+  // eSky: używamy prawdziwych kodów IATA (ap/...), a nie skrótów miast typu MILA/BARC.
+  // Dzięki temu formularz po wejściu ma poprawnie rozpoznane lotnisko docelowe.
   const flightUrl = new URL(`https://www2.esky.pl/flights/search/${departure.flightPath}/${club.flightDestinationPath}`);
   flightUrl.searchParams.set("departureDate", window.departureDate);
   flightUrl.searchParams.set("returnDate", window.returnDate);
@@ -249,7 +327,7 @@ export function buildSportsTripLinks(
   return {
     ...window,
     departureLabel: departure.label,
-    arrivalLabel: club.city,
+    arrivalLabel: club.flightAirportLabel,
     flightUrl: flightUrl.toString(),
     hotelUrl: hotelUrl.toString(),
     packageUrl: packageUrl.toString(),
@@ -291,10 +369,11 @@ async function fetchCompetitionMatches(code: string, dateFrom: string, dateTo: s
   const token = process.env.FOOTBALL_DATA_API_KEY;
   if (!token) return [] as FootballDataMatch[];
 
+  // Nie ograniczamy API tylko do SCHEDULED. Premier League po nadaniu godzin
+  // często ma status TIMED i wcześniej przez to znikała z Tripowni.
   const url = new URL(`https://api.football-data.org/v4/competitions/${code}/matches`);
   url.searchParams.set("dateFrom", dateFrom);
   url.searchParams.set("dateTo", dateTo);
-  url.searchParams.set("status", "SCHEDULED");
 
   try {
     const response = await fetch(url, {
@@ -304,13 +383,15 @@ async function fetchCompetitionMatches(code: string, dateFrom: string, dateTo: s
 
     if (!response.ok) return [];
     const data = await response.json();
-    return Array.isArray(data.matches) ? data.matches : [];
+    return Array.isArray(data.matches)
+      ? (data.matches as FootballDataMatch[]).filter(isUpcomingMatch)
+      : [];
   } catch {
     return [];
   }
 }
 
-// Fallback tylko techniczny. Gdy FOOTBALL_DATA_API_KEY działa, live terminarze mają pierwszeństwo.
+// Techniczny fallback. Live Football-Data ma zawsze pierwszeństwo dla każdej ligi osobno.
 const seedMatches: FootballDataMatch[] = [
   { id: 100001, utcDate: "2026-09-09T16:45:00Z", status: "SCHEDULED", venue: "Spotify Camp Nou", competition: { name: "UEFA Champions League", code: "CL" }, homeTeam: { name: "FC Barcelona" }, awayTeam: { name: "Feyenoord Rotterdam" } },
   { id: 100002, utcDate: "2026-09-16T19:30:00Z", status: "SCHEDULED", venue: "Spotify Camp Nou", competition: { name: "La Liga", code: "PD" }, homeTeam: { name: "FC Barcelona" }, awayTeam: { name: "Racing Santander" } },
@@ -318,6 +399,17 @@ const seedMatches: FootballDataMatch[] = [
   { id: 100004, utcDate: "2026-09-05T16:00:00Z", status: "SCHEDULED", venue: "San Siro", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Inter Milan" }, awayTeam: { name: "SSC Napoli" } },
   { id: 100005, utcDate: "2026-10-10T13:00:00Z", status: "SCHEDULED", venue: "San Siro", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Inter Milan" }, awayTeam: { name: "Parma Calcio" } },
   { id: 100006, utcDate: "2026-10-13T19:00:00Z", status: "SCHEDULED", venue: "San Siro", competition: { name: "UEFA Champions League", code: "CL" }, homeTeam: { name: "Inter Milan" }, awayTeam: { name: "Club Brugge" } },
+
+  // Premier League 2026/27 — fallback wyłącznie na wypadek chwilowego braku odpowiedzi API.
+  { id: 101001, utcDate: "2026-09-06T15:30:00Z", status: "TIMED", venue: "Emirates Stadium", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Arsenal FC" }, awayTeam: { name: "Chelsea FC" } },
+  { id: 101002, utcDate: "2026-09-12T14:00:00Z", status: "TIMED", venue: "Anfield", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Liverpool FC" }, awayTeam: { name: "Fulham FC" } },
+  { id: 101003, utcDate: "2026-09-13T15:30:00Z", status: "TIMED", venue: "Old Trafford", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Manchester United FC" }, awayTeam: { name: "Manchester City FC" } },
+  { id: 101004, utcDate: "2026-09-19T11:30:00Z", status: "TIMED", venue: "Tottenham Hotspur Stadium", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Tottenham Hotspur FC" }, awayTeam: { name: "Aston Villa FC" } },
+  { id: 101005, utcDate: "2026-09-20T13:00:00Z", status: "TIMED", venue: "Etihad Stadium", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Manchester City FC" }, awayTeam: { name: "Sunderland AFC" } },
+  { id: 101006, utcDate: "2026-10-10T11:30:00Z", status: "TIMED", venue: "Emirates Stadium", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Arsenal FC" }, awayTeam: { name: "Leeds United FC" } },
+  { id: 101007, utcDate: "2026-10-10T14:00:00Z", status: "TIMED", venue: "Stamford Bridge", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Chelsea FC" }, awayTeam: { name: "AFC Bournemouth" } },
+  { id: 101008, utcDate: "2026-10-10T16:30:00Z", status: "TIMED", venue: "Old Trafford", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Manchester United FC" }, awayTeam: { name: "Tottenham Hotspur FC" } },
+  { id: 101009, utcDate: "2026-10-11T15:30:00Z", status: "TIMED", venue: "Anfield", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Liverpool FC" }, awayTeam: { name: "Manchester City FC" } },
 ];
 
 export async function getSportsTrips(daysAhead = 120): Promise<SportsTrip[]> {
@@ -326,15 +418,21 @@ export async function getSportsTrips(daysAhead = 120): Promise<SportsTrip[]> {
   const dateTo = isoDate(addDays(now, daysAhead));
 
   const codes = [...new Set(sportsClubs.flatMap(club => club.competitionCodes))];
-  const groups = await Promise.all(codes.map(code => fetchCompetitionMatches(code, dateFrom, dateTo)));
-  const liveMatches = groups.flat();
-  const sourceMatches = liveMatches.length ? liveMatches : seedMatches;
-  const source: SportsTrip["source"] = liveMatches.length ? "football-data" : "seed";
+  const groups = await Promise.all(
+    codes.map(async code => {
+      const live = await fetchCompetitionMatches(code, dateFrom, dateTo);
+      if (live.length) return live.map(match => ({ match, source: "football-data" as const }));
 
+      return seedMatches
+        .filter(match => match.competition?.code === code && isUpcomingMatch(match))
+        .map(match => ({ match, source: "seed" as const }));
+    })
+  );
+
+  const sourcedMatches = groups.flat();
   const trips = sportsClubs.flatMap(club =>
-    sourceMatches
-      .filter(match => match.status === "SCHEDULED")
-      .map(match => makeTrip(club, match, source))
+    sourcedMatches
+      .map(({ match, source }) => makeTrip(club, match, source))
       .filter((trip): trip is SportsTrip => Boolean(trip))
   );
 
@@ -346,7 +444,7 @@ export async function getSportsTrips(daysAhead = 120): Promise<SportsTrip[]> {
   return [...deduped.values()]
     .filter(trip => new Date(trip.kickoff).getTime() >= now.getTime())
     .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
-    .slice(0, 60);
+    .slice(0, 80);
 }
 
 export function formatKickoff(iso: string) {
