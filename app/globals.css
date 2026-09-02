@@ -3455,3 +3455,15 @@ body {
   .experience-live-fallback{align-items:flex-start;flex-direction:column}
   .experience-live-fallback-actions{width:100%;flex-wrap:wrap}
 }
+
+/* v90e — finalny hero bez starego brand-cardu; pełna wyszukiwarka od razu pod hero */
+.hero-clean{padding:64px 0 18px!important;min-height:0!important;background:linear-gradient(110deg,#fff 0%,#fffaf7 55%,#eef9ff 100%)!important}
+.hero-inner-clean{display:block!important;max-width:1180px!important}
+.hero-copy-clean{max-width:980px!important}
+.hero-copy-clean h1{max-width:980px!important;margin-bottom:18px!important}
+.hero-copy-clean p{max-width:820px!important;margin-bottom:0!important}
+.hero-clean .hero-brand-card,.hero-clean .hero-searchbar,.hero-clean .trustline{display:none!important}
+.hero-clean + #wyszukiwarka,.hero-clean + .section{padding-top:16px!important}
+#wyszukiwarka{scroll-margin-top:92px}
+#wyszukiwarka .search-hub{margin-top:0!important}
+@media(max-width:850px){.hero-clean{padding:38px 0 10px!important}.hero-copy-clean h1 br{display:none}.hero-copy-clean h1{font-size:clamp(42px,10vw,64px)!important}}

@@ -1,14 +1,13 @@
 "use client";
 
-import Image from "next/image";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowRight, Flame, Search, Sparkles, Dice5 } from "lucide-react";
+import { ArrowRight, Flame, Sparkles, Dice5 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { airportOptions, destinationOptions, getDailyOffers, offers } from "@/lib/offers";
+import { offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 
 
@@ -175,67 +174,27 @@ export default function Home() {
   }, []);
   const [budget, setBudget] = useState(2500);
   const [surprise, setSurprise] = useState<(typeof offers)[number] | null>(null);
-  const [heroAirport, setHeroAirport] = useState("all");
-  const [heroDestination, setHeroDestination] = useState("all");
-  const [heroDuration, setHeroDuration] = useState("all");
-  const [searchRequest, setSearchRequest] = useState(0);
 
   function pickSurprise() {
     const pool = offers.filter(o => o.price <= budget);
     setSurprise(pool[Math.floor(Math.random() * pool.length)] ?? offers[0]);
   }
 
-  function showTrips() {
-    setSearchRequest(v => v + 1);
-    setTimeout(() => document.getElementById("wyszukiwarka")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
-  }
-
   return (
     <main>
       <SiteHeader />
 
-      <section className="hero">
-        <div className="shell hero-inner">
-          <div className="hero-copy">
+      <section className="hero hero-clean">
+        <div className="shell hero-inner hero-inner-clean">
+          <div className="hero-copy hero-copy-clean">
             <div className="pill"><Flame size={16}/> Codziennie wybrane okazje</div>
             <h1>Najlepsze okazje podróżnicze<br/><span>w jednym miejscu.</span></h1>
-            <p>Codziennie wybieramy najciekawsze loty, city breaki i wakacje. Ty wybierasz ofertę, a rezerwujesz bezpośrednio u sprawdzonego partnera.</p>
-
-            <div className="searchbar hero-searchbar">
-              <label>
-                <small>Skąd?</small>
-                <select value={heroAirport} onChange={e => setHeroAirport(e.target.value)}>
-                  <option value="all">Wszystkie lotniska</option>
-                  {airportOptions.map(a => <option key={a.code} value={a.code}>{a.label}</option>)}
-                </select>
-              </label>
-              <label>
-                <small>Dokąd?</small>
-                <select value={heroDestination} onChange={e => setHeroDestination(e.target.value)}>
-                  <option value="all">Gdziekolwiek</option>
-                  {destinationOptions.map(d => <option key={d} value={d}>{d}</option>)}
-                </select>
-              </label>
-              <label>
-                <small>Na ile?</small>
-                <select value={heroDuration} onChange={e => setHeroDuration(e.target.value)}>
-                  <option value="all">Dowolnie</option>
-                  <option value="short">2–4 noce</option>
-                  <option value="week">5–8 nocy</option>
-                  <option value="long">9+ nocy</option>
-                </select>
-              </label>
-              <button type="button" onClick={showTrips}><Search size={18}/> Pokaż wyniki</button>
-            </div>
-            <div className="trustline">Bez setek przypadkowych wyników. Tylko wybrane przez Tripownię propozycje.</div>
-          </div>
-
-          <div className="hero-brand-card">
-            <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={520} height={420} priority />
-            <div className="hero-brand-tag">Podróże, które warto brać.</div>
+            <p>Wybieramy konkretne wyjazdy, ale możesz też samodzielnie przeszukać cały świat — od city breaku po Nową Zelandię.</p>
           </div>
         </div>
       </section>
+
+      <SearchHub />
 
       <section className="section shell" id="okazje">
         <div className="section-heading">
@@ -259,13 +218,6 @@ export default function Home() {
           <Link href="/egzotyka-zima" className="streaming-tile"><small>🌴 UCIECZKA OD ZIMY</small><strong>30°C zamiast skrobania szyb</strong><span>Tropiki dobrane do sezonu, nie tylko do najniższej ceny.</span></Link>
         </div>
       </section>
-
-      <SearchHub
-        initialAirports={heroAirport === "all" ? [] : [heroAirport]}
-        initialDestinations={heroDestination === "all" ? [] : [heroDestination]}
-        initialDuration={heroDuration}
-        searchRequest={searchRequest}
-      />
 
       <section className="budget-wrap" id="budzet">
         <div className="shell budget-grid">
