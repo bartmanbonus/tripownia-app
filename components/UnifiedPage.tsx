@@ -9,6 +9,22 @@ import { offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import AdminStudio from "@/components/AdminStudio";
 
+
+const EXPERIENCE_IMAGE_BY_CITY: Record<string, string> = {
+  islandia: "/images/destinations/reykjavik.jpg", reykjavik: "/images/destinations/reykjavik.jpg",
+  tokio: "/images/destinations/tokio.jpg", japonia: "/images/destinations/tokio.jpg",
+  amsterdam: "/images/destinations/amsterdam.jpg", bergamo: "/images/destinations/bergamo.jpg",
+  barcelona: "/images/destinations/barcelona.jpg", dubaj: "/images/destinations/dubaj.jpg", bali: "/images/destinations/bali.jpg",
+  madera: "/images/destinations/madera.jpg", porto: "/images/destinations/porto.jpg", lizbona: "/images/destinations/lizbona.jpg",
+  rzym: "/images/destinations/rzym.jpg", praga: "/images/destinations/praga.jpg", budapeszt: "/images/destinations/budapeszt.jpg",
+  wieden: "/images/destinations/wieden.jpg", teneryfa: "/images/destinations/teneryfa.jpg", zanzibar: "/images/destinations/zanzibar.jpg",
+};
+function experienceImage<T extends {city:string; image?:string}>(offer:T):T {
+  const key=offer.city.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+  const image=EXPERIENCE_IMAGE_BY_CITY[key];
+  return image ? {...offer,image:`${image}?v=20260902`} : offer;
+}
+
 type ServiceType = "parkingi" | "atrakcje" | "esim" | "ubezpieczenia" | "transfery" | "wynajem-auta";
 
 function ServicePage({ type }: { type: ServiceType }) {
@@ -164,7 +180,7 @@ function ExperiencePage({ path }: { path: string }) {
 
       <section className="experience-current-offers">
         <div className="section-heading"><div><div className="kicker">AKTUALNIE W TRIPOWNI</div><h2>{active.length ? `Aktualne okazje: ${page.partnerQuery}` : `Sprawdź aktualne ceny: ${page.partnerQuery}`}</h2><p>{active.length ? "Najpierw pokazujemy dopasowane aktywne oferty z bazy Tripowni." : "Nie mamy dziś zapisanej karty cenowej dokładnie pod to przeżycie. Nie pokazujemy losowych ofert — przejdź od razu do aktualnego wyszukiwania partnerów."}</p></div></div>
-        {active.length > 0 && <div className="cards-grid">{active.map(o => <OfferCard key={o.id} offer={o}/>)}</div>}
+        {active.length > 0 && <div className="cards-grid">{active.map(o => <OfferCard key={o.id} offer={experienceImage(o)}/>)}</div>}
         <div className="experience-partner-grid">
           <a href={eskyUrl} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>Loty w eSky</strong><small>Kierunek ustawiony na {page.partnerQuery}</small></div><b>Sprawdź →</b></a>
           <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🛫</span><div><strong>Loty w Kiwi.com</strong><small>Cel ustawiony · sortowanie od najniższej ceny</small></div><b>Sprawdź →</b></a>
@@ -174,6 +190,34 @@ function ExperiencePage({ path }: { path: string }) {
     </section>
     <SiteFooter/>
   </main>;
+}
+
+function experienceOffers(path: string, limit = 2) {
+  const page = experiencePages[path];
+  if (!page) return [];
+  return offers
+    .filter(o => o.availabilityStatus !== "expired")
+    .filter(o => {
+      const haystack = `${o.city} ${o.country} ${o.hotel} ${o.reason} ${o.category.join(" ")}`.toLocaleLowerCase("pl");
+      return page.keywords.some(k => haystack.includes(k.toLocaleLowerCase("pl")));
+    })
+    .sort((a,b) => b.score - a.score)
+    .slice(0, limit);
+}
+
+function experienceSearchLinks(path: string) {
+  const page = experiencePages[path];
+  if (!page) return null;
+  const bookingUrl = partners.booking.buildUrl(`https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(page.partnerQuery)}`);
+  const kiwiDeep = new URL("https://www.kiwi.com/deep");
+  kiwiDeep.searchParams.set("from", "WAW");
+  kiwiDeep.searchParams.set("to", page.kiwiCode);
+  kiwiDeep.searchParams.set("sort", "price");
+  kiwiDeep.searchParams.set("asc", "1");
+  kiwiDeep.searchParams.set("currency", "PLN");
+  kiwiDeep.searchParams.set("locale", "pl");
+  const kiwiUrl = partners.kiwi.buildUrl(kiwiDeep.toString());
+  return { bookingUrl, kiwiUrl, destination: page.partnerQuery };
 }
 
 function ExperiencesCalendarPage() {
@@ -188,9 +232,42 @@ function ExperiencesCalendarPage() {
     ["/egzotyka-zima","LISTOPAD–MARZEC","🌴 Egzotyka zimą","Malediwy, Zanzibar, Tajlandia i inne kierunki w najlepszym sezonie."],
   ] as const;
 
-  return <main><SiteHeader/><section className="shell hub-page experience-calendar-page"><div className="kicker">PODRÓŻE PO PRZEŻYCIA</div><h1>Kalendarz przeżyć</h1><p className="hub-lead">Niektóre podróże mają sens właśnie w konkretnym momencie roku. Wybierz doświadczenie, a dostaniesz sezon, wskazówki i od razu ścieżkę do aktualnych ofert.</p><div className="discovery-grid">{cards.map(([href, season, title, text]) => <Link key={href} className="discovery-card experience-calendar-card" href={href}><small>{season}</small><strong>{title}</strong><span>{text}</span><b>Zobacz terminy i oferty →</b></Link>)}</div></section><SiteFooter/></main>;
-}
+  return <main><SiteHeader/>
+    <section className="shell hub-page experience-calendar-page">
+      <div className="kicker">PODRÓŻE PO PRZEŻYCIA</div>
+      <h1>Wybierz przeżycie. My pokażemy Ci konkretny wyjazd.</h1>
+      <p className="hub-lead">Tu nie kończymy na inspiracji. Przy każdym pomyśle pokazujemy aktualne okazje z Tripowni, a jeśli dziś nie mamy gotowej karty cenowej — ustawione wyszukiwanie dokładnie na ten kierunek.</p>
 
+      <div className="experience-live-list">
+        {cards.map(([href, season, title, text]) => {
+          const live = experienceOffers(href, 2);
+          const search = experienceSearchLinks(href);
+          return <section className="experience-live-row" key={href}>
+            <div className="experience-live-head">
+              <div>
+                <small>{season}</small>
+                <h2>{title}</h2>
+                <p>{text}</p>
+              </div>
+              <Link href={href}>Dlaczego właśnie wtedy? →</Link>
+            </div>
+
+            {live.length > 0 ?
+              <div className="experience-live-offers">{live.map(o => <OfferCard key={o.id} offer={experienceImage(o)}/>)}</div>
+              : search && <div className="experience-live-fallback">
+                  <div><span>🔥</span><div><small>SPRAWDŹ TERAZ</small><strong>{search.destination} — konkretne ceny na Twój termin</strong><p>Dziś nie mamy zapisanej gotowej okazji dla tego przeżycia. Otwieramy już ustawiony kierunek zamiast pokazywać przypadkową ofertę.</p></div></div>
+                  <div className="experience-live-fallback-actions">
+                    <a href={search.kiwiUrl} target="_blank" rel="sponsored noopener noreferrer">✈️ Sprawdź loty</a>
+                    <a href={search.bookingUrl} target="_blank" rel="sponsored noopener noreferrer">🏨 Sprawdź noclegi</a>
+                  </div>
+                </div>}
+          </section>;
+        })}
+      </div>
+    </section>
+    <SiteFooter/>
+  </main>;
+}
 
 
 type LongTrip = {
@@ -299,7 +376,7 @@ function AliasLandingPage({ path }: { path: string }) {
           ? `Zebraliśmy aktualne propozycje pasujące do tematu „${title}”. Otwórz ofertę na Tripowni, sprawdź szczegóły i dopiero potem przejdź do partnera.`
           : `Sprawdź aktualne okazje i inspiracje Tripowni związane z tematem „${title}”. Jeśli nie ma dziś dokładnego dopasowania, pokażemy najciekawsze aktywne propozycje.`}
       </p>
-      <div className="cards-grid">{shown.map(o=><OfferCard key={o.id} offer={o}/>)}</div>
+      <div className="cards-grid">{shown.map(o=><OfferCard key={o.id} offer={experienceImage(o)}/>)}</div>
       <div style={{marginTop:30,display:"flex",gap:10,flexWrap:"wrap"}}>
         <Link className="primary-cta" href="/#wyszukiwarka">Wyszukaj po swojemu →</Link>
         <Link className="secondary-cta" href="/okazje">Zobacz wszystkie okazje</Link>
@@ -312,7 +389,7 @@ function AliasLandingPage({ path }: { path: string }) {
 export default function UnifiedPage({ path }: { path: string }) {
   if (path === "/admin") return <><SiteHeader/><AdminStudio offers={offers}/><SiteFooter/></>;
 
-  if (path === "/okazje") return <main><SiteHeader/><section className="shell hub-page"><div className="kicker">AKTUALNE OKAZJE</div><h1>Podróże, które warto sprawdzić</h1><p className="hub-lead">Najpierw otwierasz ofertę na Tripowni, sprawdzasz ocenę i szczegóły, a dopiero potem przechodzisz do partnera.</p><div className="cards-grid">{offers.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section><SiteFooter/></main>;
+  if (path === "/okazje") return <main><SiteHeader/><section className="shell hub-page"><div className="kicker">AKTUALNE OKAZJE</div><h1>Podróże, które warto sprawdzić</h1><p className="hub-lead">Najpierw otwierasz ofertę na Tripowni, sprawdzasz ocenę i szczegóły, a dopiero potem przechodzisz do partnera.</p><div className="cards-grid">{offers.map(o=><OfferCard key={o.id} offer={experienceImage(o)}/>)}</div></section><SiteFooter/></main>;
 
   if (path === "/poradniki") return <main><SiteHeader/><section className="shell hub-page"><div className="kicker">MAGAZYN TRIPOWNI</div><h1>Poradniki podróżnicze</h1><p className="hub-lead">Dotychczasowe artykuły Tripowni w jednym miejscu.</p><div className="article-grid">{legacyPosts.map(p=><Link key={p.path} href={p.path}><span>PORADNIK</span><strong>{p.title}</strong><p>{p.description}</p><b>Czytaj →</b></Link>)}</div></section><SiteFooter/></main>;
 
