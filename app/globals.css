@@ -2794,3 +2794,63 @@ body {
   .social-channel-grid{grid-template-columns:1fr}
   .social-queue-list article div{grid-template-columns:1fr}
 }
+
+
+/* v79 — programmatic SEO / sprzedażowe landingi */
+.seo-hub-page{padding:64px 0 90px}
+.seo-hub-page h1,.seo-landing-hero h1{
+  font-size:clamp(42px,6vw,72px);
+  line-height:1;
+  letter-spacing:-3px;
+  max-width:920px;
+  margin:14px 0 18px;
+}
+.seo-link-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:15px;
+  margin-top:34px;
+}
+.seo-link-grid>a{
+  display:flex;
+  flex-direction:column;
+  min-height:220px;
+  padding:22px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:20px;
+  color:var(--ink);
+  text-decoration:none;
+}
+.seo-link-grid small{font-size:10px;font-weight:900;letter-spacing:1px;color:var(--accent)}
+.seo-link-grid strong{font-size:22px;letter-spacing:-.5px;margin:12px 0}
+.seo-link-grid span{font-size:13px;line-height:1.55;color:var(--muted)}
+.seo-link-grid b{margin-top:auto;padding-top:18px;font-size:13px}
+.seo-landing-hero{
+  padding:72px 0 66px;
+  background:linear-gradient(135deg,#fff8f3,#f7fbff);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.seo-landing-hero p{max-width:760px;font-size:19px;line-height:1.6;color:var(--muted)}
+.seo-hero-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:22px}
+.seo-hero-actions .primary-cta{width:auto;margin:0}
+.seo-offer-section,.seo-partners-section,.seo-copy-section{padding:58px 0}
+.seo-copy-section{max-width:850px}
+.seo-copy-section h2{font-size:36px;letter-spacing:-1.5px}
+.seo-copy-section p{font-size:16px;line-height:1.75;color:var(--muted)}
+.seo-related{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  padding:10px 0 70px;
+}
+.seo-related a{font-weight:800;color:var(--ink);text-decoration:none}
+@media(max-width:900px){
+  .seo-link-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .seo-link-grid{grid-template-columns:1fr}
+  .seo-hub-page h1,.seo-landing-hero h1{letter-spacing:-2px}
+  .seo-related{flex-direction:column}
+}
