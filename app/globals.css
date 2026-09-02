@@ -3429,3 +3429,29 @@ body {
 .social-copy-grid .social-native-share{background:var(--accent);border-color:var(--accent);color:#fff}
 @media(max-width:900px){.admin-studio-grid{grid-template-columns:1fr}.admin-offer-picker .admin-offer-list{max-height:260px}.social-copy-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.admin-studio-title{flex-direction:column}.admin-studio-title .secondary-cta{width:100%;text-align:center}.social-copy-grid textarea{min-height:130px}}
+
+/* v90b — Podróże po przeżycia: od inspiracji od razu do konkretnej oferty */
+.experience-live-list{display:grid;gap:30px;margin-top:34px}
+.experience-live-row{padding:24px;border:1px solid #e8e3dc;border-radius:24px;background:#fff;box-shadow:0 10px 34px rgba(22,28,45,.05)}
+.experience-live-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:18px}
+.experience-live-head>div{max-width:720px}
+.experience-live-head small{display:block;margin-bottom:7px;color:#f15b2a;font-weight:900;font-size:11px;letter-spacing:.09em}
+.experience-live-head h2{margin:0 0 7px;font-size:clamp(22px,2.4vw,31px);letter-spacing:-.025em}
+.experience-live-head p{margin:0;color:#69707d;line-height:1.55}
+.experience-live-head>a{flex:0 0 auto;color:#16181d;font-size:13px;font-weight:850;text-decoration:none;border-bottom:1px solid #d9d9d9;padding-bottom:3px}
+.experience-live-offers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.experience-live-fallback{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 20px;background:#f8f7f5;border-radius:18px;border:1px solid #ece8e3}
+.experience-live-fallback>div:first-child{display:flex;align-items:flex-start;gap:13px}
+.experience-live-fallback>div:first-child>span{font-size:25px;line-height:1}
+.experience-live-fallback small{display:block;color:#f15b2a;font-size:10px;font-weight:900;letter-spacing:.08em;margin-bottom:4px}
+.experience-live-fallback strong{display:block;font-size:16px;margin-bottom:4px}
+.experience-live-fallback p{margin:0;max-width:680px;color:#6a707c;font-size:13px;line-height:1.45}
+.experience-live-fallback-actions{display:flex;gap:8px;flex:0 0 auto}
+.experience-live-fallback-actions a{padding:11px 14px;border-radius:999px;background:#111;color:#fff;text-decoration:none;font-weight:850;font-size:12px;white-space:nowrap}
+.experience-live-fallback-actions a:last-child{background:#fff;color:#111;border:1px solid #d9d5cf}
+@media(max-width:820px){
+  .experience-live-head{align-items:flex-start;flex-direction:column;gap:10px}
+  .experience-live-offers{grid-template-columns:1fr}
+  .experience-live-fallback{align-items:flex-start;flex-direction:column}
+  .experience-live-fallback-actions{width:100%;flex-wrap:wrap}
+}

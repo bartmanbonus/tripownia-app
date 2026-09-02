@@ -12,6 +12,83 @@ import { airportOptions, destinationOptions, getDailyOffers, offers } from "@/li
 import { partners } from "@/lib/partners";
 
 
+
+const LOCAL_IMAGE_BY_CITY: Record<string, string> = {
+  malta: "/images/destinations/valletta.jpg",
+  valletta: "/images/destinations/valletta.jpg",
+  barcelona: "/images/destinations/barcelona.jpg",
+  bergamo: "/images/destinations/bergamo.jpg",
+  djerba: "/images/destinations/djerba.jpg",
+  rzym: "/images/destinations/rzym.jpg",
+  roma: "/images/destinations/rzym.jpg",
+  porto: "/images/destinations/porto.jpg",
+  lizbona: "/images/destinations/lizbona.jpg",
+  paryz: "/images/destinations/paryz.jpg",
+  praga: "/images/destinations/praga.jpg",
+  budapeszt: "/images/destinations/budapeszt.jpg",
+  amsterdam: "/images/destinations/amsterdam.jpg",
+  madera: "/images/destinations/madera.jpg",
+  teneryfa: "/images/destinations/teneryfa.jpg",
+  fuerteventura: "/images/destinations/fuerteventura.jpg",
+  santorini: "/images/destinations/santorini.jpg",
+  rodos: "/images/destinations/rodos.jpg",
+  pafos: "/images/destinations/pafos.jpg",
+  sycylia: "/images/destinations/sycylia.jpg",
+  mediolan: "/images/destinations/mediolan.jpg",
+  wenecja: "/images/destinations/wenecja.jpg",
+  wieden: "/images/destinations/wieden.jpg",
+  londyn: "/images/destinations/londyn.jpg",
+  dubaj: "/images/destinations/dubaj.jpg",
+  bali: "/images/destinations/bali.jpg",
+  tokio: "/images/destinations/tokio.jpg",
+  marrakesz: "/images/destinations/marrakesz.jpg",
+  zanzibar: "/images/destinations/zanzibar.jpg",
+  helsinki: "/images/destinations/helsinki.jpg",
+  kopenhaga: "/images/destinations/kopenhaga.jpg",
+  dublin: "/images/destinations/dublin.jpg",
+  edynburg: "/images/destinations/edynburg.jpg",
+  neapol: "/images/destinations/neapol.jpg",
+  nicea: "/images/destinations/nicea.jpg",
+  madryt: "/images/destinations/madryt.jpg",
+  majorka: "/images/destinations/majorka.jpg",
+  malaga: "/images/destinations/malaga.jpg",
+  stambul: "/images/destinations/stambul.jpg",
+};
+
+function normalizeKey(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+}
+
+function offerForDisplay<T extends { city: string; image?: string }>(offer: T): T {
+  const key = normalizeKey(offer.city);
+  const mapped = LOCAL_IMAGE_BY_CITY[key];
+  if (!mapped) return offer;
+  return { ...offer, image: `${mapped}?v=20260902` };
+}
+
+function publicationKey(now = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23",
+  }).formatToParts(now).reduce<Record<string,string>>((acc, p) => { acc[p.type] = p.value; return acc; }, {});
+  const current = new Date(`${parts.year}-${parts.month}-${parts.day}T12:00:00+02:00`);
+  if (Number(parts.hour) < 12) current.setDate(current.getDate() - 1);
+  return current.toISOString().slice(0, 10);
+}
+
+function hashSeed(text: string) {
+  let h = 2166136261;
+  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+
+function seededShuffle<T>(items: T[], seedText: string) {
+  let seed = hashSeed(seedText) || 1;
+  const out = [...items];
+  const rnd = () => { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; };
+  for (let i = out.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
+  return out;
+}
+
 const longHaulCards = [
   { href: "/dalekie-podroze#wietnam", flag: "🇻🇳", label: "AZJA", title: "Wietnam", text: "Hanoi, zatoka Ha Long, Hoi An i południe kraju — podróż, której szkoda zamykać w jednym mieście." },
   { href: "/dalekie-podroze#pekin", flag: "🇨🇳", label: "CHINY", title: "Pekin", text: "Wielki Mur, Zakazane Miasto i zupełnie inna skala city breaku niż w Europie." },
@@ -76,8 +153,9 @@ const experienceCards = [
 
 export default function Home() {
   const todaysOffers = useMemo(() => {
-    const daily = getDailyOffers(offers, Math.max(16, offers.length));
-    const active = daily.filter(o => o.availabilityStatus !== "expired");
+    const key = publicationKey();
+    const daily = seededShuffle(offers.filter(o => o.availabilityStatus !== "expired"), `tripownia:${key}`);
+    const active = daily.map(offerForDisplay);
     const buckets = [
       (o: (typeof offers)[number]) => /japon|tajland|bali|wietnam|zanzibar|kenia|tanzan|malediw|mauritius|meksyk|usa|nowy jork|dubaj|emirat/i.test(`${o.city} ${o.country}`),
       (o: (typeof offers)[number]) => /all|wakac|plaż|resort|morze/i.test(`${o.board} ${(o.category || []).join(" ")}`),
@@ -164,7 +242,7 @@ export default function Home() {
           <div>
             <div className="kicker">DZISIEJSZA SELEKCJA</div>
             <h2>Dziś bralibyśmy te</h2>
-            <p>Nowa selekcja codziennie o 12:00. Pula pozostaje stała do kolejnej publikacji; cena i dostępność są potwierdzane u partnera.</p>
+            <p>Nowa, mieszana selekcja publikowana codziennie o 12:00 czasu polskiego. Karty zmieniają się raz dziennie; aktualną cenę i dostępność potwierdza partner.</p>
           </div>
           <Link href="/okazje">Zobacz wszystkie <ArrowRight size={16}/></Link>
         </div>
