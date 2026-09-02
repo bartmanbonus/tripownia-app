@@ -1,13 +1,61 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { CalendarDays, Check, ChevronDown, Compass, MapPin, Plane, Search, Users, Utensils, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import { airportOptions, offers } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination } from "@/lib/worldDestinations";
 
 type Props={initialAirports?:string[];initialDestinations?:string[];initialDuration?:string;searchRequest?:number};
+
+function PartnerLiveSearch({destination,departure}:{destination:string;departure:string}){
+  useEffect(()=>{
+    const esky=document.getElementById("tripownia-esky-live-v90j");
+    if(esky){
+      esky.innerHTML="";
+      const script=document.createElement("script");
+      script.src="https://widgets.esky.com/qsf-widget/bundle.js";
+      script.type="application/javascript";
+      script.async=true;
+      script.crossOrigin="anonymous";
+      script.dataset.branding="false";
+      script.dataset.partnerCode="TRIPOWNIAPLPACKAGES";
+      script.dataset.defaultContext="pl-packages";
+      script.dataset.target="_blank";
+      script.onload=()=>{const render=(window as any).renderQsf;if(typeof render==="function")render(script)};
+      esky.appendChild(script);
+    }
+
+    const wakacje=document.getElementById("tripownia-wakacje-live-v90j");
+    if(wakacje){
+      wakacje.innerHTML="";
+      const holder=document.createElement("div");
+      holder.id="search-widget-tripownia-v90j";
+      holder.dataset.widget="search";
+      holder.dataset.branding="false";
+      holder.dataset.affiliate="3212";
+      holder.dataset.campaign="3212-tripownia.pl";
+      const country=(destination.split(",").pop()||destination).trim();
+      if(country) holder.dataset.directions=normalizeDestination(country).replace(/\s+/g,"-");
+      const dep=departure.toLowerCase().includes("warsz")?"Warszawa":departure.toLowerCase().includes("krak")?"Kraków":departure.toLowerCase().includes("katow")?"Katowice":departure.toLowerCase().includes("gda")?"Gdańsk":departure;
+      if(dep&&!dep.toLowerCase().includes("wszystkie")) holder.dataset.departures=dep;
+      wakacje.appendChild(holder);
+      const script=document.createElement("script");
+      script.src="https://widget.wakacje.pl/v2/public/js/widgets/search-widget-v2.js?c=search-widget-tripownia-v90j";
+      script.async=true;
+      wakacje.appendChild(script);
+    }
+  },[destination,departure]);
+
+  return <div className="partner-live-search">
+    <div className="partner-live-intro"><div><small>🌍 PEŁNA BAZA PARTNERÓW</small><h4>Aktualne wyjazdy: {destination||"cały świat"}</h4><p>Nasze rekomendacje są tylko początkiem. Poniżej przeszukujesz na żywo pełną ofertę partnerów — także wyjazdy, których dziś nie publikujemy na Tripowni.</p></div></div>
+    <div className="partner-live-grid">
+      <article className="partner-live-card"><div className="partner-live-head"><span>✈️</span><div><strong>eSky — lot + hotel / city break</strong><small>Aktualna dostępność i ceny partnera</small></div></div><div id="tripownia-esky-live-v90j" className="partner-widget-shell" /></article>
+      <article className="partner-live-card"><div className="partner-live-head"><span>🏖️</span><div><strong>Wakacje.pl — wakacje / All Inclusive</strong><small>Pełna oferta biur podróży</small></div></div><div id="tripownia-wakacje-live-v90j" className="partner-widget-shell partner-widget-wakacje" /></article>
+    </div>
+    <p className="partner-live-note">Ceny i dostępność pochodzą bezpośrednio od partnerów i są aktualizowane w ich systemach.</p>
+  </div>
+}
 
 function offerText(o:any){return normalizeDestination([o.city,o.country,o.hotel,o.destination,o.title].filter(Boolean).join(" "));}
 function depCode(o:any){return String(o.departureCode||o.airportCode||o.departureAirportCode||"").toUpperCase()}
@@ -72,8 +120,6 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const activeChips=[...(airports.length?[`✈ ${selectedFromLabel}`]:[]),...(selectedTo.length?[`🌍 ${selectedToLabel}`]:[]),...(duration!=="all"?[`📅 ${duration==="short"?"2–4 noce":duration==="week"?"5–8 nocy":"9+ nocy"}`]:[]),...(budget!=="5000"?[`💰 do ${Number(budget).toLocaleString("pl-PL")} zł`]:[]),...(board!=="all"?[`🍽 ${board}`]:[])];
 
   const queryDestination=selectedTo[0]||text||"";
-  const booking=`https://www.booking.com/searchresults.pl.html?aid=818288&ss=${encodeURIComponent(queryDestination)}`;
-  const flights=`https://www.google.com/travel/flights?hl=pl&q=${encodeURIComponent(`loty ${selectedFromLabel} ${queryDestination}`)}`;
   const hasDestination=Boolean(queryDestination.trim());
   const quickPicks=[
     ["🏛️","City break: Rzym","Rzym, Włochy",{duration:"short"}],
@@ -121,12 +167,9 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       </div>
 
       <div className="search-results-block">
-        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Własne okazje Tripowni są wyróżniane, ale wyszukiwarka nie kończy się na naszej bazie. Każdy wpisany kierunek możesz od razu sprawdzić w pełnej bazie lotów i noclegów.</span></div>
+        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Własne okazje Tripowni są wyróżnione na górze. Niżej uruchamiamy pełne wyszukiwanie partnerów, więc wynik nie jest ograniczony do dzisiejszych publikacji.</span></div>
         {results.length>0&&<><div className="partner-search-banner"><div><small>⭐ OKAZJE TRIPOWNI</small><strong>{results.length} własnych propozycji pasuje do parametrów</strong></div></div><div className="cards-grid">{results.slice(0,8).map((o:any)=><OfferCard key={o.id} offer={o}/>)}</div></>}
-        {hasDestination&&<div className="global-search-result">
-          <div><small>🌍 PEŁNE WYSZUKIWANIE</small><h4>{queryDestination}</h4><p>Sprawdź ten kierunek niezależnie od tego, czy dziś jest w dziennej selekcji Tripowni.</p></div>
-          <div className="global-search-actions"><a href={flights} target="_blank" rel="nofollow noopener noreferrer">✈️ Loty do {queryDestination}</a><a href={booking} target="_blank" rel="nofollow sponsored noopener noreferrer">🏨 Noclegi w {queryDestination}</a></div>
-        </div>}
+        {hasDestination&&<PartnerLiveSearch destination={queryDestination} departure={selectedFromLabel}/>}
         {!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
       </div>
     </div>
