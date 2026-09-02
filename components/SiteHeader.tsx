@@ -40,6 +40,7 @@ export default function SiteHeader() {
         <Link href="/polska">Polska</Link>
         <Link href="/wydarzenia">⚽ Wydarzenia</Link>
         <Link href="/podroze-po-przezycia">✨ Przeżycia</Link>
+        <Link href="/dalekie-podroze">🌏 Dalekie</Link>
         <Link href="/podroze">Pomysły</Link>
         <Link href="/ulubione">♡ Ulubione</Link>
         <Link href="/parkingi">Parkingi</Link>
