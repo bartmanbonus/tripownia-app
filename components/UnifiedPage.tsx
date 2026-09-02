@@ -6,7 +6,7 @@ import LegacyPage from "@/components/LegacyPage";
 import { legacyPosts, findLegacy } from "@/lib/legacy";
 import { isInternalAlias } from "@/lib/internalAliases";
 import { offers } from "@/lib/offers";
-import { buildEskyFlightsUrl as affiliateEskyFlightsUrl, buildEskyPackagesUrl, partners } from "@/lib/partners";
+import { partners } from "@/lib/partners";
 
 type ServiceType = "parkingi" | "atrakcje" | "esim" | "ubezpieczenia" | "transfery" | "wynajem-auta";
 
@@ -191,84 +191,84 @@ function ExperiencesCalendarPage() {
 }
 
 
-function buildEskyFlightsUrl(destination = "") {
-  const base = destination
-    ? `https://www.esky.pl/tanie-loty/?to=${encodeURIComponent(destination)}`
-    : "https://www.esky.pl/tanie-loty/";
-  return affiliateEskyFlightsUrl(base);
+
+type LongTrip = {
+  id: string;
+  flag: string;
+  region: string;
+  title: string;
+  airport: string;
+  bookingCity: string;
+  duration: number;
+  best: string;
+  ideal: string;
+  lead: string;
+  highlights: string;
+};
+
+const longTrips: LongTrip[] = [
+  { id:"wietnam", flag:"🇻🇳", region:"AZJA", title:"Wietnam", airport:"HAN", bookingCity:"Hanoi", duration:12, best:"listopad – kwiecień*", ideal:"10–16 dni", lead:"Hanoi, Ha Long, środkowy Wietnam i południe kraju. To kierunek, który najlepiej smakuje etapami.", highlights:"Hanoi · Ha Long · Hoi An · Da Nang · Ho Chi Minh" },
+  { id:"pekin", flag:"🇨🇳", region:"CHINY", title:"Pekin", airport:"PEK", bookingCity:"Beijing", duration:7, best:"wiosna i jesień", ideal:"5–8 dni", lead:"Wielki Mur, Zakazane Miasto, hutongi i metropolia, która daje zupełnie inną skalę miejskiej podróży.", highlights:"Wielki Mur · Zakazane Miasto · Świątynia Nieba · hutongi" },
+  { id:"nowy-jork", flag:"🇺🇸", region:"USA", title:"Nowy Jork", airport:"JFK", bookingCity:"New York", duration:7, best:"kwiecień – czerwiec / wrzesień – listopad", ideal:"6–9 dni", lead:"Manhattan to dopiero początek. Przy tygodniu jest czas na Brooklyn, muzea, punkty widokowe i spacer bez gonienia.", highlights:"Manhattan · Brooklyn · Central Park · muzea · rooftop views" },
+  { id:"japonia", flag:"🇯🇵", region:"JAPONIA", title:"Japonia — Tokio i Kioto", airport:"NRT", bookingCity:"Tokyo", duration:12, best:"marzec – maj / październik – listopad", ideal:"10–14 dni", lead:"Tokio, Kioto i szybka kolej między regionami. Jeśli lecieć tak daleko, warto zobaczyć więcej niż jedno miasto.", highlights:"Tokio · Kioto · Osaka · Fuji · shinkansen" },
+  { id:"tajlandia", flag:"🇹🇭", region:"TAJLANDIA", title:"Tajlandia — Bangkok i wyspy", airport:"BKK", bookingCity:"Bangkok", duration:12, best:"listopad – marzec*", ideal:"10–14 dni", lead:"Kilka dni w Bangkoku, potem południe albo wyspy. Klasyk, ale nadal jeden z najlepszych pierwszych kierunków w Azji.", highlights:"Bangkok · Phuket / Krabi · street food · świątynie · plaże" },
+  { id:"bali", flag:"🇮🇩", region:"INDONEZJA", title:"Bali", airport:"DPS", bookingCity:"Bali", duration:12, best:"maj – październik", ideal:"10–14 dni", lead:"Nie zamykamy Bali w jednym resorcie: południe, Ubud i kilka dni bliżej natury dają dużo ciekawszą podróż.", highlights:"Ubud · świątynie · tarasy ryżowe · ocean · Nusa" },
+  { id:"singapur", flag:"🇸🇬", region:"SINGAPUR", title:"Singapur", airport:"SIN", bookingCity:"Singapore", duration:5, best:"cały rok", ideal:"4–6 dni", lead:"Świetny samodzielnie, ale jeszcze lepszy jako stopover przed dalszą Azją. Bardzo łatwy logistycznie.", highlights:"Marina Bay · Gardens by the Bay · hawker centres · Sentosa" },
+  { id:"seul", flag:"🇰🇷", region:"KOREA", title:"Seul", airport:"ICN", bookingCity:"Seoul", duration:8, best:"kwiecień – maj / wrzesień – październik", ideal:"7–10 dni", lead:"Nowoczesna metropolia, pałace, dzielnice pełne jedzenia i dobra baza do pierwszej podróży po Korei.", highlights:"Seul · pałace · Hongdae · street food · DMZ" },
+  { id:"kapsztad", flag:"🇿🇦", region:"RPA", title:"Kapsztad", airport:"CPT", bookingCity:"Cape Town", duration:10, best:"listopad – marzec", ideal:"8–12 dni", lead:"Góry, ocean, winnice i trasy samochodowe. Kierunek, który bardzo dobrze łączy miasto z naturą.", highlights:"Table Mountain · Cape Point · winnice · ocean · Garden Route" },
+  { id:"sydney", flag:"🇦🇺", region:"AUSTRALIA", title:"Sydney", airport:"SYD", bookingCity:"Sydney", duration:12, best:"październik – kwiecień", ideal:"10+ dni", lead:"Tak daleki lot warto potraktować jako początek większej podróży po Australii, nie tylko wizytę przy Operze.", highlights:"Sydney · Blue Mountains · wybrzeże · road trip" },
+  { id:"meksyk", flag:"🇲🇽", region:"MEKSYK", title:"Meksyk", airport:"MEX", bookingCity:"Mexico City", duration:12, best:"listopad – kwiecień*", ideal:"10–16 dni", lead:"Mexico City, kultura, kuchnia i możliwość dołożenia drugiego regionu — od Jukatanu po wybrzeże Pacyfiku.", highlights:"Mexico City · Teotihuacán · Oaxaca · Jukatan" },
+  { id:"malediwy", flag:"🇲🇻", region:"OCEAN INDYJSKI", title:"Malediwy", airport:"MLE", bookingCity:"Malé", duration:8, best:"styczeń – kwiecień", ideal:"7–10 dni", lead:"Tu mniej znaczy więcej: dobra wyspa, transfer i warunki pogodowe są ważniejsze niż długa lista atrakcji.", highlights:"laguny · snorkeling · resort / lokalna wyspa · nurkowanie" },
+];
+
+function longTripIso(date: Date) {
+  return date.toISOString().slice(0, 10);
 }
 
-function buildKiwiPriceUrl(destination = "") {
-  const deep = new URL("https://www.kiwi.com/deep");
-  deep.searchParams.set("from", "WAW");
-  deep.searchParams.set("to", destination || "anywhere");
-  deep.searchParams.set("sort", "price");
-  deep.searchParams.set("asc", "1");
-  deep.searchParams.set("currency", "PLN");
-  deep.searchParams.set("locale", "pl");
-  return partners.kiwi.buildUrl(deep.toString());
+function longTripDates(stay: number) {
+  const departure = new Date();
+  departure.setUTCDate(departure.getUTCDate() + 70);
+  const ret = new Date(departure);
+  ret.setUTCDate(ret.getUTCDate() + stay);
+  return { departure: longTripIso(departure), ret: longTripIso(ret) };
 }
 
-function PurchaseLinks({ query, kiwiCode = "" }: { query: string; kiwiCode?: string }) {
-  const booking = partners.booking.buildUrl(`https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(query)}`);
-  const eskyFlights = buildEskyFlightsUrl(query);
-  const kiwi = buildKiwiPriceUrl(kiwiCode || query);
-  const eskyPackage = buildEskyPackagesUrl(`https://www2.esky.pl/lot+hotel/portfolio?rooms%5B0%5D%5Badults%5D=2&datesTab=flexDates&context=pl-packages&sort%5BTotalPrice%5D=asc`);
-
-  return <div className="sales-partner-strip">
-    <a href={eskyFlights} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>Loty eSky</strong><small>partner_id=TRIPOWNIAPL</small></div><b>Sprawdź →</b></a>
-    <a href={kiwi} target="_blank" rel="sponsored noopener noreferrer"><span>🛫</span><div><strong>Kiwi.com</strong><small>Sortowanie od najniższej ceny</small></div><b>Sprawdź →</b></a>
-    <a href={booking} target="_blank" rel="sponsored noopener noreferrer"><span>🏨</span><div><strong>Booking.com</strong><small>Noclegi dla: {query}</small></div><b>Sprawdź →</b></a>
-    <a href={eskyPackage} target="_blank" rel="sponsored noopener noreferrer"><span>🧳</span><div><strong>eSky Lot + Hotel</strong><small>TRIPOWNIAPLPACKAGES</small></div><b>Sprawdź →</b></a>
-  </div>;
+function longTripEskyUrl(airport: string, stay: number) {
+  const { departure, ret } = longTripDates(stay);
+  return `https://www2.esky.pl/flights/search/mp/WAWA/ap/${airport}?departureDate=${departure}&returnDate=${ret}&pa=2&py=0&pc=0&pi=0&sc=economy&partner_id=TRIPOWNIAPL&flexDatesOffset=0`;
 }
 
-function CityBreakPage() {
-  const cityOffers = offers
-    .filter(o => o.availabilityStatus !== "expired")
-    .filter(o => o.category.includes("city") || o.nights <= 5)
-    .sort((a,b) => a.price - b.price)
-    .slice(0,8);
-  const cities = [
-    ["Rzym","ROM","🇮🇹"],["Barcelona","BCN","🇪🇸"],["Porto","OPO","🇵🇹"],["Malta","MLA","🇲🇹"],
-    ["Budapeszt","BUD","🇭🇺"],["Wiedeń","VIE","🇦🇹"],["Praga","PRG","🇨🇿"],["Paryż","PAR","🇫🇷"],
-  ] as const;
-  return <main><SiteHeader/>
-    <section className="sales-hero sales-hero-city"><div className="shell sales-hero-inner"><div><div className="kicker">CITY BREAK</div><h1>Krótki wyjazd. Konkretna cena. Rezerwacja bez krążenia po stronach.</h1><p>Najpierw pokazujemy aktualne okazje Tripownii. Jeśli chcesz szukać szerzej, przechodzisz od razu do lotów, noclegów albo pakietu Lot + Hotel.</p><div className="sales-hero-actions"><Link className="primary-cta" href="/?trip=city-break#wyszukiwarka">Ustaw własne parametry →</Link><a className="secondary-cta" href="#city-oferty">Zobacz najtańsze teraz</a></div></div><div className="sales-hero-box"><small>NAJSZYBSZA ŚCIEŻKA</small><strong>2–5 nocy</strong><span>Weekend, długi weekend albo kilka dni poza sezonem.</span><ul><li>lot + nocleg</li><li>sortowanie po cenie</li><li>zakup u partnera</li></ul></div></div></section>
-    <section className="shell sales-page" id="city-oferty"><div className="section-heading"><div><div className="kicker">NAJTAŃSZE CITY BREAKI</div><h2>Oferty, od których warto zacząć</h2><p>Nie chowamy ofert za kolejnym kliknięciem. Otwórz kartę, sprawdź szczegóły i przejdź do rezerwacji.</p></div></div><div className="cards-grid">{cityOffers.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>
-    <section className="shell sales-page"><div className="section-heading"><div><div className="kicker">POPULARNE TERAZ</div><h2>Wybierz miasto i od razu sprawdź zakup</h2></div></div><div className="destination-sales-grid">{cities.map(([name,code,flag])=><div key={name} className="destination-sales-card"><span>{flag}</span><strong>{name}</strong><p>Loty, noclegi i pakiety w jednym miejscu.</p><PurchaseLinks query={name} kiwiCode={code}/></div>)}</div></section>
-    <SiteFooter/></main>;
+function longTripBookingUrl(city: string, stay: number) {
+  const { departure, ret } = longTripDates(stay);
+  const params = new URLSearchParams({ ss: city, checkin: departure, checkout: ret, group_adults: "2", no_rooms: "1", group_children: "0", aid: "818288" });
+  return `https://www.booking.com/searchresults.html?${params.toString()}`;
 }
 
-function LastMinutePage() {
-  const lastMinute = offers
-    .filter(o => o.availabilityStatus !== "expired")
-    .filter(o => o.nights >= 5 || o.category.includes("allinclusive") || o.category.includes("plaza"))
-    .sort((a,b) => a.price - b.price)
-    .slice(0,8);
-  const wakacjeUrl = partners.wakacje.buildUrl("https://www.wakacje.pl/lastminute/");
-  const eximUrl = partners.exim.buildUrl("https://www.exim.pl/");
-  return <main><SiteHeader/>
-    <section className="sales-hero sales-hero-last"><div className="shell sales-hero-inner"><div><div className="kicker">LAST MINUTE</div><h1>Najbliższy wyjazd ma prowadzić do ceny, nie do kolejnego poradnika.</h1><p>Aktualne wakacje, All Inclusive i ciepłe kierunki. Najpierw konkretne oferty Tripownii, potem pełne wyszukiwanie partnerów.</p><div className="sales-hero-actions"><Link className="primary-cta" href="/?trip=wakacje#wyszukiwarka">Znajdź po swoich parametrach →</Link><a className="secondary-cta" href="#last-oferty">Pokaż oferty</a></div></div><div className="sales-hero-box hot"><small>SZYBKIE FILTRY</small><strong>Wyjazd w najbliższym terminie</strong><span>Najpierw cena i dostępność, potem dodatki.</span><div className="sales-quick-tags"><span>🍹 All Inclusive</span><span>☀️ Ciepło</span><span>✈️ Z Polski</span><span>💸 Od najtańszych</span></div></div></div></section>
-    <section className="shell sales-page" id="last-oferty"><div className="section-heading"><div><div className="kicker">AKTUALNE LAST MINUTE</div><h2>Najtańsze aktywne propozycje</h2></div></div><div className="cards-grid">{lastMinute.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>
-    <section className="shell sales-page"><div className="section-heading"><div><div className="kicker">SZUKAJ SZERZEJ</div><h2>Nie znalazłaś idealnej oferty?</h2><p>Przejdź do partnera z gotową ścieżką zakupową, zamiast wracać do Google.</p></div></div><div className="big-partner-grid"><a href={wakacjeUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏖️</span><strong>Wakacje.pl Last Minute</strong><small>Pakiety wielu organizatorów</small><b>Sprawdź oferty →</b></a><a href={eximUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🌴</span><strong>EXIM Tours</strong><small>Wakacje i czartery</small><b>Sprawdź oferty →</b></a><a href={buildEskyPackagesUrl()} target="_blank" rel="sponsored noopener noreferrer"><span>🧳</span><strong>eSky Lot + Hotel</strong><small>Sortuj po najniższej cenie</small><b>Sprawdź pakiety →</b></a><a href={buildEskyFlightsUrl()} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><strong>Same loty eSky</strong><small>partner_id=TRIPOWNIAPL</small><b>Szukaj lotów →</b></a></div></section>
-    <SiteFooter/></main>;
-}
-
-function DirectionsPage() {
-  const popular = [
-    ["Malta","MLA","🇲🇹"],["Cypr","PFO","🇨🇾"],["Madera","FNC","🇵🇹"],["Egipt","HRG","🇪🇬"],
-    ["Turcja","AYT","🇹🇷"],["Albania","TIA","🇦🇱"],["Rzym","ROM","🇮🇹"],["Barcelona","BCN","🇪🇸"],
-  ] as const;
-  const exotic = [
-    ["Malediwy","MLE","🏝️"],["Zanzibar","ZNZ","🌴"],["Tajlandia","BKK","🇹🇭"],["Sri Lanka","CMB","🇱🇰"],
-    ["Wietnam","SGN","🇻🇳"],["Japonia","TYO","🇯🇵"],["Mauritius","MRU","🇲🇺"],["Nowa Zelandia","AKL","🇳🇿"],
-  ] as const;
-  return <main><SiteHeader/>
-    <section className="sales-hero sales-hero-directions"><div className="shell sales-hero-inner"><div><div className="kicker">KIERUNKI</div><h1>Wybierz miejsce. My od razu pokażemy Ci, gdzie sprawdzić cenę.</h1><p>Kierunki nie są już katalogiem do czytania. Każdy prowadzi do aktualnych ofert Tripownii oraz lotów, noclegów i pakietów u partnerów.</p><div className="sales-hero-actions"><Link className="primary-cta" href="/?trip=inspiracje&focus=destination#wyszukiwarka">Wpisz własny kierunek →</Link><a className="secondary-cta" href="#popularne-kierunki">Zobacz popularne</a></div></div><div className="sales-hero-box"><small>JAK CHCESZ WYJECHAĆ?</small><div className="sales-quick-tags"><Link href="/?trip=city-break#wyszukiwarka">🏙 City break</Link><Link href="/?trip=wakacje#wyszukiwarka">🏖 Wakacje</Link><Link href="/egzotyka-zima">🌴 Egzotyka</Link><Link href="/podroze-po-przezycia">✨ Przeżycia</Link></div></div></div></section>
-    <section className="shell sales-page" id="popularne-kierunki"><div className="section-heading"><div><div className="kicker">POPULARNE TERAZ</div><h2>Kierunki, które warto sprawdzić najpierw</h2></div></div><div className="destination-sales-grid">{popular.map(([name,code,flag])=><div key={name} className="destination-sales-card"><span>{flag}</span><strong>{name}</strong><p>Sprawdź lot, hotel i pakiet bez kolejnego wyszukiwania.</p><PurchaseLinks query={name} kiwiCode={code}/></div>)}</div></section>
-    <section className="shell sales-page"><div className="section-heading"><div><div className="kicker">EGZOTYKA</div><h2>Dalej niż Europa</h2><p>Najpierw wybierz kierunek, potem porównaj lot i nocleg. Przy dalekich trasach cena samego lotu nie mówi wszystkiego.</p></div></div><div className="destination-sales-grid exotic-grid">{exotic.map(([name,code,flag])=><div key={name} className="destination-sales-card exotic"><span>{flag}</span><strong>{name}</strong><p>Loty i noclegi z bezpośrednim przejściem do partnerów.</p><PurchaseLinks query={name} kiwiCode={code}/></div>)}</div></section>
-    <SiteFooter/></main>;
+function LongHaulPage() {
+  return <main className="long-haul-page">
+    <SiteHeader/>
+    <section className="long-haul-hero"><div className="shell">
+      <div className="kicker">DALEKIE PODRÓŻE</div>
+      <h1>Barcelona była. Rzym był. To lecimy dalej.</h1>
+      <p>Wietnam, Pekin, Nowy Jork, Japonia i kierunki, dla których warto mieć więcej niż trzy dni. Pokazujemy, ile czasu ma sens, kiedy lecieć i od razu ustawiamy kierunek w wyszukiwarce lotów i noclegów.</p>
+      <div className="long-haul-hero-tags"><a href="#wietnam">🇻🇳 Wietnam</a><a href="#pekin">🇨🇳 Pekin</a><a href="#nowy-jork">🇺🇸 Nowy Jork</a><a href="#japonia">🇯🇵 Japonia</a><a href="#tajlandia">🇹🇭 Tajlandia</a><a href="#bali">🇮🇩 Bali</a></div>
+    </div></section>
+    <section className="section shell long-haul-intro">
+      <div className="section-heading"><div><div className="kicker">WIĘKSZA PODRÓŻ</div><h2>Tu nie wybieramy tylko miasta.</h2><p>Przy dalekim wyjeździe liczy się sezon, długość pobytu, przesiadki i to, czy da się sensownie połączyć kilka miejsc.</p></div></div>
+      <div className="long-haul-principles"><div><span>🗓️</span><strong>Minimum czasu</strong><p>Nie proponujemy 4 dni w miejscu, do którego leci się kilkanaście godzin.</p></div><div><span>🌦️</span><strong>Sezon ma znaczenie</strong><p>Podpowiadamy lepsze okna pogodowe zamiast udawać, że każdy miesiąc jest taki sam.</p></div><div><span>✈️</span><strong>Lot już ustawiony</strong><p>CTA otwiera eSky z Warszawą, właściwym lotniskiem docelowym i przykładowym terminem.</p></div><div><span>🏨</span><strong>Nocleg już ustawiony</strong><p>Booking dostaje konkretną miejscowość oraz te same daty pobytu.</p></div></div>
+    </section>
+    <section className="section shell"><div className="long-haul-list">
+      {longTrips.map(trip => <article className="long-haul-detail-card" id={trip.id} key={trip.id}>
+        <div className="long-haul-detail-head"><span>{trip.flag}</span><div><small>{trip.region}</small><h2>{trip.title}</h2></div></div>
+        <p className="long-haul-detail-lead">{trip.lead}</p>
+        <div className="long-haul-detail-facts"><div><small>NAJLEPSZY CZAS</small><strong>{trip.best}</strong></div><div><small>ILE DNI</small><strong>{trip.ideal}</strong></div></div>
+        <p className="long-haul-highlights"><b>Co łączyć:</b> {trip.highlights}</p>
+        <div className="long-haul-actions"><a href={longTripEskyUrl(trip.airport, trip.duration)} target="_blank" rel="nofollow sponsored noopener noreferrer">✈️ Loty z Warszawy</a><a href={longTripBookingUrl(trip.bookingCity, trip.duration)} target="_blank" rel="nofollow sponsored noopener noreferrer">🏨 Noclegi</a><Link href="/atrakcje">🎟️ Atrakcje</Link></div>
+      </article>)}
+    </div><p className="long-haul-note">* Warunki pogodowe różnią się między regionami danego kraju. Przed rezerwacją zawsze sprawdź konkretną trasę i aktualną sytuację.</p></section>
+    <section className="shell long-haul-final"><div><div className="kicker">NIE WIESZ, OD CZEGO ZACZĄĆ?</div><h2>Najpierw wybierz typ podróży. Potem porównamy konkretne opcje.</h2><p>Możesz wrócić do pełnej wyszukiwarki Tripowni i ustawić własne lotnisko, termin, długość oraz budżet.</p></div><Link href="/#wyszukiwarka">Przejdź do wyszukiwarki →</Link></section>
+    <SiteFooter/>
+  </main>;
 }
 
 function AliasLandingPage({ path }: { path: string }) {
@@ -320,11 +320,8 @@ export default function UnifiedPage({ path }: { path: string }) {
   if (path === "/transfery") return <ServicePage type="transfery"/>;
   if (path === "/wynajem-auta") return <ServicePage type="wynajem-auta"/>;
   if (path === "/podroze-po-przezycia") return <ExperiencesCalendarPage/>;
+  if (path === "/dalekie-podroze") return <LongHaulPage/>;
   if (experiencePages[path]) return <ExperiencePage path={path}/>;
-
-  if (path === "/city-break-2") return <CityBreakPage/>;
-  if (path === "/last-minute") return <LastMinutePage/>;
-  if (path === "/kierunki") return <DirectionsPage/>;
 
   const item = findLegacy(path);
   if (item) return <LegacyPage item={item}/>;
