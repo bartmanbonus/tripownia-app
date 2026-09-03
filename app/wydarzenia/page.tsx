@@ -11,8 +11,8 @@ import {
 } from "@/lib/sportsEvents";
 
 export const metadata: Metadata = {
-  title: "Wyjazdy na mecze — Barcelona, Inter i więcej | Tripownia.pl",
-  description: "Terminarze meczów połączone z lotami i noclegami. Tripownia automatycznie wyłapuje okazje na wyjazdy sportowe.",
+  title: "Wyjazdy na mecze piłkarskie — Barcelona, Inter i więcej | Tripownia.pl",
+  description: "Wyjazdy na mecze piłkarskie: Barcelona, Inter, Real, Premier League i Liga Mistrzów. Terminarze połączone z lotami i noclegami.",
   alternates: { canonical: "/wydarzenia" },
 };
 
@@ -70,14 +70,14 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
       <SiteHeader/>
       <BreadcrumbSchema items={[
         { name: "Tripownia", url: "https://tripownia.pl/" },
-        { name: "Wydarzenia", url: "https://tripownia.pl/wydarzenia" },
+        { name: "Mecze piłkarskie", url: "https://tripownia.pl/wydarzenia" },
       ]}/>
 
       <section className="sports-hero">
         <div className="shell sports-hero-inner">
           <div>
             <div className="kicker">LECIMY NA MECZ?</div>
-            <h1>Mecz może być najlepszym powodem, żeby gdzieś polecieć.</h1>
+            <h1>Wyjazdy na mecze piłkarskie. Mecz może być najlepszym powodem, żeby gdzieś polecieć.</h1>
             <p>
               Łączymy terminarz wydarzeń z lotami i noclegami. Tripownia pilnuje dat,
               wyłapuje mecze domowe i zamienia je w gotowy pomysł na wyjazd.
