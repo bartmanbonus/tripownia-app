@@ -3,11 +3,11 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { ArrowRight, Flame, Sparkles, Dice5 } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { offers } from "@/lib/offers";
+import { offers, isOfferExpired } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 
 
@@ -30,9 +30,12 @@ const LOCAL_IMAGE_BY_CITY: Record<string, string> = {
   teneryfa: "/images/destinations/teneryfa.jpg",
   fuerteventura: "/images/destinations/fuerteventura.jpg",
   santorini: "/images/destinations/santorini.jpg",
-  rodos: "/images/destinations/rodos.jpg",
-  pafos: "/images/destinations/pafos.jpg",
-  sycylia: "/images/destinations/sycylia.jpg",
+  rodos: "/images/destinations/Rodos.jpg",
+  pafos: "/images/destinations/Pafos.jpg",
+  sycylia: "/images/destinations/Sycylia.jpg",
+  "marsa alam": "/images/destinations/Marsa_Alam.jpg",
+  "sloneczny brzeg": "/images/destinations/Sloneczny_Brzeg.jpg",
+  "riwiera albanska": "/images/destinations/Riwiera_Albanska.jpg",
   mediolan: "/images/destinations/mediolan.jpg",
   wenecja: "/images/destinations/wenecja.jpg",
   wieden: "/images/destinations/wieden.jpg",
@@ -150,10 +153,29 @@ const experienceCards = [
   },
 ];
 
+function OfferRail({ kicker, title, description, items }: { kicker: string; title: string; description: string; items: typeof offers }) {
+  const railRef = useRef<HTMLDivElement>(null);
+  const move = (direction: -1 | 1) => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const card = rail.querySelector<HTMLElement>(".offer-card");
+    const step = card ? card.getBoundingClientRect().width + 18 : 360;
+    rail.scrollBy({ left: direction * step * 2, behavior: "smooth" });
+  };
+  if (!items.length) return null;
+  return <section className="offer-stream-row">
+    <div className="offer-stream-head">
+      <div><div className="kicker">{kicker}</div><h3>{title}</h3><p>{description}</p></div>
+      <div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div>
+    </div>
+    <div className="offer-stream-rail" ref={railRef}>{items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}</div>
+  </section>;
+}
+
 export default function Home() {
   const todaysOffers = useMemo(() => {
     const key = publicationKey();
-    const daily = seededShuffle(offers.filter(o => o.availabilityStatus !== "expired"), `tripownia:${key}`);
+    const daily = seededShuffle(offers.filter(o => !isOfferExpired(o)), `tripownia:${key}`);
     const active = daily.map(offerForDisplay);
     const buckets = [
       (o: (typeof offers)[number]) => /japon|tajland|bali|wietnam|zanzibar|kenia|tanzan|malediw|mauritius|meksyk|usa|nowy jork|dubaj|emirat/i.test(`${o.city} ${o.country}`),
@@ -167,11 +189,22 @@ export default function Home() {
       if (hit) picked.push(hit);
     }
     for (const offer of active) {
-      if (picked.length >= 8) break;
+      if (picked.length >= 12) break;
       if (!picked.some(p => p.id === offer.id)) picked.push(offer);
     }
-    return picked.slice(0, 8);
+    return picked.slice(0, 12);
   }, []);
+  const themedRails = useMemo(() => {
+    const key = publicationKey();
+    const active = seededShuffle(offers.filter(o => !isOfferExpired(o)).map(offerForDisplay), `tripownia-rails:${key}`);
+    const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => active.filter(match).slice(0, limit);
+    const city = pick(o => (o.category || []).some(c => /city|weekend|tanio/i.test(c)));
+    const sun = pick(o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c)));
+    const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
+    const unusual = pick(o => unusualNames.test(o.city));
+    return { city, sun, unusual };
+  }, []);
+  const offersRailRef = useRef<HTMLDivElement>(null);
   const [budget, setBudget] = useState(2500);
   const SURPRISES = [
     {flag:"🇯🇴",city:"Amman + Wadi Rum",price:1900,hook:"Pustynia, Petra i noc pod gwiazdami — zamiast kolejnego city breaku.",query:"Amman Jordania"},
@@ -184,6 +217,15 @@ export default function Home() {
     {flag:"🇵🇹",city:"Azory",price:2300,hook:"Wulkany, wieloryby i zielone wyspy na środku Atlantyku.",query:"Ponta Delgada Azory"}
   ];
   const [surprise, setSurprise] = useState<(typeof SURPRISES)[number] | null>(null);
+
+
+  function moveOffersRail(direction: -1 | 1) {
+    const rail = offersRailRef.current;
+    if (!rail) return;
+    const card = rail.querySelector<HTMLElement>(".offer-card");
+    const step = card ? card.getBoundingClientRect().width + 18 : 360;
+    rail.scrollBy({ left: direction * step * 2, behavior: "smooth" });
+  }
 
   function pickSurprise() {
     const pool = SURPRISES.filter(o => o.price <= Math.max(budget,1500));
@@ -198,12 +240,33 @@ export default function Home() {
       <SiteHeader />
 
       <section className="hero hero-clean">
-        <div className="shell hero-inner hero-inner-clean">
+        <div className="shell hero-inner hero-inner-clean hero-inner-restored">
           <div className="hero-copy hero-copy-clean">
             <div className="pill"><Flame size={16}/> Codziennie wybrane okazje</div>
             <h1>Najlepsze okazje podróżnicze<br/><span>w jednym miejscu.</span></h1>
             <p>Wybieramy konkretne wyjazdy, ale możesz też samodzielnie przeszukać cały świat — od city breaku po Nową Zelandię.</p>
           </div>
+
+          <aside className="hero-daily-panel hero-radar-panel" aria-label="Na radarze Tripowni dzisiaj">
+            <div className="hero-daily-icon">✦</div>
+            <div className="kicker">NA RADARZE DZISIAJ</div>
+            <h2>Co warto kliknąć teraz?</h2>
+            <p>Nie przypadkowe kierunki — trzy propozycje wyciągnięte z dzisiejszej selekcji.</p>
+            <div className="hero-daily-stats">
+              <div className="hero-daily-stat"><strong>{todaysOffers.length}</strong><span>nowych okazji dzisiaj</span></div>
+              <div className="hero-daily-stat"><Clock3 size={17}/><div><strong>Kolejna aktualizacja</strong><span>jutro o 12:00 czasu polskiego</span></div></div>
+            </div>
+            <div className="hero-radar-list">
+              {todaysOffers.slice(0,3).map((offer, index) => (
+                <Link href={`/oferta/${offer.id}`} className="hero-radar-offer" key={offer.id}>
+                  <span>{offer.flag}</span>
+                  <div><small>{index === 0 ? "🔥 NAJLEPSZY STRZAŁ" : index === 1 ? "✨ WARTO SPRAWDZIĆ" : "🌍 COŚ INNEGO"}</small><strong>{offer.city}</strong></div>
+                  <b>od {offer.price.toLocaleString("pl-PL")} zł →</b>
+                </Link>
+              ))}
+            </div>
+            <Link className="hero-daily-cta" href="#okazje"><span>Zobacz dzisiejsze okazje</span><ArrowRight size={16}/></Link>
+          </aside>
         </div>
       </section>
 
@@ -218,13 +281,23 @@ export default function Home() {
           </div>
           <Link href="/okazje">Zobacz wszystkie <ArrowRight size={16}/></Link>
         </div>
-        <div className="cards-grid">{todaysOffers.map(o => <OfferCard offer={o} key={o.id}/>)}</div>
+        <div className="daily-carousel-wrap">
+          <div className="daily-carousel-controls" aria-label="Sterowanie karuzelą ofert">
+            <button type="button" onClick={() => moveOffersRail(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={18}/></button>
+            <button type="button" onClick={() => moveOffersRail(1)} aria-label="Następne oferty"><ArrowRight size={18}/></button>
+          </div>
+          <div className="daily-carousel" ref={offersRailRef}>
+            {todaysOffers.map(o => <div className="daily-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}
+          </div>
+        </div>
       </section>
 
-      <section className="section shell streaming-discovery" aria-label="Odkrywaj Tripownię">
-        <div className="section-heading"><div><div className="kicker">ODKRYWAJ, NIE TYLKO SZUKAJ</div><h2>Co dziś brzmi jak Twój wyjazd?</h2><p>Krótki weekend, wielka podróż, sport albo coś, co pamięta się latami. Przewijaj jak bibliotekę inspiracji.</p></div></div>
-        <div className="streaming-rail">
-          <Link href="/okazje" className="streaming-tile"><small>⚡ NA SZYBKO</small><strong>Weekend, który ratuje tydzień</strong><span>City breaki i krótkie wypady bez planowania pół roku wcześniej.</span></Link>
+      <section className="section shell streaming-discovery streaming-offers" aria-label="Odkrywaj oferty Tripowni">
+        <div className="section-heading"><div><div className="kicker">NETFLIX PODRÓŻY</div><h2>Przewijaj, aż coś kliknie.</h2><p>Nie jedna ściana ofert. Różne nastroje, różne budżety i konkretne kierunki — codziennie w innym układzie.</p></div></div>
+        <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie wypady, miasta i loty, które nie wymagają pół roku planowania." items={themedRails.city}/>
+        <OfferRail kicker="☀️ SŁOŃCE / ALL INCLUSIVE" title="Jeszcze trochę lata" description="Plaża, ciepło i gotowe wakacje — od krótkiego resetu po pełny tydzień." items={themedRails.sun}/>
+        <OfferRail kicker="✨ UKRYTE PEREŁKI" title="Nie kolejny Rzym i Barcelona" description="Mniej oczywiste kierunki, które robią większe wrażenie niż kolejny klasyk." items={themedRails.unusual}/>
+        <div className="streaming-rail editorial-streaming-rail">
           <Link href="/dalekie-podroze" className="streaming-tile"><small>🌏 DALEJ</small><strong>Europa to dziś za mało</strong><span>Wietnam, Japonia, Bali, Nowy Jork i kierunki na większą podróż.</span></Link>
           <Link href="/podroze-po-przezycia" className="streaming-tile"><small>✨ PO PRZEŻYCIA</small><strong>Nie jedź tylko „gdzieś”</strong><span>Zorza, sakura, safari, fiordy, jarmarki i podróże pod właściwy moment.</span></Link>
           <Link href="/wydarzenia" className="streaming-tile"><small>⚽ SPORT</small><strong>Lecimy na mecz?</strong><span>Barcelona, Inter i inne wydarzenia jako najlepszy pretekst do wyjazdu.</span></Link>
@@ -335,7 +408,7 @@ export default function Home() {
           <Link href="/last-minute"><strong>🏖 Wakacje i Last Minute</strong><span>All Inclusive, słońce i wyjazdy z polskich lotnisk.</span></Link>
           <Link href="/podroze-po-przezycia"><strong>✨ Przeżycia</strong><span>Zjawiska, sezonowość i podróże planowane pod właściwy moment.</span></Link>
           <Link href="/dalekie-podroze"><strong>🌏 Dalekie podróże</strong><span>Wietnam, Pekin, Nowy Jork, Japonia, Tajlandia i dalsze wyprawy.</span></Link>
-          <Link href="/poradniki"><strong>🧭 Poradniki</strong><span>Formalności, lotniska, bagaż i praktyczne wskazówki.</span></Link>
+          <Link href="/magazyn-podrozniczy"><strong>📰 Magazyn podróżniczy</strong><span>Formalności, lotniska, bagaż i praktyczne wskazówki.</span></Link>
           <Link href="/parkingi"><strong>🚗 Parkingi</strong><span>Najpierw wybierz lotnisko, potem przejdź do rezerwacji.</span></Link>
           <Link href="/atrakcje"><strong>🎟 Atrakcje</strong><span>Co robić na miejscu i gdzie kupować bilety.</span></Link>
         </div>
