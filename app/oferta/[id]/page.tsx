@@ -18,7 +18,7 @@ export async function generateMetadata({params}:{params:Promise<{id:string}>}):P
   const {id}=await params;
   const o=offers.find(x=>x.id===Number(id));
   if (!o) return {};
-  const title = `${o.city} z ${o.departure} od ${o.price} zł | Tripownia`;
+  const title = `${o.city} z ${o.departure} — ostatnio znaleźliśmy od ${o.price} zł | Tripownia`;
   const description = `${o.city}, ${o.nights} nocy, ${o.board}. ${o.reason}`;
   return {
     title,
@@ -83,13 +83,9 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           <h1>{o.city}</h1>
           <div className="detail-score"><strong>{o.score}</strong><span>/10 Tripownia poleca</span></div>
           <FavoriteButton offerId={o.id}/>
-          <div className="detail-price">{isExact ? "od" : "ostatnio od"} <strong>{o.price} zł</strong> / os.</div>
+          <div className="detail-price"><small>ostatnio znaleźliśmy od</small> <strong>{o.price} zł</strong> / os.</div>
           <div className="price-status detail-price-status">
-            {isExact
-              ? `Cena dotyczy konkretnej zapisanej oferty.${checkedAt ? ` Ostatnia aktualizacja: ${checkedAt}.` : ""} Aktualną cenę i dostępność potwierdza partner.`
-              : isParameterized
-                ? `To cena z ostatniej selekcji Tripowni.${checkedAt ? ` Ostatnia aktualizacja: ${checkedAt}.` : ""} Link otwiera wyszukiwanie z możliwie zbliżonymi parametrami, a aktualne wyniki mogą się różnić.`
-                : `To cena orientacyjna z ostatniej selekcji Tripowni.${checkedAt ? ` Ostatnia aktualizacja: ${checkedAt}.` : ""} Link otwiera stronę kierunku, a nie dokładnie tę samą ofertę.`}
+            {`To cena, którą Tripownia ostatnio znalazła${checkedAt ? ` (${checkedAt})` : ""}. Ceny zmieniają się dynamicznie — po kliknięciu partner może pokazać cenę niższą albo wyższą. Warto sprawdzić teraz.`}
           </div>
           <p className="detail-lead">{o.reason}</p>
           <div className="detail-meta">
@@ -102,7 +98,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           <SocialShare
             url={`https://tripownia.pl/oferta/${o.id}`}
             title={`${o.city} — okazja Tripownia.pl`}
-            text={`${o.city} z ${o.departure} — ${o.nights} nocy, ostatnio od ${o.price} zł/os.`}
+            text={`${o.city} z ${o.departure} — ${o.nights} nocy. Tripownia ostatnio znalazła od ${o.price} zł/os. — sprawdź, czy teraz jest jeszcze taniej.`}
           />
           <div className="booking-summary" aria-label="Podsumowanie oferty">
             <div><small>Kierunek</small><strong>{o.city}, {o.country}</strong></div>
@@ -115,18 +111,10 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           ) : (
             <>
               <a className="primary-cta" href={`/go/${o.id}?source=offer_detail_primary`} target="_blank" rel="sponsored noopener noreferrer">
-                {isExact
-                  ? `Sprawdź tę ofertę u ${p.name}`
-                  : isParameterized
-                    ? `Sprawdź aktualne wyniki u ${p.name}`
-                    : `Zobacz aktualne oferty: ${o.city} u ${p.name}`} <ExternalLink size={18}/>
+                {`Sprawdź cenę teraz u ${p.name}`} <ExternalLink size={18}/>
               </a>
               <small className="affiliate-note">
-                {isExact
-                  ? "Link prowadzi do konkretnej oferty partnera. Cena i dostępność mogą się zmienić."
-                  : isParameterized
-                    ? "Przekazujemy partnerowi kierunek i dostępne parametry wyszukiwania. Partner pokazuje aktualne hotele i ceny."
-                    : "Link prowadzi do aktualnej strony kierunku partnera. Nie obiecujemy, że pierwsza widoczna oferta będzie odpowiadała zapisanej wcześniej cenie lub hotelowi."}
+                Cena na Tripowni jest ceną z ostatniego znalezienia. Partner pokazuje aktualną dostępność i cenę — czasem jeszcze niższą.
               </small>
             </>
           )}
@@ -134,9 +122,9 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       </section>
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
       {o.availabilityStatus !== "expired" && <div className="mobile-booking-bar">
-        <div><small>{isExact ? "Konkretna oferta" : "Ostatnio od"}</small><strong>{o.price} zł / os.</strong></div>
+        <div><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></div>
         <a href={`/go/${o.id}?source=offer_detail_mobile`} target="_blank" rel="sponsored noopener noreferrer">
-          {isExact ? "Rezerwuj" : "Sprawdź cenę"} <ExternalLink size={16}/>
+          Sprawdź, czy jest taniej <ExternalLink size={16}/>
         </a>
       </div>}
       <BeforeYouGo city={o.city} country={o.country} transferIncluded={o.transferIncluded}/>
