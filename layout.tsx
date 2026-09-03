@@ -13,7 +13,6 @@ export const metadata: Metadata = {
     siteName: "Tripownia",
     title: "Tripownia — My szukamy. Ty lecisz.",
     description: "Codziennie wybieramy konkretne okazje, city breaki, wakacje i podróże po przeżyciach. Wyszukuj także pełną ofertę partnerów eSky i Wakacje.pl.",
-  keywords: ["tanie loty", "city break", "wakacje", "last minute", "lot hotel", "okazje podróżnicze", "Tripownia"],
     url: "/",
   },
   robots: { index: true, follow: true },
