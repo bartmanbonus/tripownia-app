@@ -47,10 +47,7 @@ const LOCAL_IMAGE_BY_CITY: Record<string, string> = {
   wieden: "/images/destinations/wieden.jpg",
   londyn: "/images/destinations/londyn.jpg",
   dubaj: "/images/destinations/dubaj.jpg",
-  bali: "/images/destinations/bali.jpg",
-  tokio: "/images/destinations/tokio.jpg",
   marrakesz: "/images/destinations/marrakesz.jpg",
-  zanzibar: "/images/destinations/zanzibar.jpg",
   helsinki: "/images/destinations/helsinki.jpg",
   kopenhaga: "/images/destinations/kopenhaga.jpg",
   dublin: "/images/destinations/dublin.jpg",
@@ -420,8 +417,8 @@ export default function Home() {
         <div className="section-heading"><div><div className="kicker">ODKRYWAJ Z TRIPOWNIĄ</div><h2>Więcej niż dzisiejsza selekcja</h2></div></div>
         <div className="hub-grid">
           <Link href="/kierunki"><strong>🌍 Kierunki</strong><span>Malta, Grecja, Włochy, Hiszpania i dziesiątki inspiracji.</span></Link>
-          <Link href="/city-break-2"><strong>🏙 City break</strong><span>Krótkie wyjazdy, gotowe pomysły i aktualne okazje.</span></Link>
-          <Link href="/last-minute"><strong>🏖 Wakacje i Last Minute</strong><span>All Inclusive, słońce i wyjazdy z polskich lotnisk.</span></Link>
+          <Link href="/city-break"><strong>🏙 City break</strong><span>Krótkie wyjazdy, gotowe pomysły i aktualne okazje.</span></Link>
+          <Link href="/wakacje"><strong>🏖 Wakacje</strong><span>Pełna oferta TUI, Wakacje.pl, EXIM i eSky.</span></Link><Link href="/last-minute-oferty"><strong>⚡ Last minute</strong><span>Szybkie wyjazdy i pełne bazy partnerów.</span></Link>
           <Link href="/podroze-po-przezycia"><strong>✨ Przeżycia</strong><span>Zjawiska, sezonowość i podróże planowane pod właściwy moment.</span></Link>
           <Link href="/dalekie-podroze"><strong>🌏 Dalekie podróże</strong><span>Wietnam, Pekin, Nowy Jork, Japonia, Tajlandia i dalsze wyprawy.</span></Link>
           <Link href="/magazyn-podrozniczy"><strong>📰 Magazyn podróżniczy</strong><span>Formalności, lotniska, bagaż i praktyczne wskazówki.</span></Link>
