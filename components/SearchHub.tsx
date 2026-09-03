@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, Check, ChevronDown, Compass, MapPin, Plane, Search, Users, Utensils, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
-import { airportOptions, offers } from "@/lib/offers";
+import { airportOptions, offers, isOfferExpired } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination } from "@/lib/worldDestinations";
 
 type Props={initialAirports?:string[];initialDestinations?:string[];initialDuration?:string;searchRequest?:number};
@@ -73,7 +73,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [open,setOpen]=useState<"from"|"to"|null>(null);
   const [destinationQuery,setDestinationQuery]=useState("");
   const [submitted,setSubmitted]=useState(0);
-  const [activeTab,setActiveTab]=useState("Inspiracje");
+  const [activeTab,setActiveTab]=useState(initialTab);
 
   useEffect(()=>{setAirports(initialAirports);setDestinations(initialDestinations);setDuration(initialDuration||"all")},[initialAirports.join("|"),initialDestinations.join("|"),initialDuration]);
   useEffect(()=>{if(searchRequest>0)setSubmitted(v=>v+1)},[searchRequest]);
@@ -88,7 +88,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
     const max=budgetValue(budget);
     const to=selectedTo.map(normalizeDestination).filter(Boolean);
     return (offers as any[]).filter((o:any)=>{
-      if(o.availabilityStatus==="expired")return false;
+      if(isOfferExpired(o))return false;
       if(Number(o.price||0)>max)return false;
       if(airports.length && !airports.includes(depCode(o)) && !airports.some(a=>normalizeDestination(String(o.departure||"")).includes(normalizeDestination(airportOptions.find((x:any)=>x.code===a)?.label||a))))return false;
       if(to.length && !to.some(d=>offerText(o).includes(d)||d.includes(normalizeDestination(String(o.city||o.country||"")))))return false;
@@ -162,7 +162,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       <div className="active-filter-bar"><div className="active-filter-chips">{activeChips.length?activeChips.map(x=><span key={x}>{x}</span>):<span>🌍 Cały świat</span>}</div><button onClick={clearAll}>Wyczyść filtry</button></div>
 
       <div className="quick-destination-wrap">
-        <small>POPULARNE WYBORY — OD RAZU Z MIEJSCEM</small>
+        <small>SZYBKIE STARTY — KONKRETNY KIERUNEK</small>
         <div className="quick-destination-grid">{quickPicks.map(([icon,label,dest,opts])=><button key={dest} type="button" onClick={()=>pickDestination(dest,opts)}><span>{icon}</span><strong>{label}</strong></button>)}</div>
       </div>
 

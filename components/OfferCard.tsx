@@ -9,6 +9,7 @@ import TravelImage from "@/components/TravelImage";
 import { useEffect, useMemo, useState } from "react";
 import { getOfferOverride, type OfferOverride } from "@/lib/clientOfferOverrides";
 import { isPriceStale } from "@/lib/offerQuality";
+import { isOfferExpired } from "@/lib/offers";
 
 export default function OfferCard({ offer }: { offer: Offer }) {
   const [liked, setLiked] = useState(false);
@@ -40,7 +41,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const effectiveCheckedAt = override.updatedAt || offer.priceCheckedAt;
   const checkedAt = formatPriceCheckedAt(effectiveCheckedAt);
   const availabilityStatus = override.availabilityStatus ?? offer.availabilityStatus ?? "unknown";
-  const isExpired = availabilityStatus === "expired";
+  const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
   const stalePrice = !isExpired && isPriceStale(effectiveCheckedAt);
 
   function toggleLike() {
@@ -61,7 +62,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           country={offer.country}
           alt={`${offer.city}, ${offer.country}`}
           className="offer-photo-img"
-          overrideSrc={displayImage}
+          overrideSrc={displayImage || offer.image}
         />
         <span className={`badge ${offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
         {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor"/> HIT</span>}
@@ -77,19 +78,13 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           <div className="score"><strong>{offer.score}</strong><span>/10</span></div>
         </div>
 
-        <div className="price">od <strong>{displayPrice} zł</strong> <span>/ os.</span></div>
+        <div className="price"><small>ostatnio znaleźliśmy od</small> <strong>{displayPrice} zł</strong> <span>/ os.</span></div>
 
         <div className="price-status">
           <Clock3 size={13}/>
           {isExpired
             ? "Ta oferta wygasła — na stronie pokażemy podobne aktualne propozycje"
-            : stalePrice
-              ? `Cena wymaga ponownego sprawdzenia${checkedAt ? ` · ostatnio ${checkedAt}` : ""}`
-              : linkMatch === "exact"
-                ? `Konkretna oferta${checkedAt ? ` · cena sprawdzona ${checkedAt}` : ""}`
-                : linkMatch === "parameters"
-                  ? `Ostatnio od tej ceny${checkedAt ? ` · aktualizacja ${checkedAt}` : ""} · link otwiera podobne parametry`
-                  : `Cena z ostatniej selekcji${checkedAt ? ` · aktualizacja ${checkedAt}` : ""} · link otwiera kierunek`}
+            : `Sprawdź teraz — u partnera może być jeszcze taniej${checkedAt ? ` · ostatnio sprawdzaliśmy ${checkedAt}` : ""}`}
         </div>
 
         <div className="partner-chip">
@@ -102,10 +97,10 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           <span><Sun size={15}/> {offer.weather}</span>
         </div>
 
-        <p>{override.note || offer.reason}</p>
+        <div className="why-now"><span>✨ DLACZEGO TERAZ</span><strong>{override.note || offer.reason}</strong></div>
 
         <Link className="card-cta" href={`/oferta/${offer.id}`}>
-          {isExpired ? "Zobacz podobne oferty" : "Zobacz ofertę na Tripowni"} <ArrowRight size={17}/>
+          {isExpired ? "Zobacz podobne oferty" : "Sprawdź cenę teraz"} <ArrowRight size={17}/>
         </Link>
 
         {override.affiliateUrl && (
