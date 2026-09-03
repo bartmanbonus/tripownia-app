@@ -204,13 +204,15 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                   </div>
 
                   <div className="sports-event-actions sports-event-actions-main">
-                    <a className="is-primary" href={links.flightUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🛫 Sprawdź loty na Kiwi</a>
-                    <a href={links.packageUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🧳 Lot + hotel eSky</a>
+                    <a className="is-primary" href={links.flightUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">✈️ Loty</a>
+                    <a href={links.hotelUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🏨 Hotel</a>
+                    <a href={links.packageUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🧳 Lot + hotel</a>
                   </div>
                   <div className="sports-event-links">
-                    <a href={links.secondaryFlightUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">eSky — same loty</a>
-                    <a href={links.hotelUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">Booking — noclegi</a>
-                    <a href={links.ticketUrl} target="_blank" rel="noopener noreferrer">Oficjalne bilety</a>
+                    <a href={links.ticketUrl} target="_blank" rel="noopener noreferrer">🎟️ Oficjalne bilety</a>
+                    <a href={links.carUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🚗 Samochód</a>
+                    <a href={links.taxiUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🚕 Taxi</a>
+                    <a href={links.transferUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🚐 Transfer</a>
                   </div>
                 </article>
               );
