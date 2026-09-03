@@ -4188,3 +4188,60 @@ body {
   .site-header-v98 .site-nav-primary,.site-header-v98 .site-nav-secondary{flex-wrap:nowrap!important;width:max-content!important;min-width:max-content!important}
   .site-header-v98 .nav-search-link{display:none!important}
 }
+
+
+/* V101 — compact premium two-row menu */
+@media (min-width:1181px){
+  .site-header-v98 .site-nav{
+    width:min(1680px,calc(100% - 40px))!important;
+    min-height:96px!important;
+    grid-template-columns:110px minmax(0,1fr) 140px!important;
+    column-gap:18px!important;
+    padding:7px 0 8px!important;
+  }
+  .site-header-v98 .brand-logo{
+    width:110px!important;min-width:110px!important;height:76px!important;
+    justify-content:center!important;align-self:center!important;
+  }
+  .site-header-v98 .brand-logo img{
+    width:72px!important;height:72px!important;max-width:72px!important;
+  }
+  .site-header-v98 .site-nav-stack{
+    display:grid!important;grid-template-rows:auto auto!important;
+    gap:5px!important;align-self:center!important;
+  }
+  .site-header-v98 .site-nav-primary,
+  .site-header-v98 .site-nav-secondary{
+    justify-content:flex-start!important;align-items:center!important;
+    flex-wrap:nowrap!important;overflow:visible!important;
+  }
+  .site-header-v98 .site-nav-primary{gap:8px!important;}
+  .site-header-v98 .site-nav-secondary{gap:18px!important;padding-left:2px!important;}
+  .site-header-v98 .site-nav-primary a{
+    min-height:36px!important;padding:8px 14px!important;
+    font-size:12px!important;font-weight:850!important;line-height:1!important;
+  }
+  .site-header-v98 .site-nav-secondary a{
+    min-height:28px!important;padding:5px 0!important;
+    font-size:11.5px!important;font-weight:780!important;line-height:1!important;
+  }
+  .site-header-v98 .nav-search-link{
+    width:140px!important;min-width:140px!important;min-height:42px!important;
+    padding:9px 12px!important;font-size:11.5px!important;
+  }
+}
+
+@media (min-width:1181px) and (max-width:1450px){
+  .site-header-v98 .site-nav{
+    width:calc(100% - 24px)!important;
+    grid-template-columns:92px minmax(0,1fr) 120px!important;
+    column-gap:12px!important;
+  }
+  .site-header-v98 .brand-logo{width:92px!important;min-width:92px!important;height:68px!important;}
+  .site-header-v98 .brand-logo img{width:62px!important;height:62px!important;}
+  .site-header-v98 .site-nav-primary{gap:5px!important;}
+  .site-header-v98 .site-nav-secondary{gap:12px!important;}
+  .site-header-v98 .site-nav-primary a{font-size:10.8px!important;padding:7px 10px!important;}
+  .site-header-v98 .site-nav-secondary a{font-size:10.6px!important;}
+  .site-header-v98 .nav-search-link{width:120px!important;min-width:120px!important;font-size:10.5px!important;}
+}
