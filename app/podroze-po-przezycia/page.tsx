@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import { partners } from "@/lib/partners";
 
 export const metadata: Metadata = {
   title: "Podróże po przeżycia — kiedy lecieć na zorzę, sakurę, safari i więcej | Tripownia.pl",
@@ -19,6 +20,7 @@ export const metadata: Metadata = {
 const experiences = [
   {
     id: "zorza",
+    query: "Reykjavik",
     icon: "🌌",
     season: "wrzesień – marzec",
     title: "Zorza polarna na Islandii",
@@ -28,6 +30,7 @@ const experiences = [
   },
   {
     id: "lodowce",
+    query: "Islandia",
     icon: "🧊",
     season: "jesień – zima",
     title: "Lodowce i jaskinie lodowe",
@@ -37,6 +40,7 @@ const experiences = [
   },
   {
     id: "sakura",
+    query: "Tokio",
     icon: "🌸",
     season: "marzec – kwiecień",
     title: "Kwitnienie wiśni w Japonii",
@@ -46,6 +50,7 @@ const experiences = [
   },
   {
     id: "tulipany",
+    query: "Amsterdam",
     icon: "🌷",
     season: "kwiecień – maj",
     title: "Tulipany w Holandii",
@@ -55,6 +60,7 @@ const experiences = [
   },
   {
     id: "fiordy",
+    query: "Bergen",
     icon: "🏔️",
     season: "maj – wrzesień",
     title: "Norweskie fiordy i długie dni",
@@ -64,6 +70,7 @@ const experiences = [
   },
   {
     id: "safari",
+    query: "Nairobi",
     icon: "🦁",
     season: "czerwiec – październik",
     title: "Safari w Kenii i Tanzanii",
@@ -73,6 +80,7 @@ const experiences = [
   },
   {
     id: "azory",
+    query: "Azory",
     icon: "🐋",
     season: "wiosna – jesień",
     title: "Wieloryby i ocean na Azorach",
@@ -82,6 +90,7 @@ const experiences = [
   },
   {
     id: "nowa-zelandia",
+    query: "Nowa Zelandia",
     icon: "🥾",
     season: "listopad – marzec",
     title: "Road trip po Nowej Zelandii",
@@ -91,6 +100,7 @@ const experiences = [
   },
   {
     id: "jarmarki",
+    query: "Wiedeń",
     icon: "🎄",
     season: "listopad – grudzień",
     title: "Jarmarki bożonarodzeniowe",
@@ -100,6 +110,7 @@ const experiences = [
   },
   {
     id: "egzotyka",
+    query: "Zanzibar",
     icon: "🌴",
     season: "zima w Polsce",
     title: "Egzotyka w najlepszym sezonie",
@@ -108,6 +119,10 @@ const experiences = [
     watch: "Pora deszczowa nie zawsze oznacza całodniowy deszcz, ale może wpływać na morze, transfery, rejsy i dostępność części atrakcji.",
   },
 ];
+
+function attractionSearchUrl(place: string) {
+  return partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(place)}`);
+}
 
 export default function ExperiencesPage() {
   return (
@@ -174,8 +189,8 @@ export default function ExperiencesPage() {
                 <div><small>UWAŻAJ NA</small><p>{item.watch}</p></div>
               </div>
               <div className="experience-expanded-actions">
-                <Link href="/#wyszukiwarka">✈️ Szukaj wyjazdu</Link>
-                <Link href="/atrakcje">🎟️ Atrakcje na miejscu</Link>
+                <Link href={`/?destination=${encodeURIComponent(item.query)}#wyszukiwarka`}>✈️ Szukaj: {item.query}</Link>
+                <a href={attractionSearchUrl(item.query)} target="_blank" rel="nofollow sponsored noopener noreferrer">🎟️ Atrakcje: {item.query}</a>
               </div>
             </article>
           ))}
