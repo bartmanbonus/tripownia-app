@@ -288,6 +288,9 @@ export function buildSportsTripLinks(
       secondaryFlightUrl: "#",
       hotelUrl: "#",
       packageUrl: "#",
+      carUrl: "https://getrentacar.tpk.lv/buzTQvPf",
+      taxiUrl: "https://kiwitaxi.tpk.lv/UuvtPHby",
+      transferUrl: "https://gettransfer.tpk.lv/SqNqK9Q7",
       ticketUrl: trip.ticketUrl,
     };
   }
@@ -347,6 +350,9 @@ export function buildSportsTripLinks(
     secondaryFlightUrl: eskyFlightUrl.toString(),
     hotelUrl: hotelUrl.toString(),
     packageUrl: packageUrl.toString(),
+    carUrl: "https://getrentacar.tpk.lv/buzTQvPf",
+    taxiUrl: "https://kiwitaxi.tpk.lv/UuvtPHby",
+    transferUrl: "https://gettransfer.tpk.lv/SqNqK9Q7",
     ticketUrl: trip.ticketUrl,
   };
 }
