@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import { partners } from "@/lib/partners";
 
 export const revalidate = 86400;
 
@@ -30,21 +31,22 @@ type LongTrip = {
   ideal: string;
   lead: string;
   highlights: string;
+  attractionQuery: string;
 };
 
 const trips: LongTrip[] = [
-  { id:"wietnam", flag:"🇻🇳", region:"AZJA", title:"Wietnam", airport:"HAN", bookingCity:"Hanoi", duration:12, best:"listopad – kwiecień*", ideal:"10–16 dni", lead:"Hanoi, Ha Long, środkowy Wietnam i południe kraju. To kierunek, który najlepiej smakuje etapami.", highlights:"Hanoi · Ha Long · Hoi An · Da Nang · Ho Chi Minh" },
-  { id:"pekin", flag:"🇨🇳", region:"CHINY", title:"Pekin", airport:"PEK", bookingCity:"Beijing", duration:7, best:"wiosna i jesień", ideal:"5–8 dni", lead:"Wielki Mur, Zakazane Miasto, hutongi i metropolia, która daje zupełnie inną skalę miejskiej podróży.", highlights:"Wielki Mur · Zakazane Miasto · Świątynia Nieba · hutongi" },
-  { id:"nowy-jork", flag:"🇺🇸", region:"USA", title:"Nowy Jork", airport:"JFK", bookingCity:"New York", duration:7, best:"kwiecień – czerwiec / wrzesień – listopad", ideal:"6–9 dni", lead:"Manhattan to dopiero początek. Przy tygodniu jest czas na Brooklyn, muzea, punkty widokowe i spacer bez gonienia.", highlights:"Manhattan · Brooklyn · Central Park · muzea · rooftop views" },
-  { id:"japonia", flag:"🇯🇵", region:"JAPONIA", title:"Japonia — Tokio i Kioto", airport:"NRT", bookingCity:"Tokyo", duration:12, best:"marzec – maj / październik – listopad", ideal:"10–14 dni", lead:"Tokio, Kioto i szybka kolej między regionami. Jeśli lecieć tak daleko, warto zobaczyć więcej niż jedno miasto.", highlights:"Tokio · Kioto · Osaka · Fuji · shinkansen" },
-  { id:"tajlandia", flag:"🇹🇭", region:"TAJLANDIA", title:"Tajlandia — Bangkok i wyspy", airport:"BKK", bookingCity:"Bangkok", duration:12, best:"listopad – marzec*", ideal:"10–14 dni", lead:"Kilka dni w Bangkoku, potem południe albo wyspy. Klasyk, ale nadal jeden z najlepszych pierwszych kierunków w Azji.", highlights:"Bangkok · Phuket / Krabi · street food · świątynie · plaże" },
-  { id:"bali", flag:"🇮🇩", region:"INDONEZJA", title:"Bali", airport:"DPS", bookingCity:"Bali", duration:12, best:"maj – październik", ideal:"10–14 dni", lead:"Nie zamykamy Bali w jednym resorcie: południe, Ubud i kilka dni bliżej natury dają dużo ciekawszą podróż.", highlights:"Ubud · świątynie · tarasy ryżowe · ocean · Nusa" },
-  { id:"singapur", flag:"🇸🇬", region:"SINGAPUR", title:"Singapur", airport:"SIN", bookingCity:"Singapore", duration:5, best:"cały rok", ideal:"4–6 dni", lead:"Świetny samodzielnie, ale jeszcze lepszy jako stopover przed dalszą Azją. Bardzo łatwy logistycznie.", highlights:"Marina Bay · Gardens by the Bay · hawker centres · Sentosa" },
-  { id:"seul", flag:"🇰🇷", region:"KOREA", title:"Seul", airport:"ICN", bookingCity:"Seoul", duration:8, best:"kwiecień – maj / wrzesień – październik", ideal:"7–10 dni", lead:"Nowoczesna metropolia, pałace, dzielnice pełne jedzenia i dobra baza do pierwszej podróży po Korei.", highlights:"Seul · pałace · Hongdae · street food · DMZ" },
-  { id:"kapsztad", flag:"🇿🇦", region:"RPA", title:"Kapsztad", airport:"CPT", bookingCity:"Cape Town", duration:10, best:"listopad – marzec", ideal:"8–12 dni", lead:"Góry, ocean, winnice i trasy samochodowe. Kierunek, który bardzo dobrze łączy miasto z naturą.", highlights:"Table Mountain · Cape Point · winnice · ocean · Garden Route" },
-  { id:"sydney", flag:"🇦🇺", region:"AUSTRALIA", title:"Sydney", airport:"SYD", bookingCity:"Sydney", duration:12, best:"październik – kwiecień", ideal:"10+ dni", lead:"Tak daleki lot warto potraktować jako początek większej podróży po Australii, nie tylko wizytę przy Operze.", highlights:"Sydney · Blue Mountains · wybrzeże · road trip" },
-  { id:"meksyk", flag:"🇲🇽", region:"MEKSYK", title:"Meksyk", airport:"MEX", bookingCity:"Mexico City", duration:12, best:"listopad – kwiecień*", ideal:"10–16 dni", lead:"Mexico City, kultura, kuchnia i możliwość dołożenia drugiego regionu — od Jukatanu po wybrzeże Pacyfiku.", highlights:"Mexico City · Teotihuacán · Oaxaca · Jukatan" },
-  { id:"malediwy", flag:"🇲🇻", region:"OCEAN INDYJSKI", title:"Malediwy", airport:"MLE", bookingCity:"Malé", duration:8, best:"styczeń – kwiecień", ideal:"7–10 dni", lead:"Tu mniej znaczy więcej: dobra wyspa, transfer i warunki pogodowe są ważniejsze niż długa lista atrakcji.", highlights:"laguny · snorkeling · resort / lokalna wyspa · nurkowanie" },
+  { id:"wietnam", flag:"🇻🇳", region:"AZJA", title:"Wietnam", airport:"HAN", bookingCity:"Hanoi", duration:12, best:"listopad – kwiecień*", ideal:"10–16 dni", lead:"Hanoi, Ha Long, środkowy Wietnam i południe kraju. To kierunek, który najlepiej smakuje etapami.", highlights:"Hanoi · Ha Long · Hoi An · Da Nang · Ho Chi Minh", attractionQuery:"Hanoi" },
+  { id:"pekin", flag:"🇨🇳", region:"CHINY", title:"Pekin", airport:"PEK", bookingCity:"Beijing", duration:7, best:"wiosna i jesień", ideal:"5–8 dni", lead:"Wielki Mur, Zakazane Miasto, hutongi i metropolia, która daje zupełnie inną skalę miejskiej podróży.", highlights:"Wielki Mur · Zakazane Miasto · Świątynia Nieba · hutongi", attractionQuery:"Pekin" },
+  { id:"nowy-jork", flag:"🇺🇸", region:"USA", title:"Nowy Jork", airport:"JFK", bookingCity:"New York", duration:7, best:"kwiecień – czerwiec / wrzesień – listopad", ideal:"6–9 dni", lead:"Manhattan to dopiero początek. Przy tygodniu jest czas na Brooklyn, muzea, punkty widokowe i spacer bez gonienia.", highlights:"Manhattan · Brooklyn · Central Park · muzea · rooftop views", attractionQuery:"Nowy Jork" },
+  { id:"japonia", flag:"🇯🇵", region:"JAPONIA", title:"Japonia — Tokio i Kioto", airport:"NRT", bookingCity:"Tokyo", duration:12, best:"marzec – maj / październik – listopad", ideal:"10–14 dni", lead:"Tokio, Kioto i szybka kolej między regionami. Jeśli lecieć tak daleko, warto zobaczyć więcej niż jedno miasto.", highlights:"Tokio · Kioto · Osaka · Fuji · shinkansen", attractionQuery:"Tokio" },
+  { id:"tajlandia", flag:"🇹🇭", region:"TAJLANDIA", title:"Tajlandia — Bangkok i wyspy", airport:"BKK", bookingCity:"Bangkok", duration:12, best:"listopad – marzec*", ideal:"10–14 dni", lead:"Kilka dni w Bangkoku, potem południe albo wyspy. Klasyk, ale nadal jeden z najlepszych pierwszych kierunków w Azji.", highlights:"Bangkok · Phuket / Krabi · street food · świątynie · plaże", attractionQuery:"Bangkok" },
+  { id:"bali", flag:"🇮🇩", region:"INDONEZJA", title:"Bali", airport:"DPS", bookingCity:"Bali", duration:12, best:"maj – październik", ideal:"10–14 dni", lead:"Nie zamykamy Bali w jednym resorcie: południe, Ubud i kilka dni bliżej natury dają dużo ciekawszą podróż.", highlights:"Ubud · świątynie · tarasy ryżowe · ocean · Nusa", attractionQuery:"Bali" },
+  { id:"singapur", flag:"🇸🇬", region:"SINGAPUR", title:"Singapur", airport:"SIN", bookingCity:"Singapore", duration:5, best:"cały rok", ideal:"4–6 dni", lead:"Świetny samodzielnie, ale jeszcze lepszy jako stopover przed dalszą Azją. Bardzo łatwy logistycznie.", highlights:"Marina Bay · Gardens by the Bay · hawker centres · Sentosa", attractionQuery:"Singapur" },
+  { id:"seul", flag:"🇰🇷", region:"KOREA", title:"Seul", airport:"ICN", bookingCity:"Seoul", duration:8, best:"kwiecień – maj / wrzesień – październik", ideal:"7–10 dni", lead:"Nowoczesna metropolia, pałace, dzielnice pełne jedzenia i dobra baza do pierwszej podróży po Korei.", highlights:"Seul · pałace · Hongdae · street food · DMZ", attractionQuery:"Seul" },
+  { id:"kapsztad", flag:"🇿🇦", region:"RPA", title:"Kapsztad", airport:"CPT", bookingCity:"Cape Town", duration:10, best:"listopad – marzec", ideal:"8–12 dni", lead:"Góry, ocean, winnice i trasy samochodowe. Kierunek, który bardzo dobrze łączy miasto z naturą.", highlights:"Table Mountain · Cape Point · winnice · ocean · Garden Route", attractionQuery:"Kapsztad" },
+  { id:"sydney", flag:"🇦🇺", region:"AUSTRALIA", title:"Sydney", airport:"SYD", bookingCity:"Sydney", duration:12, best:"październik – kwiecień", ideal:"10+ dni", lead:"Tak daleki lot warto potraktować jako początek większej podróży po Australii, nie tylko wizytę przy Operze.", highlights:"Sydney · Blue Mountains · wybrzeże · road trip", attractionQuery:"Sydney" },
+  { id:"meksyk", flag:"🇲🇽", region:"MEKSYK", title:"Meksyk", airport:"MEX", bookingCity:"Mexico City", duration:12, best:"listopad – kwiecień*", ideal:"10–16 dni", lead:"Mexico City, kultura, kuchnia i możliwość dołożenia drugiego regionu — od Jukatanu po wybrzeże Pacyfiku.", highlights:"Mexico City · Teotihuacán · Oaxaca · Jukatan", attractionQuery:"Mexico City" },
+  { id:"malediwy", flag:"🇲🇻", region:"OCEAN INDYJSKI", title:"Malediwy", airport:"MLE", bookingCity:"Malé", duration:8, best:"styczeń – kwiecień", ideal:"7–10 dni", lead:"Tu mniej znaczy więcej: dobra wyspa, transfer i warunki pogodowe są ważniejsze niż długa lista atrakcji.", highlights:"laguny · snorkeling · resort / lokalna wyspa · nurkowanie", attractionQuery:"Malediwy" },
 ];
 
 function iso(date: Date) {
@@ -76,6 +78,10 @@ function bookingUrl(city: string, stay: number) {
     aid: "818288",
   });
   return `https://www.booking.com/searchresults.html?${params.toString()}`;
+}
+
+function attractionsUrl(place: string) {
+  return partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(place)}`);
 }
 
 export default function LongHaulPage() {
@@ -131,7 +137,7 @@ export default function LongHaulPage() {
               <div className="long-haul-actions">
                 <a href={eskyUrl(trip.airport, trip.duration)} target="_blank" rel="nofollow sponsored noopener noreferrer">✈️ Loty z Warszawy</a>
                 <a href={bookingUrl(trip.bookingCity, trip.duration)} target="_blank" rel="nofollow sponsored noopener noreferrer">🏨 Noclegi</a>
-                <Link href="/atrakcje">🎟️ Atrakcje</Link>
+                <a href={attractionsUrl(trip.attractionQuery)} target="_blank" rel="nofollow sponsored noopener noreferrer">🎟️ Atrakcje: {trip.attractionQuery}</a>
               </div>
             </article>
           ))}
