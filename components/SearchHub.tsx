@@ -6,7 +6,7 @@ import OfferCard from "@/components/OfferCard";
 import { airportOptions, offers, isOfferExpired } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination } from "@/lib/worldDestinations";
 
-type Props={initialAirports?:string[];initialDestinations?:string[];initialDuration?:string;searchRequest?:number};
+type Props={initialAirports?:string[];initialDestinations?:string[];initialDuration?:string;searchRequest?:number;initialTab?:string};
 
 function PartnerLiveSearch({destination,departure}:{destination:string;departure:string}){
   useEffect(()=>{
@@ -62,7 +62,7 @@ function depCode(o:any){return String(o.departureCode||o.airportCode||o.departur
 function durationOk(o:any,d:string){const n=Number(o.nights||o.duration||0);if(d==="all")return true;if(d==="short")return !n||n<=4;if(d==="week")return !n||(n>=5&&n<=8);if(d==="long")return !n||n>=9;return true}
 function budgetValue(v:string){return v==="all"?Infinity:Number(v)}
 
-export default function SearchHub({initialAirports=[],initialDestinations=[],initialDuration="all",searchRequest=0}:Props){
+export default function SearchHub({initialAirports=[],initialDestinations=[],initialDuration="all",searchRequest=0,initialTab="Inspiracje"}:Props){
   const [airports,setAirports]=useState<string[]>(initialAirports);
   const [destinations,setDestinations]=useState<string[]>(initialDestinations);
   const [customDestination,setCustomDestination]=useState("");
