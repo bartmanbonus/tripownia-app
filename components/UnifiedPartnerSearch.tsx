@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import { BedDouble, CalendarDays, MapPin, Package, Plane, Search, Sun, Users, Zap } from "lucide-react";
+import { BedDouble, CalendarDays, Check, MapPin, Package, Plane, Search, Sun, Users, Zap } from "lucide-react";
 import { partners } from "@/lib/partners";
+import { isTravelDestinationBlocked } from "@/lib/travelSafety";
 
 type Mode = "all" | "city" | "holiday" | "lastminute";
 type SearchType = "package" | "city" | "holiday" | "lastminute" | "flights" | "hotels";
@@ -15,6 +16,7 @@ type Props = {
   initialStartDate?: string;
   initialEndDate?: string;
   initialAdults?: number;
+  initialWeekendOnly?: boolean;
 };
 
 const airportChoices = [
@@ -77,6 +79,19 @@ function isoAfter(days:number){ const d=new Date(); d.setHours(12,0,0,0); d.setD
 function plusDays(iso:string,days:number){ const d=new Date(`${iso}T12:00:00`); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
 function airportCode(value:string,explicit?:string){ if(explicit)return explicit; const n=norm(value); return airportChoices.find(a=>n.includes(norm(a.label))||n.includes(a.code.toLowerCase()))?.code||"WAW"; }
 function airportLabel(code:string){ return airportChoices.find(a=>a.code===code)?.label||code; }
+
+function nextFriday(iso:string){
+  const d=new Date(`${iso}T12:00:00`);
+  const day=d.getDay();
+  const add=(5-day+7)%7;
+  d.setDate(d.getDate()+add);
+  return d.toISOString().slice(0,10);
+}
+function weekendRange(start:string,searchType:SearchType){
+  const fri=nextFriday(start);
+  const nights=searchType==="holiday"||searchType==="lastminute"?7:3;
+  return {start:fri,end:plusDays(fri,nights)};
+}
 
 function defaultSearchType(mode:Mode):SearchType{
   if(mode==="city") return "city";
@@ -148,14 +163,16 @@ const tabs:{key:SearchType;label:string;icon:ReactNode}[]=[
   {key:"hotels",label:"Hotele",icon:<BedDouble size={17}/>},
 ];
 
-export default function UnifiedPartnerSearch({mode="all",initialDestination="",initialDeparture="Warszawa Chopina",initialDepartureCode,initialStartDate,initialEndDate,initialAdults=2}:Props){
+export default function UnifiedPartnerSearch({mode="all",initialDestination="",initialDeparture="Warszawa Chopina",initialDepartureCode,initialStartDate,initialEndDate,initialAdults=2,initialWeekendOnly=false}:Props){
   const [searchType,setSearchType]=useState<SearchType>(defaultSearchType(mode));
   const [destination,setDestination]=useState(initialDestination);
   const [from,setFrom]=useState(airportCode(initialDeparture,initialDepartureCode));
   const [start,setStart]=useState(initialStartDate||isoAfter(45));
   const [end,setEnd]=useState(initialEndDate||plusDays(initialStartDate||isoAfter(45),mode==="city"?3:7));
   const [adults,setAdults]=useState(initialAdults);
+  const [weekendOnly,setWeekendOnly]=useState(initialWeekendOnly);
   const [submitted,setSubmitted]=useState(false);
+  const blockedDestination=isTravelDestinationBlocked(destination);
   const links=useMemo(()=>buildLinks(destination,from,start,end,adults,searchType),[destination,from,start,end,adults,searchType]);
 
   const primary=useMemo(()=>{
@@ -195,14 +212,28 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
         <label className="trip-field"><span><CalendarDays size={15}/> Kiedy?</span><input type="date" value={start} onChange={e=>{setStart(e.target.value);if(e.target.value>=end)setEnd(plusDays(e.target.value,(searchType==="city"||searchType==="package")?3:7))}}/></label>
         <label className="trip-field"><span><CalendarDays size={15}/> Do kiedy?</span><input type="date" min={start} value={end} onChange={e=>setEnd(e.target.value)}/></label>
         <label className="trip-field trip-people"><span><Users size={15}/> Ile osób?</span><select value={adults} onChange={e=>setAdults(Number(e.target.value))}>{[1,2,3,4,5,6].map(n=><option value={n} key={n}>{n} {n===1?"osoba":"osoby"}</option>)}</select></label>
-        <button className="trip-search-submit" type="button" onClick={()=>setSubmitted(true)}><Search size={19}/><span>Szukaj</span></button>
+        <button className="trip-search-submit" type="button" onClick={()=>setSubmitted(true)} disabled={blockedDestination}><Search size={19}/><span>Szukaj</span></button>
       </div>
+      <div className="trip-search-weekend-row">
+        <label className={`weekend-required ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>{const checked=e.target.checked;setWeekendOnly(checked);if(checked){const r=weekendRange(start,searchType);setStart(r.start);setEnd(r.end);}}}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Musi obejmować weekend</strong><small>Tripownia ustawi najbliższy sensowny termin z sobotą i niedzielą.</small></div></label>
+      </div>
+      {blockedDestination&&<div role="alert" style={{marginTop:12,padding:"12px 14px",borderRadius:14,background:"#fff2ed",border:"1px solid #ffd0c2",fontWeight:750,color:"#8a2b12"}}>Ten kierunek nie jest obecnie promowany przez Tripownię ze względów bezpieczeństwa. Wybierz inny kierunek.</div>}
     </div>
 
-    {submitted&&<div className="trip-search-results">
+    {submitted&&!blockedDestination&&<div className="trip-search-results">
       <div><small>GOTOWE WYSZUKIWANIE</small><strong>{destination||"Dowolny kierunek"}</strong><span>{searchType!=="hotels"?`${airportLabel(from)} · `:""}{start} – {end} · {adults} os.</span></div>
       <div className="trip-search-actions"><a className="primary" href={primary.url} target="_blank" rel="sponsored noopener noreferrer">{primary.label} →</a>{alternatives.map(a=><a key={a.label} href={a.url} target="_blank" rel="sponsored noopener noreferrer">{a.label}</a>)}</div>
     </div>}
+
+    <div className="trip-partner-mini">
+      <div className="trip-partner-mini-head"><div><small>PEŁNA BAZA PARTNERÓW</small><strong>Chcesz poszukać szerzej? Tripownia już przekazuje Twoje parametry.</strong></div><span>Jedna wyszukiwarka → kilka źródeł</span></div>
+      <div className="trip-partner-mini-grid">
+        <a href={links.exim} target="_blank" rel="sponsored noopener noreferrer"><span>☀️</span><div><strong>EXIM Tours</strong><small>Wakacje, All Inclusive i last minute</small></div><b>Sprawdź →</b></a>
+        <a href={links.wakacje} target="_blank" rel="sponsored noopener noreferrer"><span>🏖️</span><div><strong>Wakacje.pl</strong><small>Pakiety wielu organizatorów</small></div><b>Porównaj →</b></a>
+        <a href={links.tui} target="_blank" rel="sponsored noopener noreferrer"><span>🌴</span><div><strong>TUI</strong><small>Gotowe wakacje i hotele</small></div><b>Zobacz →</b></a>
+        <a href={links.esky} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>eSky</strong><small>City break oraz lot + hotel</small></div><b>Szukaj →</b></a>
+      </div>
+    </div>
 
     <div className="trip-search-extras"><span>Domknij podróż:</span><a href={links.car} target="_blank" rel="sponsored noopener noreferrer">🚗 Samochód</a><a href={links.taxi} target="_blank" rel="sponsored noopener noreferrer">🚕 Taxi</a><a href={links.transfer} target="_blank" rel="sponsored noopener noreferrer">🚐 Transfer</a><a href={links.gyg} target="_blank" rel="sponsored noopener noreferrer">🎟️ Atrakcje</a><a href={links.esim} target="_blank" rel="sponsored noopener noreferrer">📱 eSIM</a></div>
   </section>;
