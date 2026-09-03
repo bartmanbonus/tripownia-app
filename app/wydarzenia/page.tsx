@@ -90,16 +90,11 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
             </div>
           </div>
 
-          <aside className="sports-sync-card">
-            <small>AUTOMATYCZNA SYNCHRONIZACJA</small>
-            <strong>{live ? "Terminarze live" : "Tryb startowy"}</strong>
-            <span>
-              {live
-                ? "Dane wydarzeń odświeżają się automatycznie co maksymalnie 6 godzin."
-                : "Moduł korzysta z technicznego fallbacku do czasu poprawnego pobrania terminarzy live."}
-            </span>
-            <b>{filteredTrips.length} wyjazdów po filtrach</b>
-          </aside>
+          <div className="sports-status-strip">
+            <span>⚽ {filteredTrips.length} propozycji wyjazdów</span>
+            <span>{live ? "Terminarze aktualizowane automatycznie" : "Terminarze w trybie startowym"}</span>
+            <span>✈️ Loty: Kiwi + eSky · 🏨 Booking · 🎟️ oficjalne bilety</span>
+          </div>
         </div>
       </section>
 
@@ -109,7 +104,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
             <div className="kicker">NAJBLIŻSZE WYJAZDY</div>
             <h2>Wybierz mecz. Resztę wyjazdu składamy od razu.</h2>
             <p>
-              Klikasz raz — eSky i Booking dostają już kierunek oraz daty. Domyślnie lecimy dzień przed meczem.
+              Klikasz raz — Kiwi, eSky i Booking dostają już kierunek oraz daty. Domyślnie lecimy dzień przed meczem.
             </p>
           </div>
         </div>
@@ -202,24 +197,20 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                     <div><small>WYJAZD</small><strong>{trip.city}, {trip.country}</strong></div>
                   </div>
 
-                  <div className="sports-auto-plan">
-                    <div><small>WYLOT</small><b>{links.departureDate}</b></div>
-                    <div><small>POWRÓT</small><b>{links.returnDate}</b></div>
-                    <div><small>TRASA</small><b>{activeDeparture.label} → {links.arrivalLabel}</b></div>
+                  <div className="sports-trip-line">
+                    <span>✈️ {activeDeparture.label} → {trip.city}</span>
+                    <span>{links.departureDate} – {links.returnDate}</span>
+                    <span>{selectedNights} noce · {selectedPeople} os.</span>
                   </div>
 
-                  <div className="sports-event-actions">
-                    <a href={links.flightUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">✈️ Loty</a>
-                    <a href={links.hotelUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🏨 Hotel</a>
-                    <a href={links.packageUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🧳 Lot + hotel</a>
-                    <a href={links.ticketUrl} target="_blank" rel="noopener noreferrer">🎟️ Bilety</a>
+                  <div className="sports-event-actions sports-event-actions-main">
+                    <a className="is-primary" href={links.flightUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🛫 Sprawdź loty na Kiwi</a>
+                    <a href={links.packageUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🧳 Lot + hotel eSky</a>
                   </div>
-
-                  <div className="sports-event-cta">
-                    <span>🔥 Pomysł Tripownii:</span>
-                    <b>
-                      {activeDeparture.label} → {links.arrivalLabel}. Wylot {links.departureDate}, mecz {trip.kickoff.slice(0, 10)}, powrót {links.returnDate}. Wszystko w linkach ustawione automatycznie.
-                    </b>
+                  <div className="sports-event-links">
+                    <a href={links.secondaryFlightUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">eSky — same loty</a>
+                    <a href={links.hotelUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">Booking — noclegi</a>
+                    <a href={links.ticketUrl} target="_blank" rel="noopener noreferrer">Oficjalne bilety</a>
                   </div>
                 </article>
               );
