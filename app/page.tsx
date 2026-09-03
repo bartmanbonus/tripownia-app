@@ -16,6 +16,7 @@ const LOCAL_IMAGE_BY_CITY: Record<string, string> = {
   malta: "/images/destinations/valletta.jpg",
   valletta: "/images/destinations/valletta.jpg",
   barcelona: "/images/destinations/barcelona.jpg",
+  alicante: "/images/destinations/alicante.jpg",
   bergamo: "/images/destinations/bergamo.jpg",
   djerba: "/images/destinations/djerba.jpg",
   rzym: "/images/destinations/rzym.jpg",
@@ -26,6 +27,11 @@ const LOCAL_IMAGE_BY_CITY: Record<string, string> = {
   praga: "/images/destinations/praga.jpg",
   budapeszt: "/images/destinations/budapeszt.jpg",
   amsterdam: "/images/destinations/amsterdam.jpg",
+  hammamet: "/images/destinations/hammamet.jpg",
+  split: "/images/destinations/split.jpg",
+  sewilla: "/images/destinations/sewilla.jpg",
+  walencja: "/images/destinations/walencja.jpg",
+  zadar: "/images/destinations/zadar.jpg",
   madera: "/images/destinations/madera.jpg",
   teneryfa: "/images/destinations/teneryfa.jpg",
   fuerteventura: "/images/destinations/fuerteventura.jpg",
@@ -198,10 +204,18 @@ export default function Home() {
     const key = publicationKey();
     const active = seededShuffle(offers.filter(o => !isOfferExpired(o)).map(offerForDisplay), `tripownia-rails:${key}`);
     const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => active.filter(match).slice(0, limit);
-    const city = pick(o => (o.category || []).some(c => /city|weekend|tanio/i.test(c)));
-    const sun = pick(o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c)));
+    const fillRail = (primary: typeof active, minimum = 5) => {
+      const result = [...primary];
+      for (const offer of active) {
+        if (result.length >= minimum) break;
+        if (!result.some(item => item.id === offer.id)) result.push(offer);
+      }
+      return result;
+    };
+    const city = fillRail(pick(o => (o.category || []).some(c => /city|weekend|tanio/i.test(c))), 5);
+    const sun = fillRail(pick(o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c))), 5);
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
-    const unusual = pick(o => unusualNames.test(o.city));
+    const unusual = fillRail(pick(o => unusualNames.test(o.city)), 5);
     return { city, sun, unusual };
   }, []);
   const offersRailRef = useRef<HTMLDivElement>(null);
