@@ -113,6 +113,40 @@ const baseOffers: Offer[] = [
 ];
 
 
+
+const POLISH_MONTHS: Record<string, number> = {
+  stycznia:0, lutego:1, marca:2, kwietnia:3, maja:4, czerwca:5, lipca:6, sierpnia:7, wrzesnia:8, października:9, pazdziernika:9, listopada:10, grudnia:11,
+  styczen:0, luty:1, marzec:2, kwiecien:3, maj:4, czerwiec:5, lipiec:6, sierpien:7, wrzesien:8, pazdziernik:9, listopad:10, grudzien:11,
+};
+
+function normalizeDateText(value: string) {
+  return value.toLocaleLowerCase("pl").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+export function inferOfferEndDate(value?: string): Date | null {
+  if (!value) return null;
+  const raw = normalizeDateText(value).replace(/[–—]/g, "-");
+  // np. 23-26 listopada 2026 / 26 listopada 2026
+  const exact = raw.match(/(?:\d{1,2}\s*-\s*)?(\d{1,2})\s+([a-z]+)\s+(20\d{2})/);
+  if (exact) {
+    const month = POLISH_MONTHS[exact[2]];
+    if (month !== undefined) return new Date(Date.UTC(Number(exact[3]), month, Number(exact[1]), 23, 59, 59));
+  }
+  // np. wrzesien 2026 — aktywna do końca miesiąca
+  const monthOnly = raw.match(/\b([a-z]+)\s+(20\d{2})\b/);
+  if (monthOnly) {
+    const month = POLISH_MONTHS[monthOnly[1]];
+    if (month !== undefined) return new Date(Date.UTC(Number(monthOnly[2]), month + 1, 0, 23, 59, 59));
+  }
+  return null;
+}
+
+export function isOfferExpired(offer: Pick<Offer, "availabilityStatus" | "dates">, now = new Date()) {
+  if (offer.availabilityStatus === "expired") return true;
+  const end = inferOfferEndDate(offer.dates);
+  return Boolean(end && end.getTime() < now.getTime());
+}
+
 export function getLinkMatch(offer: Offer): "exact" | "parameters" | "destination" | "unsafe" {
   if (offer.linkMatch) return offer.linkMatch;
   if (offer.linkType === "exact") return "exact";
@@ -169,6 +203,9 @@ export const featuredOfferIds = new Set(
 );
 
 export function getDailyOffers(source: Offer[] = offers, limit = 8, now = new Date()) {
+  const dateFormatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit",
+  });
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit",
     hour: "2-digit", hourCycle: "h23",
@@ -176,26 +213,60 @@ export function getDailyOffers(source: Offer[] = offers, limit = 8, now = new Da
   const part = (type: string) => parts.find(x => x.type === type)?.value || "";
   const hour = Number(part("hour"));
   const effective = new Date(now.getTime() - (hour < 12 ? 86400000 : 0));
-  const key = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit",
-  }).format(effective);
+  const key = dateFormatter.format(effective);
+  const previousKey = dateFormatter.format(new Date(effective.getTime() - 86400000));
 
-  let seed = Array.from(key).reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) >>> 0, 2166136261);
-  const random = () => {
-    seed = (seed * 1664525 + 1013904223) >>> 0;
-    return seed / 4294967296;
+  const active = source.filter(o => !isOfferExpired(o, now));
+  const linkWeight = (o: Offer) => {
+    const match = getLinkMatch(o);
+    if (match === "exact") return 3;
+    if (match === "parameters") return 2;
+    if (match === "destination") return 1;
+    return 0;
   };
-  const active = source.filter(o => o.availabilityStatus !== "expired");
-  const rank = (pool: Offer[]) => pool
-    .map(o => ({ o, value: o.score * 10 + (o.tag === "BIERZEMY" ? 5 : o.tag === "OKAZJA" ? 2 : 0) + random() * 8 }))
-    .sort((a, b) => b.value - a.value || a.o.price - b.o.price)
-    .map(x => x.o);
 
-  const exact = active.filter(o => getLinkMatch(o) === "exact");
-  const parameterized = active.filter(o => getLinkMatch(o) === "parameters");
-  const destination = active.filter(o => getLinkMatch(o) === "destination");
+  const qualityPool = [...active]
+    .sort((a, b) => linkWeight(b) - linkWeight(a) || b.score - a.score || a.price - b.price)
+    .slice(0, Math.min(active.length, Math.max(limit * 4, 28)));
 
-  return [...rank(exact), ...rank(parameterized), ...rank(destination)]
+  const seeded = (seedKey: string) => {
+    let seed = Array.from(seedKey).reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) >>> 0, 2166136261);
+    const random = () => {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      return seed / 4294967296;
+    };
+    return qualityPool
+      .map(o => ({ o, r: random() }))
+      .sort((a, b) => b.r - a.r || linkWeight(b.o) - linkWeight(a.o) || b.o.score - a.o.score)
+      .map(x => x.o);
+  };
+
+  const diversePick = (ordered: Offer[], max: number) => {
+    const out: Offer[] = [];
+    const add = (offer?: Offer) => {
+      if (offer && !out.some(x => x.id === offer.id)) out.push(offer);
+    };
+    const groups = [
+      (o: Offer) => o.category.includes("city") || o.category.includes("weekend"),
+      (o: Offer) => o.category.includes("allinclusive") || o.category.includes("plaza"),
+      (o: Offer) => o.category.includes("cieplo"),
+      (o: Offer) => o.category.includes("tanio"),
+    ];
+    groups.forEach(test => add(ordered.find(test)));
+    ordered.forEach(add);
+    return out.slice(0, max);
+  };
+
+  const currentCandidates = diversePick(seeded(key), Math.max(limit * 2, 16));
+  const previousSelection = new Set(diversePick(seeded(previousKey), limit).map(o => o.id));
+
+  // Po zmianie klucza o 12:00 wymuszamy świeżość: jeśli pula na to pozwala,
+  // co najmniej 3 miejsca w dziennej ósemce pochodzą spoza poprzedniej selekcji.
+  const freshTarget = Math.min(3, limit, currentCandidates.filter(o => !previousSelection.has(o.id)).length);
+  const fresh = currentCandidates.filter(o => !previousSelection.has(o.id)).slice(0, freshTarget);
+  const remainder = currentCandidates.filter(o => !fresh.some(f => f.id === o.id));
+
+  return [...fresh, ...remainder]
     .filter((o, index, all) => all.findIndex(x => x.id === o.id) === index)
     .slice(0, limit);
 }
