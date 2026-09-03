@@ -137,7 +137,13 @@ function buildLinks(destination:string, fromCode:string, start:string, end:strin
   const esim=partners.fonia.buildUrl("https://fonia.app/");
   const tui=partners.tui.buildUrl(mode==="lastminute"?"https://www.tui.pl/last-minute":"https://www.tui.pl/wypoczynek");
 
-  return {exim,wakacje,tui,esky,kiwi,booking,gyg,esim,nights,iata};
+  // Transport na miejscu — gotowe linki afiliacyjne Travelpayouts.
+  // GetRentacar = wynajem auta, KiwiTaxi = taxi, GetTransfer = transfer prywatny.
+  const car="https://getrentacar.tpk.lv/buzTQvPf";
+  const taxi="https://kiwitaxi.tpk.lv/UuvtPHby";
+  const transfer="https://gettransfer.tpk.lv/SqNqK9Q7";
+
+  return {exim,wakacje,tui,esky,kiwi,booking,gyg,esim,car,taxi,transfer,nights,iata};
 }
 
 export default function UnifiedPartnerSearch({mode="all",initialDestination="",initialDeparture="Warszawa Chopina",initialDepartureCode,initialStartDate,initialEndDate,initialAdults=2}:Props){
@@ -155,22 +161,25 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
   const holidayFirst=[
     {key:"exim",badge:"1 · PRIORYTET",icon:"☀️",name:"EXIM Tours",desc:"Pakiety, czartery i last minute",url:links.exim,accent:true},
     {key:"wakacje",badge:"2 · PORÓWNAJ",icon:"🏖️",name:"Wakacje.pl",desc:"Pełna baza ofert biur podróży",url:links.wakacje},
-    {key:"tui",badge:"WAKACJE",icon:"🌴",name:"TUI",desc:"Pełna baza pakietów TUI",url:links.tui},
-    {key:"esky",badge:"CITY BREAK",icon:"✈️",name:"eSky",desc:`Lot + hotel · ${airportLabel(from)} · ${links.nights} nocy`,url:links.esky},
+    {key:"tui",badge:"3 · DODATKOWO",icon:"🌴",name:"TUI",desc:"Dodatkowa baza pakietów wakacyjnych",url:links.tui},
+    {key:"esky",badge:"4 · LOT + HOTEL",icon:"🧳",name:"eSky",desc:`Lot + hotel · ${airportLabel(from)} · ${links.nights} nocy`,url:links.esky},
   ];
   const cityFirst=[
-    {key:"esky",badge:"1 · CITY BREAK",icon:"✈️",name:"eSky",desc:`Lot + hotel · ${airportLabel(from)} · ${links.nights} nocy`,url:links.esky,accent:true},
-    {key:"kiwi",badge:"2 · LOTY",icon:"🛫",name:"Kiwi.com",desc:`Najtańsze kombinacje lotów · ${from} → ${destination||"wybrany kierunek"}`,url:links.kiwi},
-    {key:"booking",badge:"3 · NOCLEGI",icon:"🏨",name:"Booking.com",desc:`Noclegi ${start} – ${end}`,url:links.booking},
+    {key:"esky",badge:"1 · CITY BREAK",icon:"🧳",name:"Lot + hotel",desc:`eSky · ${airportLabel(from)} · ${links.nights} nocy`,url:links.esky,accent:true},
+    {key:"kiwi",badge:"2 · LOTY",icon:"✈️",name:"Loty",desc:`Najtańsze kombinacje · ${from} → ${destination||"wybrany kierunek"}`,url:links.kiwi},
+    {key:"booking",badge:"3 · NOCLEG",icon:"🏨",name:"Hotel",desc:`Booking · ${start} – ${end}`,url:links.booking},
   ];
   const common=[
-    {key:"kiwi",badge:"LOTY · PRIORYTET",icon:"🛫",name:"Kiwi.com",desc:`Najpierw szukamy najtańszych lotów · ${from} → ${destination||"wybrany kierunek"}`,url:links.kiwi,accent:true},
-    {key:"booking",badge:"NOCLEGI",icon:"🏨",name:"Booking.com",desc:`Noclegi ${start} – ${end}`,url:links.booking},
+    {key:"kiwi",badge:"LOTY · PRIORYTET",icon:"✈️",name:"Loty",desc:`Najpierw szukamy najtańszych lotów · ${from} → ${destination||"wybrany kierunek"}`,url:links.kiwi,accent:true},
+    {key:"booking",badge:"NOCLEG",icon:"🏨",name:"Hotel",desc:`Noclegi ${start} – ${end}`,url:links.booking},
+    {key:"car",badge:"NA MIEJSCU",icon:"🚗",name:"Samochód",desc:"Wynajem auta przez GetRentacar",url:links.car},
+    {key:"taxi",badge:"LOTNISKO",icon:"🚕",name:"Taxi",desc:"Taxi z lub na lotnisko przez Kiwitaxi",url:links.taxi},
+    {key:"transfer",badge:"TRANSFER",icon:"🚐",name:"Transfer",desc:"Prywatny transfer przez GetTransfer",url:links.transfer},
     {key:"esim",badge:"INTERNET",icon:"📱",name:"eSIM",desc:"Internet na wyjazd · link afiliacyjny",url:links.esim},
-    {key:"gyg",badge:"ATRAKCJE",icon:"🎟️",name:"GetYourGuide",desc:`Atrakcje w: ${destination||"wybranym miejscu"}`,url:links.gyg},
+    {key:"gyg",badge:"ATRAKCJE",icon:"🎟️",name:"Atrakcje",desc:`GetYourGuide · ${destination||"wybrane miejsce"}`,url:links.gyg},
   ];
   const results=mode==="city"
-    ? [...cityFirst,{key:"gyg",badge:"ATRAKCJE",icon:"🎟️",name:"GetYourGuide",desc:`Atrakcje w: ${destination||"wybranym miejscu"}`,url:links.gyg},{key:"esim",badge:"INTERNET",icon:"📱",name:"eSIM",desc:"Internet na wyjazd · link afiliacyjny",url:links.esim},{key:"exim",badge:"PAKIETY",icon:"☀️",name:"EXIM Tours",desc:"Sprawdź także dostępne pakiety",url:links.exim},{key:"wakacje",badge:"PAKIETY",icon:"🏖️",name:"Wakacje.pl",desc:"Sprawdź także pełne pakiety",url:links.wakacje}]
+    ? [...cityFirst,{key:"car",badge:"NA MIEJSCU",icon:"🚗",name:"Samochód",desc:"Wynajem auta przez GetRentacar",url:links.car},{key:"taxi",badge:"LOTNISKO",icon:"🚕",name:"Taxi",desc:"Taxi z lub na lotnisko przez Kiwitaxi",url:links.taxi},{key:"transfer",badge:"TRANSFER",icon:"🚐",name:"Transfer",desc:"Prywatny transfer przez GetTransfer",url:links.transfer},{key:"gyg",badge:"ATRAKCJE",icon:"🎟️",name:"Atrakcje",desc:`GetYourGuide · ${destination||"wybrane miejsce"}`,url:links.gyg},{key:"esim",badge:"INTERNET",icon:"📱",name:"eSIM",desc:"Internet na wyjazd · link afiliacyjny",url:links.esim},{key:"exim",badge:"PAKIETY",icon:"☀️",name:"EXIM Tours",desc:"Sprawdź także dostępne pakiety",url:links.exim},{key:"wakacje",badge:"PAKIETY",icon:"🏖️",name:"Wakacje.pl",desc:"Sprawdź także pełne pakiety",url:links.wakacje}]
     : [...holidayFirst,...common];
 
   return <section className="unified-partner-search" id="pelna-wyszukiwarka">
@@ -187,7 +196,7 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
     {submitted && <div className="unified-results">
       <div className="unified-results-summary"><strong>{destination||"Dowolny kierunek"}</strong><span>{airportLabel(from)} · {start} – {end} · {adults} os.</span></div>
       <div className="unified-results-grid">{results.map(r=><a className={`unified-result-card ${("accent" in r && r.accent)?"is-priority":""}`} href={r.url} target="_blank" rel="sponsored noopener noreferrer" key={r.key}><small>{r.badge}</small><div className="unified-result-main"><span>{r.icon}</span><div><strong>{r.name}</strong><p>{r.desc}</p></div></div><b>Sprawdź →</b></a>)}</div>
-      <p className="unified-search-note">EXIM i Wakacje.pl są na początku dla pakietów wakacyjnych. eSky jest priorytetem dla city breaków, Kiwi dla samych lotów, Booking dla noclegów. eSIM i GetYourGuide domykają podróż. Jeżeli dany partner nie obsługuje konkretnego parametru w deeplinku, otwieramy najbliższą możliwą stronę z zachowaną afiliacją.</p>
+      <p className="unified-search-note">Dla dłuższych wakacji promujemy najpierw EXIM, potem Wakacje.pl, a eSky pokazujemy jako kolejną opcję lot + hotel. Dla city breaków eSky jest priorytetem dla pakietu, Kiwi dla samych lotów, Booking dla noclegów. Samochód, taxi, transfer, eSIM i atrakcje domykają podróż. Jeżeli dany partner nie obsługuje konkretnego parametru w deeplinku, otwieramy najbliższą możliwą stronę z zachowaną afiliacją.</p>
     </div>}
   </section>;
 }
