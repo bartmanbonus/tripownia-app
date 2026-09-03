@@ -295,18 +295,29 @@ export function buildSportsTripLinks(
     };
   }
 
-  // Sam lot: Kiwi jest głównym źródłem. Kierunek przekazujemy jako miasto,
-  // żeby wyszukiwarka mogła dobrać wszystkie lotniska w aglomeracji (np. Mediolan).
-  const kiwiDeep = new URL("https://www.kiwi.com/deep");
-  kiwiDeep.searchParams.set("from", departure.code === "WAWA" ? "Warsaw" : departure.code);
-  kiwiDeep.searchParams.set("to", club.city);
-  kiwiDeep.searchParams.set("departure", window.departureDate);
-  kiwiDeep.searchParams.set("return", window.returnDate);
-  kiwiDeep.searchParams.set("adults", String(safePassengers));
-  kiwiDeep.searchParams.set("currency", "PLN");
-  kiwiDeep.searchParams.set("locale", "pl");
-  kiwiDeep.searchParams.set("sort", "price");
-  const kiwiFlightUrl = partners.kiwi.buildUrl(kiwiDeep.toString());
+  // Sam lot: Kiwi jest głównym źródłem. Budujemy zwykły URL wyszukiwarki Kiwi,
+  // a dopiero potem owijamy go linkiem afiliacyjnym Travelpayouts.
+  // Kierunek przekazujemy jako MIASTO (np. Londyn/Mediolan), nie pojedyncze lotnisko,
+  // żeby Kiwi mogło znaleźć najtańsze połączenia ze wszystkich lotnisk w aglomeracji.
+  const departureCityByCode: Record<string, string> = {
+    WAWA: "Warszawa",
+    KRK: "Kraków",
+    GDN: "Gdańsk",
+    KTW: "Katowice",
+    WRO: "Wrocław",
+    POZ: "Poznań",
+    RZE: "Rzeszów",
+    LUZ: "Lublin",
+    SZZ: "Szczecin",
+  };
+  const kiwiSearch = new URL("https://www.kiwi.com/pl/");
+  kiwiSearch.searchParams.set("origin", departureCityByCode[departure.code] || departure.label);
+  kiwiSearch.searchParams.set("destination", club.city);
+  kiwiSearch.searchParams.set("outboundDate", window.departureDate);
+  kiwiSearch.searchParams.set("inboundDate", window.returnDate);
+  kiwiSearch.searchParams.set("adults", String(safePassengers));
+  kiwiSearch.searchParams.set("currency", "PLN");
+  const kiwiFlightUrl = partners.kiwi.buildUrl(kiwiSearch.toString());
 
   // eSky zostaje jako drugie źródło samych lotów.
   const eskyFlightUrl = new URL(`https://www2.esky.pl/flights/search/${departure.flightPath}/${club.flightDestinationPath}`);
