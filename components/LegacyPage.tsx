@@ -24,6 +24,6 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
       </article>
       <section className="legacy-offers"><div className="section-heading"><div><div className="kicker">WYNIKI TRIPOWNIA.PL</div><h2>Sprawdź też aktualne wyniki Tripownia.pl</h2></div><Link href="/okazje">Wszystkie okazje →</Link></div><div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>
-      <section className="legacy-internal-links"><h2>Zostań na Tripowni</h2><div><Link href="/kierunki">🌍 Kierunki</Link><Link href="/city-break-2">🏙 City break</Link><Link href="/last-minute">🏖 Last minute</Link><Link href="/poradniki">🧭 Poradniki</Link><Link href="/parkingi">🚗 Parkingi</Link></div></section>
+      <section className="legacy-internal-links"><h2>Zostań na Tripowni</h2><div><Link href="/kierunki">🌍 Kierunki</Link><Link href="/city-break">🏙 City break</Link><Link href="/last-minute-oferty">🏖 Last minute</Link><Link href="/poradniki">🧭 Poradniki</Link><Link href="/parkingi">🚗 Parkingi</Link></div></section>
     </div><SiteFooter/></main>;
 }

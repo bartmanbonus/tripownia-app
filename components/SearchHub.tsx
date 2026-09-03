@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, CalendarDays, Check, ChevronDown, Compass, MapPi
 import OfferCard from "@/components/OfferCard";
 import { airportOptions, offers, isOfferExpired } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination } from "@/lib/worldDestinations";
+import { partners } from "@/lib/partners";
 
 type Props={initialAirports?:string[];initialDestinations?:string[];initialDuration?:string;searchRequest?:number;initialTab?:string};
 
@@ -53,7 +54,11 @@ function PartnerLiveSearch({destination,departure}:{destination:string;departure
       <article className="partner-live-card"><div className="partner-live-head"><span>✈️</span><div><strong>eSky — lot + hotel / city break</strong><small>Aktualna dostępność i ceny partnera</small></div></div><div id="tripownia-esky-live-v90j" className="partner-widget-shell" /></article>
       <article className="partner-live-card"><div className="partner-live-head"><span>🏖️</span><div><strong>Wakacje.pl — wakacje / All Inclusive</strong><small>Pełna oferta biur podróży</small></div></div><div id="tripownia-wakacje-live-v90j" className="partner-widget-shell partner-widget-wakacje" /></article>
     </div>
-    <p className="partner-live-note">Ceny i dostępność pochodzą bezpośrednio od partnerów i są aktualizowane w ich systemach.</p>
+    <div className="partner-live-direct">
+      <a href={partners.tui.buildUrl("https://www.tui.pl/wypoczynek")} target="_blank" rel="sponsored noopener noreferrer"><span>🌴</span><div><strong>TUI</strong><small>Pełna oferta wakacji</small></div><b>Sprawdź →</b></a>
+      <a href={partners.exim.buildUrl("https://www.exim.pl/wakacje")} target="_blank" rel="sponsored noopener noreferrer"><span>☀️</span><div><strong>EXIM Tours</strong><small>Wakacje i last minute</small></div><b>Sprawdź →</b></a>
+    </div>
+    <p className="partner-live-note">Ceny i dostępność pochodzą bezpośrednio od partnerów i są aktualizowane w ich systemach. Tripownia nie ogranicza wyników do własnych rekomendacji.</p>
   </div>
 }
 

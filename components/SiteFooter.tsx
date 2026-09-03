@@ -18,8 +18,8 @@ export default function SiteFooter() {
         <div className="footer-column">
           <h3>Znajdź wyjazd</h3>
           <Link href="/okazje">Okazje</Link>
-          <Link href="/city-break-2">City break</Link>
-          <Link href="/last-minute">Last minute</Link>
+          <Link href="/city-break">City break</Link>
+          <Link href="/last-minute-oferty">Last minute</Link>
           <Link href="/kierunki">Kierunki</Link>
           <Link href="/polska">Polska</Link>
           <Link href="/wydarzenia">Wydarzenia sportowe</Link>
