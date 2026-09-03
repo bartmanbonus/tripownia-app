@@ -299,20 +299,36 @@ export function buildSportsTripLinks(
   // a dopiero potem owijamy go linkiem afiliacyjnym Travelpayouts.
   // Kierunek przekazujemy jako MIASTO (np. Londyn/Mediolan), nie pojedyncze lotnisko,
   // żeby Kiwi mogło znaleźć najtańsze połączenia ze wszystkich lotnisk w aglomeracji.
-  const departureCityByCode: Record<string, string> = {
-    WAWA: "Warszawa",
-    KRK: "Kraków",
-    GDN: "Gdańsk",
-    KTW: "Katowice",
-    WRO: "Wrocław",
-    POZ: "Poznań",
-    RZE: "Rzeszów",
-    LUZ: "Lublin",
-    SZZ: "Szczecin",
+  // Kiwi nie uzupełnia pól poprawnie dla luźnych nazw typu "Warszawa" / "Manchester".
+  // Używamy kanonicznych slugów miejsc z wyszukiwarki Kiwi, dzięki czemu po kliknięciu
+  // użytkownik od razu widzi ustawione: skąd, dokąd, daty i liczbę osób.
+  const kiwiOriginByCode: Record<string, string> = {
+    WAWA: "warszawa-polska",
+    KRK: "krakow-polska",
+    GDN: "gdansk-polska",
+    KTW: "katowice-polska",
+    WRO: "wroclaw-polska",
+    POZ: "poznan-polska",
+    RZE: "rzeszow-polska",
+    LUZ: "lublin-polska",
+    SZZ: "szczecin-polska",
+  };
+  const kiwiDestinationByClub: Record<string, string> = {
+    "fc-barcelona": "barcelona-hiszpania",
+    "inter-mediolan": "mediolan-wlochy",
+    "ac-milan": "mediolan-wlochy",
+    "real-madryt": "madryt-hiszpania",
+    "bayern-monachium": "monachium-niemcy",
+    arsenal: "londyn-wielka-brytania",
+    chelsea: "londyn-wielka-brytania",
+    tottenham: "londyn-wielka-brytania",
+    "manchester-city": "manchester-wielka-brytania",
+    "manchester-united": "manchester-wielka-brytania",
+    liverpool: "liverpool-wielka-brytania",
   };
   const kiwiSearch = new URL("https://www.kiwi.com/pl/");
-  kiwiSearch.searchParams.set("origin", departureCityByCode[departure.code] || departure.label);
-  kiwiSearch.searchParams.set("destination", club.city);
+  kiwiSearch.searchParams.set("origin", kiwiOriginByCode[departure.code] || "warszawa-polska");
+  kiwiSearch.searchParams.set("destination", kiwiDestinationByClub[club.slug] || club.city);
   kiwiSearch.searchParams.set("outboundDate", window.departureDate);
   kiwiSearch.searchParams.set("inboundDate", window.returnDate);
   kiwiSearch.searchParams.set("adults", String(safePassengers));
