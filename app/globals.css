@@ -5262,3 +5262,24 @@ body {
   .premium-action-row{flex-direction:column!important;align-items:stretch!important}
   .premium-action-row a{width:100%!important}
 }
+
+
+/* V119 — premium image teasers for experience cards */
+.experience-home-grid{gap:18px!important}
+.experience-home-grid .experience-teaser-card{padding:0!important;overflow:hidden!important;border-radius:22px!important;background:#fff!important;box-shadow:0 12px 30px rgba(45,28,16,.055)!important;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease!important}
+.experience-home-grid .experience-teaser-card:hover{transform:translateY(-4px)!important;box-shadow:0 18px 42px rgba(45,28,16,.11)!important;border-color:#e7c8b8!important}
+.experience-teaser-media{position:relative;height:126px;overflow:hidden;background:linear-gradient(135deg,#f2e9e1,#ded5cb)}
+.experience-teaser-media img{width:100%;height:100%;display:block;object-fit:cover;transform:scale(1.01);transition:transform .35s ease}
+.experience-teaser-card:hover .experience-teaser-media img{transform:scale(1.055)}
+.experience-teaser-skeleton{position:absolute;inset:0;background:linear-gradient(110deg,#eee5dc 8%,#f8f4ef 18%,#eee5dc 33%);background-size:200% 100%;animation:experienceShimmer 1.35s linear infinite}
+@keyframes experienceShimmer{to{background-position-x:-200%}}
+.experience-teaser-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.02) 28%,rgba(0,0,0,.62) 100%)}
+.experience-teaser-media b{position:absolute;left:16px;right:16px;bottom:13px;color:#fff;font-size:13px;font-weight:900;letter-spacing:.01em;text-shadow:0 2px 10px rgba(0,0,0,.5)}
+.experience-teaser-copy{display:flex;min-height:172px;flex-direction:column;padding:17px 18px 18px}
+.experience-teaser-copy>small{display:block;margin:0 0 8px;color:#d9501e!important;font-size:10px!important;font-weight:950!important;letter-spacing:.075em!important}
+.experience-teaser-copy>strong{display:block;margin:0 0 9px;font-size:19px!important;line-height:1.16!important;letter-spacing:-.35px}
+.experience-teaser-copy>span{display:-webkit-box;overflow:hidden;color:#6b625b!important;font-size:12px!important;line-height:1.55!important;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.experience-teaser-copy>em{margin-top:auto;padding-top:13px;color:#181411;font-size:11px;font-style:normal;font-weight:900;opacity:.8;transition:color .2s ease,opacity .2s ease}
+.experience-teaser-card:hover .experience-teaser-copy>em{color:#ef5424;opacity:1}
+@media(max-width:900px){.experience-teaser-media{height:150px}.experience-teaser-copy{min-height:0}}
+@media(max-width:640px){.experience-teaser-media{height:180px}}

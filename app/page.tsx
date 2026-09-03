@@ -126,50 +126,81 @@ const experienceCards = [
     season: "WRZESIEŃ–MARZEC",
     title: "🌌 Zorza na Islandii",
     text: "Ciemne noce, geotermia i wyjazd planowany pod szansę zobaczenia zorzy.",
+    imageCity: "zorza islandia", imageCountry: "Islandia",
   },
   {
     href: "/podroze-po-przezycia#sakura",
     season: "MARZEC–KWIECIEŃ",
     title: "🌸 Sakura w Japonii",
     text: "Tokio i Kioto wtedy, gdy kwitnienie wiśni staje się głównym punktem podróży.",
+    imageCity: "sakura japonia", imageCountry: "Japonia",
   },
   {
     href: "/podroze-po-przezycia#fiordy",
     season: "MAJ–WRZESIEŃ",
     title: "🏔️ Fiordy i białe noce",
     text: "Długie dni, trekking, rejsy i spektakularne trasy widokowe po Norwegii.",
+    imageCity: "fiordy norwegia", imageCountry: "Norwegia",
   },
   {
     href: "/podroze-po-przezycia#nowa-zelandia",
     season: "LISTOPAD–MARZEC",
     title: "🥾 Nowa Zelandia",
     text: "Road trip, góry i lato na południowej półkuli w najlepszym oknie na aktywny wyjazd.",
+    imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia",
   },
   {
     href: "/podroze-po-przezycia#tulipany",
     season: "KWIECIEŃ–MAJ",
     title: "🌷 Tulipany w Holandii",
     text: "Krótki city break połączony z polami kwiatów i sezonem, który trwa tylko chwilę.",
+    imageCity: "tulipany holandia", imageCountry: "Holandia",
   },
   {
     href: "/podroze-po-przezycia#safari",
     season: "CZERWIEC–PAŹDZIERNIK",
     title: "🦁 Safari w Kenii i Tanzanii",
     text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.",
+    imageCity: "safari kenia tanzania", imageCountry: "Kenia",
   },
   {
     href: "/podroze-po-przezycia#jarmarki",
     season: "LISTOPAD–GRUDZIEŃ",
     title: "🎄 Jarmarki bożonarodzeniowe",
     text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.",
+    imageCity: "jarmarki wieden", imageCountry: "Austria",
   },
   {
     href: "/podroze-po-przezycia#egzotyka",
     season: "ZIMA W POLSCE",
     title: "🌴 Egzotyka w porze suchej",
     text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.",
+    imageCity: "egzotyka pora sucha", imageCountry: "Seszele",
   },
 ];
+
+function ExperienceTeaserImage({ city, country, title }: { city: string; country: string; title: string }) {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+    const params = new URLSearchParams({ city, country });
+    fetch(`/api/destination-image?${params.toString()}`, { signal: controller.signal })
+      .then(response => response.ok ? response.json() : null)
+      .then(data => { if (active) setSrc(data?.image?.url || null); })
+      .catch(() => {});
+    return () => { active = false; controller.abort(); };
+  }, [city, country]);
+
+  return (
+    <div className="experience-teaser-media" aria-hidden="true">
+      {src ? <img src={src} alt="" loading="lazy" /> : <div className="experience-teaser-skeleton" />}
+      <span className="experience-teaser-overlay" />
+      <b>{title.replace(/^\S+\s*/, "")}</b>
+    </div>
+  );
+}
 
 function OfferRail({ kicker, title, description, items }: { kicker: string; title: string; description: string; items: typeof offers }) {
   const railRef = useRef<HTMLDivElement>(null);
@@ -482,10 +513,14 @@ export default function Home() {
 
         <div className="discovery-grid experience-home-grid">
           {experienceCards.map(card => (
-            <Link className="discovery-card" href={card.href} key={card.href}>
-              <small>{card.season}</small>
-              <strong>{card.title}</strong>
-              <span>{card.text}</span>
+            <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
+              <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} />
+              <div className="experience-teaser-copy">
+                <small>{card.season}</small>
+                <strong>{card.title}</strong>
+                <span>{card.text}</span>
+                <em>Zobacz najlepszy moment →</em>
+              </div>
             </Link>
           ))}
         </div>
