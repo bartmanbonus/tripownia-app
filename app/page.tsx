@@ -272,7 +272,7 @@ export default function Home() {
 
       <SearchHub />
 
-      <section className="section shell" id="okazje">
+      <section className="section shell visual-chapter chapter-daily" id="okazje">
         <div className="section-heading">
           <div>
             <div className="kicker">DZISIEJSZA SELEKCJA</div>
@@ -292,7 +292,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell streaming-discovery streaming-offers" aria-label="Odkrywaj oferty Tripowni">
+      <section className="section shell streaming-discovery streaming-offers visual-chapter chapter-streaming" aria-label="Odkrywaj oferty Tripowni">
         <div className="section-heading"><div><div className="kicker">NETFLIX PODRÓŻY</div><h2>Przewijaj, aż coś kliknie.</h2><p>Nie jedna ściana ofert. Różne nastroje, różne budżety i konkretne kierunki — codziennie w innym układzie.</p></div></div>
         <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie wypady, miasta i loty, które nie wymagają pół roku planowania." items={themedRails.city}/>
         <OfferRail kicker="☀️ SŁOŃCE / ALL INCLUSIVE" title="Jeszcze trochę lata" description="Plaża, ciepło i gotowe wakacje — od krótkiego resetu po pełny tydzień." items={themedRails.sun}/>
@@ -305,7 +305,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="budget-wrap" id="budzet">
+      <section className="budget-wrap visual-chapter chapter-budget" id="budzet">
         <div className="shell budget-grid">
           <div>
             <div className="kicker light">WYNIKI TRIPOWNIA.PL</div>
@@ -326,7 +326,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell" id="odkrywaj">
+      <section className="section shell visual-chapter chapter-discover" id="odkrywaj">
         <div className="section-heading"><div><div className="kicker">NIE TYLKO KLASYKI</div><h2>Masz już za sobą Barcelonę i Rzym?</h2></div></div>
         <div className="discovery-grid">
           <Link className="discovery-card" href="/maroko"><small>BLISKA EGZOTYKA</small><strong>🇲🇦 Maroko</strong><span>Kolor, jedzenie, pustynia i zupełnie inny klimat bez lotu na drugi koniec świata.</span></Link>
@@ -336,7 +336,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell long-haul-home" id="dalekie-podroze">
+      <section className="section shell long-haul-home visual-chapter chapter-longhaul" id="dalekie-podroze">
         <div className="section-heading">
           <div>
             <div className="kicker">DALEJ NIŻ WEEKEND</div>
@@ -357,7 +357,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell experience-section" id="przezycia">
+      <section className="section shell experience-section visual-chapter chapter-experience" id="przezycia">
         <div className="section-heading">
           <div>
             <div className="kicker">PODRÓŻE PO PRZEŻYCIA</div>
@@ -385,7 +385,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell custom-trip">
+      <section className="section shell custom-trip visual-chapter chapter-custom">
         <div className="section-heading">
           <div>
             <div className="kicker">WŁASNA PODRÓŻ</div>
@@ -400,7 +400,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell content-hubs">
+      <section className="section shell content-hubs visual-chapter chapter-content">
         <div className="section-heading"><div><div className="kicker">ODKRYWAJ Z TRIPOWNIĄ</div><h2>Więcej niż dzisiejsza selekcja</h2></div></div>
         <div className="hub-grid">
           <Link href="/kierunki"><strong>🌍 Kierunki</strong><span>Malta, Grecja, Włochy, Hiszpania i dziesiątki inspiracji.</span></Link>
@@ -414,7 +414,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell score-section" id="score">
+      <section className="section shell score-section visual-chapter chapter-score" id="score">
         <div className="score-copy">
           <div className="kicker">WYNIKI TRIPOWNIA.PL</div>
           <h2>Cena to dopiero początek.</h2>
