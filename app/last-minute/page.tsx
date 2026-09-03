@@ -8,8 +8,8 @@ import { offers, isOfferExpired } from "@/lib/offers";
 
 export const metadata: Metadata = {
   title: "Last minute — wszystkie dostępne oferty | Tripownia.pl",
-  description: "Last minute do samodzielnego wyboru: EXIM Tours, TUI, Wakacje.pl, eSky oraz wybrane okazje Tripowni.",
-  alternates: { canonical: "/last-minute-oferty" },
+  description: "Last minute do samodzielnego wyboru: EXIM Tours, Wakacje.pl, eSky, Kiwi i Booking.com oraz wybrane okazje Tripowni.",
+  alternates: { canonical: "/last-minute" },
 };
 
 export default function LastMinuteOffersPage() {
@@ -18,7 +18,7 @@ export default function LastMinuteOffersPage() {
     <section className="shopping-hero shell">
       <div className="kicker">LAST MINUTE — PEŁNA BAZA</div>
       <h1>Sprawdź, co naprawdę jest dostępne na szybki wyjazd.</h1>
-      <p>Nie ograniczamy Cię do naszych kart. Pod rekomendacjami znajdziesz pełne źródła EXIM, TUI, Wakacje.pl i eSky.</p>
+      <p>Nie ograniczamy Cię do naszych kart. Pod rekomendacjami znajdziesz jedną wspólną wyszukiwarkę: EXIM, Wakacje.pl, eSky, Kiwi, Booking, eSIM i GetYourGuide.</p>
       <Link className="editorial-link" href="/magazyn-podrozniczy/last-minute-2026">📚 Poradnik: jak kupować last minute →</Link>
     </section>
     <section className="section shell">
