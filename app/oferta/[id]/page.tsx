@@ -81,43 +81,38 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
         <div className="detail-copy">
           <div className="eyebrow">{o.flag} {o.country}</div>
           <h1>{o.city}</h1>
-          <div className="detail-score"><strong>{o.score}</strong><span>/10 Tripownia poleca</span></div>
-          <FavoriteButton offerId={o.id}/>
-          <div className="detail-price"><small>ostatnio znaleźliśmy od</small> <strong>{o.price} zł</strong> / os.</div>
-          <div className="price-status detail-price-status">
-            {`To cena, którą Tripownia ostatnio znalazła${checkedAt ? ` (${checkedAt})` : ""}. Ceny zmieniają się dynamicznie — po kliknięciu partner może pokazać cenę niższą albo wyższą. Warto sprawdzić teraz.`}
+          <div className="detail-topline">
+            <div className="detail-score"><strong>{o.score}</strong><span>/10 Tripownia poleca</span></div>
+            <FavoriteButton offerId={o.id}/>
+          </div>
+          <div className="detail-price-card">
+            <div className="detail-price"><small>ostatnio znaleźliśmy od</small> <strong>{o.price} zł</strong> / os.</div>
+            <div className="price-status detail-price-status">
+              {`Sprawdź aktualną cenę u partnera${checkedAt ? ` — ostatni odczyt ${checkedAt}` : ""}. Może być dziś jeszcze taniej.`}
+            </div>
           </div>
           <p className="detail-lead">{o.reason}</p>
           <div className="detail-meta">
-            <span><Plane/> {o.departure}</span><span><Moon/> {o.nights} nocy</span>
-            <span><Sun/> {o.weather}</span>
-            <span><Utensils/> {o.board}</span><span><MapPin/> {o.hotel}</span>
-            <span>📅 {o.dates}</span>
+            <span><Plane/> <b>{o.departure}</b></span><span><Moon/> <b>{o.nights} nocy</b></span>
+            <span><Sun/> <b>{o.weather}</b></span><span><Utensils/> <b>{o.board}</b></span>
+            <span><MapPin/> <b>{o.hotel}</b></span><span>📅 <b>{o.dates}</b></span>
           </div>
-          <div className="detail-source">Źródło ceny: <strong>{p.name}</strong></div>
+          <div className="detail-source">Oferta sprawdzana u: <strong>{p.name}</strong></div>
+          {o.availabilityStatus === "expired" ? (
+            <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
+          ) : (
+            <div className="detail-action-box">
+              <a className="primary-cta" href={`/go/${o.id}?source=offer_detail_primary`} target="_blank" rel="sponsored noopener noreferrer">
+                {`Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
+              </a>
+              <small className="affiliate-note">Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu.</small>
+            </div>
+          )}
           <SocialShare
             url={`https://tripownia.pl/oferta/${o.id}`}
             title={`${o.city} — okazja Tripownia.pl`}
             text={`${o.city} z ${o.departure} — ${o.nights} nocy. Tripownia ostatnio znalazła od ${o.price} zł/os. — sprawdź, czy teraz jest jeszcze taniej.`}
           />
-          <div className="booking-summary" aria-label="Podsumowanie oferty">
-            <div><small>Kierunek</small><strong>{o.city}, {o.country}</strong></div>
-            <div><small>Termin</small><strong>{o.dates}</strong></div>
-            <div><small>Długość</small><strong>{o.nights} nocy</strong></div>
-            <div><small>Wyżywienie</small><strong>{o.board}</strong></div>
-          </div>
-          {o.availabilityStatus === "expired" ? (
-            <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
-          ) : (
-            <>
-              <a className="primary-cta" href={`/go/${o.id}?source=offer_detail_primary`} target="_blank" rel="sponsored noopener noreferrer">
-                {`Sprawdź cenę teraz u ${p.name}`} <ExternalLink size={18}/>
-              </a>
-              <small className="affiliate-note">
-                Cena na Tripowni jest ceną z ostatniego znalezienia. Partner pokazuje aktualną dostępność i cenę — czasem jeszcze niższą.
-              </small>
-            </>
-          )}
         </div>
       </section>
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
