@@ -1,0 +1,14 @@
+import type { Metadata } from "next";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
+import { partners, buildEskyFlightsUrl } from "@/lib/partners";
+export const metadata:Metadata={title:"Sylwester 2026/2027 — pomysły i konkretne wyjazdy | Tripownia.pl",description:"Sylwester w Rzymie, Budapeszcie, Lizbonie i Dubaju: konkretne terminy, loty, noclegi i atrakcje.",alternates:{canonical:"/sylwester"}};
+const ideas=[
+ {city:"Rzym",flag:"🇮🇹",airport:"ROM",dates:["2026-12-29","2027-01-02"],image:"/images/destinations/rzym.jpg",why:"Plac, kolacja, nocny spacer i 3 pełne dni na zwiedzanie.",see:"Koloseum · Forum Romanum · Watykan · Trastevere · punkty widokowe"},
+ {city:"Budapeszt",flag:"🇭🇺",airport:"BUD",dates:["2026-12-30","2027-01-03"],image:"/images/destinations/budapeszt.jpg",why:"Termy w dzień, Dunaj nocą i świetny city break bez długiego lotu.",see:"Parlament · Baszta Rybacka · termy Széchenyi · rejs po Dunaju · Bazylika"},
+ {city:"Lizbona",flag:"🇵🇹",airport:"LIS",dates:["2026-12-29","2027-01-03"],image:"/images/destinations/lizbona.jpg",why:"Łagodniejsza pogoda, punkty widokowe i ocean na początek roku.",see:"Alfama · Belém · Praça do Comércio · Miradouros · Sintra"},
+ {city:"Dubaj",flag:"🇦🇪",airport:"DXB",dates:["2026-12-28","2027-01-03"],image:"/images/destinations/dubaj.jpg",why:"Ciepło, spektakularna noc sylwestrowa i kilka dni plaży.",see:"Burj Khalifa · Marina · pustynia · Dubai Creek · plaża"},
+];
+function esky(i:any){return buildEskyFlightsUrl(`https://www2.esky.pl/flights/search/mp/WAWA/ap/${i.airport}?departureDate=${i.dates[0]}&returnDate=${i.dates[1]}&pa=2&py=0&pc=0&pi=0&sc=economy&flexDatesOffset=2`)}
+function gyg(city:string){return partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(city+' New Year')}`)}
+export default function Page(){return <main><SiteHeader/><section className="seasonal-hero shell"><div className="kicker">SYLWESTER 2026/2027</div><h1>Nie pytamy „gdzie na Sylwestra?”. Dajemy gotowe warianty.</h1><p>Terminy są ustawione wokół 31 grudnia, ale przy eSky możesz od razu przesunąć daty i sprawdzić tańszy wariant.</p></section><section className="section shell"><div className="seasonal-grid">{ideas.map(i=><article className="seasonal-card" key={i.city}><img src={i.image} alt={`${i.city} na Sylwestra`} /><div className="seasonal-card-body"><div className="kicker">{i.flag} SYLWESTER</div><h2>{i.city}</h2><div className="seasonal-meta"><span>📅 {i.dates[0]} → {i.dates[1]}</span><span>✈️ Warszawa</span></div><p>{i.why}</p><p><b>Co zobaczyć:</b> {i.see}</p><div className="seasonal-actions"><a href={esky(i)} target="_blank" rel="sponsored noopener noreferrer">✈️ Sprawdź loty</a><a href={gyg(i.city)} target="_blank" rel="sponsored noopener noreferrer">🎟️ Co robić / bilety</a></div></div></article>)}</div></section><SiteFooter/></main>}
