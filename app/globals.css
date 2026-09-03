@@ -114,3 +114,73 @@ header.tripownia-header,
   justify-content: flex-end;
   min-width: 220px;
 }
+/* ===== SEARCH BUTTON / SEARCH LINK FIX ===== */
+.search-trigger,
+.header-search-btn,
+.trip-search-btn,
+a[href*="szukaj"],
+button[aria-label*="szukaj"],
+button[aria-label*="Szukaj"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 16px;
+  border: 1px solid #eadfd6;
+  background: #fffaf6;
+  color: #1f1a17 !important;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(40, 24, 8, 0.04);
+}
+
+.search-trigger:hover,
+.header-search-btn:hover,
+.trip-search-btn:hover {
+  background: #fff;
+  border-color: #dbc7b8;
+}
+
+.search-trigger span,
+.header-search-btn span,
+.trip-search-btn span,
+.search-trigger *:not(svg),
+.header-search-btn *:not(svg),
+.trip-search-btn *:not(svg) {
+  color: #1f1a17 !important;
+  opacity: 1 !important;
+}
+
+.search-trigger svg,
+.header-search-btn svg,
+.trip-search-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: #1f1a17 !important;
+  fill: none !important;
+  color: #1f1a17 !important;
+  opacity: 1 !important;
+}
+
+/* jeśli to jest input */
+.search-trigger input,
+.header-search-btn input,
+.trip-search-btn input {
+  color: #1f1a17 !important;
+}
+
+.search-trigger input::placeholder,
+.header-search-btn input::placeholder,
+.trip-search-btn input::placeholder {
+  color: #8a786b !important;
+  opacity: 1;
+}
+@media (min-width: 1200px) {
+  .trip-header-top,
+  .header-main-row {
+    grid-template-columns: 180px 1fr 220px;
+    display: grid;
+    align-items: center;
+  }
+}
