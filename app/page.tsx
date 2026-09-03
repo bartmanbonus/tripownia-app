@@ -3,11 +3,11 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { offers, isOfferExpired } from "@/lib/offers";
+import { offers, isOfferExpired, getDailyOffers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 
 
@@ -178,29 +178,50 @@ function OfferRail({ kicker, title, description, items }: { kicker: string; titl
 }
 
 export default function Home() {
-  const todaysOffers = useMemo(() => {
-    const key = publicationKey();
-    const daily = seededShuffle(offers.filter(o => !isOfferExpired(o)), `tripownia:${key}`);
-    const active = daily.map(offerForDisplay);
-    const buckets = [
-      (o: (typeof offers)[number]) => /japon|tajland|bali|wietnam|zanzibar|kenia|tanzan|malediw|mauritius|meksyk|usa|nowy jork|dubaj|emirat/i.test(`${o.city} ${o.country}`),
-      (o: (typeof offers)[number]) => /all|wakac|plaż|resort|morze/i.test(`${o.board} ${(o.category || []).join(" ")}`),
-      (o: (typeof offers)[number]) => /city|weekend|krót/i.test((o.category || []).join(" ")),
-      (o: (typeof offers)[number]) => /sport|mecz|event|przeży|safari|zorza|sakura/i.test(`${o.reason || ""} ${(o.category || []).join(" ")}`),
-    ];
-    const picked: typeof active = [];
-    for (const match of buckets) {
-      const hit = active.find(o => !picked.some(p => p.id === o.id) && match(o));
-      if (hit) picked.push(hit);
-    }
-    for (const offer of active) {
-      if (picked.length >= 12) break;
-      if (!picked.some(p => p.id === offer.id)) picked.push(offer);
-    }
-    return picked.slice(0, 12);
+  // V100: selekcja dzienna naprawdę przełącza się o 12:00 czasu polskiego.
+  // Nie zależy od deploymentu ani od ponownego otwarcia karty.
+  const [dailyKey, setDailyKey] = useState(() => publicationKey());
+
+  useEffect(() => {
+    const checkPublicationWindow = () => {
+      const nextKey = publicationKey();
+      setDailyKey(current => current === nextKey ? current : nextKey);
+    };
+    checkPublicationWindow();
+    const timer = window.setInterval(checkPublicationWindow, 30_000);
+    return () => window.clearInterval(timer);
   }, []);
+
+  const todaysOffers = useMemo(() =>
+    getDailyOffers(offers, 12, new Date()).map(offerForDisplay),
+    [dailyKey]
+  );
+
+  const previousOffers = useMemo(() =>
+    getDailyOffers(offers, 12, new Date(Date.now() - 86_400_000)),
+    [dailyKey]
+  );
+
+  const newOffersCount = useMemo(() => {
+    const previousIds = new Set(previousOffers.map(offer => offer.id));
+    return todaysOffers.filter(offer => !previousIds.has(offer.id)).length;
+  }, [todaysOffers, previousOffers]);
+
+  const refreshStatus = useMemo(() => {
+    const now = new Date();
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23",
+    }).formatToParts(now).reduce<Record<string,string>>((acc, part) => { acc[part.type] = part.value; return acc; }, {});
+    const afterNoon = Number(parts.hour) >= 12;
+    const [year, month, day] = dailyKey.split("-");
+    return {
+      last: `${day}.${month}.${year}, 12:00`,
+      next: afterNoon ? "jutro o 12:00" : "dzisiaj o 12:00",
+    };
+  }, [dailyKey]);
+
   const themedRails = useMemo(() => {
-    const key = publicationKey();
+    const key = dailyKey;
     const active: TripOffer[] = seededShuffle<TripOffer>(offers.filter(o => !isOfferExpired(o)).map(offerForDisplay), `tripownia-rails:${key}`);
     const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => active.filter(match).slice(0, limit);
     const fillRail = (primary: typeof active, minimum = 5) => {
@@ -216,7 +237,7 @@ export default function Home() {
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
     const unusual = fillRail(pick(o => unusualNames.test(o.city)), 5);
     return { city, sun, unusual };
-  }, []);
+  }, [dailyKey]);
   const offersRailRef = useRef<HTMLDivElement>(null);
   const [budget, setBudget] = useState(2500);
   const SURPRISES = [
@@ -266,8 +287,8 @@ export default function Home() {
             <h2>Co warto kliknąć teraz?</h2>
             <p>Nie przypadkowe kierunki — trzy propozycje wyciągnięte z dzisiejszej selekcji.</p>
             <div className="hero-daily-stats">
-              <div className="hero-daily-stat"><strong>{todaysOffers.length}</strong><span>nowych okazji dzisiaj</span></div>
-              <div className="hero-daily-stat"><Clock3 size={17}/><div><strong>Kolejna aktualizacja</strong><span>jutro o 12:00 czasu polskiego</span></div></div>
+              <div className="hero-daily-stat"><strong>{newOffersCount}</strong><span>faktycznie nowych okazji w tej puli</span></div>
+              <div className="hero-daily-stat"><Clock3 size={17}/><div><strong>Ostatnia aktualizacja: {refreshStatus.last}</strong><span>Kolejna: {refreshStatus.next} czasu polskiego</span></div></div>
             </div>
             <div className="hero-radar-list">
               {todaysOffers.slice(0,3).map((offer, index) => (
@@ -313,7 +334,7 @@ export default function Home() {
         <div className="streaming-rail editorial-streaming-rail">
           <Link href="/dalekie-podroze" className="streaming-tile"><small>🌏 DALEJ</small><strong>Europa to dziś za mało</strong><span>Wietnam, Japonia, Bali, Nowy Jork i kierunki na większą podróż.</span></Link>
           <Link href="/podroze-po-przezycia" className="streaming-tile"><small>✨ PO PRZEŻYCIA</small><strong>Nie jedź tylko „gdzieś”</strong><span>Zorza, sakura, safari, fiordy, jarmarki i podróże pod właściwy moment.</span></Link>
-          <Link href="/wydarzenia" className="streaming-tile"><small>⚽ SPORT</small><strong>Lecimy na mecz?</strong><span>Barcelona, Inter i inne wydarzenia jako najlepszy pretekst do wyjazdu.</span></Link>
+          <Link href="/wydarzenia" className="streaming-tile"><small>⚽ PIŁKA NOŻNA</small><strong>Wyjazdy na mecze piłkarskie</strong><span>Barcelona, Inter i inne wydarzenia jako najlepszy pretekst do wyjazdu.</span></Link>
           <Link href="/egzotyka-zima" className="streaming-tile"><small>🌴 UCIECZKA OD ZIMY</small><strong>30°C zamiast skrobania szyb</strong><span>Tropiki dobrane do sezonu, nie tylko do najniższej ceny.</span></Link>
         </div>
       </section>
@@ -418,7 +439,7 @@ export default function Home() {
         <div className="hub-grid">
           <Link href="/kierunki"><strong>🌍 Kierunki</strong><span>Malta, Grecja, Włochy, Hiszpania i dziesiątki inspiracji.</span></Link>
           <Link href="/city-break"><strong>🏙 City break</strong><span>Krótkie wyjazdy, gotowe pomysły i aktualne okazje.</span></Link>
-          <Link href="/wakacje"><strong>🏖 Wakacje</strong><span>Pełna oferta TUI, Wakacje.pl, EXIM i eSky.</span></Link><Link href="/last-minute-oferty"><strong>⚡ Last minute</strong><span>Szybkie wyjazdy i pełne bazy partnerów.</span></Link>
+          <Link href="/wakacje"><strong>🏖 Wakacje</strong><span>Pełna oferta EXIM, Wakacje.pl, eSky, Kiwi i Booking.</span></Link><Link href="/last-minute"><strong>⚡ Last minute</strong><span>Szybkie wyjazdy i pełne bazy partnerów.</span></Link>
           <Link href="/podroze-po-przezycia"><strong>✨ Przeżycia</strong><span>Zjawiska, sezonowość i podróże planowane pod właściwy moment.</span></Link>
           <Link href="/dalekie-podroze"><strong>🌏 Dalekie podróże</strong><span>Wietnam, Pekin, Nowy Jork, Japonia, Tajlandia i dalsze wyprawy.</span></Link>
           <Link href="/magazyn-podrozniczy"><strong>📰 Magazyn podróżniczy</strong><span>Formalności, lotniska, bagaż i praktyczne wskazówki.</span></Link>
