@@ -75,7 +75,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       <div className="offer-detail-top"><Link href="/okazje"><ArrowLeft size={17}/> Wróć do okazji</Link></div>
       <section className="detail-hero">
         <div className="detail-image">
-          <TravelImage city={o.city} country={o.country} alt={`${o.city}, ${o.country}`} className="detail-photo-img"/>
+          <TravelImage city={o.city} country={o.country} alt={`${o.city}, ${o.country}`} className="detail-photo-img" overrideSrc={o.image}/>
           <span className={`badge ${o.tag==='BIERZEMY'?'hot':''}`}>{o.tag}</span>
         </div>
         <div className="detail-copy">
@@ -102,7 +102,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
           ) : (
             <div className="detail-action-box">
-              <a className="primary-cta" href={`/go/${o.id}?source=offer_detail_primary`} target="_blank" rel="sponsored noopener noreferrer">
+              <a className="primary-cta" href={o.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
                 {`Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
               </a>
               <small className="affiliate-note">Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu.</small>
@@ -118,7 +118,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
       {o.availabilityStatus !== "expired" && <div className="mobile-booking-bar">
         <div><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></div>
-        <a href={`/go/${o.id}?source=offer_detail_mobile`} target="_blank" rel="sponsored noopener noreferrer">
+        <a href={o.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
           Sprawdź, czy jest taniej <ExternalLink size={16}/>
         </a>
       </div>}
