@@ -3,7 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
-import { partners } from "@/lib/partners";
+import { partners, buildEskyFlightsUrl } from "@/lib/partners";
 
 export const revalidate = 86400;
 
@@ -49,6 +49,37 @@ const trips: LongTrip[] = [
   { id:"malediwy", flag:"🇲🇻", region:"OCEAN INDYJSKI", title:"Malediwy", airport:"MLE", bookingCity:"Malé", duration:8, best:"styczeń – kwiecień", ideal:"7–10 dni", lead:"Tu mniej znaczy więcej: dobra wyspa, transfer i warunki pogodowe są ważniejsze niż długa lista atrakcji.", highlights:"laguny · snorkeling · resort / lokalna wyspa · nurkowanie", attractionQuery:"Malediwy" },
 ];
 
+
+const cheapestWindows: Record<string,{departure:string;ret:string;label:string}> = {
+  wietnam:{departure:"2026-11-17",ret:"2026-11-29",label:"17–29 listopada 2026"},
+  pekin:{departure:"2026-10-20",ret:"2026-10-27",label:"20–27 października 2026"},
+  "nowy-jork":{departure:"2026-11-10",ret:"2026-11-17",label:"10–17 listopada 2026"},
+  japonia:{departure:"2026-11-12",ret:"2026-11-24",label:"12–24 listopada 2026"},
+  tajlandia:{departure:"2026-11-24",ret:"2026-12-06",label:"24 listopada – 6 grudnia 2026"},
+  bali:{departure:"2027-05-11",ret:"2027-05-23",label:"11–23 maja 2027"},
+  singapur:{departure:"2027-02-09",ret:"2027-02-14",label:"9–14 lutego 2027"},
+  seul:{departure:"2027-05-04",ret:"2027-05-12",label:"4–12 maja 2027"},
+  kapsztad:{departure:"2026-11-10",ret:"2026-11-20",label:"10–20 listopada 2026"},
+  sydney:{departure:"2027-03-02",ret:"2027-03-14",label:"2–14 marca 2027"},
+  meksyk:{departure:"2027-02-16",ret:"2027-02-28",label:"16–28 lutego 2027"},
+  malediwy:{departure:"2027-01-19",ret:"2027-01-27",label:"19–27 stycznia 2027"}
+};
+
+const cheapestTips: Record<string,string> = {
+  wietnam:"Najpierw sprawdzamy drugą połowę listopada i marzec; wyloty wt–czw często są lepsze niż weekend.",
+  pekin:"Najpierw sprawdzamy drugą połowę marca i październik po Golden Week — zwykle lepszy kompromis ceny i pogody.",
+  "nowy-jork":"Najpierw patrzymy na koniec kwietnia, początek maja oraz listopad przed Świętem Dziękczynienia.",
+  japonia:"Jeśli sakura nie jest obowiązkowa, polujemy na drugą połowę maja albo listopad po szczycie sezonu.",
+  tajlandia:"Najpierw sprawdzamy koniec listopada i początek grudnia przed świątecznym skokiem cen.",
+  bali:"Najpierw sprawdzamy maj, czerwiec i drugą połowę września — poza wakacyjnym szczytem.",
+  singapur:"Najczęściej testujemy terminy wt–czw i łączymy Singapur ze stopoverem, żeby obniżyć koszt całej trasy.",
+  seul:"Najpierw porównujemy końcówkę kwietnia, maj i drugą połowę października.",
+  kapsztad:"Najpierw sprawdzamy listopad i marzec, omijając świąteczno-noworoczny szczyt.",
+  sydney:"Najpierw testujemy listopad i marzec; okres świąteczny potrafi być wyraźnie droższy.",
+  meksyk:"Najpierw porównujemy końcówkę listopada i luty–marzec poza feriami i świętami.",
+  malediwy:"Najpierw sprawdzamy drugą połowę stycznia i marzec; weekendowe wyloty nie zawsze wygrywają ceną."
+};
+
 function iso(date: Date) {
   return date.toISOString().slice(0, 10);
 }
@@ -61,17 +92,17 @@ function travelDates(stay: number) {
   return { departure: iso(departure), ret: iso(ret) };
 }
 
-function eskyUrl(airport: string, stay: number) {
-  const { departure, ret } = travelDates(stay);
-  return `https://www2.esky.pl/flights/search/mp/WAWA/ap/${airport}?departureDate=${departure}&returnDate=${ret}&pa=2&py=0&pc=0&pi=0&sc=economy&partner_id=TRIPOWNIAPL&flexDatesOffset=0`;
+function eskyUrl(airport: string, stay: number, window?: {departure:string;ret:string}) {
+  const dates = window || travelDates(stay);
+  return buildEskyFlightsUrl(`https://www2.esky.pl/flights/search/mp/WAWA/ap/${airport}?departureDate=${dates.departure}&returnDate=${dates.ret}&pa=2&py=0&pc=0&pi=0&sc=economy&flexDatesOffset=3`);
 }
 
-function bookingUrl(city: string, stay: number) {
-  const { departure, ret } = travelDates(stay);
+function bookingUrl(city: string, stay: number, window?: {departure:string;ret:string}) {
+  const dates = window || travelDates(stay);
   const params = new URLSearchParams({
     ss: city,
-    checkin: departure,
-    checkout: ret,
+    checkin: dates.departure,
+    checkout: dates.ret,
     group_adults: "2",
     no_rooms: "1",
     group_children: "0",
@@ -134,9 +165,11 @@ export default function LongHaulPage() {
                 <div><small>ILE DNI</small><strong>{trip.ideal}</strong></div>
               </div>
               <p className="long-haul-highlights"><b>Co łączyć:</b> {trip.highlights}</p>
+              <div className="long-haul-cheap-tip"><b>💸 Najpierw sprawdzamy najtańsze okno:</b> {cheapestTips[trip.id]}<br/><strong>Proponowany termin do porównania: {cheapestWindows[trip.id].label}</strong><small> To jest punkt startowy — w eSky możesz przesunąć daty i wybrać dowolny inny termin.</small></div>
               <div className="long-haul-actions">
-                <a href={eskyUrl(trip.airport, trip.duration)} target="_blank" rel="nofollow sponsored noopener noreferrer">✈️ Loty z Warszawy</a>
-                <a href={bookingUrl(trip.bookingCity, trip.duration)} target="_blank" rel="nofollow sponsored noopener noreferrer">🏨 Noclegi</a>
+                <a href={eskyUrl(trip.airport, trip.duration, cheapestWindows[trip.id])} target="_blank" rel="nofollow sponsored noopener noreferrer">💸 Sprawdź sugerowany termin</a>
+                <a href={eskyUrl(trip.airport, trip.duration)} target="_blank" rel="nofollow sponsored noopener noreferrer">🗓️ Inny termin / loty</a>
+                <a href={bookingUrl(trip.bookingCity, trip.duration, cheapestWindows[trip.id])} target="_blank" rel="nofollow sponsored noopener noreferrer">🏨 Noclegi w tym terminie</a>
                 <a href={attractionsUrl(trip.attractionQuery)} target="_blank" rel="nofollow sponsored noopener noreferrer">🎟️ Atrakcje: {trip.attractionQuery}</a>
               </div>
             </article>
