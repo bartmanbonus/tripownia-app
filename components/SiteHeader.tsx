@@ -37,12 +37,10 @@ export default function SiteHeader() {
             <Link href="/dalekie-podroze">Dalekie</Link>
             <Link href="/podroze">Pomysły</Link>
             <Link href="/parkingi">Parkingi</Link>
-            <Link href="/magazyn-podrozniczy">Poradniki</Link>
             <Link href="/ulubione">♡ Ulubione</Link>
+            <Link className="nav-search-inline" href="/#wyszukiwarka">🔎 Szukaj wyjazdu</Link>
           </nav>
         </div>
-
-        <Link className="nav-cta nav-search-link" href="/#wyszukiwarka">Szukaj wyjazdu</Link>
       </div>
     </header>
   </>;
