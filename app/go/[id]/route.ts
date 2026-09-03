@@ -22,12 +22,44 @@ export async function GET(
     return NextResponse.redirect(new URL("/okazje", request.url), 307);
   }
 
-  const offer = offers.find(item => item.id === offerId);
+  const offer = offers.find((item) => item.id === offerId);
 
   if (!offer || offer.availabilityStatus === "expired") {
     return NextResponse.redirect(new URL(`/oferta/${offerId}`, request.url), 307);
   }
 
+  /*
+   * EXIM:
+   * Nie wysyłamy użytkownika na ogólną stronę kierunku.
+   * Korzystamy z istniejącego endpointu Tripowni, który wybiera najlepszą/
+   * najtańszą konkretną ofertę w obrębie wskazanego kierunku i lotniska.
+   */
+  if (offer.partner === "exim" && offer.destinationUrl) {
+    try {
+      const eximPath = new URL(offer.destinationUrl).pathname;
+      const qs = new URLSearchParams({
+        path: eximPath,
+        from: offer.airportCode || "WAW",
+      });
+
+      const source = request.nextUrl.searchParams.get("source") || "offer_card";
+      qs.set("source", source);
+
+      return NextResponse.redirect(
+        new URL(`/go/exim-best?${qs.toString()}`, request.url),
+        307
+      );
+    } catch {
+      // fallback do zwykłego affiliateUrl poniżej
+    }
+  }
+
+  /*
+   * eSky / Kiwi / Wakacje / inni:
+   * offer.affiliateUrl ma zachować parametry oferty i tracking.
+   * eSky ma sortowanie ceny rosnąco ustawione w partners.ts.
+   * Kiwi przekazuje custom_url do Travelpayouts, więc nie wolno go tu przepisywać.
+   */
   const target = safeExternalUrl(offer.affiliateUrl);
 
   if (!target) {
@@ -35,16 +67,20 @@ export async function GET(
   }
 
   const source = request.nextUrl.searchParams.get("source") || "offer_detail";
-  console.info("[tripownia_affiliate_click]", JSON.stringify({
-    event: "affiliate_click",
-    ts: new Date().toISOString(),
-    partner: offer.partner,
-    source,
-    offer: offer.id,
-    destination: `${offer.city}, ${offer.country}`,
-    targetHost: target.hostname,
-    path: request.nextUrl.pathname,
-  }));
+
+  console.info(
+    "[tripownia_affiliate_click]",
+    JSON.stringify({
+      event: "affiliate_click",
+      ts: new Date().toISOString(),
+      partner: offer.partner,
+      source,
+      offer: offer.id,
+      destination: `${offer.city}, ${offer.country}`,
+      targetHost: target.hostname,
+      path: request.nextUrl.pathname,
+    })
+  );
 
   const response = NextResponse.redirect(target, 307);
   response.headers.set("Cache-Control", "no-store");
