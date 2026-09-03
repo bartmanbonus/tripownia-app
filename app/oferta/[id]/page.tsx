@@ -40,6 +40,17 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
   const o=offers.find(x=>x.id===Number(id));
   if(!o) return notFound();
   const p=partners[o.partner];
+  // EXIM: oferty kierunkowe nie powinny kończyć na ogólnej liście.
+  // Przechodzimy przez serwer Tripowni, który wybiera najtańszą konkretną ofertę/hotel
+  // z preferencją miasta wylotu zapisanej w ofercie.
+  let detailAffiliateUrl = o.affiliateUrl;
+  if (o.partner === "exim" && o.destinationUrl) {
+    try {
+      const eximPath = new URL(o.destinationUrl).pathname;
+      const qs = new URLSearchParams({ path: eximPath, from: o.airportCode || "WAW" });
+      detailAffiliateUrl = `/go/exim-best?${qs.toString()}`;
+    } catch {}
+  }
   const linkMatch = getLinkMatch(o);
   const isExact = linkMatch === "exact";
   const isParameterized = linkMatch === "parameters";
@@ -102,10 +113,10 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
           ) : (
             <div className="detail-action-box">
-              <a className="primary-cta" href={o.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
-                {`Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
+              <a className="primary-cta" href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
+                {o.partner === "exim" ? "Zobacz najtańszą konkretną ofertę w EXIM Tours" : `Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
               </a>
-              <small className="affiliate-note">Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu.</small>
+              <small className="affiliate-note">{o.partner === "exim" ? "Tripownia wybiera z bieżącej listy EXIM konkretną ofertę z najniższą ceną, preferując Twoje miasto wylotu i zbliżony termin." : "Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu."}</small>
             </div>
           )}
           <SocialShare
@@ -118,7 +129,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
       {o.availabilityStatus !== "expired" && <div className="mobile-booking-bar">
         <div><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></div>
-        <a href={o.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
+        <a href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
           Sprawdź, czy jest taniej <ExternalLink size={16}/>
         </a>
       </div>}
