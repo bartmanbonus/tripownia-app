@@ -3,7 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
-import PartnerMarketplace from "@/components/PartnerMarketplace";
+import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
 import { offers, isOfferExpired } from "@/lib/offers";
 
 export const metadata: Metadata = {
@@ -18,13 +18,13 @@ export default function CityBreakPage() {
     <section className="shopping-hero shell">
       <div className="kicker">CITY BREAK — WYBIERASZ SAM</div>
       <h1>Krótki wyjazd bez ograniczania się do naszych rekomendacji.</h1>
-      <p>Najpierw pokazujemy wybrane okazje, a niżej oddajemy Ci pełne wyszukiwarki partnerów. Możesz kupić dokładnie taki city break, jaki chcesz.</p>
+      <p>Najpierw pokazujemy wybrane okazje, a niżej masz jedną wyszukiwarkę Tripowni. Wpisujesz parametry raz, a Tripownia dobiera właściwe źródło i przekazuje dane do partnera.</p>
       <Link className="editorial-link" href="/magazyn-podrozniczy/city-break-2026">📚 Poradnik: jak szukać city breaków →</Link>
     </section>
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">OKAZJE TRIPOWNI</div><h2>Na początek kilka naszych typów</h2></div></div>
       <div className="city-shopping-row">{cityOffers.map(o => <OfferCard key={o.id} offer={o}/>)}</div>
-      <PartnerMarketplace mode="city" />
+      <div className="single-partner-search-wrap"><UnifiedPartnerSearch mode="city" /></div>
     </section>
     <SiteFooter/>
   </main>;
