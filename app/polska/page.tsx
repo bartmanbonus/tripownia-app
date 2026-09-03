@@ -26,16 +26,16 @@ type PolishPlace = {
 };
 
 const places: PolishPlace[] = [
-  { name: "Gdańsk", image: "/images/destinations/gdansk.jpg", type: "Morze + city break", lead: "Stare Miasto, Motława i szybki wypad nad Bałtyk.", bestFor: ["weekend", "morze", "zwiedzanie"] },
-  { name: "Sopot", image: "/images/destinations/sopot.jpg", type: "Nad morzem", lead: "Plaża, molo i krótki reset bez planowania całych wakacji.", bestFor: ["plaża", "weekend", "we dwoje"] },
-  { name: "Kołobrzeg", image: "/images/destinations/kolobrzeg.jpg", type: "Nad morzem", lead: "Dłuższy odpoczynek nad Bałtykiem, spa i spacery po plaży.", bestFor: ["morze", "spa", "rodzinny"] },
-  { name: "Kraków", image: "/images/destinations/krakow.jpg", type: "City break", lead: "Rynek, Kazimierz i jeden z najmocniejszych kierunków na weekend.", bestFor: ["city break", "jedzenie", "kultura"] },
-  { name: "Wrocław", image: "/images/destinations/wroclaw.jpg", type: "City break", lead: "Rynek, Ostrów Tumski i dużo atrakcji na 2–3 dni.", bestFor: ["weekend", "rodzinny", "zwiedzanie"] },
-  { name: "Poznań", image: "/images/destinations/poznan.jpg", type: "City break", lead: "Krótki miejski wyjazd, Stary Rynek i dobra gastronomia.", bestFor: ["weekend", "jedzenie", "city break"] },
-  { name: "Toruń", image: "/images/destinations/torun.jpg", type: "Na weekend", lead: "Kompaktowe stare miasto i bardzo wygodny kierunek na 1–2 noce.", bestFor: ["weekend", "rodzinny", "spokojnie"] },
-  { name: "Lublin", image: "/images/destinations/lublin.jpg", type: "Mniej oczywisty city break", lead: "Stare Miasto, klimat i dobry kierunek na spokojniejszy weekend.", bestFor: ["city break", "tanio", "mniej oczywiste"] },
-  { name: "Łódź", image: "/images/destinations/lodz.jpg", type: "Miejski weekend", lead: "Piotrkowska, OFF Piotrkowska i industrialny klimat.", bestFor: ["kultura", "jedzenie", "weekend"] },
-  { name: "Zakopane", image: "/images/destinations/zakopane.jpg", type: "Góry", lead: "Tatry, trekking albo weekend z widokiem na góry.", bestFor: ["góry", "aktywnie", "weekend"] },
+  { name: "Gdańsk", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Gda%C5%84sk%20Old%20Town%20%287889245814%29.jpg?width=1200", type: "Morze + city break", lead: "Stare Miasto, Motława i szybki wypad nad Bałtyk.", bestFor: ["weekend", "morze", "zwiedzanie"] },
+  { name: "Sopot", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Sopot%20Molo.jpg?width=1200", type: "Nad morzem", lead: "Plaża, molo i krótki reset bez planowania całych wakacji.", bestFor: ["plaża", "weekend", "we dwoje"] },
+  { name: "Kołobrzeg", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Kolobrzeg%20plaza%20molo%202026.jpg?width=1200", type: "Nad morzem", lead: "Dłuższy odpoczynek nad Bałtykiem, spa i spacery po plaży.", bestFor: ["morze", "spa", "rodzinny"] },
+  { name: "Kraków", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Sukiennice%20and%20Main%20Market%20Square%20Krakow%20Poland.JPG?width=1200", type: "City break", lead: "Rynek, Kazimierz i jeden z najmocniejszych kierunków na weekend.", bestFor: ["city break", "jedzenie", "kultura"] },
+  { name: "Wrocław", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Rynek%20Wroclaw.jpg?width=1200", type: "City break", lead: "Rynek, Ostrów Tumski i dużo atrakcji na 2–3 dni.", bestFor: ["weekend", "rodzinny", "zwiedzanie"] },
+  { name: "Poznań", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Pozna%C5%84-Old%20Market%20Square.jpg?width=1200", type: "City break", lead: "Krótki miejski wyjazd, Stary Rynek i dobra gastronomia.", bestFor: ["weekend", "jedzenie", "city break"] },
+  { name: "Toruń", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Torun%2C%20view%20of%20the%20old%20town.jpg?width=1200", type: "Na weekend", lead: "Kompaktowe stare miasto i bardzo wygodny kierunek na 1–2 noce.", bestFor: ["weekend", "rodzinny", "spokojnie"] },
+  { name: "Lublin", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Old%20Town%20of%20Lublin.jpg?width=1200", type: "Mniej oczywisty city break", lead: "Stare Miasto, klimat i dobry kierunek na spokojniejszy weekend.", bestFor: ["city break", "tanio", "mniej oczywiste"] },
+  { name: "Łódź", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Piotrkowska%20Street%20in%20%C5%81%C3%B3d%C5%BA%2001.jpg?width=1200", type: "Miejski weekend", lead: "Piotrkowska, OFF Piotrkowska i industrialny klimat.", bestFor: ["kultura", "jedzenie", "weekend"] },
+  { name: "Zakopane", image: "https://commons.wikimedia.org/wiki/Special:FilePath/Zakopane%2C%20Kasprowy%20Wierch%2C%20Tatry%20Zachodnie%201987%20m%20n.p.m.%20-%20panoramio.jpg?width=1200", type: "Góry", lead: "Tatry, trekking albo weekend z widokiem na góry.", bestFor: ["góry", "aktywnie", "weekend"] },
 ];
 
 function bookingUrl(city: string) {
@@ -98,7 +98,7 @@ export default function PolandPage() {
           {places.map(place => (
             <article className="poland-card" key={place.name}>
               <div className="poland-card-image">
-                <img src={place.image} alt={`${place.name} — pomysł na wyjazd w Polsce`} loading="lazy" />
+                <img src={place.image} alt={`${place.name} — pomysł na wyjazd w Polsce`} loading="lazy" referrerPolicy="no-referrer" />
                 <span>{place.type}</span>
               </div>
               <div className="poland-card-body">
@@ -107,6 +107,7 @@ export default function PolandPage() {
                 <div className="poland-tags">
                   {place.bestFor.map(tag => <span key={tag}>{tag}</span>)}
                 </div>
+                <div className="poland-photo-credit">Zdjęcie: Wikimedia Commons</div>
                 <div className="poland-card-actions">
                   <a href={bookingUrl(place.name)} target="_blank" rel="sponsored noopener noreferrer">
                     🏨 Sprawdź noclegi
