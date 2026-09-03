@@ -30,12 +30,12 @@ const LOCAL_IMAGE_BY_CITY: Record<string, string> = {
   teneryfa: "/images/destinations/teneryfa.jpg",
   fuerteventura: "/images/destinations/fuerteventura.jpg",
   santorini: "/images/destinations/santorini.jpg",
-  rodos: "/images/destinations/Rodos.jpg",
-  pafos: "/images/destinations/Pafos.jpg",
-  sycylia: "/images/destinations/Sycylia.jpg",
-  "marsa alam": "/images/destinations/Marsa_Alam.jpg",
-  "sloneczny brzeg": "/images/destinations/Sloneczny_Brzeg.jpg",
-  "riwiera albanska": "/images/destinations/Riwiera_Albanska.jpg",
+  rodos: "/images/destinations/rodos.jpg",
+  pafos: "/images/destinations/pafos.jpg",
+  sycylia: "/images/destinations/sycylia.jpg",
+  "marsa alam": "/images/destinations/marsa-alam.jpg",
+  "sloneczny brzeg": "/images/destinations/sloneczny-brzeg.jpg",
+  "riwiera albanska": "/images/destinations/riwiera-albanska.jpg",
   mediolan: "/images/destinations/mediolan.jpg",
   wenecja: "/images/destinations/wenecja.jpg",
   wieden: "/images/destinations/wieden.jpg",
@@ -168,7 +168,7 @@ function OfferRail({ kicker, title, description, items }: { kicker: string; titl
       <div><div className="kicker">{kicker}</div><h3>{title}</h3><p>{description}</p></div>
       <div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div>
     </div>
-    <div className="offer-stream-rail" ref={railRef}>{items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}</div>
+    <div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>{items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}</div>
   </section>;
 }
 
