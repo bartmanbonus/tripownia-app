@@ -21,11 +21,11 @@ export default function SiteHeader() {
 
         <div className="site-nav-stack">
           <nav className="site-nav-primary" aria-label="Najważniejsze sekcje sprzedażowe">
-            <Link className="nav-sale nav-sale-main" href="/okazje">🔥 Okazje</Link>
-            <Link className="nav-sale" href="/wydarzenia" title="Wyjazdy na mecze piłkarskie">⚽ Mecze piłkarskie</Link>
-            <Link className="nav-sale" href="/podroze-po-przezycia">✨ Przeżycia</Link>
-            <Link className="nav-sale seasonal-nav-link" href="/jarmarki-bozonarodzeniowe">🎄 Jarmarki</Link>
-            <Link className="nav-sale seasonal-nav-link" href="/sylwester">🥂 Sylwester</Link>
+            <Link className="nav-sale nav-sale-main" href="/okazje"><span className="nav-ico nav-ico-hot" aria-hidden="true">●</span><span>Okazje</span></Link>
+            <Link className="nav-sale" href="/wydarzenia" title="Wyjazdy na mecze piłkarskie"><span className="nav-ico nav-ico-ball" aria-hidden="true">⚽</span><span>Mecze piłkarskie</span></Link>
+            <Link className="nav-sale" href="/podroze-po-przezycia"><span className="nav-ico nav-ico-exp" aria-hidden="true">✦</span><span>Przeżycia</span></Link>
+            <Link className="nav-sale seasonal-nav-link" href="/jarmarki-bozonarodzeniowe"><span className="nav-ico nav-ico-market" aria-hidden="true">▲</span><span>Jarmarki</span></Link>
+            <Link className="nav-sale seasonal-nav-link" href="/sylwester"><span className="nav-ico nav-ico-newyear" aria-hidden="true">✧</span><span>Sylwester</span></Link>
           </nav>
 
           <nav className="site-nav-secondary" aria-label="Pozostałe sekcje Tripowni">
@@ -38,7 +38,7 @@ export default function SiteHeader() {
             <Link href="/podroze">Pomysły</Link>
             <Link href="/parkingi">Parkingi</Link>
             <Link href="/ulubione">♡ Ulubione</Link>
-            <Link className="nav-search-inline" href="/#wyszukiwarka">🔎 Szukaj wyjazdu</Link>
+            <Link className="nav-search-inline" href="/#wyszukiwarka"><span className="nav-ico nav-ico-search" aria-hidden="true">⌕</span><span>Szukaj wyjazdu</span></Link>
           </nav>
         </div>
       </div>
