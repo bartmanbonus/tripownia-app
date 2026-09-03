@@ -1,3 +1,5 @@
+import { partners } from "@/lib/partners";
+
 export type SportsDeparture = {
   code: string;
   label: string;
@@ -283,24 +285,37 @@ export function buildSportsTripLinks(
       departureLabel: departure.label,
       arrivalLabel: trip.city,
       flightUrl: "#",
+      secondaryFlightUrl: "#",
       hotelUrl: "#",
       packageUrl: "#",
       ticketUrl: trip.ticketUrl,
     };
   }
 
-  // eSky: używamy prawdziwych kodów IATA (ap/...), a nie skrótów miast typu MILA/BARC.
-  // Dzięki temu formularz po wejściu ma poprawnie rozpoznane lotnisko docelowe.
-  const flightUrl = new URL(`https://www2.esky.pl/flights/search/${departure.flightPath}/${club.flightDestinationPath}`);
-  flightUrl.searchParams.set("departureDate", window.departureDate);
-  flightUrl.searchParams.set("returnDate", window.returnDate);
-  flightUrl.searchParams.set("pa", String(safePassengers));
-  flightUrl.searchParams.set("py", "0");
-  flightUrl.searchParams.set("pc", "0");
-  flightUrl.searchParams.set("pi", "0");
-  flightUrl.searchParams.set("sc", "economy");
-  flightUrl.searchParams.set("partner_id", "TRIPOWNIAPL");
-  flightUrl.searchParams.set("flexDatesOffset", "0");
+  // Sam lot: Kiwi jest głównym źródłem. Kierunek przekazujemy jako miasto,
+  // żeby wyszukiwarka mogła dobrać wszystkie lotniska w aglomeracji (np. Mediolan).
+  const kiwiDeep = new URL("https://www.kiwi.com/deep");
+  kiwiDeep.searchParams.set("from", departure.code === "WAWA" ? "Warsaw" : departure.code);
+  kiwiDeep.searchParams.set("to", club.city);
+  kiwiDeep.searchParams.set("departure", window.departureDate);
+  kiwiDeep.searchParams.set("return", window.returnDate);
+  kiwiDeep.searchParams.set("adults", String(safePassengers));
+  kiwiDeep.searchParams.set("currency", "PLN");
+  kiwiDeep.searchParams.set("locale", "pl");
+  kiwiDeep.searchParams.set("sort", "price");
+  const kiwiFlightUrl = partners.kiwi.buildUrl(kiwiDeep.toString());
+
+  // eSky zostaje jako drugie źródło samych lotów.
+  const eskyFlightUrl = new URL(`https://www2.esky.pl/flights/search/${departure.flightPath}/${club.flightDestinationPath}`);
+  eskyFlightUrl.searchParams.set("departureDate", window.departureDate);
+  eskyFlightUrl.searchParams.set("returnDate", window.returnDate);
+  eskyFlightUrl.searchParams.set("pa", String(safePassengers));
+  eskyFlightUrl.searchParams.set("py", "0");
+  eskyFlightUrl.searchParams.set("pc", "0");
+  eskyFlightUrl.searchParams.set("pi", "0");
+  eskyFlightUrl.searchParams.set("sc", "economy");
+  eskyFlightUrl.searchParams.set("partner_id", "TRIPOWNIAPL");
+  eskyFlightUrl.searchParams.set("flexDatesOffset", "0");
 
   const hotelUrl = new URL("https://www.booking.com/searchresults.pl.html");
   hotelUrl.searchParams.set("ss", club.city);
@@ -328,7 +343,8 @@ export function buildSportsTripLinks(
     ...window,
     departureLabel: departure.label,
     arrivalLabel: club.flightAirportLabel,
-    flightUrl: flightUrl.toString(),
+    flightUrl: kiwiFlightUrl,
+    secondaryFlightUrl: eskyFlightUrl.toString(),
     hotelUrl: hotelUrl.toString(),
     packageUrl: packageUrl.toString(),
     ticketUrl: trip.ticketUrl,
