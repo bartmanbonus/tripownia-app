@@ -4707,3 +4707,129 @@ body {
 .premium-action-row a{display:inline-flex!important;align-items:center!important;gap:7px!important;min-height:48px!important;padding:0 20px!important;border-radius:15px!important;text-decoration:none!important;font-weight:850!important}
 .premium-action-main{background:#ff5a1f!important;color:#fff!important}
 .premium-action-secondary{border:1px solid #e7ddd6!important;background:#fff!important;color:#181818!important}
+
+/* =========================================================
+   V115 — budget / surprise section premium layout fix
+   ========================================================= */
+@media (min-width: 981px){
+  .chapter-budget .budget-grid{
+    grid-template-columns:minmax(0,1fr) minmax(440px,520px)!important;
+    gap:64px!important;
+    align-items:center!important;
+  }
+  .chapter-budget .surprise-card{
+    width:100%!important;
+    min-width:0!important;
+    padding:34px!important;
+    border-radius:26px!important;
+    box-sizing:border-box!important;
+  }
+  .chapter-budget .surprise-card h3{
+    font-size:30px!important;
+    line-height:1.08!important;
+    margin:18px 0 7px!important;
+  }
+  .chapter-budget .surprise-card>p{
+    font-size:16px!important;
+    line-height:1.45!important;
+    margin-bottom:6px!important;
+  }
+  .chapter-budget .surprise-card>button{
+    min-height:58px!important;
+    border-radius:16px!important;
+    font-size:16px!important;
+    margin-top:16px!important;
+  }
+}
+
+.chapter-budget .surprise-result-v2{
+  margin-top:18px!important;
+  padding:20px!important;
+  border-radius:18px!important;
+  display:grid!important;
+  grid-template-columns:58px minmax(0,1fr)!important;
+  grid-auto-rows:auto!important;
+  column-gap:16px!important;
+  row-gap:5px!important;
+  align-items:start!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+.chapter-budget .surprise-result-v2 .surprise-flag{
+  grid-column:1!important;
+  grid-row:1 / span 3!important;
+  align-self:center!important;
+  font-size:34px!important;
+  line-height:1!important;
+  color:#fff!important;
+}
+.chapter-budget .surprise-result-v2>strong,
+.chapter-budget .surprise-result-v2>em,
+.chapter-budget .surprise-result-v2>span:not(.surprise-flag){
+  grid-column:2!important;
+  min-width:0!important;
+  width:auto!important;
+  overflow-wrap:normal!important;
+  word-break:normal!important;
+  white-space:normal!important;
+  writing-mode:horizontal-tb!important;
+}
+.chapter-budget .surprise-result-v2>strong{
+  font-size:20px!important;
+  line-height:1.2!important;
+  color:#fff!important;
+}
+.chapter-budget .surprise-result-v2>em{
+  font-size:13px!important;
+  line-height:1.45!important;
+  color:#c9c3be!important;
+  font-style:normal!important;
+  font-weight:650!important;
+}
+.chapter-budget .surprise-result-v2>span:not(.surprise-flag){
+  margin-top:3px!important;
+  font-size:13px!important;
+  line-height:1.45!important;
+  color:#ff8b6d!important;
+  font-weight:850!important;
+}
+.chapter-budget .surprise-result-v2>div{
+  grid-column:1 / -1!important;
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+  margin-top:14px!important;
+  width:100%!important;
+}
+.chapter-budget .surprise-result-v2>div a{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:46px!important;
+  padding:0 14px!important;
+  border-radius:13px!important;
+  text-decoration:none!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  text-align:center!important;
+  white-space:normal!important;
+  word-break:normal!important;
+}
+.chapter-budget .surprise-result-v2>div a:first-child{
+  background:#fff!important;
+  color:#171717!important;
+}
+.chapter-budget .surprise-result-v2>div a:last-child{
+  background:#ff502d!important;
+  color:#fff!important;
+}
+@media (max-width:980px){
+  .chapter-budget .budget-grid{grid-template-columns:1fr!important;gap:30px!important}
+  .chapter-budget .surprise-card{max-width:none!important;width:100%!important}
+}
+@media (max-width:560px){
+  .chapter-budget .surprise-card{padding:22px!important}
+  .chapter-budget .surprise-result-v2{grid-template-columns:44px minmax(0,1fr)!important;padding:16px!important}
+  .chapter-budget .surprise-result-v2>div{grid-template-columns:1fr!important}
+}
