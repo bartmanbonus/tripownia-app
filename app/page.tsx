@@ -67,7 +67,9 @@ function normalizeKey(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }
 
-function offerForDisplay<T extends { city: string; image?: string }>(offer: T): T {
+type TripOffer = (typeof offers)[number];
+
+function offerForDisplay(offer: TripOffer): TripOffer {
   const key = normalizeKey(offer.city);
   const mapped = LOCAL_IMAGE_BY_CITY[key];
   if (!mapped) return offer;
@@ -202,7 +204,7 @@ export default function Home() {
   }, []);
   const themedRails = useMemo(() => {
     const key = publicationKey();
-    const active = seededShuffle(offers.filter(o => !isOfferExpired(o)).map(offerForDisplay), `tripownia-rails:${key}`);
+    const active: TripOffer[] = seededShuffle<TripOffer>(offers.filter(o => !isOfferExpired(o)).map(offerForDisplay), `tripownia-rails:${key}`);
     const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => active.filter(match).slice(0, limit);
     const fillRail = (primary: typeof active, minimum = 5) => {
       const result = [...primary];
