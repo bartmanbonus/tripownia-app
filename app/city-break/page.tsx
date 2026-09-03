@@ -8,7 +8,7 @@ import { offers, isOfferExpired } from "@/lib/offers";
 
 export const metadata: Metadata = {
   title: "City break — wszystkie oferty lot + hotel | Tripownia.pl",
-  description: "City breaki do samodzielnego wyboru: okazje Tripowni oraz pełna oferta eSky, Wakacje.pl, TUI i EXIM Tours.",
+  description: "City breaki do samodzielnego wyboru: okazje Tripowni oraz pełna oferta EXIM Tours, Wakacje.pl, eSky, Kiwi, Booking.com, eSIM i GetYourGuide.",
   alternates: { canonical: "/city-break" },
 };
 
