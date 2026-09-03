@@ -4501,3 +4501,67 @@ body {
   .site-header-v98 .site-nav-secondary{gap:3px 5px!important}
   .site-header-v98 .site-nav-secondary a{font-size:10.5px!important}
 }
+
+/* V109 — spokojniejszy UX nagłówka: Kierunki przeniesione do poradników */
+@media (min-width:1181px){
+  .site-header-v98 .site-nav{
+    width:min(1680px,calc(100% - 44px))!important;
+    grid-template-columns:96px minmax(0,1fr)!important;
+    gap:20px!important;
+    min-height:104px!important;
+    padding:10px 0!important;
+  }
+  .site-header-v98 .brand-logo{width:96px!important;min-width:96px!important;justify-content:flex-start!important}
+  .site-header-v98 .brand-logo img{width:68px!important;height:68px!important}
+  .site-header-v98 .site-nav-stack{gap:7px!important}
+  .site-header-v98 .site-nav-primary{
+    display:flex!important;
+    justify-content:center!important;
+    align-items:center!important;
+    gap:9px!important;
+    width:100%!important;
+  }
+  .site-header-v98 .site-nav-primary a{
+    width:auto!important;
+    min-width:154px!important;
+    max-width:218px!important;
+    min-height:38px!important;
+    padding:8px 18px!important;
+    border-radius:14px!important;
+    font-size:12.5px!important;
+    box-shadow:none!important;
+  }
+  .site-header-v98 .site-nav-primary .nav-sale-main{box-shadow:0 6px 18px rgba(255,75,43,.14)!important}
+  .site-header-v98 .site-nav-secondary{
+    display:grid!important;
+    grid-template-columns:repeat(9,minmax(0,1fr))!important;
+    gap:5px!important;
+    width:100%!important;
+    align-items:center!important;
+  }
+  .site-header-v98 .site-nav-secondary a{
+    min-height:30px!important;
+    padding:6px 5px!important;
+    border-radius:10px!important;
+    font-size:11.3px!important;
+    justify-content:center!important;
+  }
+  .site-header-v98 .site-nav-secondary .nav-search-inline{
+    background:#171717!important;
+    color:#fff!important;
+    border-radius:12px!important;
+    font-weight:850!important;
+  }
+  .site-header-v98 .site-nav-secondary .nav-search-inline .nav-ico-search{
+    background:#fff!important;color:#171717!important;border-color:#fff!important;
+  }
+  .site-header-v98 .nav-ico{width:18px!important;height:18px!important;flex-basis:18px!important;font-size:9px!important}
+}
+@media (max-width:1500px) and (min-width:1181px){
+  .site-header-v98 .site-nav{grid-template-columns:82px minmax(0,1fr)!important;gap:12px!important;width:calc(100% - 24px)!important}
+  .site-header-v98 .brand-logo{width:82px!important;min-width:82px!important}
+  .site-header-v98 .brand-logo img{width:61px!important;height:61px!important}
+  .site-header-v98 .site-nav-primary{gap:6px!important}
+  .site-header-v98 .site-nav-primary a{min-width:132px!important;padding:7px 11px!important;font-size:11.4px!important}
+  .site-header-v98 .site-nav-secondary a{font-size:10.4px!important;padding:5px 2px!important}
+}
