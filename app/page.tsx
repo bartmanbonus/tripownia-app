@@ -256,6 +256,32 @@ export default function Home() {
   const [surprise, setSurprise] = useState<TripOffer | null>(null);
 
   const budgetCandidates = useMemo(() => {
+    const wowBonus = (offer: TripOffer) => {
+      const city = offer.city.toLowerCase();
+      const country = offer.country.toLowerCase();
+
+      // Im większy budżet, tym bardziej "Zaskocz mnie" ma premiować kierunki z efektem wow,
+      // a nie tylko te najbliższe górnej granicy ceny.
+      if (budget >= 2800) {
+        if (/dubaj|madera/.test(city) || /zea/.test(country)) return 95;
+        if (/marsa alam|teneryfa|fuerteventura|marrakesz/.test(city)) return 70;
+      }
+      if (budget >= 1900) {
+        if (/marsa alam|teneryfa|fuerteventura/.test(city)) return 90;
+        if (/marrakesz|djerba|hurghada/.test(city)) return 72;
+        if (/bodrum|antaly/.test(city)) return 45;
+        if (/riwiera albańska|alban/.test(city) || /alban/.test(country)) return 8;
+      }
+      if (budget >= 1200) {
+        if (/marrakesz|djerba|pafos|lizbona/.test(city)) return 65;
+        if (/barcelona|rzym|paryż/.test(city)) return 18;
+      }
+      if (budget < 1200) {
+        if (/malta|porto|bergamo|alicante|praga|budapeszt/.test(city)) return 55;
+      }
+      return 0;
+    };
+
     const candidates = offers
       .filter(o => !isOfferExpired(o))
       .filter(o => isTravelDestinationAllowed(o.city, o.country))
@@ -264,12 +290,12 @@ export default function Home() {
       .sort((a, b) => {
         const aFit = a.price / Math.max(1, budget);
         const bFit = b.price / Math.max(1, budget);
-        const aScore = Number(a.score || 0) * 12 + aFit * 35;
-        const bScore = Number(b.score || 0) * 12 + bFit * 35;
+        const aScore = Number(a.score || 0) * 12 + aFit * 24 + wowBonus(a);
+        const bScore = Number(b.score || 0) * 12 + bFit * 24 + wowBonus(b);
         return bScore - aScore;
       });
 
-    // Nie chcemy trzech niemal identycznych wyników z jednego kraju.
+    // Różne kraje = większe poczucie odkrywania, a nie pięć wariantów tego samego miejsca.
     const diversified: TripOffer[] = [];
     const countries = new Set<string>();
     for (const offer of candidates) {
