@@ -9,6 +9,7 @@ import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
 import { offers, isOfferExpired, getDailyOffers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
+import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
 
 
@@ -71,6 +72,18 @@ function offerForDisplay(offer: TripOffer): TripOffer {
   const mapped = LOCAL_IMAGE_BY_CITY[key];
   if (!mapped) return offer;
   return { ...offer, image: `${mapped}?v=20260902` };
+}
+
+function buildKiwiFlightSearch(city: string, country: string, adults = 2) {
+  const slug = `${normalizeKey(city)}-${normalizeKey(country)}`
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  const url = new URL("https://www.kiwi.com/pl/");
+  url.searchParams.set("origin", "warszawa-polska");
+  url.searchParams.set("destination", slug);
+  url.searchParams.set("adults", String(adults));
+  url.searchParams.set("currency", "PLN");
+  return partners.kiwi.buildUrl(url.toString());
 }
 
 function publicationKey(now = new Date()) {
@@ -193,12 +206,12 @@ export default function Home() {
   }, []);
 
   const todaysOffers = useMemo(() =>
-    getDailyOffers(offers, 12, new Date()).map(offerForDisplay),
+    getDailyOffers(offers.filter(o => isTravelDestinationAllowed(o.city, o.country)), 12, new Date()).map(offerForDisplay),
     [dailyKey]
   );
 
   const previousOffers = useMemo(() =>
-    getDailyOffers(offers, 12, new Date(Date.now() - 86_400_000)),
+    getDailyOffers(offers.filter(o => isTravelDestinationAllowed(o.city, o.country)), 12, new Date(Date.now() - 86_400_000)),
     [dailyKey]
   );
 
@@ -222,7 +235,7 @@ export default function Home() {
 
   const themedRails = useMemo(() => {
     const key = dailyKey;
-    const active: TripOffer[] = seededShuffle<TripOffer>(offers.filter(o => !isOfferExpired(o)).map(offerForDisplay), `tripownia-rails:${key}`);
+    const active: TripOffer[] = seededShuffle<TripOffer>(offers.filter(o => !isOfferExpired(o) && isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay), `tripownia-rails:${key}`);
     const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => active.filter(match).slice(0, limit);
     const fillRail = (primary: typeof active, minimum = 5) => {
       const result = [...primary];
@@ -240,17 +253,35 @@ export default function Home() {
   }, [dailyKey]);
   const offersRailRef = useRef<HTMLDivElement>(null);
   const [budget, setBudget] = useState(2500);
-  const SURPRISES = [
-    {flag:"🇯🇴",city:"Amman + Wadi Rum",price:1900,hook:"Pustynia, Petra i noc pod gwiazdami — zamiast kolejnego city breaku.",query:"Amman Jordania"},
-    {flag:"🇬🇪",city:"Tbilisi",price:1200,hook:"Wino, góry Kaukazu i kuchnia, dla której warto polecieć choćby na 4 dni.",query:"Tbilisi Gruzja"},
-    {flag:"🇲🇦",city:"Marrakesz",price:1500,hook:"Medyna, Atlas i nocleg w riadzie — bardzo dużo wrażeń za jeden weekend.",query:"Marrakesz Maroko"},
-    {flag:"🇮🇸",city:"Reykjavík",price:2400,hook:"Zorza, gorące źródła i krajobraz, który wygląda jak inna planeta.",query:"Reykjavik Islandia"},
-    {flag:"🇹🇷",city:"Kapadocja",price:1800,hook:"Balony o świcie, skalne miasta i kilka dni kompletnie poza codziennością.",query:"Kayseri Kapadocja"},
-    {flag:"🇹🇿",city:"Zanzibar",price:4200,hook:"Ocean, Stone Town i afrykański klimat — kiedy Europa to zdecydowanie za mało.",query:"Zanzibar Tanzania"},
-    {flag:"🇯🇵",city:"Tokio",price:4900,hook:"Neony, ramen o północy i totalny reset kulturowy. To już jest prawdziwe zaskoczenie.",query:"Tokio Japonia"},
-    {flag:"🇵🇹",city:"Azory",price:2300,hook:"Wulkany, wieloryby i zielone wyspy na środku Atlantyku.",query:"Ponta Delgada Azory"}
-  ];
-  const [surprise, setSurprise] = useState<(typeof SURPRISES)[number] | null>(null);
+  const [surprise, setSurprise] = useState<TripOffer | null>(null);
+
+  const budgetCandidates = useMemo(() => {
+    const candidates = offers
+      .filter(o => !isOfferExpired(o))
+      .filter(o => isTravelDestinationAllowed(o.city, o.country))
+      .filter(o => o.price <= budget)
+      .map(offerForDisplay)
+      .sort((a, b) => {
+        const aFit = a.price / Math.max(1, budget);
+        const bFit = b.price / Math.max(1, budget);
+        const aScore = Number(a.score || 0) * 12 + aFit * 35;
+        const bScore = Number(b.score || 0) * 12 + bFit * 35;
+        return bScore - aScore;
+      });
+
+    // Nie chcemy trzech niemal identycznych wyników z jednego kraju.
+    const diversified: TripOffer[] = [];
+    const countries = new Set<string>();
+    for (const offer of candidates) {
+      if (!countries.has(offer.country) || diversified.length >= 5) {
+        diversified.push(offer);
+        countries.add(offer.country);
+      }
+      if (diversified.length >= 8) break;
+    }
+    return diversified.length ? diversified : candidates.slice(0, 8);
+  }, [budget]);
+
 
 
   function moveOffersRail(direction: -1 | 1) {
@@ -262,10 +293,15 @@ export default function Home() {
   }
 
   function pickSurprise() {
-    const pool = SURPRISES.filter(o => o.price <= Math.max(budget,1500));
-    const source = pool.length ? pool : SURPRISES;
-    let next = source[Math.floor(Math.random() * source.length)];
-    if (surprise && source.length > 1 && next.city === surprise.city) next = source[(source.indexOf(next)+1)%source.length];
+    if (!budgetCandidates.length) {
+      setSurprise(null);
+      return;
+    }
+    const top = budgetCandidates.slice(0, Math.min(6, budgetCandidates.length));
+    let next = top[Math.floor(Math.random() * top.length)];
+    if (surprise && top.length > 1 && next.id === surprise.id) {
+      next = top[(top.findIndex(item => item.id === next.id) + 1) % top.length];
+    }
     setSurprise(next);
   }
 
@@ -313,7 +349,7 @@ export default function Home() {
             <h2>Dziś bralibyśmy te</h2>
             <p>Nowa, mieszana selekcja publikowana codziennie o 12:00 czasu polskiego. Karty zmieniają się raz dziennie; aktualną cenę i dostępność potwierdza partner.</p>
           </div>
-          <Link href="/okazje">Zobacz wszystkie <ArrowRight size={16}/></Link>
+          <Link className="section-premium-link" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
         <div className="daily-carousel-wrap">
           <div className="daily-carousel-controls" aria-label="Sterowanie karuzelą ofert">
@@ -323,6 +359,10 @@ export default function Home() {
           <div className="daily-carousel" ref={offersRailRef}>
             {todaysOffers.map(o => <div className="daily-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}
           </div>
+        </div>
+        <div className="premium-action-row">
+          <Link className="premium-action-main" href="#wyszukiwarka">Wyszukaj po swojemu <ArrowRight size={17}/></Link>
+          <Link className="premium-action-secondary" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={17}/></Link>
         </div>
       </section>
 
@@ -351,10 +391,23 @@ export default function Home() {
           <div className="surprise-card">
             <Sparkles size={30}/><h3>Nie wiesz gdzie?</h3><p>Daj nam budżet i daj się zaskoczyć.</p>
             <button onClick={pickSurprise}><Dice5 size={18}/> Zaskocz mnie</button>
+            {!budgetCandidates.length && (
+              <div className="surprise-result surprise-result-v2">
+                <strong>W tym budżecie nie mamy dziś zweryfikowanej okazji.</strong>
+                <em>Zwiększ budżet albo wróć do pełnej wyszukiwarki — nie podsuwamy przypadkowego kierunku tylko po to, żeby coś pokazać.</em>
+              </div>
+            )}
             {surprise && (
-              <a className="surprise-result surprise-result-v2" href={`https://www.google.com/travel/flights?hl=pl&q=${encodeURIComponent(`loty Warszawa ${surprise.query}`)}`} target="_blank" rel="nofollow noopener noreferrer">
-                <span className="surprise-flag">{surprise.flag}</span><strong>{surprise.city}</strong><em>{surprise.hook}</em><span>orientacyjnie od {surprise.price.toLocaleString("pl-PL")} zł/os. · sprawdź ten kierunek →</span>
-              </a>
+              <div className="surprise-result surprise-result-v2">
+                <span className="surprise-flag">{surprise.flag}</span>
+                <strong>{surprise.city}</strong>
+                <em>{surprise.reason}</em>
+                <span>Tripownia znalazła od {surprise.price.toLocaleString("pl-PL")} zł/os. · mieści się w budżecie {budget.toLocaleString("pl-PL")} zł.</span>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
+                  <Link href={`/oferta/${surprise.id}`} style={{fontWeight:800,textDecoration:"none"}}>Zobacz wyjazd →</Link>
+                  <a href={buildKiwiFlightSearch(surprise.city, surprise.country)} target="_blank" rel="sponsored noopener noreferrer" style={{fontWeight:800}}>✈️ Loty na Kiwi →</a>
+                </div>
+              </div>
             )}
           </div>
         </div>
