@@ -31,6 +31,37 @@ const iataByDestination: Record<string,string> = {
   "rzym":"ROM","barcelona":"BCN","bergamo":"BGY","mediolan":"MIL","paryz":"PAR","londyn":"LON","lizbona":"LIS","porto":"OPO","madryt":"MAD","malaga":"AGP","alicante":"ALC","walencja":"VLC","sewilla":"SVQ","wieden":"VIE","praga":"PRG","budapeszt":"BUD","kopenhaga":"CPH","reykjavik":"KEF","oslo":"OSL","tromso":"TOS","malta":"MLA","pafos":"PFO","ateny":"ATH","kreta":"HER","rodos":"RHO","teneryfa":"TFS","majorka":"PMI","djerba":"DJE","marsa alam":"RMF","hurghada":"HRG","kair":"CAI","marrakesz":"RAK","dubaj":"DXB","abu dhabi":"AUH","doha":"DOH","stambul":"IST","antalya":"AYT","zanzibar":"ZNZ","nairobi":"NBO","hanoi":"HAN","ho chi minh":"SGN","bangkok":"BKK","phuket":"HKT","tokio":"TYO","pekin":"BJS","seul":"SEL","singapur":"SIN","bali":"DPS","nowy jork":"NYC","miami":"MIA","los angeles":"LAX","san francisco":"SFO","cancun":"CUN","toronto":"YTO","sydney":"SYD","melbourne":"MEL","auckland":"AKL"
 };
 
+
+const kiwiOriginByAirport: Record<string,string> = {
+  WAW:"warszawa-polska", WMI:"warszawa-polska", KRK:"krakow-polska", KTW:"katowice-polska",
+  GDN:"gdansk-polska", WRO:"wroclaw-polska", POZ:"poznan-polska"
+};
+
+const kiwiSlugByDestination: Record<string,string> = {
+  "rzym":"rzym-wlochy", "barcelona":"barcelona-hiszpania", "bergamo":"bergamo-wlochy", "mediolan":"mediolan-wlochy",
+  "paryz":"paryz-francja", "londyn":"londyn-wielka-brytania", "lizbona":"lizbona-portugalia", "porto":"porto-portugalia",
+  "madryt":"madryt-hiszpania", "malaga":"malaga-hiszpania", "alicante":"alicante-hiszpania", "walencja":"walencja-hiszpania",
+  "sewilla":"sewilla-hiszpania", "wieden":"wieden-austria", "praga":"praga-czechy", "budapeszt":"budapeszt-wegry",
+  "kopenhaga":"kopenhaga-dania", "reykjavik":"reykjavik-islandia", "oslo":"oslo-norwegia", "tromso":"tromso-norwegia",
+  "malta":"malta-malta", "pafos":"pafos-cypr", "ateny":"ateny-grecja", "kreta":"kreta-grecja", "rodos":"rodos-grecja",
+  "teneryfa":"teneryfa-hiszpania", "majorka":"majorka-hiszpania", "djerba":"djerba-tunezja", "hurghada":"hurghada-egipt",
+  "kair":"kair-egipt", "marrakesz":"marrakesz-maroko", "dubaj":"dubaj-zjednoczone-emiraty-arabskie", "abu dhabi":"abu-dhabi-zjednoczone-emiraty-arabskie",
+  "stambul":"stambul-turcja", "antalya":"antalya-turcja", "zanzibar":"zanzibar-tanzania", "nairobi":"nairobi-kenia",
+  "hanoi":"hanoi-wietnam", "ho chi minh":"ho-chi-minh-wietnam", "bangkok":"bangkok-tajlandia", "phuket":"phuket-tajlandia",
+  "tokio":"tokio-japonia", "pekin":"pekin-chiny", "seul":"seul-korea-poludniowa", "singapur":"singapur-singapur",
+  "bali":"bali-indonezja", "nowy jork":"nowy-jork-nowy-jork-stany-zjednoczone", "miami":"miami-floryda-stany-zjednoczone",
+  "los angeles":"los-angeles-kalifornia-stany-zjednoczone", "san francisco":"san-francisco-kalifornia-stany-zjednoczone",
+  "sydney":"sydney-nowa-poludniowa-walia-australia", "melbourne":"melbourne-wiktoria-australia", "auckland":"auckland-nowa-zelandia"
+};
+
+function kiwiPlaceSlug(destination:string){
+  const {first,full}=destinationKey(destination);
+  if(kiwiSlugByDestination[first]) return kiwiSlugByDestination[first];
+  const pieces=full.split(",").map(x=>x.trim()).filter(Boolean);
+  const raw=pieces.join("-") || first;
+  return raw.replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+}
+
 const eximPathByDestination: Record<string,string> = {
   "djerba":"/kierunki/tunezja/djerba","tunezja":"/kierunki/tunezja","hammamet":"/kierunki/tunezja/tunezja-kontynent/hammamet","marsa alam":"/kierunki/egipt/marsa-alam","hurghada":"/kierunki/egipt/hurghada","egipt":"/kierunki/egipt","sloneczny brzeg":"/kierunki/bulgaria/sloneczny-brzeg","bulgaria":"/kierunki/bulgaria","albania":"/kierunki/albania","turcja":"/kierunki/turcja","antalya":"/kierunki/turcja/antalya","kreta":"/kierunki/grecja/kreta","rodos":"/kierunki/grecja/rodos","grecja":"/kierunki/grecja","cypr":"/kierunki/cypr","teneryfa":"/kierunki/hiszpania/wyspy-kanaryjskie/teneryfa","majorka":"/kierunki/hiszpania/baleary/majorka","hiszpania":"/kierunki/hiszpania"
 };
@@ -60,7 +91,12 @@ function buildLinks(destination:string,fromCode:string,start:string,end:string,a
   const isLast=searchType==="lastminute";
   const eximPath=firstMatch(eximPathByDestination,destination)||(isLast?"/last-minute":"/wakacje");
   const wakacjePath=firstMatch(wakacjePathByDestination,destination)||(isLast?"/last-minute/":"/");
-  const exim=partners.exim.buildUrl(`https://www.exim.pl${eximPath}`);
+  // EXIM: zamiast otwierać ogólną listę, przechodzimy przez serwer Tripowni.
+  // Route wybiera najtańszą konkretną ofertę/hotel z aktualnej strony kierunku
+  // (z preferencją wybranego miasta wylotu i najbliższego terminu) i dopiero wtedy
+  // przekierowuje przez afiliację EXIM.
+  const eximParams=new URLSearchParams({path:eximPath,from:fromCode,start,end,adults:String(adults)});
+  const exim=`/go/exim-best?${eximParams.toString()}`;
   const wakacje=partners.wakacje.buildUrl(`https://www.wakacje.pl${wakacjePath}`);
 
   const eskyBase=new URL("https://www2.esky.pl/lot+hotel/portfolio");
@@ -76,16 +112,13 @@ function buildLinks(destination:string,fromCode:string,start:string,end:string,a
   eskyBase.searchParams.set("sort[TotalPrice]","asc");
   const esky=partners.esky.buildUrl(eskyBase.toString());
 
-  const kiwiDeep=new URL("https://www.kiwi.com/deep");
-  kiwiDeep.searchParams.set("from",fromCode);
-  kiwiDeep.searchParams.set("to",iata||destination.split(",")[0]);
-  kiwiDeep.searchParams.set("departure",start);
-  kiwiDeep.searchParams.set("return",end);
+  const kiwiDeep=new URL("https://www.kiwi.com/pl/");
+  kiwiDeep.searchParams.set("origin",kiwiOriginByAirport[fromCode]||"warszawa-polska");
+  kiwiDeep.searchParams.set("destination",kiwiPlaceSlug(destination));
+  kiwiDeep.searchParams.set("outboundDate",start);
+  kiwiDeep.searchParams.set("inboundDate",end);
   kiwiDeep.searchParams.set("adults",String(adults));
   kiwiDeep.searchParams.set("currency","PLN");
-  kiwiDeep.searchParams.set("locale","pl");
-  kiwiDeep.searchParams.set("sort","price");
-  kiwiDeep.searchParams.set("asc","1");
   const kiwi=partners.kiwi.buildUrl(kiwiDeep.toString());
 
   const bookingBase=new URL("https://www.booking.com/searchresults.pl.html");

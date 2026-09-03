@@ -32,7 +32,6 @@ export default function SiteHeader() {
             <Link href="/city-break">City break</Link>
             <Link href="/last-minute">Last minute</Link>
             <Link href="/wakacje">Wakacje</Link>
-            <Link href="/kierunki">Kierunki</Link>
             <Link href="/polska">Polska</Link>
             <Link href="/dalekie-podroze">Dalekie</Link>
             <Link href="/podroze">Pomysły</Link>

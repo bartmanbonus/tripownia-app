@@ -20,9 +20,8 @@ export default function SiteFooter() {
           <Link href="/okazje">Okazje</Link>
           <Link href="/city-break">City break</Link>
           <Link href="/last-minute">Last minute</Link>
-          <Link href="/kierunki">Kierunki</Link>
           <Link href="/polska">Polska</Link>
-          <Link href="/wydarzenia">Mecze i wyjazdy piłkarskie</Link>
+          <Link href="/wydarzenia">Mecze piłkarskie</Link>
           <Link href="/ulubione">Ulubione</Link>
         </div>
 
@@ -34,7 +33,8 @@ export default function SiteFooter() {
           <Link href="/ubezpieczenia">Ubezpieczenia</Link>
           <Link href="/transfery">Transfery</Link>
           <Link href="/wynajem-auta">Wynajem auta</Link>
-          <Link href="/magazyn-podrozniczy">Poradniki i magazyn podróżniczy</Link>
+          <Link href="/magazyn-podrozniczy">Poradniki i magazyn</Link>
+          <Link href="/kierunki">Przewodniki po kierunkach</Link>
         </div>
 
         <div className="footer-column footer-company">
