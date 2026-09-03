@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Check, ChevronDown, Compass, MapPin, Plane, Search, Users, Utensils, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, CalendarDays, Check, ChevronDown, Compass, MapPin, Plane, Search, Users, Utensils, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import { airportOptions, offers, isOfferExpired } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination } from "@/lib/worldDestinations";
@@ -74,6 +74,8 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [destinationQuery,setDestinationQuery]=useState("");
   const [submitted,setSubmitted]=useState(0);
   const [activeTab,setActiveTab]=useState(initialTab);
+  const resultsRailRef=useRef<HTMLDivElement>(null);
+  const moveResults=(direction:-1|1)=>{const rail=resultsRailRef.current;if(!rail)return;const card=rail.querySelector<HTMLElement>(".search-results-carousel-item");const step=card?card.getBoundingClientRect().width+18:304;rail.scrollBy({left:direction*step*2,behavior:"smooth"});};
 
   useEffect(()=>{setAirports(initialAirports);setDestinations(initialDestinations);setDuration(initialDuration||"all")},[initialAirports.join("|"),initialDestinations.join("|"),initialDuration]);
   useEffect(()=>{if(searchRequest>0)setSubmitted(v=>v+1)},[searchRequest]);
@@ -86,7 +88,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const results=useMemo(()=>{
     const q=normalizeDestination(text);
     const max=budgetValue(budget);
-    const to=selectedTo.map(normalizeDestination).filter(Boolean);
+    const to:string[]=selectedTo.map(v=>normalizeDestination(String(v))).filter(Boolean);
     return (offers as any[]).filter((o:any)=>{
       if(isOfferExpired(o))return false;
       if(Number(o.price||0)>max)return false;
@@ -168,7 +170,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
 
       <div className="search-results-block">
         <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Własne okazje Tripowni są wyróżnione na górze. Niżej uruchamiamy pełne wyszukiwanie partnerów, więc wynik nie jest ograniczony do dzisiejszych publikacji.</span></div>
-        {results.length>0&&<><div className="partner-search-banner"><div><small>⭐ OKAZJE TRIPOWNI</small><strong>{results.length} własnych propozycji pasuje do parametrów</strong></div></div><div className="cards-grid">{results.slice(0,8).map((o:any)=><OfferCard key={o.id} offer={o}/>)}</div></>}
+        {results.length>0&&<><div className="partner-search-banner search-results-carousel-head"><div><small>⭐ OKAZJE TRIPOWNI</small><strong>{results.length} własnych propozycji pasuje do parametrów</strong></div><div className="search-results-carousel-controls"><button type="button" onClick={()=>moveResults(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={17}/></button><button type="button" onClick={()=>moveResults(1)} aria-label="Następne oferty"><ArrowRight size={17}/></button></div></div><div className="search-results-carousel" ref={resultsRailRef} tabIndex={0}>{results.slice(0,12).map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></>}
         {hasDestination&&<PartnerLiveSearch destination={queryDestination} departure={selectedFromLabel}/>}
         {!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
       </div>

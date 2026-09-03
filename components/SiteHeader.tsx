@@ -40,6 +40,8 @@ export default function SiteHeader() {
         <Link href="/polska">Polska</Link>
         <Link href="/wydarzenia">⚽ Wydarzenia</Link>
         <Link href="/podroze-po-przezycia">✨ Przeżycia</Link>
+        <Link className="seasonal-nav-link" href="/jarmarki-bozonarodzeniowe">🎄 Jarmarki</Link>
+        <Link className="seasonal-nav-link" href="/sylwester">🥂 Sylwester</Link>
         <Link href="/dalekie-podroze">🌏 Dalekie</Link>
         <Link href="/podroze">Pomysły</Link>
         <Link href="/ulubione">♡ Ulubione</Link>
