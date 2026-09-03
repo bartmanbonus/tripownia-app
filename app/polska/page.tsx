@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import TravelImage from "@/components/TravelImage";
 import { partners } from "@/lib/partners";
 
 export const metadata: Metadata = {
@@ -98,7 +99,7 @@ export default function PolandPage() {
           {places.map(place => (
             <article className="poland-card" key={place.name}>
               <div className="poland-card-image">
-                <img src={place.image} alt={`${place.name} — pomysł na wyjazd w Polsce`} loading="lazy" referrerPolicy="no-referrer" />
+                <TravelImage city={place.name} country="Polska" alt={`${place.name} — pomysł na wyjazd w Polsce`} overrideSrc={place.image.startsWith("/images/") ? place.image : undefined} />
                 <span>{place.type}</span>
               </div>
               <div className="poland-card-body">
@@ -107,7 +108,7 @@ export default function PolandPage() {
                 <div className="poland-tags">
                   {place.bestFor.map(tag => <span key={tag}>{tag}</span>)}
                 </div>
-                <div className="poland-photo-credit">Zdjęcie: Wikimedia Commons</div>
+                
                 <div className="poland-card-actions">
                   <a href={bookingUrl(place.name)} target="_blank" rel="sponsored noopener noreferrer">
                     🏨 Sprawdź noclegi
