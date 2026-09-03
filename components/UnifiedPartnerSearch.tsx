@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { CalendarDays, MapPin, Plane, Search, Users } from "lucide-react";
+import { useMemo, useState, type ReactNode } from "react";
+import { BedDouble, CalendarDays, MapPin, Package, Plane, Search, Sun, Users, Zap } from "lucide-react";
 import { partners } from "@/lib/partners";
 
 type Mode = "all" | "city" | "holiday" | "lastminute";
+type SearchType = "package" | "city" | "holiday" | "lastminute" | "flights" | "hotels";
 
 type Props = {
   mode?: Mode;
@@ -31,69 +32,34 @@ const iataByDestination: Record<string,string> = {
 };
 
 const eximPathByDestination: Record<string,string> = {
-  "djerba":"/kierunki/tunezja/djerba",
-  "tunezja":"/kierunki/tunezja",
-  "hammamet":"/kierunki/tunezja/tunezja-kontynent/hammamet",
-  "marsa alam":"/kierunki/egipt/marsa-alam",
-  "hurghada":"/kierunki/egipt/hurghada",
-  "egipt":"/kierunki/egipt",
-  "sloneczny brzeg":"/kierunki/bulgaria/sloneczny-brzeg",
-  "bulgaria":"/kierunki/bulgaria",
-  "albania":"/kierunki/albania",
-  "turcja":"/kierunki/turcja",
-  "antalya":"/kierunki/turcja/antalya",
-  "kreta":"/kierunki/grecja/kreta",
-  "rodos":"/kierunki/grecja/rodos",
-  "grecja":"/kierunki/grecja",
-  "cypr":"/kierunki/cypr",
-  "teneryfa":"/kierunki/hiszpania/wyspy-kanaryjskie/teneryfa",
-  "majorka":"/kierunki/hiszpania/baleary/majorka",
-  "hiszpania":"/kierunki/hiszpania"
+  "djerba":"/kierunki/tunezja/djerba","tunezja":"/kierunki/tunezja","hammamet":"/kierunki/tunezja/tunezja-kontynent/hammamet","marsa alam":"/kierunki/egipt/marsa-alam","hurghada":"/kierunki/egipt/hurghada","egipt":"/kierunki/egipt","sloneczny brzeg":"/kierunki/bulgaria/sloneczny-brzeg","bulgaria":"/kierunki/bulgaria","albania":"/kierunki/albania","turcja":"/kierunki/turcja","antalya":"/kierunki/turcja/antalya","kreta":"/kierunki/grecja/kreta","rodos":"/kierunki/grecja/rodos","grecja":"/kierunki/grecja","cypr":"/kierunki/cypr","teneryfa":"/kierunki/hiszpania/wyspy-kanaryjskie/teneryfa","majorka":"/kierunki/hiszpania/baleary/majorka","hiszpania":"/kierunki/hiszpania"
 };
 
 const wakacjePathByDestination: Record<string,string> = {
   "djerba":"/wczasy/djerba/","tunezja":"/wczasy/tunezja/","egipt":"/wczasy/egipt/","marsa alam":"/wczasy/marsa-alam/","hurghada":"/wczasy/hurghada/","kreta":"/wczasy/kreta/","rodos":"/wczasy/rodos/","grecja":"/wczasy/grecja/","teneryfa":"/wczasy/teneryfa/","majorka":"/wczasy/majorka/","hiszpania":"/wczasy/hiszpania/","turcja":"/wczasy/turcja/","albania":"/wczasy/albania/","zanzibar":"/wczasy/zanzibar/","malediwy":"/wczasy/malediwy/","dominikana":"/wczasy/dominikana/","meksyk":"/wczasy/meksyk/"
 };
 
-function norm(value:string){
-  return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
+function norm(value:string){ return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim(); }
+function destinationKey(destination:string){ const first=norm(destination.split(",")[0]); return {first,full:norm(destination)}; }
+function firstMatch<T>(map:Record<string,T>, destination:string):T|undefined{ const {first,full}=destinationKey(destination); if(map[first]) return map[first]; const key=Object.keys(map).find(k=>full.includes(k)); return key?map[key]:undefined; }
+function isoAfter(days:number){ const d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+function plusDays(iso:string,days:number){ const d=new Date(`${iso}T12:00:00`); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+function airportCode(value:string,explicit?:string){ if(explicit)return explicit; const n=norm(value); return airportChoices.find(a=>n.includes(norm(a.label))||n.includes(a.code.toLowerCase()))?.code||"WAW"; }
+function airportLabel(code:string){ return airportChoices.find(a=>a.code===code)?.label||code; }
+
+function defaultSearchType(mode:Mode):SearchType{
+  if(mode==="city") return "city";
+  if(mode==="holiday") return "holiday";
+  if(mode==="lastminute") return "lastminute";
+  return "package";
 }
 
-function destinationKey(destination:string){
-  const first = norm(destination.split(",")[0]);
-  const full = norm(destination);
-  return { first, full };
-}
-
-function firstMatch<T>(map:Record<string,T>, destination:string):T|undefined{
-  const {first,full}=destinationKey(destination);
-  if(map[first]) return map[first];
-  const key=Object.keys(map).find(k=>full.includes(k));
-  return key ? map[key] : undefined;
-}
-
-function isoAfter(days:number){
-  const d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10);
-}
-
-function plusDays(iso:string, days:number){
-  const d=new Date(`${iso}T12:00:00`); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10);
-}
-
-function airportCode(value:string, explicit?:string){
-  if(explicit) return explicit;
-  const n=norm(value);
-  return airportChoices.find(a=>n.includes(norm(a.label)) || n.includes(a.code.toLowerCase()))?.code || "WAW";
-}
-
-function airportLabel(code:string){ return airportChoices.find(a=>a.code===code)?.label || code; }
-
-function buildLinks(destination:string, fromCode:string, start:string, end:string, adults:number, mode:Mode){
+function buildLinks(destination:string,fromCode:string,start:string,end:string,adults:number,searchType:SearchType){
   const nights=Math.max(1,Math.round((new Date(`${end}T12:00:00`).getTime()-new Date(`${start}T12:00:00`).getTime())/86400000));
   const iata=firstMatch(iataByDestination,destination);
-  const eximPath=firstMatch(eximPathByDestination,destination) || (mode==="lastminute"?"/last-minute":"/wakacje");
-  const wakacjePath=firstMatch(wakacjePathByDestination,destination) || (mode==="lastminute"?"/last-minute/":"/");
-
+  const isLast=searchType==="lastminute";
+  const eximPath=firstMatch(eximPathByDestination,destination)||(isLast?"/last-minute":"/wakacje");
+  const wakacjePath=firstMatch(wakacjePathByDestination,destination)||(isLast?"/last-minute/":"/");
   const exim=partners.exim.buildUrl(`https://www.exim.pl${eximPath}`);
   const wakacje=partners.wakacje.buildUrl(`https://www.wakacje.pl${wakacjePath}`);
 
@@ -112,8 +78,7 @@ function buildLinks(destination:string, fromCode:string, start:string, end:strin
 
   const kiwiDeep=new URL("https://www.kiwi.com/deep");
   kiwiDeep.searchParams.set("from",fromCode);
-  if(iata) kiwiDeep.searchParams.set("to",iata);
-  else kiwiDeep.searchParams.set("to",destination.split(",")[0]);
+  kiwiDeep.searchParams.set("to",iata||destination.split(",")[0]);
   kiwiDeep.searchParams.set("departure",start);
   kiwiDeep.searchParams.set("return",end);
   kiwiDeep.searchParams.set("adults",String(adults));
@@ -132,71 +97,80 @@ function buildLinks(destination:string, fromCode:string, start:string, end:strin
   bookingBase.searchParams.set("group_children","0");
   const booking=partners.booking.buildUrl(bookingBase.toString());
 
-  const gygBase=`https://www.getyourguide.pl/s/?q=${encodeURIComponent(destination.split(",")[0])}`;
-  const gyg=partners.getyourguide.buildUrl(gygBase);
-  const esim=partners.fonia.buildUrl("https://fonia.app/");
-  const tui=partners.tui.buildUrl(mode==="lastminute"?"https://www.tui.pl/last-minute":"https://www.tui.pl/wypoczynek");
-
-  // Transport na miejscu — gotowe linki afiliacyjne Travelpayouts.
-  // GetRentacar = wynajem auta, KiwiTaxi = taxi, GetTransfer = transfer prywatny.
-  const car="https://getrentacar.tpk.lv/buzTQvPf";
-  const taxi="https://kiwitaxi.tpk.lv/UuvtPHby";
-  const transfer="https://gettransfer.tpk.lv/SqNqK9Q7";
-
-  return {exim,wakacje,tui,esky,kiwi,booking,gyg,esim,car,taxi,transfer,nights,iata};
+  return {
+    exim,wakacje,esky,kiwi,booking,nights,
+    tui:partners.tui.buildUrl(isLast?"https://www.tui.pl/last-minute":"https://www.tui.pl/wypoczynek"),
+    gyg:partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(destination.split(",")[0])}`),
+    esim:partners.fonia.buildUrl("https://fonia.app/"),
+    car:"https://getrentacar.tpk.lv/buzTQvPf",taxi:"https://kiwitaxi.tpk.lv/UuvtPHby",transfer:"https://gettransfer.tpk.lv/SqNqK9Q7"
+  };
 }
 
+const tabs:{key:SearchType;label:string;icon:ReactNode}[]=[
+  {key:"package",label:"Lot + hotel",icon:<Package size={17}/>},
+  {key:"city",label:"City break",icon:<Plane size={17}/>},
+  {key:"holiday",label:"Wakacje",icon:<Sun size={17}/>},
+  {key:"lastminute",label:"Last minute",icon:<Zap size={17}/>},
+  {key:"flights",label:"Loty",icon:<Plane size={17}/>},
+  {key:"hotels",label:"Hotele",icon:<BedDouble size={17}/>},
+];
+
 export default function UnifiedPartnerSearch({mode="all",initialDestination="",initialDeparture="Warszawa Chopina",initialDepartureCode,initialStartDate,initialEndDate,initialAdults=2}:Props){
-  const initialFrom=airportCode(initialDeparture,initialDepartureCode);
+  const [searchType,setSearchType]=useState<SearchType>(defaultSearchType(mode));
   const [destination,setDestination]=useState(initialDestination);
-  const [from,setFrom]=useState(initialFrom);
+  const [from,setFrom]=useState(airportCode(initialDeparture,initialDepartureCode));
   const [start,setStart]=useState(initialStartDate||isoAfter(45));
   const [end,setEnd]=useState(initialEndDate||plusDays(initialStartDate||isoAfter(45),mode==="city"?3:7));
   const [adults,setAdults]=useState(initialAdults);
-  const [submitted,setSubmitted]=useState(Boolean(initialDestination));
-  const links=useMemo(()=>buildLinks(destination,from,start,end,adults,mode),[destination,from,start,end,adults,mode]);
+  const [submitted,setSubmitted]=useState(false);
+  const links=useMemo(()=>buildLinks(destination,from,start,end,adults,searchType),[destination,from,start,end,adults,searchType]);
 
-  const title=mode==="city"?"Jedna wyszukiwarka city breaków":mode==="lastminute"?"Jedna wyszukiwarka last minute":mode==="holiday"?"Jedna wyszukiwarka wakacji":"Jedna wyszukiwarka całej podróży";
+  const primary=useMemo(()=>{
+    if(searchType==="flights") return {label:"Pokaż loty",url:links.kiwi,source:"Loty"};
+    if(searchType==="hotels") return {label:"Pokaż hotele",url:links.booking,source:"Hotele"};
+    if(searchType==="city") return {label:"Pokaż city break",url:links.esky,source:"Lot + hotel"};
+    if(searchType==="holiday"||searchType==="lastminute") return {label:"Pokaż wyjazdy",url:links.exim,source:"Pakiety wakacyjne"};
+    return {label:"Pokaż lot + hotel",url:links.esky,source:"Lot + hotel"};
+  },[searchType,links]);
 
-  const holidayFirst=[
-    {key:"exim",badge:"1 · PRIORYTET",icon:"☀️",name:"EXIM Tours",desc:"Pakiety, czartery i last minute",url:links.exim,accent:true},
-    {key:"wakacje",badge:"2 · PORÓWNAJ",icon:"🏖️",name:"Wakacje.pl",desc:"Pełna baza ofert biur podróży",url:links.wakacje},
-    {key:"tui",badge:"3 · DODATKOWO",icon:"🌴",name:"TUI",desc:"Dodatkowa baza pakietów wakacyjnych",url:links.tui},
-    {key:"esky",badge:"4 · LOT + HOTEL",icon:"🧳",name:"eSky",desc:`Lot + hotel · ${airportLabel(from)} · ${links.nights} nocy`,url:links.esky},
-  ];
-  const cityFirst=[
-    {key:"esky",badge:"1 · CITY BREAK",icon:"🧳",name:"Lot + hotel",desc:`eSky · ${airportLabel(from)} · ${links.nights} nocy`,url:links.esky,accent:true},
-    {key:"kiwi",badge:"2 · LOTY",icon:"✈️",name:"Loty",desc:`Najtańsze kombinacje · ${from} → ${destination||"wybrany kierunek"}`,url:links.kiwi},
-    {key:"booking",badge:"3 · NOCLEG",icon:"🏨",name:"Hotel",desc:`Booking · ${start} – ${end}`,url:links.booking},
-  ];
-  const common=[
-    {key:"kiwi",badge:"LOTY · PRIORYTET",icon:"✈️",name:"Loty",desc:`Najpierw szukamy najtańszych lotów · ${from} → ${destination||"wybrany kierunek"}`,url:links.kiwi,accent:true},
-    {key:"booking",badge:"NOCLEG",icon:"🏨",name:"Hotel",desc:`Noclegi ${start} – ${end}`,url:links.booking},
-    {key:"car",badge:"NA MIEJSCU",icon:"🚗",name:"Samochód",desc:"Wynajem auta przez GetRentacar",url:links.car},
-    {key:"taxi",badge:"LOTNISKO",icon:"🚕",name:"Taxi",desc:"Taxi z lub na lotnisko przez Kiwitaxi",url:links.taxi},
-    {key:"transfer",badge:"TRANSFER",icon:"🚐",name:"Transfer",desc:"Prywatny transfer przez GetTransfer",url:links.transfer},
-    {key:"esim",badge:"INTERNET",icon:"📱",name:"eSIM",desc:"Internet na wyjazd · link afiliacyjny",url:links.esim},
-    {key:"gyg",badge:"ATRAKCJE",icon:"🎟️",name:"Atrakcje",desc:`GetYourGuide · ${destination||"wybrane miejsce"}`,url:links.gyg},
-  ];
-  const results=mode==="city"
-    ? [...cityFirst,{key:"car",badge:"NA MIEJSCU",icon:"🚗",name:"Samochód",desc:"Wynajem auta przez GetRentacar",url:links.car},{key:"taxi",badge:"LOTNISKO",icon:"🚕",name:"Taxi",desc:"Taxi z lub na lotnisko przez Kiwitaxi",url:links.taxi},{key:"transfer",badge:"TRANSFER",icon:"🚐",name:"Transfer",desc:"Prywatny transfer przez GetTransfer",url:links.transfer},{key:"gyg",badge:"ATRAKCJE",icon:"🎟️",name:"Atrakcje",desc:`GetYourGuide · ${destination||"wybrane miejsce"}`,url:links.gyg},{key:"esim",badge:"INTERNET",icon:"📱",name:"eSIM",desc:"Internet na wyjazd · link afiliacyjny",url:links.esim},{key:"exim",badge:"PAKIETY",icon:"☀️",name:"EXIM Tours",desc:"Sprawdź także dostępne pakiety",url:links.exim},{key:"wakacje",badge:"PAKIETY",icon:"🏖️",name:"Wakacje.pl",desc:"Sprawdź także pełne pakiety",url:links.wakacje}]
-    : [...holidayFirst,...common];
+  const alternatives=searchType==="holiday"||searchType==="lastminute"
+    ? [{label:"Porównaj wakacje",url:links.wakacje},{label:"Lot + hotel",url:links.esky}]
+    : searchType==="city"||searchType==="package"
+      ? [{label:"Same loty",url:links.kiwi},{label:"Sam hotel",url:links.booking}]
+      : [];
 
-  return <section className="unified-partner-search" id="pelna-wyszukiwarka">
-    <div className="unified-search-head"><div><div className="kicker">PEŁNA OFERTA PARTNERÓW</div><h2>{title}</h2><p>Ustaw parametry raz. Tripownia przygotuje gotowe linki afiliacyjne do właściwych partnerów — bez ponownego wpisywania kierunku, terminu i lotniska tam, gdzie partner pozwala je przekazać.</p></div></div>
-    <div className="unified-search-form">
-      <label className="unified-field unified-destination"><span><MapPin size={15}/> Dokąd?</span><input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="np. Djerba, Rzym, Nowy Jork"/></label>
-      <label className="unified-field"><span><Plane size={15}/> Skąd?</span><select value={from} onChange={e=>setFrom(e.target.value)}>{airportChoices.map(a=><option key={a.code} value={a.code}>{a.label}</option>)}</select></label>
-      <label className="unified-field"><span><CalendarDays size={15}/> Wyjazd</span><input type="date" value={start} onChange={e=>{setStart(e.target.value);if(e.target.value>=end)setEnd(plusDays(e.target.value,mode==="city"?3:7))}}/></label>
-      <label className="unified-field"><span><CalendarDays size={15}/> Powrót</span><input type="date" min={start} value={end} onChange={e=>setEnd(e.target.value)}/></label>
-      <label className="unified-field"><span><Users size={15}/> Osoby</span><select value={adults} onChange={e=>setAdults(Number(e.target.value))}>{[1,2,3,4,5,6].map(n=><option value={n} key={n}>{n}</option>)}</select></label>
-      <button className="unified-search-submit" type="button" onClick={()=>setSubmitted(true)}><Search size={18}/> Pokaż opcje</button>
+  function changeType(type:SearchType){
+    setSearchType(type);
+    setSubmitted(false);
+    if((type==="city"||type==="package") && start){ setEnd(plusDays(start,3)); }
+    if((type==="holiday"||type==="lastminute") && start){ setEnd(plusDays(start,7)); }
+  }
+
+  return <section className="trip-search-engine" id="pelna-wyszukiwarka">
+    <div className="trip-search-title"><span>WYSZUKIWARKA TRIPOWNI</span><h2>Znajdź i rezerwuj bezpośrednio u partnera</h2><p>Jedno wyszukiwanie. Tripownia dobiera właściwe źródło i przekazuje kierunek, termin, lotnisko oraz liczbę osób.</p></div>
+
+    <div className="trip-search-shell">
+      <div className="trip-search-tabs" role="tablist" aria-label="Rodzaj wyjazdu">
+        {tabs.map(tab=><button key={tab.key} type="button" role="tab" aria-selected={searchType===tab.key} className={searchType===tab.key?"active":""} onClick={()=>changeType(tab.key)}>{tab.icon}<span>{tab.label}</span></button>)}
+      </div>
+
+      <div className="trip-search-context"><strong>{tabs.find(t=>t.key===searchType)?.label}</strong><span>{searchType==="flights"?"Znajdź najtańsze połączenia z uwzględnieniem wszystkich lotnisk w mieście.":searchType==="hotels"?"Sprawdź noclegi dla wybranego miejsca i terminu.":searchType==="holiday"||searchType==="lastminute"?"Porównaj pakiety i gotowe wakacje — najpierw sprawdzamy EXIM, potem Wakacje.pl.":"Połącz lot i nocleg w jednym wyszukiwaniu."}</span></div>
+
+      <div className="trip-search-form">
+        <label className="trip-field trip-destination"><span><MapPin size={15}/> Dokąd?</span><input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="Dowolny kierunek"/></label>
+        {searchType!=="hotels"&&<label className="trip-field"><span><Plane size={15}/> Skąd?</span><select value={from} onChange={e=>setFrom(e.target.value)}>{airportChoices.map(a=><option key={a.code} value={a.code}>{a.label}</option>)}</select></label>}
+        <label className="trip-field"><span><CalendarDays size={15}/> Kiedy?</span><input type="date" value={start} onChange={e=>{setStart(e.target.value);if(e.target.value>=end)setEnd(plusDays(e.target.value,(searchType==="city"||searchType==="package")?3:7))}}/></label>
+        <label className="trip-field"><span><CalendarDays size={15}/> Do kiedy?</span><input type="date" min={start} value={end} onChange={e=>setEnd(e.target.value)}/></label>
+        <label className="trip-field trip-people"><span><Users size={15}/> Ile osób?</span><select value={adults} onChange={e=>setAdults(Number(e.target.value))}>{[1,2,3,4,5,6].map(n=><option value={n} key={n}>{n} {n===1?"osoba":"osoby"}</option>)}</select></label>
+        <button className="trip-search-submit" type="button" onClick={()=>setSubmitted(true)}><Search size={19}/><span>Szukaj</span></button>
+      </div>
     </div>
 
-    {submitted && <div className="unified-results">
-      <div className="unified-results-summary"><strong>{destination||"Dowolny kierunek"}</strong><span>{airportLabel(from)} · {start} – {end} · {adults} os.</span></div>
-      <div className="unified-results-grid">{results.map(r=><a className={`unified-result-card ${("accent" in r && r.accent)?"is-priority":""}`} href={r.url} target="_blank" rel="sponsored noopener noreferrer" key={r.key}><small>{r.badge}</small><div className="unified-result-main"><span>{r.icon}</span><div><strong>{r.name}</strong><p>{r.desc}</p></div></div><b>Sprawdź →</b></a>)}</div>
-      <p className="unified-search-note">Dla dłuższych wakacji promujemy najpierw EXIM, potem Wakacje.pl, a eSky pokazujemy jako kolejną opcję lot + hotel. Dla city breaków eSky jest priorytetem dla pakietu, Kiwi dla samych lotów, Booking dla noclegów. Samochód, taxi, transfer, eSIM i atrakcje domykają podróż. Jeżeli dany partner nie obsługuje konkretnego parametru w deeplinku, otwieramy najbliższą możliwą stronę z zachowaną afiliacją.</p>
+    {submitted&&<div className="trip-search-results">
+      <div><small>GOTOWE WYSZUKIWANIE</small><strong>{destination||"Dowolny kierunek"}</strong><span>{searchType!=="hotels"?`${airportLabel(from)} · `:""}{start} – {end} · {adults} os.</span></div>
+      <div className="trip-search-actions"><a className="primary" href={primary.url} target="_blank" rel="sponsored noopener noreferrer">{primary.label} →</a>{alternatives.map(a=><a key={a.label} href={a.url} target="_blank" rel="sponsored noopener noreferrer">{a.label}</a>)}</div>
     </div>}
+
+    <div className="trip-search-extras"><span>Domknij podróż:</span><a href={links.car} target="_blank" rel="sponsored noopener noreferrer">🚗 Samochód</a><a href={links.taxi} target="_blank" rel="sponsored noopener noreferrer">🚕 Taxi</a><a href={links.transfer} target="_blank" rel="sponsored noopener noreferrer">🚐 Transfer</a><a href={links.gyg} target="_blank" rel="sponsored noopener noreferrer">🎟️ Atrakcje</a><a href={links.esim} target="_blank" rel="sponsored noopener noreferrer">📱 eSIM</a></div>
   </section>;
 }
