@@ -3903,3 +3903,36 @@ body {
 .lastminute-offer-carousel{margin-top:18px;padding-bottom:20px;scrollbar-width:none}
 .lastminute-offer-carousel::-webkit-scrollbar{display:none}
 .lastminute-offer-carousel>.offer-card{scroll-snap-align:start;height:100%}
+
+/* V95 — active-layer fixes: real carousels + readable cards + seasonal nav */
+.search-results-carousel-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important}
+.search-results-carousel{display:flex!important;flex-wrap:nowrap!important;gap:18px!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory!important;scrollbar-width:none!important;-webkit-overflow-scrolling:touch!important;padding:6px 2px 18px!important}
+.search-results-carousel::-webkit-scrollbar{display:none!important}
+.search-results-carousel-item{flex:0 0 300px!important;width:300px!important;max-width:300px!important;scroll-snap-align:start!important}
+.search-results-carousel-item .offer-image{height:180px!important;min-height:180px!important}
+.search-results-carousel-item .offer-body{padding:16px!important;display:flex!important;flex-direction:column!important;gap:0!important}
+.search-results-carousel-item .offer-body h3{font-size:21px!important;line-height:1.1!important;margin:4px 0 10px!important}
+.search-results-carousel-item .price{margin:7px 0 7px!important;line-height:1.3!important}
+.search-results-carousel-item .price-status{margin:0 0 10px!important;line-height:1.45!important}
+.search-results-carousel-item .partner-chip{margin:0 0 10px!important}
+.search-results-carousel-item .meta{margin:0 0 10px!important;line-height:1.45!important;gap:7px 10px!important}
+.search-results-carousel-item .why-now{margin:8px 0 13px!important;padding:11px 12px!important;background:#fff7f1!important;border:1px solid #f0ddd1!important;border-radius:12px!important;line-height:1.45!important}
+.search-results-carousel-item .why-now span{display:block!important;margin-bottom:5px!important}
+.search-results-carousel-item .why-now strong{display:block!important;line-height:1.48!important;font-size:12.5px!important}
+.search-results-carousel-item .card-cta{margin-top:auto!important}
+.daily-carousel{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;gap:18px!important;scroll-snap-type:x mandatory!important;scrollbar-width:none!important;padding:5px 2px 18px!important}
+.daily-carousel::-webkit-scrollbar{display:none!important}
+.daily-carousel-item{flex:0 0 300px!important;max-width:300px!important;scroll-snap-align:start!important}
+.offer-stream-rail{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto!important;overflow-y:hidden!important;gap:18px!important;scroll-snap-type:x mandatory!important;scrollbar-width:none!important}
+.offer-stream-item{flex:0 0 300px!important;max-width:300px!important;scroll-snap-align:start!important}
+.offer-stream-item .offer-image,.daily-carousel-item .offer-image{height:180px!important;min-height:180px!important}
+.offer-stream-item .offer-body,.daily-carousel-item .offer-body{padding:16px!important}
+.offer-stream-item .why-now,.daily-carousel-item .why-now{line-height:1.45!important;margin:9px 0 12px!important}
+.offer-stream-item .why-now strong,.daily-carousel-item .why-now strong{line-height:1.45!important}
+.visual-chapter{margin-top:40px!important;padding:30px 26px!important;border:1px solid #eee2d9!important;border-radius:26px!important;background:#fff!important;box-shadow:0 16px 42px rgba(43,30,19,.045)!important}
+.visual-chapter.chapter-streaming{background:#fffaf6!important}
+.visual-chapter.chapter-daily{background:#fffdfb!important}
+.seasonal-nav-link{color:#c74319!important;font-weight:850!important}
+.poland-card-image{min-height:220px!important;height:220px!important;background:#f3f0eb!important}
+.poland-card-image img,.poland-card-image .tripownia-image-empty{width:100%!important;height:100%!important;object-fit:cover!important}
+@media(max-width:760px){.search-results-carousel-item,.daily-carousel-item,.offer-stream-item{flex-basis:82vw!important;width:82vw!important;max-width:82vw!important}.visual-chapter{padding:20px 14px!important;border-radius:20px!important}}
