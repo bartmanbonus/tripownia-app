@@ -34,7 +34,7 @@ export default function LastMinuteOffersPage() {
       <div>
         <div className="kicker">⚡ LAST MINUTE — ŻYWE OFERTY</div>
         <h1>Wylot niedługo? Najpierw sprawdzamy EXIM.</h1>
-        <p>Pokazujemy konkretne wyjazdy i najpierw promujemy oferty, które da się kupić jako gotowy pakiet. Ceny potwierdzasz u partnera po kliknięciu.</p>
+        <p>To nie jest poradnik. To żywa sekcja zakupowa: konkretne wyjazdy, terminy i ceny. Najpierw EXIM, później Wakacje.pl i pozostałe źródła.</p>
       </div>
       <Link className="editorial-link" href="/magazyn-podrozniczy/last-minute-2026">📚 Jak kupować last minute — poradnik →</Link>
     </section>
