@@ -16,6 +16,7 @@ const LOCAL_IMAGE_BY_CITY: Record<string, string> = {
   malta: "/images/destinations/valletta.jpg",
   valletta: "/images/destinations/valletta.jpg",
   barcelona: "/images/destinations/barcelona.jpg",
+  alicante: "/images/destinations/alicante.jpg",
   bergamo: "/images/destinations/bergamo.jpg",
   djerba: "/images/destinations/djerba.jpg",
   rzym: "/images/destinations/rzym.jpg",
@@ -26,25 +27,27 @@ const LOCAL_IMAGE_BY_CITY: Record<string, string> = {
   praga: "/images/destinations/praga.jpg",
   budapeszt: "/images/destinations/budapeszt.jpg",
   amsterdam: "/images/destinations/amsterdam.jpg",
+  hammamet: "/images/destinations/hammamet.jpg",
+  split: "/images/destinations/split.jpg",
+  sewilla: "/images/destinations/sewilla.jpg",
+  walencja: "/images/destinations/walencja.jpg",
+  zadar: "/images/destinations/zadar.jpg",
   madera: "/images/destinations/madera.jpg",
   teneryfa: "/images/destinations/teneryfa.jpg",
   fuerteventura: "/images/destinations/fuerteventura.jpg",
   santorini: "/images/destinations/santorini.jpg",
-  rodos: "/images/destinations/Rodos.jpg",
-  pafos: "/images/destinations/Pafos.jpg",
-  sycylia: "/images/destinations/Sycylia.jpg",
-  "marsa alam": "/images/destinations/Marsa_Alam.jpg",
-  "sloneczny brzeg": "/images/destinations/Sloneczny_Brzeg.jpg",
-  "riwiera albanska": "/images/destinations/Riwiera_Albanska.jpg",
+  rodos: "/images/destinations/rodos.jpg",
+  pafos: "/images/destinations/pafos.jpg",
+  sycylia: "/images/destinations/sycylia.jpg",
+  "marsa alam": "/images/destinations/marsa-alam.jpg",
+  "sloneczny brzeg": "/images/destinations/sloneczny-brzeg.jpg",
+  "riwiera albanska": "/images/destinations/riwiera-albanska.jpg",
   mediolan: "/images/destinations/mediolan.jpg",
   wenecja: "/images/destinations/wenecja.jpg",
   wieden: "/images/destinations/wieden.jpg",
   londyn: "/images/destinations/londyn.jpg",
   dubaj: "/images/destinations/dubaj.jpg",
-  bali: "/images/destinations/bali.jpg",
-  tokio: "/images/destinations/tokio.jpg",
   marrakesz: "/images/destinations/marrakesz.jpg",
-  zanzibar: "/images/destinations/zanzibar.jpg",
   helsinki: "/images/destinations/helsinki.jpg",
   kopenhaga: "/images/destinations/kopenhaga.jpg",
   dublin: "/images/destinations/dublin.jpg",
@@ -61,7 +64,9 @@ function normalizeKey(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }
 
-function offerForDisplay<T extends { city: string; image?: string }>(offer: T): T {
+type TripOffer = (typeof offers)[number];
+
+function offerForDisplay(offer: TripOffer): TripOffer {
   const key = normalizeKey(offer.city);
   const mapped = LOCAL_IMAGE_BY_CITY[key];
   if (!mapped) return offer;
@@ -168,7 +173,7 @@ function OfferRail({ kicker, title, description, items }: { kicker: string; titl
       <div><div className="kicker">{kicker}</div><h3>{title}</h3><p>{description}</p></div>
       <div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div>
     </div>
-    <div className="offer-stream-rail" ref={railRef}>{items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}</div>
+    <div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>{items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}</div>
   </section>;
 }
 
@@ -196,12 +201,20 @@ export default function Home() {
   }, []);
   const themedRails = useMemo(() => {
     const key = publicationKey();
-    const active = seededShuffle(offers.filter(o => !isOfferExpired(o)).map(offerForDisplay), `tripownia-rails:${key}`);
+    const active: TripOffer[] = seededShuffle<TripOffer>(offers.filter(o => !isOfferExpired(o)).map(offerForDisplay), `tripownia-rails:${key}`);
     const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => active.filter(match).slice(0, limit);
-    const city = pick(o => (o.category || []).some(c => /city|weekend|tanio/i.test(c)));
-    const sun = pick(o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c)));
+    const fillRail = (primary: typeof active, minimum = 5) => {
+      const result = [...primary];
+      for (const offer of active) {
+        if (result.length >= minimum) break;
+        if (!result.some(item => item.id === offer.id)) result.push(offer);
+      }
+      return result;
+    };
+    const city = fillRail(pick(o => (o.category || []).some(c => /city|weekend|tanio/i.test(c))), 5);
+    const sun = fillRail(pick(o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c))), 5);
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
-    const unusual = pick(o => unusualNames.test(o.city));
+    const unusual = fillRail(pick(o => unusualNames.test(o.city)), 5);
     return { city, sun, unusual };
   }, []);
   const offersRailRef = useRef<HTMLDivElement>(null);
@@ -272,7 +285,7 @@ export default function Home() {
 
       <SearchHub />
 
-      <section className="section shell" id="okazje">
+      <section className="section shell visual-chapter chapter-daily" id="okazje">
         <div className="section-heading">
           <div>
             <div className="kicker">DZISIEJSZA SELEKCJA</div>
@@ -292,7 +305,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell streaming-discovery streaming-offers" aria-label="Odkrywaj oferty Tripowni">
+      <section className="section shell streaming-discovery streaming-offers visual-chapter chapter-streaming" aria-label="Odkrywaj oferty Tripowni">
         <div className="section-heading"><div><div className="kicker">NETFLIX PODRÓŻY</div><h2>Przewijaj, aż coś kliknie.</h2><p>Nie jedna ściana ofert. Różne nastroje, różne budżety i konkretne kierunki — codziennie w innym układzie.</p></div></div>
         <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie wypady, miasta i loty, które nie wymagają pół roku planowania." items={themedRails.city}/>
         <OfferRail kicker="☀️ SŁOŃCE / ALL INCLUSIVE" title="Jeszcze trochę lata" description="Plaża, ciepło i gotowe wakacje — od krótkiego resetu po pełny tydzień." items={themedRails.sun}/>
@@ -300,12 +313,12 @@ export default function Home() {
         <div className="streaming-rail editorial-streaming-rail">
           <Link href="/dalekie-podroze" className="streaming-tile"><small>🌏 DALEJ</small><strong>Europa to dziś za mało</strong><span>Wietnam, Japonia, Bali, Nowy Jork i kierunki na większą podróż.</span></Link>
           <Link href="/podroze-po-przezycia" className="streaming-tile"><small>✨ PO PRZEŻYCIA</small><strong>Nie jedź tylko „gdzieś”</strong><span>Zorza, sakura, safari, fiordy, jarmarki i podróże pod właściwy moment.</span></Link>
-          <Link href="/wydarzenia" className="streaming-tile"><small>⚽ SPORT</small><strong>Lecimy na mecz?</strong><span>Barcelona, Inter i inne wydarzenia jako najlepszy pretekst do wyjazdu.</span></Link>
+          <Link href="/wydarzenia" className="streaming-tile"><small>⚽ PIŁKA NOŻNA</small><strong>Wyjazdy na mecze piłkarskie</strong><span>Barcelona, Inter i inne wydarzenia jako najlepszy pretekst do wyjazdu.</span></Link>
           <Link href="/egzotyka-zima" className="streaming-tile"><small>🌴 UCIECZKA OD ZIMY</small><strong>30°C zamiast skrobania szyb</strong><span>Tropiki dobrane do sezonu, nie tylko do najniższej ceny.</span></Link>
         </div>
       </section>
 
-      <section className="budget-wrap" id="budzet">
+      <section className="budget-wrap visual-chapter chapter-budget" id="budzet">
         <div className="shell budget-grid">
           <div>
             <div className="kicker light">WYNIKI TRIPOWNIA.PL</div>
@@ -326,7 +339,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell" id="odkrywaj">
+      <section className="section shell visual-chapter chapter-discover" id="odkrywaj">
         <div className="section-heading"><div><div className="kicker">NIE TYLKO KLASYKI</div><h2>Masz już za sobą Barcelonę i Rzym?</h2></div></div>
         <div className="discovery-grid">
           <Link className="discovery-card" href="/maroko"><small>BLISKA EGZOTYKA</small><strong>🇲🇦 Maroko</strong><span>Kolor, jedzenie, pustynia i zupełnie inny klimat bez lotu na drugi koniec świata.</span></Link>
@@ -336,7 +349,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell long-haul-home" id="dalekie-podroze">
+      <section className="section shell long-haul-home visual-chapter chapter-longhaul" id="dalekie-podroze">
         <div className="section-heading">
           <div>
             <div className="kicker">DALEJ NIŻ WEEKEND</div>
@@ -357,7 +370,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell experience-section" id="przezycia">
+      <section className="section shell experience-section visual-chapter chapter-experience" id="przezycia">
         <div className="section-heading">
           <div>
             <div className="kicker">PODRÓŻE PO PRZEŻYCIA</div>
@@ -385,7 +398,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell custom-trip">
+      <section className="section shell custom-trip visual-chapter chapter-custom">
         <div className="section-heading">
           <div>
             <div className="kicker">WŁASNA PODRÓŻ</div>
@@ -400,12 +413,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell content-hubs">
+      <section className="section shell content-hubs visual-chapter chapter-content">
         <div className="section-heading"><div><div className="kicker">ODKRYWAJ Z TRIPOWNIĄ</div><h2>Więcej niż dzisiejsza selekcja</h2></div></div>
         <div className="hub-grid">
           <Link href="/kierunki"><strong>🌍 Kierunki</strong><span>Malta, Grecja, Włochy, Hiszpania i dziesiątki inspiracji.</span></Link>
-          <Link href="/city-break-2"><strong>🏙 City break</strong><span>Krótkie wyjazdy, gotowe pomysły i aktualne okazje.</span></Link>
-          <Link href="/last-minute"><strong>🏖 Wakacje i Last Minute</strong><span>All Inclusive, słońce i wyjazdy z polskich lotnisk.</span></Link>
+          <Link href="/city-break"><strong>🏙 City break</strong><span>Krótkie wyjazdy, gotowe pomysły i aktualne okazje.</span></Link>
+          <Link href="/wakacje"><strong>🏖 Wakacje</strong><span>Pełna oferta EXIM, Wakacje.pl, eSky, Kiwi i Booking.</span></Link><Link href="/last-minute"><strong>⚡ Last minute</strong><span>Szybkie wyjazdy i pełne bazy partnerów.</span></Link>
           <Link href="/podroze-po-przezycia"><strong>✨ Przeżycia</strong><span>Zjawiska, sezonowość i podróże planowane pod właściwy moment.</span></Link>
           <Link href="/dalekie-podroze"><strong>🌏 Dalekie podróże</strong><span>Wietnam, Pekin, Nowy Jork, Japonia, Tajlandia i dalsze wyprawy.</span></Link>
           <Link href="/magazyn-podrozniczy"><strong>📰 Magazyn podróżniczy</strong><span>Formalności, lotniska, bagaż i praktyczne wskazówki.</span></Link>
@@ -414,7 +427,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell score-section" id="score">
+      <section className="section shell score-section visual-chapter chapter-score" id="score">
         <div className="score-copy">
           <div className="kicker">WYNIKI TRIPOWNIA.PL</div>
           <h2>Cena to dopiero początek.</h2>

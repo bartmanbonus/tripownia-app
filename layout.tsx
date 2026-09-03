@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://tripownia.pl"),
   title: { default: "Tripownia — My szukamy. Ty lecisz.", template: "%s | Tripownia.pl" },
-  description: "Codziennie wybieramy konkretne okazje, city breaki, wakacje i podróże po przeżyciach. Wyszukuj także pełną ofertę partnerów eSky i Wakacje.pl.",
+  description: "Codziennie wybieramy konkretne okazje, city breaki, wakacje i podróże po przeżyciach. Wyszukuj pełną ofertę partnerów: EXIM Tours, Wakacje.pl, eSky, Kiwi, Booking.com, TUI, eSIM i GetYourGuide.",
   keywords: ["tanie loty", "city break", "wakacje", "last minute", "lot hotel", "okazje podróżnicze", "Tripownia"],
   alternates: { canonical: "/" },
   openGraph: {
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     locale: "pl_PL",
     siteName: "Tripownia",
     title: "Tripownia — My szukamy. Ty lecisz.",
-    description: "Codziennie wybieramy konkretne okazje, city breaki, wakacje i podróże po przeżyciach. Wyszukuj także pełną ofertę partnerów eSky i Wakacje.pl.",
+    description: "Codziennie wybieramy konkretne okazje, city breaki, wakacje i podróże po przeżyciach. Wyszukuj pełną ofertę partnerów: EXIM Tours, Wakacje.pl, eSky, Kiwi, Booking.com, TUI, eSIM i GetYourGuide.",
     url: "/",
   },
   robots: { index: true, follow: true },
