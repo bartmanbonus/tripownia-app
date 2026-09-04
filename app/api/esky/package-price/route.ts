@@ -18,7 +18,8 @@ function normalize(value: string) {
   return decodeHtml(value)
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/\s+/g, " ");
 }
 
 function extractPrices(text: string) {
@@ -32,7 +33,7 @@ function extractPrices(text: string) {
     let match: RegExpExecArray | null;
     while ((match = pattern.exec(text))) {
       const price = Number(String(match[1]).replace(",", "."));
-      if (Number.isFinite(price) && price >= 100 && price <= 100000) prices.push(price);
+      if (Number.isFinite(price) && price >= 250 && price <= 100000) prices.push(price);
     }
   }
   return prices;
@@ -40,6 +41,30 @@ function extractPrices(text: string) {
 
 function lowest(values: number[]) {
   return values.length ? Math.min(...values) : null;
+}
+
+function hasDestinationEvidence(raw: string, city: string) {
+  const normalized = normalize(raw);
+  const wanted = normalize(city).trim();
+  if (!wanted) return false;
+
+  // Akceptujemy tylko sytuację, gdy eSky faktycznie wyrenderował nazwę kierunku.
+  // Sam parametr w URL nie jest dowodem, bo eSky potrafi zignorować błędny kod i pokazać "Dowolny kierunek".
+  const strongPatterns = [
+    `>${wanted}<`,
+    `\"name\":\"${wanted}\"`,
+    `\"label\":\"${wanted}\"`,
+    `dokad? ${wanted}`,
+    `dokąd? ${wanted}`,
+  ];
+  return strongPatterns.some((pattern) => normalized.includes(pattern));
+}
+
+function plausibleAgainstReference(candidate: number, fallback: number) {
+  if (!Number.isFinite(candidate) || candidate < 250) return false;
+  if (!Number.isFinite(fallback) || fallback <= 0) return true;
+  // Nie publikujemy skoków sugerujących, że parser złapał opłatę, ratę, zniżkę albo cenę innego produktu.
+  return candidate >= Math.max(250, fallback * 0.55) && candidate <= fallback * 2.25;
 }
 
 export async function GET(request: NextRequest) {
@@ -58,7 +83,7 @@ export async function GET(request: NextRequest) {
       method: "GET",
       redirect: "follow",
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; TripowniaPriceBot/1.0; +https://tripownia.pl)",
+        "User-Agent": "Mozilla/5.0 (compatible; TripowniaPriceBot/1.1; +https://tripownia.pl)",
         Accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8",
         "Accept-Language": "pl-PL,pl;q=0.9,en;q=0.7",
       },
@@ -67,18 +92,27 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      return NextResponse.json({ ok: false, error: `partner_http_${response.status}` }, { status: 200 });
+      return NextResponse.json({ ok: false, error: `partner_http_${response.status}`, checkedAt: new Date().toISOString() }, { status: 200 });
     }
 
     const raw = await response.text();
+
+    if (!hasDestinationEvidence(raw, offer.city)) {
+      return NextResponse.json({
+        ok: false,
+        error: "destination_not_confirmed",
+        checkedAt: new Date().toISOString(),
+        source: "esky_unverified_page",
+      }, { status: 200, headers: { "Cache-Control": "s-maxage=300, stale-while-revalidate=600" } });
+    }
+
     const normalized = normalize(raw);
     const allPrices = extractPrices(raw);
 
     const wantsBreakfast = normalize(offer.board).includes("sniad");
     let breakfastPrices: number[] = [];
     if (wantsBreakfast) {
-      const markers = ["sniadanie", "breakfast"];
-      for (const marker of markers) {
+      for (const marker of ["sniadanie", "breakfast"]) {
         let start = 0;
         while (true) {
           const index = normalized.indexOf(marker, start);
@@ -91,15 +125,16 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const boardPrice = lowest(breakfastPrices);
-    const anyPrice = lowest(allPrices);
+    const boardPrice = lowest(breakfastPrices.filter((price) => plausibleAgainstReference(price, offer.price)));
+    const anyPrice = lowest(allPrices.filter((price) => plausibleAgainstReference(price, offer.price)));
     const selectedPrice = boardPrice ?? anyPrice;
 
     if (selectedPrice === null) {
       return NextResponse.json({
         ok: false,
-        error: "price_not_found_in_partner_response",
+        error: "verified_price_not_found",
         checkedAt: new Date().toISOString(),
+        source: "esky_verified_page_no_safe_price",
       }, { status: 200, headers: { "Cache-Control": "s-maxage=300, stale-while-revalidate=600" } });
     }
 
@@ -108,12 +143,13 @@ export async function GET(request: NextRequest) {
       price: Math.round(selectedPrice),
       currency: "PLN",
       boardMatched: Boolean(boardPrice),
+      destinationMatched: true,
       checkedAt: new Date().toISOString(),
-      source: "esky_live_page",
+      source: "esky_verified_package_page",
     }, { headers: { "Cache-Control": "s-maxage=900, stale-while-revalidate=1800" } });
   } catch (error) {
     console.error("[esky_package_price_error]", error);
-    return NextResponse.json({ ok: false, error: "partner_fetch_failed" }, { status: 200 });
+    return NextResponse.json({ ok: false, error: "partner_fetch_failed", checkedAt: new Date().toISOString() }, { status: 200 });
   } finally {
     clearTimeout(timeout);
   }
