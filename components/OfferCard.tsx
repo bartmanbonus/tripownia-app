@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap } from "lucide-react";
+import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import TravelImage from "@/components/TravelImage";
+import EximLivePrice from "@/components/EximLivePrice";
+import EskyLivePackagePrice from "@/components/EskyLivePackagePrice";
 import { useEffect, useState } from "react";
 import { getOfferOverride, type OfferOverride } from "@/lib/clientOfferOverrides";
 import { isPriceStale } from "@/lib/offerQuality";
@@ -14,6 +16,8 @@ import { isOfferExpired } from "@/lib/offers";
 export default function OfferCard({ offer }: { offer: Offer }) {
   const [liked, setLiked] = useState(false);
   const [override, setOverride] = useState<OfferOverride>({});
+  const [eximState, setEximState] = useState<{ loading: boolean; available: boolean; price?: number; isStillDeal?: boolean }>({ loading: offer.partner === "exim", available: offer.partner !== "exim" });
+  const [eskyState, setEskyState] = useState<{ loading: boolean; verified: boolean; price?: number }>({ loading: offer.partner === "esky", verified: false });
 
   useEffect(() => {
     const load = () => {
@@ -66,6 +70,9 @@ export default function OfferCard({ offer }: { offer: Offer }) {
 
   if (override.hidden || publishedOverride.hidden) return null;
 
+  // Nie pokazujemy w sekcji okazji EXIM-u, jeśli live feed potwierdził, że cena mocno odjechała od ceny referencyjnej.
+  if (offer.partner === "exim" && !eximState.loading && eximState.available && eximState.isStillDeal === false) return null;
+
   const buyHref = isExpired
     ? `/oferta/${offer.id}`
     : `/go/${offer.id}?source=offer_card`;
@@ -94,8 +101,16 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           className="offer-photo-img"
           overrideSrc={displayImage || offer.image}
         />
-        <span className={`badge ${offer.tag === "BIERZEMY" ? "hot" : ""}`}>
-          {isExpired ? "WYGASŁA" : offer.tag}
+        <span className={`badge ${offer.partner !== "exim" && offer.tag === "BIERZEMY" ? "hot" : ""}`}>
+          {isExpired
+            ? "WYGASŁA"
+            : offer.partner === "exim"
+              ? eximState.loading
+                ? "SPRAWDZAMY"
+                : !eximState.available
+                  ? "DO WERYFIKACJI"
+                  : offer.tag
+              : offer.tag}
         </span>
         {isFeatured && (
           <span className="admin-featured-badge">
@@ -123,17 +138,29 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         </div>
 
         <div className="price">
-          <small>{stalePrice ? "ostatnio znaleźliśmy od" : "znalezione teraz od"}</small>{" "}
-          <strong>{displayPrice} zł</strong> <span>/ os.</span>
+          <small>{offer.partner === "exim" ? "aktualnie w EXIM od" : offer.partner === "esky" && eskyState.verified ? "potwierdzone teraz w eSky od" : "ostatnio potwierdziliśmy od"}</small>{" "}
+          {offer.partner === "exim" ? (
+            <EximLivePrice destination={offer.city} country={offer.country} from={offer.airportCode} nights={offer.nights} board={offer.board} fallbackPrice={displayPrice} compact onStateChange={setEximState} />
+          ) : offer.partner === "esky" ? (
+            <EskyLivePackagePrice offerId={offer.id} fallbackPrice={displayPrice} board={offer.board} compact onStateChange={setEskyState} />
+          ) : (
+            <><strong>{displayPrice} zł</strong> <span>/ os.</span></>
+          )}
         </div>
 
         <div className="price-status">
           <Clock3 size={13} />
           {isExpired
             ? "Ta oferta wygasła — pokażemy podobne aktualne propozycje"
-            : checkedAt
-              ? `Cena sprawdzana ${checkedAt} · po kliknięciu potwierdzamy ją u partnera`
-              : "Po kliknięciu potwierdzamy aktualną cenę u partnera"}
+            : offer.partner === "esky"
+              ? eskyState.loading
+                ? "Automatycznie sprawdzamy cenę już na tej karcie"
+                : eskyState.verified
+                  ? "Cena potwierdzona dla właściwego kierunku w eSky"
+                  : "Nie pobraliśmy nowej ceny — pokazujemy ostatnią potwierdzoną kwotę"
+              : checkedAt
+                ? `Cena sprawdzana ${checkedAt} · po kliknięciu potwierdzamy ją u partnera`
+                : "Po kliknięciu potwierdzamy aktualną cenę u partnera"}
         </div>
 
         <div className="partner-chip">
@@ -149,6 +176,9 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           </span>
           <span>
             <Sun size={15} /> {offer.weather}
+          </span>
+          <span>
+            <Utensils size={15} /> {offer.board}
           </span>
         </div>
 
