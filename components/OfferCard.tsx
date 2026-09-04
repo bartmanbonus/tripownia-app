@@ -43,6 +43,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const displayImage = override.imageUrl || publishedOverride.imageUrl;
   const isFeatured = override.featured ?? publishedOverride.featured ?? featuredOfferIds.has(offer.id);
   const linkMatch = override.linkMatch || publishedOverride.linkMatch || getLinkMatch(offer);
+  const isLiveExact = offer.id >= 1_000_000 && linkMatch === "exact" && /^https?:\/\//.test(offer.affiliateUrl || "");
   const effectiveCheckedAt = override.updatedAt || publishedOverride.updatedAt || offer.priceCheckedAt;
   const checkedAt = formatPriceCheckedAt(effectiveCheckedAt);
   const availabilityStatus =
@@ -71,11 +72,13 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   if (override.hidden || publishedOverride.hidden) return null;
 
   // Nie pokazujemy w sekcji okazji EXIM-u, jeśli live feed potwierdził, że cena mocno odjechała od ceny referencyjnej.
-  if (offer.partner === "exim" && !eximState.loading && eximState.available && eximState.isStillDeal === false) return null;
+  if (!isLiveExact && offer.partner === "exim" && !eximState.loading && eximState.available && eximState.isStillDeal === false) return null;
 
   const buyHref = isExpired
     ? `/oferta/${offer.id}`
-    : `/go/${offer.id}?source=offer_card`;
+    : isLiveExact
+      ? offer.affiliateUrl
+      : `/go/${offer.id}?source=offer_card`;
 
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
@@ -90,7 +93,9 @@ export default function OfferCard({ offer }: { offer: Offer }) {
       }`}
     >
       <Link
-        href={`/oferta/${offer.id}`}
+        href={isLiveExact ? offer.affiliateUrl : `/oferta/${offer.id}`}
+        target={isLiveExact ? "_blank" : undefined}
+        rel={isLiveExact ? "sponsored noopener noreferrer" : undefined}
         className="offer-image"
         aria-label={`Otwórz szczegóły oferty ${offer.city}`}
       >
@@ -101,16 +106,18 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           className="offer-photo-img"
           overrideSrc={displayImage || offer.image}
         />
-        <span className={`badge ${offer.partner !== "exim" && offer.tag === "BIERZEMY" ? "hot" : ""}`}>
+        <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>
           {isExpired
             ? "WYGASŁA"
-            : offer.partner === "exim"
-              ? eximState.loading
-                ? "SPRAWDZAMY"
-                : !eximState.available
-                  ? "DO WERYFIKACJI"
-                  : offer.tag
-              : offer.tag}
+            : isLiveExact
+              ? offer.tag
+              : offer.partner === "exim"
+                ? eximState.loading
+                  ? "SPRAWDZAMY"
+                  : !eximState.available
+                    ? "DO WERYFIKACJI"
+                    : offer.tag
+                : offer.tag}
         </span>
         {isFeatured && (
           <span className="admin-featured-badge">
@@ -138,8 +145,10 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         </div>
 
         <div className="price">
-          <small>{offer.partner === "exim" ? "aktualnie w EXIM od" : offer.partner === "esky" && eskyState.verified ? "potwierdzone teraz w eSky od" : "ostatnio potwierdziliśmy od"}</small>{" "}
-          {offer.partner === "exim" ? (
+          <small>{isLiveExact ? `aktualnie w ${partners[offer.partner].name} od` : offer.partner === "exim" ? "aktualnie w EXIM od" : offer.partner === "esky" && eskyState.verified ? "potwierdzone teraz w eSky od" : "ostatnio potwierdziliśmy od"}</small>{" "}
+          {isLiveExact ? (
+            <><strong>{displayPrice} zł</strong> <span>/ os.</span></>
+          ) : offer.partner === "exim" ? (
             <EximLivePrice destination={offer.city} country={offer.country} from={offer.airportCode} nights={offer.nights} board={offer.board} fallbackPrice={displayPrice} compact onStateChange={setEximState} />
           ) : offer.partner === "esky" ? (
             <EskyLivePackagePrice offerId={offer.id} fallbackPrice={displayPrice} board={offer.board} compact onStateChange={setEskyState} />
@@ -152,6 +161,8 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           <Clock3 size={13} />
           {isExpired
             ? "Ta oferta wygasła — pokażemy podobne aktualne propozycje"
+            : isLiveExact
+              ? "Cena i konkretna oferta pobrane automatycznie z aktualnego feedu partnera"
             : offer.partner === "esky"
               ? eskyState.loading
                 ? "Automatycznie sprawdzamy cenę już na tej karcie"
@@ -190,7 +201,8 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         <a
           className="card-cta"
           href={buyHref}
-          rel={isExpired ? undefined : "sponsored"}
+          target={isLiveExact ? "_blank" : undefined}
+          rel={isExpired ? undefined : isLiveExact ? "sponsored noopener noreferrer" : "sponsored"}
         >
           {!isExpired && <Zap size={16} />}
           {ctaText}
@@ -198,9 +210,15 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         </a>
 
         {!isExpired && (
-          <Link className="admin-preview-link" href={`/oferta/${offer.id}`}>
-            Zobacz szczegóły i warunki →
-          </Link>
+          isLiveExact ? (
+            <a className="admin-preview-link" href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
+              Zobacz szczegóły i warunki u partnera →
+            </a>
+          ) : (
+            <Link className="admin-preview-link" href={`/oferta/${offer.id}`}>
+              Zobacz szczegóły i warunki →
+            </Link>
+          )
         )}
       </div>
     </article>
