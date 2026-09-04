@@ -21,10 +21,10 @@ export async function generateMetadata({params}:{params:Promise<{id:string}>}):P
   const o=offers.find(x=>x.id===Number(id));
   if (!o) return {};
   const title = o.partner === "exim"
-    ? `${o.city} z ${o.departure} — aktualna cena EXIM | Tripownia`
+    ? `${o.city} z ${o.departure} — sprawdź aktualną ofertę | Tripownia`
     : `${o.city} z ${o.departure} — ostatnio znaleźliśmy od ${o.price} zł | Tripownia`;
   const description = o.partner === "exim"
-    ? `${o.city}, ${o.nights} nocy, ${o.board}. Cena jest sprawdzana automatycznie w aktualnym feedzie EXIM.`
+    ? `${o.city}, ${o.nights} nocy, ${o.board}. Sprawdź aktualną cenę i dostępność wyjazdu w EXIM Tours.`
     : `${o.city}, ${o.nights} nocy, ${o.board}. ${o.reason}`;
   return {
     title,
@@ -107,13 +107,13 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       <section className="detail-hero">
         <div className="detail-image">
           <TravelImage city={o.city} country={o.country} alt={`${o.city}, ${o.country}`} className="detail-photo-img" overrideSrc={o.image}/>
-          <span className={`badge ${o.partner !== "exim" && o.tag==='BIERZEMY'?'hot':''}`}>{o.partner === "exim" ? "OFERTA LIVE" : o.tag}</span>
+          <span className={`badge ${o.partner !== "exim" && o.tag==='BIERZEMY'?'hot':''}`}>{o.partner === "exim" ? "WYBRANE PRZEZ TRIPOWNIĘ" : o.tag}</span>
         </div>
         <div className="detail-copy">
           <div className="eyebrow">{o.flag} {o.country}</div>
           <h1>{o.city}</h1>
           <div className="detail-topline">
-            <div className="detail-score">{o.partner === "exim" ? <><strong>LIVE</strong><span>cena z feedu EXIM</span></> : <><strong>{o.score}</strong><span>/10 Tripownia poleca</span></>}</div>
+            <div className="detail-score">{o.partner === "exim" ? <><strong>{o.score}</strong><span>/10 Tripownia poleca</span></> : <><strong>{o.score}</strong><span>/10 Tripownia poleca</span></>}</div>
             <FavoriteButton offerId={o.id}/>
           </div>
           <div className="detail-price-card">
@@ -130,7 +130,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               </>
             )}
           </div>
-          <p className="detail-lead">{o.partner === "exim" ? "Ta propozycja jest traktowana jako okazja tylko wtedy, gdy aktualny feed EXIM potwierdza cenę mieszczącą się w naszym progu. Jeśli cena mocno wzrosła, oferta znika z listy okazji." : o.reason}</p>
+          <p className="detail-lead">{o.partner === "exim" ? o.reason : o.reason}</p>
           <div className="detail-meta">
             <span><Plane/> <b>{o.departure}</b></span><span><Moon/> <b>{o.nights} nocy</b></span>
             <span><Sun/> <b>{o.weather}</b></span>{o.partner !== "esky" && <span><Utensils/> <b>{o.board}</b></span>}
@@ -144,19 +144,19 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               <a className="primary-cta" href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
                 {o.partner === "exim" || o.partner === "tui" ? `Zobacz konkretną ofertę w ${p.name}` : `Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
               </a>
-              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Tripownia wybiera konkretny produkt z aktualnego feedu partnera i przekazuje jego productUrl bez przebudowywania deeplinku." : o.partner === "esky" ? "eSky otwiera wyniki dla wybranego kierunku posortowane od najniższej ceny. Ostateczna cena i wariant wyżywienia są widoczne w wynikach eSky." : "Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu."}</small>
+              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Cena i dostępność mogą zmieniać się dynamicznie. Rezerwacja odbywa się bezpośrednio w EXIM Tours." : o.partner === "esky" ? "eSky otwiera wyniki dla wybranego kierunku posortowane od najniższej ceny. Ostateczna cena i wariant wyżywienia są widoczne w wynikach eSky." : "Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu."}</small>
             </div>
           )}
           <SocialShare
             url={`https://tripownia.pl/oferta/${o.id}`}
             title={`${o.city} — okazja Tripownia.pl`}
-            text={o.partner === "exim" ? `${o.city} z ${o.departure} — ${o.nights} nocy. Tripownia sprawdza aktualną cenę bezpośrednio w feedzie EXIM.` : `${o.city} z ${o.departure} — ${o.nights} nocy. Tripownia ostatnio znalazła od ${o.price} zł/os. — sprawdź, czy teraz jest jeszcze taniej.`}
+            text={o.partner === "exim" ? `${o.city} z ${o.departure} — ${o.nights} nocy. Sprawdź aktualną cenę i dostępność wyjazdu.` : `${o.city} z ${o.departure} — ${o.nights} nocy. Tripownia ostatnio znalazła od ${o.price} zł/os. — sprawdź, czy teraz jest jeszcze taniej.`}
           />
         </div>
       </section>
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
       {o.availabilityStatus !== "expired" && <div className="mobile-booking-bar">
-        <div>{o.partner === "exim" ? <><small>Cena sprawdzana na żywo</small><strong>EXIM live</strong></> : o.partner === "esky" ? <><small>Cena dynamiczna</small><strong>Sprawdź teraz w eSky</strong></> : <><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></>}</div>
+        <div>{o.partner === "exim" ? <><small>Aktualna oferta</small><strong>Sprawdź cenę</strong></> : o.partner === "esky" ? <><small>Cena dynamiczna</small><strong>Sprawdź teraz w eSky</strong></> : <><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></>}</div>
         <a href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
           Sprawdź, czy jest taniej <ExternalLink size={16}/>
         </a>
