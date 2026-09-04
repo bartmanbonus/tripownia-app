@@ -44,12 +44,26 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
   // Przechodzimy przez serwer Tripowni, który wybiera najtańszą konkretną ofertę/hotel
   // z preferencją miasta wylotu zapisanej w ofercie.
   let detailAffiliateUrl = o.affiliateUrl;
-  if (o.partner === "exim" && o.destinationUrl) {
-    try {
-      const eximPath = new URL(o.destinationUrl).pathname;
-      const qs = new URLSearchParams({ path: eximPath, from: o.airportCode || "WAW" });
-      detailAffiliateUrl = `/go/exim-best?${qs.toString()}`;
-    } catch {}
+  if (o.partner === "exim") {
+    const qs = new URLSearchParams({
+      destination: o.city,
+      country: o.country,
+      from: o.airportCode || "WAW",
+      nights: String(o.nights || ""),
+      board: o.board || "",
+    });
+    if (o.destinationUrl) {
+      try { qs.set("path", new URL(o.destinationUrl).pathname); } catch {}
+    }
+    detailAffiliateUrl = `/go/exim-best?${qs.toString()}`;
+  } else if (o.partner === "tui") {
+    detailAffiliateUrl = `/api/tui-go?${new URLSearchParams({
+      destination: o.city,
+      country: o.country,
+      departure: o.airportCode || "WAW",
+      duration: String(o.nights || ""),
+      board: o.board || "",
+    }).toString()}`;
   }
   const linkMatch = getLinkMatch(o);
   const isExact = linkMatch === "exact";
@@ -114,9 +128,9 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           ) : (
             <div className="detail-action-box">
               <a className="primary-cta" href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
-                {o.partner === "exim" ? "Zobacz najtańszą konkretną ofertę w EXIM Tours" : `Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
+                {o.partner === "exim" || o.partner === "tui" ? `Zobacz konkretną ofertę w ${p.name}` : `Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
               </a>
-              <small className="affiliate-note">{o.partner === "exim" ? "Tripownia wybiera z bieżącej listy EXIM konkretną ofertę z najniższą ceną, preferując Twoje miasto wylotu i zbliżony termin." : "Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu."}</small>
+              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Tripownia wybiera konkretny produkt z aktualnego feedu partnera i przekazuje jego productUrl bez przebudowywania deeplinku." : "Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu."}</small>
             </div>
           )}
           <SocialShare
