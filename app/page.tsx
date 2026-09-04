@@ -294,7 +294,7 @@ export default function Home() {
   }, [dailyKey]);
 
   const fallbackDailyOffers = useMemo(() =>
-    getDailyOffers(offers.filter(o => isTravelDestinationAllowed(o.city, o.country)), 12, new Date()).map(offerForDisplay),
+    getDailyOffers(offers.filter(o => o.partner !== "esky" && isTravelDestinationAllowed(o.city, o.country)), 12, new Date()).map(offerForDisplay),
     [dailyKey]
   );
 
@@ -304,7 +304,7 @@ export default function Home() {
   );
 
   const previousOffers = useMemo(() =>
-    getDailyOffers(offers.filter(o => isTravelDestinationAllowed(o.city, o.country)), 12, new Date(Date.now() - 86_400_000)),
+    getDailyOffers(offers.filter(o => o.partner !== "esky" && isTravelDestinationAllowed(o.city, o.country)), 12, new Date(Date.now() - 86_400_000)),
     [dailyKey]
   );
 
@@ -330,8 +330,8 @@ export default function Home() {
   const themedRails = useMemo(() => {
     const key = dailyKey;
     const homePool = liveOffersStatus === "live"
-      ? [...liveOffers, ...offers.filter(o => !isOfferExpired(o))]
-      : offers.filter(o => !isOfferExpired(o));
+      ? [...liveOffers, ...offers.filter(o => !isOfferExpired(o) && o.partner !== "esky")]
+      : offers.filter(o => !isOfferExpired(o) && o.partner !== "esky");
     const active: TripOffer[] = seededShuffle<TripOffer>(homePool.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay), `tripownia-rails:${key}`);
     const uniqueDestinations = (rows: typeof active) => {
       const seen = new Set<string>();
