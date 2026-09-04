@@ -60,8 +60,21 @@ function hasDestinationEvidence(raw: string, city: string) {
   return strongPatterns.some((pattern) => normalized.includes(pattern));
 }
 
+
+function hasStructuredDestinationParam(urlValue: string) {
+  try {
+    const url = new URL(urlValue);
+    const arrival = url.searchParams.get("arrivalPlaces") || "";
+    // eSky akceptuje identyfikatory typu co-MT (kraj), ci-29266 (miasto) i ap-BGY (lotnisko).
+    // Sam pusty / ogólny parametr nie jest wystarczający.
+    return /^(?:co-[A-Z]{2}|ci-[A-Za-z0-9-]+|ap-[A-Z]{3})$/.test(arrival);
+  } catch {
+    return false;
+  }
+}
+
 function plausibleAgainstReference(candidate: number, fallback: number) {
-  if (!Number.isFinite(candidate) || candidate < 250) return false;
+  if (!Number.isFinite(candidate) || candidate < 300) return false;
   if (!Number.isFinite(fallback) || fallback <= 0) return true;
   // Nie publikujemy skoków sugerujących, że parser złapał opłatę, ratę, zniżkę albo cenę innego produktu.
   return candidate >= Math.max(250, fallback * 0.55) && candidate <= fallback * 2.25;
@@ -97,7 +110,15 @@ export async function GET(request: NextRequest) {
 
     const raw = await response.text();
 
-    if (!hasDestinationEvidence(raw, offer.city)) {
+    const destinationEvidence = hasDestinationEvidence(raw, offer.city);
+    const structuredDestination = hasStructuredDestinationParam(offer.affiliateUrl);
+    const normalized = normalize(raw);
+    const explicitlyGeneric = normalized.includes("dowolny kierunek");
+
+    // eSky renderuje część wyników po stronie klienta, więc nazwa kierunku nie zawsze występuje
+    // w surowym HTML. Dopuszczamy wtedy poprawny, strukturalny arrivalPlaces, ale nigdy gdy
+    // strona jawnie wróciła do „Dowolny kierunek”.
+    if ((!destinationEvidence && !structuredDestination) || explicitlyGeneric) {
       return NextResponse.json({
         ok: false,
         error: "destination_not_confirmed",
@@ -106,7 +127,6 @@ export async function GET(request: NextRequest) {
       }, { status: 200, headers: { "Cache-Control": "s-maxage=300, stale-while-revalidate=600" } });
     }
 
-    const normalized = normalize(raw);
     const allPrices = extractPrices(raw);
 
     const wantsBreakfast = normalize(offer.board).includes("sniad");
