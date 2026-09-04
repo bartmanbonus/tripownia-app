@@ -100,8 +100,8 @@ function dailyKey(now = new Date()) {
     return acc;
   }, {});
 
-  const date = new Date(`${parts.year}-${parts.month}-${parts.day}T12:00:00+02:00`);
-  if (Number(parts.hour) < 12) date.setDate(date.getDate() - 1);
+  const date = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)));
+  if (Number(parts.hour) < 8) date.setUTCDate(date.getUTCDate() - 1);
   return date.toISOString().slice(0, 10);
 }
 
