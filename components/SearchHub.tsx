@@ -27,6 +27,8 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [open,setOpen]=useState<"from"|"to"|null>(null);
   const [destinationQuery,setDestinationQuery]=useState("");
   const [submitted,setSubmitted]=useState(0);
+  const [liveResults,setLiveResults]=useState<any[]>([]);
+  const [liveLoading,setLiveLoading]=useState(false);
   const [activeTab,setActiveTab]=useState(initialTab);
   const resultsRailRef=useRef<HTMLDivElement>(null);
   const moveResults=(direction:-1|1)=>{const rail=resultsRailRef.current;if(!rail)return;const card=rail.querySelector<HTMLElement>(".search-results-carousel-item");const step=card?card.getBoundingClientRect().width+18:304;rail.scrollBy({left:direction*step*2,behavior:"smooth"});};
@@ -43,7 +45,8 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
     const q=normalizeDestination(text);
     const max=budgetValue(budget);
     const to:string[]=selectedTo.map(v=>normalizeDestination(String(v))).filter(Boolean);
-    return (offers as any[]).filter((o:any)=>{
+    const source = submitted > 0 ? liveResults : (offers as any[]).filter((o:any)=>["exim","tui"].includes(String(o.partner||"").toLowerCase()));
+    return source.filter((o:any)=>{
       if(isOfferExpired(o))return false;
       if(!isTravelDestinationAllowed(String(o.city||""),String(o.country||"")))return false;
       if(Number(o.price||0)>max)return false;
@@ -59,8 +62,22 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       if(q&&!offerText(o).includes(q))return false;
       return true;
     });
-  },[airports,destinations,customDestination,duration,budget,board,text,weekendOnly,submitted]);
+  },[airports,destinations,customDestination,duration,budget,board,text,weekendOnly,submitted,liveResults]);
 
+
+  async function runPartnerSearch(){
+    const destination=(selectedTo[0]||text||"").trim();
+    if(!destination) return;
+    setLiveLoading(true);
+    try{
+      const cityMode=activeTab==="City break";
+      const params=new URLSearchParams({mode:cityMode?"citybreak":"search",q:destination});
+      const response=await fetch(`/api/today-offers?${params.toString()}`,{cache:"no-store"});
+      const data=await response.json();
+      const rows=Array.isArray(data?.offers)?data.offers:[];
+      setLiveResults(rows.filter((o:any)=>cityMode?String(o.partner||"").toLowerCase()==="exim":["exim","tui"].includes(String(o.partner||"").toLowerCase())));
+    }catch{setLiveResults([])}finally{setLiveLoading(false);setSubmitted(v=>v+1)}
+  }
   function toggleDestination(v:string){setCustomDestination("");setDestinations(prev=>prev.includes(v)?prev.filter(x=>x!==v):[...prev,v])}
   function useCustom(){const v=destinationQuery.trim();if(!v||isTravelDestinationBlocked(v))return;setDestinations([]);setCustomDestination(v);setOpen(null);setDestinationQuery("")}
   function clearAll(){setAirports([]);setDestinations([]);setCustomDestination("");setDuration("all");setBudget("5000");setBoard("all");setWeekendOnly(false);setText("");setDestinationQuery("")}
@@ -119,7 +136,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
         <label className="compact-select"><span><CalendarDays size={14}/> Na ile?</span><select value={duration} onChange={e=>setDuration(e.target.value)}><option value="all">Dowolnie</option><option value="short">2–4 noce</option><option value="week">5–8 nocy</option><option value="long">9+ nocy</option></select></label>
         <label className="compact-select"><span>💳 Budżet / os.</span><select value={budget} onChange={e=>setBudget(e.target.value)}><option value="all">Dowolny</option><option value="1000">do 1 000 zł</option><option value="2000">do 2 000 zł</option><option value="3000">do 3 000 zł</option><option value="5000">do 5 000 zł</option><option value="10000">do 10 000 zł</option></select></label>
         <label className="compact-select"><span><Utensils size={14}/> Wyżywienie</span><select value={board} onChange={e=>setBoard(e.target.value)}><option value="all">Dowolne</option><option value="śniadanie">Śniadanie</option><option value="all inclusive">All Inclusive</option><option value="bez wyżywienia">Bez wyżywienia</option></select></label>
-        <button className="search-submit compact-submit" onClick={()=>setSubmitted(v=>v+1)}><Search size={18}/> Pokaż wyniki</button>
+        <button className="search-submit compact-submit" onClick={runPartnerSearch}><Search size={18}/> {liveLoading?"Szukamy…":"Pokaż wyniki"}</button>
       </div>
 
       <div className="search-smart-options" aria-label="Dodatkowe opcje wyszukiwania">
@@ -134,8 +151,8 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       </div>
 
       <div className="search-results-block">
-        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Własne okazje Tripowni są wyróżnione na górze. Niżej uruchamiamy pełne wyszukiwanie partnerów, więc wynik nie jest ograniczony do dzisiejszych publikacji.</span></div>
-        {results.length>0&&<><div className="partner-search-banner search-results-carousel-head"><div><small>⭐ OKAZJE TRIPOWNI</small><strong>{results.length} własnych propozycji pasuje do parametrów</strong></div><div className="search-results-carousel-controls"><button type="button" onClick={()=>moveResults(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={17}/></button><button type="button" onClick={()=>moveResults(1)} aria-label="Następne oferty"><ArrowRight size={17}/></button></div></div><div className="search-results-carousel" ref={resultsRailRef} tabIndex={0}>{results.slice(0,12).map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></>}
+        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Tripownia przeszukuje feedy EXIM i TUI. Dla City Break pokazujemy wyłącznie oferty EXIM z pakietem i transferem.</span></div>
+        {results.length>0&&<><div className="partner-search-banner search-results-carousel-head"><div><small>⭐ WYNIKI EXIM + TUI</small><strong>{results.length} aktualnych ofert pasuje do parametrów</strong></div><div className="search-results-carousel-controls"><button type="button" onClick={()=>moveResults(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={17}/></button><button type="button" onClick={()=>moveResults(1)} aria-label="Następne oferty"><ArrowRight size={17}/></button></div></div><div className="search-results-carousel" ref={resultsRailRef} tabIndex={0}>{results.slice(0,12).map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></>}
         {hasDestination&&<UnifiedPartnerSearch mode={activeTab==="City break"||activeTab==="Lot + hotel"?"city":activeTab==="Wakacje"?"holiday":"all"} initialDestination={queryDestination} initialDeparture={selectedFromLabel} initialDepartureCode={airports[0]} initialWeekendOnly={weekendOnly}/>}
         {!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
       </div>

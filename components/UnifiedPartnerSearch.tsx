@@ -178,15 +178,15 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
   const primary=useMemo(()=>{
     if(searchType==="flights") return {label:"Pokaż loty",url:links.kiwi,source:"Loty"};
     if(searchType==="hotels") return {label:"Pokaż hotele",url:links.booking,source:"Hotele"};
-    if(searchType==="city") return {label:"Pokaż city break",url:links.esky,source:"Lot + hotel"};
+    if(searchType==="city") return {label:"Pokaż city break w EXIM",url:links.exim,source:"EXIM Tours"};
     if(searchType==="holiday"||searchType==="lastminute") return {label:"Pokaż wyjazdy",url:links.exim,source:"Pakiety wakacyjne"};
-    return {label:"Pokaż lot + hotel",url:links.esky,source:"Lot + hotel"};
+    return {label:"Pokaż pakiety w EXIM",url:links.exim,source:"EXIM Tours"};
   },[searchType,links]);
 
   const alternatives=searchType==="holiday"||searchType==="lastminute"
     ? [{label:"Porównaj wakacje",url:links.wakacje},{label:"Lot + hotel",url:links.esky}]
     : searchType==="city"||searchType==="package"
-      ? [{label:"Same loty",url:links.kiwi},{label:"Sam hotel",url:links.booking}]
+      ? [{label:"Sprawdź też TUI",url:links.tui},{label:"Samodzielnie w eSky",url:links.esky}]
       : [];
 
   function changeType(type:SearchType){
@@ -204,7 +204,7 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
         {tabs.map(tab=><button key={tab.key} type="button" role="tab" aria-selected={searchType===tab.key} className={searchType===tab.key?"active":""} onClick={()=>changeType(tab.key)}>{tab.icon}<span>{tab.label}</span></button>)}
       </div>
 
-      <div className="trip-search-context"><strong>{tabs.find(t=>t.key===searchType)?.label}</strong><span>{searchType==="flights"?"Znajdź najtańsze połączenia z uwzględnieniem wszystkich lotnisk w mieście.":searchType==="hotels"?"Sprawdź noclegi dla wybranego miejsca i terminu.":searchType==="holiday"||searchType==="lastminute"?"Porównaj pakiety i gotowe wakacje — najpierw sprawdzamy EXIM, potem Wakacje.pl.":"Połącz lot i nocleg w jednym wyszukiwaniu."}</span></div>
+      <div className="trip-search-context"><strong>{tabs.find(t=>t.key===searchType)?.label}</strong><span>{searchType==="flights"?"Znajdź najtańsze połączenia z uwzględnieniem wszystkich lotnisk w mieście.":searchType==="hotels"?"Sprawdź noclegi dla wybranego miejsca i terminu.":searchType==="holiday"||searchType==="lastminute"?"Porównaj pakiety i gotowe wakacje — najpierw sprawdzamy EXIM, potem Wakacje.pl.":"Tripownia szuka pakietów w feedach EXIM i TUI. City breaki dobieramy wyłącznie z EXIM."}</span></div>
 
       <div className="trip-search-form">
         <label className="trip-field trip-destination"><span><MapPin size={15}/> Dokąd?</span><input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="Dowolny kierunek"/></label>
@@ -231,7 +231,7 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
         <a href={links.exim} target="_blank" rel="sponsored noopener noreferrer"><span>☀️</span><div><strong>EXIM Tours</strong><small>Wakacje, All Inclusive i last minute</small></div><b>Sprawdź →</b></a>
         <a href={links.wakacje} target="_blank" rel="sponsored noopener noreferrer"><span>🏖️</span><div><strong>Wakacje.pl</strong><small>Pakiety wielu organizatorów</small></div><b>Porównaj →</b></a>
         <a href={links.tui} target="_blank" rel="sponsored noopener noreferrer"><span>🌴</span><div><strong>TUI</strong><small>Gotowe wakacje i hotele</small></div><b>Zobacz →</b></a>
-        <a href={links.esky} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>eSky</strong><small>City break oraz lot + hotel</small></div><b>Szukaj →</b></a>
+        <a href={links.esky} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>eSky — szukaj samodzielnie</strong><small>Dodatkowa wyszukiwarka, poza rekomendacjami Tripowni</small></div><b>Szukaj →</b></a>
       </div>
     </div>
 
