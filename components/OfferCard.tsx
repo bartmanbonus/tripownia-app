@@ -145,7 +145,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         </div>
 
         <div className="price">
-          <small>{isLiveExact ? `aktualnie w ${partners[offer.partner].name} od` : offer.partner === "exim" ? "aktualnie w EXIM od" : offer.partner === "esky" ? (eskyState.verified ? "aktualnie w eSky od" : "aktualna cena w eSky") : "ostatnio potwierdziliśmy od"}</small>{" "}
+          <small>{isLiveExact ? `aktualnie w ${partners[offer.partner].name} od` : offer.partner === "exim" ? "aktualnie w EXIM od" : offer.partner === "esky" ? (eskyState.verified ? "aktualnie w eSky od" : "ostatnio znaleziona cena od") : "ostatnio potwierdziliśmy od"}</small>{" "}
           {isLiveExact ? (
             <><strong>{displayPrice} zł</strong> <span>/ os.</span></>
           ) : offer.partner === "exim" ? (
@@ -168,7 +168,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
                 ? "Automatycznie sprawdzamy cenę już na tej karcie"
                 : eskyState.verified
                   ? "Cena potwierdzona dla właściwego kierunku w eSky"
-                  : "Cena zmienia się dynamicznie — sprawdź najtańszy wariant w eSky"
+                  : "* Aktualną cenę potwierdzimy po przejściu do eSky"
               : checkedAt
                 ? `Cena sprawdzana ${checkedAt} · po kliknięciu potwierdzamy ją u partnera`
                 : "Po kliknięciu potwierdzamy aktualną cenę u partnera"}

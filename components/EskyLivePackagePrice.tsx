@@ -23,7 +23,7 @@ type Props = {
 
 export default function EskyLivePackagePrice({
   offerId,
-  fallbackPrice: _fallbackPrice,
+  fallbackPrice,
   board: _board,
   compact = false,
   onStateChange,
@@ -63,7 +63,7 @@ export default function EskyLivePackagePrice({
   if (compact) {
     if (loading) return <span className="esky-price-pending">sprawdzamy…</span>;
     if (verifiedPrice !== null) return <><strong>{verifiedPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></>;
-    return <span className="esky-price-unverified">sprawdź cenę</span>;
+    return <><strong>{fallbackPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.*</span></>;
   }
 
   return (
@@ -77,9 +77,11 @@ export default function EskyLivePackagePrice({
           <span>/ os.</span>
         </div>
       ) : (
-        <div className="esky-live-clean-row">
-          <strong>Aktualna cena jest dynamiczna</strong>
-          <span>Sprawdź najtańszy dostępny wariant bezpośrednio w eSky.</span>
+        <div className="esky-live-price-main esky-live-price-fallback">
+          <small>ostatnio znaleziona cena od</small>
+          <strong>{fallbackPrice.toLocaleString("pl-PL")} zł</strong>
+          <span>/ os.*</span>
+          <em>* aktualną cenę potwierdzimy po przejściu do eSky</em>
         </div>
       )}
     </div>
