@@ -6,6 +6,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   const p = request.nextUrl.searchParams;
   const destination = p.get("destination") || "";
+  const fallbackPath = p.get("path") || "";
 
   try {
     const result = await findBestEximOffer({
@@ -21,15 +22,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(result.productUrl, 307);
     }
 
-    const fallback = new URL("/okazje", request.url);
-    fallback.searchParams.set("exim", "brak-dokladnej-oferty");
-    fallback.searchParams.set("kierunek", destination);
-    return NextResponse.redirect(fallback, 307);
+    // Jeśli konkretna kombinacja chwilowo zniknęła z feedu, nie cofamy klienta
+    // do Tripowni z technicznym komunikatem. Otwieramy właściwy kierunek EXIM.
+    if (fallbackPath.startsWith("/kierunki/")) {
+      return NextResponse.redirect(new URL(fallbackPath, "https://www.exim.pl"), 307);
+    }
+    return NextResponse.redirect(new URL("https://www.exim.pl/"), 307);
   } catch (error) {
     console.error("[tripownia_exim_feed]", error);
-    const fallback = new URL("/okazje", request.url);
-    fallback.searchParams.set("exim", "blad-feedu");
-    fallback.searchParams.set("kierunek", destination);
-    return NextResponse.redirect(fallback, 307);
+    // Jeśli konkretna kombinacja chwilowo zniknęła z feedu, nie cofamy klienta
+    // do Tripowni z technicznym komunikatem. Otwieramy właściwy kierunek EXIM.
+    if (fallbackPath.startsWith("/kierunki/")) {
+      return NextResponse.redirect(new URL(fallbackPath, "https://www.exim.pl"), 307);
+    }
+    return NextResponse.redirect(new URL("https://www.exim.pl/"), 307);
   }
 }
