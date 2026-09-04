@@ -62,6 +62,7 @@ function scoreProduct(
     departure: string;
     duration: string;
     board: string;
+    start: string;
   }
 ) {
   const fields = fieldMap(product);
@@ -85,6 +86,22 @@ function scoreProduct(
   if (target.duration && String(fields.Duration || "") === String(target.duration)) score += 22;
 
   score += boardScore(target.board, fields.ServiceDescription || product.description || "");
+
+  if (target.start && fields.DepartureDate) {
+    const [day, month, year] = String(fields.DepartureDate).split(".");
+    const normalizedDate = year && month && day ? `${year}-${month}-${day}` : "";
+    if (normalizedDate === target.start) score += 35;
+    else if (normalizedDate) {
+      const wanted = new Date(`${target.start}T12:00:00Z`);
+      const found = new Date(`${normalizedDate}T12:00:00Z`);
+      if (!Number.isNaN(wanted.getTime()) && !Number.isNaN(found.getTime())) {
+        const delta = Math.abs(Math.round((wanted.getTime() - found.getTime()) / 86400000));
+        if (delta <= 3) score += 24;
+        else if (delta <= 7) score += 14;
+        else if (delta <= 14) score += 6;
+      }
+    }
+  }
 
   // Prefer products with a concrete tracked URL and a recent price.
   if (product.offers?.[0]?.productUrl) score += 15;
@@ -131,6 +148,7 @@ export async function GET(request: NextRequest) {
     departure: params.get("departure") || "",
     duration: params.get("duration") || "",
     board: params.get("board") || "",
+    start: params.get("start") || "",
   };
 
   if (!target.destination) {
