@@ -43,11 +43,11 @@ export default function EximLivePrice({ destination, country, from, nights, boar
   }, [destination, country, from, nights, board, fallbackPrice, onStateChange]);
 
   if (loading) {
-    return compact ? <span>sprawdzamy cenę…</span> : <><div className="detail-price"><small>sprawdzamy aktualną cenę EXIM</small></div><div className="price-status detail-price-status">Chwila — porównujemy aktualny feed partnera.</div></>;
+    return compact ? <span>sprawdzamy cenę…</span> : <><div className="detail-price"><small>sprawdzamy aktualną cenę</small></div><div className="price-status detail-price-status">Weryfikujemy cenę i dostępność tej propozycji.</div></>;
   }
 
   if (!data?.available || !data.pricePerPerson) {
-    return compact ? <span>sprawdź aktualną cenę</span> : <><div className="detail-price"><small>cena wymaga potwierdzenia</small></div><div className="price-status detail-price-status">Nie pokazujemy starej ceny jako aktualnej okazji.</div></>;
+    return compact ? <span>sprawdź aktualną cenę</span> : <><div className="detail-price"><small>aktualna cena</small> <strong>sprawdź w EXIM Tours</strong></div><div className="price-status detail-price-status">Cena zależy od terminu i dostępności miejsc.</div></>;
   }
 
   const live = data.pricePerPerson;
@@ -58,11 +58,11 @@ export default function EximLivePrice({ destination, country, from, nights, boar
   }
 
   return <>
-    <div className="detail-price"><small>aktualnie w feedzie EXIM od</small> <strong>{live} zł</strong> / os.</div>
+    <div className="detail-price"><small>aktualna cena od</small> <strong>{live} zł</strong> / os.</div>
     <div className="price-status detail-price-status">
       {isStillDeal
-        ? `Cena potwierdzona automatycznie w aktualnym feedzie EXIM${data.productName ? ` · ${data.productName}` : ""}.`
-        : `Cena wzrosła względem ${fallbackPrice} zł — Tripownia nie traktuje tej propozycji teraz jako okazji.`}
+        ? `Cena sprawdzona dla aktualnie dostępnej oferty${data.productName ? ` · ${data.productName}` : ""}.`
+        : `Cena zmieniła się od ostatniego sprawdzenia — zobacz aktualną ofertę przed rezerwacją.`}
     </div>
   </>;
 }
