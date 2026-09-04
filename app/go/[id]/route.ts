@@ -34,24 +34,30 @@ export async function GET(
    * Korzystamy z istniejącego endpointu Tripowni, który wybiera najlepszą/
    * najtańszą konkretną ofertę w obrębie wskazanego kierunku i lotniska.
    */
-  if (offer.partner === "exim" && offer.destinationUrl) {
-    try {
-      const eximPath = new URL(offer.destinationUrl).pathname;
-      const qs = new URLSearchParams({
-        path: eximPath,
-        from: offer.airportCode || "WAW",
-      });
-
-      const source = request.nextUrl.searchParams.get("source") || "offer_card";
-      qs.set("source", source);
-
-      return NextResponse.redirect(
-        new URL(`/go/exim-best?${qs.toString()}`, request.url),
-        307
-      );
-    } catch {
-      // fallback do zwykłego affiliateUrl poniżej
+  if (offer.partner === "exim") {
+    const qs = new URLSearchParams({
+      destination: offer.city,
+      country: offer.country,
+      from: offer.airportCode || "WAW",
+      nights: String(offer.nights || ""),
+      board: offer.board || "",
+      source: request.nextUrl.searchParams.get("source") || "offer_card",
+    });
+    if (offer.destinationUrl) {
+      try { qs.set("path", new URL(offer.destinationUrl).pathname); } catch {}
     }
+    return NextResponse.redirect(new URL(`/go/exim-best?${qs.toString()}`, request.url), 307);
+  }
+
+  if (offer.partner === "tui") {
+    const qs = new URLSearchParams({
+      destination: offer.city,
+      country: offer.country,
+      departure: offer.airportCode || "WAW",
+      duration: String(offer.nights || ""),
+      board: offer.board || "",
+    });
+    return NextResponse.redirect(new URL(`/api/tui-go?${qs.toString()}`, request.url), 307);
   }
 
   /*
