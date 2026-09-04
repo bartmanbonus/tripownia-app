@@ -68,6 +68,8 @@ function normalizeKey(value: string) {
 type TripOffer = (typeof offers)[number];
 
 function offerForDisplay(offer: TripOffer): TripOffer {
+  // Oferty z feedów live mają własne zdjęcie konkretnego hotelu i gotowy deeplink.
+  if (offer.id >= 1_000_000 && offer.linkMatch === "exact") return offer;
   const key = normalizeKey(offer.city);
   const mapped = LOCAL_IMAGE_BY_CITY[key];
   if (!mapped) return offer;
@@ -236,9 +238,53 @@ export default function Home() {
     return () => window.clearInterval(timer);
   }, []);
 
-  const todaysOffers = useMemo(() =>
+  const [liveOffers, setLiveOffers] = useState<TripOffer[]>([]);
+  const [liveOffersStatus, setLiveOffersStatus] = useState<"loading" | "live" | "fallback">("loading");
+
+  useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+    setLiveOffersStatus("loading");
+
+    fetch(`/api/today-offers?key=${encodeURIComponent(dailyKey)}`, {
+      signal: controller.signal,
+      cache: "no-store",
+    })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("today-offers")))
+      .then((data) => {
+        if (!active) return;
+        const rows = Array.isArray(data?.offers) ? data.offers : [];
+        const safeRows = rows
+          .filter((offer: TripOffer) => offer && offer.id && offer.price > 0 && offer.affiliateUrl)
+          .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country));
+        if (safeRows.length >= 6) {
+          setLiveOffers(safeRows.slice(0, 12));
+          setLiveOffersStatus("live");
+        } else {
+          setLiveOffers([]);
+          setLiveOffersStatus("fallback");
+        }
+      })
+      .catch(() => {
+        if (!active) return;
+        setLiveOffers([]);
+        setLiveOffersStatus("fallback");
+      });
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [dailyKey]);
+
+  const fallbackDailyOffers = useMemo(() =>
     getDailyOffers(offers.filter(o => isTravelDestinationAllowed(o.city, o.country)), 12, new Date()).map(offerForDisplay),
     [dailyKey]
+  );
+
+  const todaysOffers = useMemo(() =>
+    (liveOffersStatus === "live" ? liveOffers : fallbackDailyOffers).map(offerForDisplay),
+    [liveOffersStatus, liveOffers, fallbackDailyOffers]
   );
 
   const previousOffers = useMemo(() =>
@@ -247,9 +293,10 @@ export default function Home() {
   );
 
   const newOffersCount = useMemo(() => {
+    if (liveOffersStatus === "live") return todaysOffers.length;
     const previousIds = new Set(previousOffers.map(offer => offer.id));
     return todaysOffers.filter(offer => !previousIds.has(offer.id)).length;
-  }, [todaysOffers, previousOffers]);
+  }, [todaysOffers, previousOffers, liveOffersStatus]);
 
   const refreshStatus = useMemo(() => {
     const now = new Date();
@@ -266,7 +313,10 @@ export default function Home() {
 
   const themedRails = useMemo(() => {
     const key = dailyKey;
-    const active: TripOffer[] = seededShuffle<TripOffer>(offers.filter(o => !isOfferExpired(o) && isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay), `tripownia-rails:${key}`);
+    const homePool = liveOffersStatus === "live"
+      ? [...liveOffers, ...offers.filter(o => !isOfferExpired(o))]
+      : offers.filter(o => !isOfferExpired(o));
+    const active: TripOffer[] = seededShuffle<TripOffer>(homePool.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay), `tripownia-rails:${key}`);
     const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => active.filter(match).slice(0, limit);
     const fillRail = (primary: typeof active, minimum = 5) => {
       const result = [...primary];
@@ -281,7 +331,7 @@ export default function Home() {
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
     const unusual = fillRail(pick(o => unusualNames.test(o.city)), 5);
     return { city, sun, unusual };
-  }, [dailyKey]);
+  }, [dailyKey, liveOffersStatus, liveOffers]);
   const offersRailRef = useRef<HTMLDivElement>(null);
   const [budget, setBudget] = useState(2500);
   const [surprise, setSurprise] = useState<TripOffer | null>(null);
@@ -313,7 +363,8 @@ export default function Home() {
       return 0;
     };
 
-    const candidates = offers
+    const homePool = liveOffersStatus === "live" ? [...liveOffers, ...offers] : offers;
+    const candidates = homePool
       .filter(o => !isOfferExpired(o))
       .filter(o => isTravelDestinationAllowed(o.city, o.country))
       .filter(o => o.price <= budget)
@@ -337,7 +388,7 @@ export default function Home() {
       if (diversified.length >= 8) break;
     }
     return diversified.length ? diversified : candidates.slice(0, 8);
-  }, [budget]);
+  }, [budget, liveOffersStatus, liveOffers]);
 
 
 
@@ -380,7 +431,7 @@ export default function Home() {
             <h2>Co warto kliknąć teraz?</h2>
             <p>Nie przypadkowe kierunki — trzy propozycje wyciągnięte z dzisiejszej selekcji.</p>
             <div className="hero-daily-stats">
-              <div className="hero-daily-stat"><strong>{newOffersCount}</strong><span>faktycznie nowych okazji w tej puli</span></div>
+              <div className="hero-daily-stat"><strong>{newOffersCount}</strong><span>aktualnych ofert w dzisiejszej puli</span></div>
               <div className="hero-daily-stat"><Clock3 size={17}/><div><strong>Ostatnia aktualizacja: {refreshStatus.last}</strong><span>Kolejna: {refreshStatus.next} czasu polskiego</span></div></div>
             </div>
             <div className="hero-radar-list">
@@ -404,7 +455,7 @@ export default function Home() {
           <div>
             <div className="kicker">DZISIEJSZA SELEKCJA</div>
             <h2>Dziś bralibyśmy te</h2>
-            <p>Nowa, mieszana selekcja publikowana codziennie o 12:00 czasu polskiego. Karty zmieniają się raz dziennie; aktualną cenę i dostępność potwierdza partner.</p>
+            <p>Selekcja budowana automatycznie z aktualnych feedów TUI i EXIM. O 12:00 czasu polskiego zmieniamy pulę, a karta pokazuje cenę i konkretny deeplink zapisany w feedzie partnera.</p>
           </div>
           <Link className="section-premium-link" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
