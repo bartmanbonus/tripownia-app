@@ -13,14 +13,19 @@ import OfferCard from "@/components/OfferCard";
 import SocialShare from "@/components/SocialShare";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import EskyLivePackagePrice from "@/components/EskyLivePackagePrice";
+import EximLivePrice from "@/components/EximLivePrice";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
   const {id}=await params;
   const o=offers.find(x=>x.id===Number(id));
   if (!o) return {};
-  const title = `${o.city} z ${o.departure} — ostatnio znaleźliśmy od ${o.price} zł | Tripownia`;
-  const description = `${o.city}, ${o.nights} nocy, ${o.board}. ${o.reason}`;
+  const title = o.partner === "exim"
+    ? `${o.city} z ${o.departure} — aktualna cena EXIM | Tripownia`
+    : `${o.city} z ${o.departure} — ostatnio znaleźliśmy od ${o.price} zł | Tripownia`;
+  const description = o.partner === "exim"
+    ? `${o.city}, ${o.nights} nocy, ${o.board}. Cena jest sprawdzana automatycznie w aktualnym feedzie EXIM.`
+    : `${o.city}, ${o.nights} nocy, ${o.board}. ${o.reason}`;
   return {
     title,
     description,
@@ -80,7 +85,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
     offers: {
       "@type": "Offer",
       priceCurrency: "PLN",
-      price: o.price,
+      ...(o.partner === "exim" ? {} : { price: o.price }),
       availability: o.availabilityStatus === "expired" ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
       url: `https://tripownia.pl/oferta/${o.id}`,
     },
@@ -102,18 +107,20 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       <section className="detail-hero">
         <div className="detail-image">
           <TravelImage city={o.city} country={o.country} alt={`${o.city}, ${o.country}`} className="detail-photo-img" overrideSrc={o.image}/>
-          <span className={`badge ${o.tag==='BIERZEMY'?'hot':''}`}>{o.tag}</span>
+          <span className={`badge ${o.partner !== "exim" && o.tag==='BIERZEMY'?'hot':''}`}>{o.partner === "exim" ? "OFERTA LIVE" : o.tag}</span>
         </div>
         <div className="detail-copy">
           <div className="eyebrow">{o.flag} {o.country}</div>
           <h1>{o.city}</h1>
           <div className="detail-topline">
-            <div className="detail-score"><strong>{o.score}</strong><span>/10 Tripownia poleca</span></div>
+            <div className="detail-score">{o.partner === "exim" ? <><strong>LIVE</strong><span>cena z feedu EXIM</span></> : <><strong>{o.score}</strong><span>/10 Tripownia poleca</span></>}</div>
             <FavoriteButton offerId={o.id}/>
           </div>
           <div className="detail-price-card">
             {o.partner === "esky" ? (
               <EskyLivePackagePrice offerId={o.id} fallbackPrice={o.price} board={o.board} />
+            ) : o.partner === "exim" ? (
+              <EximLivePrice destination={o.city} country={o.country} from={o.airportCode} nights={o.nights} board={o.board} fallbackPrice={o.price} />
             ) : (
               <>
                 <div className="detail-price"><small>ostatnio znaleźliśmy od</small> <strong>{o.price} zł</strong> / os.</div>
@@ -123,7 +130,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               </>
             )}
           </div>
-          <p className="detail-lead">{o.reason}</p>
+          <p className="detail-lead">{o.partner === "exim" ? "Ta propozycja jest traktowana jako okazja tylko wtedy, gdy aktualny feed EXIM potwierdza cenę mieszczącą się w naszym progu. Jeśli cena mocno wzrosła, oferta znika z listy okazji." : o.reason}</p>
           <div className="detail-meta">
             <span><Plane/> <b>{o.departure}</b></span><span><Moon/> <b>{o.nights} nocy</b></span>
             <span><Sun/> <b>{o.weather}</b></span><span><Utensils/> <b>{o.board}</b></span>
@@ -143,13 +150,13 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           <SocialShare
             url={`https://tripownia.pl/oferta/${o.id}`}
             title={`${o.city} — okazja Tripownia.pl`}
-            text={`${o.city} z ${o.departure} — ${o.nights} nocy. Tripownia ostatnio znalazła od ${o.price} zł/os. — sprawdź, czy teraz jest jeszcze taniej.`}
+            text={o.partner === "exim" ? `${o.city} z ${o.departure} — ${o.nights} nocy. Tripownia sprawdza aktualną cenę bezpośrednio w feedzie EXIM.` : `${o.city} z ${o.departure} — ${o.nights} nocy. Tripownia ostatnio znalazła od ${o.price} zł/os. — sprawdź, czy teraz jest jeszcze taniej.`}
           />
         </div>
       </section>
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
       {o.availabilityStatus !== "expired" && <div className="mobile-booking-bar">
-        <div><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></div>
+        <div>{o.partner === "exim" ? <><small>Cena sprawdzana na żywo</small><strong>EXIM live</strong></> : <><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></>}</div>
         <a href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
           Sprawdź, czy jest taniej <ExternalLink size={16}/>
         </a>
