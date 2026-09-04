@@ -26,6 +26,11 @@ type LiveCandidate = Offer & {
   sourceKey: string;
 };
 
+const CITY_BREAK_TERMS = [
+  "Lizbona", "Porto", "Rzym", "Barcelona", "Alicante", "Malta", "Pafos", "Sycylia",
+  "Neapol", "Madera", "Teneryfa", "Stambuł", "Marrakesz", "Dubaj",
+];
+
 const SEARCH_TERMS = [
   "Egipt",
   "Tunezja",
@@ -261,7 +266,7 @@ function fromExim(product: TdProduct): LiveCandidate | null {
     tag: tagFor(price, board),
     reason: reasonFor("exim", price, nights, board),
     image: product.productImage?.url || "/images/destinations/djerba.jpg",
-    category: ["wakacje", /all inclusive/i.test(board) ? "allinclusive" : "plaza"],
+    category: nights <= 5 ? ["city", "weekend", "exim", "transfer"] : ["wakacje", /all inclusive/i.test(board) ? "allinclusive" : "plaza"],
     hotel: product.name || "Hotel",
     board,
     dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "aktualny termin z feedu",
@@ -399,6 +404,7 @@ function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
 
 export async function GET(request: NextRequest) {
   const key = request.nextUrl.searchParams.get("key") || dailyKey();
+  const mode = request.nextUrl.searchParams.get("mode") === "citybreak" ? "citybreak" : "daily";
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
 
@@ -407,12 +413,14 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const terms = shuffle(SEARCH_TERMS, `terms:${key}`).slice(0, 8);
+    const terms = mode === "citybreak"
+      ? shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 10)
+      : shuffle(SEARCH_TERMS, `terms:${key}`).slice(0, 8);
     const jobs: Promise<{ provider: Provider; products: TdProduct[] }>[] = [];
 
     for (const term of terms) {
       if (eximToken) jobs.push(fetchProducts("exim", term, eximToken).then((products) => ({ provider: "exim" as const, products })));
-      if (tuiToken) jobs.push(fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
+      if (mode !== "citybreak" && tuiToken) jobs.push(fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
     }
 
     const settled = await Promise.allSettled(jobs);
@@ -432,11 +440,15 @@ export async function GET(request: NextRequest) {
       if (!previous || candidate.price < previous.price) unique.set(keyValue, candidate);
     }
 
-    const selected = selectDaily(Array.from(unique.values()), key, 12);
+    const pool = Array.from(unique.values());
+    const selected = mode === "citybreak"
+      ? selectDaily(pool.filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5), `${key}:citybreak`, 8)
+      : selectDaily(pool, key, 12);
     return NextResponse.json(
       {
         ok: selected.length > 0,
         key,
+        mode,
         checkedAt: new Date().toISOString(),
         sourceCount: unique.size,
         offers: selected,
