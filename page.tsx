@@ -3,12 +3,13 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { offers, isOfferExpired } from "@/lib/offers";
+import { offers, isOfferExpired, getDailyOffers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
+import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
 
 
@@ -67,18 +68,32 @@ function normalizeKey(value: string) {
 type TripOffer = (typeof offers)[number];
 
 function offerForDisplay(offer: TripOffer): TripOffer {
+  // Oferty z feedów live mają własne zdjęcie konkretnego hotelu i gotowy deeplink.
+  if (offer.id >= 1_000_000 && offer.linkMatch === "exact") return offer;
   const key = normalizeKey(offer.city);
   const mapped = LOCAL_IMAGE_BY_CITY[key];
   if (!mapped) return offer;
   return { ...offer, image: `${mapped}?v=20260902` };
 }
 
+function buildKiwiFlightSearch(city: string, country: string, adults = 2) {
+  const slug = `${normalizeKey(city)}-${normalizeKey(country)}`
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  const url = new URL("https://www.kiwi.com/pl/");
+  url.searchParams.set("origin", "warszawa-polska");
+  url.searchParams.set("destination", slug);
+  url.searchParams.set("adults", String(adults));
+  url.searchParams.set("currency", "PLN");
+  return partners.kiwi.buildUrl(url.toString());
+}
+
 function publicationKey(now = new Date()) {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23",
   }).formatToParts(now).reduce<Record<string,string>>((acc, p) => { acc[p.type] = p.value; return acc; }, {});
-  const current = new Date(`${parts.year}-${parts.month}-${parts.day}T12:00:00+02:00`);
-  if (Number(parts.hour) < 12) current.setDate(current.getDate() - 1);
+  const current = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)));
+  if (Number(parts.hour) < 8) current.setUTCDate(current.getUTCDate() - 1);
   return current.toISOString().slice(0, 10);
 }
 
@@ -113,50 +128,81 @@ const experienceCards = [
     season: "WRZESIEŃ–MARZEC",
     title: "🌌 Zorza na Islandii",
     text: "Ciemne noce, geotermia i wyjazd planowany pod szansę zobaczenia zorzy.",
+    imageCity: "zorza islandia", imageCountry: "Islandia",
   },
   {
     href: "/podroze-po-przezycia#sakura",
     season: "MARZEC–KWIECIEŃ",
     title: "🌸 Sakura w Japonii",
     text: "Tokio i Kioto wtedy, gdy kwitnienie wiśni staje się głównym punktem podróży.",
+    imageCity: "sakura japonia", imageCountry: "Japonia",
   },
   {
     href: "/podroze-po-przezycia#fiordy",
     season: "MAJ–WRZESIEŃ",
     title: "🏔️ Fiordy i białe noce",
     text: "Długie dni, trekking, rejsy i spektakularne trasy widokowe po Norwegii.",
+    imageCity: "fiordy norwegia", imageCountry: "Norwegia",
   },
   {
     href: "/podroze-po-przezycia#nowa-zelandia",
     season: "LISTOPAD–MARZEC",
     title: "🥾 Nowa Zelandia",
     text: "Road trip, góry i lato na południowej półkuli w najlepszym oknie na aktywny wyjazd.",
+    imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia",
   },
   {
     href: "/podroze-po-przezycia#tulipany",
     season: "KWIECIEŃ–MAJ",
     title: "🌷 Tulipany w Holandii",
     text: "Krótki city break połączony z polami kwiatów i sezonem, który trwa tylko chwilę.",
+    imageCity: "tulipany holandia", imageCountry: "Holandia",
   },
   {
     href: "/podroze-po-przezycia#safari",
     season: "CZERWIEC–PAŹDZIERNIK",
     title: "🦁 Safari w Kenii i Tanzanii",
     text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.",
+    imageCity: "safari kenia tanzania", imageCountry: "Kenia",
   },
   {
     href: "/podroze-po-przezycia#jarmarki",
     season: "LISTOPAD–GRUDZIEŃ",
     title: "🎄 Jarmarki bożonarodzeniowe",
     text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.",
+    imageCity: "jarmarki wieden", imageCountry: "Austria",
   },
   {
     href: "/podroze-po-przezycia#egzotyka",
     season: "ZIMA W POLSCE",
     title: "🌴 Egzotyka w porze suchej",
     text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.",
+    imageCity: "egzotyka pora sucha", imageCountry: "Seszele",
   },
 ];
+
+function ExperienceTeaserImage({ city, country, title }: { city: string; country: string; title: string }) {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+    const params = new URLSearchParams({ city, country });
+    fetch(`/api/destination-image?${params.toString()}`, { signal: controller.signal })
+      .then(response => response.ok ? response.json() : null)
+      .then(data => { if (active) setSrc(data?.image?.url || null); })
+      .catch(() => {});
+    return () => { active = false; controller.abort(); };
+  }, [city, country]);
+
+  return (
+    <div className="experience-teaser-media" aria-hidden="true">
+      {src ? <img src={src} alt="" loading="lazy" /> : <div className="experience-teaser-skeleton" />}
+      <span className="experience-teaser-overlay" />
+      <b>{title.replace(/^\S+\s*/, "")}</b>
+    </div>
+  );
+}
 
 function OfferRail({ kicker, title, description, items }: { kicker: string; title: string; description: string; items: typeof offers }) {
   const railRef = useRef<HTMLDivElement>(null);
@@ -178,58 +224,200 @@ function OfferRail({ kicker, title, description, items }: { kicker: string; titl
 }
 
 export default function Home() {
-  const todaysOffers = useMemo(() => {
-    const key = publicationKey();
-    const daily = seededShuffle(offers.filter(o => !isOfferExpired(o)), `tripownia:${key}`);
-    const active = daily.map(offerForDisplay);
-    const buckets = [
-      (o: (typeof offers)[number]) => /japon|tajland|bali|wietnam|zanzibar|kenia|tanzan|malediw|mauritius|meksyk|usa|nowy jork|dubaj|emirat/i.test(`${o.city} ${o.country}`),
-      (o: (typeof offers)[number]) => /all|wakac|plaż|resort|morze/i.test(`${o.board} ${(o.category || []).join(" ")}`),
-      (o: (typeof offers)[number]) => /city|weekend|krót/i.test((o.category || []).join(" ")),
-      (o: (typeof offers)[number]) => /sport|mecz|event|przeży|safari|zorza|sakura/i.test(`${o.reason || ""} ${(o.category || []).join(" ")}`),
-    ];
-    const picked: typeof active = [];
-    for (const match of buckets) {
-      const hit = active.find(o => !picked.some(p => p.id === o.id) && match(o));
-      if (hit) picked.push(hit);
-    }
-    for (const offer of active) {
-      if (picked.length >= 12) break;
-      if (!picked.some(p => p.id === offer.id)) picked.push(offer);
-    }
-    return picked.slice(0, 12);
+  // V101: selekcja dzienna przełącza się o 08:00 czasu polskiego.
+  // Nie zależy od deploymentu ani od ponownego otwarcia karty.
+  const [dailyKey, setDailyKey] = useState(() => publicationKey());
+
+  useEffect(() => {
+    const checkPublicationWindow = () => {
+      const nextKey = publicationKey();
+      setDailyKey(current => current === nextKey ? current : nextKey);
+    };
+    checkPublicationWindow();
+    const timer = window.setInterval(checkPublicationWindow, 30_000);
+    return () => window.clearInterval(timer);
   }, []);
+
+  const [liveOffers, setLiveOffers] = useState<TripOffer[]>([]);
+  const [liveOffersStatus, setLiveOffersStatus] = useState<"loading" | "live" | "fallback">("loading");
+  const [eximCityBreaks, setEximCityBreaks] = useState<TripOffer[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+    setLiveOffersStatus("loading");
+
+    fetch(`/api/today-offers?key=${encodeURIComponent(dailyKey)}`, {
+      signal: controller.signal,
+      cache: "no-store",
+    })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("today-offers")))
+      .then((data) => {
+        if (!active) return;
+        const rows = Array.isArray(data?.offers) ? data.offers : [];
+        const safeRows = rows
+          .filter((offer: TripOffer) => offer && offer.id && offer.price > 0 && offer.affiliateUrl)
+          .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country));
+        if (safeRows.length >= 6) {
+          setLiveOffers(safeRows.slice(0, 12));
+          setLiveOffersStatus("live");
+        } else {
+          setLiveOffers([]);
+          setLiveOffersStatus("fallback");
+        }
+      })
+      .catch(() => {
+        if (!active) return;
+        setLiveOffers([]);
+        setLiveOffersStatus("fallback");
+      });
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [dailyKey]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`/api/today-offers?mode=citybreak&key=${encodeURIComponent(dailyKey)}`, { signal: controller.signal, cache: "no-store" })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("citybreak-exim")))
+      .then((data) => {
+        const rows = Array.isArray(data?.offers) ? data.offers : [];
+        setEximCityBreaks(rows
+          .filter((offer: TripOffer) => offer?.partner === "exim" && offer.nights >= 2 && offer.nights <= 5 && offer.price > 0 && offer.affiliateUrl)
+          .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country))
+          .slice(0, 8));
+      })
+      .catch(() => setEximCityBreaks([]));
+    return () => controller.abort();
+  }, [dailyKey]);
+
+  const fallbackDailyOffers = useMemo(() =>
+    getDailyOffers(offers.filter(o => isTravelDestinationAllowed(o.city, o.country)), 12, new Date()).map(offerForDisplay),
+    [dailyKey]
+  );
+
+  const todaysOffers = useMemo(() =>
+    (liveOffersStatus === "live" ? liveOffers : fallbackDailyOffers).map(offerForDisplay),
+    [liveOffersStatus, liveOffers, fallbackDailyOffers]
+  );
+
+  const previousOffers = useMemo(() =>
+    getDailyOffers(offers.filter(o => isTravelDestinationAllowed(o.city, o.country)), 12, new Date(Date.now() - 86_400_000)),
+    [dailyKey]
+  );
+
+  const newOffersCount = useMemo(() => {
+    if (liveOffersStatus === "live") return todaysOffers.length;
+    const previousIds = new Set(previousOffers.map(offer => offer.id));
+    return todaysOffers.filter(offer => !previousIds.has(offer.id)).length;
+  }, [todaysOffers, previousOffers, liveOffersStatus]);
+
+  const refreshStatus = useMemo(() => {
+    const now = new Date();
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23",
+    }).formatToParts(now).reduce<Record<string,string>>((acc, part) => { acc[part.type] = part.value; return acc; }, {});
+    const afterPublication = Number(parts.hour) >= 8;
+    const [year, month, day] = dailyKey.split("-");
+    return {
+      last: `${day}.${month}.${year}, 08:00`,
+      next: afterPublication ? "jutro o 08:00" : "dzisiaj o 08:00",
+    };
+  }, [dailyKey]);
+
   const themedRails = useMemo(() => {
-    const key = publicationKey();
-    const active: TripOffer[] = seededShuffle<TripOffer>(offers.filter(o => !isOfferExpired(o)).map(offerForDisplay), `tripownia-rails:${key}`);
-    const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => active.filter(match).slice(0, limit);
+    const key = dailyKey;
+    const homePool = liveOffersStatus === "live"
+      ? [...liveOffers, ...offers.filter(o => !isOfferExpired(o))]
+      : offers.filter(o => !isOfferExpired(o));
+    const active: TripOffer[] = seededShuffle<TripOffer>(homePool.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay), `tripownia-rails:${key}`);
+    const uniqueDestinations = (rows: typeof active) => {
+      const seen = new Set<string>();
+      return rows.filter((offer) => {
+        const destination = `${normalizeKey(offer.city)}|${normalizeKey(offer.country)}`;
+        if (seen.has(destination)) return false;
+        seen.add(destination);
+        return true;
+      });
+    };
+    const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => uniqueDestinations(active.filter(match)).slice(0, limit);
     const fillRail = (primary: typeof active, minimum = 5) => {
-      const result = [...primary];
+      const result = uniqueDestinations(primary);
+      const used = new Set(result.map(item => `${normalizeKey(item.city)}|${normalizeKey(item.country)}`));
       for (const offer of active) {
         if (result.length >= minimum) break;
-        if (!result.some(item => item.id === offer.id)) result.push(offer);
+        const destination = `${normalizeKey(offer.city)}|${normalizeKey(offer.country)}`;
+        if (!used.has(destination)) { result.push(offer); used.add(destination); }
       }
       return result;
     };
-    const city = fillRail(pick(o => (o.category || []).some(c => /city|weekend|tanio/i.test(c))), 5);
+    // City breaki publikujemy wyłącznie z feedu EXIM: konkretna cena, hotel i transfer w pakiecie.
+    const city = uniqueDestinations(eximCityBreaks.map(offerForDisplay)).slice(0, 8);
     const sun = fillRail(pick(o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c))), 5);
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
     const unusual = fillRail(pick(o => unusualNames.test(o.city)), 5);
     return { city, sun, unusual };
-  }, []);
+  }, [dailyKey, liveOffersStatus, liveOffers, eximCityBreaks]);
   const offersRailRef = useRef<HTMLDivElement>(null);
   const [budget, setBudget] = useState(2500);
-  const SURPRISES = [
-    {flag:"🇯🇴",city:"Amman + Wadi Rum",price:1900,hook:"Pustynia, Petra i noc pod gwiazdami — zamiast kolejnego city breaku.",query:"Amman Jordania"},
-    {flag:"🇬🇪",city:"Tbilisi",price:1200,hook:"Wino, góry Kaukazu i kuchnia, dla której warto polecieć choćby na 4 dni.",query:"Tbilisi Gruzja"},
-    {flag:"🇲🇦",city:"Marrakesz",price:1500,hook:"Medyna, Atlas i nocleg w riadzie — bardzo dużo wrażeń za jeden weekend.",query:"Marrakesz Maroko"},
-    {flag:"🇮🇸",city:"Reykjavík",price:2400,hook:"Zorza, gorące źródła i krajobraz, który wygląda jak inna planeta.",query:"Reykjavik Islandia"},
-    {flag:"🇹🇷",city:"Kapadocja",price:1800,hook:"Balony o świcie, skalne miasta i kilka dni kompletnie poza codziennością.",query:"Kayseri Kapadocja"},
-    {flag:"🇹🇿",city:"Zanzibar",price:4200,hook:"Ocean, Stone Town i afrykański klimat — kiedy Europa to zdecydowanie za mało.",query:"Zanzibar Tanzania"},
-    {flag:"🇯🇵",city:"Tokio",price:4900,hook:"Neony, ramen o północy i totalny reset kulturowy. To już jest prawdziwe zaskoczenie.",query:"Tokio Japonia"},
-    {flag:"🇵🇹",city:"Azory",price:2300,hook:"Wulkany, wieloryby i zielone wyspy na środku Atlantyku.",query:"Ponta Delgada Azory"}
-  ];
-  const [surprise, setSurprise] = useState<(typeof SURPRISES)[number] | null>(null);
+  const [surprise, setSurprise] = useState<TripOffer | null>(null);
+
+  const budgetCandidates = useMemo(() => {
+    const wowBonus = (offer: TripOffer) => {
+      const city = offer.city.toLowerCase();
+      const country = offer.country.toLowerCase();
+
+      // Im większy budżet, tym bardziej "Zaskocz mnie" ma premiować kierunki z efektem wow,
+      // a nie tylko te najbliższe górnej granicy ceny.
+      if (budget >= 2800) {
+        if (/dubaj|madera/.test(city) || /zea/.test(country)) return 95;
+        if (/marsa alam|teneryfa|fuerteventura|marrakesz/.test(city)) return 70;
+      }
+      if (budget >= 1900) {
+        if (/marsa alam|teneryfa|fuerteventura/.test(city)) return 90;
+        if (/marrakesz|djerba|hurghada/.test(city)) return 72;
+        if (/bodrum|antaly/.test(city)) return 45;
+        if (/riwiera albańska|alban/.test(city) || /alban/.test(country)) return 8;
+      }
+      if (budget >= 1200) {
+        if (/marrakesz|djerba|pafos|lizbona/.test(city)) return 65;
+        if (/barcelona|rzym|paryż/.test(city)) return 18;
+      }
+      if (budget < 1200) {
+        if (/malta|porto|bergamo|alicante|praga|budapeszt/.test(city)) return 55;
+      }
+      return 0;
+    };
+
+    const homePool = liveOffersStatus === "live" ? [...liveOffers, ...offers] : offers;
+    const candidates = homePool
+      .filter(o => !isOfferExpired(o))
+      .filter(o => isTravelDestinationAllowed(o.city, o.country))
+      .filter(o => o.price <= budget)
+      .map(offerForDisplay)
+      .sort((a, b) => {
+        const aFit = a.price / Math.max(1, budget);
+        const bFit = b.price / Math.max(1, budget);
+        const aScore = Number(a.score || 0) * 12 + aFit * 24 + wowBonus(a);
+        const bScore = Number(b.score || 0) * 12 + bFit * 24 + wowBonus(b);
+        return bScore - aScore;
+      });
+
+    // Różne kraje = większe poczucie odkrywania, a nie pięć wariantów tego samego miejsca.
+    const diversified: TripOffer[] = [];
+    const countries = new Set<string>();
+    for (const offer of candidates) {
+      if (!countries.has(offer.country) || diversified.length >= 5) {
+        diversified.push(offer);
+        countries.add(offer.country);
+      }
+      if (diversified.length >= 8) break;
+    }
+    return diversified.length ? diversified : candidates.slice(0, 8);
+  }, [budget, liveOffersStatus, liveOffers]);
+
 
 
   function moveOffersRail(direction: -1 | 1) {
@@ -241,10 +429,15 @@ export default function Home() {
   }
 
   function pickSurprise() {
-    const pool = SURPRISES.filter(o => o.price <= Math.max(budget,1500));
-    const source = pool.length ? pool : SURPRISES;
-    let next = source[Math.floor(Math.random() * source.length)];
-    if (surprise && source.length > 1 && next.city === surprise.city) next = source[(source.indexOf(next)+1)%source.length];
+    if (!budgetCandidates.length) {
+      setSurprise(null);
+      return;
+    }
+    const top = budgetCandidates.slice(0, Math.min(6, budgetCandidates.length));
+    let next = top[Math.floor(Math.random() * top.length)];
+    if (surprise && top.length > 1 && next.id === surprise.id) {
+      next = top[(top.findIndex(item => item.id === next.id) + 1) % top.length];
+    }
     setSurprise(next);
   }
 
@@ -266,8 +459,8 @@ export default function Home() {
             <h2>Co warto kliknąć teraz?</h2>
             <p>Nie przypadkowe kierunki — trzy propozycje wyciągnięte z dzisiejszej selekcji.</p>
             <div className="hero-daily-stats">
-              <div className="hero-daily-stat"><strong>{todaysOffers.length}</strong><span>nowych okazji dzisiaj</span></div>
-              <div className="hero-daily-stat"><Clock3 size={17}/><div><strong>Kolejna aktualizacja</strong><span>jutro o 12:00 czasu polskiego</span></div></div>
+              <div className="hero-daily-stat"><strong>{newOffersCount}</strong><span>aktualnych ofert w dzisiejszej puli</span></div>
+              <div className="hero-daily-stat"><Clock3 size={17}/><div><strong>Ostatnia aktualizacja: {refreshStatus.last}</strong><span>Kolejna: {refreshStatus.next} czasu polskiego</span></div></div>
             </div>
             <div className="hero-radar-list">
               {todaysOffers.slice(0,3).map((offer, index) => (
@@ -290,9 +483,9 @@ export default function Home() {
           <div>
             <div className="kicker">DZISIEJSZA SELEKCJA</div>
             <h2>Dziś bralibyśmy te</h2>
-            <p>Nowa, mieszana selekcja publikowana codziennie o 12:00 czasu polskiego. Karty zmieniają się raz dziennie; aktualną cenę i dostępność potwierdza partner.</p>
+            <p>Selekcja budowana automatycznie z aktualnych feedów TUI i EXIM. O 08:00 czasu polskiego zmieniamy pulę, a karta pokazuje cenę i konkretny deeplink zapisany w feedzie partnera.</p>
           </div>
-          <Link href="/okazje">Zobacz wszystkie <ArrowRight size={16}/></Link>
+          <Link className="section-premium-link" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
         <div className="daily-carousel-wrap">
           <div className="daily-carousel-controls" aria-label="Sterowanie karuzelą ofert">
@@ -303,11 +496,15 @@ export default function Home() {
             {todaysOffers.map(o => <div className="daily-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}
           </div>
         </div>
+        <div className="premium-action-row">
+          <Link className="premium-action-main" href="#wyszukiwarka">Wyszukaj po swojemu <ArrowRight size={17}/></Link>
+          <Link className="premium-action-secondary" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={17}/></Link>
+        </div>
       </section>
 
       <section className="section shell streaming-discovery streaming-offers visual-chapter chapter-streaming" aria-label="Odkrywaj oferty Tripowni">
         <div className="section-heading"><div><div className="kicker">NETFLIX PODRÓŻY</div><h2>Przewijaj, aż coś kliknie.</h2><p>Nie jedna ściana ofert. Różne nastroje, różne budżety i konkretne kierunki — codziennie w innym układzie.</p></div></div>
-        <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie wypady, miasta i loty, które nie wymagają pół roku planowania." items={themedRails.city}/>
+        <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety EXIM Tours — lot + hotel + transfer w cenie, z aktualną ceną z feedu." items={themedRails.city}/>
         <OfferRail kicker="☀️ SŁOŃCE / ALL INCLUSIVE" title="Jeszcze trochę lata" description="Plaża, ciepło i gotowe wakacje — od krótkiego resetu po pełny tydzień." items={themedRails.sun}/>
         <OfferRail kicker="✨ UKRYTE PEREŁKI" title="Nie kolejny Rzym i Barcelona" description="Mniej oczywiste kierunki, które robią większe wrażenie niż kolejny klasyk." items={themedRails.unusual}/>
         <div className="streaming-rail editorial-streaming-rail">
@@ -330,10 +527,23 @@ export default function Home() {
           <div className="surprise-card">
             <Sparkles size={30}/><h3>Nie wiesz gdzie?</h3><p>Daj nam budżet i daj się zaskoczyć.</p>
             <button onClick={pickSurprise}><Dice5 size={18}/> Zaskocz mnie</button>
+            {!budgetCandidates.length && (
+              <div className="surprise-result surprise-result-v2">
+                <strong>W tym budżecie nie mamy dziś zweryfikowanej okazji.</strong>
+                <em>Zwiększ budżet albo wróć do pełnej wyszukiwarki — nie podsuwamy przypadkowego kierunku tylko po to, żeby coś pokazać.</em>
+              </div>
+            )}
             {surprise && (
-              <a className="surprise-result surprise-result-v2" href={`https://www.google.com/travel/flights?hl=pl&q=${encodeURIComponent(`loty Warszawa ${surprise.query}`)}`} target="_blank" rel="nofollow noopener noreferrer">
-                <span className="surprise-flag">{surprise.flag}</span><strong>{surprise.city}</strong><em>{surprise.hook}</em><span>orientacyjnie od {surprise.price.toLocaleString("pl-PL")} zł/os. · sprawdź ten kierunek →</span>
-              </a>
+              <div className="surprise-result surprise-result-v2">
+                <span className="surprise-flag">{surprise.flag}</span>
+                <strong>{surprise.city}</strong>
+                <em>{surprise.reason}</em>
+                <span>Tripownia znalazła od {surprise.price.toLocaleString("pl-PL")} zł/os. · mieści się w budżecie {budget.toLocaleString("pl-PL")} zł.</span>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
+                  <Link href={`/oferta/${surprise.id}`} style={{fontWeight:800,textDecoration:"none"}}>Zobacz wyjazd →</Link>
+                  <a href={buildKiwiFlightSearch(surprise.city, surprise.country)} target="_blank" rel="sponsored noopener noreferrer" style={{fontWeight:800}}>✈️ Loty na Kiwi →</a>
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -382,10 +592,14 @@ export default function Home() {
 
         <div className="discovery-grid experience-home-grid">
           {experienceCards.map(card => (
-            <Link className="discovery-card" href={card.href} key={card.href}>
-              <small>{card.season}</small>
-              <strong>{card.title}</strong>
-              <span>{card.text}</span>
+            <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
+              <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} />
+              <div className="experience-teaser-copy">
+                <small>{card.season}</small>
+                <strong>{card.title}</strong>
+                <span>{card.text}</span>
+                <em>Zobacz najlepszy moment →</em>
+              </div>
             </Link>
           ))}
         </div>
