@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { partners } from "@/lib/partners";
 
 export const dynamic = "force-dynamic";
 
-const EXIM_HOST = "https://www.exim.pl";
+type TdField = { name?: string; value?: string };
+type TdOffer = {
+  productUrl?: string;
+  legacyProductUrl?: string;
+  modified?: number;
+  priceHistory?: Array<{ price?: { value?: string; currency?: string } }>;
+};
+type TdProduct = {
+  name?: string;
+  description?: string;
+  fields?: TdField[];
+  offers?: TdOffer[];
+};
 
 const departureNames: Record<string, string[]> = {
-  WAW: ["warszawa", "chopin"],
+  WAW: ["warszawa", "warsaw"],
   WMI: ["warszawa", "modlin"],
   KRK: ["krakow", "kraków"],
   KTW: ["katowice"],
@@ -18,123 +29,172 @@ const departureNames: Record<string, string[]> = {
   SZZ: ["szczecin"],
 };
 
-function decodeHtml(value: string) {
-  return value
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
-}
-
-function stripHtml(value: string) {
-  return decodeHtml(value.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " "))
+function normalize(value: string | undefined | null) {
+  return (value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-function parseIso(value: string | null) {
-  if (!value) return null;
-  const date = new Date(`${value}T12:00:00Z`);
-  return Number.isNaN(date.getTime()) ? null : date;
+function fieldMap(product: TdProduct) {
+  return Object.fromEntries(
+    (product.fields || [])
+      .filter((field) => field.name)
+      .map((field) => [field.name as string, field.value || ""])
+  );
 }
 
-function daysBetween(a: Date | null, b: Date | null) {
+function destinationFromPath(path: string) {
+  const clean = path.split("?")[0].replace(/\/+$/, "");
+  const slug = clean.split("/").filter(Boolean).pop() || "";
+  return slug.replace(/-/g, " ");
+}
+
+function decodeTrackedDestination(tracked: string | undefined) {
+  if (!tracked) return null;
+  const match = tracked.match(/url\((.+)\)$/);
+  if (!match?.[1]) return null;
+  try {
+    return new URL(decodeURIComponent(match[1]));
+  } catch {
+    return null;
+  }
+}
+
+function dateDeltaDays(a: string | null, b: string | null) {
   if (!a || !b) return 9999;
-  return Math.abs(Math.round((a.getTime() - b.getTime()) / 86400000));
+  const da = new Date(`${a}T12:00:00Z`);
+  const db = new Date(`${b}T12:00:00Z`);
+  if (Number.isNaN(da.getTime()) || Number.isNaN(db.getTime())) return 9999;
+  return Math.abs(Math.round((da.getTime() - db.getTime()) / 86400000));
 }
 
-type Candidate = {
-  url: string;
-  price: number;
-  departureMatch: boolean;
-  dateDelta: number;
-};
+function scoreProduct(
+  product: TdProduct,
+  target: { destination: string; country: string; from: string; start: string; nights: number }
+) {
+  const fields = fieldMap(product);
+  const offer = product.offers?.[0];
+  const tracked = offer?.productUrl || offer?.legacyProductUrl;
+  const destinationUrl = decodeTrackedDestination(tracked);
 
-function extractCandidates(html: string, from: string, requestedStart: string | null): Candidate[] {
-  const hrefRx = /href=["']([^"']+\/kierunki\/[^"']+\?[^"']+)["']/gi;
-  const requestedDate = parseIso(requestedStart);
-  const wantedNames = departureNames[from] || [];
-  const seen = new Set<string>();
-  const result: Candidate[] = [];
-  let match: RegExpExecArray | null;
+  const haystack = normalize([
+    product.name,
+    product.description,
+    fields.DestinationName,
+    fields.DestinationAddress,
+  ].filter(Boolean).join(" "));
 
-  while ((match = hrefRx.exec(html))) {
-    const rawHref = decodeHtml(match[1]);
-    let absolute: URL;
-    try {
-      absolute = new URL(rawHref, EXIM_HOST);
-    } catch {
-      continue;
-    }
-    if (absolute.hostname !== "www.exim.pl" && absolute.hostname !== "exim.pl") continue;
-    // Destination landing pages do not contain the offer parameters below.
-    if (!absolute.searchParams.has("HID") && !absolute.searchParams.has("PID") && !absolute.searchParams.has("GIATA")) continue;
-    const key = absolute.toString();
-    if (seen.has(key)) continue;
-    seen.add(key);
+  const destination = normalize(target.destination);
+  const country = normalize(target.country);
+  let score = 0;
 
-    const left = Math.max(0, match.index - 3500);
-    const right = Math.min(html.length, hrefRx.lastIndex + 6000);
-    const context = stripHtml(html.slice(left, right)).toLocaleLowerCase("pl");
+  if (destination && haystack.includes(destination)) score += 70;
+  else if (destination) {
+    const tokens = destination.split(" ").filter((x) => x.length >= 4);
+    score += Math.min(45, tokens.filter((token) => haystack.includes(token)).length * 15);
+  }
+  if (country && haystack.includes(country)) score += 18;
 
-    const priceMatches = [...context.matchAll(/(?:całkowita cena|cena całkowita|od)\s*([0-9][0-9\s.,]*)\s*(?:pln|zł)/gi)];
-    const prices = priceMatches
-      .map(x => Number(String(x[1]).replace(/\s/g, "").replace(",", ".")))
-      .filter(x => Number.isFinite(x) && x > 0);
-    const price = prices.length ? Math.min(...prices) : Number.POSITIVE_INFINITY;
+  const departure = normalize(fields.Departue || fields.Departure || fields.DepartureCity);
+  const wantedDeparture = (departureNames[target.from] || [target.from]).map(normalize);
+  if (wantedDeparture.some((name) => name && departure.includes(name))) score += 40;
 
-    const departureMatch = wantedNames.some(name => context.includes(name));
-    const offerDate = parseIso(absolute.searchParams.get("DD") || absolute.searchParams.get("RD"));
-    const dateDelta = daysBetween(requestedDate, offerDate);
+  if (destinationUrl) {
+    const nn = Number(destinationUrl.searchParams.get("NN") || 0);
+    if (target.nights > 0 && nn === target.nights) score += 28;
+    else if (target.nights > 0 && Math.abs(nn - target.nights) <= 1) score += 12;
 
-    result.push({ url: key, price, departureMatch, dateDelta });
+    const offerStart = destinationUrl.searchParams.get("DD") || destinationUrl.searchParams.get("PC")?.split("-").slice(1).join("-") || null;
+    const delta = dateDeltaDays(target.start || null, offerStart);
+    if (delta === 0) score += 35;
+    else if (delta <= 3) score += 26;
+    else if (delta <= 7) score += 18;
+    else if (delta <= 14) score += 8;
   }
 
-  return result;
+  if (offer?.productUrl) score += 20;
+  if (offer?.priceHistory?.[0]?.price?.value) score += 5;
+
+  return score;
 }
 
-function chooseBest(candidates: Candidate[]) {
-  if (!candidates.length) return undefined;
-  // 1) najpierw zachowujemy wybrane miasto wylotu, jeżeli EXIM zwróci takie warianty;
-  // 2) dla wskazanego terminu preferujemy oferty w oknie ±14 dni;
-  // 3) w tej puli ZAWSZE wybieramy najniższą cenę.
-  const withDeparture = candidates.filter(item => item.departureMatch);
-  const departurePool = withDeparture.length ? withDeparture : candidates;
-  const nearDate = departurePool.filter(item => item.dateDelta <= 14);
-  const pool = nearDate.length ? nearDate : departurePool;
-  return [...pool].sort((a, b) => {
-    if (a.price !== b.price) return a.price - b.price;
-    return a.dateDelta - b.dateDelta;
-  })[0];
+async function fetchProducts(query: string, token: string) {
+  const endpoint = new URL("https://api.tradedoubler.com/1.0/products.json");
+  const path = `${endpoint.origin}${endpoint.pathname};q=${encodeURIComponent(query)};page=1;pageSize=100;fid=103442?token=${encodeURIComponent(token)}`;
+
+  const response = await fetch(path, {
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+  });
+
+  if (!response.ok) throw new Error(`Tradedoubler EXIM API ${response.status}`);
+  const data = await response.json();
+  return Array.isArray(data?.products) ? (data.products as TdProduct[]) : [];
 }
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const rawPath = params.get("path") || "/wakacje";
+  const destination = params.get("destination") || destinationFromPath(rawPath);
+  const country = params.get("country") || "";
   const from = (params.get("from") || "WAW").toUpperCase();
-  const start = params.get("start");
+  const start = params.get("start") || "";
+  const nights = Math.max(0, Number(params.get("nights") || params.get("duration") || 0));
 
-  // Accept only internal EXIM paths — no open redirect.
-  const path = rawPath.startsWith("/") && !rawPath.startsWith("//") ? rawPath : "/wakacje";
-  const landingUrl = new URL(path, EXIM_HOST).toString();
+  const token =
+    process.env.TRADEDOUBLER_EXIM_TOKEN ||
+    process.env.TRADEDOUBLER_TOKEN ||
+    process.env.TRADEDOUBLER_TUI_TOKEN;
 
-  try {
-    const response = await fetch(landingUrl, {
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; Tripownia/1.0)" },
-      cache: "no-store",
-    });
-
-    if (response.ok) {
-      const html = await response.text();
-      const best = chooseBest(extractCandidates(html, from, start));
-      if (best?.url) {
-        return NextResponse.redirect(partners.exim.buildUrl(best.url), 307);
-      }
-    }
-  } catch {
-    // Fallback below keeps the affiliate flow working even if EXIM temporarily blocks fetching.
+  if (!token) {
+    const fallback = new URL("/okazje", request.url);
+    fallback.searchParams.set("exim", "brak-tokena");
+    return NextResponse.redirect(fallback, 307);
   }
 
-  return NextResponse.redirect(partners.exim.buildUrl(landingUrl), 307);
+  try {
+    const queries = Array.from(new Set([destination, country].map((x) => x.trim()).filter(Boolean)));
+    let products: TdProduct[] = [];
+
+    for (const query of queries.length ? queries : ["wakacje"]) {
+      const batch = await fetchProducts(query, token);
+      products = [...products, ...batch];
+      const strong = batch.some((product) => scoreProduct(product, { destination, country, from, start, nights }) >= 110);
+      if (strong) break;
+    }
+
+    const unique = new Map<string, TdProduct>();
+    for (const product of products) {
+      const url = product.offers?.[0]?.productUrl || product.offers?.[0]?.legacyProductUrl;
+      if (url) unique.set(url, product);
+    }
+
+    const ranked = Array.from(unique.values())
+      .map((product) => ({ product, score: scoreProduct(product, { destination, country, from, start, nights }) }))
+      .sort((a, b) => b.score - a.score);
+
+    const best = ranked[0];
+    const bestUrl = best?.product.offers?.[0]?.productUrl || best?.product.offers?.[0]?.legacyProductUrl;
+
+    // Kluczowa zasada: przekazujemy productUrl z feedu 1:1.
+    // Nie budujemy ponownie linku afiliacyjnego i nie obcinamy parametrów oferty.
+    if (best && bestUrl && best.score >= 55) {
+      return NextResponse.redirect(bestUrl, 307);
+    }
+
+    const fallback = new URL("/okazje", request.url);
+    fallback.searchParams.set("exim", "brak-dopasowania");
+    fallback.searchParams.set("kierunek", destination);
+    return NextResponse.redirect(fallback, 307);
+  } catch (error) {
+    console.error("[tripownia_exim_feed]", error);
+    const fallback = new URL("/okazje", request.url);
+    fallback.searchParams.set("exim", "blad-feedu");
+    fallback.searchParams.set("kierunek", destination);
+    return NextResponse.redirect(fallback, 307);
+  }
 }
