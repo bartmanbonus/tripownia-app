@@ -133,7 +133,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           <p className="detail-lead">{o.partner === "exim" ? "Ta propozycja jest traktowana jako okazja tylko wtedy, gdy aktualny feed EXIM potwierdza cenę mieszczącą się w naszym progu. Jeśli cena mocno wzrosła, oferta znika z listy okazji." : o.reason}</p>
           <div className="detail-meta">
             <span><Plane/> <b>{o.departure}</b></span><span><Moon/> <b>{o.nights} nocy</b></span>
-            <span><Sun/> <b>{o.weather}</b></span><span><Utensils/> <b>{o.board}</b></span>
+            <span><Sun/> <b>{o.weather}</b></span>{o.partner !== "esky" && <span><Utensils/> <b>{o.board}</b></span>}
             <span><MapPin/> <b>{o.hotel}</b></span><span>📅 <b>{o.dates}</b></span>
           </div>
           <div className="detail-source">Oferta sprawdzana u: <strong>{p.name}</strong></div>
@@ -142,9 +142,9 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           ) : (
             <div className="detail-action-box">
               <a className="primary-cta" href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
-                {o.partner === "exim" || o.partner === "tui" ? `Zobacz konkretną ofertę w ${p.name}` : o.board.toLocaleLowerCase("pl-PL").includes("śniad") ? `Zobacz aktualne opcje ze śniadaniem w ${p.name}` : `Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
+                {o.partner === "exim" || o.partner === "tui" ? `Zobacz konkretną ofertę w ${p.name}` : `Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
               </a>
-              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Tripownia wybiera konkretny produkt z aktualnego feedu partnera i przekazuje jego productUrl bez przebudowywania deeplinku." : o.partner === "esky" && o.board.toLocaleLowerCase("pl-PL").includes("śniad") ? "W eSky pokazujemy wyniki od najniższej ceny. Przy tej propozycji wymaganiem Tripowni jest wariant oznaczony „Śniadanie” — sprawdź to oznaczenie przy wybranym hotelu." : "Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu."}</small>
+              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Tripownia wybiera konkretny produkt z aktualnego feedu partnera i przekazuje jego productUrl bez przebudowywania deeplinku." : o.partner === "esky" ? "eSky otwiera wyniki dla wybranego kierunku posortowane od najniższej ceny. Ostateczna cena i wariant wyżywienia są widoczne w wynikach eSky." : "Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu."}</small>
             </div>
           )}
           <SocialShare
@@ -156,7 +156,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       </section>
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
       {o.availabilityStatus !== "expired" && <div className="mobile-booking-bar">
-        <div>{o.partner === "exim" ? <><small>Cena sprawdzana na żywo</small><strong>EXIM live</strong></> : <><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></>}</div>
+        <div>{o.partner === "exim" ? <><small>Cena sprawdzana na żywo</small><strong>EXIM live</strong></> : o.partner === "esky" ? <><small>Cena dynamiczna</small><strong>Sprawdź teraz w eSky</strong></> : <><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></>}</div>
         <a href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
           Sprawdź, czy jest taniej <ExternalLink size={16}/>
         </a>
