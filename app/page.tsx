@@ -317,12 +317,23 @@ export default function Home() {
       ? [...liveOffers, ...offers.filter(o => !isOfferExpired(o))]
       : offers.filter(o => !isOfferExpired(o));
     const active: TripOffer[] = seededShuffle<TripOffer>(homePool.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay), `tripownia-rails:${key}`);
-    const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => active.filter(match).slice(0, limit);
+    const uniqueDestinations = (rows: typeof active) => {
+      const seen = new Set<string>();
+      return rows.filter((offer) => {
+        const destination = `${normalizeKey(offer.city)}|${normalizeKey(offer.country)}`;
+        if (seen.has(destination)) return false;
+        seen.add(destination);
+        return true;
+      });
+    };
+    const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => uniqueDestinations(active.filter(match)).slice(0, limit);
     const fillRail = (primary: typeof active, minimum = 5) => {
-      const result = [...primary];
+      const result = uniqueDestinations(primary);
+      const used = new Set(result.map(item => `${normalizeKey(item.city)}|${normalizeKey(item.country)}`));
       for (const offer of active) {
         if (result.length >= minimum) break;
-        if (!result.some(item => item.id === offer.id)) result.push(offer);
+        const destination = `${normalizeKey(offer.city)}|${normalizeKey(offer.country)}`;
+        if (!used.has(destination)) { result.push(offer); used.add(destination); }
       }
       return result;
     };

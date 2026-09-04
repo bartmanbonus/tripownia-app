@@ -5285,17 +5285,21 @@ body {
 @media(max-width:640px){.experience-teaser-media{height:180px}}
 
 
-/* V120 — wyrównane, kompaktowe CTA pod sekcją okazji */
-.premium-action-row{gap:12px!important;margin-top:18px!important;padding-top:16px!important}
-.premium-action-row a{
-  min-width:220px!important;
-  min-height:48px!important;
-  height:48px!important;
-  padding:0 20px!important;
-  border-radius:14px!important;
-  font-size:14px!important;
-  line-height:1!important;
-}
-@media(max-width:760px){
-  .premium-action-row a{width:100%!important;min-width:0!important;height:50px!important}
-}
+/* V121 — czytelne ceny, bez pustych slotów i kompaktowe CTA */
+.daily-carousel-item:empty,.offer-stream-item:empty,.search-results-carousel-item:empty{display:none!important}
+.offer-stream-rail,.daily-carousel{justify-content:flex-start!important;align-items:stretch!important}
+.card-cta{font-size:14px!important;line-height:1.15!important;padding:11px 13px!important;gap:7px!important}
+.section-premium-link{font-size:13px!important;padding:9px 12px!important}
+.premium-action-row a{font-size:13px!important;min-height:44px!important;height:44px!important;padding:0 17px!important}
+.esky-price-pending,.esky-price-unverified{font-size:16px;font-weight:850;color:#171717;text-transform:none;letter-spacing:0}
+.esky-live-price-clean{width:100%;min-width:0}
+.esky-live-clean-row{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px;line-height:1.35}
+.esky-live-clean-row strong{font-size:16px;line-height:1.25}
+.esky-live-clean-row span{color:#6d584c;min-width:0}
+.detail-price-card .esky-live-price-main{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.detail-price-card .esky-live-price-main small{flex-basis:100%;margin:0 0 2px}
+.detail-price-card .esky-live-price-main strong{font-size:34px;line-height:1}
+.detail-price-card{overflow:hidden}
+.offer-card .price{min-height:43px}
+.offer-card .price-status{font-size:12px!important;padding:7px 9px!important}
+@media(max-width:760px){.premium-action-row a{height:46px!important}.card-cta{font-size:13.5px!important}}
