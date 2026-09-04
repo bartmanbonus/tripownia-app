@@ -331,8 +331,29 @@ function fromTui(product: TdProduct): LiveCandidate | null {
   };
 }
 
+
+function departurePriority(offer: LiveCandidate) {
+  const haystack = normalize(`${offer.departure} ${offer.airportCode}`);
+  if (/\bwaw\b|warszawa|chopin/.test(haystack)) return 3;
+  if (/\bwmi\b|modlin/.test(haystack)) return 3;
+  if (/\bkrk\b|krakow|balice/.test(haystack)) return 3;
+  return 0;
+}
+
+function destinationKey(offer: LiveCandidate) {
+  return normalize(`${offer.city}|${offer.country}`);
+}
+
+function countryLimit(offer: LiveCandidate) {
+  // Małe kierunki wyspowe nie powinny zajmować dwóch miejsc w jednej dziennej selekcji.
+  const country = normalize(offer.country);
+  if (/^malta$/.test(country)) return 1;
+  return 2;
+}
+
 function dealValue(offer: LiveCandidate) {
   let value = offer.score * 100 - offer.price / 20;
+  value += departurePriority(offer) * 90;
   if (offer.nights >= 7) value += 35;
   if (/all inclusive/i.test(offer.board)) value += 30;
   if (offer.price <= 1800) value += 45;
@@ -347,31 +368,32 @@ function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
   const selected: LiveCandidate[] = [];
   const countryCounts = new Map<string, number>();
   const providerCounts = new Map<Provider, number>();
-  const hotelKeys = new Set<string>();
+  const destinationKeys = new Set<string>();
+  let secondaryAirportCount = 0;
 
   for (const offer of shuffled) {
-    const hotelKey = normalize(`${offer.provider}:${offer.hotel}`);
-    if (hotelKeys.has(hotelKey)) continue;
-    const countryCount = countryCounts.get(offer.country) || 0;
-    if (countryCount >= 2) continue;
+    const destKey = destinationKey(offer);
+    if (destinationKeys.has(destKey)) continue;
+
+    const countryKey = normalize(offer.country);
+    const countryCount = countryCounts.get(countryKey) || 0;
+    if (countryCount >= countryLimit(offer)) continue;
+
     const providerCount = providerCounts.get(offer.provider) || 0;
     if (providerCount >= 7) continue;
 
+    const primaryAirport = departurePriority(offer) > 0;
+    if (!primaryAirport && secondaryAirportCount >= 2) continue;
+
     selected.push(offer);
-    hotelKeys.add(hotelKey);
-    countryCounts.set(offer.country, countryCount + 1);
+    destinationKeys.add(destKey);
+    countryCounts.set(countryKey, countryCount + 1);
     providerCounts.set(offer.provider, providerCount + 1);
+    if (!primaryAirport) secondaryAirportCount += 1;
     if (selected.length >= limit) break;
   }
 
-  if (selected.length < limit) {
-    for (const offer of shuffled) {
-      if (selected.some((item) => item.id === offer.id)) continue;
-      selected.push(offer);
-      if (selected.length >= limit) break;
-    }
-  }
-
+  // Nie dopełniamy karuzeli duplikatami. Lepiej pokazać 9 dobrych, różnych propozycji niż 12 z powtórzeniami.
   return selected.slice(0, limit);
 }
 
