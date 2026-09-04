@@ -92,8 +92,8 @@ function publicationKey(now = new Date()) {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23",
   }).formatToParts(now).reduce<Record<string,string>>((acc, p) => { acc[p.type] = p.value; return acc; }, {});
-  const current = new Date(`${parts.year}-${parts.month}-${parts.day}T12:00:00+02:00`);
-  if (Number(parts.hour) < 12) current.setDate(current.getDate() - 1);
+  const current = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)));
+  if (Number(parts.hour) < 8) current.setUTCDate(current.getUTCDate() - 1);
   return current.toISOString().slice(0, 10);
 }
 
@@ -224,7 +224,7 @@ function OfferRail({ kicker, title, description, items }: { kicker: string; titl
 }
 
 export default function Home() {
-  // V100: selekcja dzienna naprawdę przełącza się o 12:00 czasu polskiego.
+  // V101: selekcja dzienna przełącza się o 08:00 czasu polskiego.
   // Nie zależy od deploymentu ani od ponownego otwarcia karty.
   const [dailyKey, setDailyKey] = useState(() => publicationKey());
 
@@ -303,11 +303,11 @@ export default function Home() {
     const parts = new Intl.DateTimeFormat("en-CA", {
       timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23",
     }).formatToParts(now).reduce<Record<string,string>>((acc, part) => { acc[part.type] = part.value; return acc; }, {});
-    const afterNoon = Number(parts.hour) >= 12;
+    const afterPublication = Number(parts.hour) >= 8;
     const [year, month, day] = dailyKey.split("-");
     return {
-      last: `${day}.${month}.${year}, 12:00`,
-      next: afterNoon ? "jutro o 12:00" : "dzisiaj o 12:00",
+      last: `${day}.${month}.${year}, 08:00`,
+      next: afterPublication ? "jutro o 08:00" : "dzisiaj o 08:00",
     };
   }, [dailyKey]);
 
@@ -455,7 +455,7 @@ export default function Home() {
           <div>
             <div className="kicker">DZISIEJSZA SELEKCJA</div>
             <h2>Dziś bralibyśmy te</h2>
-            <p>Selekcja budowana automatycznie z aktualnych feedów TUI i EXIM. O 12:00 czasu polskiego zmieniamy pulę, a karta pokazuje cenę i konkretny deeplink zapisany w feedzie partnera.</p>
+            <p>Selekcja budowana automatycznie z aktualnych feedów TUI i EXIM. O 08:00 czasu polskiego zmieniamy pulę, a karta pokazuje cenę i konkretny deeplink zapisany w feedzie partnera.</p>
           </div>
           <Link className="section-premium-link" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
