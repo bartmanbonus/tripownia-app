@@ -240,6 +240,7 @@ export default function Home() {
 
   const [liveOffers, setLiveOffers] = useState<TripOffer[]>([]);
   const [liveOffersStatus, setLiveOffersStatus] = useState<"loading" | "live" | "fallback">("loading");
+  const [eximCityBreaks, setEximCityBreaks] = useState<TripOffer[]>([]);
 
   useEffect(() => {
     let active = true;
@@ -275,6 +276,21 @@ export default function Home() {
       active = false;
       controller.abort();
     };
+  }, [dailyKey]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`/api/today-offers?mode=citybreak&key=${encodeURIComponent(dailyKey)}`, { signal: controller.signal, cache: "no-store" })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("citybreak-exim")))
+      .then((data) => {
+        const rows = Array.isArray(data?.offers) ? data.offers : [];
+        setEximCityBreaks(rows
+          .filter((offer: TripOffer) => offer?.partner === "exim" && offer.nights >= 2 && offer.nights <= 5 && offer.price > 0 && offer.affiliateUrl)
+          .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country))
+          .slice(0, 8));
+      })
+      .catch(() => setEximCityBreaks([]));
+    return () => controller.abort();
   }, [dailyKey]);
 
   const fallbackDailyOffers = useMemo(() =>
@@ -337,12 +353,13 @@ export default function Home() {
       }
       return result;
     };
-    const city = fillRail(pick(o => (o.category || []).some(c => /city|weekend|tanio/i.test(c))), 5);
+    // City breaki publikujemy wyłącznie z feedu EXIM: konkretna cena, hotel i transfer w pakiecie.
+    const city = uniqueDestinations(eximCityBreaks.map(offerForDisplay)).slice(0, 8);
     const sun = fillRail(pick(o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c))), 5);
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
     const unusual = fillRail(pick(o => unusualNames.test(o.city)), 5);
     return { city, sun, unusual };
-  }, [dailyKey, liveOffersStatus, liveOffers]);
+  }, [dailyKey, liveOffersStatus, liveOffers, eximCityBreaks]);
   const offersRailRef = useRef<HTMLDivElement>(null);
   const [budget, setBudget] = useState(2500);
   const [surprise, setSurprise] = useState<TripOffer | null>(null);
@@ -487,7 +504,7 @@ export default function Home() {
 
       <section className="section shell streaming-discovery streaming-offers visual-chapter chapter-streaming" aria-label="Odkrywaj oferty Tripowni">
         <div className="section-heading"><div><div className="kicker">NETFLIX PODRÓŻY</div><h2>Przewijaj, aż coś kliknie.</h2><p>Nie jedna ściana ofert. Różne nastroje, różne budżety i konkretne kierunki — codziennie w innym układzie.</p></div></div>
-        <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie wypady, miasta i loty, które nie wymagają pół roku planowania." items={themedRails.city}/>
+        <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety EXIM Tours — lot + hotel + transfer w cenie, z aktualną ceną z feedu." items={themedRails.city}/>
         <OfferRail kicker="☀️ SŁOŃCE / ALL INCLUSIVE" title="Jeszcze trochę lata" description="Plaża, ciepło i gotowe wakacje — od krótkiego resetu po pełny tydzień." items={themedRails.sun}/>
         <OfferRail kicker="✨ UKRYTE PEREŁKI" title="Nie kolejny Rzym i Barcelona" description="Mniej oczywiste kierunki, które robią większe wrażenie niż kolejny klasyk." items={themedRails.unusual}/>
         <div className="streaming-rail editorial-streaming-rail">
