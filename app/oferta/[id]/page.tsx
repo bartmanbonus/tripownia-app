@@ -12,6 +12,7 @@ import FavoriteButton from "@/components/FavoriteButton";
 import OfferCard from "@/components/OfferCard";
 import SocialShare from "@/components/SocialShare";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import EskyLivePackagePrice from "@/components/EskyLivePackagePrice";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
@@ -111,10 +112,16 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <FavoriteButton offerId={o.id}/>
           </div>
           <div className="detail-price-card">
-            <div className="detail-price"><small>ostatnio znaleźliśmy od</small> <strong>{o.price} zł</strong> / os.</div>
-            <div className="price-status detail-price-status">
-              {`Sprawdź aktualną cenę u partnera${checkedAt ? ` — ostatni odczyt ${checkedAt}` : ""}. Może być dziś jeszcze taniej.`}
-            </div>
+            {o.partner === "esky" ? (
+              <EskyLivePackagePrice offerId={o.id} fallbackPrice={o.price} board={o.board} />
+            ) : (
+              <>
+                <div className="detail-price"><small>ostatnio znaleźliśmy od</small> <strong>{o.price} zł</strong> / os.</div>
+                <div className="price-status detail-price-status">
+                  {`Sprawdź aktualną cenę u partnera${checkedAt ? ` — ostatni odczyt ${checkedAt}` : ""}. Może być dziś jeszcze taniej.`}
+                </div>
+              </>
+            )}
           </div>
           <p className="detail-lead">{o.reason}</p>
           <div className="detail-meta">
@@ -128,9 +135,9 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           ) : (
             <div className="detail-action-box">
               <a className="primary-cta" href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
-                {o.partner === "exim" || o.partner === "tui" ? `Zobacz konkretną ofertę w ${p.name}` : `Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
+                {o.partner === "exim" || o.partner === "tui" ? `Zobacz konkretną ofertę w ${p.name}` : o.board.toLocaleLowerCase("pl-PL").includes("śniad") ? `Zobacz aktualne opcje ze śniadaniem w ${p.name}` : `Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
               </a>
-              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Tripownia wybiera konkretny produkt z aktualnego feedu partnera i przekazuje jego productUrl bez przebudowywania deeplinku." : "Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu."}</small>
+              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Tripownia wybiera konkretny produkt z aktualnego feedu partnera i przekazuje jego productUrl bez przebudowywania deeplinku." : o.partner === "esky" && o.board.toLocaleLowerCase("pl-PL").includes("śniad") ? "W eSky pokazujemy wyniki od najniższej ceny. Przy tej propozycji wymaganiem Tripowni jest wariant oznaczony „Śniadanie” — sprawdź to oznaczenie przy wybranym hotelu." : "Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu."}</small>
             </div>
           )}
           <SocialShare
