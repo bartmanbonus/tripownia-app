@@ -404,7 +404,9 @@ function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
 
 export async function GET(request: NextRequest) {
   const key = request.nextUrl.searchParams.get("key") || dailyKey();
-  const mode = request.nextUrl.searchParams.get("mode") === "citybreak" ? "citybreak" : "daily";
+  const requestedMode = request.nextUrl.searchParams.get("mode");
+  const mode = requestedMode === "citybreak" ? "citybreak" : requestedMode === "search" ? "search" : "daily";
+  const query = (request.nextUrl.searchParams.get("q") || "").trim().slice(0, 80);
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
 
@@ -413,9 +415,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const terms = mode === "citybreak"
-      ? shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 10)
-      : shuffle(SEARCH_TERMS, `terms:${key}`).slice(0, 8);
+    const terms = mode === "search" && query
+      ? [query]
+      : mode === "citybreak"
+        ? shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 10)
+        : shuffle(SEARCH_TERMS, `terms:${key}`).slice(0, 8);
     const jobs: Promise<{ provider: Provider; products: TdProduct[] }>[] = [];
 
     for (const term of terms) {
@@ -443,7 +447,9 @@ export async function GET(request: NextRequest) {
     const pool = Array.from(unique.values());
     const selected = mode === "citybreak"
       ? selectDaily(pool.filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5), `${key}:citybreak`, 8)
-      : selectDaily(pool, key, 12);
+      : mode === "search"
+        ? pool.sort((a,b) => a.price - b.price).slice(0, 24)
+        : selectDaily(pool, key, 12);
     return NextResponse.json(
       {
         ok: selected.length > 0,
