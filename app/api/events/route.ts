@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { partners } from "@/lib/partners";
 
 type Club = {
   slug: string;
