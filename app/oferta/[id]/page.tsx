@@ -12,7 +12,6 @@ import FavoriteButton from "@/components/FavoriteButton";
 import OfferCard from "@/components/OfferCard";
 import SocialShare from "@/components/SocialShare";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
-import EskyLivePackagePrice from "@/components/EskyLivePackagePrice";
 import EximLivePrice from "@/components/EximLivePrice";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
@@ -117,9 +116,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <FavoriteButton offerId={o.id}/>
           </div>
           <div className="detail-price-card">
-            {o.partner === "esky" ? (
-              <EskyLivePackagePrice offerId={o.id} fallbackPrice={o.price} board={o.board} />
-            ) : o.partner === "exim" ? (
+            {o.partner === "exim" ? (
               <EximLivePrice destination={o.city} country={o.country} from={o.airportCode} nights={o.nights} board={o.board} fallbackPrice={o.price} />
             ) : (
               <>
@@ -133,7 +130,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           <p className="detail-lead">{o.partner === "exim" ? o.reason : o.reason}</p>
           <div className="detail-meta">
             <span><Plane/> <b>{o.departure}</b></span><span><Moon/> <b>{o.nights} nocy</b></span>
-            <span><Sun/> <b>{o.weather}</b></span>{o.partner !== "esky" && <span><Utensils/> <b>{o.board}</b></span>}
+            <span><Sun/> <b>{o.weather}</b></span><span><Utensils/> <b>{o.board}</b></span>
             <span><MapPin/> <b>{o.hotel}</b></span><span>📅 <b>{o.dates}</b></span>
           </div>
           <div className="detail-source">Oferta sprawdzana u: <strong>{p.name}</strong></div>
@@ -144,7 +141,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               <a className="primary-cta" href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
                 {o.partner === "exim" || o.partner === "tui" ? `Zobacz konkretną ofertę w ${p.name}` : `Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
               </a>
-              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Cena i dostępność mogą zmieniać się dynamicznie. Rezerwacja odbywa się bezpośrednio w EXIM Tours." : o.partner === "esky" ? "eSky otwiera wyniki dla wybranego kierunku posortowane od najniższej ceny. Ostateczna cena i wariant wyżywienia są widoczne w wynikach eSky." : "Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu."}</small>
+              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Cena i dostępność mogą się zmieniać. Rezerwacja odbywa się bezpośrednio u organizatora." : "Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu."}</small>
             </div>
           )}
           <SocialShare
@@ -156,7 +153,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       </section>
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
       {o.availabilityStatus !== "expired" && <div className="mobile-booking-bar">
-        <div>{o.partner === "exim" ? <><small>Aktualna oferta</small><strong>Sprawdź cenę</strong></> : o.partner === "esky" ? <><small>Cena dynamiczna</small><strong>Sprawdź teraz w eSky</strong></> : <><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></>}</div>
+        <div>{o.partner === "exim" ? <><small>Cena od</small><strong>{o.price} zł / os.</strong></> : <><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></>}</div>
         <a href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
           Sprawdź, czy jest taniej <ExternalLink size={16}/>
         </a>
