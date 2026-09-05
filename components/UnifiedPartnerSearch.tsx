@@ -178,15 +178,15 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
   const primary=useMemo(()=>{
     if(searchType==="flights") return {label:"Pokaż loty",url:links.kiwi,source:"Loty"};
     if(searchType==="hotels") return {label:"Pokaż hotele",url:links.booking,source:"Hotele"};
-    if(searchType==="city") return {label:"Pokaż city break w EXIM",url:links.exim,source:"EXIM Tours"};
+    if(searchType==="city") return {label:"Pokaż city break",url:links.exim,source:"City break"};
     if(searchType==="holiday"||searchType==="lastminute") return {label:"Pokaż wyjazdy",url:links.exim,source:"Pakiety wakacyjne"};
-    return {label:"Pokaż pakiety w EXIM",url:links.exim,source:"EXIM Tours"};
+    return {label:"Pokaż pakiety",url:links.exim,source:"Pakiety"};
   },[searchType,links]);
 
   const alternatives=searchType==="holiday"||searchType==="lastminute"
     ? [{label:"Porównaj wakacje",url:links.wakacje},{label:"Lot + hotel",url:links.esky}]
     : searchType==="city"||searchType==="package"
-      ? [{label:"Sprawdź też TUI",url:links.tui},{label:"Samodzielnie w eSky",url:links.esky}]
+      ? [{label:"Porównaj drugą bazę",url:links.tui},{label:"Szukaj samodzielnie",url:links.esky}]
       : [];
 
   function changeType(type:SearchType){
@@ -197,14 +197,14 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
   }
 
   return <section className="trip-search-engine" id="pelna-wyszukiwarka">
-    <div className="trip-search-title"><span>WYSZUKIWARKA TRIPOWNI</span><h2>Znajdź i rezerwuj bezpośrednio u partnera</h2><p>Jedno wyszukiwanie. Tripownia dobiera właściwe źródło i przekazuje kierunek, termin, lotnisko oraz liczbę osób.</p></div>
+    <div className="trip-search-title"><span>WYSZUKIWARKA TRIPOWNI</span><h2>Znajdź wyjazd i przejdź prosto do rezerwacji</h2><p>Jedno wyszukiwanie. Tripownia dobiera właściwą ścieżkę i przekazuje kierunek, termin, lotnisko oraz liczbę osób.</p></div>
 
     <div className="trip-search-shell">
       <div className="trip-search-tabs" role="tablist" aria-label="Rodzaj wyjazdu">
         {tabs.map(tab=><button key={tab.key} type="button" role="tab" aria-selected={searchType===tab.key} className={searchType===tab.key?"active":""} onClick={()=>changeType(tab.key)}>{tab.icon}<span>{tab.label}</span></button>)}
       </div>
 
-      <div className="trip-search-context"><strong>{tabs.find(t=>t.key===searchType)?.label}</strong><span>{searchType==="flights"?"Znajdź najtańsze połączenia z uwzględnieniem wszystkich lotnisk w mieście.":searchType==="hotels"?"Sprawdź noclegi dla wybranego miejsca i terminu.":searchType==="holiday"||searchType==="lastminute"?"Porównaj pakiety i gotowe wakacje — najpierw sprawdzamy EXIM, potem Wakacje.pl.":"Tripownia szuka pakietów w feedach EXIM i TUI. City breaki dobieramy wyłącznie z EXIM."}</span></div>
+      <div className="trip-search-context"><strong>{tabs.find(t=>t.key===searchType)?.label}</strong><span>{searchType==="flights"?"Znajdź najtańsze połączenia z uwzględnieniem wszystkich lotnisk w mieście.":searchType==="hotels"?"Sprawdź noclegi dla wybranego miejsca i terminu.":searchType==="holiday"||searchType==="lastminute"?"Porównaj gotowe pakiety i aktualne warianty wakacyjne.":"Tripownia przeszukuje aktualne pakiety. City breaki dobieramy tylko z krótkich wyjazdów z transferem."}</span></div>
 
       <div className="trip-search-form">
         <label className="trip-field trip-destination"><span><MapPin size={15}/> Dokąd?</span><input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="Dowolny kierunek"/></label>
@@ -226,12 +226,12 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
     </div>}
 
     <div className="trip-partner-mini">
-      <div className="trip-partner-mini-head"><div><small>PEŁNA BAZA PARTNERÓW</small><strong>Chcesz poszukać szerzej? Tripownia już przekazuje Twoje parametry.</strong></div><span>Jedna wyszukiwarka → kilka źródeł</span></div>
+      <div className="trip-partner-mini-head"><div><small>SZUKAJ SZERZEJ</small><strong>Chcesz poszukać szerzej? Parametry są już gotowe do dalszego wyszukiwania.</strong></div><span>Jedno wyszukiwanie → więcej możliwości</span></div>
       <div className="trip-partner-mini-grid">
-        <a href={links.exim} target="_blank" rel="sponsored noopener noreferrer"><span>☀️</span><div><strong>EXIM Tours</strong><small>Wakacje, All Inclusive i last minute</small></div><b>Sprawdź →</b></a>
-        <a href={links.wakacje} target="_blank" rel="sponsored noopener noreferrer"><span>🏖️</span><div><strong>Wakacje.pl</strong><small>Pakiety wielu organizatorów</small></div><b>Porównaj →</b></a>
-        <a href={links.tui} target="_blank" rel="sponsored noopener noreferrer"><span>🌴</span><div><strong>TUI</strong><small>Gotowe wakacje i hotele</small></div><b>Zobacz →</b></a>
-        <a href={links.esky} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>eSky — szukaj samodzielnie</strong><small>Dodatkowa wyszukiwarka, poza rekomendacjami Tripowni</small></div><b>Szukaj →</b></a>
+        <a href={links.exim} target="_blank" rel="sponsored noopener noreferrer"><span>☀️</span><div><strong>Wakacje i All Inclusive</strong><small>Pełna baza pakietów</small></div><b>Sprawdź →</b></a>
+        <a href={links.wakacje} target="_blank" rel="sponsored noopener noreferrer"><span>🏖️</span><div><strong>Porównaj więcej pakietów</strong><small>Więcej organizatorów i terminów</small></div><b>Porównaj →</b></a>
+        <a href={links.tui} target="_blank" rel="sponsored noopener noreferrer"><span>🌴</span><div><strong>Druga baza wakacji</strong><small>Gotowe wyjazdy i hotele</small></div><b>Zobacz →</b></a>
+        <a href={links.esky} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>Szukaj samodzielnie</strong><small>Dodatkowa wyszukiwarka poza rekomendacjami Tripowni</small></div><b>Szukaj →</b></a>
       </div>
     </div>
 

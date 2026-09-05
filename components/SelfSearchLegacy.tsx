@@ -17,18 +17,18 @@ const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
 
 export default function SelfSearchLegacy() {
   const [tab, setTab] = useState<Tab>("package");
-  const eskyPackages = partners.esky.buildUrl("https://www2.esky.pl/lot+hotel/portfolio?context=pl-packages&sort[TotalPrice]=asc");
-  const eskyFlights = partners.esky.buildUrl("https://www.esky.pl/tanie-loty/");
-  const exim = partners.exim.buildUrl("https://www.exim.pl/wakacje");
-  const tui = partners.tui.buildUrl("https://www.tui.pl/wypoczynek");
-  const booking = partners.booking.buildUrl("https://www.booking.com/");
+  const packages = partners.esky.buildUrl("https://www2.esky.pl/lot+hotel/portfolio?context=pl-packages&sort[TotalPrice]=asc");
+  const flights = partners.esky.buildUrl("https://www.esky.pl/tanie-loty/");
+  const holidayA = partners.exim.buildUrl("https://www.exim.pl/wakacje");
+  const holidayB = partners.tui.buildUrl("https://www.tui.pl/wypoczynek");
+  const hotels = partners.booking.buildUrl("https://www.booking.com/");
 
   return (
     <section className="legacy-self-search" id="szukaj-samodzielnie">
       <div className="legacy-self-search-head">
         <small>SZUKAJ SAMODZIELNIE</small>
-        <h2>Wolisz przejrzeć pełną ofertę po swojemu?</h2>
-        <p>Ta część jest niezależna od rekomendacji Tripowni. Wybierasz partnera i samodzielnie ustawiasz kierunek, termin oraz wariant podróży.</p>
+        <h2>Pełna swoboda, gdy chcesz poszukać po swojemu.</h2>
+        <p>To osobne narzędzie poza rekomendacjami Tripowni. Ustawiasz kierunek, termin i wariant, a my przekazujemy Cię prosto do wyszukiwania.</p>
       </div>
 
       <div className="legacy-search-card">
@@ -44,30 +44,30 @@ export default function SelfSearchLegacy() {
           {(tab === "package" || tab === "city") && (
             <>
               <div className="legacy-search-panel-copy">
-                <strong>{tab === "city" ? "Samodzielne wyszukiwanie city breaku" : "Samodzielne wyszukiwanie lot + hotel"}</strong>
-                <span>eSky zostaje tutaj jako dodatkowa wyszukiwarka. Nie zasila naszych rekomendacji ani sekcji okazji.</span>
+                <strong>{tab === "city" ? "Samodzielnie: city break" : "Samodzielnie: lot + hotel"}</strong>
+                <span>Ustaw parametry samodzielnie i porównaj dostępne warianty.</span>
               </div>
               <div className="legacy-widget-box"><EskyLiveWidget mode="packages" /></div>
-              <a className="legacy-search-open" href={eskyPackages} target="_blank" rel="sponsored noopener noreferrer"><Search size={17}/> Otwórz pełną wyszukiwarkę eSky</a>
+              <a className="legacy-search-open" href={packages} target="_blank" rel="sponsored noopener noreferrer"><Search size={17}/> Otwórz pełne wyszukiwanie</a>
             </>
           )}
 
           {tab === "holiday" && (
             <>
-              <div className="legacy-search-panel-copy"><strong>Wakacje z biurem podróży</strong><span>Przejdź bezpośrednio do pełnej oferty EXIM Tours lub TUI.</span></div>
+              <div className="legacy-search-panel-copy"><strong>Wakacje z biurem podróży</strong><span>Dwie pełne bazy ofert — bez ograniczenia do naszej codziennej selekcji.</span></div>
               <div className="legacy-direct-grid">
-                <a href={exim} target="_blank" rel="sponsored noopener noreferrer"><span>☀️</span><div><strong>EXIM Tours</strong><small>Wakacje, All Inclusive, last minute</small></div><b>Sprawdź →</b></a>
-                <a href={tui} target="_blank" rel="sponsored noopener noreferrer"><span>🌴</span><div><strong>TUI</strong><small>Pełna oferta wakacyjna</small></div><b>Sprawdź →</b></a>
+                <a href={holidayA} target="_blank" rel="sponsored noopener noreferrer"><span>☀️</span><div><strong>Wakacje i All Inclusive</strong><small>Pełna oferta i aktualna dostępność</small></div><b>Sprawdź →</b></a>
+                <a href={holidayB} target="_blank" rel="sponsored noopener noreferrer"><span>🌴</span><div><strong>Więcej gotowych pakietów</strong><small>Hotele, wyżywienie i terminy</small></div><b>Sprawdź →</b></a>
               </div>
             </>
           )}
 
           {tab === "flights" && (
-            <div className="legacy-cta-box"><div><strong>Same loty</strong><span>Porównaj połączenia i ustaw wszystkie parametry samodzielnie.</span></div><a href={eskyFlights} target="_blank" rel="sponsored noopener noreferrer">Szukaj lotów w eSky →</a></div>
+            <div className="legacy-cta-box"><div><strong>Same loty</strong><span>Porównaj połączenia i ustaw wszystkie parametry samodzielnie.</span></div><a href={flights} target="_blank" rel="sponsored noopener noreferrer">Szukaj lotów →</a></div>
           )}
 
           {tab === "hotels" && (
-            <div className="legacy-cta-box"><div><strong>Sam nocleg</strong><span>Masz już lot? Przejdź do pełnej wyszukiwarki hoteli.</span></div><a href={booking} target="_blank" rel="sponsored noopener noreferrer">Szukaj hoteli →</a></div>
+            <div className="legacy-cta-box"><div><strong>Sam nocleg</strong><span>Masz już lot? Przejdź do pełnej wyszukiwarki hoteli.</span></div><a href={hotels} target="_blank" rel="sponsored noopener noreferrer">Szukaj hoteli →</a></div>
           )}
         </div>
       </div>

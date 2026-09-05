@@ -38,7 +38,7 @@ export default function SocialShare({ url, title, text }: SocialShareProps) {
       <div className="share-copy">
         <small>UDOSTĘPNIJ OKAZJĘ</small>
         <strong>Wyślij ją osobie, z którą chcesz polecieć</strong>
-        <span>Udostępniasz stronę Tripowni — partner afiliacyjny otwiera się dopiero z oferty.</span>
+        <span>Udostępniasz stronę Tripowni — rezerwacja otwiera się dopiero po przejściu do oferty.</span>
       </div>
       <div className="share-actions">
         <button type="button" className="share-native" onClick={nativeShare}><Share2 size={16}/> Udostępnij</button>

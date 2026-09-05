@@ -39,7 +39,7 @@ function ServicePage({ type }: { type: ServiceType }) {
       kicker: "DODATEK DO PODRÓŻY", title: "Atrakcje i bilety na miejscu",
       lead: "Najpierw wybierz konkretny kierunek i termin, potem dobierz wycieczki, bilety i atrakcje.",
       partner: partners.getyourguide,
-      bullets: ["Sprawdź, ile masz realnie czasu na miejscu.", "Wybierz 1–2 najważniejsze atrakcje zamiast kupować wszystko na zapas.", "Na końcu sprawdź dostępność i cenę u partnera."],
+      bullets: ["Sprawdź, ile masz realnie czasu na miejscu.", "Wybierz 1–2 najważniejsze atrakcje zamiast kupować wszystko na zapas.", "Na końcu sprawdź aktualną dostępność i cenę."],
     },
     esim: {
       kicker: "DODATEK DO PODRÓŻY", title: "eSIM i internet w podróży",
@@ -67,7 +67,7 @@ function ServicePage({ type }: { type: ServiceType }) {
     },
   }[type];
 
-  return <main><SiteHeader/><section className="shell service-page"><div className="kicker">{config.kicker}</div><h1>{config.title}</h1><p className="hub-lead">{config.lead}</p><div className="service-panel"><div><h2>Co sprawdzić?</h2><ul>{config.bullets.map((b)=><li key={b}>{b}</li>)}</ul></div><div className="service-cta">{config.partner ? <><strong>{config.partner.name}</strong><p>Do partnera przejdziesz dopiero na końcu. Link jest afiliacyjny i może naliczyć Tripowni prowizję bez dodatkowego kosztu dla Ciebie.</p><a href={config.partner.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Przejdź do {config.partner.name} →</a></> : <><strong>Porównywarka w przygotowaniu</strong><p>Nie wysyłamy Cię na przypadkową stronę tylko po to, żeby mieć link. Gdy dodamy sprawdzonego partnera, pojawi się tu konkretna opcja.</p><Link href="/poradniki">Zobacz poradniki →</Link></>}</div></div></section><SiteFooter/></main>;
+  return <main><SiteHeader/><section className="shell service-page"><div className="kicker">{config.kicker}</div><h1>{config.title}</h1><p className="hub-lead">{config.lead}</p><div className="service-panel"><div><h2>Co sprawdzić?</h2><ul>{config.bullets.map((b)=><li key={b}>{b}</li>)}</ul></div><div className="service-cta">{config.partner ? <><strong>Sprawdź dostępne opcje</strong><p>Po kliknięciu przechodzisz bezpośrednio do rezerwacji. Cena i dostępność są potwierdzane na ostatnim kroku.</p><a href={config.partner.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Sprawdź teraz →</a></> : <><strong>Porównywarka w przygotowaniu</strong><p>Nie wysyłamy Cię na przypadkową stronę tylko po to, żeby mieć link. Gdy dodamy sprawdzonego partnera, pojawi się tu konkretna opcja.</p><Link href="/poradniki">Zobacz poradniki →</Link></>}</div></div></section><SiteFooter/></main>;
 }
 
 function humanize(path: string) {
@@ -179,12 +179,12 @@ function ExperiencePage({ path }: { path: string }) {
       </div>
 
       <section className="experience-current-offers">
-        <div className="section-heading"><div><div className="kicker">AKTUALNIE W TRIPOWNI</div><h2>{active.length ? `Aktualne okazje: ${page.partnerQuery}` : `Sprawdź aktualne ceny: ${page.partnerQuery}`}</h2><p>{active.length ? "Najpierw pokazujemy dopasowane aktywne oferty z bazy Tripowni." : "Nie mamy dziś zapisanej karty cenowej dokładnie pod to przeżycie. Nie pokazujemy losowych ofert — przejdź od razu do aktualnego wyszukiwania partnerów."}</p></div></div>
+        <div className="section-heading"><div><div className="kicker">AKTUALNIE W TRIPOWNI</div><h2>{active.length ? `Aktualne okazje: ${page.partnerQuery}` : `Sprawdź aktualne ceny: ${page.partnerQuery}`}</h2><p>{active.length ? "Najpierw pokazujemy dopasowane aktywne oferty z bazy Tripowni." : "Nie mamy dziś zapisanej karty cenowej dokładnie pod to przeżycie. Nie pokazujemy losowych ofert — przejdź od razu do aktualnego wyszukiwania."}</p></div></div>
         {active.length > 0 && <div className="cards-grid">{active.map(o => <OfferCard key={o.id} offer={experienceImage(o)}/>)}</div>}
         <div className="experience-partner-grid">
-          <a href={eskyUrl} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>Loty w eSky</strong><small>Kierunek ustawiony na {page.partnerQuery}</small></div><b>Sprawdź →</b></a>
-          <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🛫</span><div><strong>Loty w Kiwi.com</strong><small>Cel ustawiony · sortowanie od najniższej ceny</small></div><b>Sprawdź →</b></a>
-          <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏨</span><div><strong>Noclegi Booking.com</strong><small>Wyszukiwanie dla: {page.partnerQuery}</small></div><b>Sprawdź →</b></a>
+          <a href={eskyUrl} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>Sprawdź loty</strong><small>Kierunek ustawiony na {page.partnerQuery}</small></div><b>Sprawdź →</b></a>
+          <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🛫</span><div><strong>Loty w Loty</strong><small>Cel ustawiony · sortowanie od najniższej ceny</small></div><b>Sprawdź →</b></a>
+          <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏨</span><div><strong>Noclegi Noclegi</strong><small>Wyszukiwanie dla: {page.partnerQuery}</small></div><b>Sprawdź →</b></a>
         </div>
       </section>
     </section>
@@ -373,7 +373,7 @@ function LongHaulPage() {
     </div></section>
     <section className="section shell long-haul-intro">
       <div className="section-heading"><div><div className="kicker">WIĘKSZA PODRÓŻ</div><h2>Tu nie wybieramy tylko miasta.</h2><p>Przy dalekim wyjeździe liczy się sezon, długość pobytu, przesiadki i to, czy da się sensownie połączyć kilka miejsc.</p></div></div>
-      <div className="long-haul-principles"><div><span>🗓️</span><strong>Minimum czasu</strong><p>Nie proponujemy 4 dni w miejscu, do którego leci się kilkanaście godzin.</p></div><div><span>🌦️</span><strong>Sezon ma znaczenie</strong><p>Podpowiadamy lepsze okna pogodowe zamiast udawać, że każdy miesiąc jest taki sam.</p></div><div><span>✈️</span><strong>Lot już ustawiony</strong><p>CTA otwiera eSky z Warszawą, właściwym lotniskiem docelowym i przykładowym terminem.</p></div><div><span>🏨</span><strong>Nocleg już ustawiony</strong><p>Booking dostaje konkretną miejscowość oraz te same daty pobytu.</p></div></div>
+      <div className="long-haul-principles"><div><span>🗓️</span><strong>Minimum czasu</strong><p>Nie proponujemy 4 dni w miejscu, do którego leci się kilkanaście godzin.</p></div><div><span>🌦️</span><strong>Sezon ma znaczenie</strong><p>Podpowiadamy lepsze okna pogodowe zamiast udawać, że każdy miesiąc jest taki sam.</p></div><div><span>✈️</span><strong>Lot już ustawiony</strong><p>CTA otwiera gotowe wyszukiwanie lotu z Warszawy do właściwego kierunku i dla przykładowego terminu.</p></div><div><span>🏨</span><strong>Nocleg już ustawiony</strong><p>Otwieramy noclegi z ustawioną miejscowością i tym samym terminem.</p></div></div>
     </section>
     <section className="section shell"><div className="long-haul-list">
       {longTrips.map(trip => <article className="long-haul-detail-card" id={trip.id} key={trip.id}>
@@ -413,7 +413,7 @@ function AliasLandingPage({ path }: { path: string }) {
       <h1>{title}</h1>
       <p className="hub-lead">
         {hasDirectMatches
-          ? `Zebraliśmy aktualne propozycje pasujące do tematu „${title}”. Otwórz ofertę na Tripowni, sprawdź szczegóły i dopiero potem przejdź do partnera.`
+          ? `Zebraliśmy aktualne propozycje pasujące do tematu „${title}”. Otwórz ofertę na Tripowni, sprawdź szczegóły i dopiero potem przejdź do rezerwacji.`
           : `Sprawdź aktualne okazje i inspiracje Tripowni związane z tematem „${title}”. Jeśli nie ma dziś dokładnego dopasowania, pokażemy najciekawsze aktywne propozycje.`}
       </p>
       <div className="cards-grid">{shown.map(o=><OfferCard key={o.id} offer={experienceImage(o)}/>)}</div>
@@ -429,7 +429,7 @@ function AliasLandingPage({ path }: { path: string }) {
 export default function UnifiedPage({ path }: { path: string }) {
   if (path === "/admin") return <><SiteHeader/><AdminStudio offers={offers}/><SiteFooter/></>;
 
-  if (path === "/okazje") return <main><SiteHeader/><section className="shell hub-page"><div className="kicker">AKTUALNE OKAZJE</div><h1>Podróże, które warto sprawdzić</h1><p className="hub-lead">Najpierw otwierasz ofertę na Tripowni, sprawdzasz ocenę i szczegóły, a dopiero potem przechodzisz do partnera.</p><div className="cards-grid">{offers.map(o=><OfferCard key={o.id} offer={experienceImage(o)}/>)}</div></section><SiteFooter/></main>;
+  if (path === "/okazje") return <main><SiteHeader/><section className="shell hub-page"><div className="kicker">AKTUALNE OKAZJE</div><h1>Podróże, które warto sprawdzić</h1><p className="hub-lead">Najpierw otwierasz ofertę na Tripowni, sprawdzasz ocenę i szczegóły, a dopiero potem przechodzisz do rezerwacji.</p><div className="cards-grid">{offers.map(o=><OfferCard key={o.id} offer={experienceImage(o)}/>)}</div></section><SiteFooter/></main>;
 
   if (path === "/poradniki") return <main><SiteHeader/><section className="shell hub-page"><div className="kicker">MAGAZYN TRIPOWNI</div><h1>Poradniki podróżnicze</h1><p className="hub-lead">Dotychczasowe artykuły Tripowni w jednym miejscu.</p><div className="article-grid">{legacyPosts.map(p=><Link key={p.path} href={p.path}><span>PORADNIK</span><strong>{p.title}</strong><p>{p.description}</p><b>Czytaj →</b></Link>)}</div></section><SiteFooter/></main>;
 

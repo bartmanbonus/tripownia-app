@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
-import { partners } from "@/lib/partners";
 import TravelImage from "@/components/TravelImage";
 import { useEffect, useState } from "react";
 import { getOfferOverride, type OfferOverride } from "@/lib/clientOfferOverrides";
@@ -77,8 +76,8 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
     : linkMatch === "exact"
-      ? "Biorę tę ofertę"
-      : "Sprawdź najtańszą teraz";
+      ? "Sprawdź tę ofertę"
+      : "Sprawdź aktualne opcje";
 
   return (
     <article
@@ -150,8 +149,8 @@ export default function OfferCard({ offer }: { offer: Offer }) {
                 : "Sprawdź dostępność i aktualną cenę przed rezerwacją"}
         </div>
 
-        <div className="partner-chip">
-          Oferta dostępna w <strong>{partners[offer.partner].name}</strong>
+        <div className="partner-chip partner-chip-tripownia">
+          <strong>Wybrane przez Tripownię</strong> · sprawdzamy cenę i dostępność
         </div>
 
         <div className="meta">
@@ -186,7 +185,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         {!isExpired && (
           isLiveExact ? (
             <a className="admin-preview-link" href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
-              Zobacz szczegóły i warunki u partnera →
+              Zobacz szczegóły i warunki →
             </a>
           ) : (
             <Link className="admin-preview-link" href={`/oferta/${offer.id}`}>

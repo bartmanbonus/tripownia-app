@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 export default function SiteHeader() {
+  const showMarkets = Date.now() <= new Date("2027-01-07T22:59:59Z").getTime();
   const siteSchema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -24,7 +25,7 @@ export default function SiteHeader() {
             <Link className="nav-sale nav-sale-main" href="/okazje"><span className="nav-ico nav-ico-hot" aria-hidden="true">●</span><span>Okazje</span></Link>
             <Link className="nav-sale nav-sale-events" href="/wydarzenia" title="Mecze, eventy i wyjazdy sportowe"><span className="nav-ico" aria-hidden="true">⚽</span><span>Mecze i eventy</span></Link>
             <Link className="nav-sale nav-sale-experience" href="/podroze-po-przezycia"><span className="nav-ico" aria-hidden="true">✨</span><span>Przeżycia</span></Link>
-            <Link className="nav-sale nav-sale-market seasonal-nav-link" href="/jarmarki-bozonarodzeniowe"><span className="nav-ico" aria-hidden="true">🎄</span><span>Jarmarki</span></Link>
+            {showMarkets && <Link className="nav-sale nav-sale-market seasonal-nav-link" href="/jarmarki-bozonarodzeniowe"><span className="nav-ico" aria-hidden="true">🎄</span><span>Jarmarki</span></Link>}
             <Link className="nav-sale nav-sale-newyear seasonal-nav-link" href="/sylwester"><span className="nav-ico" aria-hidden="true">🥂</span><span>Sylwester</span></Link>
             <Link className="nav-sale nav-sale-longhaul" href="/dalekie-podroze"><span className="nav-ico" aria-hidden="true">🌍</span><span>Dalekie podróże</span></Link>
           </nav>

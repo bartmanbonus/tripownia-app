@@ -110,7 +110,7 @@ export default function BeforeYouGo({
 
           <span>
             {transferIncluded
-              ? "W tej selekcji transfer jest oznaczony jako element pakietu. Przed zakupem potwierdź jego warunki u partnera."
+              ? "W tej selekcji transfer jest oznaczony jako element pakietu. Przed zakupem potwierdź jego aktualne warunki."
               : "Transfer nie jest potwierdzony w danych Tripowni. Przed zakupem sprawdź sposób dojazdu z lotniska."}
           </span>
 

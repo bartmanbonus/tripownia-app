@@ -47,7 +47,7 @@ export default function EximLivePrice({ destination, country, from, nights, boar
   }
 
   if (!data?.available || !data.pricePerPerson) {
-    return compact ? <span>sprawdź aktualną cenę</span> : <><div className="detail-price"><small>aktualna cena</small> <strong>sprawdź w EXIM Tours</strong></div><div className="price-status detail-price-status">Cena zależy od terminu i dostępności miejsc.</div></>;
+    return compact ? <span>sprawdź aktualną cenę</span> : <><div className="detail-price"><small>aktualna cena</small> <strong>sprawdź aktualne opcje</strong></div><div className="price-status detail-price-status">Cena zależy od terminu i dostępności miejsc.</div></>;
   }
 
   const live = data.pricePerPerson;
