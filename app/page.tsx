@@ -294,7 +294,7 @@ export default function Home() {
   }, [dailyKey]);
 
   const fallbackDailyOffers = useMemo(() =>
-    getDailyOffers(offers.filter(o => o.partner !== "esky" && isTravelDestinationAllowed(o.city, o.country)), 12, new Date()).map(offerForDisplay),
+    getDailyOffers(offers.filter(o => ["exim","tui"].includes(o.partner) && isTravelDestinationAllowed(o.city, o.country)), 12, new Date()).map(offerForDisplay),
     [dailyKey]
   );
 
@@ -304,7 +304,7 @@ export default function Home() {
   );
 
   const previousOffers = useMemo(() =>
-    getDailyOffers(offers.filter(o => o.partner !== "esky" && isTravelDestinationAllowed(o.city, o.country)), 12, new Date(Date.now() - 86_400_000)),
+    getDailyOffers(offers.filter(o => ["exim","tui"].includes(o.partner) && isTravelDestinationAllowed(o.city, o.country)), 12, new Date(Date.now() - 86_400_000)),
     [dailyKey]
   );
 
@@ -330,8 +330,8 @@ export default function Home() {
   const themedRails = useMemo(() => {
     const key = dailyKey;
     const homePool = liveOffersStatus === "live"
-      ? [...liveOffers, ...offers.filter(o => !isOfferExpired(o) && o.partner !== "esky")]
-      : offers.filter(o => !isOfferExpired(o) && o.partner !== "esky");
+      ? [...liveOffers, ...offers.filter(o => !isOfferExpired(o) && ["exim","tui"].includes(o.partner))]
+      : offers.filter(o => !isOfferExpired(o) && ["exim","tui"].includes(o.partner));
     const active: TripOffer[] = seededShuffle<TripOffer>(homePool.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay), `tripownia-rails:${key}`);
     const uniqueDestinations = (rows: typeof active) => {
       const seen = new Set<string>();
@@ -504,7 +504,7 @@ export default function Home() {
 
       <section className="section shell streaming-discovery streaming-offers visual-chapter chapter-streaming" aria-label="Odkrywaj oferty Tripowni">
         <div className="section-heading"><div><div className="kicker">NETFLIX PODRÓŻY</div><h2>Przewijaj, aż coś kliknie.</h2><p>Nie jedna ściana ofert. Różne nastroje, różne budżety i konkretne kierunki — codziennie w innym układzie.</p></div></div>
-        <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety EXIM Tours — lot + hotel + transfer w cenie, z aktualną ceną z feedu." items={themedRails.city}/>
+        <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety EXIM Tours — lot + hotel + transfer w cenie. Konkretne terminy i ceny w jednym miejscu." items={themedRails.city}/>
         <OfferRail kicker="☀️ SŁOŃCE / ALL INCLUSIVE" title="Jeszcze trochę lata" description="Plaża, ciepło i gotowe wakacje — od krótkiego resetu po pełny tydzień." items={themedRails.sun}/>
         <OfferRail kicker="✨ UKRYTE PEREŁKI" title="Nie kolejny Rzym i Barcelona" description="Mniej oczywiste kierunki, które robią większe wrażenie niż kolejny klasyk." items={themedRails.unusual}/>
         <div className="streaming-rail editorial-streaming-rail">
@@ -632,7 +632,7 @@ export default function Home() {
         <div className="hub-grid">
           <Link href="/kierunki"><strong>🌍 Kierunki</strong><span>Malta, Grecja, Włochy, Hiszpania i dziesiątki inspiracji.</span></Link>
           <Link href="/city-break"><strong>🏙 City break</strong><span>Krótkie wyjazdy, gotowe pomysły i aktualne okazje.</span></Link>
-          <Link href="/wakacje"><strong>🏖 Wakacje</strong><span>Pełna oferta EXIM, Wakacje.pl, eSky, Kiwi i Booking.</span></Link><Link href="/last-minute"><strong>⚡ Last minute</strong><span>Szybkie wyjazdy i pełne bazy partnerów.</span></Link>
+          <Link href="/wakacje"><strong>🏖 Wakacje</strong><span>Pełna oferta EXIM Tours i TUI oraz dodatkowe narzędzia do samodzielnego planowania.</span></Link><Link href="/last-minute"><strong>⚡ Last minute</strong><span>Szybkie wyjazdy i pełne bazy partnerów.</span></Link>
           <Link href="/podroze-po-przezycia"><strong>✨ Przeżycia</strong><span>Zjawiska, sezonowość i podróże planowane pod właściwy moment.</span></Link>
           <Link href="/dalekie-podroze"><strong>🌏 Dalekie podróże</strong><span>Wietnam, Pekin, Nowy Jork, Japonia, Tajlandia i dalsze wyprawy.</span></Link>
           <Link href="/magazyn-podrozniczy"><strong>📰 Magazyn podróżniczy</strong><span>Formalności, lotniska, bagaż i praktyczne wskazówki.</span></Link>
