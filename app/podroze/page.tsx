@@ -19,7 +19,7 @@ export default function TravelIdeasPage() {
         <h1>Znajdź podróż po kierunku, budżecie albo lotnisku</h1>
         <p className="hub-lead">
           To nie jest katalog artykułów. Każda strona prowadzi do aktualnych ofert Tripownii
-          oraz wyszukiwania lotów, noclegów i pakietów u partnerów.
+          oraz samodzielnego wyszukiwania lotów, noclegów i pakietów.
         </p>
         <div className="seo-link-grid">
           {seoLandings.map(item => (
