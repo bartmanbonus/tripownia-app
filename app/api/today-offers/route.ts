@@ -202,9 +202,8 @@ function scoreFor(price: number, rating: number, board: string, daysOut: number)
 }
 
 function reasonFor(provider: Provider, price: number, nights: number, board: string) {
-  const providerName = provider === "exim" ? "EXIM" : "TUI";
   const boardText = /all inclusive/i.test(board) ? " z All Inclusive" : "";
-  return `${nights} nocy${boardText} i aktualna cena z feedu ${providerName}: ${price.toLocaleString("pl-PL")} zł/os.`;
+  return `${nights} nocy${boardText} w cenie od ${price.toLocaleString("pl-PL")} zł/os. Dobra opcja na ten termin.`;
 }
 
 async function fetchProducts(provider: Provider, query: string, token: string) {
@@ -269,7 +268,7 @@ function fromExim(product: TdProduct): LiveCandidate | null {
     category: nights <= 5 ? ["city", "weekend", "exim", "transfer"] : ["wakacje", /all inclusive/i.test(board) ? "allinclusive" : "plaza"],
     hotel: product.name || "Hotel",
     board,
-    dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "aktualny termin z feedu",
+    dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "najbliższy dostępny termin",
     partner: "exim",
     affiliateUrl: productUrl,
     linkType: "exact",
@@ -325,7 +324,7 @@ function fromTui(product: TdProduct): LiveCandidate | null {
     category: ["wakacje", /all inclusive/i.test(board) ? "allinclusive" : "plaza"],
     hotel: fields.HotelName || product.name || "Hotel",
     board,
-    dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "aktualny termin z feedu",
+    dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "najbliższy dostępny termin",
     partner: "tui",
     affiliateUrl: productUrl,
     linkType: "exact",
