@@ -67,20 +67,14 @@ function addDays(date: Date, days: number) {
   return d;
 }
 
-function eskyFlights(city: string) {
-  const url = new URL("https://www.esky.pl/tanie-loty/");
+function kiwiFlights(city: string) {
+  const url = new URL("https://www.kiwi.com/deep");
+  url.searchParams.set("from", "WAW");
   url.searchParams.set("to", city);
-  url.searchParams.set("partner_id", "TRIPOWNIAPL");
-  return url.toString();
+  url.searchParams.set("currency", "PLN");
+  return partners.kiwi.buildUrl(url.toString());
 }
 
-function eskyPackage() {
-  const url = new URL("https://www2.esky.pl/lot+hotel/portfolio");
-  url.searchParams.set("context", "pl-packages");
-  url.searchParams.set("partner_id", "TRIPOWNIAPLPACKAGES");
-  url.searchParams.set("sort[TotalPrice]", "asc");
-  return url.toString();
-}
 
 function booking(city: string) {
   const url = new URL("https://www.booking.com/searchresults.pl.html");
@@ -138,9 +132,9 @@ async function getTrips(): Promise<Trip[]> {
         kickoff: match.utcDate,
         venue: match.venue,
         ticketUrl: club.ticketUrl,
-        flightUrl: eskyFlights(club.airportCode),
+        flightUrl: kiwiFlights(club.airportCode),
         hotelUrl: booking(club.city),
-        packageUrl: eskyPackage(),
+        packageUrl: booking(club.city),
       });
     }
   }
