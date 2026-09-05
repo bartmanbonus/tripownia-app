@@ -8,7 +8,7 @@ import { offers, isOfferExpired } from "@/lib/offers";
 
 export const metadata: Metadata = {
   title: "City break — wszystkie oferty lot + hotel | Tripownia.pl",
-  description: "City breaki Tripowni wybierane z aktualnego feedu EXIM Tours — lot, hotel i transfer w pakiecie.",
+  description: "City breaki Tripowni — krótkie pakiety z lotem, hotelem i transferem.",
   alternates: { canonical: "/city-break" },
 };
 
@@ -18,7 +18,7 @@ export default function CityBreakPage() {
     <section className="shopping-hero shell">
       <div className="kicker">CITY BREAK — WYBIERASZ SAM</div>
       <h1>Krótki wyjazd bez ograniczania się do naszych rekomendacji.</h1>
-      <p>Rekomendowane city breaki bierzemy z EXIM Tours: konkretna cena z feedu, hotel i transfer w pakiecie. Wyszukiwarka poniżej zostaje tylko jako dodatkowe narzędzie do samodzielnego szukania.</p>
+      <p>Rekomendujemy tylko krótkie pakiety z konkretną ceną, hotelem i transferem. Poniżej możesz też wyszukać wyjazd samodzielnie.</p>
       <Link className="editorial-link" href="/magazyn-podrozniczy/city-break-2026">📚 Poradnik: jak szukać city breaków →</Link>
     </section>
     <section className="section shell">
