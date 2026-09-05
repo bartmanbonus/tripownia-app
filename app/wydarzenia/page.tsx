@@ -93,7 +93,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
           <div className="sports-status-strip">
             <span>⚽ {filteredTrips.length} propozycji wyjazdów</span>
             <span>{live ? "Terminarze aktualizowane automatycznie" : "Terminarze w trybie startowym"}</span>
-            <span>✈️ Loty: Kiwi + eSky · 🏨 Booking · 🎟️ oficjalne bilety</span>
+            <span>✈️ Loty: Kiwi · 🏨 Booking · 🎟️ oficjalne bilety</span>
           </div>
         </div>
       </section>
@@ -104,7 +104,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
             <div className="kicker">NAJBLIŻSZE WYJAZDY</div>
             <h2>Wybierz mecz. Resztę wyjazdu składamy od razu.</h2>
             <p>
-              Klikasz raz — Kiwi, eSky i Booking dostają już kierunek oraz daty. Domyślnie lecimy dzień przed meczem.
+              Klikasz raz — Kiwi i Booking dostają już kierunek oraz daty. Domyślnie lecimy dzień przed meczem.
             </p>
           </div>
         </div>
@@ -206,7 +206,6 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                   <div className="sports-event-actions sports-event-actions-main">
                     <a className="is-primary" href={links.flightUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">✈️ Loty</a>
                     <a href={links.hotelUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🏨 Hotel</a>
-                    <a href={links.packageUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">🧳 Lot + hotel</a>
                   </div>
                   <div className="sports-event-links">
                     <a href={links.ticketUrl} target="_blank" rel="noopener noreferrer">🎟️ Oficjalne bilety</a>
