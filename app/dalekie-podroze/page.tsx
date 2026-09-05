@@ -3,7 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
-import { partners, buildEskyFlightsUrl } from "@/lib/partners";
+import { partners } from "@/lib/partners";
 
 export const revalidate = 86400;
 
@@ -92,9 +92,9 @@ function travelDates(stay: number) {
   return { departure: iso(departure), ret: iso(ret) };
 }
 
-function eskyUrl(airport: string, stay: number, window?: {departure:string;ret:string}) {
+function flightUrl(airport: string, stay: number, window?: {departure:string;ret:string}) {
   const dates = window || travelDates(stay);
-  return buildEskyFlightsUrl(`https://www2.esky.pl/flights/search/mp/WAWA/ap/${airport}?departureDate=${dates.departure}&returnDate=${dates.ret}&pa=2&py=0&pc=0&pi=0&sc=economy&flexDatesOffset=3`);
+  const u=new URL("https://www.kiwi.com/deep"); u.searchParams.set("from","WAW"); u.searchParams.set("to",airport); u.searchParams.set("departure",dates.departure); u.searchParams.set("return",dates.ret); u.searchParams.set("currency","PLN"); return partners.kiwi.buildUrl(u.toString());
 }
 
 function bookingUrl(city: string, stay: number, window?: {departure:string;ret:string}) {
@@ -146,7 +146,7 @@ export default function LongHaulPage() {
         <div className="long-haul-principles">
           <div><span>🗓️</span><strong>Minimum czasu</strong><p>Nie proponujemy 4 dni w miejscu, do którego leci się kilkanaście godzin.</p></div>
           <div><span>🌦️</span><strong>Sezon ma znaczenie</strong><p>Podpowiadamy lepsze okna pogodowe zamiast udawać, że każdy miesiąc jest taki sam.</p></div>
-          <div><span>✈️</span><strong>Lot już ustawiony</strong><p>CTA otwiera eSky z Warszawą, właściwym lotniskiem docelowym i przykładowym terminem.</p></div>
+          <div><span>✈️</span><strong>Lot już ustawiony</strong><p>CTA otwiera wyszukiwanie lotów z Warszawy do właściwego lotniska i dla przykładowego terminu.</p></div>
           <div><span>🏨</span><strong>Nocleg już ustawiony</strong><p>Booking dostaje konkretną miejscowość oraz te same daty pobytu.</p></div>
         </div>
       </section>
@@ -165,10 +165,10 @@ export default function LongHaulPage() {
                 <div><small>ILE DNI</small><strong>{trip.ideal}</strong></div>
               </div>
               <p className="long-haul-highlights"><b>Co łączyć:</b> {trip.highlights}</p>
-              <div className="long-haul-cheap-tip"><b>💸 Najpierw sprawdzamy najtańsze okno:</b> {cheapestTips[trip.id]}<br/><strong>Proponowany termin do porównania: {cheapestWindows[trip.id].label}</strong><small> To jest punkt startowy — w eSky możesz przesunąć daty i wybrać dowolny inny termin.</small></div>
+              <div className="long-haul-cheap-tip"><b>💸 Najpierw sprawdzamy najtańsze okno:</b> {cheapestTips[trip.id]}<br/><strong>Proponowany termin do porównania: {cheapestWindows[trip.id].label}</strong><small> To jest punkt startowy — w wyszukiwarce możesz przesunąć daty i wybrać inny termin.</small></div>
               <div className="long-haul-actions">
-                <a href={eskyUrl(trip.airport, trip.duration, cheapestWindows[trip.id])} target="_blank" rel="nofollow sponsored noopener noreferrer">💸 Sprawdź sugerowany termin</a>
-                <a href={eskyUrl(trip.airport, trip.duration)} target="_blank" rel="nofollow sponsored noopener noreferrer">🗓️ Inny termin / loty</a>
+                <a href={flightUrl(trip.airport, trip.duration, cheapestWindows[trip.id])} target="_blank" rel="nofollow sponsored noopener noreferrer">💸 Sprawdź sugerowany termin</a>
+                <a href={flightUrl(trip.airport, trip.duration)} target="_blank" rel="nofollow sponsored noopener noreferrer">🗓️ Inny termin / loty</a>
                 <a href={bookingUrl(trip.bookingCity, trip.duration, cheapestWindows[trip.id])} target="_blank" rel="nofollow sponsored noopener noreferrer">🏨 Noclegi w tym terminie</a>
                 <a href={attractionsUrl(trip.attractionQuery)} target="_blank" rel="nofollow sponsored noopener noreferrer">🎟️ Atrakcje: {trip.attractionQuery}</a>
               </div>
