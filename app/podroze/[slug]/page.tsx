@@ -103,7 +103,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
         <div className="section-heading">
           <div>
             <div className="kicker">AKTUALNIE W TRIPOWNI</div>
-            <h2>{active.length ? "Oferty, które pasują do tego wyszukiwania" : "Sprawdź aktualne ceny u partnerów"}</h2>
+            <h2>{active.length ? "Oferty, które pasują do tego wyszukiwania" : "Sprawdź aktualne ceny"}</h2>
             <p>
               {active.length
                 ? "Pokazujemy tylko aktywne propozycje z naszej aktualnej bazy."
@@ -126,8 +126,8 @@ export default async function SeoLandingPage({ params }: PageProps) {
           </div>
         </div>
         <div className="big-partner-grid">
-          <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🛫</span><strong>Kiwi.com</strong><small>Sortowanie od najniższej ceny</small><b>Porównaj →</b></a>
-          <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏨</span><strong>Booking.com</strong><small>Noclegi: {page.query}</small><b>Sprawdź hotele →</b></a>
+          <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🛫</span><strong>Loty</strong><small>Porównaj ceny</small><b>Porównaj →</b></a>
+          <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏨</span><strong>Noclegi</strong><small>Noclegi w wybranym miejscu</small><b>Sprawdź hotele →</b></a>
         </div>
       </section>
 
@@ -137,7 +137,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
         {page.paragraphs.map((text) => <p key={text}>{text}</p>)}
         <p>
           Ceny i dostępność zmieniają się dynamicznie. Tripownia pokazuje zapisane propozycje
-          i prowadzi do partnera, u którego zawsze potwierdzasz aktualną cenę przed zakupem.
+          i prowadzi dalej dopiero wtedy, gdy chcesz sprawdzić aktualną cenę przed zakupem.
         </p>
       </section>
 
