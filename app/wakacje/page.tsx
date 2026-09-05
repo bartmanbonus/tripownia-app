@@ -6,8 +6,8 @@ import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
 import { offers, isOfferExpired } from "@/lib/offers";
 
 export const metadata: Metadata = {
-  title: "Wakacje — TUI, Wakacje.pl, EXIM i eSky | Tripownia.pl",
-  description: "Wybierz wakacje samodzielnie z pełnej oferty EXIM Tours, Wakacje.pl, eSky, Kiwi i Booking.com oraz sprawdź rekomendacje Tripowni.",
+  title: "Wakacje — EXIM Tours i TUI | Tripownia.pl",
+  description: "Sprawdź rekomendowane wakacje z EXIM Tours i TUI, a dodatkowo skorzystaj z osobnych narzędzi do samodzielnego wyszukiwania.",
   alternates: { canonical: "/wakacje" },
 };
 
