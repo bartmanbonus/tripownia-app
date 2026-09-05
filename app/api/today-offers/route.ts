@@ -27,9 +27,15 @@ type LiveCandidate = Offer & {
 };
 
 const CITY_BREAK_TERMS = [
-  "Lizbona", "Porto", "Rzym", "Barcelona", "Alicante", "Malta", "Pafos", "Sycylia",
-  "Neapol", "Madera", "Teneryfa", "Stambuł", "Marrakesz", "Dubaj",
+  "Rzym", "Barcelona", "Alicante", "Malta", "Pafos", "Sycylia", "Neapol", "Stambuł",
+  "Ateny", "Praga", "Budapeszt", "Wiedeń", "Lizbona", "Porto", "Walencja", "Sewilla",
 ];
+
+const SURPRISE_TERMS = {
+  low: ["Malta", "Sycylia", "Alicante", "Pafos", "Stambuł", "Marrakesz"],
+  mid: ["Djerba", "Marrakesz", "Teneryfa", "Fuerteventura", "Marsa Alam", "Hurghada"],
+  high: ["Dubaj", "Zanzibar", "Dominikana", "Malediwy", "Kenia", "Meksyk", "Tajlandia", "Kuba"],
+};
 
 const SEARCH_TERMS = [
   "Egipt",
@@ -404,8 +410,9 @@ function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
 export async function GET(request: NextRequest) {
   const key = request.nextUrl.searchParams.get("key") || dailyKey();
   const requestedMode = request.nextUrl.searchParams.get("mode");
-  const mode = requestedMode === "citybreak" ? "citybreak" : requestedMode === "search" ? "search" : "daily";
+  const mode = requestedMode === "citybreak" ? "citybreak" : requestedMode === "search" ? "search" : requestedMode === "surprise" ? "surprise" : "daily";
   const query = (request.nextUrl.searchParams.get("q") || "").trim().slice(0, 80);
+  const budget = Math.max(500, Math.min(10000, Number(request.nextUrl.searchParams.get("budget") || 2500)));
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
 
@@ -414,11 +421,14 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const searchTerms = query ? Array.from(new Set([query, query.split(",")[0].trim()].filter(Boolean))) : [];
     const terms = mode === "search" && query
-      ? [query]
+      ? searchTerms
       : mode === "citybreak"
-        ? shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 10)
-        : shuffle(SEARCH_TERMS, `terms:${key}`).slice(0, 8);
+        ? (query ? searchTerms : shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 12))
+        : mode === "surprise"
+          ? shuffle(budget >= 3500 ? SURPRISE_TERMS.high : budget >= 1800 ? SURPRISE_TERMS.mid : SURPRISE_TERMS.low, `surprise:${key}:${budget}`).slice(0, 8)
+          : shuffle(SEARCH_TERMS, `terms:${key}`).slice(0, 8);
     const jobs: Promise<{ provider: Provider; products: TdProduct[] }>[] = [];
 
     for (const term of terms) {
@@ -448,7 +458,13 @@ export async function GET(request: NextRequest) {
       ? selectDaily(pool.filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5), `${key}:citybreak`, 8)
       : mode === "search"
         ? pool.sort((a,b) => a.price - b.price).slice(0, 24)
-        : selectDaily(pool, key, 12);
+        : mode === "surprise"
+          ? pool
+              .filter((offer) => offer.price <= budget)
+              .filter((offer) => budget < 3500 || offer.price >= Math.round(budget * 0.45))
+              .sort((a,b) => (b.score * 100 + b.price / 20) - (a.score * 100 + a.price / 20))
+              .slice(0, 12)
+          : selectDaily(pool, key, 12);
     return NextResponse.json(
       {
         ok: selected.length > 0,
