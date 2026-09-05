@@ -114,7 +114,7 @@ async function getTrips(): Promise<Trip[]> {
 
   const now = new Date();
   const dateFrom = ymd(now);
-  const dateTo = ymd(addDays(now, 120));
+  const dateTo = ymd(addDays(now, 365));
   const codes = [...new Set(clubs.flatMap(c => c.competitionCodes))];
 
   const groups = await Promise.all(codes.map(async code => {
@@ -125,7 +125,7 @@ async function getTrips(): Promise<Trip[]> {
 
       const response = await fetch(url, {
         headers: { "X-Auth-Token": token },
-        next: { revalidate: 21600 },
+        cache: "no-store",
       });
 
       if (!response.ok) return [] as Match[];
@@ -202,6 +202,6 @@ export async function GET() {
     count: trips.length,
     trips,
   }, {
-    headers: { "Cache-Control": "s-maxage=21600, stale-while-revalidate=86400" },
+    headers: { "Cache-Control": "no-store, max-age=0" },
   });
 }
