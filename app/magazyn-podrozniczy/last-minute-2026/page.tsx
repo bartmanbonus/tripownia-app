@@ -16,7 +16,7 @@ export default function LastMinuteGuide(){
     <p className="hub-lead">Stara treść informacyjna o last minute zostaje w Tripowni jako poradnik. Zakupy i aktualne wyjazdy znajdziesz teraz w żywej sekcji sprzedażowej.</p>
     <h2>Kiedy last minute ma największy sens?</h2><p>Najlepiej działa przy elastycznym terminie, kilku możliwych lotniskach wylotu i gotowości do szybkiej rezerwacji. Przy popularnych terminach nie warto zakładać, że cena zawsze spadnie.</p>
     <h2>Co porównywać?</h2><p>Sprawdź pełną cenę pakietu, bagaż, transfer, wyżywienie, długość pobytu i dokładne lotnisko wylotu. Tripownia zestawia źródła, ale finalną dostępność potwierdza partner.</p>
-    <h2>Gdzie szukać?</h2><p>W rekomendacjach Tripownia korzysta z ofert EXIM Tours i TUI. eSky pozostaje wyłącznie dodatkową wyszukiwarką do samodzielnego użycia.</p>
+    <h2>Gdzie szukać?</h2><p>Tripownia wybiera i porównuje gotowe pakiety, a osobna wyszukiwarka służy do samodzielnego sprawdzania dodatkowych wariantów.</p>
     <div className="premium-actions"><Link className="primary-cta" href="/last-minute">⚡ Zobacz aktualne last minute</Link><Link className="secondary-cta" href="/#wyszukiwarka">Wyszukaj po swojemu</Link></div>
   </article><SiteFooter/></main>;
 }
