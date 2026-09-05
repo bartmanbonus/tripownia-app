@@ -6,7 +6,6 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TravelImage from "@/components/TravelImage";
 import { formatPriceCheckedAt, getLinkMatch, offers } from "@/lib/offers";
-import { partners } from "@/lib/partners";
 import BeforeYouGo from "@/components/BeforeYouGo";
 import FavoriteButton from "@/components/FavoriteButton";
 import OfferCard from "@/components/OfferCard";
@@ -23,7 +22,7 @@ export async function generateMetadata({params}:{params:Promise<{id:string}>}):P
     ? `${o.city} z ${o.departure} — sprawdź aktualną ofertę | Tripownia`
     : `${o.city} z ${o.departure} — ostatnio znaleźliśmy od ${o.price} zł | Tripownia`;
   const description = o.partner === "exim"
-    ? `${o.city}, ${o.nights} nocy, ${o.board}. Sprawdź aktualną cenę i dostępność wyjazdu w EXIM Tours.`
+    ? `${o.city}, ${o.nights} nocy, ${o.board}. Sprawdź aktualną cenę i dostępność wyjazdu.`
     : `${o.city}, ${o.nights} nocy, ${o.board}. ${o.reason}`;
   return {
     title,
@@ -44,7 +43,6 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
   const {id}=await params;
   const o=offers.find(x=>x.id===Number(id));
   if(!o) return notFound();
-  const p=partners[o.partner];
   // EXIM: oferty kierunkowe nie powinny kończyć na ogólnej liście.
   // Przechodzimy przez serwer Tripowni, który wybiera najtańszą konkretną ofertę/hotel
   // z preferencją miasta wylotu zapisanej w ofercie.
@@ -122,7 +120,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               <>
                 <div className="detail-price"><small>ostatnio znaleźliśmy od</small> <strong>{o.price} zł</strong> / os.</div>
                 <div className="price-status detail-price-status">
-                  {`Sprawdź aktualną cenę u partnera${checkedAt ? ` — ostatni odczyt ${checkedAt}` : ""}. Może być dziś jeszcze taniej.`}
+                  {`Sprawdź aktualną cenę przed rezerwacją${checkedAt ? ` — ostatni odczyt ${checkedAt}` : ""}. Może być dziś jeszcze taniej.`}
                 </div>
               </>
             )}
@@ -133,15 +131,15 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <span><Sun/> <b>{o.weather}</b></span><span><Utensils/> <b>{o.board}</b></span>
             <span><MapPin/> <b>{o.hotel}</b></span><span>📅 <b>{o.dates}</b></span>
           </div>
-          <div className="detail-source">Oferta sprawdzana u: <strong>{p.name}</strong></div>
+          <div className="detail-source">Tripownia sprawdza cenę i dostępność przed przekierowaniem do rezerwacji.</div>
           {o.availabilityStatus === "expired" ? (
             <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
           ) : (
             <div className="detail-action-box">
               <a className="primary-cta" href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
-                {o.partner === "exim" || o.partner === "tui" ? `Zobacz konkretną ofertę w ${p.name}` : `Sprawdź aktualną cenę w ${p.name}`} <ExternalLink size={18}/>
+                {o.partner === "exim" || o.partner === "tui" ? "Zobacz konkretną ofertę" : "Sprawdź aktualną cenę"} <ExternalLink size={18}/>
               </a>
-              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Cena i dostępność mogą się zmieniać. Rezerwacja odbywa się bezpośrednio u organizatora." : "Link prowadzi przez Tripownię do partnera z zachowaniem afiliacji. Cena i dostępność są potwierdzane po kliknięciu."}</small>
+              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Cena i dostępność mogą się zmieniać. Finalne warunki zobaczysz przed rezerwacją." : "Cena i dostępność są potwierdzane po kliknięciu."}</small>
             </div>
           )}
           <SocialShare
