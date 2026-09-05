@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, CalendarDays, Check, ChevronDown, Compass, MapPin, Plane, Search, Users, Utensils, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
+import SelfSearchLegacy from "@/components/SelfSearchLegacy";
 import { airportOptions, offers, isOfferExpired } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination } from "@/lib/worldDestinations";
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
@@ -65,12 +66,12 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   },[airports,destinations,customDestination,duration,budget,board,text,weekendOnly,submitted,liveResults]);
 
 
-  async function runPartnerSearch(){
-    const destination=(selectedTo[0]||text||"").trim();
+  async function runPartnerSearch(destinationOverride?:string, cityModeOverride?:boolean){
+    const destination=(destinationOverride||selectedTo[0]||text||"").trim();
     if(!destination) return;
     setLiveLoading(true);
     try{
-      const cityMode=activeTab==="City break";
+      const cityMode=cityModeOverride ?? activeTab==="City break";
       const params=new URLSearchParams({mode:cityMode?"citybreak":"search",q:destination});
       const response=await fetch(`/api/today-offers?${params.toString()}`,{cache:"no-store"});
       const data=await response.json();
@@ -81,18 +82,19 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   function toggleDestination(v:string){setCustomDestination("");setDestinations(prev=>prev.includes(v)?prev.filter(x=>x!==v):[...prev,v])}
   function useCustom(){const v=destinationQuery.trim();if(!v||isTravelDestinationBlocked(v))return;setDestinations([]);setCustomDestination(v);setOpen(null);setDestinationQuery("")}
   function clearAll(){setAirports([]);setDestinations([]);setCustomDestination("");setDuration("all");setBudget("5000");setBoard("all");setWeekendOnly(false);setText("");setDestinationQuery("")}
-  function pickDestination(label:string, opts?:{duration?:string;budget?:string;board?:string}){
+  function pickDestination(label:string, opts?:{duration?:string;budget?:string;board?:string}, cityModeOverride?:boolean){
     setDestinations([label]); setCustomDestination(""); setText(""); setDestinationQuery("");
     if(opts?.duration)setDuration(opts.duration); if(opts?.budget)setBudget(opts.budget); if(opts?.board)setBoard(opts.board);
-    setOpen(null); setSubmitted(v=>v+1);
+    setOpen(null);
+    void runPartnerSearch(label, cityModeOverride);
   }
   function chooseTab(tab:string){
     setActiveTab(tab);
     if(tab==="Inspiracje") return;
-    if(tab==="City break") pickDestination("Rzym, Włochy",{duration:"short"});
-    if(tab==="Lot + hotel") pickDestination("Barcelona, Hiszpania",{duration:"short"});
-    if(tab==="Wakacje") pickDestination("Djerba, Tunezja",{duration:"week",board:"all inclusive"});
-    if(tab==="Atrakcje") pickDestination("Paryż, Francja",{duration:"short"});
+    if(tab==="City break") pickDestination("Rzym, Włochy",{duration:"short"},true);
+    if(tab==="Lot + hotel") pickDestination("Barcelona, Hiszpania",{duration:"short"},false);
+    if(tab==="Wakacje") pickDestination("Djerba, Tunezja",{duration:"week",board:"all inclusive"},false);
+    if(tab==="Atrakcje") pickDestination("Paryż, Francja",{duration:"short"},false);
     if(tab==="Parkingi") window.location.href="/parkingi";
     if(tab==="eSIM") window.location.href="/esim";
   }
@@ -136,7 +138,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
         <label className="compact-select"><span><CalendarDays size={14}/> Na ile?</span><select value={duration} onChange={e=>setDuration(e.target.value)}><option value="all">Dowolnie</option><option value="short">2–4 noce</option><option value="week">5–8 nocy</option><option value="long">9+ nocy</option></select></label>
         <label className="compact-select"><span>💳 Budżet / os.</span><select value={budget} onChange={e=>setBudget(e.target.value)}><option value="all">Dowolny</option><option value="1000">do 1 000 zł</option><option value="2000">do 2 000 zł</option><option value="3000">do 3 000 zł</option><option value="5000">do 5 000 zł</option><option value="10000">do 10 000 zł</option></select></label>
         <label className="compact-select"><span><Utensils size={14}/> Wyżywienie</span><select value={board} onChange={e=>setBoard(e.target.value)}><option value="all">Dowolne</option><option value="śniadanie">Śniadanie</option><option value="all inclusive">All Inclusive</option><option value="bez wyżywienia">Bez wyżywienia</option></select></label>
-        <button className="search-submit compact-submit" onClick={runPartnerSearch}><Search size={18}/> {liveLoading?"Szukamy…":"Pokaż wyniki"}</button>
+        <button className="search-submit compact-submit" onClick={()=>void runPartnerSearch()}><Search size={18}/> {liveLoading?"Szukamy…":"Pokaż wyniki"}</button>
       </div>
 
       <div className="search-smart-options" aria-label="Dodatkowe opcje wyszukiwania">
@@ -151,11 +153,12 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       </div>
 
       <div className="search-results-block">
-        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Tripownia przeszukuje feedy EXIM i TUI. Dla City Break pokazujemy wyłącznie oferty EXIM z pakietem i transferem.</span></div>
-        {results.length>0&&<><div className="partner-search-banner search-results-carousel-head"><div><small>⭐ WYNIKI EXIM + TUI</small><strong>{results.length} aktualnych ofert pasuje do parametrów</strong></div><div className="search-results-carousel-controls"><button type="button" onClick={()=>moveResults(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={17}/></button><button type="button" onClick={()=>moveResults(1)} aria-label="Następne oferty"><ArrowRight size={17}/></button></div></div><div className="search-results-carousel" ref={resultsRailRef} tabIndex={0}>{results.slice(0,12).map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></>}
+        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Pokazujemy dostępne pakiety EXIM Tours i TUI. W City Break znajdziesz wyłącznie krótkie wyjazdy EXIM Tours z transferem.</span></div>
+        {results.length>0&&<><div className="partner-search-banner search-results-carousel-head"><div><small>⭐ WYNIKI EXIM + TUI</small><strong>{results.length} aktualnych ofert pasuje do parametrów</strong></div></div><div className="search-results-carousel-wrap"><div className="search-results-carousel-controls"><button type="button" onClick={()=>moveResults(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={17}/></button><button type="button" onClick={()=>moveResults(1)} aria-label="Następne oferty"><ArrowRight size={17}/></button></div><div className="search-results-carousel" ref={resultsRailRef} tabIndex={0}>{results.slice(0,12).map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></div></>}
         {hasDestination&&<UnifiedPartnerSearch mode={activeTab==="City break"||activeTab==="Lot + hotel"?"city":activeTab==="Wakacje"?"holiday":"all"} initialDestination={queryDestination} initialDeparture={selectedFromLabel} initialDepartureCode={airports[0]} initialWeekendOnly={weekendOnly}/>}
         {!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
       </div>
     </div>
+    <SelfSearchLegacy />
   </section>
 }

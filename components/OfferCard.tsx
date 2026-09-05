@@ -6,8 +6,6 @@ import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import TravelImage from "@/components/TravelImage";
-import EximLivePrice from "@/components/EximLivePrice";
-import EskyLivePackagePrice from "@/components/EskyLivePackagePrice";
 import { useEffect, useState } from "react";
 import { getOfferOverride, type OfferOverride } from "@/lib/clientOfferOverrides";
 import { isPriceStale } from "@/lib/offerQuality";
@@ -16,8 +14,6 @@ import { isOfferExpired } from "@/lib/offers";
 export default function OfferCard({ offer }: { offer: Offer }) {
   const [liked, setLiked] = useState(false);
   const [override, setOverride] = useState<OfferOverride>({});
-  const [eximState, setEximState] = useState<{ loading: boolean; available: boolean; price?: number; isStillDeal?: boolean }>({ loading: offer.partner === "exim", available: offer.partner !== "exim" });
-  const [eskyState, setEskyState] = useState<{ loading: boolean; verified: boolean; price?: number }>({ loading: offer.partner === "esky", verified: false });
 
   useEffect(() => {
     const load = () => {
@@ -69,10 +65,8 @@ export default function OfferCard({ offer }: { offer: Offer }) {
     window.dispatchEvent(new Event("tripownia-favorites-updated"));
   }
 
+  if (offer.partner === "esky") return null;
   if (override.hidden || publishedOverride.hidden) return null;
-
-  // Nie pokazujemy w sekcji okazji EXIM-u, jeśli live feed potwierdził, że cena mocno odjechała od ceny referencyjnej.
-  if (!isLiveExact && offer.partner === "exim" && !eximState.loading && eximState.available && eximState.isStillDeal === false) return null;
 
   const buyHref = isExpired
     ? `/oferta/${offer.id}`
@@ -112,11 +106,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
             : isLiveExact
               ? offer.tag
               : offer.partner === "exim"
-                ? eximState.loading
-                  ? "SPRAWDZAMY"
-                  : !eximState.available
-                    ? "DO WERYFIKACJI"
-                    : offer.tag
+                ? offer.tag
                 : offer.tag}
         </span>
         {isFeatured && (
@@ -145,16 +135,8 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         </div>
 
         <div className="price">
-          <small>{isLiveExact ? `aktualnie w ${partners[offer.partner].name} od` : offer.partner === "exim" ? "aktualnie w EXIM od" : offer.partner === "esky" ? (eskyState.verified ? "aktualnie w eSky od" : "ostatnio znaleziona cena od") : "ostatnio potwierdziliśmy od"}</small>{" "}
-          {isLiveExact ? (
-            <><strong>{displayPrice} zł</strong> <span>/ os.</span></>
-          ) : offer.partner === "exim" ? (
-            <EximLivePrice destination={offer.city} country={offer.country} from={offer.airportCode} nights={offer.nights} board={offer.board} fallbackPrice={displayPrice} compact onStateChange={setEximState} />
-          ) : offer.partner === "esky" ? (
-            <EskyLivePackagePrice offerId={offer.id} fallbackPrice={displayPrice} board={offer.board} compact onStateChange={setEskyState} />
-          ) : (
-            <><strong>{displayPrice} zł</strong> <span>/ os.</span></>
-          )}
+          <small>{isLiveExact ? `cena od` : offer.partner === "exim" ? "cena od" : "cena od"}</small>{" "}
+          <><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></>
         </div>
 
         <div className="price-status">
@@ -162,20 +144,14 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           {isExpired
             ? "Ta oferta wygasła — pokażemy podobne aktualne propozycje"
             : isLiveExact
-              ? "Cena i konkretna oferta pobrane automatycznie z aktualnego feedu partnera"
-            : offer.partner === "esky"
-              ? eskyState.loading
-                ? "Automatycznie sprawdzamy cenę już na tej karcie"
-                : eskyState.verified
-                  ? "Cena potwierdzona dla właściwego kierunku w eSky"
-                  : "* Aktualną cenę potwierdzimy po przejściu do eSky"
-              : checkedAt
-                ? `Cena sprawdzana ${checkedAt} · po kliknięciu potwierdzamy ją u partnera`
-                : "Po kliknięciu potwierdzamy aktualną cenę u partnera"}
+              ? "Aktualna oferta — sprawdź dostępność dla wybranego terminu"
+            : checkedAt
+                ? `Sprawdź dostępność i aktualną cenę przed rezerwacją`
+                : "Sprawdź dostępność i aktualną cenę przed rezerwacją"}
         </div>
 
         <div className="partner-chip">
-          Selekcja Tripownia.pl · partner: <strong>{partners[offer.partner].name}</strong>
+          Oferta dostępna w <strong>{partners[offer.partner].name}</strong>
         </div>
 
         <div className="meta">
@@ -188,9 +164,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           <span>
             <Sun size={15} /> {offer.weather}
           </span>
-          {offer.partner !== "esky" && (
-            <span><Utensils size={15} /> {offer.board}</span>
-          )}
+          <span><Utensils size={15} /> {offer.board}</span>
         </div>
 
         <div className="why-now">
