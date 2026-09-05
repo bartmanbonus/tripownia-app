@@ -3,8 +3,6 @@ import { partners } from "@/lib/partners";
 export type SportsDeparture = {
   code: string;
   label: string;
-  flightPath: string;
-  packageValue: string;
 };
 
 export type SportsClub = {
@@ -13,10 +11,6 @@ export type SportsClub = {
   displayName: string;
   city: string;
   country: string;
-  airportCode: string;
-  flightAirportLabel: string;
-  flightDestinationPath: string;
-  packageArrivalCode: string;
   competitionCodes: string[];
   ticketUrl: string;
   emoji: string;
@@ -34,10 +28,14 @@ export type SportsTrip = {
   kickoff: string;
   venue?: string | null;
   source: "football-data" | "seed";
+  homeTeam: string;
+  awayTeam: string;
+  homeCrest?: string | null;
+  awayCrest?: string | null;
+  isHome: boolean;
   ticketUrl: string;
   flightUrl: string;
   hotelUrl: string;
-  packageUrl: string;
 };
 
 export const sportsCompetitions = [
@@ -49,15 +47,15 @@ export const sportsCompetitions = [
 ] as const;
 
 export const sportsDepartures: SportsDeparture[] = [
-  { code: "WAWA", label: "Warszawa — Chopin + Modlin", flightPath: "mp/WAWA", packageValue: "ap-WAW,ap-WMI" },
-  { code: "KRK", label: "Kraków", flightPath: "ap/KRK", packageValue: "ap-KRK" },
-  { code: "GDN", label: "Gdańsk", flightPath: "ap/GDN", packageValue: "ap-GDN" },
-  { code: "KTW", label: "Katowice", flightPath: "ap/KTW", packageValue: "ap-KTW" },
-  { code: "WRO", label: "Wrocław", flightPath: "ap/WRO", packageValue: "ap-WRO" },
-  { code: "POZ", label: "Poznań", flightPath: "ap/POZ", packageValue: "ap-POZ" },
-  { code: "RZE", label: "Rzeszów", flightPath: "ap/RZE", packageValue: "ap-RZE" },
-  { code: "LUZ", label: "Lublin", flightPath: "ap/LUZ", packageValue: "ap-LUZ" },
-  { code: "SZZ", label: "Szczecin", flightPath: "ap/SZZ", packageValue: "ap-SZZ" },
+  { code: "WAWA", label: "Warszawa — Chopin + Modlin" },
+  { code: "KRK", label: "Kraków" },
+  { code: "GDN", label: "Gdańsk" },
+  { code: "KTW", label: "Katowice" },
+  { code: "WRO", label: "Wrocław" },
+  { code: "POZ", label: "Poznań" },
+  { code: "RZE", label: "Rzeszów" },
+  { code: "LUZ", label: "Lublin" },
+  { code: "SZZ", label: "Szczecin" },
 ];
 
 export const sportsClubs: SportsClub[] = [
@@ -67,10 +65,6 @@ export const sportsClubs: SportsClub[] = [
     displayName: "FC Barcelona",
     city: "Barcelona",
     country: "Hiszpania",
-    airportCode: "BCN",
-    flightAirportLabel: "Barcelona (BCN)",
-    flightDestinationPath: "ap/BCN",
-    packageArrivalCode: "ci-BCN",
     competitionCodes: ["PD", "CL"],
     ticketUrl: "https://www.fcbarcelona.com/en/tickets/football",
     emoji: "🔵🔴",
@@ -81,10 +75,6 @@ export const sportsClubs: SportsClub[] = [
     displayName: "Inter Mediolan",
     city: "Mediolan",
     country: "Włochy",
-    airportCode: "MIL",
-    flightAirportLabel: "Mediolan — wszystkie lotniska (MIL)",
-    flightDestinationPath: "ci/MIL",
-    packageArrivalCode: "ci-MIL",
     competitionCodes: ["SA", "CL"],
     ticketUrl: "https://www.inter.it/en/tickets",
     emoji: "⚫🔵",
@@ -95,10 +85,6 @@ export const sportsClubs: SportsClub[] = [
     displayName: "Real Madryt",
     city: "Madryt",
     country: "Hiszpania",
-    airportCode: "MAD",
-    flightAirportLabel: "Madryt (MAD)",
-    flightDestinationPath: "ap/MAD",
-    packageArrivalCode: "ci-MAD",
     competitionCodes: ["PD", "CL"],
     ticketUrl: "https://www.realmadrid.com/en-US/tickets",
     emoji: "⚪",
@@ -109,10 +95,6 @@ export const sportsClubs: SportsClub[] = [
     displayName: "AC Milan",
     city: "Mediolan",
     country: "Włochy",
-    airportCode: "MIL",
-    flightAirportLabel: "Mediolan — wszystkie lotniska (MIL)",
-    flightDestinationPath: "ci/MIL",
-    packageArrivalCode: "ci-MIL",
     competitionCodes: ["SA", "CL"],
     ticketUrl: "https://www.acmilan.com/en/tickets",
     emoji: "🔴⚫",
@@ -123,10 +105,6 @@ export const sportsClubs: SportsClub[] = [
     displayName: "Bayern Monachium",
     city: "Monachium",
     country: "Niemcy",
-    airportCode: "MUC",
-    flightAirportLabel: "Monachium (MUC)",
-    flightDestinationPath: "ap/MUC",
-    packageArrivalCode: "ci-MUC",
     competitionCodes: ["BL1", "CL"],
     ticketUrl: "https://fcbayern.com/en/tickets",
     emoji: "🔴⚪",
@@ -137,10 +115,6 @@ export const sportsClubs: SportsClub[] = [
     displayName: "Arsenal",
     city: "Londyn",
     country: "Wielka Brytania",
-    airportCode: "LON",
-    flightAirportLabel: "Londyn — wszystkie lotniska (LON)",
-    flightDestinationPath: "ci/LON",
-    packageArrivalCode: "ci-LON",
     competitionCodes: ["PL", "CL"],
     ticketUrl: "https://www.arsenal.com/tickets",
     emoji: "🔴",
@@ -151,10 +125,6 @@ export const sportsClubs: SportsClub[] = [
     displayName: "Chelsea",
     city: "Londyn",
     country: "Wielka Brytania",
-    airportCode: "LON",
-    flightAirportLabel: "Londyn — wszystkie lotniska (LON)",
-    flightDestinationPath: "ci/LON",
-    packageArrivalCode: "ci-LON",
     competitionCodes: ["PL", "CL"],
     ticketUrl: "https://www.chelseafc.com/en/tickets",
     emoji: "🔵",
@@ -165,10 +135,6 @@ export const sportsClubs: SportsClub[] = [
     displayName: "Tottenham",
     city: "Londyn",
     country: "Wielka Brytania",
-    airportCode: "LON",
-    flightAirportLabel: "Londyn — wszystkie lotniska (LON)",
-    flightDestinationPath: "ci/LON",
-    packageArrivalCode: "ci-LON",
     competitionCodes: ["PL", "CL"],
     ticketUrl: "https://www.tottenhamhotspur.com/tickets/",
     emoji: "⚪🔵",
@@ -179,10 +145,6 @@ export const sportsClubs: SportsClub[] = [
     displayName: "Manchester City",
     city: "Manchester",
     country: "Wielka Brytania",
-    airportCode: "MAN",
-    flightAirportLabel: "Manchester (MAN)",
-    flightDestinationPath: "ap/MAN",
-    packageArrivalCode: "ci-MAN",
     competitionCodes: ["PL", "CL"],
     ticketUrl: "https://www.mancity.com/tickets",
     emoji: "🔵⚪",
@@ -193,10 +155,6 @@ export const sportsClubs: SportsClub[] = [
     displayName: "Manchester United",
     city: "Manchester",
     country: "Wielka Brytania",
-    airportCode: "MAN",
-    flightAirportLabel: "Manchester (MAN)",
-    flightDestinationPath: "ap/MAN",
-    packageArrivalCode: "ci-MAN",
     competitionCodes: ["PL"],
     ticketUrl: "https://www.manutd.com/en/tickets-and-hospitality",
     emoji: "🔴⚫",
@@ -207,15 +165,53 @@ export const sportsClubs: SportsClub[] = [
     displayName: "Liverpool",
     city: "Liverpool",
     country: "Wielka Brytania",
-    airportCode: "LPL",
-    flightAirportLabel: "Liverpool (LPL)",
-    flightDestinationPath: "ap/LPL",
-    packageArrivalCode: "ci-LPL",
     competitionCodes: ["PL", "CL"],
     ticketUrl: "https://www.liverpoolfc.com/tickets",
     emoji: "🔴",
   },
 ];
+
+const teamTravelData: Array<{ names: string[]; city: string; country: string; crest?: string }> = [
+  { names:["AS Roma","Roma"], city:"Rzym", country:"Włochy", crest:"https://crests.football-data.org/100.png" },
+  { names:["Bologna FC 1909","Bologna"], city:"Bolonia", country:"Włochy" },
+  { names:["Venezia FC","Venezia"], city:"Wenecja", country:"Włochy" },
+  { names:["AC Milan","Milan"], city:"Mediolan", country:"Włochy", crest:"https://crests.football-data.org/98.png" },
+  { names:["Atalanta BC","Atalanta"], city:"Bergamo", country:"Włochy" },
+  { names:["Frosinone Calcio","Frosinone"], city:"Rzym", country:"Włochy" },
+  { names:["US Lecce","Lecce"], city:"Bari", country:"Włochy" },
+  { names:["Real Madrid CF","Real Madrid"], city:"Madryt", country:"Hiszpania", crest:"https://crests.football-data.org/86.png" },
+  { names:["Feyenoord Rotterdam","Feyenoord"], city:"Rotterdam", country:"Holandia" },
+  { names:["Borussia Dortmund","Dortmund"], city:"Dortmund", country:"Niemcy", crest:"https://crests.football-data.org/4.png" },
+  { names:["SSC Napoli","Napoli"], city:"Neapol", country:"Włochy", crest:"https://crests.football-data.org/113.png" },
+  { names:["Udinese Calcio","Udinese"], city:"Udine", country:"Włochy", crest:"https://crests.football-data.org/115.png" },
+  { names:["Parma Calcio 1913","Parma Calcio","Parma"], city:"Parma", country:"Włochy" },
+  { names:["Club Brugge KV","Club Brugge"], city:"Brugia", country:"Belgia" },
+  { names:["FC Shakhtar Donetsk","Shakhtar Donetsk"], city:"Warszawa", country:"Polska" },
+  { names:["VfB Stuttgart","Stuttgart"], city:"Stuttgart", country:"Niemcy" },
+];
+
+function teamInfo(name: string) {
+  const n = normalize(name);
+  return teamTravelData.find(item => item.names.some(alias => n === normalize(alias) || n.includes(normalize(alias))));
+}
+
+function destinationForMatch(homeTeam: string, club: SportsClub, isHome: boolean) {
+  if (isHome) return { city: club.city, country: club.country };
+  const info = teamInfo(homeTeam);
+  return info || { city: club.city, country: club.country };
+}
+
+function cityToKiwiSlug(city: string) {
+  const key = normalize(city);
+  const known: Record<string,string> = {
+    "mediolan":"mediolan-wlochy","barcelona":"barcelona-hiszpania","madryt":"madryt-hiszpania","monachium":"monachium-niemcy",
+    "londyn":"londyn-wielka-brytania","manchester":"manchester-wielka-brytania","liverpool":"liverpool-wielka-brytania",
+    "rzym":"rzym-wlochy","bolonia":"bolonia-wlochy","wenecja":"wenecja-wlochy","bergamo":"bergamo-wlochy",
+    "neapol":"neapol-wlochy","brugia":"brugia-belgia","rotterdam":"rotterdam-holandia","dortmund":"dortmund-niemcy",
+    "stuttgart":"stuttgart-niemcy","parma":"parma-wlochy","bari":"bari-wlochy","warszawa":"warszawa-polska"
+  };
+  return known[key] || city.toLocaleLowerCase("pl").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
 
 type FootballDataMatch = {
   id: number;
@@ -223,8 +219,8 @@ type FootballDataMatch = {
   status: string;
   venue?: string | null;
   competition?: { name?: string; code?: string };
-  homeTeam?: { name?: string; shortName?: string };
-  awayTeam?: { name?: string; shortName?: string };
+  homeTeam?: { id?: number; name?: string; shortName?: string; crest?: string | null };
+  awayTeam?: { id?: number; name?: string; shortName?: string; crest?: string | null };
 };
 
 function isoDate(date: Date) {
@@ -274,81 +270,25 @@ export function buildSportsTripLinks(
   nights = 3,
   passengers = 2,
 ) {
-  const club = sportsClubs.find(item => item.slug === trip.clubSlug);
   const departure = sportsDepartures.find(item => item.code === departureCode) || sportsDepartures[0];
   const window = getSportsTravelWindow(trip.kickoff, nights);
   const safePassengers = [1, 2, 3, 4].includes(passengers) ? passengers : 2;
 
-  if (!club) {
-    return {
-      ...window,
-      departureLabel: departure.label,
-      arrivalLabel: trip.city,
-      flightUrl: "#",
-      secondaryFlightUrl: "#",
-      hotelUrl: "#",
-      packageUrl: "#",
-      carUrl: "https://getrentacar.tpk.lv/buzTQvPf",
-      taxiUrl: "https://kiwitaxi.tpk.lv/UuvtPHby",
-      transferUrl: "https://gettransfer.tpk.lv/SqNqK9Q7",
-      ticketUrl: trip.ticketUrl,
-    };
-  }
-
-  // Sam lot: Kiwi jest głównym źródłem. Budujemy zwykły URL wyszukiwarki Kiwi,
-  // a dopiero potem owijamy go linkiem afiliacyjnym Travelpayouts.
-  // Kierunek przekazujemy jako MIASTO (np. Londyn/Mediolan), nie pojedyncze lotnisko,
-  // żeby Kiwi mogło znaleźć najtańsze połączenia ze wszystkich lotnisk w aglomeracji.
-  // Kiwi nie uzupełnia pól poprawnie dla luźnych nazw typu "Warszawa" / "Manchester".
-  // Używamy kanonicznych slugów miejsc z wyszukiwarki Kiwi, dzięki czemu po kliknięciu
-  // użytkownik od razu widzi ustawione: skąd, dokąd, daty i liczbę osób.
-  const kiwiOriginByCode: Record<string, string> = {
-    WAWA: "warszawa-polska",
-    KRK: "krakow-polska",
-    GDN: "gdansk-polska",
-    KTW: "katowice-polska",
-    WRO: "wroclaw-polska",
-    POZ: "poznan-polska",
-    RZE: "rzeszow-polska",
-    LUZ: "lublin-polska",
-    SZZ: "szczecin-polska",
+  const originByCode: Record<string, string> = {
+    WAWA: "warszawa-polska", KRK: "krakow-polska", GDN: "gdansk-polska",
+    KTW: "katowice-polska", WRO: "wroclaw-polska", POZ: "poznan-polska",
+    RZE: "rzeszow-polska", LUZ: "lublin-polska", SZZ: "szczecin-polska",
   };
-  const kiwiDestinationByClub: Record<string, string> = {
-    "fc-barcelona": "barcelona-hiszpania",
-    "inter-mediolan": "mediolan-wlochy",
-    "ac-milan": "mediolan-wlochy",
-    "real-madryt": "madryt-hiszpania",
-    "bayern-monachium": "monachium-niemcy",
-    arsenal: "londyn-wielka-brytania",
-    chelsea: "londyn-wielka-brytania",
-    tottenham: "londyn-wielka-brytania",
-    "manchester-city": "manchester-wielka-brytania",
-    "manchester-united": "manchester-wielka-brytania",
-    liverpool: "liverpool-wielka-brytania",
-  };
-  const kiwiSearch = new URL("https://www.kiwi.com/pl/");
-  kiwiSearch.searchParams.set("origin", kiwiOriginByCode[departure.code] || "warszawa-polska");
-  kiwiSearch.searchParams.set("destination", kiwiDestinationByClub[club.slug] || club.city);
-  kiwiSearch.searchParams.set("outboundDate", window.departureDate);
-  kiwiSearch.searchParams.set("inboundDate", window.returnDate);
-  kiwiSearch.searchParams.set("adults", String(safePassengers));
-  kiwiSearch.searchParams.set("currency", "PLN");
-  const kiwiFlightUrl = partners.kiwi.buildUrl(kiwiSearch.toString());
-
-  // eSky zostaje jako drugie źródło samych lotów.
-  const eskyFlightUrl = new URL(`https://www2.esky.pl/flights/search/${departure.flightPath}/${club.flightDestinationPath}`);
-  eskyFlightUrl.searchParams.set("departureDate", window.departureDate);
-  eskyFlightUrl.searchParams.set("returnDate", window.returnDate);
-  eskyFlightUrl.searchParams.set("pa", String(safePassengers));
-  eskyFlightUrl.searchParams.set("py", "0");
-  eskyFlightUrl.searchParams.set("pc", "0");
-  eskyFlightUrl.searchParams.set("pi", "0");
-  eskyFlightUrl.searchParams.set("sc", "economy");
-  eskyFlightUrl.searchParams.set("partner_id", "TRIPOWNIAPL");
-  eskyFlightUrl.searchParams.set("flexDatesOffset", "0");
+  const flightSearch = new URL("https://www.kiwi.com/pl/");
+  flightSearch.searchParams.set("origin", originByCode[departure.code] || "warszawa-polska");
+  flightSearch.searchParams.set("destination", cityToKiwiSlug(trip.city));
+  flightSearch.searchParams.set("outboundDate", window.departureDate);
+  flightSearch.searchParams.set("inboundDate", window.returnDate);
+  flightSearch.searchParams.set("adults", String(safePassengers));
+  flightSearch.searchParams.set("currency", "PLN");
 
   const hotelUrl = new URL("https://www.booking.com/searchresults.pl.html");
-  hotelUrl.searchParams.set("ss", club.city);
+  hotelUrl.searchParams.set("ss", trip.city);
   hotelUrl.searchParams.set("checkin", window.checkin);
   hotelUrl.searchParams.set("checkout", window.checkout);
   hotelUrl.searchParams.set("group_adults", String(safePassengers));
@@ -356,30 +296,12 @@ export function buildSportsTripLinks(
   hotelUrl.searchParams.set("group_children", "0");
   hotelUrl.searchParams.set("aid", "818288");
 
-  const packageUrl = new URL("https://www2.esky.pl/lot+hotel/portfolio");
-  packageUrl.searchParams.set("rooms[0][adults]", String(safePassengers));
-  packageUrl.searchParams.set("datesTab", "flexDates");
-  packageUrl.searchParams.set("departureDate", window.departureDate);
-  packageUrl.searchParams.set("returnDate", window.returnDate);
-  packageUrl.searchParams.set("stayLength", `${window.nights}:${window.nights}`);
-  packageUrl.searchParams.set("departurePlaces", departure.packageValue);
-  packageUrl.searchParams.set("arrivalPlaces", club.packageArrivalCode);
-  packageUrl.searchParams.set("context", "pl-packages");
-  packageUrl.searchParams.set("eventSourceComponent", "plp-qsf");
-  packageUrl.searchParams.set("sort[TotalPrice]", "asc");
-  packageUrl.searchParams.set("partner_id", "TRIPOWNIAPLPACKAGES");
-
   return {
     ...window,
     departureLabel: departure.label,
-    arrivalLabel: club.flightAirportLabel,
-    flightUrl: kiwiFlightUrl,
-    secondaryFlightUrl: eskyFlightUrl.toString(),
+    arrivalLabel: trip.city,
+    flightUrl: partners.kiwi.buildUrl(flightSearch.toString()),
     hotelUrl: hotelUrl.toString(),
-    packageUrl: packageUrl.toString(),
-    carUrl: "https://getrentacar.tpk.lv/buzTQvPf",
-    taxiUrl: "https://kiwitaxi.tpk.lv/UuvtPHby",
-    transferUrl: "https://gettransfer.tpk.lv/SqNqK9Q7",
     ticketUrl: trip.ticketUrl,
   };
 }
@@ -387,31 +309,35 @@ export function buildSportsTripLinks(
 function makeTrip(club: SportsClub, match: FootballDataMatch, source: SportsTrip["source"]): SportsTrip | null {
   const home = match.homeTeam?.name || match.homeTeam?.shortName || "";
   const away = match.awayTeam?.name || match.awayTeam?.shortName || "";
-  if (!clubMatchesTeam(club, home)) return null;
+  const isHome = clubMatchesTeam(club, home);
+  const isAway = clubMatchesTeam(club, away);
+  if (!isHome && !isAway) return null;
 
-  const baseTrip = {
+  const destination = destinationForMatch(home, club, isHome);
+  const homeInfo = teamInfo(home);
+  const awayInfo = teamInfo(away);
+  const baseTrip: Omit<SportsTrip, "flightUrl" | "hotelUrl"> = {
     id: String(match.id),
     clubSlug: club.slug,
     club: club.displayName,
-    opponent: away,
-    city: club.city,
-    country: club.country,
+    opponent: isHome ? away : home,
+    city: destination.city,
+    country: destination.country,
     competition: match.competition?.name || match.competition?.code || "Mecz",
     competitionCode: match.competition?.code || "",
     kickoff: match.utcDate,
     venue: match.venue,
     source,
-    ticketUrl: club.ticketUrl,
+    homeTeam: home,
+    awayTeam: away,
+    homeCrest: match.homeTeam?.crest || homeInfo?.crest || null,
+    awayCrest: match.awayTeam?.crest || awayInfo?.crest || null,
+    isHome,
+    ticketUrl: isHome ? club.ticketUrl : (sportsClubs.find(c => clubMatchesTeam(c, home))?.ticketUrl || club.ticketUrl),
   };
 
   const links = buildSportsTripLinks(baseTrip, "WAWA", 3, 2);
-
-  return {
-    ...baseTrip,
-    flightUrl: links.flightUrl,
-    hotelUrl: links.hotelUrl,
-    packageUrl: links.packageUrl,
-  };
+  return { ...baseTrip, flightUrl: links.flightUrl, hotelUrl: links.hotelUrl };
 }
 
 async function fetchCompetitionMatches(code: string, dateFrom: string, dateTo: string) {
@@ -442,26 +368,35 @@ async function fetchCompetitionMatches(code: string, dateFrom: string, dateTo: s
 
 // Techniczny fallback. Live Football-Data ma zawsze pierwszeństwo dla każdej ligi osobno.
 const seedMatches: FootballDataMatch[] = [
-  { id: 100001, utcDate: "2026-09-09T16:45:00Z", status: "SCHEDULED", venue: "Spotify Camp Nou", competition: { name: "UEFA Champions League", code: "CL" }, homeTeam: { name: "FC Barcelona" }, awayTeam: { name: "Feyenoord Rotterdam" } },
-  { id: 100002, utcDate: "2026-09-16T19:30:00Z", status: "SCHEDULED", venue: "Spotify Camp Nou", competition: { name: "La Liga", code: "PD" }, homeTeam: { name: "FC Barcelona" }, awayTeam: { name: "Racing Santander" } },
-  { id: 100003, utcDate: "2026-10-25T20:00:00Z", status: "SCHEDULED", venue: "Spotify Camp Nou", competition: { name: "La Liga", code: "PD" }, homeTeam: { name: "FC Barcelona" }, awayTeam: { name: "Real Madrid" } },
-  { id: 100004, utcDate: "2026-09-05T16:00:00Z", status: "SCHEDULED", venue: "San Siro", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Inter Milan" }, awayTeam: { name: "SSC Napoli" } },
-  { id: 100005, utcDate: "2026-10-10T13:00:00Z", status: "SCHEDULED", venue: "San Siro", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Inter Milan" }, awayTeam: { name: "Parma Calcio" } },
-  { id: 100006, utcDate: "2026-10-13T19:00:00Z", status: "SCHEDULED", venue: "San Siro", competition: { name: "UEFA Champions League", code: "CL" }, homeTeam: { name: "Inter Milan" }, awayTeam: { name: "Club Brugge" } },
+  // Inter 2026/27 — potwierdzony terminarz pierwszej drużyny (Serie A + Liga Mistrzów).
+  { id: 200001, utcDate: "2026-09-05T16:00:00Z", status: "TIMED", venue: "San Siro", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" }, awayTeam: { name: "SSC Napoli", crest:"https://crests.football-data.org/113.png" } },
+  { id: 200002, utcDate: "2026-09-08T19:00:00Z", status: "TIMED", venue: "Santiago Bernabéu", competition: { name: "UEFA Champions League", code: "CL" }, homeTeam: { name: "Real Madrid CF", crest:"https://crests.football-data.org/86.png" }, awayTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" } },
+  { id: 200003, utcDate: "2026-09-14T18:45:00Z", status: "TIMED", venue: "San Siro", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" }, awayTeam: { name: "Udinese Calcio", crest:"https://crests.football-data.org/115.png" } },
+  { id: 200004, utcDate: "2026-09-19T16:00:00Z", status: "TIMED", venue: "Stadio Olimpico", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "AS Roma", crest:"https://crests.football-data.org/100.png" }, awayTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" } },
+  { id: 200005, utcDate: "2026-10-10T16:00:00Z", status: "TIMED", venue: "San Siro", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" }, awayTeam: { name: "Parma Calcio 1913" } },
+  { id: 200006, utcDate: "2026-10-13T19:00:00Z", status: "TIMED", venue: "San Siro", competition: { name: "UEFA Champions League", code: "CL" }, homeTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" }, awayTeam: { name: "Club Brugge KV" } },
+  { id: 200007, utcDate: "2026-10-17T16:00:00Z", status: "TIMED", venue: "Stadio Renato Dall'Ara", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Bologna FC 1909" }, awayTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" } },
+  { id: 200008, utcDate: "2026-10-21T19:00:00Z", status: "TIMED", venue: "San Siro", competition: { name: "UEFA Champions League", code: "CL" }, homeTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" }, awayTeam: { name: "FC Shakhtar Donetsk" } },
+  { id: 200009, utcDate: "2026-10-25T11:30:00Z", status: "TIMED", venue: "San Siro", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" }, awayTeam: { name: "ACF Fiorentina" } },
+  { id: 200010, utcDate: "2026-10-28T17:30:00Z", status: "TIMED", venue: "Stadio Pier Luigi Penzo", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Venezia FC" }, awayTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" } },
+  { id: 200011, utcDate: "2026-10-31T19:45:00Z", status: "TIMED", venue: "San Siro", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "AC Milan", crest:"https://crests.football-data.org/98.png" }, awayTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" } },
+  { id: 200012, utcDate: "2026-11-03T20:00:00Z", status: "TIMED", venue: "De Kuip", competition: { name: "UEFA Champions League", code: "CL" }, homeTeam: { name: "Feyenoord Rotterdam" }, awayTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" } },
+  { id: 200013, utcDate: "2026-11-08T17:00:00Z", status: "TIMED", venue: "San Siro", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" }, awayTeam: { name: "Como 1907" } },
+  { id: 200014, utcDate: "2026-11-22T19:45:00Z", status: "TIMED", venue: "Gewiss Stadium", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Atalanta BC" }, awayTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" } },
+  { id: 200015, utcDate: "2026-11-25T20:00:00Z", status: "TIMED", venue: "San Siro", competition: { name: "UEFA Champions League", code: "CL" }, homeTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" }, awayTeam: { name: "VfB Stuttgart" } },
+  { id: 200016, utcDate: "2026-11-29T14:00:00Z", status: "SCHEDULED", venue: "San Siro", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" }, awayTeam: { name: "Genoa CFC" } },
+  { id: 200017, utcDate: "2026-12-06T14:00:00Z", status: "SCHEDULED", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Frosinone Calcio" }, awayTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" } },
+  { id: 200018, utcDate: "2026-12-09T20:00:00Z", status: "TIMED", competition: { name: "UEFA Champions League", code: "CL" }, homeTeam: { name: "Borussia Dortmund", crest:"https://crests.football-data.org/4.png" }, awayTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" } },
+  { id: 200019, utcDate: "2026-12-13T14:00:00Z", status: "SCHEDULED", venue: "San Siro", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" }, awayTeam: { name: "Torino FC" } },
+  { id: 200020, utcDate: "2026-12-20T14:00:00Z", status: "SCHEDULED", competition: { name: "Serie A", code: "SA" }, homeTeam: { name: "US Lecce" }, awayTeam: { name: "Inter Milan", crest:"https://crests.football-data.org/108.png" } },
 
-  // Premier League 2026/27 — fallback wyłącznie na wypadek chwilowego braku odpowiedzi API.
-  { id: 101001, utcDate: "2026-09-06T15:30:00Z", status: "TIMED", venue: "Emirates Stadium", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Arsenal FC" }, awayTeam: { name: "Chelsea FC" } },
-  { id: 101002, utcDate: "2026-09-12T14:00:00Z", status: "TIMED", venue: "Anfield", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Liverpool FC" }, awayTeam: { name: "Fulham FC" } },
-  { id: 101003, utcDate: "2026-09-13T15:30:00Z", status: "TIMED", venue: "Old Trafford", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Manchester United FC" }, awayTeam: { name: "Manchester City FC" } },
-  { id: 101004, utcDate: "2026-09-19T11:30:00Z", status: "TIMED", venue: "Tottenham Hotspur Stadium", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Tottenham Hotspur FC" }, awayTeam: { name: "Aston Villa FC" } },
-  { id: 101005, utcDate: "2026-09-20T13:00:00Z", status: "TIMED", venue: "Etihad Stadium", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Manchester City FC" }, awayTeam: { name: "Sunderland AFC" } },
-  { id: 101006, utcDate: "2026-10-10T11:30:00Z", status: "TIMED", venue: "Emirates Stadium", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Arsenal FC" }, awayTeam: { name: "Leeds United FC" } },
-  { id: 101007, utcDate: "2026-10-10T14:00:00Z", status: "TIMED", venue: "Stamford Bridge", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Chelsea FC" }, awayTeam: { name: "AFC Bournemouth" } },
-  { id: 101008, utcDate: "2026-10-10T16:30:00Z", status: "TIMED", venue: "Old Trafford", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Manchester United FC" }, awayTeam: { name: "Tottenham Hotspur FC" } },
-  { id: 101009, utcDate: "2026-10-11T15:30:00Z", status: "TIMED", venue: "Anfield", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Liverpool FC" }, awayTeam: { name: "Manchester City FC" } },
+  // Awaryjne wpisy dla pozostałych obserwowanych rozgrywek.
+  { id: 101001, utcDate: "2026-09-06T15:30:00Z", status: "TIMED", venue: "Emirates Stadium", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Arsenal FC", crest:"https://crests.football-data.org/57.png" }, awayTeam: { name: "Chelsea FC", crest:"https://crests.football-data.org/61.png" } },
+  { id: 101003, utcDate: "2026-09-13T15:30:00Z", status: "TIMED", venue: "Old Trafford", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Manchester United FC", crest:"https://crests.football-data.org/66.png" }, awayTeam: { name: "Manchester City FC", crest:"https://crests.football-data.org/65.png" } },
+  { id: 101009, utcDate: "2026-10-11T15:30:00Z", status: "TIMED", venue: "Anfield", competition: { name: "Premier League", code: "PL" }, homeTeam: { name: "Liverpool FC", crest:"https://crests.football-data.org/64.png" }, awayTeam: { name: "Manchester City FC", crest:"https://crests.football-data.org/65.png" } },
 ];
 
-export async function getSportsTrips(daysAhead = 120): Promise<SportsTrip[]> {
+export async function getSportsTrips(daysAhead = 365): Promise<SportsTrip[]> {
   const now = new Date();
   const dateFrom = isoDate(now);
   const dateTo = isoDate(addDays(now, daysAhead));
@@ -470,11 +405,12 @@ export async function getSportsTrips(daysAhead = 120): Promise<SportsTrip[]> {
   const groups = await Promise.all(
     codes.map(async code => {
       const live = await fetchCompetitionMatches(code, dateFrom, dateTo);
-      if (live.length) return live.map(match => ({ match, source: "football-data" as const }));
-
-      return seedMatches
-        .filter(match => match.competition?.code === code && isUpcomingMatch(match))
-        .map(match => ({ match, source: "seed" as const }));
+      const seeded = seedMatches.filter(match => match.competition?.code === code && isUpcomingMatch(match));
+      const merged = new Map<string, { match: FootballDataMatch; source: "football-data" | "seed" }>();
+      const key = (match: FootballDataMatch) => `${match.competition?.code || ""}|${match.utcDate.slice(0,10)}|${normalize(match.homeTeam?.name || match.homeTeam?.shortName)}|${normalize(match.awayTeam?.name || match.awayTeam?.shortName)}`;
+      seeded.forEach(match => merged.set(key(match), { match, source: "seed" }));
+      live.forEach(match => merged.set(key(match), { match, source: "football-data" }));
+      return [...merged.values()];
     })
   );
 
@@ -493,7 +429,7 @@ export async function getSportsTrips(daysAhead = 120): Promise<SportsTrip[]> {
   return [...deduped.values()]
     .filter(trip => new Date(trip.kickoff).getTime() >= now.getTime())
     .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
-    .slice(0, 80);
+    .slice(0, 240);
 }
 
 export function formatKickoff(iso: string) {
