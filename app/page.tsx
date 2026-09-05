@@ -468,7 +468,7 @@ export default function Home() {
           <div>
             <div className="kicker">DZISIEJSZA SELEKCJA</div>
             <h2>Dziś bralibyśmy te</h2>
-            <p>Codziennie wybieramy aktualne propozycje EXIM Tours i TUI. O 08:00 czasu polskiego pojawia się nowa pula z cenami i bezpośrednim przejściem do rezerwacji.</p>
+            <p>Codziennie wybieramy aktualne propozycje i o 08:00 czasu polskiego publikujemy nową pulę z cenami i bezpośrednim przejściem do rezerwacji.</p>
           </div>
           <Link className="section-premium-link" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
@@ -489,7 +489,7 @@ export default function Home() {
 
       <section className="section shell streaming-discovery streaming-offers visual-chapter chapter-streaming" aria-label="Odkrywaj oferty Tripowni">
         <div className="section-heading"><div><div className="kicker">NETFLIX PODRÓŻY</div><h2>Przewijaj, aż coś kliknie.</h2><p>Nie jedna ściana ofert. Różne nastroje, różne budżety i konkretne kierunki — codziennie w innym układzie.</p></div></div>
-        <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety EXIM Tours — lot + hotel + transfer w cenie. Konkretne terminy i ceny w jednym miejscu." items={themedRails.city}/>
+        <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety: lot + hotel + transfer w cenie. Konkretne terminy i ceny w jednym miejscu." items={themedRails.city}/>
         <OfferRail kicker="☀️ SŁOŃCE / ALL INCLUSIVE" title="Jeszcze trochę lata" description="Plaża, ciepło i gotowe wakacje — od krótkiego resetu po pełny tydzień." items={themedRails.sun}/>
         <OfferRail kicker="✨ UKRYTE PEREŁKI" title="Nie kolejny Rzym i Barcelona" description="Mniej oczywiste kierunki, które robią większe wrażenie niż kolejny klasyk." items={themedRails.unusual}/>
         <div className="streaming-rail editorial-streaming-rail">
@@ -526,7 +526,7 @@ export default function Home() {
                 <span>Tripownia znalazła od {surprise.price.toLocaleString("pl-PL")} zł/os. · mieści się w budżecie {budget.toLocaleString("pl-PL")} zł.</span>
                 <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
                   <Link href={`/oferta/${surprise.id}`} style={{fontWeight:800,textDecoration:"none"}}>Zobacz wyjazd →</Link>
-                  <a href={buildKiwiFlightSearch(surprise.city, surprise.country)} target="_blank" rel="sponsored noopener noreferrer" style={{fontWeight:800}}>✈️ Loty na Kiwi →</a>
+                  <a href={buildKiwiFlightSearch(surprise.city, surprise.country)} target="_blank" rel="sponsored noopener noreferrer" style={{fontWeight:800}}>✈️ Sprawdź loty →</a>
                 </div>
               </div>
             )}
@@ -576,7 +576,7 @@ export default function Home() {
         </div>
 
         <div className="discovery-grid experience-home-grid">
-          {experienceCards.map(card => (
+          {experienceCards.filter(card => card.href !== "/podroze-po-przezycia#jarmarki" || Date.now() <= new Date("2027-01-07T22:59:59Z").getTime()).map(card => (
             <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
               <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} />
               <div className="experience-teaser-copy">
@@ -607,8 +607,8 @@ export default function Home() {
         </div>
         <div className="hub-grid">
           <a href="#wyszukiwarka"><strong>🧩 Zacznij od własnych parametrów</strong><span>Ustaw filtry i przeszukaj aktualną bazę Tripowni.</span></a>
-          <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><strong>✈️ Dobierz lot</strong><span>Sprawdź połączenia przez afiliacyjny link Kiwi.com.</span></a>
-          <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><strong>🏨 Dobierz nocleg</strong><span>Przejdź do Booking.com z identyfikatorem afiliacyjnym Tripowni.</span></a>
+          <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><strong>✈️ Dobierz lot</strong><span>Porównaj połączenia i dobierz najlepszy wariant.</span></a>
+          <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><strong>🏨 Dobierz nocleg</strong><span>Porównaj noclegi dla wybranego kierunku i terminu.</span></a>
         </div>
       </section>
 
@@ -617,7 +617,7 @@ export default function Home() {
         <div className="hub-grid">
           <Link href="/kierunki"><strong>🌍 Kierunki</strong><span>Malta, Grecja, Włochy, Hiszpania i dziesiątki inspiracji.</span></Link>
           <Link href="/city-break"><strong>🏙 City break</strong><span>Krótkie wyjazdy, gotowe pomysły i aktualne okazje.</span></Link>
-          <Link href="/wakacje"><strong>🏖 Wakacje</strong><span>Pełna oferta EXIM Tours i TUI oraz dodatkowe narzędzia do samodzielnego planowania.</span></Link><Link href="/last-minute"><strong>⚡ Last minute</strong><span>Szybkie wyjazdy i pełne bazy partnerów.</span></Link>
+          <Link href="/wakacje"><strong>🏖 Wakacje</strong><span>Gotowe pakiety i dodatkowe narzędzia do samodzielnego planowania.</span></Link><Link href="/last-minute"><strong>⚡ Last minute</strong><span>Szybkie wyjazdy i szersze wyszukiwanie.</span></Link>
           <Link href="/podroze-po-przezycia"><strong>✨ Przeżycia</strong><span>Zjawiska, sezonowość i podróże planowane pod właściwy moment.</span></Link>
           <Link href="/dalekie-podroze"><strong>🌏 Dalekie podróże</strong><span>Wietnam, Pekin, Nowy Jork, Japonia, Tajlandia i dalsze wyprawy.</span></Link>
           <Link href="/magazyn-podrozniczy"><strong>📰 Magazyn podróżniczy</strong><span>Formalności, lotniska, bagaż i praktyczne wskazówki.</span></Link>
