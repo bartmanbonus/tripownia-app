@@ -47,6 +47,10 @@ const trips: LongTrip[] = [
   { id:"sydney", flag:"🇦🇺", region:"AUSTRALIA", title:"Sydney", airport:"SYD", bookingCity:"Sydney", duration:12, best:"październik – kwiecień", ideal:"10+ dni", lead:"Tak daleki lot warto potraktować jako początek większej podróży po Australii, nie tylko wizytę przy Operze.", highlights:"Sydney · Blue Mountains · wybrzeże · road trip", attractionQuery:"Sydney" },
   { id:"meksyk", flag:"🇲🇽", region:"MEKSYK", title:"Meksyk", airport:"MEX", bookingCity:"Mexico City", duration:12, best:"listopad – kwiecień*", ideal:"10–16 dni", lead:"Mexico City, kultura, kuchnia i możliwość dołożenia drugiego regionu — od Jukatanu po wybrzeże Pacyfiku.", highlights:"Mexico City · Teotihuacán · Oaxaca · Jukatan", attractionQuery:"Mexico City" },
   { id:"malediwy", flag:"🇲🇻", region:"OCEAN INDYJSKI", title:"Malediwy", airport:"MLE", bookingCity:"Malé", duration:8, best:"styczeń – kwiecień", ideal:"7–10 dni", lead:"Tu mniej znaczy więcej: dobra wyspa, transfer i warunki pogodowe są ważniejsze niż długa lista atrakcji.", highlights:"laguny · snorkeling · resort / lokalna wyspa · nurkowanie", attractionQuery:"Malediwy" },
+  { id:"zanzibar", flag:"🇹🇿", region:"AFRYKA", title:"Zanzibar + Tanzania", airport:"ZNZ", bookingCity:"Zanzibar", duration:11, best:"czerwiec – październik / styczeń – luty", ideal:"9–13 dni", lead:"Plaża sama w sobie jest świetna, ale największy sens ma połączenie wyspy z safari albo kilkoma dniami w kontynentalnej Tanzanii.", highlights:"Stone Town · Nungwi · safari · rejsy · przyprawy", attractionQuery:"Zanzibar" },
+  { id:"mauritius", flag:"🇲🇺", region:"OCEAN INDYJSKI", title:"Mauritius", airport:"MRU", bookingCity:"Mauritius", duration:10, best:"maj – grudzień", ideal:"8–12 dni", lead:"Wyspa dla osób, które chcą połączyć plażę z trekkingiem, wodospadami i road tripem zamiast siedzieć tylko w resorcie.", highlights:"Le Morne · Chamarel · Black River Gorges · laguny", attractionQuery:"Mauritius" },
+  { id:"kostaryka", flag:"🇨🇷", region:"AMERYKA ŚRODKOWA", title:"Kostaryka", airport:"SJO", bookingCity:"San José, Costa Rica", duration:13, best:"grudzień – kwiecień", ideal:"12–16 dni", lead:"Wulkany, dżungla, zwierzęta i dwa wybrzeża. To kierunek, który ma sens jako objazd, nie jako jeden hotel.", highlights:"Arenal · Monteverde · Manuel Antonio · karaibskie wybrzeże", attractionQuery:"Costa Rica" },
+  { id:"peru", flag:"🇵🇪", region:"AMERYKA POŁUDNIOWA", title:"Peru", airport:"LIM", bookingCity:"Lima", duration:14, best:"maj – wrzesień", ideal:"12–16 dni", lead:"Duża podróż z konkretnym rytmem: Lima, Andy, Cusco i Machu Picchu. Tu warto zostawić zapas na wysokość i logistykę.", highlights:"Lima · Cusco · Sacred Valley · Machu Picchu", attractionQuery:"Peru" },
 ];
 
 
@@ -62,7 +66,11 @@ const cheapestWindows: Record<string,{departure:string;ret:string;label:string}>
   kapsztad:{departure:"2026-11-10",ret:"2026-11-20",label:"10–20 listopada 2026"},
   sydney:{departure:"2027-03-02",ret:"2027-03-14",label:"2–14 marca 2027"},
   meksyk:{departure:"2027-02-16",ret:"2027-02-28",label:"16–28 lutego 2027"},
-  malediwy:{departure:"2027-01-19",ret:"2027-01-27",label:"19–27 stycznia 2027"}
+  malediwy:{departure:"2027-01-19",ret:"2027-01-27",label:"19–27 stycznia 2027"},
+  zanzibar:{departure:"2027-01-12",ret:"2027-01-23",label:"12–23 stycznia 2027"},
+  mauritius:{departure:"2027-06-08",ret:"2027-06-18",label:"8–18 czerwca 2027"},
+  kostaryka:{departure:"2027-02-09",ret:"2027-02-22",label:"9–22 lutego 2027"},
+  peru:{departure:"2027-06-01",ret:"2027-06-15",label:"1–15 czerwca 2027"}
 };
 
 const cheapestTips: Record<string,string> = {
@@ -77,7 +85,11 @@ const cheapestTips: Record<string,string> = {
   kapsztad:"Najpierw sprawdzamy listopad i marzec, omijając świąteczno-noworoczny szczyt.",
   sydney:"Najpierw testujemy listopad i marzec; okres świąteczny potrafi być wyraźnie droższy.",
   meksyk:"Najpierw porównujemy końcówkę listopada i luty–marzec poza feriami i świętami.",
-  malediwy:"Najpierw sprawdzamy drugą połowę stycznia i marzec; weekendowe wyloty nie zawsze wygrywają ceną."
+  malediwy:"Najpierw sprawdzamy drugą połowę stycznia i marzec; weekendowe wyloty nie zawsze wygrywają ceną.",
+  zanzibar:"Najpierw porównujemy styczeń i luty oraz czerwiec po wysokim sezonie europejskim.",
+  mauritius:"Najpierw sprawdzamy czerwiec i wrzesień, kiedy pogoda jest dobra, a ceny nie są jeszcze świąteczne.",
+  kostaryka:"Najpierw szukamy lutego i marca, unikając Bożego Narodzenia i Wielkanocy.",
+  peru:"Najpierw porównujemy czerwiec i wrzesień — suchszy sezon bez lipcowo-sierpniowego szczytu."
 };
 
 function iso(date: Date) {
@@ -129,7 +141,7 @@ export default function LongHaulPage() {
           <div className="kicker">DALEKIE PODRÓŻE</div>
           <h1>Barcelona była. Rzym był. To lecimy dalej.</h1>
           <p>
-            Wietnam, Pekin, Nowy Jork, Japonia i kierunki, dla których warto mieć więcej niż trzy dni.
+            Azja, Afryka, obie Ameryki, Australia i wyspy Oceanu Indyjskiego — kierunki, dla których warto mieć więcej niż trzy dni.
             Pokazujemy, ile czasu ma sens, kiedy lecieć i od razu ustawiamy kierunek w wyszukiwarce lotów i noclegów.
           </p>
           <div className="long-haul-hero-tags">
@@ -147,7 +159,7 @@ export default function LongHaulPage() {
           <div><span>🗓️</span><strong>Minimum czasu</strong><p>Nie proponujemy 4 dni w miejscu, do którego leci się kilkanaście godzin.</p></div>
           <div><span>🌦️</span><strong>Sezon ma znaczenie</strong><p>Podpowiadamy lepsze okna pogodowe zamiast udawać, że każdy miesiąc jest taki sam.</p></div>
           <div><span>✈️</span><strong>Lot już ustawiony</strong><p>CTA otwiera wyszukiwanie lotów z Warszawy do właściwego lotniska i dla przykładowego terminu.</p></div>
-          <div><span>🏨</span><strong>Nocleg już ustawiony</strong><p>Booking dostaje konkretną miejscowość oraz te same daty pobytu.</p></div>
+          <div><span>🏨</span><strong>Nocleg już ustawiony</strong><p>Otwieramy noclegi z ustawioną miejscowością i tym samym terminem.</p></div>
         </div>
       </section>
 
