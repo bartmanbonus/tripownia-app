@@ -5,7 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
 import { offers } from "@/lib/offers";
-import { buildEskyFlightsUrl, buildEskyPackagesUrl, partners } from "@/lib/partners";
+import { partners } from "@/lib/partners";
 import { getSeoLanding, seoLandings } from "@/lib/seoLandings";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
@@ -77,10 +77,6 @@ export default async function SeoLandingPage({ params }: PageProps) {
   kiwiDeep.searchParams.set("locale", "pl");
 
   const kiwiUrl = partners.kiwi.buildUrl(kiwiDeep.toString());
-  const eskyFlights = buildEskyFlightsUrl(
-    `https://www.esky.pl/tanie-loty/?to=${encodeURIComponent(page.query)}`
-  );
-  const eskyPackage = buildEskyPackagesUrl();
 
   return (
     <main>
@@ -130,10 +126,8 @@ export default async function SeoLandingPage({ params }: PageProps) {
           </div>
         </div>
         <div className="big-partner-grid">
-          <a href={eskyFlights} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><strong>Loty eSky</strong><small>{page.query}</small><b>Sprawdź loty →</b></a>
           <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🛫</span><strong>Kiwi.com</strong><small>Sortowanie od najniższej ceny</small><b>Porównaj →</b></a>
           <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏨</span><strong>Booking.com</strong><small>Noclegi: {page.query}</small><b>Sprawdź hotele →</b></a>
-          <a href={eskyPackage} target="_blank" rel="sponsored noopener noreferrer"><span>🧳</span><strong>eSky Lot + Hotel</strong><small>Pakiety podróżnicze</small><b>Sprawdź pakiety →</b></a>
         </div>
       </section>
 
