@@ -49,6 +49,30 @@ const clubs: Club[] = [
   { slug:"liverpool", names:["Liverpool FC","Liverpool"], displayName:"Liverpool", city:"Liverpool", country:"Wielka Brytania", airportCode:"LPL", competitionCodes:["PL","CL"], ticketUrl:"https://www.liverpoolfc.com/tickets", emoji:"🔴" },
 ];
 
+
+const teamDestinations: Array<{ names: string[]; city: string; country: string; airportCode: string }> = [
+  { names:["AS Roma","Roma"], city:"Rzym", country:"Włochy", airportCode:"ROM" },
+  { names:["SS Lazio","Lazio"], city:"Rzym", country:"Włochy", airportCode:"ROM" },
+  { names:["Juventus FC","Juventus"], city:"Turyn", country:"Włochy", airportCode:"TRN" },
+  { names:["SSC Napoli","Napoli"], city:"Neapol", country:"Włochy", airportCode:"NAP" },
+  { names:["Atalanta BC","Atalanta"], city:"Bergamo", country:"Włochy", airportCode:"BGY" },
+  { names:["Bologna FC 1909","Bologna"], city:"Bolonia", country:"Włochy", airportCode:"BLQ" },
+  { names:["ACF Fiorentina","Fiorentina"], city:"Florencja", country:"Włochy", airportCode:"FLR" },
+  { names:["Real Madrid CF","Real Madrid"], city:"Madryt", country:"Hiszpania", airportCode:"MAD" },
+  { names:["Club Brugge KV","Club Brugge"], city:"Brugia", country:"Belgia", airportCode:"BRU" },
+  { names:["Feyenoord Rotterdam","Feyenoord"], city:"Rotterdam", country:"Holandia", airportCode:"RTM" },
+  { names:["Borussia Dortmund","Dortmund"], city:"Dortmund", country:"Niemcy", airportCode:"DTM" },
+  { names:["FC Shakhtar Donetsk","Shakhtar Donetsk"], city:"Donieck", country:"Ukraina", airportCode:"KBP" },
+];
+
+function destinationForTeam(teamName: string, fallback: Club) {
+  const name = normalize(teamName);
+  const found = teamDestinations.find(item =>
+    item.names.some(alias => name === normalize(alias) || name.includes(normalize(alias)))
+  );
+  return found || { city: fallback.city, country: fallback.country, airportCode: fallback.airportCode };
+}
+
 function normalize(value?: string | null) {
   return (value || "").trim().toLocaleLowerCase("pl");
 }
@@ -98,7 +122,6 @@ async function getTrips(): Promise<Trip[]> {
       const url = new URL(`https://api.football-data.org/v4/competitions/${code}/matches`);
       url.searchParams.set("dateFrom", dateFrom);
       url.searchParams.set("dateTo", dateTo);
-      url.searchParams.set("status", "SCHEDULED");
 
       const response = await fetch(url, {
         headers: { "X-Auth-Token": token },
@@ -120,22 +143,32 @@ async function getTrips(): Promise<Trip[]> {
     for (const match of matches) {
       const home = match.homeTeam?.name || match.homeTeam?.shortName || "";
       const away = match.awayTeam?.name || match.awayTeam?.shortName || "";
-      if (!clubMatches(club, home)) continue;
+      const isHome = clubMatches(club, home);
+      const isAway = clubMatches(club, away);
+      if (!isHome && !isAway) continue;
+
+      const kickoffMs = new Date(match.utcDate).getTime();
+      if (!Number.isFinite(kickoffMs) || kickoffMs < now.getTime()) continue;
+
+      const opponent = isHome ? away : home;
+      const destination = isHome
+        ? { city: club.city, country: club.country, airportCode: club.airportCode }
+        : destinationForTeam(home, club);
 
       trips.push({
         id: String(match.id),
         clubSlug: club.slug,
         club: club.displayName,
-        opponent: away,
-        city: club.city,
-        country: club.country,
+        opponent,
+        city: destination.city,
+        country: destination.country,
         competition: match.competition?.name || match.competition?.code || "Mecz",
         kickoff: match.utcDate,
         venue: match.venue,
         ticketUrl: club.ticketUrl,
-        flightUrl: kiwiFlights(club.airportCode),
-        hotelUrl: booking(club.city),
-        packageUrl: booking(club.city),
+        flightUrl: kiwiFlights(destination.airportCode),
+        hotelUrl: booking(destination.city),
+        packageUrl: booking(destination.city),
       });
     }
   }
@@ -147,7 +180,7 @@ async function getTrips(): Promise<Trip[]> {
 
   return [...unique.values()]
     .sort((a,b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
-    .slice(0, 40);
+    .slice(0, 200);
 }
 
 function formatKickoff(iso: string) {
