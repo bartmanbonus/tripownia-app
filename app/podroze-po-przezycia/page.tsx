@@ -3,7 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
-import { partners, buildEskyFlightsUrl } from "@/lib/partners";
+import { partners } from "@/lib/partners";
 
 export const metadata: Metadata = {
   title: "Podróże po przeżycia — konkretne wyjazdy na zorzę, sakurę i safari | Tripownia.pl",
@@ -55,7 +55,7 @@ const experiences:Experience[]=[
   {city:"Phuket",airport:"HKT",dates:["2027-02-18","2027-02-28"],label:"Tajlandia · 10 nocy"},
  ]},
 ];
-function flightUrl(i:Idea){return buildEskyFlightsUrl(`https://www2.esky.pl/flights/search/mp/WAWA/ap/${i.airport}?departureDate=${i.dates[0]}&returnDate=${i.dates[1]}&pa=2&py=0&pc=0&pi=0&sc=economy&flexDatesOffset=2`)}
+function flightUrl(i:Idea){const u=new URL("https://www.kiwi.com/deep");u.searchParams.set("from","WAW");u.searchParams.set("to",i.airport);u.searchParams.set("departure",i.dates[0]);u.searchParams.set("return",i.dates[1]);u.searchParams.set("currency","PLN");return partners.kiwi.buildUrl(u.toString())}
 function attractionUrl(city:string){return partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(city)}`)}
 export default function ExperiencesPage(){return <main className="experience-expanded-page"><SiteHeader/><BreadcrumbSchema items={[{name:"Tripownia",url:"https://tripownia.pl/"},{name:"Podróże po przeżycia",url:"https://tripownia.pl/podroze-po-przezycia"}]}/>
 <section className="experience-expanded-hero"><div className="shell"><div className="kicker">PODRÓŻE PO PRZEŻYCIA</div><h1>Najpierw wybierz przeżycie. Potem dostajesz kilka konkretnych miejsc.</h1><p>Zorza nie oznacza tylko Islandii. Safari nie oznacza jednego hotelu. Przy każdym pomyśle pokazujemy kilka baz i gotowe terminy do sprawdzenia.</p><div className="experience-season-nav"><a href="#zorza">🌌 Zorza</a><a href="#sakura">🌸 Sakura</a><a href="#fiordy">🏔️ Fiordy</a><Link href="/jarmarki-bozonarodzeniowe">🎄 Jarmarki 2026</Link><Link href="/sylwester">🥂 Sylwester</Link></div></div></section>
