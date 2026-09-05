@@ -217,9 +217,8 @@ function OfferRail({ kicker, title, description, items }: { kicker: string; titl
   return <section className="offer-stream-row">
     <div className="offer-stream-head">
       <div><div className="kicker">{kicker}</div><h3>{title}</h3><p>{description}</p></div>
-      <div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div>
     </div>
-    <div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>{items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}</div>
+    <div className="offer-stream-rail-wrap"><div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div><div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>{items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}</div></div>
   </section>;
 }
 
@@ -364,59 +363,45 @@ export default function Home() {
   const [budget, setBudget] = useState(2500);
   const [surprise, setSurprise] = useState<TripOffer | null>(null);
 
+  const [surpriseLive, setSurpriseLive] = useState<TripOffer[]>([]);
+  const [surpriseLoading, setSurpriseLoading] = useState(false);
+
+  useEffect(() => {
+    setSurprise(null);
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      setSurpriseLoading(true);
+      fetch(`/api/today-offers?mode=surprise&budget=${budget}&key=${encodeURIComponent(dailyKey)}`, { cache: "no-store", signal: controller.signal })
+        .then(r => r.json())
+        .then(data => setSurpriseLive(Array.isArray(data?.offers) ? data.offers : []))
+        .catch(() => setSurpriseLive([]))
+        .finally(() => setSurpriseLoading(false));
+    }, 250);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [budget, dailyKey]);
+
   const budgetCandidates = useMemo(() => {
-    const wowBonus = (offer: TripOffer) => {
-      const city = offer.city.toLowerCase();
-      const country = offer.country.toLowerCase();
+    const pool = surpriseLive.length ? surpriseLive : (liveOffersStatus === "live" ? liveOffers : offers);
+    const exotic = /zanzibar|dominikan|malediw|kenia|meksyk|tajland|kuba|dubaj|bali|wietnam|japon|nowy jork|mauritius|seszel/i;
+    const mid = /marsa alam|teneryfa|fuerteventura|marrakesz|djerba|hurghada|oman|wyspy zielonego przyladka/i;
+    const low = /malta|sycylia|alicante|pafos|stambul|marrakesz|bergamo|porto/i;
 
-      // Im większy budżet, tym bardziej "Zaskocz mnie" ma premiować kierunki z efektem wow,
-      // a nie tylko te najbliższe górnej granicy ceny.
-      if (budget >= 2800) {
-        if (/dubaj|madera/.test(city) || /zea/.test(country)) return 95;
-        if (/marsa alam|teneryfa|fuerteventura|marrakesz/.test(city)) return 70;
-      }
-      if (budget >= 1900) {
-        if (/marsa alam|teneryfa|fuerteventura/.test(city)) return 90;
-        if (/marrakesz|djerba|hurghada/.test(city)) return 72;
-        if (/bodrum|antaly/.test(city)) return 45;
-        if (/riwiera albańska|alban/.test(city) || /alban/.test(country)) return 8;
-      }
-      if (budget >= 1200) {
-        if (/marrakesz|djerba|pafos|lizbona/.test(city)) return 65;
-        if (/barcelona|rzym|paryż/.test(city)) return 18;
-      }
-      if (budget < 1200) {
-        if (/malta|porto|bergamo|alicante|praga|budapeszt/.test(city)) return 55;
-      }
-      return 0;
-    };
-
-    const homePool = liveOffersStatus === "live" ? [...liveOffers, ...offers] : offers;
-    const candidates = homePool
+    return pool
       .filter(o => !isOfferExpired(o))
       .filter(o => isTravelDestinationAllowed(o.city, o.country))
       .filter(o => o.price <= budget)
+      .filter(o => budget < 3500 || exotic.test(`${o.city} ${o.country}`))
       .map(offerForDisplay)
       .sort((a, b) => {
+        const aText = `${a.city} ${a.country}`.toLowerCase();
+        const bText = `${b.city} ${b.country}`.toLowerCase();
+        const tierScore = (text:string) => budget >= 3500 ? (exotic.test(text) ? 500 : 0) : budget >= 1800 ? (mid.test(text) ? 250 : 0) : (low.test(text) ? 180 : 0);
         const aFit = a.price / Math.max(1, budget);
         const bFit = b.price / Math.max(1, budget);
-        const aScore = Number(a.score || 0) * 12 + aFit * 24 + wowBonus(a);
-        const bScore = Number(b.score || 0) * 12 + bFit * 24 + wowBonus(b);
-        return bScore - aScore;
-      });
-
-    // Różne kraje = większe poczucie odkrywania, a nie pięć wariantów tego samego miejsca.
-    const diversified: TripOffer[] = [];
-    const countries = new Set<string>();
-    for (const offer of candidates) {
-      if (!countries.has(offer.country) || diversified.length >= 5) {
-        diversified.push(offer);
-        countries.add(offer.country);
-      }
-      if (diversified.length >= 8) break;
-    }
-    return diversified.length ? diversified : candidates.slice(0, 8);
-  }, [budget, liveOffersStatus, liveOffers]);
+        return (tierScore(bText) + bFit * 80 + Number(b.score || 0) * 10) - (tierScore(aText) + aFit * 80 + Number(a.score || 0) * 10);
+      })
+      .slice(0, 10);
+  }, [budget, surpriseLive, liveOffersStatus, liveOffers]);
 
 
 
@@ -483,7 +468,7 @@ export default function Home() {
           <div>
             <div className="kicker">DZISIEJSZA SELEKCJA</div>
             <h2>Dziś bralibyśmy te</h2>
-            <p>Selekcja budowana automatycznie z aktualnych feedów TUI i EXIM. O 08:00 czasu polskiego zmieniamy pulę, a karta pokazuje cenę i konkretny deeplink zapisany w feedzie partnera.</p>
+            <p>Codziennie wybieramy aktualne propozycje EXIM Tours i TUI. O 08:00 czasu polskiego pojawia się nowa pula z cenami i bezpośrednim przejściem do rezerwacji.</p>
           </div>
           <Link className="section-premium-link" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
@@ -526,11 +511,11 @@ export default function Home() {
           </div>
           <div className="surprise-card">
             <Sparkles size={30}/><h3>Nie wiesz gdzie?</h3><p>Daj nam budżet i daj się zaskoczyć.</p>
-            <button onClick={pickSurprise}><Dice5 size={18}/> Zaskocz mnie</button>
+            <button onClick={pickSurprise} disabled={surpriseLoading}><Dice5 size={18}/> {surpriseLoading?"Szukamy czegoś lepszego…":"Zaskocz mnie"}</button>
             {!budgetCandidates.length && (
               <div className="surprise-result surprise-result-v2">
                 <strong>W tym budżecie nie mamy dziś zweryfikowanej okazji.</strong>
-                <em>Zwiększ budżet albo wróć do pełnej wyszukiwarki — nie podsuwamy przypadkowego kierunku tylko po to, żeby coś pokazać.</em>
+                <em>Przy tym budżecie szukamy kierunku, który naprawdę ma sens — bez wciskania przypadkowego klasyka.</em>
               </div>
             )}
             {surprise && (
