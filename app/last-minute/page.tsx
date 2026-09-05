@@ -9,7 +9,7 @@ import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
 export const metadata: Metadata = {
   title: "Last minute — aktualne wyjazdy i oferty | Tripownia.pl",
-  description: "Żywa sekcja last minute Tripowni: konkretne wyjazdy, EXIM Tours na pierwszym miejscu oraz pełne wyszukiwanie partnerów.",
+  description: "Żywa sekcja last minute Tripowni: konkretne wyjazdy, aktualne ceny i pełne wyszukiwanie.",
   alternates: { canonical: "/last-minute" },
 };
 
@@ -33,14 +33,14 @@ export default function LastMinuteOffersPage() {
     <section className="shopping-hero shell last-minute-shopping-hero">
       <div>
         <div className="kicker">⚡ LAST MINUTE — ŻYWE OFERTY</div>
-        <h1>Wylot niedługo? Najpierw sprawdzamy EXIM.</h1>
-        <p>To nie jest poradnik. To żywa sekcja zakupowa: konkretne wyjazdy, terminy i ceny. Najpierw EXIM, później Wakacje.pl i pozostałe źródła.</p>
+        <h1>Wylot niedługo? Najpierw sprawdzamy, co naprawdę ma sens.</h1>
+        <p>To nie jest poradnik. To żywa sekcja zakupowa: konkretne wyjazdy, terminy i ceny, które warto sprawdzić teraz.</p>
       </div>
       <Link className="editorial-link" href="/magazyn-podrozniczy/last-minute-2026">📚 Jak kupować last minute — poradnik →</Link>
     </section>
 
     <section className="section shell last-minute-live-section">
-      <div className="section-heading"><div><div className="kicker">EXIM TOURS — PIERWSZY WYBÓR</div><h2>Najtańsze gotowe wyjazdy, które warto sprawdzić teraz</h2><p>Sortujemy od najniższej ceny. Otwórz kartę, żeby pobrać aktualną cenę i przejść do konkretnego wariantu.</p></div></div>
+      <div className="section-heading"><div><div className="kicker">NAJLEPSZE LAST MINUTE</div><h2>Najtańsze gotowe wyjazdy, które warto sprawdzić teraz</h2><p>Sortujemy od najniższej ceny. Otwórz kartę, żeby pobrać aktualną cenę i przejść do konkretnego wariantu.</p></div></div>
       <div className="last-minute-offer-rail">{exim.map(o=><OfferCard key={o.id} offer={o}/>)}</div>
     </section>
 
