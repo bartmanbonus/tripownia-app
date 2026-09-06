@@ -413,6 +413,12 @@ export async function GET(request: NextRequest) {
   const mode = requestedMode === "citybreak" ? "citybreak" : requestedMode === "search" ? "search" : requestedMode === "surprise" ? "surprise" : "daily";
   const query = (request.nextUrl.searchParams.get("q") || "").trim().slice(0, 80);
   const budget = Math.max(500, Math.min(10000, Number(request.nextUrl.searchParams.get("budget") || 2500)));
+  const providerParam = request.nextUrl.searchParams.get("provider");
+  const providerOnly: Provider | null = providerParam === "exim" || providerParam === "tui" ? providerParam : null;
+  const departureFilter = (request.nextUrl.searchParams.get("from") || "").trim();
+  const nightsFilter = (request.nextUrl.searchParams.get("nights") || "any").trim();
+  const boardFilter = (request.nextUrl.searchParams.get("board") || "any").trim();
+  const maxPrice = Math.max(0, Number(request.nextUrl.searchParams.get("maxPrice") || 0));
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
 
@@ -432,8 +438,8 @@ export async function GET(request: NextRequest) {
     const jobs: Promise<{ provider: Provider; products: TdProduct[] }>[] = [];
 
     for (const term of terms) {
-      if (eximToken) jobs.push(fetchProducts("exim", term, eximToken).then((products) => ({ provider: "exim" as const, products })));
-      if (mode !== "citybreak" && tuiToken) jobs.push(fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
+      if (eximToken && providerOnly !== "tui") jobs.push(fetchProducts("exim", term, eximToken).then((products) => ({ provider: "exim" as const, products })));
+      if (mode !== "citybreak" && tuiToken && providerOnly !== "exim") jobs.push(fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
     }
 
     const settled = await Promise.allSettled(jobs);
@@ -453,7 +459,37 @@ export async function GET(request: NextRequest) {
       if (!previous || candidate.price < previous.price) unique.set(keyValue, candidate);
     }
 
-    const pool = Array.from(unique.values());
+    const departureMatches = (offer: LiveCandidate) => {
+      if (!departureFilter) return true;
+      const haystack = normalize(`${offer.departure} ${offer.airportCode}`);
+      const code = departureFilter.toUpperCase();
+      if (code === "WAWA") return /warszawa|chopin|modlin|\bwaw\b|\bwmi\b/.test(haystack);
+      if (code === "KRK") return /krakow|balice|\bkrk\b/.test(haystack);
+      if (code === "KTW") return /katowice|pyrzowice|\bktw\b/.test(haystack);
+      if (code === "GDN") return /gdansk|rebiechowo|\bgdn\b/.test(haystack);
+      if (code === "WRO") return /wroclaw|strachowice|\bwro\b/.test(haystack);
+      if (code === "POZ") return /poznan|lawica|\bpoz\b/.test(haystack);
+      return true;
+    };
+    const nightsMatches = (offer: LiveCandidate) => {
+      if (nightsFilter === "2-3") return offer.nights >= 2 && offer.nights <= 3;
+      if (nightsFilter === "4-5") return offer.nights >= 4 && offer.nights <= 5;
+      if (nightsFilter === "6-8") return offer.nights >= 6 && offer.nights <= 8;
+      if (nightsFilter === "9+") return offer.nights >= 9;
+      return true;
+    };
+    const boardMatches = (offer: LiveCandidate) => {
+      if (boardFilter === "any") return true;
+      const value = normalize(offer.board);
+      if (boardFilter === "allinclusive") return /all inclusive|ultra all/.test(value);
+      if (boardFilter === "breakfast") return /sniad|breakfast|bb/.test(value);
+      if (boardFilter === "halfboard") return /half board|hb|2 posil|sniad.*obiad|sniad.*kolac/.test(value);
+      return true;
+    };
+
+    const pool = Array.from(unique.values()).filter((offer) =>
+      departureMatches(offer) && nightsMatches(offer) && boardMatches(offer) && (!maxPrice || offer.price <= maxPrice)
+    );
     const selected = mode === "citybreak"
       ? selectDaily(pool.filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5), `${key}:citybreak`, 8)
       : mode === "search"
