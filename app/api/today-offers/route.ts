@@ -265,7 +265,7 @@ function fromExim(product: TdProduct): LiveCandidate | null {
     city,
     country,
     price,
-    priceCheckedAt: modifiedAt ? new Date(modifiedAt).toISOString() : new Date().toISOString(),
+    priceCheckedAt: new Date().toISOString(),
     availabilityStatus: "available",
     departure,
     airportCode: "",
@@ -325,7 +325,7 @@ function fromTui(product: TdProduct): LiveCandidate | null {
     city,
     country,
     price,
-    priceCheckedAt: modifiedAt ? new Date(modifiedAt).toISOString() : new Date().toISOString(),
+    priceCheckedAt: new Date().toISOString(),
     availabilityStatus: "available",
     departure,
     airportCode: fields.DeparturePlace || "",
@@ -377,6 +377,19 @@ function dealValue(offer: LiveCandidate) {
   if (offer.price <= 1800) value += 45;
   if (offer.price <= 1300) value += 30;
   return value;
+}
+
+
+function cheapestPerDestination(candidates: LiveCandidate[]) {
+  const best = new Map<string, LiveCandidate>();
+  for (const offer of candidates) {
+    const key = destinationKey(offer);
+    const previous = best.get(key);
+    if (!previous || offer.price < previous.price || (offer.price === previous.price && departurePriority(offer) > departurePriority(previous))) {
+      best.set(key, offer);
+    }
+  }
+  return Array.from(best.values());
 }
 
 function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
@@ -520,7 +533,7 @@ export async function GET(request: NextRequest) {
         key,
         mode,
         checkedAt: new Date().toISOString(),
-        sourceCount: unique.size,
+        sourceCount: pool.length,
         offers: selected,
       },
       {
