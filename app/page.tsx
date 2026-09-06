@@ -240,13 +240,20 @@ export default function Home() {
   const [liveOffers, setLiveOffers] = useState<TripOffer[]>([]);
   const [liveOffersStatus, setLiveOffersStatus] = useState<"loading" | "live" | "fallback">("loading");
   const [eximCityBreaks, setEximCityBreaks] = useState<TripOffer[]>([]);
+  const [liveRefreshTick, setLiveRefreshTick] = useState(0);
+  const [lastLiveCheckedAt, setLastLiveCheckedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setLiveRefreshTick(value => value + 1), 10 * 60 * 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
     setLiveOffersStatus("loading");
 
-    fetch(`/api/today-offers?key=${encodeURIComponent(dailyKey)}`, {
+    fetch(`/api/today-offers?key=${encodeURIComponent(dailyKey)}&refresh=${liveRefreshTick}`, {
       signal: controller.signal,
       cache: "no-store",
     })
@@ -259,6 +266,7 @@ export default function Home() {
           .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country));
         if (safeRows.length >= 6) {
           setLiveOffers(safeRows.slice(0, 12));
+          setLastLiveCheckedAt(typeof data?.checkedAt === "string" ? data.checkedAt : new Date().toISOString());
           setLiveOffersStatus("live");
         } else {
           setLiveOffers([]);
@@ -275,11 +283,11 @@ export default function Home() {
       active = false;
       controller.abort();
     };
-  }, [dailyKey]);
+  }, [dailyKey, liveRefreshTick]);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`/api/today-offers?mode=citybreak&key=${encodeURIComponent(dailyKey)}`, { signal: controller.signal, cache: "no-store" })
+    fetch(`/api/today-offers?mode=citybreak&key=${encodeURIComponent(dailyKey)}&refresh=${liveRefreshTick}`, { signal: controller.signal, cache: "no-store" })
       .then((response) => response.ok ? response.json() : Promise.reject(new Error("citybreak-exim")))
       .then((data) => {
         const rows = Array.isArray(data?.offers) ? data.offers : [];
@@ -290,7 +298,7 @@ export default function Home() {
       })
       .catch(() => setEximCityBreaks([]));
     return () => controller.abort();
-  }, [dailyKey]);
+  }, [dailyKey, liveRefreshTick]);
 
   // Sekcja „dzisiejsze” pokazuje wyłącznie dane pobrane na żywo.
   // Nie podstawiamy starych kart jako rzekomo aktualnej puli.
@@ -302,17 +310,15 @@ export default function Home() {
   const newOffersCount = liveOffersStatus === "live" ? todaysOffers.length : 0;
 
   const refreshStatus = useMemo(() => {
-    const now = new Date();
-    const parts = new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23",
-    }).formatToParts(now).reduce<Record<string,string>>((acc, part) => { acc[part.type] = part.value; return acc; }, {});
-    const afterPublication = Number(parts.hour) >= 8;
-    const [year, month, day] = dailyKey.split("-");
+    const checked = lastLiveCheckedAt ? new Date(lastLiveCheckedAt) : null;
+    const last = checked && !Number.isNaN(checked.getTime())
+      ? new Intl.DateTimeFormat("pl-PL", { timeZone: "Europe/Warsaw", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(checked)
+      : "w trakcie";
     return {
-      last: `${day}.${month}.${year}, 08:00`,
-      next: afterPublication ? "jutro o 08:00" : "dzisiaj o 08:00",
+      last,
+      next: "ceny sprawdzamy ponownie automatycznie co 10 min",
     };
-  }, [dailyKey]);
+  }, [lastLiveCheckedAt]);
 
   const themedRails = useMemo(() => {
     const key = dailyKey;
@@ -431,15 +437,15 @@ export default function Home() {
             <p>Nie przypadkowe kierunki — trzy propozycje wyciągnięte z dzisiejszej selekcji.</p>
             <div className="hero-daily-stats">
               <div className="hero-daily-stat"><strong>{newOffersCount}</strong><span>aktualnych ofert w dzisiejszej puli</span></div>
-              <div className="hero-daily-stat"><Clock3 size={17}/><div><strong>Ostatnia aktualizacja: {refreshStatus.last}</strong><span>Kolejna: {refreshStatus.next} czasu polskiego</span></div></div>
+              <div className="hero-daily-stat"><Clock3 size={17}/><div><strong>Ostatnia aktualizacja: {refreshStatus.last}</strong><span>{refreshStatus.next}</span></div></div>
             </div>
             <div className="hero-radar-list">
               {todaysOffers.slice(0,3).map((offer, index) => (
-                <Link href={`/oferta/${offer.id}`} className="hero-radar-offer" key={offer.id}>
+                <a href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer" className="hero-radar-offer" key={offer.id}>
                   <span>{offer.flag}</span>
                   <div><small>{index === 0 ? "🔥 NAJLEPSZY STRZAŁ" : index === 1 ? "✨ WARTO SPRAWDZIĆ" : "🌍 COŚ INNEGO"}</small><strong>{offer.city}</strong></div>
                   <b>od {offer.price.toLocaleString("pl-PL")} zł →</b>
-                </Link>
+                </a>
               ))}
             </div>
             <Link className="hero-daily-cta" href="#okazje"><span>Zobacz dzisiejsze okazje</span><ArrowRight size={16}/></Link>
@@ -456,7 +462,7 @@ export default function Home() {
             <h2>Dziś bralibyśmy te</h2>
             <p>Codziennie wybieramy aktualne propozycje i o 08:00 czasu polskiego publikujemy nową pulę z cenami i bezpośrednim przejściem do rezerwacji.</p>
           </div>
-          <Link className="section-premium-link" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
+          <Link className="section-premium-link" href="#okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
         <div className="daily-carousel-wrap">
           <div className="daily-carousel-controls" aria-label="Sterowanie karuzelą ofert">
@@ -476,7 +482,7 @@ export default function Home() {
         </div>
         <div className="premium-action-row">
           <Link className="premium-action-main" href="#wyszukiwarka">Wyszukaj po swojemu <ArrowRight size={17}/></Link>
-          <Link className="premium-action-secondary" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={17}/></Link>
+          <Link className="premium-action-secondary" href="#okazje">Zobacz wszystkie okazje <ArrowRight size={17}/></Link>
         </div>
       </section>
 
@@ -518,7 +524,7 @@ export default function Home() {
                 <em>{surprise.reason}</em>
                 <span>Tripownia znalazła od {surprise.price.toLocaleString("pl-PL")} zł/os. · mieści się w budżecie {budget.toLocaleString("pl-PL")} zł.</span>
                 <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
-                  <Link href={`/oferta/${surprise.id}`} style={{fontWeight:800,textDecoration:"none"}}>Zobacz wyjazd →</Link>
+                  <a href={surprise.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer" style={{fontWeight:800,textDecoration:"none"}}>Zobacz wyjazd →</a>
                   <a href={buildKiwiFlightSearch(surprise.city, surprise.country)} target="_blank" rel="sponsored noopener noreferrer" style={{fontWeight:800}}>✈️ Sprawdź loty →</a>
                 </div>
               </div>
