@@ -39,7 +39,10 @@ export default function SiteHeader() {
             <Link href="/podroze">Pomysły</Link>
             <Link href="/parkingi">Parkingi</Link>
             <Link href="/ulubione">♡ Ulubione</Link>
-            <Link className="nav-search-inline premium-search-cta" href="/#wyszukiwarka"><Search size={15} aria-hidden="true"/><span>Szukaj wyjazdu</span></Link>
+            <Link className="nav-search-inline premium-search-cta" href="/#wyszukiwarka">
+              <span className="premium-search-icon" aria-hidden="true"><Search size={16} strokeWidth={2.6}/></span>
+              <span>Szukaj wyjazdu</span>
+            </Link>
           </nav>
         </div>
       </div>
