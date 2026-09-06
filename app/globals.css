@@ -5728,3 +5728,104 @@ body {
     flex:0 0 auto!important;
   }
 }
+
+/* =========================================================
+   V147 — premium header v3: mniejsze kafle, charakterystyczne kolory,
+   aktywne podświetlenie w pomarańczu Tripowni
+   ========================================================= */
+.site-header-shell.site-header-v98.site-header-premium .premium-nav-primary{
+  gap:7px!important;
+  padding:4px!important;
+  border-radius:18px!important;
+  background:#fcfbfa!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .premium-nav-primary a.nav-sale{
+  min-height:42px!important;
+  padding:0 12px!important;
+  border-radius:13px!important;
+  font-size:12px!important;
+  gap:8px!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .premium-nav-primary .nav-ico{
+  width:25px!important;
+  height:25px!important;
+  min-width:25px!important;
+  border-radius:8px!important;
+  box-shadow:none!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .premium-nav-primary .nav-ico svg{
+  width:14px!important;
+  height:14px!important;
+  stroke-width:2!important;
+}
+
+/* indywidualny charakter sekcji — subtelny kolor tylko w ikonie */
+.site-header-shell.site-header-v98.site-header-premium .nav-sale-events .nav-ico{
+  background:#f0f4ff!important;border-color:#dfe7ff!important;color:#3452a4!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .nav-sale-experience .nav-ico{
+  background:#f7f0ff!important;border-color:#eadcff!important;color:#7b4bb4!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .nav-sale-market .nav-ico{
+  background:#eef8f1!important;border-color:#dceee2!important;color:#2d7b50!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .nav-sale-newyear .nav-ico{
+  background:#fff1f0!important;border-color:#f7ddda!important;color:#a44b48!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .nav-sale-longhaul .nav-ico{
+  background:#edf8fa!important;border-color:#d8ecef!important;color:#22747b!important;
+}
+
+/* aktywne Okazje — Tripownia orange zamiast czerni */
+.site-header-shell.site-header-v98.site-header-premium .premium-nav-primary a.nav-sale-main,
+.site-header-shell.site-header-v98.site-header-premium .premium-nav-primary a.nav-sale-main:hover{
+  background:#ff5a36!important;
+  color:#fff!important;
+  box-shadow:0 8px 20px rgba(255,90,54,.22)!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .premium-nav-primary .nav-sale-main .nav-ico{
+  background:rgba(255,255,255,.18)!important;
+  border-color:rgba(255,255,255,.22)!important;
+  color:#fff!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .premium-nav-primary .nav-sale-main .nav-ico svg{
+  stroke:#fff!important;
+}
+
+/* hover: lekki orange akcent, bez ciężkich czarnych plam */
+.site-header-shell.site-header-v98.site-header-premium .premium-nav-primary a.nav-sale:not(.nav-sale-main):hover{
+  background:#fff7f4!important;
+  color:#d94825!important;
+  box-shadow:0 6px 16px rgba(255,90,54,.08)!important;
+}
+
+/* CTA wyszukiwarki w brandowym kolorze */
+.site-header-shell.site-header-v98.site-header-premium .site-nav-secondary a.nav-search-inline.premium-search-cta.premium-search-cta-v2{
+  min-height:40px!important;
+  padding:0 14px 0 7px!important;
+  border-color:#ff5a36!important;
+  background:#ff5a36!important;
+  color:#fff!important;
+  border-radius:13px!important;
+  box-shadow:0 8px 18px rgba(255,90,54,.20)!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .site-nav-secondary a.nav-search-inline.premium-search-cta.premium-search-cta-v2 .premium-search-icon{
+  width:27px!important;
+  height:27px!important;
+  min-width:27px!important;
+  border-radius:9px!important;
+  background:#fff!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .site-nav-secondary a.nav-search-inline.premium-search-cta.premium-search-cta-v2 .premium-search-icon svg{
+  width:16px!important;
+  height:16px!important;
+  stroke:#ff5a36!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .site-nav-secondary a.nav-search-inline.premium-search-cta.premium-search-cta-v2:hover{
+  background:#e94a28!important;
+  border-color:#e94a28!important;
+  box-shadow:0 10px 22px rgba(233,74,40,.24)!important;
+}
+.site-header-shell.site-header-v98.site-header-premium .site-nav-secondary a.nav-search-inline.premium-search-cta.premium-search-cta-v2:hover .premium-search-icon svg{
+  stroke:#e94a28!important;
+}
