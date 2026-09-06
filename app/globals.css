@@ -5421,3 +5421,22 @@ body {
 .premium-search-cta{background:#1e1916!important;color:#fff!important}.self-search-single-cta{background:#fbf9f7}.self-search-single-cta a{display:inline-flex;align-items:center;gap:7px}
 @media(max-width:900px){.search-filter-grid{grid-template-columns:1fr 1fr}.search-filter-title{grid-column:1/-1}.self-search-results{grid-template-columns:1fr}}
 @media(max-width:640px){.self-search-premium{padding:18px 12px!important}.self-search-panel-premium{padding:13px!important}.search-filter-grid{grid-template-columns:1fr}.organized-search-intro{align-items:flex-start;flex-direction:column}.organized-search-intro button{width:100%}.self-search-result-card{grid-template-columns:108px 1fr}.search-airport-chips button{padding:8px 10px}.search-airport-chips button span{display:none}}
+
+
+/* Live offers: nie podszywamy statycznego fallbacku pod dzisiejszą pulę */
+.daily-live-empty{
+  min-width:min(720px,100%);
+  min-height:220px;
+  border:1px solid rgba(31,24,20,.08);
+  border-radius:28px;
+  background:linear-gradient(135deg,#fff 0%,#fbf8f3 100%);
+  box-shadow:0 18px 50px rgba(33,24,18,.07);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-start;
+  gap:8px;
+  padding:34px;
+}
+.daily-live-empty strong{font-size:1.25rem;color:#211b17}
+.daily-live-empty span{max-width:560px;color:#746b64;line-height:1.55}

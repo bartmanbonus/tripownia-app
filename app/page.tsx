@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5 } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { offers, isOfferExpired, getDailyOffers } from "@/lib/offers";
+import { offers, isOfferExpired } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
@@ -292,26 +292,14 @@ export default function Home() {
     return () => controller.abort();
   }, [dailyKey]);
 
-  const fallbackDailyOffers = useMemo(() =>
-    getDailyOffers(offers.filter(o => ["exim","tui"].includes(o.partner) && isTravelDestinationAllowed(o.city, o.country)), 12, new Date()).map(offerForDisplay),
-    [dailyKey]
-  );
-
+  // Sekcja „dzisiejsze” pokazuje wyłącznie dane pobrane na żywo.
+  // Nie podstawiamy starych kart jako rzekomo aktualnej puli.
   const todaysOffers = useMemo(() =>
-    (liveOffersStatus === "live" ? liveOffers : fallbackDailyOffers).map(offerForDisplay),
-    [liveOffersStatus, liveOffers, fallbackDailyOffers]
+    (liveOffersStatus === "live" ? liveOffers : []).map(offerForDisplay),
+    [liveOffersStatus, liveOffers]
   );
 
-  const previousOffers = useMemo(() =>
-    getDailyOffers(offers.filter(o => ["exim","tui"].includes(o.partner) && isTravelDestinationAllowed(o.city, o.country)), 12, new Date(Date.now() - 86_400_000)),
-    [dailyKey]
-  );
-
-  const newOffersCount = useMemo(() => {
-    if (liveOffersStatus === "live") return todaysOffers.length;
-    const previousIds = new Set(previousOffers.map(offer => offer.id));
-    return todaysOffers.filter(offer => !previousIds.has(offer.id)).length;
-  }, [todaysOffers, previousOffers, liveOffersStatus]);
+  const newOffersCount = liveOffersStatus === "live" ? todaysOffers.length : 0;
 
   const refreshStatus = useMemo(() => {
     const now = new Date();
@@ -328,9 +316,7 @@ export default function Home() {
 
   const themedRails = useMemo(() => {
     const key = dailyKey;
-    const homePool = liveOffersStatus === "live"
-      ? [...liveOffers, ...offers.filter(o => !isOfferExpired(o) && ["exim","tui"].includes(o.partner))]
-      : offers.filter(o => !isOfferExpired(o) && ["exim","tui"].includes(o.partner));
+    const homePool = liveOffersStatus === "live" ? liveOffers : [];
     const active: TripOffer[] = seededShuffle<TripOffer>(homePool.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay), `tripownia-rails:${key}`);
     const uniqueDestinations = (rows: typeof active) => {
       const seen = new Set<string>();
@@ -381,7 +367,7 @@ export default function Home() {
   }, [budget, dailyKey]);
 
   const budgetCandidates = useMemo(() => {
-    const pool = surpriseLive.length ? surpriseLive : (liveOffersStatus === "live" ? liveOffers : offers);
+    const pool = surpriseLive.length ? surpriseLive : (liveOffersStatus === "live" ? liveOffers : []);
     const exotic = /zanzibar|dominikan|malediw|kenia|meksyk|tajland|kuba|dubaj|bali|wietnam|japon|nowy jork|mauritius|seszel/i;
     const mid = /marsa alam|teneryfa|fuerteventura|marrakesz|djerba|hurghada|oman|wyspy zielonego przyladka/i;
     const low = /malta|sycylia|alicante|pafos|stambul|marrakesz|bergamo|porto/i;
@@ -478,7 +464,14 @@ export default function Home() {
             <button type="button" onClick={() => moveOffersRail(1)} aria-label="Następne oferty"><ArrowRight size={18}/></button>
           </div>
           <div className="daily-carousel" ref={offersRailRef}>
-            {todaysOffers.map(o => <div className="daily-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}
+            {todaysOffers.length > 0 ? (
+              todaysOffers.map(o => <div className="daily-carousel-item" key={o.id}><OfferCard offer={o}/></div>)
+            ) : (
+              <div className="daily-live-empty">
+                <strong>Aktualizujemy dzisiejszą pulę</strong>
+                <span>Nie pokazujemy w tym miejscu starych ofert. Spróbuj ponownie za chwilę.</span>
+              </div>
+            )}
           </div>
         </div>
         <div className="premium-action-row">
