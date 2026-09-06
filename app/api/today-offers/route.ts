@@ -218,7 +218,7 @@ async function fetchProducts(provider: Provider, query: string, token: string) {
   const path = `${endpoint.origin}${endpoint.pathname};q=${encodeURIComponent(query)};page=1;pageSize=100;fid=${fid}?token=${encodeURIComponent(token)}`;
   const response = await fetch(path, {
     headers: { Accept: "application/json" },
-    next: { revalidate: 1800 },
+    cache: "no-store",
   });
   if (!response.ok) throw new Error(`${provider.toUpperCase()} feed ${response.status}`);
   const data = await response.json();
@@ -253,7 +253,11 @@ function fromExim(product: TdProduct): LiveCandidate | null {
   const modifiedAt = Number(offer?.modified || 0);
   const sourceKey = offer?.sourceProductId || productUrl;
 
-  if (modifiedAt && Date.now() - modifiedAt > 48 * 3600 * 1000) return null;
+  if (departureDate) {
+    const todayUtc = new Date();
+    todayUtc.setUTCHours(0, 0, 0, 0);
+    if (departureDate.getTime() < todayUtc.getTime()) return null;
+  }
 
   return {
     id: 1_000_000 + (hash(`exim:${sourceKey}`) % 800_000_000),
@@ -309,7 +313,11 @@ function fromTui(product: TdProduct): LiveCandidate | null {
   const modifiedAt = Number(offer?.modified || 0);
   const sourceKey = offer?.sourceProductId || productUrl;
 
-  if (modifiedAt && Date.now() - modifiedAt > 48 * 3600 * 1000) return null;
+  if (departureDate) {
+    const todayUtc = new Date();
+    todayUtc.setUTCHours(0, 0, 0, 0);
+    if (departureDate.getTime() < todayUtc.getTime()) return null;
+  }
 
   return {
     id: 1_000_000 + (hash(`tui:${sourceKey}`) % 800_000_000),
@@ -372,8 +380,11 @@ function dealValue(offer: LiveCandidate) {
 }
 
 function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
-  const shuffled = shuffle(candidates, `tripownia-live:${key}`)
-    .sort((a, b) => dealValue(b) - dealValue(a));
+  // Najpierw bierzemy jakościowy shortlist, a dopiero potem rotujemy go dziennym seedem.
+  // Dzięki temu 08:00 faktycznie zmienia pulę, zamiast codziennie pokazywać te same najwyżej punktowane rekordy.
+  const ranked = [...candidates].sort((a, b) => dealValue(b) - dealValue(a));
+  const shortlist = ranked.slice(0, Math.min(48, ranked.length));
+  const shuffled = shuffle(shortlist, `tripownia-live:${key}`);
 
   const selected: LiveCandidate[] = [];
   const countryCounts = new Map<string, number>();
@@ -404,7 +415,9 @@ function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
   }
 
   // Nie dopełniamy karuzeli duplikatami. Lepiej pokazać 9 dobrych, różnych propozycji niż 12 z powtórzeniami.
-  return selected.slice(0, limit);
+  return selected
+    .sort((a, b) => dealValue(b) - dealValue(a))
+    .slice(0, limit);
 }
 
 export async function GET(request: NextRequest) {
@@ -512,7 +525,7 @@ export async function GET(request: NextRequest) {
       },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=900, stale-while-revalidate=1800",
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
         },
       }
     );
