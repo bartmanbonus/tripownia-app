@@ -43,7 +43,7 @@ const primaryItems = [
   { href: "/okazje", label: "Okazje", note: "Nasze najlepsze ceny", icon: Tag, tone: "deals" },
   { href: "/wydarzenia", label: "Mecze i eventy", note: "Twoje emocje", icon: SoccerBallIcon, tone: "events" },
   { href: "/podroze-po-przezycia", label: "Przeżycia", note: "Nasze inspiracje", icon: Heart, tone: "experience" },
-  { href: "/podroze", label: "Atrakcje Tripowni", note: "Nasze propozycje", icon: Star, tone: "picks", badge: "TOP" },
+  { href: "/podroze", label: "Okazje Tripowni", note: "Nasze propozycje", icon: Star, tone: "picks", badge: "TOP" },
   { href: "/jarmarki-bozonarodzeniowe", label: "Jarmarki", note: "Magia świąt", icon: TreePine, tone: "markets", seasonal: true },
   { href: "/sylwester", label: "Sylwester", note: "Powitaj rok z nami", icon: PartyPopper, tone: "newyear" },
   { href: "/dalekie-podroze", label: "Dalekie podróże", note: "Świat czeka", icon: PalmIcon, tone: "longhaul" },
