@@ -50,27 +50,42 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const selectedFromLabel=airports.length===0?"Wszystkie lotniska":airports.length===1?(airportOptions.find((a:any)=>a.code===airports[0])?.label||airports[0]):`${airports.length} lotniska`;
 
   const results=useMemo(()=>{
-    const q=normalizeDestination(text);
     const max=budgetValue(budget);
-    const to:string[]=selectedTo.map(v=>normalizeDestination(String(v))).filter(Boolean);
-    const source = liveLoading && submitted===0 ? [] : submitted > 0 ? liveResults : (offers as any[]).filter((o:any)=>["exim","tui"].includes(String(o.partner||"").toLowerCase()));
-    return source.filter((o:any)=>{
-      if(isOfferExpired(o))return false;
-      if(!isTravelDestinationAllowed(String(o.city||""),String(o.country||"")))return false;
-      if(Number(o.price||0)>max)return false;
-      if(airports.length && !airports.includes(depCode(o)) && !airports.some(a=>normalizeDestination(String(o.departure||"")).includes(normalizeDestination(airportOptions.find((x:any)=>x.code===a)?.label||a))))return false;
-      if(to.length && !to.some(d=>offerText(o).includes(d)||d.includes(normalizeDestination(String(o.city||o.country||"")))))return false;
-      if(!durationOk(o,duration))return false;
-      if(board!=="all"&&!normalizeDestination(String(o.board||"")).includes(normalizeDestination(board)))return false;
-      if(weekendOnly){
-        const cats=(o.category||[]).map((c:any)=>normalizeDestination(String(c)));
-        const nights=Number(o.nights||o.duration||0);
-        if(!cats.some((c:string)=>c.includes("weekend")) && !(nights>=2&&nights<=4)) return false;
-      }
-      if(q&&!offerText(o).includes(q))return false;
-      return true;
-    });
-  },[airports,destinations,customDestination,duration,budget,board,text,weekendOnly,submitted,liveResults]);
+    const usingLive=submitted>0;
+    const source = liveLoading && submitted===0
+      ? []
+      : usingLive
+        ? liveResults
+        : (offers as any[]).filter((o:any)=>["exim","tui"].includes(String(o.partner||"").toLowerCase()));
+
+    // Dla wyników LIVE ufamy filtrom wykonanym już po stronie API.
+    // Nie filtrujemy drugi raz lotniska/kierunku po labelach UI, bo np.
+    // WAWA = "Warszawa — Chopin + Modlin", a feed może zwrócić samo "Warszawa".
+    // To właśnie zerowało poprawne wyniki po udanym pobraniu.
+    return source
+      .filter((o:any)=>{
+        if(isOfferExpired(o))return false;
+        if(!isTravelDestinationAllowed(String(o.city||""),String(o.country||"")))return false;
+        if(Number(o.price||0)>max)return false;
+        if(!usingLive){
+          const q=normalizeDestination(text);
+          const to:string[]=selectedTo.map(v=>normalizeDestination(String(v))).filter(Boolean);
+          if(airports.length && !airports.includes(depCode(o)) && !airports.some(a=>normalizeDestination(String(o.departure||"")).includes(normalizeDestination(airportOptions.find((x:any)=>x.code===a)?.label||a))))return false;
+          if(to.length && !to.some(d=>offerText(o).includes(d)||d.includes(normalizeDestination(String(o.city||o.country||"")))))return false;
+          if(!durationOk(o,duration))return false;
+          if(board!=="all"&&!normalizeDestination(String(o.board||"")).includes(normalizeDestination(board)))return false;
+          if(q&&!offerText(o).includes(q))return false;
+        }
+        if(weekendOnly){
+          const cats=(o.category||[]).map((c:any)=>normalizeDestination(String(c)));
+          const nights=Number(o.nights||o.duration||0);
+          if(!cats.some((c:string)=>c.includes("weekend")) && !(nights>=2&&nights<=4)) return false;
+        }
+        return true;
+      })
+      .sort((a:any,b:any)=>Number(a.price||Infinity)-Number(b.price||Infinity))
+      .slice(0,20);
+  },[airports,destinations,customDestination,duration,budget,board,text,weekendOnly,submitted,liveResults,liveLoading]);
 
 
   async function runPartnerSearch(destinationOverride?:string, cityModeOverride?:boolean){
