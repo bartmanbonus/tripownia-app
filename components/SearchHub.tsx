@@ -30,6 +30,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [submitted,setSubmitted]=useState(0);
   const [liveResults,setLiveResults]=useState<any[]>([]);
   const [liveLoading,setLiveLoading]=useState(false);
+  const [initialSearchDone,setInitialSearchDone]=useState(false);
   const [activeTab,setActiveTab]=useState(initialTab);
   const resultsRailRef=useRef<HTMLDivElement>(null);
   const initialLiveLoadRef=useRef(false);
@@ -40,8 +41,15 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   useEffect(()=>{
     if(initialLiveLoadRef.current)return;
     initialLiveLoadRef.current=true;
-    const timer=window.setTimeout(()=>{void runPartnerSearch();},80);
-    return ()=>window.clearTimeout(timer);
+    let cancelled=false;
+    const timer=window.setTimeout(async()=>{
+      const count=await runPartnerSearch(undefined,undefined,true);
+      if(!cancelled && count===0){
+        await new Promise(resolve=>window.setTimeout(resolve,900));
+        if(!cancelled) await runPartnerSearch(undefined,undefined,true);
+      }
+    },120);
+    return ()=>{cancelled=true;window.clearTimeout(timer)};
   },[]);
 
   const worldFiltered=useMemo(()=>WORLD_DESTINATIONS.filter(x=>isTravelDestinationAllowed(x.label,x.region)).filter(x=>destinationMatches(destinationQuery,x)),[destinationQuery]);
@@ -62,7 +70,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
     // Nie filtrujemy drugi raz lotniska/kierunku po labelach UI, bo np.
     // WAWA = "Warszawa — Chopin + Modlin", a feed może zwrócić samo "Warszawa".
     // To właśnie zerowało poprawne wyniki po udanym pobraniu.
-    return source
+    const filtered=source
       .filter((o:any)=>{
         if(isOfferExpired(o))return false;
         if(!isTravelDestinationAllowed(String(o.city||""),String(o.country||"")))return false;
@@ -83,12 +91,21 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
         }
         return true;
       })
-      .sort((a:any,b:any)=>Number(a.price||Infinity)-Number(b.price||Infinity))
-      .slice(0,20);
+      .sort((a:any,b:any)=>Number(a.price||Infinity)-Number(b.price||Infinity));
+
+    // Jedna karta na kierunek. Ponieważ najpierw sortujemy po cenie,
+    // zostaje NAJTAŃSZA dostępna oferta dla danego miejsca.
+    const cheapestByDestination=new Map<string,any>();
+    for(const offer of filtered){
+      const key=normalizeDestination(`${offer.city||offer.destination||offer.country||""}|${offer.country||""}`);
+      if(!key)continue;
+      if(!cheapestByDestination.has(key)) cheapestByDestination.set(key,offer);
+    }
+    return Array.from(cheapestByDestination.values()).slice(0,20);
   },[airports,destinations,customDestination,duration,budget,board,text,weekendOnly,submitted,liveResults,liveLoading]);
 
 
-  async function runPartnerSearch(destinationOverride?:string, cityModeOverride?:boolean){
+  async function runPartnerSearch(destinationOverride?:string, cityModeOverride?:boolean, initialLoad=false):Promise<number>{
     const destination=(destinationOverride||selectedTo[0]||text||"").trim();
     setLiveLoading(true);
     try{
@@ -105,8 +122,17 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       const response=await fetch(`/api/today-offers?${params.toString()}`,{cache:"no-store"});
       const data=await response.json();
       const rows=Array.isArray(data?.offers)?data.offers:[];
-      setLiveResults(rows.filter((o:any)=>cityMode?String(o.partner||"").toLowerCase()==="exim":["exim","tui"].includes(String(o.partner||"").toLowerCase())));
-    }catch{setLiveResults([])}finally{setLiveLoading(false);setSubmitted(v=>v+1)}
+      const accepted=rows.filter((o:any)=>cityMode?String(o.partner||"").toLowerCase()==="exim":["exim","tui"].includes(String(o.partner||"").toLowerCase()));
+      setLiveResults(accepted);
+      return accepted.length;
+    }catch{
+      setLiveResults([]);
+      return 0;
+    }finally{
+      setLiveLoading(false);
+      setSubmitted(v=>v+1);
+      if(initialLoad)setInitialSearchDone(true);
+    }
   }
   function toggleDestination(v:string){setCustomDestination("");setDestinations(prev=>prev.includes(v)?prev.filter(x=>x!==v):[...prev,v])}
   function useCustom(){const v=destinationQuery.trim();if(!v||isTravelDestinationBlocked(v))return;setDestinations([]);setCustomDestination(v);setOpen(null);setDestinationQuery("")}
@@ -182,11 +208,11 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       </div>
 
       <div className="search-results-block">
-        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{liveLoading&&!submitted?"Szukamy aktualnych okazji…":hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Tripownia przeszukuje aktualne pakiety i pokazuje najlepsze dopasowania. City Break ograniczamy do krótkich wyjazdów z lotem, hotelem i transferem.</span></div>
-        {liveLoading&&submitted===0&&<div className="partner-search-banner search-results-carousel-head"><div><small>✦ AKTUALIZUJEMY</small><strong>Szukamy dla Ciebie najnowszych okazji…</strong></div></div>}
+        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{(!initialSearchDone||liveLoading)&&!hasDestination?"Szukamy aktualnych okazji…":hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Tripownia przeszukuje aktualne pakiety i pokazuje najlepsze dopasowania. City Break ograniczamy do krótkich wyjazdów z lotem, hotelem i transferem.</span></div>
+        {(!initialSearchDone||liveLoading)&&results.length===0&&<div className="partner-search-banner search-results-carousel-head"><div><small>✦ AKTUALIZUJEMY</small><strong>Szukamy dla Ciebie najnowszych okazji…</strong></div></div>}
         {results.length>0&&<><div className="partner-search-banner search-results-carousel-head"><div><small>⭐ WYBRANE PRZEZ TRIPOWNIĘ</small><strong>{results.length} aktualnych ofert pasuje do parametrów</strong></div></div><div className="search-results-carousel-wrap"><div className="search-results-carousel-controls"><button type="button" onClick={()=>moveResults(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={17}/></button><button type="button" onClick={()=>moveResults(1)} aria-label="Następne oferty"><ArrowRight size={17}/></button></div><div className="search-results-carousel" ref={resultsRailRef} tabIndex={0}>{results.slice(0,20).map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></div></>}
         {hasDestination&&<UnifiedPartnerSearch mode={activeTab==="City break"||activeTab==="Lot + hotel"?"city":activeTab==="Wakacje"?"holiday":"all"} initialDestination={queryDestination} initialDeparture={selectedFromLabel} initialDepartureCode={airports[0]} initialWeekendOnly={weekendOnly}/>}
-        {!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
+        {initialSearchDone&&!liveLoading&&!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
       </div>
     </div>
     <SelfSearchLegacy />
