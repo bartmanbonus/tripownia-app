@@ -68,11 +68,18 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
 
   async function runPartnerSearch(destinationOverride?:string, cityModeOverride?:boolean){
     const destination=(destinationOverride||selectedTo[0]||text||"").trim();
-    if(!destination) return;
     setLiveLoading(true);
     try{
       const cityMode=cityModeOverride ?? activeTab==="City break";
-      const params=new URLSearchParams({mode:cityMode?"citybreak":"search",q:destination});
+      const params=new URLSearchParams({mode:cityMode?"citybreak":"search"});
+      if(destination) params.set("q", destination);
+      if(airports[0]) params.set("from", airports[0]);
+      if(duration==="short") params.set("nights", "2-3");
+      else if(duration==="week") params.set("nights", "6-8");
+      else if(duration==="long") params.set("nights", "9+");
+      if(board==="all inclusive") params.set("board", "allinclusive");
+      else if(board==="śniadanie") params.set("board", "breakfast");
+      if(Number.isFinite(budgetValue(budget))) params.set("maxPrice", String(budgetValue(budget)));
       const response=await fetch(`/api/today-offers?${params.toString()}`,{cache:"no-store"});
       const data=await response.json();
       const rows=Array.isArray(data?.offers)?data.offers:[];
@@ -154,7 +161,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
 
       <div className="search-results-block">
         <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Tripownia przeszukuje aktualne pakiety i pokazuje najlepsze dopasowania. City Break ograniczamy do krótkich wyjazdów z lotem, hotelem i transferem.</span></div>
-        {results.length>0&&<><div className="partner-search-banner search-results-carousel-head"><div><small>⭐ WYBRANE PRZEZ TRIPOWNIĘ</small><strong>{results.length} aktualnych ofert pasuje do parametrów</strong></div></div><div className="search-results-carousel-wrap"><div className="search-results-carousel-controls"><button type="button" onClick={()=>moveResults(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={17}/></button><button type="button" onClick={()=>moveResults(1)} aria-label="Następne oferty"><ArrowRight size={17}/></button></div><div className="search-results-carousel" ref={resultsRailRef} tabIndex={0}>{results.slice(0,12).map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></div></>}
+        {results.length>0&&<><div className="partner-search-banner search-results-carousel-head"><div><small>⭐ WYBRANE PRZEZ TRIPOWNIĘ</small><strong>{results.length} aktualnych ofert pasuje do parametrów</strong></div></div><div className="search-results-carousel-wrap"><div className="search-results-carousel-controls"><button type="button" onClick={()=>moveResults(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={17}/></button><button type="button" onClick={()=>moveResults(1)} aria-label="Następne oferty"><ArrowRight size={17}/></button></div><div className="search-results-carousel" ref={resultsRailRef} tabIndex={0}>{results.slice(0,20).map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></div></>}
         {hasDestination&&<UnifiedPartnerSearch mode={activeTab==="City break"||activeTab==="Lot + hotel"?"city":activeTab==="Wakacje"?"holiday":"all"} initialDestination={queryDestination} initialDeparture={selectedFromLabel} initialDepartureCode={airports[0]} initialWeekendOnly={weekendOnly}/>}
         {!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
       </div>
