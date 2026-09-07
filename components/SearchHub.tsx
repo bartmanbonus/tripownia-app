@@ -32,10 +32,17 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [liveLoading,setLiveLoading]=useState(false);
   const [activeTab,setActiveTab]=useState(initialTab);
   const resultsRailRef=useRef<HTMLDivElement>(null);
+  const initialLiveLoadRef=useRef(false);
   const moveResults=(direction:-1|1)=>{const rail=resultsRailRef.current;if(!rail)return;const card=rail.querySelector<HTMLElement>(".search-results-carousel-item");const step=card?card.getBoundingClientRect().width+18:304;rail.scrollBy({left:direction*step*2,behavior:"smooth"});};
 
   useEffect(()=>{setAirports(initialAirports);setDestinations(initialDestinations);setDuration(initialDuration||"all")},[initialAirports.join("|"),initialDestinations.join("|"),initialDuration]);
   useEffect(()=>{if(searchRequest>0)setSubmitted(v=>v+1)},[searchRequest]);
+  useEffect(()=>{
+    if(initialLiveLoadRef.current)return;
+    initialLiveLoadRef.current=true;
+    const timer=window.setTimeout(()=>{void runPartnerSearch();},80);
+    return ()=>window.clearTimeout(timer);
+  },[]);
 
   const worldFiltered=useMemo(()=>WORLD_DESTINATIONS.filter(x=>isTravelDestinationAllowed(x.label,x.region)).filter(x=>destinationMatches(destinationQuery,x)),[destinationQuery]);
   const selectedTo=[...destinations,...(customDestination?[customDestination]:[])];
@@ -46,7 +53,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
     const q=normalizeDestination(text);
     const max=budgetValue(budget);
     const to:string[]=selectedTo.map(v=>normalizeDestination(String(v))).filter(Boolean);
-    const source = submitted > 0 ? liveResults : (offers as any[]).filter((o:any)=>["exim","tui"].includes(String(o.partner||"").toLowerCase()));
+    const source = liveLoading && submitted===0 ? [] : submitted > 0 ? liveResults : (offers as any[]).filter((o:any)=>["exim","tui"].includes(String(o.partner||"").toLowerCase()));
     return source.filter((o:any)=>{
       if(isOfferExpired(o))return false;
       if(!isTravelDestinationAllowed(String(o.city||""),String(o.country||"")))return false;
@@ -160,7 +167,8 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       </div>
 
       <div className="search-results-block">
-        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Tripownia przeszukuje aktualne pakiety i pokazuje najlepsze dopasowania. City Break ograniczamy do krótkich wyjazdów z lotem, hotelem i transferem.</span></div>
+        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{liveLoading&&!submitted?"Szukamy aktualnych okazji…":hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Tripownia przeszukuje aktualne pakiety i pokazuje najlepsze dopasowania. City Break ograniczamy do krótkich wyjazdów z lotem, hotelem i transferem.</span></div>
+        {liveLoading&&submitted===0&&<div className="partner-search-banner search-results-carousel-head"><div><small>✦ AKTUALIZUJEMY</small><strong>Szukamy dla Ciebie najnowszych okazji…</strong></div></div>}
         {results.length>0&&<><div className="partner-search-banner search-results-carousel-head"><div><small>⭐ WYBRANE PRZEZ TRIPOWNIĘ</small><strong>{results.length} aktualnych ofert pasuje do parametrów</strong></div></div><div className="search-results-carousel-wrap"><div className="search-results-carousel-controls"><button type="button" onClick={()=>moveResults(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={17}/></button><button type="button" onClick={()=>moveResults(1)} aria-label="Następne oferty"><ArrowRight size={17}/></button></div><div className="search-results-carousel" ref={resultsRailRef} tabIndex={0}>{results.slice(0,20).map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></div></>}
         {hasDestination&&<UnifiedPartnerSearch mode={activeTab==="City break"||activeTab==="Lot + hotel"?"city":activeTab==="Wakacje"?"holiday":"all"} initialDestination={queryDestination} initialDeparture={selectedFromLabel} initialDepartureCode={airports[0]} initialWeekendOnly={weekendOnly}/>}
         {!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
