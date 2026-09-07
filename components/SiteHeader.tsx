@@ -58,7 +58,7 @@ export default function SiteHeader() {
 
         <nav className="menu-v5-primary" aria-label="Najważniejsze sekcje">
           {primaryItems.map((item) => {
-            if (item.seasonal && !showMarkets) return null;
+            if ("seasonal" in item && item.seasonal && !showMarkets) return null;
             const Icon = item.icon;
             return (
               <Link key={item.label} className={`menu-v5-card menu-v5-${item.tone}`} href={item.href}>
