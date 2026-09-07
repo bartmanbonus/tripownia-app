@@ -250,8 +250,13 @@ const experienceTrips: Record<string, ExperienceTripSuggestion[]> = {
 };
 
 function curatedTripUrl(trip: ExperienceTripSuggestion) {
-  const query = `loty Warszawa ${trip.city} ${trip.country} ${trip.from} ${trip.to}`;
-  return `https://www.google.com/travel/flights?hl=pl&q=${encodeURIComponent(query)}`;
+  const kiwiDeep = new URL("https://www.kiwi.com/deep");
+  kiwiDeep.searchParams.set("from", "WAW");
+  kiwiDeep.searchParams.set("to", trip.airport);
+  kiwiDeep.searchParams.set("departure", trip.from);
+  kiwiDeep.searchParams.set("return", trip.to);
+  kiwiDeep.searchParams.set("currency", "PLN");
+  return partners.kiwi.buildUrl(kiwiDeep.toString());
 }
 
 function formatTripDate(value: string) {
