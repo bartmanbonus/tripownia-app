@@ -124,7 +124,6 @@ export default function NewYearOffers() {
             <article className="seasonal-card newyear-card newyear-live-card" key={`live-${offer.id}`}>
               <div className="newyear-card-media">
                 <TravelImage city={offer.city} country={offer.country} alt={`${offer.city} na Sylwestra`} overrideSrc={offer.image}/>
-                <span>⚡ AKTUALNA OFERTA</span>
               </div>
               <div className="seasonal-card-body">
                 <div className="newyear-price-row"><h2>{offer.city}</h2><strong>od {offer.price.toLocaleString("pl-PL")} zł/os.</strong></div>
@@ -142,7 +141,6 @@ export default function NewYearOffers() {
             <article className="seasonal-card newyear-card" key={`curated-${item.city}`}>
               <div className="newyear-card-media">
                 <TravelImage city={item.city} country={item.country} alt={`${item.city} na Sylwestra`} overrideSrc={item.image}/>
-                <span>{item.flag} NASZA SELEKCJA</span>
               </div>
               <div className="seasonal-card-body">
                 <h2>{item.city}</h2>
