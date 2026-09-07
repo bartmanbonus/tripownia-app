@@ -6575,3 +6575,78 @@ body {
 @media(max-width:700px){
   .hero-radar-offer em{font-size:8.5px!important}
 }
+
+/* V154 — HERO: bardziej zbalansowane proporcje copy + radar */
+@media (min-width:1051px){
+  .hero-clean{padding:48px 0 24px!important}
+  .hero-inner-clean.hero-inner-restored{
+    grid-template-columns:minmax(0,1fr) 320px!important;
+    gap:30px!important;
+    align-items:center!important;
+    max-width:1480px!important;
+  }
+  .hero-inner-restored .hero-copy-clean{
+    max-width:860px!important;
+    align-self:center!important;
+    padding:8px 0!important;
+  }
+  .hero-radar-panel{
+    width:320px!important;
+    max-width:320px!important;
+    justify-self:end!important;
+    padding:20px!important;
+    border-radius:24px!important;
+  }
+  .hero-radar-panel .hero-daily-icon{
+    width:46px!important;
+    height:46px!important;
+    margin-bottom:5px!important;
+  }
+  .hero-radar-panel h2{
+    margin:5px 0 7px!important;
+    font-size:27px!important;
+    line-height:1.05!important;
+  }
+  .hero-radar-panel>p{
+    margin:0 0 11px!important;
+    font-size:12px!important;
+    line-height:1.45!important;
+  }
+  .hero-daily-stats{
+    gap:7px!important;
+    margin-bottom:10px!important;
+  }
+  .hero-daily-stat{
+    padding:9px 10px!important;
+    border-radius:12px!important;
+  }
+  .hero-daily-stat>strong{font-size:24px!important}
+  .hero-daily-stat>span,.hero-daily-stat div span{font-size:8.5px!important}
+  .hero-daily-stat div strong{font-size:10px!important}
+  .hero-radar-list{
+    gap:7px!important;
+    margin-bottom:10px!important;
+  }
+  .hero-radar-offer{
+    gap:8px!important;
+    padding:9px 10px!important;
+    border-radius:12px!important;
+  }
+  .hero-radar-offer>span{font-size:18px!important}
+  .hero-radar-offer strong{font-size:12.5px!important}
+  .hero-radar-offer b{font-size:9.5px!important}
+  .hero-radar-panel .hero-daily-cta,
+  .hero-radar-panel .premium-radar-cta{
+    min-height:42px!important;
+    padding:10px 14px!important;
+  }
+}
+
+@media (min-width:1051px) and (max-width:1280px){
+  .hero-inner-clean.hero-inner-restored{
+    grid-template-columns:minmax(0,1fr) 300px!important;
+    gap:24px!important;
+  }
+  .hero-radar-panel{width:300px!important;max-width:300px!important;padding:18px!important}
+  .hero-inner-restored .hero-copy-clean{max-width:790px!important}
+}
