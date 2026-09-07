@@ -8,6 +8,7 @@ import {
   getSportsTrips,
   sportsClubs,
   sportsDepartures,
+  sportsMatchKey,
 } from "@/lib/sportsEvents";
 
 export const metadata: Metadata = {
@@ -65,12 +66,23 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
   const selectedPeople = [1, 2, 3, 4].includes(parsedPeople) ? parsedPeople : 2;
 
   const months = Array.from(new Set(trips.map(trip => monthValue(trip.kickoff))));
-  const filteredTrips = trips.filter(trip => {
+  const filteredTripsRaw = trips.filter(trip => {
     if (selectedClub && trip.clubSlug !== selectedClub) return false;
     if (selectedCompetition && trip.competitionCode !== selectedCompetition) return false;
     if (selectedMonth && monthValue(trip.kickoff) !== selectedMonth) return false;
     return true;
   });
+
+  // Gdy oglądamy wszystkie kluby, ten sam fizyczny mecz może pasować do obu
+  // obserwowanych drużyn (np. Real–Inter). Na liście pokazujemy go tylko raz.
+  // Po wybraniu konkretnego klubu nadal zachowujemy jego pełny terminarz.
+  const filteredTrips = Array.from(
+    filteredTripsRaw.reduce((map, trip) => {
+      const key = sportsMatchKey(trip);
+      if (!map.has(key)) map.set(key, trip);
+      return map;
+    }, new Map<string, (typeof filteredTripsRaw)[number]>()).values()
+  );
 
   const activeDeparture = sportsDepartures.find(item => item.code === selectedFrom) || sportsDepartures[0];
 
