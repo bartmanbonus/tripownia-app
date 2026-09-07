@@ -24,6 +24,8 @@ type LiveCandidate = Offer & {
   provider: Provider;
   modifiedAt: number;
   sourceKey: string;
+  startDateISO?: string;
+  endDateISO?: string;
 };
 
 const CITY_BREAK_TERMS = [
@@ -51,6 +53,12 @@ const EXOTIC_SEARCH_TERMS = [
 ];
 
 const SEARCH_TERMS = [...EUROPE_SEARCH_TERMS, ...EXOTIC_SEARCH_TERMS];
+
+const NEW_YEAR_SEARCH_TERMS = [
+  "Rzym", "Praga", "Budapeszt", "Wiedeń", "Stambuł", "Malta", "Cypr",
+  "Marrakesz", "Teneryfa", "Fuerteventura", "Egipt", "Hurghada", "Marsa Alam",
+  "Dubaj", "Zanzibar", "Tajlandia", "Dominikana", "Meksyk", "Malediwy", "Mauritius",
+];
 
 const FLAGS: Record<string, string> = {
   polska: "🇵🇱",
@@ -277,6 +285,8 @@ function fromExim(product: TdProduct): LiveCandidate | null {
     provider: "exim",
     modifiedAt: modifiedAt || Date.now(),
     sourceKey,
+    startDateISO: departureDate ? departureDate.toISOString().slice(0, 10) : undefined,
+    endDateISO: returnDate ? returnDate.toISOString().slice(0, 10) : undefined,
   };
 }
 
@@ -336,6 +346,8 @@ function fromTui(product: TdProduct): LiveCandidate | null {
     provider: "tui",
     modifiedAt: modifiedAt || Date.now(),
     sourceKey,
+    startDateISO: departureDate ? departureDate.toISOString().slice(0, 10) : undefined,
+    endDateISO: returnDate ? returnDate.toISOString().slice(0, 10) : undefined,
   };
 }
 
@@ -480,7 +492,7 @@ function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
 export async function GET(request: NextRequest) {
   const key = request.nextUrl.searchParams.get("key") || dailyKey();
   const requestedMode = request.nextUrl.searchParams.get("mode");
-  const mode = requestedMode === "citybreak" ? "citybreak" : requestedMode === "search" ? "search" : requestedMode === "surprise" ? "surprise" : "daily";
+  const mode = requestedMode === "citybreak" ? "citybreak" : requestedMode === "search" ? "search" : requestedMode === "surprise" ? "surprise" : requestedMode === "newyear" ? "newyear" : "daily";
   const query = (request.nextUrl.searchParams.get("q") || "").trim().slice(0, 80);
   const budget = Math.max(500, Math.min(10000, Number(request.nextUrl.searchParams.get("budget") || 2500)));
   const providerParam = request.nextUrl.searchParams.get("provider");
@@ -504,6 +516,8 @@ export async function GET(request: NextRequest) {
         ? (query ? searchTerms : shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 12))
         : mode === "surprise"
           ? shuffle(budget >= 3500 ? SURPRISE_TERMS.high : budget >= 1800 ? SURPRISE_TERMS.mid : SURPRISE_TERMS.low, `surprise:${key}:${budget}`).slice(0, 8)
+          : mode === "newyear"
+            ? NEW_YEAR_SEARCH_TERMS
           : [
               ...shuffle(EUROPE_SEARCH_TERMS, `terms-eu:${key}`).slice(0, 7),
               ...shuffle(EXOTIC_SEARCH_TERMS, `terms-exotic:${key}`).slice(0, 11),
@@ -512,7 +526,7 @@ export async function GET(request: NextRequest) {
 
     for (const term of terms) {
       if (eximToken && providerOnly !== "tui") jobs.push(fetchProducts("exim", term, eximToken).then((products) => ({ provider: "exim" as const, products })));
-      if (mode !== "citybreak" && tuiToken && providerOnly !== "exim") jobs.push(fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
+      if (mode !== "citybreak" && mode !== "newyear" && tuiToken && providerOnly !== "exim") jobs.push(fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
     }
 
     const settled = await Promise.allSettled(jobs);
@@ -572,7 +586,22 @@ export async function GET(request: NextRequest) {
     const cheapestDestinations = cheapestPerDestination(pool);
     const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && tripLengthMatches(offer));
 
-    const selected = mode === "citybreak"
+    const selected = mode === "newyear"
+      ? cheapestPerDestination(
+          pool.filter((offer) => {
+            if (offer.provider !== "exim" || !offer.startDateISO) return false;
+            const start = offer.startDateISO;
+            return start >= "2026-12-26" && start <= "2027-01-02" && offer.nights >= 3 && offer.nights <= 12;
+          })
+        )
+          .sort((a, b) => {
+            const aCity = a.nights <= 6 ? 0 : 1;
+            const bCity = b.nights <= 6 ? 0 : 1;
+            if (aCity !== bCity) return aCity - bCity;
+            return a.price - b.price;
+          })
+          .slice(0, 30)
+      : mode === "citybreak"
       ? selectDaily(
           cheapestPerDestination(
             pool.filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5)
