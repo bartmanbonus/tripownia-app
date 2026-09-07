@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils } from "lucide-react";
+import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import TravelImage from "@/components/TravelImage";
@@ -151,6 +151,10 @@ export default function OfferCard({ offer }: { offer: Offer }) {
 
         <div className="partner-chip partner-chip-tripownia">
           <strong>Wybrane przez Tripownię</strong> · sprawdzamy cenę i dostępność
+        </div>
+
+        <div className="offer-date-line">
+          <CalendarDays size={15} /> <strong>{offer.dates}</strong>
         </div>
 
         <div className="meta">
