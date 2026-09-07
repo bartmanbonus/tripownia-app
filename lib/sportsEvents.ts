@@ -244,6 +244,30 @@ function clubMatchesTeam(club: SportsClub, name?: string | null) {
   );
 }
 
+function canonicalTeamKey(name?: string | null) {
+  const normalized = normalize(name);
+  if (!normalized) return "";
+
+  const trackedClub = sportsClubs.find(club => clubMatchesTeam(club, name));
+  if (trackedClub) return `club:${trackedClub.slug}`;
+
+  const knownTeam = teamTravelData.find(item =>
+    item.names.some(alias => normalized === normalize(alias) || normalized.includes(normalize(alias)))
+  );
+  if (knownTeam) return `team:${normalize(knownTeam.names[0])}`;
+
+  return `name:${normalized}`;
+}
+
+export function sportsMatchKey(match: Pick<SportsTrip, "competitionCode" | "kickoff" | "homeTeam" | "awayTeam">) {
+  return [
+    match.competitionCode,
+    match.kickoff,
+    canonicalTeamKey(match.homeTeam),
+    canonicalTeamKey(match.awayTeam),
+  ].join("|");
+}
+
 function isUpcomingMatch(match: FootballDataMatch) {
   return match.status === "SCHEDULED" || match.status === "TIMED";
 }
@@ -407,7 +431,15 @@ export async function getSportsTrips(daysAhead = 365): Promise<SportsTrip[]> {
       const live = await fetchCompetitionMatches(code, dateFrom, dateTo);
       const seeded = seedMatches.filter(match => match.competition?.code === code && isUpcomingMatch(match));
       const merged = new Map<string, { match: FootballDataMatch; source: "football-data" | "seed" }>();
-      const key = (match: FootballDataMatch) => `${match.competition?.code || ""}|${match.utcDate.slice(0,10)}|${normalize(match.homeTeam?.name || match.homeTeam?.shortName)}|${normalize(match.awayTeam?.name || match.awayTeam?.shortName)}`;
+      // Seed i live API mogą używać innych nazw tego samego klubu
+      // (np. "Inter Milan" vs "FC Internazionale Milano").
+      // Klucz po kanonicznej tożsamości drużyn scala je do jednego meczu.
+      const key = (match: FootballDataMatch) => [
+        match.competition?.code || "",
+        match.utcDate.slice(0, 10),
+        canonicalTeamKey(match.homeTeam?.name || match.homeTeam?.shortName),
+        canonicalTeamKey(match.awayTeam?.name || match.awayTeam?.shortName),
+      ].join("|");
       seeded.forEach(match => merged.set(key(match), { match, source: "seed" }));
       live.forEach(match => merged.set(key(match), { match, source: "football-data" }));
       return [...merged.values()];
