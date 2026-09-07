@@ -37,30 +37,20 @@ const SURPRISE_TERMS = {
   high: ["Dubaj", "Zanzibar", "Dominikana", "Malediwy", "Kenia", "Meksyk", "Tajlandia", "Kuba"],
 };
 
-const SEARCH_TERMS = [
-  "Egipt",
-  "Tunezja",
-  "Turcja",
-  "Grecja",
-  "Hiszpania",
-  "Cypr",
-  "Malta",
-  "Bułgaria",
-  "Włochy",
-  "Maroko",
-  "Portugalia",
-  "Albania",
-  "Djerba",
-  "Hurghada",
-  "Marsa Alam",
-  "Rodos",
-  "Kreta",
-  "Zakynthos",
-  "Pafos",
-  "Teneryfa",
-  "Fuerteventura",
-  "Majorka",
+const EUROPE_SEARCH_TERMS = [
+  "Grecja", "Hiszpania", "Cypr", "Malta", "Bułgaria", "Włochy", "Portugalia", "Albania",
+  "Rodos", "Kreta", "Zakynthos", "Pafos", "Teneryfa", "Fuerteventura", "Majorka", "Sycylia",
 ];
+
+const EXOTIC_SEARCH_TERMS = [
+  "Maroko", "Egipt", "Tunezja", "Djerba", "Hurghada", "Marsa Alam",
+  "Wietnam", "Bali", "Indonezja", "Tajlandia", "Sri Lanka", "Malediwy", "Japonia",
+  "Zanzibar", "Kenia", "Mauritius", "Wyspy Zielonego Przylądka", "Gambia", "Seszele",
+  "Dominikana", "Meksyk", "Kuba", "Jamajka", "USA", "Nowy Jork", "Floryda",
+  "Brazylia", "Kolumbia", "Peru", "Kostaryka",
+];
+
+const SEARCH_TERMS = [...EUROPE_SEARCH_TERMS, ...EXOTIC_SEARCH_TERMS];
 
 const FLAGS: Record<string, string> = {
   polska: "🇵🇱",
@@ -380,6 +370,60 @@ function dealValue(offer: LiveCandidate) {
 }
 
 
+
+function continentFor(offer: LiveCandidate) {
+  const text = normalize(`${offer.country} ${offer.city}`);
+  if (/wietnam|bali|indonez|tajland|sri lanka|malediw|japon|dubaj|zea|emiraty|azja/.test(text)) return "asia";
+  if (/maroko|egipt|tunez|djerba|zanzibar|kenia|mauritius|gambia|seszel|zielonego przyladka|afryka/.test(text)) return "africa";
+  if (/dominikan|meksyk|kuba|jamaj|usa|nowy jork|floryda|brazyl|kolumbi|peru|kostaryk|ameryk/.test(text)) return "americas";
+  return "europe";
+}
+
+function hasConcreteDates(offer: LiveCandidate) {
+  return Boolean(offer.dates && !/najbliższy dostępny termin/i.test(offer.dates));
+}
+
+function tripLengthMatches(offer: LiveCandidate) {
+  const continent = continentFor(offer);
+  if (continent === "europe") return offer.nights === 6;
+  return offer.nights >= 7 && offer.nights <= 10;
+}
+
+function selectDailyDiversified(candidates: LiveCandidate[], key: string, limit = 12) {
+  const buckets = {
+    europe: candidates.filter((o) => continentFor(o) === "europe"),
+    africa: candidates.filter((o) => continentFor(o) === "africa"),
+    asia: candidates.filter((o) => continentFor(o) === "asia"),
+    americas: candidates.filter((o) => continentFor(o) === "americas"),
+  };
+
+  const quotas: Array<[keyof typeof buckets, number]> = [
+    ["europe", 5],
+    ["africa", 3],
+    ["asia", 2],
+    ["americas", 2],
+  ];
+
+  const picked: LiveCandidate[] = [];
+  const seen = new Set<string>();
+  for (const [bucket, quota] of quotas) {
+    const ranked = shuffle([...buckets[bucket]].sort((a,b) => dealValue(b)-dealValue(a)).slice(0, 24), `${key}:${bucket}`);
+    for (const offer of ranked) {
+      const dk = destinationKey(offer);
+      if (seen.has(dk)) continue;
+      picked.push(offer);
+      seen.add(dk);
+      if (picked.filter((o) => continentFor(o) === bucket).length >= quota) break;
+    }
+  }
+
+  if (picked.length < limit) {
+    const rest = selectDaily(candidates.filter((o) => !seen.has(destinationKey(o))), `${key}:rest`, limit - picked.length);
+    picked.push(...rest);
+  }
+  return picked.slice(0, limit);
+}
+
 function cheapestPerDestination(candidates: LiveCandidate[]) {
   const best = new Map<string, LiveCandidate>();
   for (const offer of candidates) {
@@ -460,7 +504,10 @@ export async function GET(request: NextRequest) {
         ? (query ? searchTerms : shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 12))
         : mode === "surprise"
           ? shuffle(budget >= 3500 ? SURPRISE_TERMS.high : budget >= 1800 ? SURPRISE_TERMS.mid : SURPRISE_TERMS.low, `surprise:${key}:${budget}`).slice(0, 8)
-          : shuffle(SEARCH_TERMS, `terms:${key}`).slice(0, 12);
+          : [
+              ...shuffle(EUROPE_SEARCH_TERMS, `terms-eu:${key}`).slice(0, 7),
+              ...shuffle(EXOTIC_SEARCH_TERMS, `terms-exotic:${key}`).slice(0, 11),
+            ];
     const jobs: Promise<{ provider: Provider; products: TdProduct[] }>[] = [];
 
     for (const term of terms) {
@@ -523,6 +570,7 @@ export async function GET(request: NextRequest) {
     // Dzięki temu odświeżenie co 10 min może podmienić cenę / hotel / dokładny link,
     // bez podstawiania droższego produktu tylko dlatego, że miał wyższy score.
     const cheapestDestinations = cheapestPerDestination(pool);
+    const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && tripLengthMatches(offer));
 
     const selected = mode === "citybreak"
       ? selectDaily(
@@ -540,7 +588,7 @@ export async function GET(request: NextRequest) {
               .filter((offer) => budget < 3500 || offer.price >= Math.round(budget * 0.45))
               .sort((a,b) => (b.score * 100 + b.price / 20) - (a.score * 100 + a.price / 20))
               .slice(0, 12)
-          : selectDaily(cheapestDestinations, key, 12);
+          : selectDailyDiversified(dailyLengthPool, key, 12);
     return NextResponse.json(
       {
         ok: selected.length > 0,
