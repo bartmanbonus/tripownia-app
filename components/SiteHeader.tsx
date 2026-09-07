@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   Tag,
-  Trophy,
   Heart,
   Star,
   TreePine,
@@ -19,14 +18,35 @@ import {
   UserRound,
 } from "lucide-react";
 
+
+function SoccerBallIcon({ size = 23 }: { size?: number; strokeWidth?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.9" />
+      <path d="M9.2 8.2 12 6.6l2.8 1.6-.7 3.2H9.9l-.7-3.2Z" fill="currentColor" />
+      <path d="m9.9 11.4-3 2.1 1.1 3.3 3.3.1M14.1 11.4l3 2.1-1.1 3.3-3.3.1M12 6.6l-.2-3M6.9 13.5 4.2 12M17.1 13.5l2.7-1.5M8 16.8 6.8 19M16 16.8l1.2 2.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function PalmIcon({ size = 23 }: { size?: number; strokeWidth?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M12.1 10.4c-.4 3.8-.1 7.2 1 10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M12 10.5c-1.8-3.8-5.6-4.2-8-2.1 2.5.1 4.2 1 5.2 2.5M12 10.5c1.3-4.1 5.1-5.5 8-4.2-2.2.7-3.8 1.9-4.6 3.7M12 10.5c-.4-4-3.1-6.4-6-6.4 1.7 1.4 2.8 3.1 3.1 5.2M12 10.5c.9-3.8.1-6.5-1.7-8.5 2.8.5 4.5 2.9 4.4 6.1" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9.5 21h7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 const primaryItems = [
   { href: "/okazje", label: "Okazje", note: "Nasze najlepsze ceny", icon: Tag, tone: "deals" },
-  { href: "/wydarzenia", label: "Mecze i eventy", note: "Twoje emocje", icon: Trophy, tone: "events" },
+  { href: "/wydarzenia", label: "Mecze i eventy", note: "Twoje emocje", icon: SoccerBallIcon, tone: "events" },
   { href: "/podroze-po-przezycia", label: "Przeżycia", note: "Nasze inspiracje", icon: Heart, tone: "experience" },
   { href: "/podroze", label: "Atrakcje Tripowni", note: "Nasze propozycje", icon: Star, tone: "picks", badge: "TOP" },
   { href: "/jarmarki-bozonarodzeniowe", label: "Jarmarki", note: "Magia świąt", icon: TreePine, tone: "markets", seasonal: true },
   { href: "/sylwester", label: "Sylwester", note: "Powitaj rok z nami", icon: PartyPopper, tone: "newyear" },
-  { href: "/dalekie-podroze", label: "Dalekie podróże", note: "Świat czeka", icon: Plane, tone: "longhaul" },
+  { href: "/dalekie-podroze", label: "Dalekie podróże", note: "Świat czeka", icon: PalmIcon, tone: "longhaul" },
 ] as const;
 
 const serviceItems = [
