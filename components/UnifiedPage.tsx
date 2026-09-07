@@ -62,7 +62,7 @@ function ServicePage({ type }: { type: ServiceType }) {
     "wynajem-auta": {
       kicker: "NA MIEJSCU", title: "Wynajem auta na wakacje",
       lead: "Najpierw ustal, czy samochód rzeczywiście będzie potrzebny dla Twojej trasy i miejsca noclegu.",
-      partner: null,
+      partner: { buildUrl: () => "https://getrentacar.tpk.lv/buzTQvPf" },
       bullets: ["Sprawdź depozyt, udział własny i zakres ubezpieczenia.", "Zweryfikuj zasady paliwowe i limit kilometrów.", "Sprawdź wymagany wiek kierowcy i zasady odbioru po godzinach."],
     },
   }[type];

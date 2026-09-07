@@ -50,12 +50,12 @@ const primaryItems = [
 ] as const;
 
 const serviceItems = [
-  { href: "/#wyszukiwarka", label: "Hotele", icon: BedDouble, tone: "hotel" },
-  { href: "/#wyszukiwarka", label: "Loty", icon: Plane, tone: "flight" },
-  { href: "/podroze", label: "Wynajem aut", icon: Car, tone: "car" },
-  { href: "/podroze", label: "Ubezpieczenia", icon: ShieldCheck, tone: "insurance" },
-  { href: "/magazyn-podrozniczy", label: "Poradniki", icon: BookOpen, tone: "guides" },
-  { href: "/podroze", label: "Inspiracje", icon: Lightbulb, tone: "ideas" },
+  { href: "https://www.booking.com/?aid=818288", label: "Hotele", icon: BedDouble, tone: "hotel", external: true },
+  { href: "https://kiwi.tpk.lv/7PnrR4dn", label: "Loty", icon: Plane, tone: "flight", external: true },
+  { href: "/wynajem-auta", label: "Wynajem aut", icon: Car, tone: "car" },
+  { href: "/ubezpieczenia", label: "Ubezpieczenia", icon: ShieldCheck, tone: "insurance" },
+  { href: "/poradniki", label: "Poradniki", icon: BookOpen, tone: "guides" },
+  { href: "/inspiracje", label: "Inspiracje", icon: Lightbulb, tone: "ideas" },
 ] as const;
 
 export default function SiteHeader() {
@@ -102,7 +102,11 @@ export default function SiteHeader() {
           <div className="menu-v5-services">
             {serviceItems.map((item) => {
               const Icon = item.icon;
-              return <Link key={item.label} className={`menu-v5-service menu-v5-service-${item.tone}`} href={item.href}><Icon size={20} strokeWidth={2.1}/><span>{item.label}</span></Link>;
+              const className = `menu-v5-service menu-v5-service-${item.tone}`;
+              if ("external" in item && item.external) {
+                return <a key={item.label} className={className} href={item.href} target="_blank" rel="sponsored noopener noreferrer"><Icon size={20} strokeWidth={2.1}/><span>{item.label}</span></a>;
+              }
+              return <Link key={item.label} className={className} href={item.href}><Icon size={20} strokeWidth={2.1}/><span>{item.label}</span></Link>;
             })}
           </div>
 
