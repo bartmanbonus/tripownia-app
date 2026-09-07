@@ -443,7 +443,7 @@ export default function Home() {
               {todaysOffers.slice(0,3).map((offer, index) => (
                 <a href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer" className="hero-radar-offer" key={offer.id}>
                   <span>{offer.flag}</span>
-                  <div><small>{index === 0 ? "🔥 NAJLEPSZY STRZAŁ" : index === 1 ? "✨ WARTO SPRAWDZIĆ" : "🌍 COŚ INNEGO"}</small><strong>{offer.city}</strong></div>
+                  <div><small>{index === 0 ? "🔥 NAJLEPSZY STRZAŁ" : index === 1 ? "✨ WARTO SPRAWDZIĆ" : "🌍 COŚ INNEGO"}</small><strong>{offer.city}</strong><em>{offer.dates} · {offer.nights} nocy</em></div>
                   <b>od {offer.price.toLocaleString("pl-PL")} zł →</b>
                 </a>
               ))}
