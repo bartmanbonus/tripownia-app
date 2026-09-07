@@ -460,7 +460,7 @@ export async function GET(request: NextRequest) {
         ? (query ? searchTerms : shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 12))
         : mode === "surprise"
           ? shuffle(budget >= 3500 ? SURPRISE_TERMS.high : budget >= 1800 ? SURPRISE_TERMS.mid : SURPRISE_TERMS.low, `surprise:${key}:${budget}`).slice(0, 8)
-          : shuffle(SEARCH_TERMS, `terms:${key}`).slice(0, 8);
+          : shuffle(SEARCH_TERMS, `terms:${key}`).slice(0, 12);
     const jobs: Promise<{ provider: Provider; products: TdProduct[] }>[] = [];
 
     for (const term of terms) {
@@ -516,17 +516,31 @@ export async function GET(request: NextRequest) {
     const pool = Array.from(unique.values()).filter((offer) =>
       departureMatches(offer) && nightsMatches(offer) && boardMatches(offer) && (!maxPrice || offer.price <= maxPrice)
     );
+
+    // LIVE ENGINE:
+    // 1) najpierw wybieramy najtańszy aktualny PRODUKT dla każdego kierunku,
+    // 2) dopiero z tych reprezentantów budujemy dzienną selekcję.
+    // Dzięki temu odświeżenie co 10 min może podmienić cenę / hotel / dokładny link,
+    // bez podstawiania droższego produktu tylko dlatego, że miał wyższy score.
+    const cheapestDestinations = cheapestPerDestination(pool);
+
     const selected = mode === "citybreak"
-      ? selectDaily(pool.filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5), `${key}:citybreak`, 8)
+      ? selectDaily(
+          cheapestPerDestination(
+            pool.filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5)
+          ),
+          `${key}:citybreak`,
+          8
+        )
       : mode === "search"
-        ? pool.sort((a,b) => a.price - b.price).slice(0, 24)
+        ? [...pool].sort((a,b) => a.price - b.price).slice(0, 24)
         : mode === "surprise"
-          ? pool
+          ? cheapestDestinations
               .filter((offer) => offer.price <= budget)
               .filter((offer) => budget < 3500 || offer.price >= Math.round(budget * 0.45))
               .sort((a,b) => (b.score * 100 + b.price / 20) - (a.score * 100 + a.price / 20))
               .slice(0, 12)
-          : selectDaily(pool, key, 12);
+          : selectDaily(cheapestDestinations, key, 12);
     return NextResponse.json(
       {
         ok: selected.length > 0,
@@ -534,6 +548,7 @@ export async function GET(request: NextRequest) {
         mode,
         checkedAt: new Date().toISOString(),
         sourceCount: pool.length,
+        destinationCount: cheapestDestinations.length,
         offers: selected,
       },
       {
