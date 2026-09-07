@@ -3,8 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import OfferCard from "@/components/OfferCard";
-import { offers } from "@/lib/offers";
+import SeoEximOffers from "@/components/SeoEximOffers";
 import { partners } from "@/lib/partners";
 import { getSeoLanding, seoLandings } from "@/lib/seoLandings";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
@@ -35,34 +34,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-function normalize(value: string) {
-  return value.toLocaleLowerCase("pl");
-}
-
 export default async function SeoLandingPage({ params }: PageProps) {
   const { slug } = await params;
   const page = getSeoLanding(slug);
   if (!page) notFound();
-
-  const active = offers
-    .filter((offer) => offer.availabilityStatus !== "expired")
-    .filter((offer) => {
-      if (page.maxPrice && offer.price > page.maxPrice) return false;
-      if (page.minNights && offer.nights < page.minNights) return false;
-      if (page.maxNights && offer.nights > page.maxNights) return false;
-      if (page.departure && !normalize(offer.departure).includes(normalize(page.departure))) return false;
-
-      const haystack = normalize(
-        `${offer.city} ${offer.country} ${offer.hotel} ${offer.reason} ${offer.category.join(" ")}`
-      );
-      const cityMatch = !page.cityKeywords?.length || page.cityKeywords.some((keyword) => haystack.includes(normalize(keyword)));
-      const categoryMatch = !page.categoryKeywords?.length || page.categoryKeywords.some((keyword) => haystack.includes(normalize(keyword)));
-
-      if (page.cityKeywords?.length && page.categoryKeywords?.length) return cityMatch || categoryMatch;
-      return cityMatch && categoryMatch;
-    })
-    .sort((a, b) => a.price - b.price)
-    .slice(0, 8);
 
   const bookingUrl = partners.booking.buildUrl(
     `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(page.query)}`
@@ -102,20 +77,20 @@ export default async function SeoLandingPage({ params }: PageProps) {
       <section className="shell seo-offer-section" id="aktualne-oferty">
         <div className="section-heading">
           <div>
-            <div className="kicker">AKTUALNIE W TRIPOWNI</div>
-            <h2>{active.length ? "Oferty, które pasują do tego wyszukiwania" : "Sprawdź aktualne ceny"}</h2>
+            <div className="kicker">AKTUALNE OFERTY</div>
+            <h2>Najlepsze dostępne propozycje dla tego kierunku</h2>
             <p>
-              {active.length
-                ? "Pokazujemy tylko aktywne propozycje z naszej aktualnej bazy."
-                : "Nie mamy dziś zapisanej oferty dokładnie dla tych parametrów, więc nie pokazujemy losowych kart."}
+              Pobieramy bieżące produkty, ceny i terminy automatycznie. Każda karta prowadzi bezpośrednio do konkretnej oferty.
             </p>
           </div>
         </div>
-        {active.length > 0 && (
-          <div className="cards-grid">
-            {active.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
-          </div>
-        )}
+        <SeoEximOffers
+          query={page.query}
+          departure={page.departure}
+          minNights={page.minNights}
+          maxNights={page.maxNights}
+          maxPrice={page.maxPrice}
+        />
       </section>
 
       <section className="shell seo-partners-section">
