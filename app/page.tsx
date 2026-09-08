@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5, Heart, Plane, Globe2, Palmtree, Building2, BadgePercent, ShieldCheck, Compass } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
+import SelfSearchLegacy from "@/components/SelfSearchLegacy";
 import { offers, getDailyOffers, isOfferExpired } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
@@ -711,6 +712,19 @@ export default function Home() {
         <div className="premium-action-row">
           <Link className="premium-action-main" href="#szukaj-samodzielnie">Wyszukaj po swojemu <ArrowRight size={17}/></Link>
           <Link className="premium-action-secondary" href="#okazje">Zobacz wszystkie okazje <ArrowRight size={17}/></Link>
+        </div>
+      </section>
+
+      <section className="self-search-home-stage" aria-label="Wyszukaj podróż samodzielnie">
+        <div className="shell self-search-home-shell">
+          <div className="self-search-home-intro">
+            <div>
+              <span className="self-search-home-badge">🔎 WIESZ, CZEGO SZUKASZ?</span>
+              <strong>Przejdź z inspiracji do konkretu.</strong>
+            </div>
+            <p>Tu nie podpowiadamy przypadkowych kierunków. Ustaw własne parametry i przejdź prosto do dostępnych opcji.</p>
+          </div>
+          <SelfSearchLegacy />
         </div>
       </section>
 
