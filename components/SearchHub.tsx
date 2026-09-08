@@ -112,6 +112,9 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       const cityMode=cityModeOverride ?? activeTab==="City break";
       const params=new URLSearchParams({mode:cityMode?"citybreak":"search"});
       if(destination) params.set("q", destination);
+      // Wejście bez konkretnego kierunku ma od razu zbudować szeroką pulę
+      // do 20 różnych, najtańszych kierunków z live feedów.
+      if(!destination && !cityMode) params.set("broad", "1");
       if(airports[0]) params.set("from", airports[0]);
       if(duration==="short") params.set("nights", "2-3");
       else if(duration==="week") params.set("nights", "6-8");
