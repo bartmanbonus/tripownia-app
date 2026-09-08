@@ -159,14 +159,14 @@ function seededShuffle<T>(items: T[], seedText: string) {
 }
 
 const longHaulCards = [
-  { href: "/dalekie-podroze#wietnam", region: "azja", label: "AZJA", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam Ha Long", imageCountry: "Wietnam", fallbackImage: "https://upload.wikimedia.org/wikipedia/commons/b/b3/HaLongBay.JPG" },
-  { href: "/dalekie-podroze#pekin", region: "azja", label: "AZJA", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin Zakazane Miasto", imageCountry: "Chiny", fallbackImage: "https://upload.wikimedia.org/wikipedia/commons/e/e9/Landscape_view_of_The_Great_Wall_of_China.jpg" },
-  { href: "/dalekie-podroze#nowy-jork", region: "ameryka", label: "USA", title: "Nowy Jork", subtitle: "Manhattan · Brooklyn", text: "Miasto, które nigdy nie śpi i zawsze daje powód, by wrócić.", imageCity: "Nowy Jork Manhattan", imageCountry: "USA", fallbackImage: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Iconic_Skyline_of_New_York_City.jpg" },
-  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Nowoczesność · tradycja", text: "Świątynie, kultura, jedzenie i kolej — więcej niż szybki weekend.", imageCity: "Japonia Fuji Kioto", imageCountry: "Japonia", fallbackImage: "https://upload.wikimedia.org/wikipedia/commons/9/9e/Chureito_Pagoda_and_Mount_Fuji.jpg" },
-  { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · plaże", text: "Energia miasta i kilka dni nad morzem w jednej podróży.", imageCity: "Tajlandia Bangkok wyspy", imageCountry: "Tajlandia" },
-  { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Świątynie · natura · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali Indonezja", imageCountry: "Indonezja" },
-  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur skyline", imageCountry: "Singapur" },
-  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad Table Mountain", imageCountry: "RPA" },
+  { href: "/dalekie-podroze#wietnam", region: "azja", label: "AZJA", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam Ha Long", imageCountry: "Wietnam", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/HaLongBay.JPG?width=1600" },
+  { href: "/dalekie-podroze#pekin", region: "azja", label: "AZJA", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin Zakazane Miasto", imageCountry: "Chiny", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Landscape_view_of_The_Great_Wall_of_China.jpg?width=1600" },
+  { href: "/dalekie-podroze#nowy-jork", region: "ameryka", label: "USA", title: "Nowy Jork", subtitle: "Manhattan · Brooklyn", text: "Miasto, które nigdy nie śpi i zawsze daje powód, by wrócić.", imageCity: "Nowy Jork Manhattan", imageCountry: "USA", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Iconic_Skyline_of_New_York_City.jpg?width=1600" },
+  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Nowoczesność · tradycja", text: "Świątynie, kultura, jedzenie i kolej — więcej niż szybki weekend.", imageCity: "Japonia Fuji Kioto", imageCountry: "Japonia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Chureito_Pagoda_and_Mount_Fuji.jpg?width=1600" },
+  { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · plaże", text: "Energia miasta i kilka dni nad morzem w jednej podróży.", imageCity: "Tajlandia Bangkok wyspy", imageCountry: "Tajlandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/ThaiBangkokWatArun.jpg?width=1600" },
+  { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Świątynie · natura · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali Indonezja", imageCountry: "Indonezja", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Rice_terraces,_Bali.jpg?width=1600" },
+  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur skyline", imageCountry: "Singapur", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Singapore-marina-bay.jpg?width=1600" },
+  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad Table Mountain", imageCountry: "RPA", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Table_Mountain_-_Cape_Town_-_SA.JPG?width=1600" },
 ];
 
 
@@ -174,6 +174,13 @@ function LongHaulCardImage({ city, country, fallbackSrc }: { city: string; count
   const [src, setSrc] = useState<string | null>(fallbackSrc || null);
 
   useEffect(() => {
+    // W sekcjach kuratorskich używamy stałej, sprawdzonej grafiki.
+    // Dynamiczne wyszukiwanie zostaje tylko dla kierunków bez fallbacku.
+    if (fallbackSrc) {
+      setSrc(fallbackSrc);
+      return;
+    }
+
     let active = true;
     const controller = new AbortController();
     const params = new URLSearchParams({ city, country });
@@ -184,9 +191,7 @@ function LongHaulCardImage({ city, country, fallbackSrc }: { city: string; count
         const liveSrc = data?.image?.url;
         if (active && liveSrc) setSrc(liveSrc);
       })
-      .catch(() => {
-        // fallbackSrc zostaje widoczny — karta nigdy nie kończy jako puste szare pole.
-      });
+      .catch(() => {});
 
     return () => {
       active = false;
@@ -303,63 +308,68 @@ const experienceCards = [
     season: "WRZESIEŃ–MARZEC",
     title: "🌌 Zorza na Islandii",
     text: "Ciemne noce, geotermia i wyjazd planowany pod szansę zobaczenia zorzy.",
-    imageCity: "zorza islandia", imageCountry: "Islandia",
+    imageCity: "zorza islandia", imageCountry: "Islandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Aurora_Borealis-Northern_Lights_Iceland.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#sakura",
     season: "MARZEC–KWIECIEŃ",
     title: "🌸 Sakura w Japonii",
     text: "Tokio i Kioto wtedy, gdy kwitnienie wiśni staje się głównym punktem podróży.",
-    imageCity: "sakura japonia", imageCountry: "Japonia",
+    imageCity: "sakura japonia", imageCountry: "Japonia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Cherry_blossoms_at_the_rock_garden_of_Ryōan-ji_Temple_in_Kyoto,_Japan.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#fiordy",
     season: "MAJ–WRZESIEŃ",
     title: "🏔️ Fiordy i białe noce",
     text: "Długie dni, trekking, rejsy i spektakularne trasy widokowe po Norwegii.",
-    imageCity: "fiordy norwegia", imageCountry: "Norwegia",
+    imageCity: "fiordy norwegia", imageCountry: "Norwegia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Geirangerfjord,_Norway.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#nowa-zelandia",
     season: "LISTOPAD–MARZEC",
     title: "🥾 Nowa Zelandia",
     text: "Road trip, góry i lato na południowej półkuli w najlepszym oknie na aktywny wyjazd.",
-    imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia",
+    imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/MilfordSound.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#tulipany",
     season: "KWIECIEŃ–MAJ",
     title: "🌷 Tulipany w Holandii",
     text: "Krótki city break połączony z polami kwiatów i sezonem, który trwa tylko chwilę.",
-    imageCity: "tulipany holandia", imageCountry: "Holandia",
+    imageCity: "tulipany holandia", imageCountry: "Holandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Tulip_fields_of_Holland.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#safari",
     season: "CZERWIEC–PAŹDZIERNIK",
     title: "🦁 Safari w Kenii i Tanzanii",
     text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.",
-    imageCity: "safari kenia tanzania", imageCountry: "Kenia",
+    imageCity: "safari kenia tanzania", imageCountry: "Kenia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Lion_Masai_Mara.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#jarmarki",
     season: "LISTOPAD–GRUDZIEŃ",
     title: "🎄 Jarmarki bożonarodzeniowe",
     text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.",
-    imageCity: "jarmarki wieden", imageCountry: "Austria",
+    imageCity: "jarmarki wieden", imageCountry: "Austria", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Rathaus_Christmas_Market.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#egzotyka",
     season: "ZIMA W POLSCE",
     title: "🌴 Egzotyka w porze suchej",
     text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.",
-    imageCity: "egzotyka pora sucha", imageCountry: "Seszele",
+    imageCity: "egzotyka pora sucha", imageCountry: "Seszele", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Anse_source_d_argent.jpg?width=1600",
   },
 ];
 
-function ExperienceTeaserImage({ city, country, title }: { city: string; country: string; title: string }) {
-  const [src, setSrc] = useState<string | null>(null);
+function ExperienceTeaserImage({ city, country, title, fallbackSrc }: { city: string; country: string; title: string; fallbackSrc?: string }) {
+  const [src, setSrc] = useState<string | null>(fallbackSrc || null);
 
   useEffect(() => {
+    if (fallbackSrc) {
+      setSrc(fallbackSrc);
+      return;
+    }
+
     let active = true;
     const controller = new AbortController();
     const params = new URLSearchParams({ city, country });
@@ -368,11 +378,19 @@ function ExperienceTeaserImage({ city, country, title }: { city: string; country
       .then(data => { if (active) setSrc(data?.image?.url || null); })
       .catch(() => {});
     return () => { active = false; controller.abort(); };
-  }, [city, country]);
+  }, [city, country, fallbackSrc]);
 
   return (
     <div className="experience-teaser-media" aria-hidden="true">
-      {src ? <img src={src} alt="" loading="lazy" /> : <div className="experience-teaser-skeleton" />}
+      {src ? (
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={(event) => { event.currentTarget.style.display = "none"; }}
+        />
+      ) : <div className="experience-teaser-skeleton" />}
       <span className="experience-teaser-overlay" />
       <b>{title.replace(/^\S+\s*/, "")}</b>
     </div>
@@ -800,7 +818,7 @@ export default function Home() {
         <div className="discovery-grid experience-home-grid">
           {experienceCards.filter(card => card.href !== "/podroze-po-przezycia#jarmarki" || Date.now() <= new Date("2027-01-07T22:59:59Z").getTime()).map(card => (
             <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
-              <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} />
+              <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={"fallbackImage" in card ? card.fallbackImage : undefined} />
               <div className="experience-teaser-copy">
                 <small>{card.season}</small>
                 <strong>{card.title}</strong>
