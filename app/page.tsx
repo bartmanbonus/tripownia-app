@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5, Heart, Plane, Globe2, Palmtree, Building2, BadgePercent, ShieldCheck, Compass } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { offers, isOfferExpired } from "@/lib/offers";
+import { offers, getDailyOffers, isOfferExpired } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
@@ -361,11 +361,16 @@ function OfferRail({ kicker, title, description, items }: { kicker: string; titl
     rail.scrollBy({ left: direction * step * 2, behavior: "smooth" });
   };
   if (!items.length) return null;
-  return <section className="offer-stream-row">
+  const sparse = items.length < 3;
+  return <section className={`offer-stream-row${sparse ? " is-sparse" : ""}`}>
     <div className="offer-stream-head">
       <div><div className="kicker">{kicker}</div><h3>{title}</h3><p>{description}</p></div>
     </div>
-    <div className="offer-stream-rail-wrap"><div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div><div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>{items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}</div></div>
+    <div className={`offer-stream-rail-wrap${sparse ? " is-sparse" : ""}`}>
+      {items.length > 1 && <div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div>}
+      <div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>{items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}</div>
+      {sparse && <div className="offer-stream-sparse-helper"><small>CHCESZ WIĘCEJ OPCJI?</small><strong>Nie rozciągamy jednej oferty na cały ekran.</strong><span>Jeśli dzisiejszy feed ma mało dobrych dopasowań, pokażemy tylko zweryfikowane propozycje. Resztę możesz wyszukać po swoich parametrach.</span><Link href="#szukaj-samodzielnie">Wyszukaj samodzielnie <ArrowRight size={16}/></Link></div>}
+    </div>
   </section>;
 }
 
@@ -384,7 +389,7 @@ export default function Home() {
     return () => window.clearInterval(timer);
   }, []);
 
-  const [liveOffers, setLiveOffers] = useState<TripOffer[]>([]);
+  const [liveOffers, setLiveOffers] = useState<TripOffer[]>(() => getDailyOffers(offers, 20));
   const [liveOffersStatus, setLiveOffersStatus] = useState<"loading" | "live" | "fallback">("loading");
   const [eximCityBreaks, setEximCityBreaks] = useState<TripOffer[]>([]);
   const [liveRefreshTick, setLiveRefreshTick] = useState(0);
@@ -430,10 +435,12 @@ export default function Home() {
               setLiveOffers(saved.offers.slice(0, 20));
               setLastLiveCheckedAt(saved.checkedAt || null);
             } else {
-              setLiveOffers([]);
+              setLiveOffers(getDailyOffers(offers, 20));
+              setLastLiveCheckedAt(null);
             }
           } catch {
-            setLiveOffers([]);
+            setLiveOffers(getDailyOffers(offers, 20));
+            setLastLiveCheckedAt(null);
           }
           setLiveOffersStatus("fallback");
         }
@@ -446,10 +453,12 @@ export default function Home() {
             setLiveOffers(saved.offers.slice(0, 20));
             setLastLiveCheckedAt(saved.checkedAt || null);
           } else {
-            setLiveOffers([]);
+            setLiveOffers(getDailyOffers(offers, 20));
+            setLastLiveCheckedAt(null);
           }
         } catch {
-          setLiveOffers([]);
+          setLiveOffers(getDailyOffers(offers, 20));
+          setLastLiveCheckedAt(null);
         }
         setLiveOffersStatus("fallback");
       });
@@ -526,8 +535,13 @@ export default function Home() {
       }
       return result;
     };
-    // City breaki publikujemy wyłącznie z feedu EXIM: konkretna cena, hotel i transfer w pakiecie.
-    const city = uniqueDestinations(cheapestPerDirection(eximCityBreaks.map(offerForDisplay))).slice(0, 8);
+    // City breaki nadal opieramy na EXIM, ale łączymy dedykowany feed z aktualną pulą EXIM,
+    // żeby pojedynczy słabszy response nie zostawiał sekcji z jedną samotną kartą.
+    const eximCityPool = [
+      ...eximCityBreaks,
+      ...liveOffers.filter(o => o.partner === "exim" && o.nights >= 2 && o.nights <= 5),
+    ];
+    const city = uniqueDestinations(cheapestPerDirection(eximCityPool.map(offerForDisplay))).slice(0, 8);
     const sun = fillRail(pick(o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c))), 5);
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
     const unusual = fillRail(pick(o => unusualNames.test(o.city)), 5);
