@@ -7413,80 +7413,40 @@ body {
 
 
 /* ==========================================================
-   V162 — HOME: "WIĘCEJ NIŻ DZISIEJSZA SELEKCJA" Z GRAFIKAMI
+   V163 — PODRÓŻE PO PRZEŻYCIA: SOCZYSTE LOKALNE GRAFIKI
 ========================================================== */
 
-.content-hub-grid{
-  gap:16px;
-}
-
-.content-hub-grid .content-hub-card{
-  padding:0;
-  overflow:hidden;
-  gap:0;
-  border-radius:20px;
-  background:#fff;
-}
-
-.content-hub-card-image{
-  position:relative;
-  height:118px;
-  overflow:hidden;
+.experience-teaser-card .experience-teaser-media{
+  height:158px !important;
   background:#eee8e2;
 }
 
-.content-hub-card-image::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(180deg,rgba(0,0,0,0) 52%,rgba(0,0,0,.22) 100%);
-  pointer-events:none;
-}
-
-.content-hub-card-image img{
-  display:block;
+.experience-teaser-card .experience-teaser-media img{
   width:100%;
   height:100%;
   object-fit:cover;
-  filter:saturate(1.3) contrast(1.08) brightness(1.03);
+  object-position:center;
+  filter:saturate(1.16) contrast(1.06) brightness(1.03);
   transition:transform .35s ease, filter .25s ease;
 }
 
-.content-hub-card:hover .content-hub-card-image img{
-  transform:scale(1.045);
-  filter:saturate(1.38) contrast(1.1) brightness(1.04);
+.experience-teaser-card:hover .experience-teaser-media img{
+  transform:scale(1.035);
+  filter:saturate(1.23) contrast(1.08) brightness(1.04);
 }
 
-.content-hub-card-copy{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-  min-height:112px;
-  padding:17px 20px 19px;
+.experience-teaser-card .experience-teaser-media::after{
+  background:linear-gradient(180deg,rgba(0,0,0,0) 53%,rgba(0,0,0,.38) 100%) !important;
 }
 
-.content-hub-card-copy strong{
-  font-size:18px;
-  line-height:1.1;
-}
-
-.content-hub-card-copy span{
-  font-size:13px;
-  line-height:1.45;
-}
-
-@media(max-width:1050px){
-  .content-hub-card-image{
-    height:130px;
+@media(max-width:900px){
+  .experience-teaser-card .experience-teaser-media{
+    height:170px !important;
   }
 }
 
-@media(max-width:700px){
-  .content-hub-card-image{
-    height:160px;
-  }
-
-  .content-hub-card-copy{
-    min-height:0;
+@media(max-width:620px){
+  .experience-teaser-card .experience-teaser-media{
+    height:190px !important;
   }
 }

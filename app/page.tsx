@@ -308,56 +308,56 @@ const experienceCards = [
     season: "WRZESIEŃ–MARZEC",
     title: "🌌 Zorza na Islandii",
     text: "Ciemne noce, geotermia i wyjazd planowany pod szansę zobaczenia zorzy.",
-    imageCity: "zorza islandia", imageCountry: "Islandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Aurora_Borealis-Northern_Lights_Iceland.jpg?width=1600",
+    imageCity: "zorza islandia", imageCountry: "Islandia", fallbackImage: "/images/experiences/islandia-zorza.png",
   },
   {
     href: "/podroze-po-przezycia#sakura",
     season: "MARZEC–KWIECIEŃ",
     title: "🌸 Sakura w Japonii",
     text: "Tokio i Kioto wtedy, gdy kwitnienie wiśni staje się głównym punktem podróży.",
-    imageCity: "sakura japonia", imageCountry: "Japonia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Cherry_blossoms_at_the_rock_garden_of_Ryōan-ji_Temple_in_Kyoto,_Japan.jpg?width=1600",
+    imageCity: "sakura japonia", imageCountry: "Japonia", fallbackImage: "/images/experiences/japonia-sakura.png",
   },
   {
     href: "/podroze-po-przezycia#fiordy",
     season: "MAJ–WRZESIEŃ",
     title: "🏔️ Fiordy i białe noce",
     text: "Długie dni, trekking, rejsy i spektakularne trasy widokowe po Norwegii.",
-    imageCity: "fiordy norwegia", imageCountry: "Norwegia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Geirangerfjord,_Norway.jpg?width=1600",
+    imageCity: "fiordy norwegia", imageCountry: "Norwegia", fallbackImage: "/images/experiences/norwegia-fiordy.png",
   },
   {
     href: "/podroze-po-przezycia#nowa-zelandia",
     season: "LISTOPAD–MARZEC",
     title: "🥾 Nowa Zelandia",
     text: "Road trip, góry i lato na południowej półkuli w najlepszym oknie na aktywny wyjazd.",
-    imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/MilfordSound.jpg?width=1600",
+    imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia", fallbackImage: "/images/experiences/nowa-zelandia.png",
   },
   {
     href: "/podroze-po-przezycia#tulipany",
     season: "KWIECIEŃ–MAJ",
     title: "🌷 Tulipany w Holandii",
     text: "Krótki city break połączony z polami kwiatów i sezonem, który trwa tylko chwilę.",
-    imageCity: "tulipany holandia", imageCountry: "Holandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Tulip_fields_of_Holland.jpg?width=1600",
+    imageCity: "tulipany holandia", imageCountry: "Holandia", fallbackImage: "/images/experiences/holandia-tulipany.png",
   },
   {
     href: "/podroze-po-przezycia#safari",
     season: "CZERWIEC–PAŹDZIERNIK",
     title: "🦁 Safari w Kenii i Tanzanii",
     text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.",
-    imageCity: "safari kenia tanzania", imageCountry: "Kenia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Lion_Masai_Mara.jpg?width=1600",
+    imageCity: "safari kenia tanzania", imageCountry: "Kenia", fallbackImage: "/images/experiences/kenia-safari.png",
   },
   {
     href: "/podroze-po-przezycia#jarmarki",
     season: "LISTOPAD–GRUDZIEŃ",
     title: "🎄 Jarmarki bożonarodzeniowe",
     text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.",
-    imageCity: "jarmarki wieden", imageCountry: "Austria", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Rathaus_Christmas_Market.jpg?width=1600",
+    imageCity: "jarmarki wieden", imageCountry: "Austria", fallbackImage: "/images/experiences/jarmarki.png",
   },
   {
     href: "/podroze-po-przezycia#egzotyka",
     season: "ZIMA W POLSCE",
     title: "🌴 Egzotyka w porze suchej",
     text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.",
-    imageCity: "egzotyka pora sucha", imageCountry: "Seszele", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Anse_source_d_argent.jpg?width=1600",
+    imageCity: "egzotyka pora sucha", imageCountry: "Seszele", fallbackImage: "/images/experiences/egzotyka.png",
   },
 ];
 
@@ -854,28 +854,15 @@ export default function Home() {
 
       <section className="section shell content-hubs visual-chapter chapter-content">
         <div className="section-heading"><div><div className="kicker">ODKRYWAJ Z TRIPOWNIĄ</div><h2>Więcej niż dzisiejsza selekcja</h2></div></div>
-        <div className="hub-grid content-hub-grid">
-          {[
-            { href: "/kierunki", title: "🌍 Kierunki", text: "Malta, Grecja, Włochy, Hiszpania i dziesiątki inspiracji.", image: "/images/destinations/valletta.jpg" },
-            { href: "/city-break", title: "🏙 City break", text: "Krótkie wyjazdy, gotowe pomysły i aktualne okazje.", image: "/images/destinations/barcelona.jpg" },
-            { href: "/wakacje", title: "🏖 Wakacje", text: "Gotowe pakiety i dodatkowe narzędzia do samodzielnego planowania.", image: "/images/destinations/majorka.jpg" },
-            { href: "/last-minute", title: "⚡ Last minute", text: "Szybkie wyjazdy i szersze wyszukiwanie.", image: "/images/destinations/djerba.jpg" },
-            { href: "/podroze-po-przezycia", title: "✨ Przeżycia", text: "Zjawiska, sezonowość i podróże planowane pod właściwy moment.", image: "/images/destinations/santorini.jpg" },
-            { href: "/dalekie-podroze", title: "🌏 Dalekie podróże", text: "Wietnam, Pekin, Nowy Jork, Japonia, Tajlandia i dalsze wyprawy.", image: "/images/destinations/dubaj.jpg" },
-            { href: "/magazyn-podrozniczy", title: "📰 Magazyn podróżniczy", text: "Formalności, lotniska, bagaż i praktyczne wskazówki.", image: "/images/destinations/londyn.jpg" },
-            { href: "/parkingi", title: "🚗 Parkingi", text: "Najpierw wybierz lotnisko, potem przejdź do rezerwacji.", image: "/images/destinations/monachium.jpg" },
-            { href: "/atrakcje", title: "🎟 Atrakcje", text: "Co robić na miejscu i gdzie kupować bilety.", image: "/images/destinations/rzym.jpg" },
-          ].map(card => (
-            <Link href={card.href} key={card.href} className="content-hub-card">
-              <div className="content-hub-card-image">
-                <img src={card.image} alt="" loading="lazy" decoding="async" />
-              </div>
-              <div className="content-hub-card-copy">
-                <strong>{card.title}</strong>
-                <span>{card.text}</span>
-              </div>
-            </Link>
-          ))}
+        <div className="hub-grid">
+          <Link href="/kierunki"><strong>🌍 Kierunki</strong><span>Malta, Grecja, Włochy, Hiszpania i dziesiątki inspiracji.</span></Link>
+          <Link href="/city-break"><strong>🏙 City break</strong><span>Krótkie wyjazdy, gotowe pomysły i aktualne okazje.</span></Link>
+          <Link href="/wakacje"><strong>🏖 Wakacje</strong><span>Gotowe pakiety i dodatkowe narzędzia do samodzielnego planowania.</span></Link><Link href="/last-minute"><strong>⚡ Last minute</strong><span>Szybkie wyjazdy i szersze wyszukiwanie.</span></Link>
+          <Link href="/podroze-po-przezycia"><strong>✨ Przeżycia</strong><span>Zjawiska, sezonowość i podróże planowane pod właściwy moment.</span></Link>
+          <Link href="/dalekie-podroze"><strong>🌏 Dalekie podróże</strong><span>Wietnam, Pekin, Nowy Jork, Japonia, Tajlandia i dalsze wyprawy.</span></Link>
+          <Link href="/magazyn-podrozniczy"><strong>📰 Magazyn podróżniczy</strong><span>Formalności, lotniska, bagaż i praktyczne wskazówki.</span></Link>
+          <Link href="/parkingi"><strong>🚗 Parkingi</strong><span>Najpierw wybierz lotnisko, potem przejdź do rezerwacji.</span></Link>
+          <Link href="/atrakcje"><strong>🎟 Atrakcje</strong><span>Co robić na miejscu i gdzie kupować bilety.</span></Link>
         </div>
       </section>
 
