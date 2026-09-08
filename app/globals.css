@@ -7365,3 +7365,48 @@ body {
     width:116px !important;
   }
 }
+
+
+/* ==========================================================
+   V159 — OKAZJE TRIPOWNI: CZYTELNIEJSZY KAFEL
+   TOP nad nazwą, ale bez powiększania wysokości kafla.
+========================================================== */
+
+@media (min-width: 1051px) {
+  .menu-v5-card-tripownia{
+    position:relative !important;
+    overflow:visible !important;
+  }
+
+  .menu-v5-card-tripownia .menu-v5-copy{
+    display:grid !important;
+    grid-template-rows:auto auto !important;
+    align-content:center !important;
+    row-gap:1px !important;
+    padding-top:7px !important;
+  }
+
+  .menu-v5-card-tripownia .menu-v5-badge{
+    position:absolute !important;
+    top:3px !important;
+    left:0 !important;
+    margin:0 !important;
+    padding:2px 5px !important;
+    font-size:7px !important;
+    line-height:1 !important;
+    border-radius:999px !important;
+    z-index:2 !important;
+  }
+
+  .menu-v5-card-tripownia .menu-v5-copy strong{
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+
+  .menu-v5-card-tripownia .menu-v5-copy small{
+    white-space:nowrap !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+  }
+}
