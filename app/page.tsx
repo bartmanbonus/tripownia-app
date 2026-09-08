@@ -481,7 +481,7 @@ export default function Home() {
           <div className="hero-copy hero-copy-clean">
             <div className="pill"><Flame size={16}/> Codziennie wybrane okazje</div>
             <h1>Gdzie dziś lecimy?<br/><span>Znajdź coś naprawdę dobrego.</span></h1>
-            <p>Nie wiesz gdzie? Pokażemy najlepsze znalezione dziś. Wiesz czego chcesz? Wyszukaj po swojemu — bez wychodzenia z Tripowni.</p><div className="hero-mode-actions"><Link href="#okazje">🔥 Pokaż mi okazje</Link><Link href="#wyszukiwarka">🔎 Wyszukaj samodzielnie</Link></div>
+            <p>Nie wiesz gdzie? Pokażemy najlepsze znalezione dziś. Wiesz czego chcesz? Wyszukaj po swojemu — bez wychodzenia z Tripowni.</p><div className="hero-mode-actions"><Link href="#okazje">🔥 Pokaż mi okazje</Link><Link href="#szukaj-samodzielnie">🔎 Wyszukaj samodzielnie</Link></div>
           </div>
 
           <aside className="hero-daily-panel hero-radar-panel" aria-label="Na radarze Tripowni dzisiaj">
