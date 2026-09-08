@@ -411,18 +411,46 @@ export default function Home() {
         const safeRows = rows
           .filter((offer: TripOffer) => offer && offer.id && offer.price > 0 && offer.affiliateUrl)
           .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country));
-        if (safeRows.length >= 6) {
-          setLiveOffers(safeRows.slice(0, 12));
+        if (safeRows.length >= 8) {
+          const freshPool = safeRows.slice(0, 20);
+          setLiveOffers(freshPool);
+          try {
+            localStorage.setItem("tripownia:last-good-daily", JSON.stringify({
+              key: dailyKey,
+              checkedAt: data?.checkedAt || new Date().toISOString(),
+              offers: freshPool,
+            }));
+          } catch {}
           setLastLiveCheckedAt(typeof data?.checkedAt === "string" ? data.checkedAt : new Date().toISOString());
           setLiveOffersStatus("live");
         } else {
-          setLiveOffers([]);
+          try {
+            const saved = JSON.parse(localStorage.getItem("tripownia:last-good-daily") || "null");
+            if (Array.isArray(saved?.offers) && saved.offers.length) {
+              setLiveOffers(saved.offers.slice(0, 20));
+              setLastLiveCheckedAt(saved.checkedAt || null);
+            } else {
+              setLiveOffers([]);
+            }
+          } catch {
+            setLiveOffers([]);
+          }
           setLiveOffersStatus("fallback");
         }
       })
       .catch(() => {
         if (!active) return;
-        setLiveOffers([]);
+        try {
+          const saved = JSON.parse(localStorage.getItem("tripownia:last-good-daily") || "null");
+          if (Array.isArray(saved?.offers) && saved.offers.length) {
+            setLiveOffers(saved.offers.slice(0, 20));
+            setLastLiveCheckedAt(saved.checkedAt || null);
+          } else {
+            setLiveOffers([]);
+          }
+        } catch {
+          setLiveOffers([]);
+        }
         setLiveOffersStatus("fallback");
       });
 
@@ -450,12 +478,12 @@ export default function Home() {
   // Sekcja „dzisiejsze” pokazuje wyłącznie dane pobrane na żywo.
   // Nie podstawiamy starych kart jako rzekomo aktualnej puli.
   const todaysOffers = useMemo(() =>
-    cheapestPerDirection((liveOffersStatus === "live" ? liveOffers : []).map(offerForDisplay))
+    cheapestPerDirection(liveOffers.map(offerForDisplay))
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity)),
     [liveOffersStatus, liveOffers]
   );
 
-  const newOffersCount = liveOffersStatus === "live" ? todaysOffers.length : 0;
+  const newOffersCount = todaysOffers.length;
 
   const refreshStatus = useMemo(() => {
     const checked = lastLiveCheckedAt ? new Date(lastLiveCheckedAt) : null;
@@ -470,7 +498,7 @@ export default function Home() {
 
   const themedRails = useMemo(() => {
     const key = dailyKey;
-    const homePool = liveOffersStatus === "live" ? liveOffers : [];
+    const homePool = liveOffers;
     // Najpierw wybieramy NAJTAŃSZĄ ofertę dla każdego kierunku, dopiero potem układamy kolejność dnia.
     const cheapestDirections = cheapestPerDirection(
       homePool
@@ -527,7 +555,7 @@ export default function Home() {
   }, [budget, dailyKey]);
 
   const budgetCandidates = useMemo(() => {
-    const pool = surpriseLive.length ? surpriseLive : (liveOffersStatus === "live" ? liveOffers : []);
+    const pool = surpriseLive.length ? surpriseLive : liveOffers;
     const exotic = /zanzibar|dominikan|malediw|kenia|meksyk|tajland|kuba|dubaj|bali|wietnam|japon|nowy jork|mauritius|seszel/i;
     const mid = /marsa alam|teneryfa|fuerteventura|marrakesz|djerba|hurghada|oman|wyspy zielonego przyladka/i;
     const low = /malta|sycylia|alicante|pafos|stambul|marrakesz|bergamo|porto/i;
@@ -576,12 +604,16 @@ export default function Home() {
     <main>
       <SiteHeader />
 
-      <section className="hero hero-clean">
+      <section className="hero hero-clean hero-travel-visual">
         <div className="shell hero-inner hero-inner-clean hero-inner-restored">
           <div className="hero-copy hero-copy-clean">
             <div className="pill"><Flame size={16}/> Codziennie wybrane okazje</div>
-            <h1>Najlepsze okazje podróżnicze<br/><span>w jednym miejscu.</span></h1>
-            <p>Wybieramy konkretne wyjazdy, ale możesz też samodzielnie przeszukać cały świat — od city breaku po Nową Zelandię.</p>
+            <h1>Gdzie dziś lecimy?<br/><span>Znajdź coś naprawdę dobrego.</span></h1>
+            <p>Nie wiesz gdzie? Pokażemy najlepsze znalezione dziś. Wiesz czego chcesz? Wyszukaj po swojemu — bez wychodzenia z Tripowni.</p>
+            <div className="hero-mode-actions">
+              <Link href="#okazje">🔥 Pokaż mi okazje</Link>
+              <Link href="#szukaj-samodzielnie">🔎 Wyszukaj samodzielnie</Link>
+            </div>
           </div>
 
           <aside className="hero-daily-panel hero-radar-panel" aria-label="Na radarze Tripowni dzisiaj">
@@ -604,6 +636,7 @@ export default function Home() {
             </div>
             <Link className="hero-daily-cta" href="#okazje"><span>Zobacz dzisiejsze okazje</span><ArrowRight size={16}/></Link>
           </aside>
+          <a className="hero-photo-credit" href="https://commons.wikimedia.org/wiki/File:Bora_Bora_(16542797633).jpg" target="_blank" rel="noopener noreferrer">Bora Bora · The TerraMar Project · CC BY 2.0</a>
         </div>
       </section>
 
@@ -629,13 +662,13 @@ export default function Home() {
             ) : (
               <div className="daily-live-empty">
                 <strong>Aktualizujemy dzisiejszą pulę</strong>
-                <span>Nie pokazujemy w tym miejscu starych ofert. Spróbuj ponownie za chwilę.</span>
+                <span>Nie udało się pobrać nowej puli. Pokazujemy ostatnią poprawnie zweryfikowaną selekcję, jeśli jest dostępna.</span>
               </div>
             )}
           </div>
         </div>
         <div className="premium-action-row">
-          <Link className="premium-action-main" href="#wyszukiwarka">Wyszukaj po swojemu <ArrowRight size={17}/></Link>
+          <Link className="premium-action-main" href="#szukaj-samodzielnie">Wyszukaj po swojemu <ArrowRight size={17}/></Link>
           <Link className="premium-action-secondary" href="#okazje">Zobacz wszystkie okazje <ArrowRight size={17}/></Link>
         </div>
       </section>
@@ -740,7 +773,7 @@ export default function Home() {
           </div>
         </div>
         <div className="hub-grid">
-          <a href="#wyszukiwarka"><strong>🧩 Zacznij od własnych parametrów</strong><span>Ustaw filtry i przeszukaj aktualną bazę Tripowni.</span></a>
+          <a href="#szukaj-samodzielnie"><strong>🧩 Zacznij od własnych parametrów</strong><span>Ustaw filtry i przeszukaj aktualną bazę Tripowni.</span></a>
           <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><strong>✈️ Dobierz lot</strong><span>Porównaj połączenia i dobierz najlepszy wariant.</span></a>
           <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><strong>🏨 Dobierz nocleg</strong><span>Porównaj noclegi dla wybranego kierunku i terminu.</span></a>
         </div>

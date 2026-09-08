@@ -6892,3 +6892,76 @@ body {
   .long-haul-trust>div{border-right:0!important;border-bottom:1px solid #eadfd8!important}
   .long-haul-trust>div:last-child{border-bottom:0!important}
 }
+
+
+/* =========================================================
+   V96 — FINAL MERGE: Bora Bora hero + stable homepage UX
+   Consolidated after partial patch uploads. Keep this block last.
+   ========================================================= */
+.hero-travel-visual{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  background-image:
+    linear-gradient(90deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.88) 35%,rgba(255,255,255,.50) 62%,rgba(255,255,255,.16) 100%),
+    linear-gradient(180deg,rgba(255,255,255,.05) 58%,rgba(251,250,247,.98) 100%),
+    url("https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Bora_Bora_%2816542797633%29.jpg/3840px-Bora_Bora_%2816542797633%29.jpg")!important;
+  background-position:center 48%!important;
+  background-size:cover!important;
+  background-repeat:no-repeat!important;
+}
+.hero-travel-visual:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:radial-gradient(circle at 29% 58%,rgba(255,255,255,.68) 0%,rgba(255,255,255,.34) 30%,transparent 57%);
+}
+.hero-travel-visual .hero-inner{position:relative;z-index:1}
+.hero-travel-visual .hero-copy-clean{position:relative;z-index:2}
+.hero-travel-visual .hero-radar-panel{position:relative;z-index:2;box-shadow:0 24px 70px rgba(24,39,43,.16)}
+.hero-mode-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.hero-mode-actions a{
+  display:inline-flex;
+  min-height:52px;
+  align-items:center;
+  justify-content:center;
+  padding:0 18px;
+  border:1px solid #151515;
+  border-radius:13px;
+  background:#151515;
+  color:#fff;
+  font-weight:900;
+  text-decoration:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.07);
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease;
+}
+.hero-mode-actions a:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.12)}
+.hero-mode-actions a+a{border-color:rgba(214,203,194,.95);background:rgba(255,255,255,.90);color:#151515;backdrop-filter:blur(10px)}
+.hero-photo-credit{
+  position:absolute;
+  right:0;
+  bottom:-18px;
+  z-index:3;
+  color:rgba(56,53,49,.58);
+  font-size:8px;
+  font-weight:650;
+  text-decoration:none;
+}
+.hero-photo-credit:hover{color:#2e2b28}
+
+@media(max-width:900px){
+  .hero-travel-visual{
+    background-image:
+      linear-gradient(180deg,rgba(255,255,255,.88) 0%,rgba(255,255,255,.92) 62%,rgba(251,250,247,.99) 100%),
+      url("https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Bora_Bora_%2816542797633%29.jpg/3840px-Bora_Bora_%2816542797633%29.jpg")!important;
+    background-position:58% center!important;
+  }
+  .hero-photo-credit{right:12px;bottom:-12px}
+}
+@media(max-width:560px){
+  .hero-mode-actions{display:grid;grid-template-columns:1fr;width:100%}
+  .hero-mode-actions a{width:100%}
+  .hero-photo-credit{display:none}
+}
