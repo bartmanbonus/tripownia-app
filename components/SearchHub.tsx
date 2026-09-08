@@ -33,22 +33,23 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [initialSearchDone,setInitialSearchDone]=useState(false);
   const [activeTab,setActiveTab]=useState(initialTab);
   const resultsRailRef=useRef<HTMLDivElement>(null);
-  const initialLiveLoadRef=useRef(false);
   const moveResults=(direction:-1|1)=>{const rail=resultsRailRef.current;if(!rail)return;const card=rail.querySelector<HTMLElement>(".search-results-carousel-item");const step=card?card.getBoundingClientRect().width+18:304;rail.scrollBy({left:direction*step*2,behavior:"smooth"});};
 
   useEffect(()=>{setAirports(initialAirports);setDestinations(initialDestinations);setDuration(initialDuration||"all")},[initialAirports.join("|"),initialDestinations.join("|"),initialDuration]);
   useEffect(()=>{if(searchRequest>0)setSubmitted(v=>v+1)},[searchRequest]);
   useEffect(()=>{
-    if(initialLiveLoadRef.current)return;
-    initialLiveLoadRef.current=true;
+    // Ładujemy aktualną pulę automatycznie po wejściu na stronę.
+    // Bez ref-guardu: w React Strict Mode poprzednia wersja mogła anulować
+    // pierwszy timeout i zablokować drugi efekt, przez co wyniki pojawiały się
+    // dopiero po ręcznym kliknięciu „Pokaż wyniki”.
     let cancelled=false;
     const timer=window.setTimeout(async()=>{
       const count=await runPartnerSearch(undefined,undefined,true);
       if(!cancelled && count===0){
-        await new Promise(resolve=>window.setTimeout(resolve,900));
+        await new Promise(resolve=>window.setTimeout(resolve,700));
         if(!cancelled) await runPartnerSearch(undefined,undefined,true);
       }
-    },120);
+    },0);
     return ()=>{cancelled=true;window.clearTimeout(timer)};
   },[]);
 
@@ -59,12 +60,13 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
 
   const results=useMemo(()=>{
     const max=budgetValue(budget);
-    const usingLive=submitted>0;
-    const source = liveLoading && submitted===0
-      ? []
-      : usingLive
-        ? liveResults
-        : (offers as any[]).filter((o:any)=>["exim","tui"].includes(String(o.partner||"").toLowerCase()));
+    const staticFallback=(offers as any[]).filter((o:any)=>
+      ["exim","tui","wakacje"].includes(String(o.partner||"").toLowerCase())
+    );
+    // Wyniki mają być widoczne od pierwszego renderu. W tle pobieramy live feed
+    // i podmieniamy pulę, gdy tylko wróci aktualna odpowiedź.
+    const usingLive=liveResults.length>0;
+    const source = usingLive ? liveResults : staticFallback;
 
     // Dla wyników LIVE ufamy filtrom wykonanym już po stronie API.
     // Nie filtrujemy drugi raz lotniska/kierunku po labelach UI, bo np.
@@ -211,8 +213,8 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       </div>
 
       <div className="search-results-block">
-        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{(!initialSearchDone||liveLoading)&&!hasDestination?"Szukamy aktualnych okazji…":hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Tripownia przeszukuje aktualne pakiety i pokazuje najlepsze dopasowania. City Break ograniczamy do krótkich wyjazdów z lotem, hotelem i transferem.</span></div>
-        {(!initialSearchDone||liveLoading)&&results.length===0&&<div className="partner-search-banner search-results-carousel-head"><div><small>✦ AKTUALIZUJEMY</small><strong>Szukamy dla Ciebie najnowszych okazji…</strong></div></div>}
+        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Tripownia przeszukuje aktualne pakiety i pokazuje najlepsze dopasowania. City Break ograniczamy do krótkich wyjazdów z lotem, hotelem i transferem.</span></div>
+        {liveLoading&&<div className="partner-search-banner search-results-carousel-head"><div><small>✦ AKTUALIZUJEMY W TLE</small><strong>Oferty są już widoczne — sprawdzamy teraz najnowsze ceny.</strong></div></div>}
         {results.length>0&&<><div className="partner-search-banner search-results-carousel-head"><div><small>⭐ WYBRANE PRZEZ TRIPOWNIĘ</small><strong>{results.length} aktualnych ofert pasuje do parametrów</strong></div></div><div className="search-results-carousel-wrap"><div className="search-results-carousel-controls"><button type="button" onClick={()=>moveResults(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={17}/></button><button type="button" onClick={()=>moveResults(1)} aria-label="Następne oferty"><ArrowRight size={17}/></button></div><div className="search-results-carousel" ref={resultsRailRef} tabIndex={0}>{results.slice(0,20).map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></div></>}
         {hasDestination&&<UnifiedPartnerSearch mode={activeTab==="City break"||activeTab==="Lot + hotel"?"city":activeTab==="Wakacje"?"holiday":"all"} initialDestination={queryDestination} initialDeparture={selectedFromLabel} initialDepartureCode={airports[0]} initialWeekendOnly={weekendOnly}/>}
         {initialSearchDone&&!liveLoading&&!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
