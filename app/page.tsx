@@ -4,7 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5, Heart, Plane, Globe2, Palmtree, Building2, BadgePercent, ShieldCheck, Compass } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
 import { offers, isOfferExpired } from "@/lib/offers";
@@ -158,15 +158,116 @@ function seededShuffle<T>(items: T[], seedText: string) {
 }
 
 const longHaulCards = [
-  { href: "/dalekie-podroze#wietnam", flag: "🇻🇳", label: "AZJA", title: "Wietnam", text: "Hanoi, zatoka Ha Long, Hoi An i południe kraju — podróż, której szkoda zamykać w jednym mieście." },
-  { href: "/dalekie-podroze#pekin", flag: "🇨🇳", label: "CHINY", title: "Pekin", text: "Wielki Mur, Zakazane Miasto i zupełnie inna skala city breaku niż w Europie." },
-  { href: "/dalekie-podroze#nowy-jork", flag: "🇺🇸", label: "USA", title: "Nowy Jork", text: "Manhattan, Brooklyn i miasto, które spokojnie wypełnia tydzień bez szukania atrakcji na siłę." },
-  { href: "/dalekie-podroze#japonia", flag: "🇯🇵", label: "JAPONIA", title: "Tokio + Kioto", text: "Nowoczesność, świątynie, jedzenie i kolej — najlepiej jako większa podróż, nie szybki weekend." },
-  { href: "/dalekie-podroze#tajlandia", flag: "🇹🇭", label: "TAJLANDIA", title: "Bangkok + wyspy", text: "Miasto, street food i kilka dni nad morzem w jednej podróży." },
-  { href: "/dalekie-podroze#bali", flag: "🇮🇩", label: "INDONEZJA", title: "Bali", text: "Świątynie, natura, ocean i wyjazd, który warto układać regionami zamiast wokół jednego hotelu." },
-  { href: "/dalekie-podroze#singapur", flag: "🇸🇬", label: "SINGAPUR", title: "Singapur", text: "Azjatycka metropolia idealna także jako pierwszy lub ostatni etap dłuższej podróży." },
-  { href: "/dalekie-podroze#kapsztad", flag: "🇿🇦", label: "RPA", title: "Kapsztad", text: "Ocean, góry, winnice i road trip — jeden z tych kierunków, dla których warto polecieć dalej." },
+  { href: "/dalekie-podroze#wietnam", region: "azja", label: "AZJA", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam Ha Long", imageCountry: "Wietnam" },
+  { href: "/dalekie-podroze#pekin", region: "azja", label: "AZJA", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin Zakazane Miasto", imageCountry: "Chiny" },
+  { href: "/dalekie-podroze#nowy-jork", region: "ameryka", label: "USA", title: "Nowy Jork", subtitle: "Manhattan · Brooklyn", text: "Miasto, które nigdy nie śpi i zawsze daje powód, by wrócić.", imageCity: "Nowy Jork Manhattan", imageCountry: "USA" },
+  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Nowoczesność · tradycja", text: "Świątynie, kultura, jedzenie i kolej — więcej niż szybki weekend.", imageCity: "Japonia Fuji Kioto", imageCountry: "Japonia" },
+  { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · plaże", text: "Energia miasta i kilka dni nad morzem w jednej podróży.", imageCity: "Tajlandia Bangkok wyspy", imageCountry: "Tajlandia" },
+  { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Świątynie · natura · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali Indonezja", imageCountry: "Indonezja" },
+  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur skyline", imageCountry: "Singapur" },
+  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad Table Mountain", imageCountry: "RPA" },
 ];
+
+
+function LongHaulCardImage({ city, country }: { city: string; country: string }) {
+  const [src, setSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+    const params = new URLSearchParams({ city, country });
+    fetch(`/api/destination-image?${params.toString()}`, { signal: controller.signal })
+      .then(response => response.ok ? response.json() : null)
+      .then(data => { if (active) setSrc(data?.image?.url || null); })
+      .catch(() => {});
+    return () => { active = false; controller.abort(); };
+  }, [city, country]);
+
+  return (
+    <div className="long-haul-card-media" aria-hidden="true">
+      {src ? <img src={src} alt="" loading="lazy" /> : <div className="long-haul-card-skeleton" />}
+      <span className="long-haul-card-shade" />
+    </div>
+  );
+}
+
+function LongHaulHomeSection() {
+  const [region, setRegion] = useState("all");
+  const railRef = useRef<HTMLDivElement>(null);
+  const filtered = region === "all" ? longHaulCards : longHaulCards.filter(card => card.region === region);
+
+  const scroll = (direction: -1 | 1) => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const card = rail.querySelector<HTMLElement>(".long-haul-card");
+    const step = card ? card.getBoundingClientRect().width + 18 : 360;
+    rail.scrollBy({ left: direction * step, behavior: "smooth" });
+  };
+
+  const filters = [
+    ["all", "Wszystkie", Globe2],
+    ["azja", "Azja", Palmtree],
+    ["ameryka", "Ameryka Płn.", Building2],
+    ["afryka", "Afryka", Compass],
+  ] as const;
+
+  return (
+    <section className="section shell long-haul-home visual-chapter chapter-longhaul" id="dalekie-podroze">
+      <div className="long-haul-home-head">
+        <div>
+          <div className="kicker">DALEJ NIŻ WEEKEND</div>
+          <h2>Czasem warto polecieć trochę dalej.</h2>
+          <p>Nie tylko Europa. Kierunki na większą podróż: Azja, USA, Afryka i miejsca, które naprawdę dają poczucie wyjazdu gdzieś dalej.</p>
+        </div>
+        <Link className="long-haul-all-link" href="/dalekie-podroze"><Plane size={20}/> Zobacz wszystkie kierunki <ArrowRight size={18}/></Link>
+      </div>
+
+      <div className="long-haul-filters" aria-label="Filtruj dalekie podróże według regionu">
+        {filters.map(([key, label, Icon]) => (
+          <button
+            type="button"
+            key={key}
+            className={region === key ? "active" : ""}
+            onClick={() => setRegion(key)}
+            aria-pressed={region === key}
+          >
+            <Icon size={17}/><span>{label}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className="long-haul-rail-wrap">
+        <button className="long-haul-arrow long-haul-arrow-left" type="button" onClick={() => scroll(-1)} aria-label="Poprzednie kierunki"><ArrowLeft size={22}/></button>
+        <div className="long-haul-grid" ref={railRef}>
+          {filtered.map(card => (
+            <Link className="long-haul-card" href={card.href} key={card.href}>
+              <LongHaulCardImage city={card.imageCity} country={card.imageCountry} />
+              <div className="long-haul-card-content">
+                <span className="long-haul-card-label">{card.label}</span>
+                <span className="long-haul-heart" aria-hidden="true"><Heart size={20}/></span>
+                <div className="long-haul-card-copy">
+                  <strong>{card.title}</strong>
+                  <span className="long-haul-card-subtitle">{card.subtitle}</span>
+                  <p>{card.text}</p>
+                  <b>Zobacz kierunek <ArrowRight size={16}/></b>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <button className="long-haul-arrow long-haul-arrow-right" type="button" onClick={() => scroll(1)} aria-label="Następne kierunki"><ArrowRight size={22}/></button>
+      </div>
+
+
+      <div className="long-haul-trust">
+        <div><span><Globe2 size={19}/></span><p><strong>Sprawdzone kierunki</strong><small>Tylko miejsca, które polecamy</small></p></div>
+        <div><span><BadgePercent size={19}/></span><p><strong>Dobre ceny</strong><small>Oferty z zaufanych partnerów</small></p></div>
+        <div><span><ShieldCheck size={19}/></span><p><strong>Bezpieczne podróże</strong><small>Praktyczne wskazówki i porady</small></p></div>
+        <div><span><Compass size={19}/></span><p><strong>Inspiracje na cały rok</strong><small>Weekend, wakacje i wielkie podróże</small></p></div>
+      </div>
+    </section>
+  );
+}
 
 const experienceCards = [
   {
@@ -310,19 +411,18 @@ export default function Home() {
         const safeRows = rows
           .filter((offer: TripOffer) => offer && offer.id && offer.price > 0 && offer.affiliateUrl)
           .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country));
-        if (safeRows.length >= 8) {
-          setLiveOffers(safeRows.slice(0, 20));
-          try { localStorage.setItem("tripownia:last-good-daily", JSON.stringify({ key: dailyKey, checkedAt: data?.checkedAt || new Date().toISOString(), offers: safeRows.slice(0,20) })); } catch {}
+        if (safeRows.length >= 6) {
+          setLiveOffers(safeRows.slice(0, 12));
           setLastLiveCheckedAt(typeof data?.checkedAt === "string" ? data.checkedAt : new Date().toISOString());
           setLiveOffersStatus("live");
         } else {
-          try { const saved = JSON.parse(localStorage.getItem("tripownia:last-good-daily") || "null"); if (Array.isArray(saved?.offers) && saved.offers.length) { setLiveOffers(saved.offers); setLastLiveCheckedAt(saved.checkedAt || null); } else { setLiveOffers([]); } } catch { setLiveOffers([]); }
+          setLiveOffers([]);
           setLiveOffersStatus("fallback");
         }
       })
       .catch(() => {
         if (!active) return;
-        try { const saved = JSON.parse(localStorage.getItem("tripownia:last-good-daily") || "null"); if (Array.isArray(saved?.offers) && saved.offers.length) { setLiveOffers(saved.offers); setLastLiveCheckedAt(saved.checkedAt || null); } else { setLiveOffers([]); } } catch { setLiveOffers([]); }
+        setLiveOffers([]);
         setLiveOffersStatus("fallback");
       });
 
@@ -350,12 +450,12 @@ export default function Home() {
   // Sekcja „dzisiejsze” pokazuje wyłącznie dane pobrane na żywo.
   // Nie podstawiamy starych kart jako rzekomo aktualnej puli.
   const todaysOffers = useMemo(() =>
-    cheapestPerDirection(liveOffers.map(offerForDisplay))
+    cheapestPerDirection((liveOffersStatus === "live" ? liveOffers : []).map(offerForDisplay))
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity)),
     [liveOffersStatus, liveOffers]
   );
 
-  const newOffersCount = todaysOffers.length;
+  const newOffersCount = liveOffersStatus === "live" ? todaysOffers.length : 0;
 
   const refreshStatus = useMemo(() => {
     const checked = lastLiveCheckedAt ? new Date(lastLiveCheckedAt) : null;
@@ -370,7 +470,7 @@ export default function Home() {
 
   const themedRails = useMemo(() => {
     const key = dailyKey;
-    const homePool = liveOffers;
+    const homePool = liveOffersStatus === "live" ? liveOffers : [];
     // Najpierw wybieramy NAJTAŃSZĄ ofertę dla każdego kierunku, dopiero potem układamy kolejność dnia.
     const cheapestDirections = cheapestPerDirection(
       homePool
@@ -427,7 +527,7 @@ export default function Home() {
   }, [budget, dailyKey]);
 
   const budgetCandidates = useMemo(() => {
-    const pool = surpriseLive.length ? surpriseLive : liveOffers;
+    const pool = surpriseLive.length ? surpriseLive : (liveOffersStatus === "live" ? liveOffers : []);
     const exotic = /zanzibar|dominikan|malediw|kenia|meksyk|tajland|kuba|dubaj|bali|wietnam|japon|nowy jork|mauritius|seszel/i;
     const mid = /marsa alam|teneryfa|fuerteventura|marrakesz|djerba|hurghada|oman|wyspy zielonego przyladka/i;
     const low = /malta|sycylia|alicante|pafos|stambul|marrakesz|bergamo|porto/i;
@@ -476,12 +576,12 @@ export default function Home() {
     <main>
       <SiteHeader />
 
-      <section className="hero hero-clean hero-travel-visual">
+      <section className="hero hero-clean">
         <div className="shell hero-inner hero-inner-clean hero-inner-restored">
           <div className="hero-copy hero-copy-clean">
             <div className="pill"><Flame size={16}/> Codziennie wybrane okazje</div>
-            <h1>Gdzie dziś lecimy?<br/><span>Znajdź coś naprawdę dobrego.</span></h1>
-            <p>Nie wiesz gdzie? Pokażemy najlepsze znalezione dziś. Wiesz czego chcesz? Wyszukaj po swojemu — bez wychodzenia z Tripowni.</p><div className="hero-mode-actions"><Link href="#okazje">🔥 Pokaż mi okazje</Link><Link href="#szukaj-samodzielnie">🔎 Wyszukaj samodzielnie</Link></div>
+            <h1>Najlepsze okazje podróżnicze<br/><span>w jednym miejscu.</span></h1>
+            <p>Wybieramy konkretne wyjazdy, ale możesz też samodzielnie przeszukać cały świat — od city breaku po Nową Zelandię.</p>
           </div>
 
           <aside className="hero-daily-panel hero-radar-panel" aria-label="Na radarze Tripowni dzisiaj">
@@ -529,7 +629,7 @@ export default function Home() {
             ) : (
               <div className="daily-live-empty">
                 <strong>Aktualizujemy dzisiejszą pulę</strong>
-                <span>Nie udało się pobrać nowej puli. Pokazujemy ostatnią poprawnie zweryfikowaną selekcję, jeśli jest dostępna.</span>
+                <span>Nie pokazujemy w tym miejscu starych ofert. Spróbuj ponownie za chwilę.</span>
               </div>
             )}
           </div>
@@ -597,26 +697,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell long-haul-home visual-chapter chapter-longhaul" id="dalekie-podroze">
-        <div className="section-heading">
-          <div>
-            <div className="kicker">DALEJ NIŻ WEEKEND</div>
-            <h2>Czasem warto polecieć trochę dalej.</h2>
-            <p>Nie tylko Europa. Kierunki na większą podróż: Azja, USA, Afryka i miejsca, które naprawdę dają poczucie wyjazdu gdzieś dalej.</p>
-          </div>
-          <Link href="/dalekie-podroze">Zobacz dalekie podróże <ArrowRight size={16}/></Link>
-        </div>
-        <div className="long-haul-grid">
-          {longHaulCards.map(card => (
-            <Link className="long-haul-card" href={card.href} key={card.href}>
-              <div className="long-haul-card-top"><span>{card.flag}</span><small>{card.label}</small></div>
-              <strong>{card.title}</strong>
-              <p>{card.text}</p>
-              <b>Zobacz pomysł →</b>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <LongHaulHomeSection />
 
       <section className="section shell experience-section visual-chapter chapter-experience" id="przezycia">
         <div className="section-heading">
