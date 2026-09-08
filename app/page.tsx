@@ -65,6 +65,52 @@ function normalizeKey(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }
 
+function destinationGroupKey(offer: { city: string; country: string }) {
+  const text = `${normalizeKey(offer.city)} ${normalizeKey(offer.country)}`;
+
+  // Jeden kierunek turystyczny może zawierać wiele miejscowości/hoteli.
+  // Grupujemy je tak, jak widzi je użytkownik, a nie według technicznej nazwy resortu.
+  const groups: Array<[RegExp, string]> = [
+    [/zanzibar|kiwengwa|matemwe|mangapwani|nungwi|kendwa|paje|jambiani|makunduchi/, "zanzibar"],
+    [/durres|durrës|golem|shkembi|riwiera albanska|albania/, "riwiera-albanska"],
+    [/malta|mellieha|sliema|st julian|saint julian|bugibba|qawra|valletta/, "malta"],
+    [/teneryf|tenerife|costa adeje|playa de las americas|puerto de la cruz/, "teneryfa"],
+    [/fuerteventura|corralejo|costa calma|morro jable|caleta de fuste/, "fuerteventura"],
+    [/gran canaria|maspalomas|playa del ingles|puerto rico/, "gran-canaria"],
+    [/lanzarote|puerto del carmen|playa blanca|costa teguise/, "lanzarote"],
+    [/djerba|midoun|zarzis/, "djerba"],
+    [/hammamet|yasmine hammamet/, "hammamet"],
+    [/hurghada|makadi bay|soma bay|sahl hasheesh/, "hurghada"],
+    [/marsa alam|port ghalib|el quseir/, "marsa-alam"],
+    [/sharm el sheikh|sharm|nabq bay/, "sharm-el-sheikh"],
+    [/rodos|rhodes|faliraki|kolymbia|lindos/, "rodos"],
+    [/kreta|crete|heraklion|hersonissos|malia|rethymno|chania/, "kreta"],
+    [/majorka|mallorca|palma de mallorca|alcudia|magaluf/, "majorka"],
+    [/cypr|cyprus|pafos|paphos|larnaka|larnaca|ayia napa|protaras/, "cypr"],
+    [/mauritius|mauritius/, "mauritius"],
+    [/malediw|maldives/, "malediwy"],
+    [/seszel|seychelles/, "seszele"],
+  ];
+
+  for (const [pattern, key] of groups) {
+    if (pattern.test(text)) return key;
+  }
+
+  return `${normalizeKey(offer.city)}|${normalizeKey(offer.country)}`;
+}
+
+function cheapestPerDirection<T extends { city: string; country: string; price: number }>(rows: T[]) {
+  const best = new Map<string, T>();
+  for (const offer of rows) {
+    const key = destinationGroupKey(offer);
+    const current = best.get(key);
+    if (!current || Number(offer.price || Infinity) < Number(current.price || Infinity)) {
+      best.set(key, offer);
+    }
+  }
+  return Array.from(best.values());
+}
+
 type TripOffer = (typeof offers)[number];
 
 function offerForDisplay(offer: TripOffer): TripOffer {
@@ -303,7 +349,8 @@ export default function Home() {
   // Sekcja „dzisiejsze” pokazuje wyłącznie dane pobrane na żywo.
   // Nie podstawiamy starych kart jako rzekomo aktualnej puli.
   const todaysOffers = useMemo(() =>
-    (liveOffersStatus === "live" ? liveOffers : []).map(offerForDisplay),
+    cheapestPerDirection((liveOffersStatus === "live" ? liveOffers : []).map(offerForDisplay))
+      .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity)),
     [liveOffersStatus, liveOffers]
   );
 
@@ -323,11 +370,17 @@ export default function Home() {
   const themedRails = useMemo(() => {
     const key = dailyKey;
     const homePool = liveOffersStatus === "live" ? liveOffers : [];
-    const active: TripOffer[] = seededShuffle<TripOffer>(homePool.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay), `tripownia-rails:${key}`);
+    // Najpierw wybieramy NAJTAŃSZĄ ofertę dla każdego kierunku, dopiero potem układamy kolejność dnia.
+    const cheapestDirections = cheapestPerDirection(
+      homePool
+        .filter(o => isTravelDestinationAllowed(o.city, o.country))
+        .map(offerForDisplay)
+    );
+    const active: TripOffer[] = seededShuffle<TripOffer>(cheapestDirections, `tripownia-rails:${key}`);
     const uniqueDestinations = (rows: typeof active) => {
       const seen = new Set<string>();
       return rows.filter((offer) => {
-        const destination = `${normalizeKey(offer.city)}|${normalizeKey(offer.country)}`;
+        const destination = destinationGroupKey(offer);
         if (seen.has(destination)) return false;
         seen.add(destination);
         return true;
@@ -336,16 +389,16 @@ export default function Home() {
     const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => uniqueDestinations(active.filter(match)).slice(0, limit);
     const fillRail = (primary: typeof active, minimum = 5) => {
       const result = uniqueDestinations(primary);
-      const used = new Set(result.map(item => `${normalizeKey(item.city)}|${normalizeKey(item.country)}`));
+      const used = new Set(result.map(destinationGroupKey));
       for (const offer of active) {
         if (result.length >= minimum) break;
-        const destination = `${normalizeKey(offer.city)}|${normalizeKey(offer.country)}`;
+        const destination = destinationGroupKey(offer);
         if (!used.has(destination)) { result.push(offer); used.add(destination); }
       }
       return result;
     };
     // City breaki publikujemy wyłącznie z feedu EXIM: konkretna cena, hotel i transfer w pakiecie.
-    const city = uniqueDestinations(eximCityBreaks.map(offerForDisplay)).slice(0, 8);
+    const city = uniqueDestinations(cheapestPerDirection(eximCityBreaks.map(offerForDisplay))).slice(0, 8);
     const sun = fillRail(pick(o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c))), 5);
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
     const unusual = fillRail(pick(o => unusualNames.test(o.city)), 5);
