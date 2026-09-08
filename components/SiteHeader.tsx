@@ -84,10 +84,10 @@ export default function SiteHeader() {
               <Link key={item.label} className={`menu-v5-card menu-v5-${item.tone}`} href={item.href}>
                 <span className="menu-v5-icon" aria-hidden="true"><Icon size={23} strokeWidth={2.2} /></span>
                 <span className="menu-v5-copy">
+                  {"badge" in item && item.badge ? <span className="menu-v5-badge">{item.badge}</span> : null}
                   <strong>{item.label}</strong>
                   <small>{item.note}</small>
                 </span>
-                {"badge" in item && item.badge ? <span className="menu-v5-badge">{item.badge}</span> : null}
               </Link>
             );
           })}
