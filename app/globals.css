@@ -7450,3 +7450,27 @@ body {
     height:190px !important;
   }
 }
+
+
+/* ==========================================================
+   V164 — PRZEŻYCIA: PEŁNE WYPEŁNIENIE ZDJĘĆ BEZ BRZEGÓW
+========================================================== */
+
+.experience-teaser-card .experience-teaser-media{
+  overflow:hidden !important;
+}
+
+.experience-teaser-card .experience-teaser-media img{
+  display:block !important;
+  width:100% !important;
+  height:100% !important;
+  min-width:100% !important;
+  min-height:100% !important;
+  object-fit:cover !important;
+  object-position:center !important;
+  transform:scale(1.018);
+}
+
+.experience-teaser-card:hover .experience-teaser-media img{
+  transform:scale(1.055);
+}
