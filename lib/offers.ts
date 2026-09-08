@@ -194,7 +194,8 @@ export const offers: Offer[] = baseOffers
     };
     return { ...merged, linkMatch: getLinkMatch(merged) };
   })
-  .filter((offer) => offer.linkMatch !== "unsafe");
+  .filter((offer) => offer.linkMatch !== "unsafe")
+  .filter((offer) => offer.partner !== "esky");
 
 export const featuredOfferIds = new Set(
   Object.entries(publishedOfferOverrides)
