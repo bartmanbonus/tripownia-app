@@ -6716,3 +6716,16 @@ body {
     border-radius:15px!important;
   }
 }
+
+
+/* === TRIPOWNIA FINAL: travel-led hero + stable responsive layer === */
+.hero-travel-visual{position:relative;overflow:hidden;background:
+linear-gradient(90deg,rgba(251,250,247,.97) 0%,rgba(251,250,247,.93) 44%,rgba(251,250,247,.64) 70%,rgba(251,250,247,.35) 100%),
+url('/images/destinations/madera.jpg') center 42%/cover no-repeat!important;}
+.hero-travel-visual:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 65%,var(--bg) 100%)}
+.hero-travel-visual .hero-inner{position:relative;z-index:1}
+.hero-mode-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.hero-mode-actions a{display:inline-flex;align-items:center;justify-content:center;padding:13px 17px;border-radius:13px;text-decoration:none;font-weight:850;background:#151515;color:#fff;border:1px solid #151515}
+.hero-mode-actions a+ a{background:rgba(255,255,255,.88);color:#151515;border-color:#ded8d0;backdrop-filter:blur(8px)}
+@media(max-width:850px){.hero-travel-visual{background:linear-gradient(180deg,rgba(251,250,247,.92),rgba(251,250,247,.98)),url('/images/destinations/madera.jpg') center/cover no-repeat!important}.hero-mode-actions a{flex:1 1 220px}}
+@media(max-width:480px){.shell{width:min(100% - 24px,1180px)}.hero-mode-actions{display:grid;grid-template-columns:1fr}.hero-mode-actions a{width:100%}}
