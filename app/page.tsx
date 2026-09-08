@@ -158,10 +158,10 @@ function seededShuffle<T>(items: T[], seedText: string) {
 }
 
 const longHaulCards = [
-  { href: "/dalekie-podroze#wietnam", region: "azja", label: "AZJA", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam Ha Long", imageCountry: "Wietnam" },
-  { href: "/dalekie-podroze#pekin", region: "azja", label: "AZJA", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin Zakazane Miasto", imageCountry: "Chiny" },
-  { href: "/dalekie-podroze#nowy-jork", region: "ameryka", label: "USA", title: "Nowy Jork", subtitle: "Manhattan · Brooklyn", text: "Miasto, które nigdy nie śpi i zawsze daje powód, by wrócić.", imageCity: "Nowy Jork Manhattan", imageCountry: "USA" },
-  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Nowoczesność · tradycja", text: "Świątynie, kultura, jedzenie i kolej — więcej niż szybki weekend.", imageCity: "Japonia Fuji Kioto", imageCountry: "Japonia" },
+  { href: "/dalekie-podroze#wietnam", region: "azja", label: "AZJA", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam Ha Long", imageCountry: "Wietnam", fallbackImage: "https://upload.wikimedia.org/wikipedia/commons/b/b3/HaLongBay.JPG" },
+  { href: "/dalekie-podroze#pekin", region: "azja", label: "AZJA", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin Zakazane Miasto", imageCountry: "Chiny", fallbackImage: "https://upload.wikimedia.org/wikipedia/commons/e/e9/Landscape_view_of_The_Great_Wall_of_China.jpg" },
+  { href: "/dalekie-podroze#nowy-jork", region: "ameryka", label: "USA", title: "Nowy Jork", subtitle: "Manhattan · Brooklyn", text: "Miasto, które nigdy nie śpi i zawsze daje powód, by wrócić.", imageCity: "Nowy Jork Manhattan", imageCountry: "USA", fallbackImage: "https://upload.wikimedia.org/wikipedia/commons/f/fa/Iconic_Skyline_of_New_York_City.jpg" },
+  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Nowoczesność · tradycja", text: "Świątynie, kultura, jedzenie i kolej — więcej niż szybki weekend.", imageCity: "Japonia Fuji Kioto", imageCountry: "Japonia", fallbackImage: "https://upload.wikimedia.org/wikipedia/commons/9/9e/Chureito_Pagoda_and_Mount_Fuji.jpg" },
   { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · plaże", text: "Energia miasta i kilka dni nad morzem w jednej podróży.", imageCity: "Tajlandia Bangkok wyspy", imageCountry: "Tajlandia" },
   { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Świątynie · natura · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali Indonezja", imageCountry: "Indonezja" },
   { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur skyline", imageCountry: "Singapur" },
@@ -169,23 +169,50 @@ const longHaulCards = [
 ];
 
 
-function LongHaulCardImage({ city, country }: { city: string; country: string }) {
-  const [src, setSrc] = useState<string | null>(null);
+function LongHaulCardImage({ city, country, fallbackSrc }: { city: string; country: string; fallbackSrc?: string }) {
+  const [src, setSrc] = useState<string | null>(fallbackSrc || null);
 
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
     const params = new URLSearchParams({ city, country });
+
     fetch(`/api/destination-image?${params.toString()}`, { signal: controller.signal })
       .then(response => response.ok ? response.json() : null)
-      .then(data => { if (active) setSrc(data?.image?.url || null); })
-      .catch(() => {});
-    return () => { active = false; controller.abort(); };
-  }, [city, country]);
+      .then(data => {
+        const liveSrc = data?.image?.url;
+        if (active && liveSrc) setSrc(liveSrc);
+      })
+      .catch(() => {
+        // fallbackSrc zostaje widoczny — karta nigdy nie kończy jako puste szare pole.
+      });
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [city, country, fallbackSrc]);
 
   return (
     <div className="long-haul-card-media" aria-hidden="true">
-      {src ? <img src={src} alt="" loading="lazy" /> : <div className="long-haul-card-skeleton" />}
+      {src ? (
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={(event) => {
+            const img = event.currentTarget;
+            if (fallbackSrc && img.src !== fallbackSrc) {
+              img.src = fallbackSrc;
+              return;
+            }
+            img.style.display = "none";
+          }}
+        />
+      ) : (
+        <div className="long-haul-card-skeleton" />
+      )}
       <span className="long-haul-card-shade" />
     </div>
   );
@@ -241,7 +268,7 @@ function LongHaulHomeSection() {
         <div className="long-haul-grid" ref={railRef}>
           {filtered.map(card => (
             <Link className="long-haul-card" href={card.href} key={card.href}>
-              <LongHaulCardImage city={card.imageCity} country={card.imageCountry} />
+              <LongHaulCardImage city={card.imageCity} country={card.imageCountry} fallbackSrc={"fallbackImage" in card ? card.fallbackImage : undefined} />
               <div className="long-haul-card-content">
                 <span className="long-haul-card-label">{card.label}</span>
                 <span className="long-haul-heart" aria-hidden="true"><Heart size={20}/></span>
