@@ -285,6 +285,10 @@ function LongHaulHomeSection() {
                 country={card.imageCountry}
                 fallbackSrc={"fallbackImage" in card ? card.fallbackImage : undefined}
               />
+              <div className="long-haul-photo-caption">
+                <strong>{card.title}</strong>
+                <span>{card.subtitle}</span>
+              </div>
             </Link>
           ))}
         </div>
