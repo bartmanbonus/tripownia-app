@@ -7410,3 +7410,99 @@ body {
     text-overflow:ellipsis !important;
   }
 }
+
+
+/* ==========================================================
+   V160 — /PODROZE: KARTY Z GRAFIKAMI KIERUNKÓW
+========================================================== */
+
+.seo-link-grid-visual > a{
+  min-height:0;
+  padding:0;
+  overflow:hidden;
+  transition:transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+
+.seo-link-grid-visual > a:hover{
+  transform:translateY(-3px);
+  border-color:#ddd6cf;
+  box-shadow:0 14px 34px rgba(34,25,18,.08);
+}
+
+.seo-link-image{
+  position:relative;
+  height:138px;
+  overflow:hidden;
+  background:#eee8e2;
+}
+
+.seo-link-image::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.48) 100%);
+  pointer-events:none;
+}
+
+.seo-link-image img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .35s ease;
+}
+
+.seo-link-grid-visual > a:hover .seo-link-image img{
+  transform:scale(1.035);
+}
+
+.seo-link-image > span{
+  position:absolute;
+  left:15px;
+  bottom:13px;
+  z-index:1;
+  color:#fff;
+  font-size:13px;
+  font-weight:900;
+  text-shadow:0 1px 3px rgba(0,0,0,.35);
+}
+
+.seo-link-content{
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  padding:18px 20px 20px;
+}
+
+.seo-link-grid-visual .seo-link-content small{
+  margin:0;
+}
+
+.seo-link-grid-visual .seo-link-content strong{
+  margin:9px 0 8px;
+  line-height:1.08;
+}
+
+.seo-link-grid-visual .seo-link-content span{
+  min-height:60px;
+}
+
+.seo-link-grid-visual .seo-link-content b{
+  padding-top:14px;
+}
+
+@media(max-width:900px){
+  .seo-link-image{
+    height:150px;
+  }
+}
+
+@media(max-width:620px){
+  .seo-link-image{
+    height:165px;
+  }
+
+  .seo-link-content{
+    padding:17px;
+  }
+}
