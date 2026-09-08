@@ -159,14 +159,14 @@ function seededShuffle<T>(items: T[], seedText: string) {
 }
 
 const longHaulCards = [
-  { href: "/dalekie-podroze#wietnam", region: "azja", label: "AZJA", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam Ha Long", imageCountry: "Wietnam", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/HaLongBay.JPG?width=1600" },
-  { href: "/dalekie-podroze#pekin", region: "azja", label: "AZJA", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin Zakazane Miasto", imageCountry: "Chiny", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Landscape_view_of_The_Great_Wall_of_China.jpg?width=1600" },
-  { href: "/dalekie-podroze#nowy-jork", region: "ameryka", label: "USA", title: "Nowy Jork", subtitle: "Manhattan · Brooklyn", text: "Miasto, które nigdy nie śpi i zawsze daje powód, by wrócić.", imageCity: "Nowy Jork Manhattan", imageCountry: "USA", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Iconic_Skyline_of_New_York_City.jpg?width=1600" },
-  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Nowoczesność · tradycja", text: "Świątynie, kultura, jedzenie i kolej — więcej niż szybki weekend.", imageCity: "Japonia Fuji Kioto", imageCountry: "Japonia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Chureito_Pagoda_and_Mount_Fuji.jpg?width=1600" },
-  { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · plaże", text: "Energia miasta i kilka dni nad morzem w jednej podróży.", imageCity: "Tajlandia Bangkok wyspy", imageCountry: "Tajlandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/ThaiBangkokWatArun.jpg?width=1600" },
-  { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Świątynie · natura · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali Indonezja", imageCountry: "Indonezja", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Rice_terraces,_Bali.jpg?width=1600" },
-  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur skyline", imageCountry: "Singapur", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Singapore-marina-bay.jpg?width=1600" },
-  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad Table Mountain", imageCountry: "RPA", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Table_Mountain_-_Cape_Town_-_SA.JPG?width=1600" },
+  { href: "/dalekie-podroze#wietnam", region: "azja", label: "AZJA", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam Ha Long", imageCountry: "Wietnam", fallbackImage: "/images/longhaul/wietnam.jpg" },
+  { href: "/dalekie-podroze#pekin", region: "azja", label: "AZJA", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin Zakazane Miasto", imageCountry: "Chiny", fallbackImage: "/images/longhaul/pekin.jpg" },
+  { href: "/dalekie-podroze#nowy-jork", region: "ameryka", label: "USA", title: "Nowy Jork", subtitle: "Manhattan · Brooklyn", text: "Miasto, które nigdy nie śpi i zawsze daje powód, by wrócić.", imageCity: "Nowy Jork Manhattan", imageCountry: "USA", fallbackImage: "/images/longhaul/nowy-jork.jpg" },
+  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Nowoczesność · tradycja", text: "Świątynie, kultura, jedzenie i kolej — więcej niż szybki weekend.", imageCity: "Japonia Fuji Kioto", imageCountry: "Japonia", fallbackImage: "/images/longhaul/japonia.jpg" },
+  { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · plaże", text: "Energia miasta i kilka dni nad morzem w jednej podróży.", imageCity: "Tajlandia Bangkok wyspy", imageCountry: "Tajlandia", fallbackImage: "/images/longhaul/bangkok.jpg" },
+  { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Świątynie · natura · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali Indonezja", imageCountry: "Indonezja", fallbackImage: "/images/longhaul/bali.jpg" },
+  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur skyline", imageCountry: "Singapur", fallbackImage: "/images/longhaul/singapur.jpg" },
+  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad Table Mountain", imageCountry: "RPA", fallbackImage: "/images/longhaul/kapsztad.jpg" },
 ];
 
 
@@ -273,18 +273,18 @@ function LongHaulHomeSection() {
         <button className="long-haul-arrow long-haul-arrow-left" type="button" onClick={() => scroll(-1)} aria-label="Poprzednie kierunki"><ArrowLeft size={22}/></button>
         <div className="long-haul-grid" ref={railRef}>
           {filtered.map(card => (
-            <Link className="long-haul-card" href={card.href} key={card.href}>
-              <LongHaulCardImage city={card.imageCity} country={card.imageCountry} fallbackSrc={"fallbackImage" in card ? card.fallbackImage : undefined} />
-              <div className="long-haul-card-content">
-                <span className="long-haul-card-label">{card.label}</span>
-                <span className="long-haul-heart" aria-hidden="true"><Heart size={20}/></span>
-                <div className="long-haul-card-copy">
-                  <strong>{card.title}</strong>
-                  <span className="long-haul-card-subtitle">{card.subtitle}</span>
-                  <p>{card.text}</p>
-                  <b>Zobacz kierunek <ArrowRight size={16}/></b>
-                </div>
-              </div>
+            <Link
+              className="long-haul-card long-haul-card-photo-only"
+              href={card.href}
+              key={card.href}
+              aria-label={`Zobacz kierunek: ${card.title}`}
+              title={card.title}
+            >
+              <LongHaulCardImage
+                city={card.imageCity}
+                country={card.imageCountry}
+                fallbackSrc={"fallbackImage" in card ? card.fallbackImage : undefined}
+              />
             </Link>
           ))}
         </div>
@@ -308,56 +308,56 @@ const experienceCards = [
     season: "WRZESIEŃ–MARZEC",
     title: "🌌 Zorza na Islandii",
     text: "Ciemne noce, geotermia i wyjazd planowany pod szansę zobaczenia zorzy.",
-    imageCity: "zorza islandia", imageCountry: "Islandia", fallbackImage: "/images/experiences/islandia-zorza.png",
+    imageCity: "zorza islandia", imageCountry: "Islandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Aurora_Borealis-Northern_Lights_Iceland.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#sakura",
     season: "MARZEC–KWIECIEŃ",
     title: "🌸 Sakura w Japonii",
     text: "Tokio i Kioto wtedy, gdy kwitnienie wiśni staje się głównym punktem podróży.",
-    imageCity: "sakura japonia", imageCountry: "Japonia", fallbackImage: "/images/experiences/japonia-sakura.png",
+    imageCity: "sakura japonia", imageCountry: "Japonia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Cherry_blossoms_at_the_rock_garden_of_Ryōan-ji_Temple_in_Kyoto,_Japan.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#fiordy",
     season: "MAJ–WRZESIEŃ",
     title: "🏔️ Fiordy i białe noce",
     text: "Długie dni, trekking, rejsy i spektakularne trasy widokowe po Norwegii.",
-    imageCity: "fiordy norwegia", imageCountry: "Norwegia", fallbackImage: "/images/experiences/norwegia-fiordy.png",
+    imageCity: "fiordy norwegia", imageCountry: "Norwegia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Geirangerfjord,_Norway.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#nowa-zelandia",
     season: "LISTOPAD–MARZEC",
     title: "🥾 Nowa Zelandia",
     text: "Road trip, góry i lato na południowej półkuli w najlepszym oknie na aktywny wyjazd.",
-    imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia", fallbackImage: "/images/experiences/nowa-zelandia.png",
+    imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/MilfordSound.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#tulipany",
     season: "KWIECIEŃ–MAJ",
     title: "🌷 Tulipany w Holandii",
     text: "Krótki city break połączony z polami kwiatów i sezonem, który trwa tylko chwilę.",
-    imageCity: "tulipany holandia", imageCountry: "Holandia", fallbackImage: "/images/experiences/holandia-tulipany.png",
+    imageCity: "tulipany holandia", imageCountry: "Holandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Tulip_fields_of_Holland.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#safari",
     season: "CZERWIEC–PAŹDZIERNIK",
     title: "🦁 Safari w Kenii i Tanzanii",
     text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.",
-    imageCity: "safari kenia tanzania", imageCountry: "Kenia", fallbackImage: "/images/experiences/kenia-safari.png",
+    imageCity: "safari kenia tanzania", imageCountry: "Kenia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Lion_Masai_Mara.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#jarmarki",
     season: "LISTOPAD–GRUDZIEŃ",
     title: "🎄 Jarmarki bożonarodzeniowe",
     text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.",
-    imageCity: "jarmarki wieden", imageCountry: "Austria", fallbackImage: "/images/experiences/jarmarki.png",
+    imageCity: "jarmarki wieden", imageCountry: "Austria", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Rathaus_Christmas_Market.jpg?width=1600",
   },
   {
     href: "/podroze-po-przezycia#egzotyka",
     season: "ZIMA W POLSCE",
     title: "🌴 Egzotyka w porze suchej",
     text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.",
-    imageCity: "egzotyka pora sucha", imageCountry: "Seszele", fallbackImage: "/images/experiences/egzotyka.png",
+    imageCity: "egzotyka pora sucha", imageCountry: "Seszele", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Anse_source_d_argent.jpg?width=1600",
   },
 ];
 
