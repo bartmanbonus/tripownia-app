@@ -312,63 +312,74 @@ const experienceCards = [
     season: "WRZESIEŃ–MARZEC",
     title: "🌌 Zorza na Islandii",
     text: "Ciemne noce, geotermia i wyjazd planowany pod szansę zobaczenia zorzy.",
-    imageCity: "zorza islandia", imageCountry: "Islandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Aurora_Borealis-Northern_Lights_Iceland.jpg?width=1600",
+    imageCity: "zorza islandia", imageCountry: "Islandia", fallbackImage: "/images/experiences/islandia-zorza.png",
   },
   {
     href: "/podroze-po-przezycia#sakura",
     season: "MARZEC–KWIECIEŃ",
     title: "🌸 Sakura w Japonii",
     text: "Tokio i Kioto wtedy, gdy kwitnienie wiśni staje się głównym punktem podróży.",
-    imageCity: "sakura japonia", imageCountry: "Japonia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Cherry_blossoms_at_the_rock_garden_of_Ryōan-ji_Temple_in_Kyoto,_Japan.jpg?width=1600",
+    imageCity: "sakura japonia", imageCountry: "Japonia", fallbackImage: "/images/experiences/japonia-sakura.png",
   },
   {
     href: "/podroze-po-przezycia#fiordy",
     season: "MAJ–WRZESIEŃ",
     title: "🏔️ Fiordy i białe noce",
     text: "Długie dni, trekking, rejsy i spektakularne trasy widokowe po Norwegii.",
-    imageCity: "fiordy norwegia", imageCountry: "Norwegia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Geirangerfjord,_Norway.jpg?width=1600",
+    imageCity: "fiordy norwegia", imageCountry: "Norwegia", fallbackImage: "/images/experiences/norwegia-fiordy.png",
   },
   {
     href: "/podroze-po-przezycia#nowa-zelandia",
     season: "LISTOPAD–MARZEC",
     title: "🥾 Nowa Zelandia",
     text: "Road trip, góry i lato na południowej półkuli w najlepszym oknie na aktywny wyjazd.",
-    imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/MilfordSound.jpg?width=1600",
+    imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia", fallbackImage: "/images/experiences/nowa-zelandia.png",
   },
   {
     href: "/podroze-po-przezycia#tulipany",
     season: "KWIECIEŃ–MAJ",
     title: "🌷 Tulipany w Holandii",
     text: "Krótki city break połączony z polami kwiatów i sezonem, który trwa tylko chwilę.",
-    imageCity: "tulipany holandia", imageCountry: "Holandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Tulip_fields_of_Holland.jpg?width=1600",
+    imageCity: "tulipany holandia", imageCountry: "Holandia", fallbackImage: "/images/experiences/holandia-tulipany.png",
   },
   {
     href: "/podroze-po-przezycia#safari",
     season: "CZERWIEC–PAŹDZIERNIK",
     title: "🦁 Safari w Kenii i Tanzanii",
     text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.",
-    imageCity: "safari kenia tanzania", imageCountry: "Kenia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Lion_Masai_Mara.jpg?width=1600",
+    imageCity: "safari kenia tanzania", imageCountry: "Kenia", fallbackImage: "/images/experiences/kenia-safari.png",
   },
   {
     href: "/podroze-po-przezycia#jarmarki",
     season: "LISTOPAD–GRUDZIEŃ",
     title: "🎄 Jarmarki bożonarodzeniowe",
     text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.",
-    imageCity: "jarmarki wieden", imageCountry: "Austria", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Rathaus_Christmas_Market.jpg?width=1600",
+    imageCity: "jarmarki wieden", imageCountry: "Austria", fallbackImage: "/images/experiences/jarmarki.png",
   },
   {
     href: "/podroze-po-przezycia#egzotyka",
     season: "ZIMA W POLSCE",
     title: "🌴 Egzotyka w porze suchej",
     text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.",
-    imageCity: "egzotyka pora sucha", imageCountry: "Seszele", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Anse_source_d_argent.jpg?width=1600",
+    imageCity: "egzotyka pora sucha", imageCountry: "Seszele", fallbackImage: "/images/experiences/egzotyka.png",
   },
 ];
 
-function ExperienceTeaserImage({ city, country, title, fallbackSrc }: { city: string; country: string; title: string; fallbackSrc?: string }) {
+function ExperienceTeaserImage({
+  city,
+  country,
+  title,
+  fallbackSrc,
+}: {
+  city: string;
+  country: string;
+  title: string;
+  fallbackSrc?: string;
+}) {
   const [src, setSrc] = useState<string | null>(fallbackSrc || null);
 
   useEffect(() => {
+    // Dla kart kuratorskich lokalna grafika ma pierwszeństwo i nie jest nadpisywana API-em.
     if (fallbackSrc) {
       setSrc(fallbackSrc);
       return;
@@ -377,11 +388,18 @@ function ExperienceTeaserImage({ city, country, title, fallbackSrc }: { city: st
     let active = true;
     const controller = new AbortController();
     const params = new URLSearchParams({ city, country });
+
     fetch(`/api/destination-image?${params.toString()}`, { signal: controller.signal })
       .then(response => response.ok ? response.json() : null)
-      .then(data => { if (active) setSrc(data?.image?.url || null); })
+      .then(data => {
+        if (active && data?.image?.url) setSrc(data.image.url);
+      })
       .catch(() => {});
-    return () => { active = false; controller.abort(); };
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, [city, country, fallbackSrc]);
 
   return (
@@ -391,12 +409,15 @@ function ExperienceTeaserImage({ city, country, title, fallbackSrc }: { city: st
           src={src}
           alt=""
           loading="lazy"
-          referrerPolicy="no-referrer"
-          onError={(event) => { event.currentTarget.style.display = "none"; }}
+          decoding="async"
+          onError={(event) => {
+            event.currentTarget.style.display = "none";
+          }}
         />
-      ) : <div className="experience-teaser-skeleton" />}
-      <span className="experience-teaser-overlay" />
-      <b>{title.replace(/^\S+\s*/, "")}</b>
+      ) : (
+        <div className="experience-teaser-skeleton" />
+      )}
+      <span>{title}</span>
     </div>
   );
 }
