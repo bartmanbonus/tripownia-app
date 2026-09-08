@@ -854,15 +854,28 @@ export default function Home() {
 
       <section className="section shell content-hubs visual-chapter chapter-content">
         <div className="section-heading"><div><div className="kicker">ODKRYWAJ Z TRIPOWNIĄ</div><h2>Więcej niż dzisiejsza selekcja</h2></div></div>
-        <div className="hub-grid">
-          <Link href="/kierunki"><strong>🌍 Kierunki</strong><span>Malta, Grecja, Włochy, Hiszpania i dziesiątki inspiracji.</span></Link>
-          <Link href="/city-break"><strong>🏙 City break</strong><span>Krótkie wyjazdy, gotowe pomysły i aktualne okazje.</span></Link>
-          <Link href="/wakacje"><strong>🏖 Wakacje</strong><span>Gotowe pakiety i dodatkowe narzędzia do samodzielnego planowania.</span></Link><Link href="/last-minute"><strong>⚡ Last minute</strong><span>Szybkie wyjazdy i szersze wyszukiwanie.</span></Link>
-          <Link href="/podroze-po-przezycia"><strong>✨ Przeżycia</strong><span>Zjawiska, sezonowość i podróże planowane pod właściwy moment.</span></Link>
-          <Link href="/dalekie-podroze"><strong>🌏 Dalekie podróże</strong><span>Wietnam, Pekin, Nowy Jork, Japonia, Tajlandia i dalsze wyprawy.</span></Link>
-          <Link href="/magazyn-podrozniczy"><strong>📰 Magazyn podróżniczy</strong><span>Formalności, lotniska, bagaż i praktyczne wskazówki.</span></Link>
-          <Link href="/parkingi"><strong>🚗 Parkingi</strong><span>Najpierw wybierz lotnisko, potem przejdź do rezerwacji.</span></Link>
-          <Link href="/atrakcje"><strong>🎟 Atrakcje</strong><span>Co robić na miejscu i gdzie kupować bilety.</span></Link>
+        <div className="hub-grid content-hub-grid">
+          {[
+            { href: "/kierunki", title: "🌍 Kierunki", text: "Malta, Grecja, Włochy, Hiszpania i dziesiątki inspiracji.", image: "/images/destinations/valletta.jpg" },
+            { href: "/city-break", title: "🏙 City break", text: "Krótkie wyjazdy, gotowe pomysły i aktualne okazje.", image: "/images/destinations/barcelona.jpg" },
+            { href: "/wakacje", title: "🏖 Wakacje", text: "Gotowe pakiety i dodatkowe narzędzia do samodzielnego planowania.", image: "/images/destinations/majorka.jpg" },
+            { href: "/last-minute", title: "⚡ Last minute", text: "Szybkie wyjazdy i szersze wyszukiwanie.", image: "/images/destinations/djerba.jpg" },
+            { href: "/podroze-po-przezycia", title: "✨ Przeżycia", text: "Zjawiska, sezonowość i podróże planowane pod właściwy moment.", image: "/images/destinations/santorini.jpg" },
+            { href: "/dalekie-podroze", title: "🌏 Dalekie podróże", text: "Wietnam, Pekin, Nowy Jork, Japonia, Tajlandia i dalsze wyprawy.", image: "/images/destinations/dubaj.jpg" },
+            { href: "/magazyn-podrozniczy", title: "📰 Magazyn podróżniczy", text: "Formalności, lotniska, bagaż i praktyczne wskazówki.", image: "/images/destinations/londyn.jpg" },
+            { href: "/parkingi", title: "🚗 Parkingi", text: "Najpierw wybierz lotnisko, potem przejdź do rezerwacji.", image: "/images/destinations/monachium.jpg" },
+            { href: "/atrakcje", title: "🎟 Atrakcje", text: "Co robić na miejscu i gdzie kupować bilety.", image: "/images/destinations/rzym.jpg" },
+          ].map(card => (
+            <Link href={card.href} key={card.href} className="content-hub-card">
+              <div className="content-hub-card-image">
+                <img src={card.image} alt="" loading="lazy" decoding="async" />
+              </div>
+              <div className="content-hub-card-copy">
+                <strong>{card.title}</strong>
+                <span>{card.text}</span>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
