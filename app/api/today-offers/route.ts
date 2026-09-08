@@ -407,11 +407,11 @@ function hasConcreteDates(offer: LiveCandidate) {
 
 function tripLengthMatches(offer: LiveCandidate) {
   const continent = continentFor(offer);
-  if (continent === "europe") return offer.nights === 6;
-  return offer.nights >= 7 && offer.nights <= 10;
+  if (continent === "europe") return offer.nights >= 2 && offer.nights <= 8;
+  return offer.nights >= 7 && offer.nights <= 14;
 }
 
-function selectDailyDiversified(candidates: LiveCandidate[], key: string, limit = 12) {
+function selectDailyDiversified(candidates: LiveCandidate[], key: string, limit = 20) {
   const buckets = {
     europe: candidates.filter((o) => continentFor(o) === "europe"),
     africa: candidates.filter((o) => continentFor(o) === "africa"),
@@ -420,10 +420,10 @@ function selectDailyDiversified(candidates: LiveCandidate[], key: string, limit 
   };
 
   const quotas: Array<[keyof typeof buckets, number]> = [
-    ["europe", 5],
-    ["africa", 3],
-    ["asia", 2],
-    ["americas", 2],
+    ["europe", 8],
+    ["africa", 5],
+    ["asia", 4],
+    ["americas", 3],
   ];
 
   const picked: LiveCandidate[] = [];
@@ -480,7 +480,7 @@ function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
     if (countryCount >= countryLimit(offer)) continue;
 
     const providerCount = providerCounts.get(offer.provider) || 0;
-    if (providerCount >= 7) continue;
+    if (providerCount >= Math.max(10, Math.ceil(limit * 0.75))) continue;
 
     const primaryAirport = departurePriority(offer) > 0;
     if (!primaryAirport && secondaryAirportCount >= 2) continue;
@@ -632,7 +632,7 @@ export async function GET(request: NextRequest) {
               .filter((offer) => budget < 3500 || offer.price >= Math.round(budget * 0.45))
               .sort((a,b) => (b.score * 100 + b.price / 20) - (a.score * 100 + a.price / 20))
               .slice(0, 12)
-          : selectDailyDiversified(dailyLengthPool, key, 12);
+          : selectDailyDiversified(dailyLengthPool.length >= 12 ? dailyLengthPool : cheapestDestinations, key, 20);
     return NextResponse.json(
       {
         ok: selected.length > 0,
