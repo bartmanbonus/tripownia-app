@@ -40,6 +40,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [liveResults,setLiveResults]=useState<any[]>([]);
   const [liveLoading,setLiveLoading]=useState(false);
   const [liveNotice,setLiveNotice]=useState("");
+  const [liveVerified,setLiveVerified]=useState(false);
   const [initialSearchDone,setInitialSearchDone]=useState(false);
   const [activeTab,setActiveTab]=useState(initialTab);
   const [visibleCount,setVisibleCount]=useState(10);
@@ -113,7 +114,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
     );
     // Wyniki mają być widoczne od pierwszego renderu. W tle pobieramy live feed
     // i podmieniamy pulę, gdy tylko wróci aktualna odpowiedź.
-    const usingLive=liveResults.length>0;
+    const usingLive=liveVerified && liveResults.length>0;
     const source = usingLive ? liveResults : staticFallback;
 
     // Dla wyników LIVE ufamy filtrom wykonanym już po stronie API.
@@ -151,7 +152,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
     // Ograniczenie "1 kierunek = 1 oferta" pozostaje dla dziennej selekcji,
     // ale nie ogranicza świadomego wyszukiwania użytkownika.
     return filtered.slice(0,200);
-  },[airports,destinations,customDestination,duration,budget,board,text,weekendOnly,submitted,liveResults,liveLoading]);
+  },[airports,destinations,customDestination,duration,budget,board,text,weekendOnly,submitted,liveResults,liveLoading,liveVerified]);
 
 
   async function runPartnerSearch(destinationOverride?:string, cityModeOverride?:boolean, initialLoad=false):Promise<number>{
@@ -196,6 +197,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       if(Number.isFinite(budgetValue(budget))) params.set("maxPrice", String(budgetValue(budget)));
       const response=await fetch(`/api/today-offers?${params.toString()}`,{cache:"no-store"});
       const data=await response.json();
+      if(!response.ok || data?.ok === false) throw new Error(String(data?.error||`Feed HTTP ${response.status}`));
       const rows=Array.isArray(data?.offers)?data.offers:[];
       let accepted=rows.filter((o:any)=>cityMode
         ? String(o.partner||"").toLowerCase()==="exim"
@@ -236,10 +238,16 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       }
 
       setLiveResults(accepted);
-      setLiveNotice(notice);
+      setLiveVerified(accepted.length>0);
+      setLiveNotice(accepted.length
+        ? notice
+        : "Partnerzy nie zwrócili teraz dostępnych ofert. Pokazujemy inspiracje z cenami orientacyjnymi — sprawdź cenę przed rezerwacją.");
       return accepted.length;
     }catch{
-      setLiveNotice("Nie udało się odświeżyć feedu w tej chwili — zostawiamy ostatnie dostępne oferty.");
+      setLiveVerified(liveResults.length>0);
+      setLiveNotice(liveResults.length>0
+        ? "Nie udało się ponownie odświeżyć feedu — pokazujemy ostatnią zweryfikowaną pulę z tej sesji."
+        : "Feed ofert nie jest teraz dostępny. Pokazujemy inspiracje z cenami orientacyjnymi — sprawdź cenę przed rezerwacją.");
       return liveResults.length;
     }finally{
       setLiveLoading(false);
@@ -355,7 +363,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
         <div className="search-results-heading premium-results-heading">
           <div>
             <small>ODKRYTE DLA CIEBIE</small>
-            <h3>{hasDestination?`Okazje: ${queryDestination}`:`${results.length} aktualnych okazji`}</h3>
+            <h3>{hasDestination?`Okazje: ${queryDestination}`:liveVerified?`${results.length} aktualnych okazji`:`${results.length} inspiracji podróżniczych`}</h3>
             {liveNotice&&<em className="search-live-notice">{liveNotice}</em>}
           </div>
           <span>Pokazujemy najlepsze dostępne dopasowania. Jeśli kombinacja filtrów jest zbyt wąska, rozszerzamy ją zamiast zostawiać pusty ekran.</span>
@@ -365,7 +373,9 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
           <div className="premium-results-summary premium-results-carousel-summary">
             <div>
               <small>✦ WYBRANE PRZEZ TRIPOWNIĘ</small>
-              <strong>{results.length>=200?"200 okazji gotowych do odkrycia":`${results.length} aktualnych okazji pasuje do parametrów`}</strong>
+              <strong>{liveVerified
+                ? (results.length>=200?"200 ofert z aktualnego feedu":`${results.length} ofert z aktualnego feedu pasuje do parametrów`)
+                : `${results.length} inspiracji — ceny potwierdzisz u organizatora`}</strong>
             </div>
             <span className="premium-results-carousel-count">{Math.min(carouselIndex+1,results.length)} / {results.length}</span>
           </div>

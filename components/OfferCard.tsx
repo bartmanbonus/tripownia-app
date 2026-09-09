@@ -143,14 +143,17 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           {isExpired
             ? "Ta oferta wygasła — pokażemy podobne aktualne propozycje"
             : isLiveExact
-              ? "Aktualna oferta — sprawdź dostępność dla wybranego terminu"
+              ? checkedAt
+                ? `Dane z feedu sprawdzone: ${checkedAt}`
+                : "Dane z aktualnego feedu partnera"
             : checkedAt
-                ? `Sprawdź dostępność i aktualną cenę przed rezerwacją`
-                : "Sprawdź dostępność i aktualną cenę przed rezerwacją"}
+                ? `Cena orientacyjna — sprawdź aktualną cenę przed rezerwacją`
+                : "Cena orientacyjna — sprawdź aktualną cenę przed rezerwacją"}
         </div>
 
         <div className="partner-chip partner-chip-tripownia">
-          <strong>Wybrane przez Tripownię</strong> · sprawdzamy cenę i dostępność
+          <strong>{isLiveExact ? "Oferta z feedu partnera" : "Inspiracja Tripowni"}</strong>
+          {isLiveExact ? " · dostępność potwierdzisz przed płatnością" : " · cena nie jest potwierdzona na żywo"}
         </div>
 
         <div className="offer-date-line">
