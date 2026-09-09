@@ -81,6 +81,22 @@ const SEARCH_ALIASES: Record<string, string[]> = {
   nowy_jork: ["Nowy Jork", "New York", "USA"],
   tokio: ["Tokio", "Tokyo", "Japonia", "Japan"],
   bangkok: ["Bangkok", "Tajlandia", "Thailand"],
+  djerba: ["Djerba", "Dżerba", "Tunezja", "Tunisia"],
+  hammamet: ["Hammamet", "Tunezja", "Tunisia"],
+  monastir: ["Monastir", "Tunezja", "Tunisia"],
+  sousse: ["Sousse", "Tunezja", "Tunisia"],
+  hurghada: ["Hurghada", "Egipt", "Egypt"],
+  marsa_alam: ["Marsa Alam", "Egipt", "Egypt"],
+  sharm_el_sheikh: ["Sharm el Sheikh", "Egipt", "Egypt"],
+  kreta: ["Kreta", "Crete", "Grecja", "Greece"],
+  rodos: ["Rodos", "Rhodes", "Grecja", "Greece"],
+  zakynthos: ["Zakynthos", "Zante", "Grecja", "Greece"],
+  teneryfa: ["Teneryfa", "Tenerife", "Hiszpania", "Spain"],
+  fuerteventura: ["Fuerteventura", "Hiszpania", "Spain"],
+  gran_canaria: ["Gran Canaria", "Hiszpania", "Spain"],
+  zanzibar: ["Zanzibar", "Tanzania"],
+  dubaj: ["Dubaj", "Dubai", "ZEA", "UAE", "United Arab Emirates"],
+  bali: ["Bali", "Indonezja", "Indonesia"],
 };
 
 function expandSearchTerms(rawTerms: string[]) {
@@ -536,6 +552,7 @@ export async function GET(request: NextRequest) {
   const boardFilter = (request.nextUrl.searchParams.get("board") || "any").trim();
   const weekendOnly = request.nextUrl.searchParams.get("weekend") === "1";
   const maxPrice = Math.max(0, Number(request.nextUrl.searchParams.get("maxPrice") || 0));
+  const rescueMode = (request.nextUrl.searchParams.get("rescue") || "").trim();
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
 
@@ -553,7 +570,11 @@ export async function GET(request: NextRequest) {
             .slice(0, 6)
         )
       : [];
-    const terms = mode === "search" && query
+    const terms = rescueMode === "full"
+      ? BROAD_SEARCH_TERMS
+      : rescueMode === "1"
+        ? BROAD_SEARCH_TERMS.slice(0, 18)
+      : mode === "search" && query
       ? searchTerms
       : mode === "search" && broadSearch
         ? BROAD_SEARCH_TERMS
@@ -583,6 +604,26 @@ export async function GET(request: NextRequest) {
       for (const product of item.value.products) {
         const candidate = item.value.provider === "exim" ? fromExim(product) : fromTui(product);
         if (candidate) candidates.push(candidate);
+      }
+    }
+
+    // Jeśli bardzo konkretny query nie występuje w feedzie pod tą nazwą,
+    // nie kończymy pustą odpowiedzią. Pobieramy małą szeroką pulę z tych samych
+    // feedów. Front pokaże ją jako fallback zamiast pustego ekranu.
+    if (!candidates.length && query && (mode === "search" || mode === "citybreak")) {
+      const rescueTerms = BROAD_SEARCH_TERMS.slice(0, 10);
+      const rescueJobs: Promise<{ provider: Provider; products: TdProduct[] }>[] = [];
+      for (const term of rescueTerms) {
+        if (eximToken && providerOnly !== "tui") rescueJobs.push(fetchProducts("exim", term, eximToken).then((products) => ({ provider: "exim" as const, products })));
+        if (mode !== "citybreak" && tuiToken && providerOnly !== "exim") rescueJobs.push(fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
+      }
+      const rescueSettled = await Promise.allSettled(rescueJobs);
+      for (const item of rescueSettled) {
+        if (item.status !== "fulfilled") continue;
+        for (const product of item.value.products) {
+          const candidate = item.value.provider === "exim" ? fromExim(product) : fromTui(product);
+          if (candidate) candidates.push(candidate);
+        }
       }
     }
 
@@ -651,19 +692,23 @@ export async function GET(request: NextRequest) {
 
     const allCandidates = Array.from(unique.values());
 
-    const exactPool = allCandidates.filter((offer) =>
-      departureMatches(offer) &&
-      nightsMatches(offer) &&
-      boardMatches(offer) &&
-      weekendMatches(offer) &&
-      (!maxPrice || offer.price <= maxPrice)
-    );
+    const exactPool = rescueMode
+      ? allCandidates
+      : allCandidates.filter((offer) =>
+          departureMatches(offer) &&
+          nightsMatches(offer) &&
+          boardMatches(offer) &&
+          weekendMatches(offer) &&
+          (!maxPrice || offer.price <= maxPrice)
+        );
 
     // Wyszukiwarka nie może kończyć się pustym ekranem tylko dlatego,
     // że użytkownik połączył kilka bardzo wąskich filtrów.
     // Rozluźniamy je stopniowo, ale zachowujemy kierunek wynikający z feed query.
     let pool = exactPool;
-    let notice = "";
+    let notice = rescueMode
+      ? "Pokazujemy najlepsze aktualne oferty dostępne teraz w naszych feedach."
+      : "";
 
     if (mode === "search" || mode === "citybreak") {
       if (!pool.length && boardFilter !== "any") {
