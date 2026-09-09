@@ -574,18 +574,23 @@ export async function GET(request: NextRequest) {
       return true;
     };
     const nightsMatches = (offer: LiveCandidate) => {
-      if (nightsFilter === "2-3") return offer.nights >= 2 && offer.nights <= 3;
-      if (nightsFilter === "4-5") return offer.nights >= 4 && offer.nights <= 5;
-      if (nightsFilter === "6-8") return offer.nights >= 6 && offer.nights <= 8;
-      if (nightsFilter === "9+") return offer.nights >= 9;
+      if (nightsFilter === "1-2") return offer.nights >= 1 && offer.nights <= 2;
+      if (nightsFilter === "3-4") return offer.nights >= 3 && offer.nights <= 4;
+      if (nightsFilter === "5-7") return offer.nights >= 5 && offer.nights <= 7;
+      if (nightsFilter === "8-10") return offer.nights >= 8 && offer.nights <= 10;
+      if (nightsFilter === "11-14") return offer.nights >= 11 && offer.nights <= 14;
+      if (nightsFilter === "15+") return offer.nights >= 15;
       return true;
     };
     const boardMatches = (offer: LiveCandidate) => {
       if (boardFilter === "any") return true;
       const value = normalize(offer.board);
-      if (boardFilter === "allinclusive") return /all inclusive|ultra all/.test(value);
-      if (boardFilter === "breakfast") return /sniad|breakfast|bb/.test(value);
-      if (boardFilter === "halfboard") return /half board|hb|2 posil|sniad.*obiad|sniad.*kolac/.test(value);
+      if (boardFilter === "allinclusive") return /all inclusive|allinclusive/.test(value) && !/ultra/.test(value);
+      if (boardFilter === "ultraallinclusive") return /ultra all|ultraall/.test(value);
+      if (boardFilter === "breakfast") return /sniad|breakfast|\bbb\b/.test(value);
+      if (boardFilter === "halfboard") return /half board|\bhb\b|2 posil|sniad.*obiad|sniad.*kolac/.test(value);
+      if (boardFilter === "fullboard") return /full board|\bfb\b|3 posil|pelne wyzywienie/.test(value);
+      if (boardFilter === "roomonly") return /bez wyzywienia|room only|self catering|no meals/.test(value);
       return true;
     };
 
@@ -625,9 +630,7 @@ export async function GET(request: NextRequest) {
           8
         )
       : mode === "search"
-        ? [...pool]
-            .sort((a,b) => a.price !== b.price ? a.price - b.price : b.score - a.score)
-            .slice(0, 200)
+        ? cheapestPerDestination(pool).sort((a,b) => a.price - b.price).slice(0, 20)
         : mode === "surprise"
           ? cheapestDestinations
               .filter((offer) => offer.price <= budget)
