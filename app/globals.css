@@ -10690,3 +10690,22 @@ vercel-toolbar,
     align-self:flex-start !important;
   }
 }
+
+
+/* ==========================================================
+   V187 — LIVE SEARCH NOTICE
+========================================================== */
+.search-live-notice{
+  display:inline-flex !important;
+  align-items:center !important;
+  margin-top:7px !important;
+  padding:6px 9px !important;
+  border:1px solid #f0d9cc !important;
+  border-radius:999px !important;
+  background:#fff8f3 !important;
+  color:#9a5e43 !important;
+  font-size:9px !important;
+  font-style:normal !important;
+  font-weight:800 !important;
+  line-height:1.2 !important;
+}
