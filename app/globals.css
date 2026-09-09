@@ -7630,3 +7630,40 @@ body {
   .premium-results-summary{align-items:flex-start;flex-direction:column;gap:7px}
   .search-results-more{width:100%}
 }
+
+
+/* ==========================================================
+   V169 — OKAZJE: DATY KOMPAKTOWO W JEDNYM RZĘDZIE
+========================================================== */
+
+/* Zakres dat w kartach ofert ma pozostać w jednej linii. */
+.offer-card :is(.offer-date,.offer-dates,.offer-card-date,.offer-card-dates,.offer-meta-date,.offer-meta-dates),
+.search-results-progressive-item :is(.offer-date,.offer-dates,.offer-card-date,.offer-card-dates,.offer-meta-date,.offer-meta-dates){
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:4px !important;
+  width:auto !important;
+  max-width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  white-space:nowrap !important;
+  flex-wrap:nowrap !important;
+  font-size:11px !important;
+  line-height:1.15 !important;
+  letter-spacing:-.01em !important;
+}
+
+/* Jeśli data jest elementem metadanych, cały wiersz nie może się niepotrzebnie rozpychać. */
+.offer-card :is(.offer-meta,.offer-card-meta,.offer-details,.offer-card-details),
+.search-results-progressive-item :is(.offer-meta,.offer-card-meta,.offer-details,.offer-card-details){
+  column-gap:7px !important;
+  row-gap:4px !important;
+}
+
+/* Na małych ekranach nadal jedna linia; w razie ekstremalnie długiej daty lekko zmniejszamy tekst. */
+@media(max-width:700px){
+  .offer-card :is(.offer-date,.offer-dates,.offer-card-date,.offer-card-dates,.offer-meta-date,.offer-meta-dates),
+  .search-results-progressive-item :is(.offer-date,.offer-dates,.offer-card-date,.offer-card-dates,.offer-meta-date,.offer-meta-dates){
+    font-size:10px !important;
+  }
+}
