@@ -11952,4 +11952,54 @@ img{
     height:42px !important;
   }
 }
-\n\n/* ==========================================================\n   V199 — LAST MINUTE / CITY BREAK / PRZEŻYCIA: WIĘCEJ TREŚCI + ZDJĘCIA\n========================================================== */\n\n/* Last minute: pełny, premium listing zamiast wąskiego contentu. */\n.last-minute-shopping-hero h1{max-width:900px}\n.last-minute-live-section .last-minute-offer-rail,\n.last-minute-offer-rail{\n  display:grid!important;\n  grid-template-columns:repeat(4,minmax(0,1fr))!important;\n  grid-auto-flow:row!important;\n  grid-auto-columns:auto!important;\n  gap:16px!important;\n  overflow:visible!important;\n}\n\n/* City break: realne oferty + inspiracje bez fikcyjnej ceny. */\n.city-break-idea-head{margin:42px 0 16px}\n.city-break-idea-head h2{margin:5px 0 7px;font-size:clamp(28px,3vw,40px);letter-spacing:-.035em}\n.city-break-idea-head p{max-width:760px;color:#746960;line-height:1.55}\n.city-break-idea-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:28px}\n.city-break-idea-card{display:flex;min-width:0;flex-direction:column;overflow:hidden;border:1px solid #e7dad2;border-radius:19px;background:#fff;color:#171310;text-decoration:none;box-shadow:0 10px 24px rgba(55,36,23,.05);transition:.18s ease}\n.city-break-idea-card:hover{transform:translateY(-3px);box-shadow:0 17px 32px rgba(55,36,23,.09)}\n.city-break-idea-card>img{display:block;width:100%;height:170px;object-fit:cover;filter:saturate(1.08) contrast(1.02)}\n.city-break-idea-card>span{display:flex;flex:1;flex-direction:column;padding:14px}\n.city-break-idea-card small{color:#ef5922;font-size:8px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}\n.city-break-idea-card strong{margin-top:4px;font-size:19px;line-height:1.05}\n.city-break-idea-card p{margin:7px 0 13px;color:#766b63;font-size:10px;line-height:1.45}\n.city-break-idea-card b{margin-top:auto;color:#e95420;font-size:10px}\n#szukaj-city-break{scroll-margin-top:140px}\n\n/* Podróże po przeżycia: każda karta ma zdjęcie. */\n.experience-expanded-card{padding:0!important;overflow:hidden!important}\n.experience-expanded-card-image{width:100%;height:210px;overflow:hidden;background:#ece5df}\n.experience-expanded-card-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(1.1) contrast(1.03)}\n.experience-expanded-card-top,.experience-expanded-lead,.experience-ideas{margin-left:22px!important;margin-right:22px!important}\n.experience-expanded-card-top{padding-top:20px!important}\n.experience-ideas{margin-bottom:22px!important}\n\n@media(max-width:1180px){\n  .last-minute-live-section .last-minute-offer-rail,.last-minute-offer-rail{grid-template-columns:repeat(2,minmax(0,1fr))!important}\n  .city-break-idea-grid{grid-template-columns:repeat(2,minmax(0,1fr))}\n}\n@media(max-width:620px){\n  .last-minute-live-section .last-minute-offer-rail,.last-minute-offer-rail{grid-template-columns:1fr!important}\n  .city-break-idea-grid{grid-template-columns:1fr}\n  .experience-expanded-card-image{height:190px}\n  .experience-expanded-card-top,.experience-expanded-lead,.experience-ideas{margin-left:17px!important;margin-right:17px!important}\n}\n
+
+
+/* ==========================================================
+   V199 — LAST MINUTE / CITY BREAK / PRZEŻYCIA: WIĘCEJ TREŚCI + ZDJĘCIA
+========================================================== */
+
+/* Last minute: pełny, premium listing zamiast wąskiego contentu. */
+.last-minute-shopping-hero h1{max-width:900px}
+.last-minute-live-section .last-minute-offer-rail,
+.last-minute-offer-rail{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-auto-flow:row!important;
+  grid-auto-columns:auto!important;
+  gap:16px!important;
+  overflow:visible!important;
+}
+
+/* City break: realne oferty + inspiracje bez fikcyjnej ceny. */
+.city-break-idea-head{margin:42px 0 16px}
+.city-break-idea-head h2{margin:5px 0 7px;font-size:clamp(28px,3vw,40px);letter-spacing:-.035em}
+.city-break-idea-head p{max-width:760px;color:#746960;line-height:1.55}
+.city-break-idea-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:28px}
+.city-break-idea-card{display:flex;min-width:0;flex-direction:column;overflow:hidden;border:1px solid #e7dad2;border-radius:19px;background:#fff;color:#171310;text-decoration:none;box-shadow:0 10px 24px rgba(55,36,23,.05);transition:.18s ease}
+.city-break-idea-card:hover{transform:translateY(-3px);box-shadow:0 17px 32px rgba(55,36,23,.09)}
+.city-break-idea-card>img{display:block;width:100%;height:170px;object-fit:cover;filter:saturate(1.08) contrast(1.02)}
+.city-break-idea-card>span{display:flex;flex:1;flex-direction:column;padding:14px}
+.city-break-idea-card small{color:#ef5922;font-size:8px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}
+.city-break-idea-card strong{margin-top:4px;font-size:19px;line-height:1.05}
+.city-break-idea-card p{margin:7px 0 13px;color:#766b63;font-size:10px;line-height:1.45}
+.city-break-idea-card b{margin-top:auto;color:#e95420;font-size:10px}
+#szukaj-city-break{scroll-margin-top:140px}
+
+/* Podróże po przeżycia: każda karta ma zdjęcie. */
+.experience-expanded-card{padding:0!important;overflow:hidden!important}
+.experience-expanded-card-image{width:100%;height:210px;overflow:hidden;background:#ece5df}
+.experience-expanded-card-image img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(1.1) contrast(1.03)}
+.experience-expanded-card-top,.experience-expanded-lead,.experience-ideas{margin-left:22px!important;margin-right:22px!important}
+.experience-expanded-card-top{padding-top:20px!important}
+.experience-ideas{margin-bottom:22px!important}
+
+@media(max-width:1180px){
+  .last-minute-live-section .last-minute-offer-rail,.last-minute-offer-rail{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .city-break-idea-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+  .last-minute-live-section .last-minute-offer-rail,.last-minute-offer-rail{grid-template-columns:1fr!important}
+  .city-break-idea-grid{grid-template-columns:1fr}
+  .experience-expanded-card-image{height:190px}
+  .experience-expanded-card-top,.experience-expanded-lead,.experience-ideas{margin-left:17px!important;margin-right:17px!important}
+}
