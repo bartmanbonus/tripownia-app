@@ -159,14 +159,14 @@ function seededShuffle<T>(items: T[], seedText: string) {
 }
 
 const longHaulCards = [
-  { href: "/dalekie-podroze#wietnam", region: "azja", label: "AZJA", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam Ha Long", imageCountry: "Wietnam", fallbackImage: "/images/longhaul/wietnam.jpg" },
-  { href: "/dalekie-podroze#pekin", region: "azja", label: "AZJA", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin Zakazane Miasto", imageCountry: "Chiny", fallbackImage: "/images/longhaul/pekin.jpg" },
-  { href: "/dalekie-podroze#nowy-jork", region: "ameryka", label: "USA", title: "Nowy Jork", subtitle: "Manhattan · Brooklyn", text: "Miasto, które nigdy nie śpi i zawsze daje powód, by wrócić.", imageCity: "Nowy Jork Manhattan", imageCountry: "USA", fallbackImage: "/images/longhaul/nowy-jork.jpg" },
-  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Nowoczesność · tradycja", text: "Świątynie, kultura, jedzenie i kolej — więcej niż szybki weekend.", imageCity: "Japonia Fuji Kioto", imageCountry: "Japonia", fallbackImage: "/images/longhaul/japonia.jpg" },
-  { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · plaże", text: "Energia miasta i kilka dni nad morzem w jednej podróży.", imageCity: "Tajlandia Bangkok wyspy", imageCountry: "Tajlandia", fallbackImage: "/images/longhaul/bangkok.jpg" },
-  { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Świątynie · natura · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali Indonezja", imageCountry: "Indonezja", fallbackImage: "/images/longhaul/bali.jpg" },
-  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur skyline", imageCountry: "Singapur", fallbackImage: "/images/longhaul/singapur.jpg" },
-  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad Table Mountain", imageCountry: "RPA", fallbackImage: "/images/longhaul/kapsztad.jpg" },
+  { href: "/dalekie-podroze#wietnam", region: "azja", label: "AZJA", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam Ha Long", imageCountry: "Wietnam", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Ha_Long_Bay_2023.jpg?width=1920" },
+  { href: "/dalekie-podroze#pekin", region: "azja", label: "AZJA", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin Zakazane Miasto", imageCountry: "Chiny", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Forbidden_City,_Beijing.jpg?width=1920" },
+  { href: "/dalekie-podroze#nowy-jork", region: "ameryka", label: "USA", title: "Nowy Jork", subtitle: "Manhattan · Brooklyn", text: "Miasto, które nigdy nie śpi i zawsze daje powód, by wrócić.", imageCity: "Nowy Jork Manhattan", imageCountry: "USA", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/New_york_times_square-terabass.jpg?width=1920" },
+  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Nowoczesność · tradycja", text: "Świątynie, kultura, jedzenie i kolej — więcej niż szybki weekend.", imageCity: "Japonia Fuji Kioto", imageCountry: "Japonia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Chureito_Pagoda_and_Mount_Fuji_2023-03-07.jpg?width=1920" },
+  { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · plaże", text: "Energia miasta i kilka dni nad morzem w jednej podróży.", imageCity: "Tajlandia Bangkok wyspy", imageCountry: "Tajlandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Bangkok_Wat_Arun_P1130138.JPG?width=1920" },
+  { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Świątynie · natura · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali Indonezja", imageCountry: "Indonezja", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Rice_terraces,_Bali.jpg?width=1920" },
+  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur skyline", imageCountry: "Singapur", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Gardens_By_The_Bay.jpg?width=1920" },
+  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad Table Mountain", imageCountry: "RPA", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Camps_Bay,_Cape_Town,_SA1.jpg?width=1920" },
 ];
 
 
@@ -209,11 +209,7 @@ function LongHaulCardImage({ city, country, fallbackSrc }: { city: string; count
           referrerPolicy="no-referrer"
           onError={(event) => {
             const img = event.currentTarget;
-            if (fallbackSrc && img.src !== fallbackSrc) {
-              img.src = fallbackSrc;
-              return;
-            }
-            img.style.display = "none";
+            img.style.opacity = "0";
           }}
         />
       ) : (
