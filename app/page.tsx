@@ -161,29 +161,24 @@ function seededShuffle<T>(items: T[], seedText: string) {
 const longHaulCards = [
   { href: "/dalekie-podroze#wietnam", region: "azja", label: "WIETNAM", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam", imageCountry: "Wietnam", fallbackImage: "/images/long-haul/wietnam.webp" },
   { href: "/dalekie-podroze#pekin", region: "azja", label: "CHINY", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin", imageCountry: "Chiny", fallbackImage: "/images/long-haul/pekin.webp" },
-  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Fuji · świątynie · tradycja", text: "Świątynie, kultura, jedzenie i kolej — podróż, której nie zamyka się w weekendzie.", imageCity: "Tokio", imageCountry: "Japonia", fallbackImage: "/images/long-haul/tokio.png" },
+  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Fuji · świątynie · tradycja", text: "Świątynie, kultura, jedzenie i kolej — podróż, której nie zamyka się w weekendzie.", imageCity: "Tokio", imageCountry: "Japonia", fallbackImage: "/images/long-haul/tokio.webp" },
   { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · świątynie · plaże", text: "Energia Bangkoku i kilka dni nad morzem w jednej podróży.", imageCity: "Bangkok", imageCountry: "Tajlandia", fallbackImage: "/images/long-haul/bangkok.webp" },
   { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Tarasy ryżowe · świątynie · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali", imageCountry: "Indonezja", fallbackImage: "/images/long-haul/bali.webp" },
-  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur", imageCountry: "Singapur", fallbackImage: "/images/long-haul/singapur.jpg" },
+  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur", imageCountry: "Singapur", fallbackImage: "/images/long-haul/singapur.webp" },
   { href: "/dalekie-podroze#seul", region: "azja", label: "KOREA PŁD.", title: "Seul", subtitle: "Pałace · kultura · K-food", text: "Nowoczesne miasto, tradycja i świetna baza do odkrywania Korei Południowej.", imageCity: "Seul", imageCountry: "Korea Południowa", fallbackImage: "/images/long-haul/seul.webp" },
-  { href: "/dalekie-podroze#malezja", region: "azja", label: "MALEZJA", title: "Malezja", subtitle: "Kuala Lumpur · wyspy · natura", text: "Metropolia, tropiki i różnorodność, która dobrze działa w jednej dłuższej trasie.", imageCity: "Kuala Lumpur", imageCountry: "Malezja", fallbackImage: "/images/long-haul/malezja.jpg" },
+  { href: "/dalekie-podroze#malezja", region: "azja", label: "MALEZJA", title: "Malezja", subtitle: "Kuala Lumpur · wyspy · natura", text: "Metropolia, tropiki i różnorodność, która dobrze działa w jednej dłuższej trasie.", imageCity: "Kuala Lumpur", imageCountry: "Malezja", fallbackImage: "/images/long-haul/malezja.webp" },
   { href: "/dalekie-podroze#malediwy", region: "azja", label: "MALEDIWY", title: "Malediwy", subtitle: "Laguny · rafy · wyspy", text: "Kierunek na prawdziwe odcięcie od codzienności i kilka dni nad turkusową wodą.", imageCity: "Malediwy", imageCountry: "Malediwy", fallbackImage: "/images/long-haul/malediwy.webp" },
   { href: "/dalekie-podroze#meksyk", region: "ameryka", label: "MEKSYK", title: "Meksyk", subtitle: "Kultura · kuchnia · Karaiby", text: "Kolor, historia, świetne jedzenie i możliwość połączenia zwiedzania z plażą.", imageCity: "Meksyk", imageCountry: "Meksyk", fallbackImage: "/images/long-haul/meksyk.webp" },
-  { href: "/dalekie-podroze#sydney", region: "oceania", label: "AUSTRALIA", title: "Sydney", subtitle: "Opera · ocean · city life", text: "Ikoniczne miasto i dobry początek większej podróży po Australii.", imageCity: "Sydney", imageCountry: "Australia", fallbackImage: "/images/long-haul/sydney.jpg" },
-  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad", imageCountry: "RPA", fallbackImage: "/images/long-haul/kapsztad.jpg" },
+  { href: "/dalekie-podroze#sydney", region: "oceania", label: "AUSTRALIA", title: "Sydney", subtitle: "Opera · ocean · city life", text: "Ikoniczne miasto i dobry początek większej podróży po Australii.", imageCity: "Sydney", imageCountry: "Australia", fallbackImage: "/images/long-haul/sydney.webp" },
+  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad", imageCountry: "RPA", fallbackImage: "/images/long-haul/kapsztad.webp" },
 ];
 
 
 function LongHaulCardImage({ city, country, fallbackSrc }: { city: string; country: string; fallbackSrc?: string }) {
-  const [src, setSrc] = useState<string | null>(fallbackSrc || null);
+  const [dynamicSrc, setDynamicSrc] = useState<string | null>(null);
 
   useEffect(() => {
-    // W sekcjach kuratorskich używamy stałej, sprawdzonej grafiki.
-    // Dynamiczne wyszukiwanie zostaje tylko dla kierunków bez fallbacku.
-    if (fallbackSrc) {
-      setSrc(fallbackSrc);
-      return;
-    }
+    if (fallbackSrc) return;
 
     let active = true;
     const controller = new AbortController();
@@ -192,8 +187,7 @@ function LongHaulCardImage({ city, country, fallbackSrc }: { city: string; count
     fetch(`/api/destination-image?${params.toString()}`, { signal: controller.signal })
       .then(response => response.ok ? response.json() : null)
       .then(data => {
-        const liveSrc = data?.image?.url;
-        if (active && liveSrc) setSrc(liveSrc);
+        if (active && data?.image?.url) setDynamicSrc(data.image.url);
       })
       .catch(() => {});
 
@@ -203,17 +197,20 @@ function LongHaulCardImage({ city, country, fallbackSrc }: { city: string; count
     };
   }, [city, country, fallbackSrc]);
 
+  const src = fallbackSrc || dynamicSrc;
+
   return (
     <div className="long-haul-card-media" aria-hidden="true">
       {src ? (
         <img
           src={src}
           alt=""
-          loading="lazy"
-          referrerPolicy="no-referrer"
+          loading={fallbackSrc ? "eager" : "lazy"}
+          decoding="async"
+          fetchPriority={fallbackSrc ? "high" : "auto"}
           onError={(event) => {
             const img = event.currentTarget;
-            img.style.opacity = "0";
+            img.style.display = "none";
           }}
         />
       ) : (
