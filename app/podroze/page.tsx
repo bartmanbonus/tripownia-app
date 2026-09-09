@@ -10,54 +10,176 @@ export const metadata: Metadata = {
   alternates: { canonical: "/podroze" },
 };
 
-const landingImages: Record<string, { src: string; label: string }> = {
-  "malta-z-warszawy": { src: "/images/destinations/valletta.jpg", label: "Malta" },
-  "rzym-z-warszawy": { src: "/images/destinations/rzym.jpg", label: "Rzym" },
-  "barcelona-z-warszawy": { src: "/images/destinations/barcelona.jpg", label: "Barcelona" },
-  "cypr-z-warszawy": { src: "/images/destinations/pafos.jpg", label: "Cypr" },
-  "madera-z-warszawy": { src: "/images/destinations/madera.jpg", label: "Madera" },
-  "teneryfa-z-warszawy": { src: "/images/destinations/teneryfa.jpg", label: "Teneryfa" },
-  "city-break-do-1000-zl": { src: "/images/destinations/praga.jpg", label: "City break" },
-  "city-break-do-1500-zl": { src: "/images/destinations/lizbona.jpg", label: "City break" },
-  "all-inclusive-z-warszawy": { src: "/images/destinations/marsa-alam.jpg", label: "All Inclusive" },
-  "egzotyka-zima": { src: "/images/destinations/dubaj.jpg", label: "Egzotyka zimą" },
-  "last-minute-z-warszawy": { src: "/images/destinations/djerba.jpg", label: "Last Minute" },
-  "wakacje-z-krakowa": { src: "/images/destinations/rodos.jpg", label: "Wakacje z Krakowa" },
+const landingVisuals: Record<string, {
+  image: string;
+  region: string;
+  type: string;
+  nights: string;
+}> = {
+  "malta-z-warszawy": {
+    image: "/images/destinations/valletta.jpg",
+    region: "Europa",
+    type: "City break",
+    nights: "3–7 nocy",
+  },
+  "rzym-z-warszawy": {
+    image: "/images/destinations/rzym.jpg",
+    region: "Europa",
+    type: "City break",
+    nights: "2–5 nocy",
+  },
+  "barcelona-z-warszawy": {
+    image: "/images/destinations/barcelona.jpg",
+    region: "Europa",
+    type: "City break",
+    nights: "3–5 nocy",
+  },
+  "cypr-z-warszawy": {
+    image: "/images/destinations/pafos.jpg",
+    region: "Europa",
+    type: "Wakacje",
+    nights: "5–10 nocy",
+  },
+  "madera-z-warszawy": {
+    image: "/images/destinations/madera.jpg",
+    region: "Europa",
+    type: "Aktywnie",
+    nights: "5–10 nocy",
+  },
+  "teneryfa-z-warszawy": {
+    image: "/images/destinations/teneryfa.jpg",
+    region: "Europa",
+    type: "Wakacje",
+    nights: "5–10 nocy",
+  },
+  "city-break-do-1000-zl": {
+    image: "/images/destinations/praga.jpg",
+    region: "Budżet",
+    type: "City break",
+    nights: "2–4 noce",
+  },
+  "city-break-do-1500-zl": {
+    image: "/images/destinations/lizbona.jpg",
+    region: "Budżet",
+    type: "City break",
+    nights: "2–5 nocy",
+  },
+  "all-inclusive-z-warszawy": {
+    image: "/images/destinations/marsa-alam.jpg",
+    region: "Afryka",
+    type: "All Inclusive",
+    nights: "7–14 nocy",
+  },
+  "egzotyka-zima": {
+    image: "/images/destinations/dubaj.jpg",
+    region: "Egzotyka",
+    type: "Daleka podróż",
+    nights: "7–14 nocy",
+  },
+  "last-minute-z-warszawy": {
+    image: "/images/destinations/djerba.jpg",
+    region: "Afryka",
+    type: "Last minute",
+    nights: "5–10 nocy",
+  },
+  "wakacje-z-krakowa": {
+    image: "/images/destinations/rodos.jpg",
+    region: "Europa",
+    type: "Wakacje",
+    nights: "5–10 nocy",
+  },
 };
+
+function cleanTitle(title: string) {
+  return title
+    .replace(" z Warszawy — ", " — ")
+    .replace(" z Warszawy", "")
+    .replace(" z Krakowa", " z Krakowa");
+}
 
 export default function TravelIdeasPage() {
   return (
     <main>
       <SiteHeader/>
-      <section className="shell seo-hub-page">
-        <div className="kicker">POMYSŁY NA WYJAZD</div>
-        <h1>Znajdź podróż po kierunku, budżecie albo lotnisku</h1>
-        <p className="hub-lead">
-          To nie jest katalog artykułów. Każda strona prowadzi do aktualnych ofert Tripownii
-          oraz samodzielnego wyszukiwania lotów, noclegów i pakietów.
-        </p>
-        <div className="seo-link-grid seo-link-grid-visual">
-          {seoLandings.map(item => {
-            const image = landingImages[item.slug];
+
+      <section className="shell travel-hub-page">
+        <div className="travel-hub-hero">
+          <div>
+            <div className="kicker">PODRÓŻE NA WYMIAR</div>
+            <h1>Znajdź podróż po kierunku, budżecie albo lotnisku.</h1>
+            <p>
+              Każda karta prowadzi do konkretnego pomysłu, aktualnych ofert i dalszego
+              wyszukiwania lotów, noclegów albo gotowych pakietów.
+            </p>
+          </div>
+
+          <Link href="/kierunki" className="travel-hub-all">
+            <span>✈</span>
+            Zobacz wszystkie kierunki
+            <b>→</b>
+          </Link>
+        </div>
+
+        <div className="travel-hub-search-row">
+          <Link href="/#szukaj-samodzielnie" className="travel-hub-search">
+            <span aria-hidden="true">⌕</span>
+            <strong>Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam, Resort 4★</strong>
+          </Link>
+
+          <Link href="/#szukaj-samodzielnie" className="travel-hub-weekend">
+            <span className="travel-hub-check">✓</span>
+            <span>
+              <strong>Pobyt obejmuje sobotę i niedzielę</strong>
+              <small>Jesteś na miejscu w oba dni</small>
+            </span>
+          </Link>
+        </div>
+
+        <div className="travel-hub-filters" aria-label="Kategorie podróży">
+          <span className="active">🌐 Wszystkie</span>
+          <span>⌖ Europa</span>
+          <span>🌴 Egzotyka</span>
+          <span>▦ City break</span>
+          <span>△ Wakacje</span>
+          <span>◉ All Inclusive</span>
+        </div>
+
+        <div className="travel-hub-grid">
+          {seoLandings.map((item) => {
+            const visual = landingVisuals[item.slug];
+            if (!visual) return null;
+
             return (
-              <Link href={`/podroze/${item.slug}`} key={item.slug}>
-                {image ? (
-                  <div className="seo-link-image">
-                    <img src={image.src} alt={image.label} loading="lazy" decoding="async" />
-                    <span>{image.label}</span>
+              <Link className="travel-hub-card" href={`/podroze/${item.slug}`} key={item.slug}>
+                <div className="travel-hub-card-image">
+                  <img src={visual.image} alt={item.query} loading="lazy" decoding="async" />
+                  <span className="travel-hub-region">{visual.region}</span>
+                  <span className="travel-hub-heart" aria-hidden="true">♡</span>
+                </div>
+
+                <div className="travel-hub-card-body">
+                  <strong>{cleanTitle(item.title)}</strong>
+                  <p>{item.lead}</p>
+
+                  <div className="travel-hub-card-meta">
+                    <span>✈ {visual.type}</span>
+                    <span>▣ {visual.nights}</span>
+                    <b>→</b>
                   </div>
-                ) : null}
-                <div className="seo-link-content">
-                  <small>{item.eyebrow}</small>
-                  <strong>{item.title}</strong>
-                  <span>{item.lead}</span>
-                  <b>Zobacz aktualne oferty →</b>
                 </div>
               </Link>
             );
           })}
         </div>
+
+        <div className="travel-hub-trust">
+          <div><i>◉</i><span><strong>Sprawdzone kierunki</strong><small>Tylko miejsca, które polecamy</small></span></div>
+          <div><i>◇</i><span><strong>Dobre ceny</strong><small>Oferty z zaufanych partnerów</small></span></div>
+          <div><i>♢</i><span><strong>Bezpieczne podróże</strong><small>Praktyczne wskazówki i porady</small></span></div>
+          <div><i>◎</i><span><strong>Inspiracje na cały rok</strong><small>Weekend, wakacje i wielkie podróże</small></span></div>
+        </div>
       </section>
+
       <SiteFooter/>
     </main>
   );
