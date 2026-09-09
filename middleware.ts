@@ -10,7 +10,41 @@ function unauthorized() {
   });
 }
 
+function cleanLegacyWordPressUrl(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  const hasWpPostId = url.searchParams.has("p");
+  const hasLegacyQueryPagination = Array.from(url.searchParams.keys()).some((key) =>
+    /^query-\d+-page$/i.test(key)
+  );
+
+  if (hasWpPostId) {
+    return new NextResponse("Ta stara strona WordPress nie jest już dostępna.", {
+      status: 410,
+      headers: {
+        "X-Robots-Tag": "noindex, nofollow, noarchive",
+        "Cache-Control": "public, max-age=3600",
+      },
+    });
+  }
+
+  if (hasLegacyQueryPagination) {
+    for (const key of Array.from(url.searchParams.keys())) {
+      if (/^query-\d+-page$/i.test(key)) url.searchParams.delete(key);
+    }
+    return NextResponse.redirect(url, 308);
+  }
+
+  return null;
+}
+
 export function middleware(request: NextRequest) {
+  const legacyResponse = cleanLegacyWordPressUrl(request);
+  if (legacyResponse) return legacyResponse;
+
+  if (!request.nextUrl.pathname.startsWith("/admin")) {
+    return NextResponse.next();
+  }
+
   const username = process.env.TRIPOWNIA_ADMIN_USER;
   const password = process.env.TRIPOWNIA_ADMIN_PASSWORD;
 
@@ -45,5 +79,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)"],
 };
