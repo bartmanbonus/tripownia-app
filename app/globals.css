@@ -8471,3 +8471,248 @@ vercel-toolbar,
       0 1px 0 rgba(255,255,255,.96) inset !important;
   }
 }
+
+
+/* ==========================================================
+   V173 — WYSZUKIWARKA: RÓWNE RZĘDY + WEEKEND PRZY POLU TEKSTOWYM
+========================================================== */
+
+/* Pierwszy rząd: krótsze pole tekstowe + weekend obok */
+.search-text-row.search-text-row-with-weekend{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) 300px !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  padding:18px 20px 0 !important;
+}
+
+.search-text-row-with-weekend .search-text-field{
+  width:100% !important;
+  height:58px !important;
+  min-height:58px !important;
+  margin:0 !important;
+}
+
+.weekend-required.weekend-required-inline{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  width:100% !important;
+  height:58px !important;
+  min-height:58px !important;
+  margin:0 !important;
+  padding:0 15px !important;
+  border:1px solid #ded1c8 !important;
+  border-radius:15px !important;
+  background:linear-gradient(180deg,#fff 0%,#f8f3ef 100%) !important;
+  box-shadow:
+    0 9px 20px rgba(63,41,27,.075),
+    0 1px 0 rgba(255,255,255,.98) inset,
+    0 -2px 4px rgba(166,141,126,.08) inset !important;
+  transition:.18s ease !important;
+}
+
+.weekend-required-inline:hover{
+  transform:translateY(-1px);
+  border-color:#f3aa88 !important;
+  box-shadow:
+    0 12px 25px rgba(71,43,26,.09),
+    0 1px 0 rgba(255,255,255,.98) inset !important;
+}
+
+.weekend-required-inline.active{
+  border-color:#ff9a71 !important;
+  background:linear-gradient(180deg,#fff8f4 0%,#ffede4 100%) !important;
+  box-shadow:
+    0 12px 24px rgba(255,102,43,.10),
+    0 1px 0 rgba(255,255,255,.98) inset !important;
+}
+
+.weekend-required-inline .weekend-check{
+  flex:0 0 26px !important;
+  width:26px !important;
+  height:26px !important;
+  border-radius:8px !important;
+}
+
+.weekend-required-inline > div{
+  min-width:0 !important;
+}
+
+.weekend-required-inline strong{
+  display:block !important;
+  font-size:11px !important;
+  line-height:1.15 !important;
+  white-space:nowrap !important;
+}
+
+.weekend-required-inline small{
+  display:block !important;
+  margin-top:2px !important;
+  color:#8a7c73 !important;
+  font-size:9px !important;
+  line-height:1.1 !important;
+  white-space:nowrap !important;
+}
+
+/* Drugi rząd: wszystkie pola identycznej wysokości i jedna linia podstawy */
+.compact-search-row{
+  display:grid !important;
+  grid-template-columns:1.35fr 1.35fr .9fr .95fr 1fr 1.15fr !important;
+  gap:10px !important;
+  align-items:stretch !important;
+  padding:12px 20px 12px !important;
+}
+
+.compact-search-row > *{
+  min-width:0 !important;
+  width:100% !important;
+  height:58px !important;
+  min-height:58px !important;
+  margin:0 !important;
+}
+
+.compact-search-row .dropdown-trigger,
+.compact-search-row .compact-select,
+.compact-search-row .compact-submit{
+  width:100% !important;
+  height:58px !important;
+  min-height:58px !important;
+}
+
+/* Usuwamy pusty pasek "Cały świat" — po jego usunięciu nie zostaje luka */
+.search-smart-options,
+.active-filter-bar{
+  display:none !important;
+}
+
+/* Quick starts zachowuje dokładnie tę samą szerokość co rzędy nad nim */
+.quick-destination-wrap{
+  margin:0 20px 18px !important;
+  padding:15px 16px 16px !important;
+}
+
+.quick-destination-head{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:16px !important;
+  min-height:24px !important;
+  margin-bottom:10px !important;
+}
+
+.quick-destination-head small{
+  margin:0 !important;
+}
+
+.quick-clear-filters{
+  appearance:none !important;
+  border:0 !important;
+  padding:4px 0 !important;
+  background:transparent !important;
+  color:#f15b27 !important;
+  font:inherit !important;
+  font-size:10px !important;
+  font-weight:900 !important;
+  cursor:pointer !important;
+}
+
+.quick-clear-filters:hover{
+  text-decoration:underline;
+}
+
+.quick-destination-grid{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:9px !important;
+}
+
+.quick-destination-grid button{
+  width:100% !important;
+  min-width:0 !important;
+  height:48px !important;
+  min-height:48px !important;
+  padding:0 12px !important;
+  justify-content:center !important;
+}
+
+.quick-destination-grid button strong{
+  white-space:nowrap !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+}
+
+/* Desktopowy kontener ma równy rytm od lewej do prawej */
+.search-tabs,
+.search-text-row-with-weekend,
+.compact-search-row,
+.quick-destination-wrap,
+.search-results-block{
+  box-sizing:border-box !important;
+}
+
+/* Laptop */
+@media(max-width:1250px){
+  .search-text-row.search-text-row-with-weekend{
+    grid-template-columns:minmax(0,1fr) 270px !important;
+  }
+
+  .compact-search-row{
+    grid-template-columns:1.25fr 1.25fr .85fr .95fr 1fr 1.1fr !important;
+  }
+
+  .quick-destination-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  }
+}
+
+/* Tablet */
+@media(max-width:950px){
+  .search-text-row.search-text-row-with-weekend{
+    grid-template-columns:1fr !important;
+  }
+
+  .compact-search-row{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
+  .compact-search-row .compact-submit{
+    grid-column:1/-1 !important;
+  }
+
+  .quick-destination-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+
+/* Mobile */
+@media(max-width:620px){
+  .search-text-row.search-text-row-with-weekend{
+    padding-left:12px !important;
+    padding-right:12px !important;
+  }
+
+  .compact-search-row{
+    grid-template-columns:1fr !important;
+    padding-left:12px !important;
+    padding-right:12px !important;
+  }
+
+  .compact-search-row .compact-submit{
+    grid-column:auto !important;
+  }
+
+  .quick-destination-wrap{
+    margin-left:12px !important;
+    margin-right:12px !important;
+  }
+
+  .quick-destination-grid{
+    grid-template-columns:1fr !important;
+  }
+
+  .weekend-required-inline strong,
+  .weekend-required-inline small{
+    white-space:normal !important;
+  }
+}
