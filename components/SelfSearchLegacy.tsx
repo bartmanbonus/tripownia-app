@@ -58,33 +58,79 @@ function buildFlightUrl(origin: string, destination: string) {
 
 export default function SelfSearchLegacy() {
   const [tab, setTab] = useState<Tab>("package");
-  const [from, setFrom] = useState("WAWA");
-  const [destination, setDestination] = useState("");
+  const [from, setFrom] = useState<string[]>(["WAWA"]);
+  const [destinations, setDestinations] = useState<string[]>([]);
+  const [destinationDraft, setDestinationDraft] = useState("");
   const [nights, setNights] = useState("any");
   const [budget, setBudget] = useState("any");
   const [board, setBoard] = useState("any");
+  const [weekendOnly, setWeekendOnly] = useState(false);
   const [results, setResults] = useState<SearchOffer[]>([]);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const activeDeparture = departures.find((item) => item.key === from) || departures[0];
+  const selectedDepartures = departures.filter((item) => from.includes(item.key));
+  const activeDeparture = selectedDepartures[0] || departures[0];
+  const destinationQuery = destinations.join(", ");
+  const effectiveDestination = destinationDraft.trim() || destinations[0] || "";
+
   const packageUrl = partners.esky.buildUrl("https://www2.esky.pl/lot+hotel/portfolio?context=pl-packages&sort[TotalPrice]=asc");
-  const hotelUrl = partners.booking.buildUrl(destination.trim() ? `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(destination.trim())}` : "https://www.booking.com/");
-  const flightUrl = useMemo(() => buildFlightUrl(activeDeparture.kiwi, destination), [activeDeparture.kiwi, destination]);
+  const hotelUrl = partners.booking.buildUrl(effectiveDestination ? `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(effectiveDestination)}` : "https://www.booking.com/");
+  const flightUrl = useMemo(
+    () => buildFlightUrl(selectedDepartures.map((item) => item.kiwi).join(","), effectiveDestination),
+    [selectedDepartures.map((item) => item.kiwi).join(","), effectiveDestination]
+  );
+
+  function toggleDeparture(key: string) {
+    setFrom((current) => {
+      if (current.includes(key)) {
+        return current.length === 1 ? current : current.filter((item) => item !== key);
+      }
+      return [...current, key];
+    });
+  }
+
+  function addDestination(raw = destinationDraft) {
+    const next = raw
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    if (!next.length) return;
+
+    setDestinations((current) =>
+      Array.from(new Set([...current, ...next])).slice(0, 6)
+    );
+    setDestinationDraft("");
+  }
+
+  function removeDestination(value: string) {
+    setDestinations((current) => current.filter((item) => item !== value));
+  }
 
   async function searchOrganized() {
     setLoading(true);
     setSubmitted(true);
     try {
+      if (destinationDraft.trim()) addDestination(destinationDraft);
+
+      const queryValues = Array.from(
+        new Set([
+          ...destinations,
+          ...destinationDraft.split(",").map((item) => item.trim()).filter(Boolean),
+        ])
+      ).slice(0, 6);
+
       const params = new URLSearchParams({
         mode: tab === "city" ? "citybreak" : "search",
         provider: "exim",
-        from,
+        from: from.join(","),
       });
-      if (destination.trim()) params.set("q", destination.trim());
+      if (queryValues.length) params.set("q", queryValues.join(","));
       if (nights !== "any") params.set("nights", nights);
       if (budget !== "any") params.set("maxPrice", budget);
       if (board !== "any") params.set("board", board);
+      if (weekendOnly) params.set("weekend", "1");
 
       const response = await fetch(`/api/today-offers?${params.toString()}`, { cache: "no-store" });
       const data = response.ok ? await response.json() : null;
@@ -128,7 +174,13 @@ export default function SelfSearchLegacy() {
               <div className="search-mini-label"><MapPin size={14}/> Skąd chcesz lecieć?</div>
               <div className="search-airport-chips">
                 {departures.map((item) => (
-                  <button key={item.key} type="button" className={from === item.key ? "active" : ""} onClick={() => setFrom(item.key)}>
+                  <button
+                    key={item.key}
+                    type="button"
+                    aria-pressed={from.includes(item.key)}
+                    className={from.includes(item.key) ? "active" : ""}
+                    onClick={() => toggleDeparture(item.key)}
+                  >
                     <strong>{item.short}</strong><span>{item.label}</span>
                   </button>
                 ))}
@@ -137,20 +189,99 @@ export default function SelfSearchLegacy() {
           )}
 
           {(tab === "city" || tab === "holiday" || tab === "flights" || tab === "hotels") && (
-            <div className="search-destination-row">
+            <div className="search-destination-row search-destination-multi">
               <label>
-                <span>Kierunek</span>
-                <div><Search size={16}/><input value={destination} onChange={(event) => setDestination(event.target.value)} placeholder={tab === "flights" ? "np. Mediolan, Bangkok, Nowy Jork" : "np. Rzym, Malta, Egipt"}/></div>
+                <span>Kierunek <small>— możesz dodać kilka</small></span>
+                <div>
+                  <Search size={16}/>
+                  <input
+                    value={destinationDraft}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      if (value.includes(",")) {
+                        addDestination(value);
+                      } else {
+                        setDestinationDraft(value);
+                      }
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        addDestination();
+                      }
+                    }}
+                    onBlur={() => addDestination()}
+                    placeholder={tab === "flights" ? "np. Mediolan, Bangkok, Nowy Jork" : "np. Rzym, Malta, Egipt"}
+                  />
+                </div>
               </label>
+
+              {destinations.length > 0 && (
+                <div className="search-destination-chips" aria-label="Wybrane kierunki">
+                  {destinations.map((item) => (
+                    <button key={item} type="button" onClick={() => removeDestination(item)} title={`Usuń ${item}`}>
+                      <span>{item}</span><b aria-hidden="true">×</b>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           {showFilters && (
-            <div className="search-filter-grid">
+            <div className="search-filter-grid search-filter-grid-extended">
               <div className="search-filter-title"><SlidersHorizontal size={15}/> Dopasuj wyjazd</div>
-              <label><span>Długość</span><select value={nights} onChange={(event) => setNights(event.target.value)}><option value="any">Dowolna</option><option value="2-3">2–3 noce</option><option value="4-5">4–5 nocy</option><option value="6-8">6–8 nocy</option><option value="9+">9+ nocy</option></select></label>
-              <label><span>Budżet / os.</span><select value={budget} onChange={(event) => setBudget(event.target.value)}><option value="any">Dowolny</option><option value="1500">do 1 500 zł</option><option value="2500">do 2 500 zł</option><option value="3500">do 3 500 zł</option><option value="5000">do 5 000 zł</option><option value="7500">do 7 500 zł</option></select></label>
-              <label><span>Wyżywienie</span><select value={board} onChange={(event) => setBoard(event.target.value)}><option value="any">Dowolne</option><option value="allinclusive">All Inclusive</option><option value="breakfast">Śniadania</option><option value="halfboard">Half Board</option></select></label>
+
+              <label>
+                <span>Długość</span>
+                <select value={nights} onChange={(event) => setNights(event.target.value)}>
+                  <option value="any">Dowolna</option>
+                  <option value="1-2">1–2 noce</option>
+                  <option value="3-4">3–4 noce</option>
+                  <option value="5-7">5–7 nocy</option>
+                  <option value="8-10">8–10 nocy</option>
+                  <option value="11-14">11–14 nocy</option>
+                  <option value="15+">15+ nocy</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Budżet / os.</span>
+                <select value={budget} onChange={(event) => setBudget(event.target.value)}>
+                  <option value="any">Dowolny</option>
+                  <option value="1000">do 1 000 zł</option>
+                  <option value="1500">do 1 500 zł</option>
+                  <option value="2000">do 2 000 zł</option>
+                  <option value="2500">do 2 500 zł</option>
+                  <option value="3500">do 3 500 zł</option>
+                  <option value="5000">do 5 000 zł</option>
+                  <option value="7500">do 7 500 zł</option>
+                  <option value="10000">do 10 000 zł</option>
+                  <option value="15000">do 15 000 zł</option>
+                </select>
+              </label>
+
+              <label>
+                <span>Wyżywienie</span>
+                <select value={board} onChange={(event) => setBoard(event.target.value)}>
+                  <option value="any">Dowolne</option>
+                  <option value="roomonly">Bez wyżywienia</option>
+                  <option value="breakfast">Śniadania</option>
+                  <option value="halfboard">Half Board / 2 posiłki</option>
+                  <option value="fullboard">Full Board / 3 posiłki</option>
+                  <option value="allinclusive">All Inclusive</option>
+                  <option value="ultraallinclusive">Ultra All Inclusive</option>
+                </select>
+              </label>
+
+              <label className={`self-search-weekend-toggle ${weekendOnly ? "active" : ""}`}>
+                <input type="checkbox" checked={weekendOnly} onChange={(event) => setWeekendOnly(event.target.checked)}/>
+                <span className="self-search-weekend-check">{weekendOnly ? "✓" : ""}</span>
+                <span className="self-search-weekend-copy">
+                  <strong>Pobyt obejmuje sobotę i niedzielę</strong>
+                  <small>Jesteś na miejscu w oba dni weekendu</small>
+                </span>
+              </label>
             </div>
           )}
 
@@ -191,11 +322,26 @@ export default function SelfSearchLegacy() {
           )}
 
           {tab === "flights" && (
-            <div className="legacy-cta-box self-search-single-cta"><div><strong>Znajdź najlepsze połączenie</strong><span>Start: {activeDeparture.label}. {destination.trim() ? `Kierunek: ${destination.trim()}.` : "Wpisz kierunek albo przejdź do pełnego wyszukiwania."}</span></div><a href={flightUrl} target="_blank" rel="sponsored noopener noreferrer">Szukaj lotów <ArrowRight size={16}/></a></div>
+            <div className="legacy-cta-box self-search-single-cta">
+              <div>
+                <strong>Znajdź najlepsze połączenie</strong>
+                <span>
+                  Start: {selectedDepartures.map((item) => item.label).join(", ")}.
+                  {destinations.length ? ` Kierunki: ${destinations.join(", ")}.` : destinationDraft.trim() ? ` Kierunek: ${destinationDraft.trim()}.` : " Dodaj jeden lub kilka kierunków."}
+                </span>
+              </div>
+              <a href={flightUrl} target="_blank" rel="sponsored noopener noreferrer">Szukaj lotów <ArrowRight size={16}/></a>
+            </div>
           )}
 
           {tab === "hotels" && (
-            <div className="legacy-cta-box self-search-single-cta"><div><strong>Masz już transport?</strong><span>{destination.trim() ? `Pokaż noclegi w: ${destination.trim()}.` : "Wpisz kierunek i przejdź do dostępnych noclegów."}</span></div><a href={hotelUrl} target="_blank" rel="sponsored noopener noreferrer">Szukaj noclegów <ArrowRight size={16}/></a></div>
+            <div className="legacy-cta-box self-search-single-cta">
+              <div>
+                <strong>Masz już transport?</strong>
+                <span>{effectiveDestination ? `Pokaż noclegi w: ${effectiveDestination}.` : "Dodaj kierunek i przejdź do dostępnych noclegów."}</span>
+              </div>
+              <a href={hotelUrl} target="_blank" rel="sponsored noopener noreferrer">Szukaj noclegów <ArrowRight size={16}/></a>
+            </div>
           )}
         </div>
       </div>
