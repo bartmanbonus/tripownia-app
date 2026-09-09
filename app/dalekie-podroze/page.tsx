@@ -55,6 +55,10 @@ const trips: LongTrip[] = [
   { id:"peru", flag:"🇵🇪", region:"AMERYKA POŁUDNIOWA", title:"Peru", airport:"LIM", bookingCity:"Lima", duration:14, best:"maj – wrzesień", ideal:"12–16 dni", lead:"Duża podróż z konkretnym rytmem: Lima, Andy, Cusco i Machu Picchu. Tu warto zostawić zapas na wysokość i logistykę.", highlights:"Lima · Cusco · Sacred Valley · Machu Picchu", attractionQuery:"Peru" , image: LONG_HAUL_IMAGES.peru },
   { id:"malezja", flag:"🇲🇾", region:"MALEZJA", title:"Malezja", airport:"KUL", bookingCity:"Kuala Lumpur", duration:12, best:"cały rok", ideal:"8–14 dni", lead:"Kuala Lumpur, tropikalna natura i wyspy sprawiają, że Malezja dobrze działa jako różnorodna, dłuższa podróż po Azji.", highlights:"Kuala Lumpur · Penang · Langkawi · Borneo · Cameron Highlands", attractionQuery:"Malaysia Kuala Lumpur Penang Langkawi", image: LONG_HAUL_IMAGES.malezja },
 
+  { id:"nowa-zelandia", flag:"🇳🇿", region:"OCEANIA", title:"Nowa Zelandia", airport:"AKL", bookingCity:"Auckland", duration:16, best:"listopad – marzec", ideal:"14–21 dni", lead:"Kierunek na road trip, fiordy, góry i trasę, której nie warto ściskać do jednego tygodnia.", highlights:"Auckland · Rotorua · Queenstown · Milford Sound · road trip", attractionQuery:"New Zealand", image: LONG_HAUL_IMAGES.nowa_zelandia },
+  { id:"kenia", flag:"🇰🇪", region:"AFRYKA", title:"Kenia", airport:"NBO", bookingCity:"Nairobi", duration:12, best:"czerwiec – październik / styczeń – luty", ideal:"10–14 dni", lead:"Safari, parki narodowe i możliwość dołożenia kilku dni nad oceanem. To podróż, którą warto układać etapami.", highlights:"Nairobi · Masai Mara · Amboseli · Diani Beach", attractionQuery:"Kenya safari", image: LONG_HAUL_IMAGES.kenia },
+  { id:"dominikana", flag:"🇩🇴", region:"KARAIBY", title:"Dominikana", airport:"PUJ", bookingCity:"Punta Cana", duration:10, best:"grudzień – kwiecień", ideal:"8–12 dni", lead:"Nie tylko resort: plaże, interior wyspy i kilka dni na odkrywanie Karaibów poza hotelem.", highlights:"Punta Cana · Samaná · Santo Domingo · plaże", attractionQuery:"Dominican Republic", image: LONG_HAUL_IMAGES.dominikana },
+
 ];
 
 
@@ -75,7 +79,10 @@ const cheapestWindows: Record<string,{departure:string;ret:string;label:string}>
   mauritius:{departure:"2027-06-08",ret:"2027-06-18",label:"8–18 czerwca 2027"},
   kostaryka:{departure:"2027-02-09",ret:"2027-02-22",label:"9–22 lutego 2027"},
   peru:{departure:"2027-06-01",ret:"2027-06-15",label:"1–15 czerwca 2027"},
-  malezja:{departure:"2027-02-17",ret:"2027-03-01",label:"17 lutego – 1 marca 2027"}
+  malezja:{departure:"2027-02-17",ret:"2027-03-01",label:"17 lutego – 1 marca 2027"},
+  "nowa-zelandia":{departure:"2027-02-02",ret:"2027-02-18",label:"2–18 lutego 2027"},
+  kenia:{departure:"2027-09-07",ret:"2027-09-19",label:"7–19 września 2027"},
+  dominikana:{departure:"2027-02-09",ret:"2027-02-19",label:"9–19 lutego 2027"}
 };
 
 const cheapestTips: Record<string,string> = {
@@ -95,7 +102,10 @@ const cheapestTips: Record<string,string> = {
   mauritius:"Najpierw sprawdzamy czerwiec i wrzesień, kiedy pogoda jest dobra, a ceny nie są jeszcze świąteczne.",
   kostaryka:"Najpierw szukamy lutego i marca, unikając Bożego Narodzenia i Wielkanocy.",
   peru:"Najpierw porównujemy czerwiec i wrzesień — suchszy sezon bez lipcowo-sierpniowego szczytu.",
-  malezja:"Najpierw porównujemy luty–marzec oraz wrzesień; zwykle łatwiej wtedy znaleźć rozsądny lot do Kuala Lumpur i połączyć go z wyspami."
+  malezja:"Najpierw porównujemy luty–marzec oraz wrzesień; zwykle łatwiej wtedy znaleźć rozsądny lot do Kuala Lumpur i połączyć go z wyspami.",
+  "nowa-zelandia":"Najpierw porównujemy luty i marzec — dobry kompromis pogody i cen poza okresem świątecznym.",
+  kenia:"Najpierw sprawdzamy wrzesień i początek października, kiedy safari jest mocne, a ceny łatwiej porównać.",
+  dominikana:"Najpierw porównujemy luty i marzec poza feriami oraz okresem świątecznym."
 };
 
 function iso(date: Date) {
@@ -152,7 +162,7 @@ export default function LongHaulPage() {
           </p>
           <div className="long-haul-hero-tags">
             <a href="#wietnam">🇻🇳 Wietnam</a><a href="#pekin">🇨🇳 Pekin</a><a href="#nowy-jork">🇺🇸 Nowy Jork</a>
-            <a href="#japonia">🇯🇵 Japonia</a><a href="#tajlandia">🇹🇭 Tajlandia</a><a href="#bali">🇮🇩 Bali</a>
+            <a href="#japonia">🇯🇵 Japonia</a><a href="#tajlandia">🇹🇭 Tajlandia</a><a href="#bali">🇮🇩 Bali</a><a href="#nowa-zelandia">🇳🇿 Nowa Zelandia</a><a href="#kenia">🇰🇪 Kenia</a><a href="#dominikana">🇩🇴 Dominikana</a>
           </div>
         </div>
       </section>
