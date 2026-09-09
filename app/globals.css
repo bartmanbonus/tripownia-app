@@ -10360,3 +10360,333 @@ vercel-toolbar,
     grid-template-columns:1fr !important;
   }
 }
+
+
+/* ==========================================================
+   V186 — GŁÓWNA WYSZUKIWARKA: RÓWNE POLA, ZERO NACHODZENIA
+========================================================== */
+
+/* Główny moduł */
+.search-hub{
+  padding:12px !important;
+  overflow:visible !important;
+}
+
+/* 1. Taby — równa wysokość i brak przypadkowego rozciągania */
+.search-hub .search-tabs{
+  display:grid !important;
+  grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+  gap:6px !important;
+  width:100% !important;
+  margin:0 0 12px !important;
+}
+
+.search-hub .search-tabs button{
+  width:100% !important;
+  min-width:0 !important;
+  height:46px !important;
+  min-height:46px !important;
+  max-height:46px !important;
+  padding:0 10px !important;
+}
+
+/* 2. Kierunek + weekend — JEDEN RZĄD, TA SAMA WYSOKOŚĆ */
+.search-hub .search-text-row.search-top-inline{
+  display:grid !important;
+  grid-template-columns:minmax(0,2fr) minmax(300px,1fr) !important;
+  gap:10px !important;
+  align-items:stretch !important;
+  width:100% !important;
+  max-width:none !important;
+  margin:0 0 10px !important;
+  padding:0 !important;
+}
+
+.search-hub .search-text-row.search-top-inline > .search-text-field,
+.search-hub .search-text-row.search-top-inline > .weekend-required-inline{
+  width:100% !important;
+  min-width:0 !important;
+  height:62px !important;
+  min-height:62px !important;
+  max-height:62px !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  align-self:stretch !important;
+}
+
+.search-hub .search-text-row.search-top-inline > .search-text-field{
+  padding:0 18px !important;
+}
+
+.search-hub .search-text-row.search-top-inline > .weekend-required-inline{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  padding:0 15px !important;
+}
+
+.search-hub .weekend-required-inline > div{
+  min-width:0 !important;
+}
+
+.search-hub .weekend-required-inline strong,
+.search-hub .weekend-required-inline small{
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+
+/* 3. Główne filtry — wszystkie 6 pól IDENTYCZNEJ SZEROKOŚCI */
+.search-hub .compact-search-row{
+  display:grid !important;
+  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  gap:9px !important;
+  align-items:stretch !important;
+  width:100% !important;
+  margin:0 0 12px !important;
+  padding:0 !important;
+}
+
+.search-hub .compact-search-row > *{
+  width:100% !important;
+  min-width:0 !important;
+  height:62px !important;
+  min-height:62px !important;
+  max-height:62px !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  align-self:stretch !important;
+}
+
+.search-hub .dropdown-trigger,
+.search-hub .compact-select,
+.search-hub .compact-submit{
+  width:100% !important;
+  min-width:0 !important;
+  height:62px !important;
+  min-height:62px !important;
+  max-height:62px !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+}
+
+/* zawartość pól nie może wypychać szerokości */
+.search-hub .dropdown-copy{
+  min-width:0 !important;
+  flex:1 1 auto !important;
+}
+
+.search-hub .dropdown-copy strong{
+  display:block !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+
+.search-hub .compact-select{
+  min-width:0 !important;
+  overflow:hidden !important;
+}
+
+.search-hub .compact-select select{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+}
+
+.search-hub .compact-submit{
+  padding:0 12px !important;
+  white-space:nowrap !important;
+}
+
+/* 4. Dropdowny — nie wpływają na wysokość / układ kolejnego rzędu */
+.search-hub .dropdown-filter{
+  position:relative !important;
+  min-width:0 !important;
+}
+
+.search-hub .dropdown-menu{
+  position:absolute !important;
+  top:70px !important;
+  left:0 !important;
+  z-index:80 !important;
+  width:min(540px,90vw) !important;
+  max-height:520px !important;
+  margin:0 !important;
+}
+
+/* 5. Szybkie starty — nagłówek i "Wyczyść filtry" NIE NACHODZĄ NA SIEBIE */
+.search-hub .quick-destination-wrap{
+  position:relative !important;
+  width:100% !important;
+  margin:0 0 16px !important;
+  padding:14px 16px 15px !important;
+  box-sizing:border-box !important;
+  overflow:visible !important;
+}
+
+.search-hub .quick-destination-head{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:16px !important;
+  width:100% !important;
+  min-height:24px !important;
+  margin:0 0 10px !important;
+}
+
+.search-hub .quick-destination-head small{
+  display:block !important;
+  min-width:0 !important;
+  margin:0 !important;
+  line-height:1.25 !important;
+}
+
+.search-hub .quick-clear-filters{
+  appearance:none !important;
+  flex:0 0 auto !important;
+  min-height:30px !important;
+  margin:0 !important;
+  padding:0 10px !important;
+  border:1px solid #ffd0bb !important;
+  border-radius:999px !important;
+  background:#fff5ee !important;
+  color:#e95621 !important;
+  font:inherit !important;
+  font-size:9px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  white-space:nowrap !important;
+  cursor:pointer !important;
+}
+
+.search-hub .quick-destination-grid{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:8px !important;
+  width:100% !important;
+}
+
+.search-hub .quick-destination-grid button{
+  width:100% !important;
+  min-width:0 !important;
+  height:42px !important;
+  min-height:42px !important;
+  max-height:42px !important;
+  padding:0 10px !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+}
+
+.search-hub .quick-destination-grid button strong{
+  min-width:0 !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+
+/* 6. Wyniki — wyraźny odstęp od szybkich startów, nic się nie zderza */
+.search-hub .search-results-block{
+  clear:both !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:12px 2px 6px !important;
+  box-sizing:border-box !important;
+}
+
+.search-hub .premium-results-heading{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) minmax(280px,520px) !important;
+  gap:28px !important;
+  align-items:end !important;
+  width:100% !important;
+  margin:0 0 14px !important;
+  padding:0 !important;
+}
+
+.search-hub .premium-results-heading > div,
+.search-hub .premium-results-heading > span{
+  min-width:0 !important;
+}
+
+.search-hub .premium-results-heading h3{
+  margin:4px 0 0 !important;
+  line-height:1.02 !important;
+}
+
+.search-hub .premium-results-heading > span{
+  justify-self:end !important;
+  max-width:520px !important;
+  line-height:1.45 !important;
+}
+
+/* podsumowanie i karuzela też nie nachodzą */
+.search-hub .premium-results-summary{
+  position:relative !important;
+  z-index:1 !important;
+  width:100% !important;
+  margin:0 0 12px !important;
+  box-sizing:border-box !important;
+}
+
+.search-hub .premium-search-results-carousel{
+  position:relative !important;
+  z-index:0 !important;
+}
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media(max-width:1180px){
+  .search-hub .search-text-row.search-top-inline{
+    grid-template-columns:minmax(0,1.7fr) minmax(270px,1fr) !important;
+  }
+
+  .search-hub .compact-search-row{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  }
+
+  .search-hub .quick-destination-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  }
+}
+
+@media(max-width:820px){
+  .search-hub .search-text-row.search-top-inline{
+    grid-template-columns:1fr !important;
+  }
+
+  .search-hub .compact-search-row{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
+  .search-hub .premium-results-heading{
+    grid-template-columns:1fr !important;
+    gap:7px !important;
+  }
+
+  .search-hub .premium-results-heading > span{
+    justify-self:start !important;
+  }
+}
+
+@media(max-width:580px){
+  .search-hub .compact-search-row{
+    grid-template-columns:1fr !important;
+  }
+
+  .search-hub .quick-destination-grid{
+    grid-template-columns:1fr !important;
+  }
+
+  .search-hub .quick-destination-head{
+    align-items:flex-start !important;
+    flex-direction:column !important;
+    gap:7px !important;
+  }
+
+  .search-hub .quick-clear-filters{
+    align-self:flex-start !important;
+  }
+}
