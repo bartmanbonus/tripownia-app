@@ -124,8 +124,12 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       .filter((o:any)=>{
         if(isOfferExpired(o))return false;
         if(!isTravelDestinationAllowed(String(o.city||""),String(o.country||"")))return false;
-        if(Number(o.price||0)>max)return false;
+
+        // Wyniki LIVE są już filtrowane i — jeśli trzeba — stopniowo
+        // rozluźniane w /api/today-offers. Nie filtrujemy ich ponownie tutaj,
+        // bo ponowne nałożenie budżetu/weekendu usuwało poprawny fallback API.
         if(!usingLive){
+          if(Number(o.price||0)>max)return false;
           const q=normalizeDestination(text);
           const to:string[]=selectedTo.map(v=>normalizeDestination(String(v))).filter(Boolean);
           if(airports.length && !airports.includes(depCode(o)) && !airports.some(a=>normalizeDestination(String(o.departure||"")).includes(normalizeDestination(airportOptions.find((x:any)=>x.code===a)?.label||a))))return false;
@@ -133,11 +137,11 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
           if(!durationOk(o,duration))return false;
           if(board!=="all"&&!normalizeDestination(String(o.board||"")).includes(normalizeDestination(board)))return false;
           if(q&&!offerText(o).includes(q))return false;
-        }
-        if(weekendOnly){
-          const cats=(o.category||[]).map((c:any)=>normalizeDestination(String(c)));
-          const nights=Number(o.nights||o.duration||0);
-          if(!cats.some((c:string)=>c.includes("weekend")) && !(nights>=2&&nights<=4)) return false;
+          if(weekendOnly){
+            const cats=(o.category||[]).map((c:any)=>normalizeDestination(String(c)));
+            const nights=Number(o.nights||o.duration||0);
+            if(!cats.some((c:string)=>c.includes("weekend")) && !(nights>=2&&nights<=4)) return false;
+          }
         }
         return true;
       })
@@ -193,17 +197,50 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       const response=await fetch(`/api/today-offers?${params.toString()}`,{cache:"no-store"});
       const data=await response.json();
       const rows=Array.isArray(data?.offers)?data.offers:[];
-      const accepted=rows.filter((o:any)=>cityMode
+      let accepted=rows.filter((o:any)=>cityMode
         ? String(o.partner||"").toLowerCase()==="exim"
         : ["exim","tui"].includes(String(o.partner||"").toLowerCase())
       );
+      let notice=String(data?.notice||"");
+
+      // Ostatnia siatka bezpieczeństwa: jeśli konkretny kierunek nie zwrócił
+      // ani jednego produktu, pobieramy szeroką pulę bez twardych filtrów.
+      // Nadal są to wyłącznie aktualne oferty z naszych feedów EXIM/TUI.
+      if(!accepted.length && destination){
+        const rescueParams=new URLSearchParams({mode:"search",broad:"1",rescue:"1"});
+        const rescueResponse=await fetch(`/api/today-offers?${rescueParams.toString()}`,{cache:"no-store"});
+        const rescueData=await rescueResponse.json();
+        const rescueRows=Array.isArray(rescueData?.offers)?rescueData.offers:[];
+        accepted=rescueRows.filter((o:any)=>
+          ["exim","tui"].includes(String(o.partner||"").toLowerCase())
+        );
+        if(accepted.length){
+          notice=`Nie mamy teraz feedowej oferty dokładnie dla „${destination}” w wybranej kombinacji. Pokazujemy najbliższe dostępne okazje z naszych feedów.`;
+        }
+      }
+
+      // Jeżeli pierwszy rescue chwilowo zwróci pustą paczkę, wykonujemy jeszcze
+      // pełny feed sweep bez żadnych filtrów użytkownika. To nadal są wyłącznie
+      // aktualne oferty EXIM/TUI, tylko z szerszego zakresu kierunków.
+      if(!accepted.length){
+        const finalParams=new URLSearchParams({mode:"search",broad:"1",rescue:"full"});
+        const finalResponse=await fetch(`/api/today-offers?${finalParams.toString()}`,{cache:"no-store"});
+        const finalData=await finalResponse.json();
+        const finalRows=Array.isArray(finalData?.offers)?finalData.offers:[];
+        accepted=finalRows.filter((o:any)=>
+          ["exim","tui"].includes(String(o.partner||"").toLowerCase())
+        );
+        if(accepted.length){
+          notice="Brak dokładnego dopasowania — pokazujemy najlepsze aktualne okazje dostępne teraz w naszych feedach.";
+        }
+      }
 
       setLiveResults(accepted);
-      setLiveNotice(String(data?.notice||""));
+      setLiveNotice(notice);
       return accepted.length;
     }catch{
-      setLiveResults([]);
-      return 0;
+      setLiveNotice("Nie udało się odświeżyć feedu w tej chwili — zostawiamy ostatnie dostępne oferty.");
+      return liveResults.length;
     }finally{
       setLiveLoading(false);
       setSubmitted(v=>v+1);
