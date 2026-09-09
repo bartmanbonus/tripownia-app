@@ -330,14 +330,18 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
               <small>✦ WYBRANE PRZEZ TRIPOWNIĘ</small>
               <strong>{results.length>=200?"200 okazji gotowych do odkrycia":`${results.length} aktualnych okazji pasuje do parametrów`}</strong>
             </div>
-            <div className="premium-results-carousel-controls">
-              <button type="button" onClick={()=>moveResults(-1)} disabled={carouselIndex===0} aria-label="Poprzednia oferta"><ArrowLeft size={18}/></button>
-              <button type="button" onClick={()=>moveResults(1)} disabled={carouselIndex>=results.length-1} aria-label="Następna oferta"><ArrowRight size={18}/></button>
-              <span>{Math.min(carouselIndex+1,results.length)} / {results.length}</span>
-            </div>
+            <span className="premium-results-carousel-count">{Math.min(carouselIndex+1,results.length)} / {results.length}</span>
           </div>
-          <div className="search-results-carousel premium-search-results-carousel" ref={resultsRailRef}>
-            {results.map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}
+
+          <div className="search-results-carousel-wrap premium-search-results-wrap">
+            <div className="premium-results-carousel-controls premium-results-carousel-controls-overlay">
+              <button type="button" onClick={()=>moveResults(-1)} disabled={carouselIndex===0} aria-label="Poprzednia oferta"><ArrowLeft size={20}/></button>
+              <button type="button" onClick={()=>moveResults(1)} disabled={carouselIndex>=results.length-1} aria-label="Następna oferta"><ArrowRight size={20}/></button>
+            </div>
+
+            <div className="search-results-carousel premium-search-results-carousel" ref={resultsRailRef}>
+              {results.map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}
+            </div>
           </div>
         </>}
         {hasDestination&&<UnifiedPartnerSearch mode={activeTab==="City break"||activeTab==="Lot + hotel"?"city":activeTab==="Wakacje"?"holiday":"all"} initialDestination={queryDestination} initialDeparture={selectedFromLabel} initialDepartureCode={airports[0]} initialWeekendOnly={weekendOnly}/>}
