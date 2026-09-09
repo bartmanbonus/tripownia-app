@@ -8,8 +8,8 @@ import { offers, isOfferExpired } from "@/lib/offers";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
 export const metadata: Metadata = {
-  title: "Last minute — aktualne wyjazdy i oferty | Tripownia.pl",
-  description: "Żywa sekcja last minute Tripowni: konkretne wyjazdy, aktualne ceny i pełne wyszukiwanie.",
+  title: "Okazje Last Minute — aktualne wyjazdy | Tripownia.pl",
+  description: "Okazje Last Minute Tripowni: aktualne pakiety, ceny, terminy i szybkie przejście do rezerwacji.",
   alternates: { canonical: "/last-minute" },
 };
 
@@ -18,30 +18,29 @@ export default function LastMinuteOffersPage() {
     .filter(o => !isOfferExpired(o))
     .filter(o => isTravelDestinationAllowed(o.city,o.country));
 
-  const exim = active
-    .filter(o => o.partner === "exim")
-    .sort((a,b)=>Number(a.price||0)-Number(b.price||0))
-    .slice(0,8);
+  const vacationPool = active
+    .filter(o => o.partner !== "esky")
+    .filter(o => (o.category||[]).some(c=>/wakacje|allinclusive|plaza|cieplo/i.test(c)) || Number(o.nights||0)>=5)
+    .sort((a,b)=>Number(a.price||0)-Number(b.price||0));
 
-  const more = active
-    .filter(o => o.partner !== "exim" && ((o.category||[]).some(c=>/wakacje|allinclusive|plaza|cieplo/i.test(c)) || Number(o.nights||0)>=5))
-    .sort((a,b)=>Number(a.price||0)-Number(b.price||0))
-    .slice(0,8);
+  const featured = vacationPool.slice(0,12);
+  const featuredIds = new Set(featured.map(o=>o.id));
+  const more = vacationPool.filter(o=>!featuredIds.has(o.id)).slice(0,12);
 
   return <main>
     <SiteHeader/>
     <section className="shopping-hero shell last-minute-shopping-hero">
       <div>
-        <div className="kicker">⚡ LAST MINUTE — ŻYWE OFERTY</div>
-        <h1>Wylot niedługo? Najpierw sprawdzamy, co naprawdę ma sens.</h1>
-        <p>To nie jest poradnik. To żywa sekcja zakupowa: konkretne wyjazdy, terminy i ceny, które warto sprawdzić teraz.</p>
+        <div className="kicker">⚡ OKAZJE LAST MINUTE</div>
+        <h1>Okazje Last Minute. Konkretne wyjazdy, które warto sprawdzić teraz.</h1>
+        <p>Pakiety z konkretną ceną, terminem i kierunkiem. Najtańsze sensowne opcje pokazujemy na początku — bez ściany tekstu.</p>
       </div>
       <Link className="editorial-link" href="/magazyn-podrozniczy/last-minute-2026">📚 Jak kupować last minute — poradnik →</Link>
     </section>
 
     <section className="section shell last-minute-live-section">
-      <div className="section-heading"><div><div className="kicker">NAJLEPSZE LAST MINUTE</div><h2>Najtańsze gotowe wyjazdy, które warto sprawdzić teraz</h2><p>Sortujemy od najniższej ceny. Otwórz kartę, żeby pobrać aktualną cenę i przejść do konkretnego wariantu.</p></div></div>
-      <div className="last-minute-offer-rail">{exim.map(o=><OfferCard key={o.id} offer={o}/>)}</div>
+      <div className="section-heading"><div><div className="kicker">WYBRANE PRZEZ TRIPOWNIĘ</div><h2>Najlepsze okazje Last Minute</h2><p>Sortujemy od najniższej ceny. Otwórz kartę, żeby pobrać aktualną cenę i przejść do konkretnego wariantu.</p></div></div>
+      <div className="last-minute-offer-rail">{featured.map(o=><OfferCard key={o.id} offer={o}/>)}</div>
     </section>
 
     <section className="section shell partner-search-shopping">
@@ -49,7 +48,7 @@ export default function LastMinuteOffersPage() {
     </section>
 
     <section className="section shell">
-      <div className="section-heading"><div><div className="kicker">WIĘCEJ OPCJI</div><h2>Porównaj też inne gotowe wakacje</h2></div></div>
+      <div className="section-heading"><div><div className="kicker">WIĘCEJ OKAZJI</div><h2>Kolejne Last Minute do sprawdzenia</h2></div></div>
       <div className="last-minute-offer-rail">{more.map(o=><OfferCard key={o.id} offer={o}/>)}</div>
     </section>
     <SiteFooter/>
