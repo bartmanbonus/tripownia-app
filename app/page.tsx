@@ -159,14 +159,18 @@ function seededShuffle<T>(items: T[], seedText: string) {
 }
 
 const longHaulCards = [
-  { href: "/dalekie-podroze#wietnam", region: "azja", label: "AZJA", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam Ha Long", imageCountry: "Wietnam", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Ha_Long_Bay_2023.jpg?width=1920" },
-  { href: "/dalekie-podroze#pekin", region: "azja", label: "AZJA", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin Zakazane Miasto", imageCountry: "Chiny", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Forbidden_City,_Beijing.jpg?width=1920" },
-  { href: "/dalekie-podroze#nowy-jork", region: "ameryka", label: "USA", title: "Nowy Jork", subtitle: "Manhattan · Brooklyn", text: "Miasto, które nigdy nie śpi i zawsze daje powód, by wrócić.", imageCity: "Nowy Jork Manhattan", imageCountry: "USA", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/New_york_times_square-terabass.jpg?width=1920" },
-  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Nowoczesność · tradycja", text: "Świątynie, kultura, jedzenie i kolej — więcej niż szybki weekend.", imageCity: "Japonia Fuji Kioto", imageCountry: "Japonia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Chureito_Pagoda_and_Mount_Fuji_2023-03-07.jpg?width=1920" },
-  { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · plaże", text: "Energia miasta i kilka dni nad morzem w jednej podróży.", imageCity: "Tajlandia Bangkok wyspy", imageCountry: "Tajlandia", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Bangkok_Wat_Arun_P1130138.JPG?width=1920" },
-  { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Świątynie · natura · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali Indonezja", imageCountry: "Indonezja", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Rice_terraces,_Bali.jpg?width=1920" },
-  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur skyline", imageCountry: "Singapur", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Gardens_By_The_Bay.jpg?width=1920" },
-  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad Table Mountain", imageCountry: "RPA", fallbackImage: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Camps_Bay,_Cape_Town,_SA1.jpg?width=1920" },
+  { href: "/dalekie-podroze#wietnam", region: "azja", label: "WIETNAM", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam", imageCountry: "Wietnam", fallbackImage: "/images/long-haul/wietnam.webp" },
+  { href: "/dalekie-podroze#pekin", region: "azja", label: "CHINY", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin", imageCountry: "Chiny", fallbackImage: "/images/long-haul/pekin.webp" },
+  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Fuji · świątynie · tradycja", text: "Świątynie, kultura, jedzenie i kolej — podróż, której nie zamyka się w weekendzie.", imageCity: "Tokio", imageCountry: "Japonia", fallbackImage: "/images/long-haul/tokio.png" },
+  { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · świątynie · plaże", text: "Energia Bangkoku i kilka dni nad morzem w jednej podróży.", imageCity: "Bangkok", imageCountry: "Tajlandia", fallbackImage: "/images/long-haul/bangkok.webp" },
+  { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Tarasy ryżowe · świątynie · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali", imageCountry: "Indonezja", fallbackImage: "/images/long-haul/bali.webp" },
+  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur", imageCountry: "Singapur", fallbackImage: "/images/long-haul/singapur.jpg" },
+  { href: "/dalekie-podroze#seul", region: "azja", label: "KOREA PŁD.", title: "Seul", subtitle: "Pałace · kultura · K-food", text: "Nowoczesne miasto, tradycja i świetna baza do odkrywania Korei Południowej.", imageCity: "Seul", imageCountry: "Korea Południowa", fallbackImage: "/images/long-haul/seul.webp" },
+  { href: "/dalekie-podroze#malezja", region: "azja", label: "MALEZJA", title: "Malezja", subtitle: "Kuala Lumpur · wyspy · natura", text: "Metropolia, tropiki i różnorodność, która dobrze działa w jednej dłuższej trasie.", imageCity: "Kuala Lumpur", imageCountry: "Malezja", fallbackImage: "/images/long-haul/malezja.jpg" },
+  { href: "/dalekie-podroze#malediwy", region: "azja", label: "MALEDIWY", title: "Malediwy", subtitle: "Laguny · rafy · wyspy", text: "Kierunek na prawdziwe odcięcie od codzienności i kilka dni nad turkusową wodą.", imageCity: "Malediwy", imageCountry: "Malediwy", fallbackImage: "/images/long-haul/malediwy.webp" },
+  { href: "/dalekie-podroze#meksyk", region: "ameryka", label: "MEKSYK", title: "Meksyk", subtitle: "Kultura · kuchnia · Karaiby", text: "Kolor, historia, świetne jedzenie i możliwość połączenia zwiedzania z plażą.", imageCity: "Meksyk", imageCountry: "Meksyk", fallbackImage: "/images/long-haul/meksyk.webp" },
+  { href: "/dalekie-podroze#sydney", region: "oceania", label: "AUSTRALIA", title: "Sydney", subtitle: "Opera · ocean · city life", text: "Ikoniczne miasto i dobry początek większej podróży po Australii.", imageCity: "Sydney", imageCountry: "Australia", fallbackImage: "/images/long-haul/sydney.jpg" },
+  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad", imageCountry: "RPA", fallbackImage: "/images/long-haul/kapsztad.jpg" },
 ];
 
 
@@ -236,8 +240,9 @@ function LongHaulHomeSection() {
   const filters = [
     ["all", "Wszystkie", Globe2],
     ["azja", "Azja", Palmtree],
-    ["ameryka", "Ameryka Płn.", Building2],
+    ["ameryka", "Ameryka", Building2],
     ["afryka", "Afryka", Compass],
+    ["oceania", "Australia i Oceania", Plane],
   ] as const;
 
   return (
@@ -246,7 +251,7 @@ function LongHaulHomeSection() {
         <div>
           <div className="kicker">DALEJ NIŻ WEEKEND</div>
           <h2>Czasem warto polecieć trochę dalej.</h2>
-          <p>Nie tylko Europa. Kierunki na większą podróż: Azja, USA, Afryka i miejsca, które naprawdę dają poczucie wyjazdu gdzieś dalej.</p>
+          <p>Nie tylko Europa. Azja, Ameryka, Afryka, Australia i Oceania — kierunki, które naprawdę dają poczucie większej podróży.</p>
         </div>
         <Link className="long-haul-all-link" href="/dalekie-podroze"><Plane size={20}/> Zobacz wszystkie kierunki <ArrowRight size={18}/></Link>
       </div>
