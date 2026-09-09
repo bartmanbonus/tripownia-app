@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { offers } from "@/lib/offers";
+import { isOfferExpired, offers } from "@/lib/offers";
 import { seoLandings } from "@/lib/seoLandings";
 const BASE_URL = "https://tripownia.pl";
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -26,6 +26,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
   if (showMarkets) staticPages.push({ url:`${BASE_URL}/jarmarki-bozonarodzeniowe`,lastModified:now,changeFrequency:"daily",priority:.9 });
   const landingPages: MetadataRoute.Sitemap = seoLandings.map(page=>({url:`${BASE_URL}/podroze/${page.slug}`,lastModified:now,changeFrequency:"daily" as const,priority:.8}));
-  const offerPages: MetadataRoute.Sitemap = offers.filter(o=>o.availabilityStatus!=="expired").map(o=>({url:`${BASE_URL}/oferta/${o.id}`,lastModified:o.priceCheckedAt?new Date(o.priceCheckedAt):now,changeFrequency:"daily" as const,priority:.85}));
+  const offerPages: MetadataRoute.Sitemap = offers.filter(o=>!isOfferExpired(o, now)).map(o=>({url:`${BASE_URL}/oferta/${o.id}`,lastModified:o.priceCheckedAt?new Date(o.priceCheckedAt):now,changeFrequency:"daily" as const,priority:.85}));
   return [...staticPages,...landingPages,...offerPages];
 }
