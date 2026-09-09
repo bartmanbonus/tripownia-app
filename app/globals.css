@@ -9511,3 +9511,195 @@ vercel-toolbar,
     font-size:12px !important;
   }
 }
+
+
+/* ==========================================================
+   V182 — SELF SEARCH: MULTI LOTNISKA + MULTI KIERUNKI + WEEKEND
+========================================================== */
+
+/* Multi lotniska — aktywne karty mają wyraźny stan zaznaczenia. */
+.self-search-home-stage .search-airport-chips button{
+  position:relative !important;
+}
+
+.self-search-home-stage .search-airport-chips button.active::after{
+  content:"✓" !important;
+  position:absolute !important;
+  top:8px !important;
+  right:9px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:18px !important;
+  height:18px !important;
+  border-radius:50% !important;
+  background:#ff642b !important;
+  color:#fff !important;
+  font-size:10px !important;
+  font-weight:950 !important;
+  box-shadow:0 4px 10px rgba(255,100,43,.18) !important;
+}
+
+/* Multi kierunki */
+.self-search-home-stage .search-destination-multi{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:9px !important;
+}
+
+.self-search-home-stage .search-destination-row label>span small{
+  color:#98887f !important;
+  font-size:9px !important;
+  font-weight:700 !important;
+}
+
+.self-search-home-stage .search-destination-chips{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:7px !important;
+}
+
+.self-search-home-stage .search-destination-chips button{
+  appearance:none !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:7px !important;
+  min-height:34px !important;
+  padding:0 10px 0 12px !important;
+  border:1px solid #ffc6aa !important;
+  border-radius:999px !important;
+  background:linear-gradient(180deg,#fff8f3 0%,#ffede3 100%) !important;
+  color:#b74a22 !important;
+  font:inherit !important;
+  font-size:10px !important;
+  font-weight:850 !important;
+  box-shadow:
+    0 5px 12px rgba(255,102,43,.07),
+    0 1px 0 rgba(255,255,255,.96) inset !important;
+  cursor:pointer !important;
+}
+
+.self-search-home-stage .search-destination-chips button b{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:17px !important;
+  height:17px !important;
+  border-radius:50% !important;
+  background:rgba(255,100,43,.13) !important;
+  font-size:12px !important;
+  line-height:1 !important;
+}
+
+/* Filtry rozszerzone: Dopasuj + 3 selecty + weekend. */
+.self-search-home-stage .search-filter-grid.search-filter-grid-extended{
+  grid-template-columns:150px repeat(3,minmax(0,1fr)) 320px !important;
+  align-items:end !important;
+}
+
+/* Weekend jako pełnoprawny filtr 3D */
+.self-search-home-stage .self-search-weekend-toggle{
+  position:relative !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  min-width:0 !important;
+  min-height:58px !important;
+  padding:0 13px !important;
+  border:1px solid #ded1c8 !important;
+  border-radius:13px !important;
+  background:linear-gradient(180deg,#fff 0%,#f8f3ef 100%) !important;
+  box-shadow:
+    0 7px 16px rgba(61,40,27,.06),
+    0 1px 0 rgba(255,255,255,.98) inset,
+    0 -2px 4px rgba(166,141,126,.06) inset !important;
+  cursor:pointer !important;
+  transition:.18s ease !important;
+}
+
+.self-search-home-stage .self-search-weekend-toggle:hover{
+  transform:translateY(-1px) !important;
+  border-color:#f3aa88 !important;
+}
+
+.self-search-home-stage .self-search-weekend-toggle.active{
+  border-color:#ff9369 !important;
+  background:linear-gradient(180deg,#fff8f4 0%,#ffede4 100%) !important;
+  box-shadow:
+    0 10px 22px rgba(255,102,43,.10),
+    0 1px 0 rgba(255,255,255,.98) inset !important;
+}
+
+.self-search-home-stage .self-search-weekend-toggle input{
+  position:absolute !important;
+  opacity:0 !important;
+  pointer-events:none !important;
+}
+
+.self-search-home-stage .self-search-weekend-check{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex:0 0 28px !important;
+  width:28px !important;
+  height:28px !important;
+  border:1px solid #dccdc4 !important;
+  border-radius:8px !important;
+  background:#fff !important;
+  color:#fff !important;
+  font-size:14px !important;
+  font-weight:950 !important;
+}
+
+.self-search-home-stage .self-search-weekend-toggle.active .self-search-weekend-check{
+  border-color:#ff642b !important;
+  background:#ff642b !important;
+  box-shadow:0 6px 14px rgba(255,100,43,.16) !important;
+}
+
+.self-search-home-stage .self-search-weekend-copy{
+  display:flex !important;
+  min-width:0 !important;
+  flex-direction:column !important;
+  gap:2px !important;
+}
+
+.self-search-home-stage .self-search-weekend-copy strong{
+  color:#3b312b !important;
+  font-size:10px !important;
+  line-height:1.15 !important;
+}
+
+.self-search-home-stage .self-search-weekend-copy small{
+  color:#8a7c73 !important;
+  font-size:8px !important;
+  line-height:1.15 !important;
+}
+
+/* Węższy laptop */
+@media(max-width:1250px){
+  .self-search-home-stage .search-filter-grid.search-filter-grid-extended{
+    grid-template-columns:1fr 1fr 1fr !important;
+  }
+
+  .self-search-home-stage .search-filter-grid.search-filter-grid-extended .search-filter-title,
+  .self-search-home-stage .search-filter-grid.search-filter-grid-extended .self-search-weekend-toggle{
+    grid-column:1/-1 !important;
+  }
+}
+
+/* Mobile/tablet */
+@media(max-width:760px){
+  .self-search-home-stage .search-filter-grid.search-filter-grid-extended{
+    grid-template-columns:1fr !important;
+  }
+
+  .self-search-home-stage .search-filter-grid.search-filter-grid-extended .search-filter-title,
+  .self-search-home-stage .search-filter-grid.search-filter-grid-extended .self-search-weekend-toggle{
+    grid-column:auto !important;
+  }
+
+  .self-search-home-stage .self-search-weekend-toggle{
+    min-height:62px !important;
+  }
+}
