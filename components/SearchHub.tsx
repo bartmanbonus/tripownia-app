@@ -219,7 +219,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
 
       <div className="search-text-row search-text-row-with-weekend">
         <div className="search-text-field"><Search size={18}/><input value={text} onChange={e=>setText(e.target.value)} placeholder="Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam lub Resort 4★"/>{text&&<button onClick={()=>setText("")} aria-label="Wyczyść"><X size={16}/></button>}</div>
-        <label className={`weekend-required weekend-required-inline ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>setWeekendOnly(e.target.checked)}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Pobyt obejmuje sobotę i niedzielę</strong><small>Na miejscu będziesz w oba dni weekendu</small></div></label>
+        <label className={`weekend-required weekend-required-inline ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>setWeekendOnly(e.target.checked)}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Pobyt obejmuje sobotę i niedzielę</strong><small>Jesteś na miejscu w oba dni</small></div></label>
       </div>
 
       <div className="compact-search-row">
