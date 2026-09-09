@@ -42,14 +42,23 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [initialSearchDone,setInitialSearchDone]=useState(false);
   const [activeTab,setActiveTab]=useState(initialTab);
   const [visibleCount,setVisibleCount]=useState(10);
+  const [carouselIndex,setCarouselIndex]=useState(0);
   const fromDropdownRef=useRef<HTMLDivElement>(null);
   const toDropdownRef=useRef<HTMLDivElement>(null);
   const resultsRailRef=useRef<HTMLDivElement>(null);
-  const moveResults=(direction:-1|1)=>{const rail=resultsRailRef.current;if(!rail)return;const card=rail.querySelector<HTMLElement>(".search-results-carousel-item");const step=card?card.getBoundingClientRect().width+18:304;rail.scrollBy({left:direction*step*2,behavior:"smooth"});};
+  const moveResults=(direction:-1|1)=>{
+    const rail=resultsRailRef.current;
+    if(!rail)return;
+    const card=rail.querySelector<HTMLElement>(".search-results-carousel-item");
+    const step=card?card.getBoundingClientRect().width+14:304;
+    const next=Math.max(0,Math.min(results.length-1,carouselIndex+direction));
+    setCarouselIndex(next);
+    rail.scrollTo({left:next*step,behavior:"smooth"});
+  };
 
   useEffect(()=>{setAirports(initialAirports);setDestinations(initialDestinations);setDuration(initialDuration||"all")},[initialAirports.join("|"),initialDestinations.join("|"),initialDuration]);
   useEffect(()=>{if(searchRequest>0)setSubmitted(v=>v+1)},[searchRequest]);
-  useEffect(()=>{setVisibleCount(10)},[airports.join("|"),destinations.join("|"),customDestination,duration,budget,board,text,weekendOnly,activeTab]);
+  useEffect(()=>{setVisibleCount(10);setCarouselIndex(0)},[airports.join("|"),destinations.join("|"),customDestination,duration,budget,board,text,weekendOnly,activeTab]);
 
   useEffect(()=>{
     if(!open)return;
@@ -288,14 +297,20 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
         <div className="search-results-heading premium-results-heading"><div><small>ODKRYTE DLA CIEBIE</small><h3>{hasDestination?`Okazje: ${queryDestination}`:`${results.length} aktualnych okazji`}</h3></div><span>Pokazujemy najpierw 10 najlepszych dopasowań. Kolejne możesz odkrywać bez przeładowania strony.</span></div>
         {liveLoading&&<div className="partner-search-banner search-results-carousel-head"><div><small>✦ AKTUALIZUJEMY W TLE</small><strong>Oferty są już widoczne — sprawdzamy teraz najnowsze ceny.</strong></div></div>}
         {results.length>0&&<>
-          <div className="partner-search-banner search-results-carousel-head premium-results-summary">
-            <div><small>✦ WYBRANE PRZEZ TRIPOWNIĘ</small><strong>{results.length>=200?"200 okazji gotowych do odkrycia":`${results.length} aktualnych okazji pasuje do parametrów`}</strong></div>
-            <span>Pokazujesz {Math.min(visibleCount,results.length)} z {results.length}</span>
+          <div className="premium-results-summary premium-results-carousel-summary">
+            <div>
+              <small>✦ WYBRANE PRZEZ TRIPOWNIĘ</small>
+              <strong>{results.length>=200?"200 okazji gotowych do odkrycia":`${results.length} aktualnych okazji pasuje do parametrów`}</strong>
+            </div>
+            <div className="premium-results-carousel-controls">
+              <button type="button" onClick={()=>moveResults(-1)} disabled={carouselIndex===0} aria-label="Poprzednia oferta"><ArrowLeft size={18}/></button>
+              <button type="button" onClick={()=>moveResults(1)} disabled={carouselIndex>=results.length-1} aria-label="Następna oferta"><ArrowRight size={18}/></button>
+              <span>{Math.min(carouselIndex+1,results.length)} / {results.length}</span>
+            </div>
           </div>
-          <div className="search-results-progressive-grid">
-            {results.slice(0,visibleCount).map((o:any)=><div className="search-results-progressive-item" key={o.id}><OfferCard offer={o}/></div>)}
+          <div className="search-results-carousel premium-search-results-carousel" ref={resultsRailRef}>
+            {results.map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}
           </div>
-          {visibleCount<results.length&&<div className="search-results-more-wrap"><button className="search-results-more" type="button" onClick={()=>setVisibleCount(v=>Math.min(v+10,results.length))}>Pokaż kolejne 10 <span>{Math.min(visibleCount+10,results.length)} / {results.length}</span></button></div>}
         </>}
         {hasDestination&&<UnifiedPartnerSearch mode={activeTab==="City break"||activeTab==="Lot + hotel"?"city":activeTab==="Wakacje"?"holiday":"all"} initialDestination={queryDestination} initialDeparture={selectedFromLabel} initialDepartureCode={airports[0]} initialWeekendOnly={weekendOnly}/>}
         {initialSearchDone&&!liveLoading&&!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
