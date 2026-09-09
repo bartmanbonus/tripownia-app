@@ -32,12 +32,39 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [initialSearchDone,setInitialSearchDone]=useState(false);
   const [activeTab,setActiveTab]=useState(initialTab);
   const [visibleCount,setVisibleCount]=useState(10);
+  const fromDropdownRef=useRef<HTMLDivElement>(null);
+  const toDropdownRef=useRef<HTMLDivElement>(null);
   const resultsRailRef=useRef<HTMLDivElement>(null);
   const moveResults=(direction:-1|1)=>{const rail=resultsRailRef.current;if(!rail)return;const card=rail.querySelector<HTMLElement>(".search-results-carousel-item");const step=card?card.getBoundingClientRect().width+18:304;rail.scrollBy({left:direction*step*2,behavior:"smooth"});};
 
   useEffect(()=>{setAirports(initialAirports);setDestinations(initialDestinations);setDuration(initialDuration||"all")},[initialAirports.join("|"),initialDestinations.join("|"),initialDuration]);
   useEffect(()=>{if(searchRequest>0)setSubmitted(v=>v+1)},[searchRequest]);
   useEffect(()=>{setVisibleCount(10)},[airports.join("|"),destinations.join("|"),customDestination,duration,budget,board,text,weekendOnly,activeTab]);
+
+  useEffect(()=>{
+    if(!open)return;
+
+    const handlePointerDown=(event:PointerEvent)=>{
+      const target=event.target as Node;
+      const activeRef=open==="from"?fromDropdownRef.current:toDropdownRef.current;
+      if(activeRef && !activeRef.contains(target)){
+        setOpen(null);
+      }
+    };
+
+    const handleKeyDown=(event:KeyboardEvent)=>{
+      if(event.key==="Escape")setOpen(null);
+    };
+
+    // pointerdown reaguje wcześniej niż click i działa również dla touch/pen.
+    document.addEventListener("pointerdown",handlePointerDown);
+    document.addEventListener("keydown",handleKeyDown);
+
+    return ()=>{
+      document.removeEventListener("pointerdown",handlePointerDown);
+      document.removeEventListener("keydown",handleKeyDown);
+    };
+  },[open]);
   useEffect(()=>{
     // Ładujemy aktualną pulę automatycznie po wejściu na stronę.
     // Bez ref-guardu: w React Strict Mode poprzednia wersja mogła anulować
@@ -176,12 +203,12 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       <div className="search-text-row"><div className="search-text-field"><Search size={18}/><input value={text} onChange={e=>setText(e.target.value)} placeholder="Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam lub Resort 4★"/>{text&&<button onClick={()=>setText("")} aria-label="Wyczyść"><X size={16}/></button>}</div></div>
 
       <div className="compact-search-row">
-        <div className="dropdown-filter">
+        <div className="dropdown-filter" ref={fromDropdownRef}>
           <button className={`dropdown-trigger ${open==='from'?'open':''}`} onClick={()=>setOpen(open==='from'?null:'from')}><span className="dropdown-icon"><Plane size={18}/></span><span className="dropdown-copy"><small>Skąd?</small><strong>{selectedFromLabel}</strong></span><ChevronDown className={`dropdown-chevron ${open==='from'?'rotated':''}`} size={17}/></button>
           {open==='from'&&<div className="dropdown-menu"><div className="dropdown-menu-head"><strong>Skąd?</strong><button onClick={()=>setOpen(null)}><X size={18}/></button></div><button className={`dropdown-anywhere ${airports.length===0?'active':''}`} onClick={()=>setAirports([])}><Check size={16}/> Wszystkie lotniska</button><div className="dropdown-options">{airportOptions.map((a:any)=><button key={a.code} className={`dropdown-option ${airports.includes(a.code)?'active':''}`} onClick={()=>setAirports(p=>p.includes(a.code)?p.filter(x=>x!==a.code):[...p,a.code])}><span className="check-box">{airports.includes(a.code)&&<Check size={13}/>}</span>{a.label}</button>)}</div><button className="dropdown-done" onClick={()=>setOpen(null)}>Gotowe</button></div>}
         </div>
 
-        <div className="dropdown-filter">
+        <div className="dropdown-filter" ref={toDropdownRef}>
           <button className={`dropdown-trigger ${open==='to'?'open':''}`} onClick={()=>setOpen(open==='to'?null:'to')}><span className="dropdown-icon"><Compass size={18}/></span><span className="dropdown-copy"><small>Dokąd?</small><strong>{selectedToLabel}</strong></span><ChevronDown className={`dropdown-chevron ${open==='to'?'rotated':''}`} size={17}/></button>
           {open==='to'&&<div className="dropdown-menu"><div className="dropdown-menu-head"><strong>Dokąd? — cały świat</strong><button onClick={()=>setOpen(null)}><X size={18}/></button></div>
             <div className="search-text-field" style={{height:44,marginBottom:8}}><Search size={15}/><input autoFocus value={destinationQuery} onChange={e=>setDestinationQuery(e.target.value)} placeholder="Wpisz kraj, miasto lub wyspę…"/></div>
