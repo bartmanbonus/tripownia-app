@@ -321,7 +321,7 @@ export default function KierunkiPage() {
               dalszego wyszukiwania. Bez ściany przypadkowych linków.
             </p>
           </div>
-          <Link href="/#wyszukiwarka" className="directions-v188-cta">
+          <Link href="/#szukaj-samodzielnie" className="directions-v188-cta">
             <span>⌕</span> Wyszukaj po swojemu <b>→</b>
           </Link>
         </header>
@@ -388,7 +388,7 @@ export default function KierunkiPage() {
         <div className="directions-v188-empty" id="directions-empty" hidden>
           <strong>Nie znaleźliśmy takiego kierunku.</strong>
           <span>Spróbuj innej nazwy albo przejdź do pełnej wyszukiwarki Tripowni.</span>
-          <Link href="/#wyszukiwarka">Otwórz wyszukiwarkę →</Link>
+          <Link href="/#szukaj-samodzielnie">Otwórz wyszukiwarkę →</Link>
         </div>
       </section>
 
