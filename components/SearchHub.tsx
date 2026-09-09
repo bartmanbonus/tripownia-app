@@ -200,7 +200,10 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
         {['Inspiracje','City break','Lot + hotel','Wakacje','Atrakcje','Parkingi','eSIM'].map(x=><button key={x} className={activeTab===x?'active':''} type="button" onClick={()=>chooseTab(x)}>{x}</button>)}
       </div>
 
-      <div className="search-text-row"><div className="search-text-field"><Search size={18}/><input value={text} onChange={e=>setText(e.target.value)} placeholder="Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam lub Resort 4★"/>{text&&<button onClick={()=>setText("")} aria-label="Wyczyść"><X size={16}/></button>}</div></div>
+      <div className="search-text-row search-text-row-with-weekend">
+        <div className="search-text-field"><Search size={18}/><input value={text} onChange={e=>setText(e.target.value)} placeholder="Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam lub Resort 4★"/>{text&&<button onClick={()=>setText("")} aria-label="Wyczyść"><X size={16}/></button>}</div>
+        <label className={`weekend-required weekend-required-inline ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>setWeekendOnly(e.target.checked)}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Musi obejmować weekend</strong><small>Sobota + niedziela w terminie</small></div></label>
+      </div>
 
       <div className="compact-search-row">
         <div className="dropdown-filter" ref={fromDropdownRef}>
@@ -225,14 +228,11 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
         <button className="search-submit compact-submit" onClick={()=>void runPartnerSearch()}><Search size={18}/> {liveLoading?"Szukamy okazji…":"Odkryj okazje"}</button>
       </div>
 
-      <div className="search-smart-options" aria-label="Dodatkowe opcje wyszukiwania">
-        <label className={`weekend-required ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>setWeekendOnly(e.target.checked)}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Musi obejmować weekend</strong><small>Preferuj terminy z sobotą i niedzielą — mniej urlopu, więcej wyjazdu.</small></div></label>
-      </div>
-
-      <div className="active-filter-bar"><div className="active-filter-chips">{activeChips.length?activeChips.map(x=><span key={x}>{x}</span>):<span>🌍 Cały świat</span>}</div><button onClick={clearAll}>Wyczyść filtry</button></div>
-
       <div className="quick-destination-wrap">
-        <small>SZYBKIE STARTY — KONKRETNY KIERUNEK</small>
+        <div className="quick-destination-head">
+          <small>SZYBKIE STARTY — KONKRETNY KIERUNEK</small>
+          {activeChips.length>0&&<button className="quick-clear-filters" type="button" onClick={clearAll}>Wyczyść filtry</button>}
+        </div>
         <div className="quick-destination-grid">{quickPicks.map(([icon,label,dest,opts])=><button key={dest} type="button" onClick={()=>pickDestination(dest,opts)}><span>{icon}</span><strong>{label}</strong></button>)}</div>
       </div>
 
