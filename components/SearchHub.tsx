@@ -31,11 +31,13 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [liveLoading,setLiveLoading]=useState(false);
   const [initialSearchDone,setInitialSearchDone]=useState(false);
   const [activeTab,setActiveTab]=useState(initialTab);
+  const [visibleCount,setVisibleCount]=useState(10);
   const resultsRailRef=useRef<HTMLDivElement>(null);
   const moveResults=(direction:-1|1)=>{const rail=resultsRailRef.current;if(!rail)return;const card=rail.querySelector<HTMLElement>(".search-results-carousel-item");const step=card?card.getBoundingClientRect().width+18:304;rail.scrollBy({left:direction*step*2,behavior:"smooth"});};
 
   useEffect(()=>{setAirports(initialAirports);setDestinations(initialDestinations);setDuration(initialDuration||"all")},[initialAirports.join("|"),initialDestinations.join("|"),initialDuration]);
   useEffect(()=>{if(searchRequest>0)setSubmitted(v=>v+1)},[searchRequest]);
+  useEffect(()=>{setVisibleCount(10)},[airports.join("|"),destinations.join("|"),customDestination,duration,budget,board,text,weekendOnly,activeTab]);
   useEffect(()=>{
     // Ładujemy aktualną pulę automatycznie po wejściu na stronę.
     // Bez ref-guardu: w React Strict Mode poprzednia wersja mogła anulować
@@ -94,19 +96,15 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       })
       .sort((a:any,b:any)=>Number(a.price||Infinity)-Number(b.price||Infinity));
 
-    // Jedna karta na kierunek. Ponieważ najpierw sortujemy po cenie,
-    // zostaje NAJTAŃSZA dostępna oferta dla danego miejsca.
-    const cheapestByDestination=new Map<string,any>();
-    for(const offer of filtered){
-      const key=normalizeDestination(`${offer.city||offer.destination||offer.country||""}|${offer.country||""}`);
-      if(!key)continue;
-      if(!cheapestByDestination.has(key)) cheapestByDestination.set(key,offer);
-    }
-    return Array.from(cheapestByDestination.values()).slice(0,20);
+    // W wyszukiwarce pokazujemy pełną pulę aktualnych okazji.
+    // Ograniczenie "1 kierunek = 1 oferta" pozostaje dla dziennej selekcji,
+    // ale nie ogranicza świadomego wyszukiwania użytkownika.
+    return filtered.slice(0,200);
   },[airports,destinations,customDestination,duration,budget,board,text,weekendOnly,submitted,liveResults,liveLoading]);
 
 
   async function runPartnerSearch(destinationOverride?:string, cityModeOverride?:boolean, initialLoad=false):Promise<number>{
+    if(!initialLoad)setVisibleCount(10);
     const destination=(destinationOverride||selectedTo[0]||text||"").trim();
     setLiveLoading(true);
     try{
@@ -197,7 +195,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
         <label className="compact-select"><span><CalendarDays size={14}/> Na ile?</span><select value={duration} onChange={e=>setDuration(e.target.value)}><option value="all">Dowolnie</option><option value="short">2–4 noce</option><option value="week">5–8 nocy</option><option value="long">9+ nocy</option></select></label>
         <label className="compact-select"><span>💳 Budżet / os.</span><select value={budget} onChange={e=>setBudget(e.target.value)}><option value="all">Dowolny</option><option value="1000">do 1 000 zł</option><option value="2000">do 2 000 zł</option><option value="3000">do 3 000 zł</option><option value="5000">do 5 000 zł</option><option value="10000">do 10 000 zł</option></select></label>
         <label className="compact-select"><span><Utensils size={14}/> Wyżywienie</span><select value={board} onChange={e=>setBoard(e.target.value)}><option value="all">Dowolne</option><option value="śniadanie">Śniadanie</option><option value="all inclusive">All Inclusive</option><option value="bez wyżywienia">Bez wyżywienia</option></select></label>
-        <button className="search-submit compact-submit" onClick={()=>void runPartnerSearch()}><Search size={18}/> {liveLoading?"Szukamy…":"Pokaż wyniki"}</button>
+        <button className="search-submit compact-submit" onClick={()=>void runPartnerSearch()}><Search size={18}/> {liveLoading?"Szukamy okazji…":"Odkryj okazje"}</button>
       </div>
 
       <div className="search-smart-options" aria-label="Dodatkowe opcje wyszukiwania">
@@ -212,9 +210,18 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       </div>
 
       <div className="search-results-block">
-        <div className="search-results-heading"><div><small>WYNIKI WYSZUKIWANIA</small><h3>{hasDestination?`Szukamy: ${queryDestination}`:`${results.length} dopasowanych okazji`}</h3></div><span>Tripownia przeszukuje aktualne pakiety i pokazuje najlepsze dopasowania. City Break ograniczamy do krótkich wyjazdów z lotem, hotelem i transferem.</span></div>
+        <div className="search-results-heading premium-results-heading"><div><small>ODKRYTE DLA CIEBIE</small><h3>{hasDestination?`Okazje: ${queryDestination}`:`${results.length} aktualnych okazji`}</h3></div><span>Pokazujemy najpierw 10 najlepszych dopasowań. Kolejne możesz odkrywać bez przeładowania strony.</span></div>
         {liveLoading&&<div className="partner-search-banner search-results-carousel-head"><div><small>✦ AKTUALIZUJEMY W TLE</small><strong>Oferty są już widoczne — sprawdzamy teraz najnowsze ceny.</strong></div></div>}
-        {results.length>0&&<><div className="partner-search-banner search-results-carousel-head"><div><small>⭐ WYBRANE PRZEZ TRIPOWNIĘ</small><strong>{results.length} aktualnych ofert pasuje do parametrów</strong></div></div><div className="search-results-carousel-wrap"><div className="search-results-carousel-controls"><button type="button" onClick={()=>moveResults(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={17}/></button><button type="button" onClick={()=>moveResults(1)} aria-label="Następne oferty"><ArrowRight size={17}/></button></div><div className="search-results-carousel" ref={resultsRailRef} tabIndex={0}>{results.slice(0,20).map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></div></>}
+        {results.length>0&&<>
+          <div className="partner-search-banner search-results-carousel-head premium-results-summary">
+            <div><small>✦ WYBRANE PRZEZ TRIPOWNIĘ</small><strong>{results.length>=200?"200 okazji gotowych do odkrycia":`${results.length} aktualnych okazji pasuje do parametrów`}</strong></div>
+            <span>Pokazujesz {Math.min(visibleCount,results.length)} z {results.length}</span>
+          </div>
+          <div className="search-results-progressive-grid">
+            {results.slice(0,visibleCount).map((o:any)=><div className="search-results-progressive-item" key={o.id}><OfferCard offer={o}/></div>)}
+          </div>
+          {visibleCount<results.length&&<div className="search-results-more-wrap"><button className="search-results-more" type="button" onClick={()=>setVisibleCount(v=>Math.min(v+10,results.length))}>Pokaż kolejne 10 <span>{Math.min(visibleCount+10,results.length)} / {results.length}</span></button></div>}
+        </>}
         {hasDestination&&<UnifiedPartnerSearch mode={activeTab==="City break"||activeTab==="Lot + hotel"?"city":activeTab==="Wakacje"?"holiday":"all"} initialDestination={queryDestination} initialDeparture={selectedFromLabel} initialDepartureCode={airports[0]} initialWeekendOnly={weekendOnly}/>}
         {initialSearchDone&&!liveLoading&&!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
       </div>
