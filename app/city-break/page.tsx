@@ -12,8 +12,19 @@ export const metadata: Metadata = {
   alternates: { canonical: "/city-break" },
 };
 
+const cityBreakIdeas = [
+  {city:"Marrakesz", country:"Maroko", image:"/images/destinations/marrakesz.jpg", text:"Słońce, riady i zupełnie inny klimat w kilka godzin lotu."},
+  {city:"Dubaj", country:"ZEA", image:"/images/destinations/dubaj.jpg", text:"Ciepło, nowoczesność i dużo atrakcji na 4–5 dni."},
+  {city:"Sewilla", country:"Hiszpania", image:"/images/destinations/sewilla.jpg", text:"Tapasy, słońce i jeden z najlepszych kierunków na jesień."},
+  {city:"Ateny", country:"Grecja", image:"/images/destinations/ateny.jpg", text:"Historia, jedzenie i szybki miejski reset."},
+  {city:"Wenecja", country:"Włochy", image:"/images/destinations/wenecja.jpg", text:"Klasyk, ale najlepiej poza wakacyjnym tłumem."},
+  {city:"Walencja", country:"Hiszpania", image:"/images/destinations/walencja.jpg", text:"Miasto i plaża w jednym krótkim wyjeździe."},
+  {city:"Porto", country:"Portugalia", image:"/images/destinations/porto.jpg", text:"Jedzenie, wino i spacerowanie bez gonitwy."},
+  {city:"Stambuł", country:"Turcja", image:"/images/destinations/stambul.jpg", text:"Europa i Azja w jednym bardzo intensywnym city breaku."},
+];
+
 export default function CityBreakPage() {
-  const cityOffers = offers.filter(o => !isOfferExpired(o) && o.partner === "exim" && (o.category.includes("city") || o.category.includes("weekend"))).slice(0, 12);
+  const cityOffers = offers.filter(o => !isOfferExpired(o) && o.partner !== "esky" && (o.category.includes("city") || o.category.includes("weekend"))).slice(0, 12);
   return <main><SiteHeader/>
     <section className="shopping-hero shell">
       <div className="kicker">CITY BREAK — WYBIERASZ SAM</div>
@@ -24,7 +35,9 @@ export default function CityBreakPage() {
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">OKAZJE TRIPOWNI</div><h2>Na początek kilka naszych typów</h2></div></div>
       <div className="city-shopping-row">{cityOffers.map(o => <OfferCard key={o.id} offer={o}/>)}</div>
-      <div className="single-partner-search-wrap"><UnifiedPartnerSearch mode="city" /></div>
+      <div className="city-break-idea-head"><div><div className="kicker">WIĘCEJ KIERUNKÓW</div><h2>Nie ograniczamy city breaku do dwóch aktualnych pakietów</h2><p>To kierunki do dalszego wyszukania — bez udawania, że mamy dla każdego aktualną cenę pakietu.</p></div></div>
+      <div className="city-break-idea-grid">{cityBreakIdeas.map(item => <a key={item.city} className="city-break-idea-card" href="#szukaj-city-break"><img src={item.image} alt={`${item.city}, ${item.country}`}/><span><small>{item.country}</small><strong>{item.city}</strong><p>{item.text}</p><b>Szukaj city breaku →</b></span></a>)}</div>
+      <div className="single-partner-search-wrap" id="szukaj-city-break"><UnifiedPartnerSearch mode="city" /></div>
     </section>
     <SiteFooter/>
   </main>;
