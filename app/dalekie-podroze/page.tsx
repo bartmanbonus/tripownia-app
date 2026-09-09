@@ -53,7 +53,7 @@ const trips: LongTrip[] = [
   { id:"mauritius", flag:"🇲🇺", region:"OCEAN INDYJSKI", title:"Mauritius", airport:"MRU", bookingCity:"Mauritius", duration:10, best:"maj – grudzień", ideal:"8–12 dni", lead:"Wyspa dla osób, które chcą połączyć plażę z trekkingiem, wodospadami i road tripem zamiast siedzieć tylko w resorcie.", highlights:"Le Morne · Chamarel · Black River Gorges · laguny", attractionQuery:"Mauritius" , image: LONG_HAUL_IMAGES.mauritius },
   { id:"kostaryka", flag:"🇨🇷", region:"AMERYKA ŚRODKOWA", title:"Kostaryka", airport:"SJO", bookingCity:"San José, Costa Rica", duration:13, best:"grudzień – kwiecień", ideal:"12–16 dni", lead:"Wulkany, dżungla, zwierzęta i dwa wybrzeża. To kierunek, który ma sens jako objazd, nie jako jeden hotel.", highlights:"Arenal · Monteverde · Manuel Antonio · karaibskie wybrzeże", attractionQuery:"Costa Rica" , image: LONG_HAUL_IMAGES.kostaryka },
   { id:"peru", flag:"🇵🇪", region:"AMERYKA POŁUDNIOWA", title:"Peru", airport:"LIM", bookingCity:"Lima", duration:14, best:"maj – wrzesień", ideal:"12–16 dni", lead:"Duża podróż z konkretnym rytmem: Lima, Andy, Cusco i Machu Picchu. Tu warto zostawić zapas na wysokość i logistykę.", highlights:"Lima · Cusco · Sacred Valley · Machu Picchu", attractionQuery:"Peru" , image: LONG_HAUL_IMAGES.peru },
-  { id:"malezja", region:"AZJA", code:"MY", country:"MALEZJA", title:"Malezja", lead:"Kuala Lumpur, tropikalna natura i wyspy sprawiają, że Malezja dobrze działa jako różnorodna, dłuższa podróż po Azji.", best:"cały rok", days:"8–14 dni", highlights:["Kuala Lumpur","Borneo","Penang","Langkawi","Cameron Highlands"], cheapTip:"Najlepiej łączyć miasto z jednym regionem natury lub wyspą zamiast próbować zobaczyć wszystko naraz.", attractionQuery:"Malaysia Kuala Lumpur Penang Langkawi", image: LONG_HAUL_IMAGES.malezja },
+  { id:"malezja", flag:"🇲🇾", region:"MALEZJA", title:"Malezja", airport:"KUL", bookingCity:"Kuala Lumpur", duration:12, best:"cały rok", ideal:"8–14 dni", lead:"Kuala Lumpur, tropikalna natura i wyspy sprawiają, że Malezja dobrze działa jako różnorodna, dłuższa podróż po Azji.", highlights:"Kuala Lumpur · Penang · Langkawi · Borneo · Cameron Highlands", attractionQuery:"Malaysia Kuala Lumpur Penang Langkawi", image: LONG_HAUL_IMAGES.malezja },
 
 ];
 
@@ -74,7 +74,8 @@ const cheapestWindows: Record<string,{departure:string;ret:string;label:string}>
   zanzibar:{departure:"2027-01-12",ret:"2027-01-23",label:"12–23 stycznia 2027"},
   mauritius:{departure:"2027-06-08",ret:"2027-06-18",label:"8–18 czerwca 2027"},
   kostaryka:{departure:"2027-02-09",ret:"2027-02-22",label:"9–22 lutego 2027"},
-  peru:{departure:"2027-06-01",ret:"2027-06-15",label:"1–15 czerwca 2027"}
+  peru:{departure:"2027-06-01",ret:"2027-06-15",label:"1–15 czerwca 2027"},
+  malezja:{departure:"2027-02-17",ret:"2027-03-01",label:"17 lutego – 1 marca 2027"}
 };
 
 const cheapestTips: Record<string,string> = {
@@ -93,7 +94,8 @@ const cheapestTips: Record<string,string> = {
   zanzibar:"Najpierw porównujemy styczeń i luty oraz czerwiec po wysokim sezonie europejskim.",
   mauritius:"Najpierw sprawdzamy czerwiec i wrzesień, kiedy pogoda jest dobra, a ceny nie są jeszcze świąteczne.",
   kostaryka:"Najpierw szukamy lutego i marca, unikając Bożego Narodzenia i Wielkanocy.",
-  peru:"Najpierw porównujemy czerwiec i wrzesień — suchszy sezon bez lipcowo-sierpniowego szczytu."
+  peru:"Najpierw porównujemy czerwiec i wrzesień — suchszy sezon bez lipcowo-sierpniowego szczytu.",
+  malezja:"Najpierw porównujemy luty–marzec oraz wrzesień; zwykle łatwiej wtedy znaleźć rozsądny lot do Kuala Lumpur i połączyć go z wyspami."
 };
 
 function iso(date: Date) {
