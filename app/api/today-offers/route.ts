@@ -511,6 +511,7 @@ export async function GET(request: NextRequest) {
   const departureFilter = (request.nextUrl.searchParams.get("from") || "").trim();
   const nightsFilter = (request.nextUrl.searchParams.get("nights") || "any").trim();
   const boardFilter = (request.nextUrl.searchParams.get("board") || "any").trim();
+  const weekendOnly = request.nextUrl.searchParams.get("weekend") === "1";
   const maxPrice = Math.max(0, Number(request.nextUrl.searchParams.get("maxPrice") || 0));
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
@@ -520,7 +521,17 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const searchTerms = query ? Array.from(new Set([query, query.split(",")[0].trim()].filter(Boolean))) : [];
+    const searchTerms = query
+      ? Array.from(
+          new Set(
+            query
+              .split(",")
+              .map((item) => item.trim())
+              .filter(Boolean)
+              .slice(0, 6)
+          )
+        )
+      : [];
     const terms = mode === "search" && query
       ? searchTerms
       : mode === "search" && broadSearch
@@ -564,14 +575,20 @@ export async function GET(request: NextRequest) {
     const departureMatches = (offer: LiveCandidate) => {
       if (!departureFilter) return true;
       const haystack = normalize(`${offer.departure} ${offer.airportCode}`);
-      const code = departureFilter.toUpperCase();
-      if (code === "WAWA") return /warszawa|chopin|modlin|\bwaw\b|\bwmi\b/.test(haystack);
-      if (code === "KRK") return /krakow|balice|\bkrk\b/.test(haystack);
-      if (code === "KTW") return /katowice|pyrzowice|\bktw\b/.test(haystack);
-      if (code === "GDN") return /gdansk|rebiechowo|\bgdn\b/.test(haystack);
-      if (code === "WRO") return /wroclaw|strachowice|\bwro\b/.test(haystack);
-      if (code === "POZ") return /poznan|lawica|\bpoz\b/.test(haystack);
-      return true;
+      const codes = departureFilter
+        .split(",")
+        .map((item) => item.trim().toUpperCase())
+        .filter(Boolean);
+
+      return codes.some((code) => {
+        if (code === "WAWA") return /warszawa|chopin|modlin|\bwaw\b|\bwmi\b/.test(haystack);
+        if (code === "KRK") return /krakow|balice|\bkrk\b/.test(haystack);
+        if (code === "KTW") return /katowice|pyrzowice|\bktw\b/.test(haystack);
+        if (code === "GDN") return /gdansk|rebiechowo|\bgdn\b/.test(haystack);
+        if (code === "WRO") return /wroclaw|strachowice|\bwro\b/.test(haystack);
+        if (code === "POZ") return /poznan|lawica|\bpoz\b/.test(haystack);
+        return false;
+      });
     };
     const nightsMatches = (offer: LiveCandidate) => {
       if (nightsFilter === "1-2") return offer.nights >= 1 && offer.nights <= 2;
@@ -594,8 +611,29 @@ export async function GET(request: NextRequest) {
       return true;
     };
 
+    const weekendMatches = (offer: LiveCandidate) => {
+      if (!weekendOnly) return true;
+      if (!offer.startDateISO || !offer.nights) return false;
+
+      const start = new Date(`${offer.startDateISO}T00:00:00Z`);
+      if (Number.isNaN(start.getTime())) return false;
+
+      // Pobyt musi obejmować CAŁĄ sobotę i następującą po niej niedzielę.
+      // Dzień powrotu = start + liczba nocy.
+      for (let offset = 0; offset < offer.nights; offset += 1) {
+        const day = new Date(start);
+        day.setUTCDate(start.getUTCDate() + offset);
+        if (day.getUTCDay() === 6 && offset + 1 <= offer.nights) return true;
+      }
+      return false;
+    };
+
     const pool = Array.from(unique.values()).filter((offer) =>
-      departureMatches(offer) && nightsMatches(offer) && boardMatches(offer) && (!maxPrice || offer.price <= maxPrice)
+      departureMatches(offer) &&
+      nightsMatches(offer) &&
+      boardMatches(offer) &&
+      weekendMatches(offer) &&
+      (!maxPrice || offer.price <= maxPrice)
     );
 
     // LIVE ENGINE:
