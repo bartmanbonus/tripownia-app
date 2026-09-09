@@ -12,7 +12,17 @@ type Props={initialAirports?:string[];initialDestinations?:string[];initialDurat
 
 function offerText(o:any){return normalizeDestination([o.city,o.country,o.hotel,o.destination,o.title].filter(Boolean).join(" "));}
 function depCode(o:any){return String(o.departureCode||o.airportCode||o.departureAirportCode||"").toUpperCase()}
-function durationOk(o:any,d:string){const n=Number(o.nights||o.duration||0);if(d==="all")return true;if(d==="short")return !n||n<=4;if(d==="week")return !n||(n>=5&&n<=8);if(d==="long")return !n||n>=9;return true}
+function durationOk(o:any,d:string){
+  const n=Number(o.nights||o.duration||0);
+  if(d==="all")return true;
+  if(d==="1-2")return !n||(n>=1&&n<=2);
+  if(d==="3-4")return !n||(n>=3&&n<=4);
+  if(d==="5-7")return !n||(n>=5&&n<=7);
+  if(d==="8-10")return !n||(n>=8&&n<=10);
+  if(d==="11-14")return !n||(n>=11&&n<=14);
+  if(d==="15+")return !n||n>=15;
+  return true;
+}
 function budgetValue(v:string){return v==="all"?Infinity:Number(v)}
 
 export default function SearchHub({initialAirports=[],initialDestinations=[],initialDuration="all",searchRequest=0,initialTab="Inspiracje"}:Props){
@@ -142,11 +152,18 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       // do 20 różnych, najtańszych kierunków z live feedów.
       if(!destination && !cityMode) params.set("broad", "1");
       if(airports[0]) params.set("from", airports[0]);
-      if(duration==="short") params.set("nights", "2-3");
-      else if(duration==="week") params.set("nights", "6-8");
-      else if(duration==="long") params.set("nights", "9+");
+      if(duration==="1-2") params.set("nights", "1-2");
+      else if(duration==="3-4") params.set("nights", "3-4");
+      else if(duration==="5-7") params.set("nights", "5-7");
+      else if(duration==="8-10") params.set("nights", "8-10");
+      else if(duration==="11-14") params.set("nights", "11-14");
+      else if(duration==="15+") params.set("nights", "15+");
       if(board==="all inclusive") params.set("board", "allinclusive");
+      else if(board==="ultra all inclusive") params.set("board", "ultraallinclusive");
       else if(board==="śniadanie") params.set("board", "breakfast");
+      else if(board==="half board") params.set("board", "halfboard");
+      else if(board==="full board") params.set("board", "fullboard");
+      else if(board==="bez wyżywienia") params.set("board", "roomonly");
       if(Number.isFinite(budgetValue(budget))) params.set("maxPrice", String(budgetValue(budget)));
       const response=await fetch(`/api/today-offers?${params.toString()}`,{cache:"no-store"});
       const data=await response.json();
@@ -175,23 +192,23 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   function chooseTab(tab:string){
     setActiveTab(tab);
     if(tab==="Inspiracje") return;
-    if(tab==="City break") pickDestination("Rzym, Włochy",{duration:"short"},true);
-    if(tab==="Lot + hotel") pickDestination("Barcelona, Hiszpania",{duration:"short"},false);
-    if(tab==="Wakacje") pickDestination("Djerba, Tunezja",{duration:"week",board:"all inclusive"},false);
-    if(tab==="Atrakcje") pickDestination("Paryż, Francja",{duration:"short"},false);
+    if(tab==="City break") pickDestination("Rzym, Włochy",{duration:"3-4"},true);
+    if(tab==="Lot + hotel") pickDestination("Barcelona, Hiszpania",{duration:"3-4"},false);
+    if(tab==="Wakacje") pickDestination("Djerba, Tunezja",{duration:"5-7",board:"all inclusive"},false);
+    if(tab==="Atrakcje") pickDestination("Paryż, Francja",{duration:"3-4"},false);
     if(tab==="Parkingi") window.location.href="/parkingi";
     if(tab==="eSIM") window.location.href="/esim";
   }
-  const activeChips=[...(airports.length?[`✈ ${selectedFromLabel}`]:[]),...(selectedTo.length?[`🌍 ${selectedToLabel}`]:[]),...(duration!=="all"?[`📅 ${duration==="short"?"2–4 noce":duration==="week"?"5–8 nocy":"9+ nocy"}`]:[]),...(budget!=="5000"?[`💰 do ${Number(budget).toLocaleString("pl-PL")} zł`]:[]),...(board!=="all"?[`🍽 ${board}`]:[]),...(weekendOnly?[`🗓 musi obejmować weekend`]:[])];
+  const activeChips=[...(airports.length?[`✈ ${selectedFromLabel}`]:[]),...(selectedTo.length?[`🌍 ${selectedToLabel}`]:[]),...(duration!=="all"?[`📅 ${duration==="1-2"?"1–2 noce":duration==="3-4"?"3–4 noce":duration==="5-7"?"5–7 nocy":duration==="8-10"?"8–10 nocy":duration==="11-14"?"11–14 nocy":"15+ nocy"}`]:[]),...(budget!=="5000"?[`💰 do ${Number(budget).toLocaleString("pl-PL")} zł`]:[]),...(board!=="all"?[`🍽 ${board}`]:[]),...(weekendOnly?[`🗓 musi obejmować weekend`]:[])];
 
   const queryDestination=selectedTo[0]||text||"";
   const hasDestination=Boolean(queryDestination.trim());
   const quickPicks=[
-    ["🏛️","City break: Rzym","Rzym, Włochy",{duration:"short"}],
-    ["☀️","Ciepło zimą: Teneryfa","Teneryfa, Hiszpania",{duration:"week"}],
-    ["🏖️","All Inclusive: Djerba","Djerba, Tunezja",{duration:"week",board:"all inclusive"}],
-    ["💶","Tanio: Bergamo","Bergamo, Włochy",{duration:"short",budget:"1000"}],
-    ["🌴","Egzotyka: Zanzibar","Zanzibar, Tanzania",{duration:"long"}]
+    ["🏛️","City break: Rzym","Rzym, Włochy",{duration:"3-4"}],
+    ["☀️","Ciepło zimą: Teneryfa","Teneryfa, Hiszpania",{duration:"5-7"}],
+    ["🏖️","All Inclusive: Djerba","Djerba, Tunezja",{duration:"5-7",board:"all inclusive"}],
+    ["💶","Tanio: Bergamo","Bergamo, Włochy",{duration:"3-4",budget:"1000"}],
+    ["🌴","Egzotyka: Zanzibar","Zanzibar, Tanzania",{duration:"11-14"}]
   ] as const;
 
   return <section className="section shell" id="wyszukiwarka">
@@ -222,9 +239,40 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
             <button className="dropdown-done" onClick={()=>setOpen(null)}>Gotowe</button></div>}
         </div>
 
-        <label className="compact-select"><span><CalendarDays size={14}/> Na ile?</span><select value={duration} onChange={e=>setDuration(e.target.value)}><option value="all">Dowolnie</option><option value="short">2–4 noce</option><option value="week">5–8 nocy</option><option value="long">9+ nocy</option></select></label>
-        <label className="compact-select"><span>💳 Budżet / os.</span><select value={budget} onChange={e=>setBudget(e.target.value)}><option value="all">Dowolny</option><option value="1000">do 1 000 zł</option><option value="2000">do 2 000 zł</option><option value="3000">do 3 000 zł</option><option value="5000">do 5 000 zł</option><option value="10000">do 10 000 zł</option></select></label>
-        <label className="compact-select"><span><Utensils size={14}/> Wyżywienie</span><select value={board} onChange={e=>setBoard(e.target.value)}><option value="all">Dowolne</option><option value="śniadanie">Śniadanie</option><option value="all inclusive">All Inclusive</option><option value="bez wyżywienia">Bez wyżywienia</option></select></label>
+        <label className="compact-select"><span><CalendarDays size={14}/> Na ile?</span><select value={duration} onChange={e=>setDuration(e.target.value)}>
+          <option value="all">Dowolnie</option>
+          <option value="1-2">1–2 noce</option>
+          <option value="3-4">3–4 noce</option>
+          <option value="5-7">5–7 nocy</option>
+          <option value="8-10">8–10 nocy</option>
+          <option value="11-14">11–14 nocy</option>
+          <option value="15+">15+ nocy</option>
+        </select></label>
+        <label className="compact-select"><span>💳 Budżet / os.</span><select value={budget} onChange={e=>setBudget(e.target.value)}>
+          <option value="all">Dowolny</option>
+          <option value="500">do 500 zł</option>
+          <option value="750">do 750 zł</option>
+          <option value="1000">do 1 000 zł</option>
+          <option value="1500">do 1 500 zł</option>
+          <option value="2000">do 2 000 zł</option>
+          <option value="2500">do 2 500 zł</option>
+          <option value="3000">do 3 000 zł</option>
+          <option value="4000">do 4 000 zł</option>
+          <option value="5000">do 5 000 zł</option>
+          <option value="7500">do 7 500 zł</option>
+          <option value="10000">do 10 000 zł</option>
+          <option value="15000">do 15 000 zł</option>
+          <option value="20000">do 20 000 zł</option>
+        </select></label>
+        <label className="compact-select"><span><Utensils size={14}/> Wyżywienie</span><select value={board} onChange={e=>setBoard(e.target.value)}>
+          <option value="all">Dowolne</option>
+          <option value="bez wyżywienia">Bez wyżywienia</option>
+          <option value="śniadanie">Śniadanie</option>
+          <option value="half board">2 posiłki / Half Board</option>
+          <option value="full board">3 posiłki / Full Board</option>
+          <option value="all inclusive">All Inclusive</option>
+          <option value="ultra all inclusive">Ultra All Inclusive</option>
+        </select></label>
         <button className="search-submit compact-submit" onClick={()=>void runPartnerSearch()}><Search size={18}/> {liveLoading?"Szukamy okazji…":"Odkryj okazje"}</button>
       </div>
 
