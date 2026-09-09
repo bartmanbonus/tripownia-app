@@ -12,6 +12,7 @@ function unauthorized() {
 
 function cleanLegacyWordPressUrl(request: NextRequest) {
   const url = request.nextUrl.clone();
+  const path = url.pathname.replace(/\/$/, "") || "/";
   const hasWpPostId = url.searchParams.has("p");
   const hasLegacyQueryPagination = Array.from(url.searchParams.keys()).some((key) =>
     /^query-\d+-page$/i.test(key)
@@ -32,6 +33,20 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
       if (/^query-\d+-page$/i.test(key)) url.searchParams.delete(key);
     }
     return NextResponse.redirect(url, 308);
+  }
+
+  // WooCommerce was the old publishing layer. Keep those URLs useful without
+  // exposing stale product prices or expired catalog listings on the new site.
+  const isWooCategory = path.startsWith("/kategoria-produktu/");
+  const isWooProduct = path.startsWith("/produkt/");
+  const isOldShop = path === "/sklep" || path === "/tripownia-pl/sklep";
+  const isOldDealsCatalog = path === "/tripownia-pl/okazje-tripownia";
+
+  if (isWooCategory || isWooProduct || isOldShop || isOldDealsCatalog) {
+    const target = request.nextUrl.clone();
+    target.pathname = "/okazje";
+    target.search = "";
+    return NextResponse.redirect(target, 308);
   }
 
   return null;
