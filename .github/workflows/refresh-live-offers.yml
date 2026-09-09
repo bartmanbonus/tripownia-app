@@ -1,0 +1,83 @@
+name: Refresh live offers snapshot
+
+on:
+  schedule:
+    # 06:10 UTC = 08:10 in Poland during CEST. The app rotates its daily key at 08:00 Europe/Warsaw.
+    - cron: "10 6 * * *"
+    # Midday safety refresh catches price/availability changes from partner feeds.
+    - cron: "10 12 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-live-offers
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch and validate current offers
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://tripownia.pl/api/today-offers?mode=search&broad=1&rescue=full"
+          curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 90 \
+            -H 'Accept: application/json' \
+            "$url" > /tmp/live-offers.json
+
+          python3 - <<'PY'
+          import json
+          from datetime import datetime, timezone
+
+          src = "/tmp/live-offers.json"
+          dst = "data/live-offers-snapshot.json"
+          with open(src, encoding="utf-8") as f:
+              data = json.load(f)
+
+          offers = data.get("offers") or []
+          if not data.get("ok") or len(offers) < 5:
+              raise SystemExit(f"Refusing snapshot: ok={data.get('ok')} offers={len(offers)}")
+
+          valid = []
+          for offer in offers:
+              price = offer.get("price")
+              link = offer.get("affiliateUrl") or offer.get("url")
+              if isinstance(price, (int, float)) and price > 0 and link:
+                  valid.append(offer)
+
+          if len(valid) < 5:
+              raise SystemExit(f"Refusing snapshot: only {len(valid)} valid offers")
+
+          snapshot = {
+              "ok": True,
+              "checkedAt": data.get("checkedAt"),
+              "snapshotAt": datetime.now(timezone.utc).isoformat(),
+              "sourceCount": data.get("sourceCount", 0),
+              "destinationCount": data.get("destinationCount", 0),
+              "offers": valid[:200],
+          }
+          with open(dst, "w", encoding="utf-8") as f:
+              json.dump(snapshot, f, ensure_ascii=False, indent=2)
+              f.write("\n")
+          print(f"Validated {len(valid)} live offers")
+          PY
+
+      - name: Commit snapshot only when it changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- data/live-offers-snapshot.json; then
+            echo "Snapshot unchanged."
+            exit 0
+          fi
+          git config user.name "tripownia-offers-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/live-offers-snapshot.json
+          git commit -m "chore: refresh live offers snapshot"
+          git push
