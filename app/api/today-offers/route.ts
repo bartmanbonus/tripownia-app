@@ -70,6 +70,29 @@ const NEW_YEAR_SEARCH_TERMS = [
   "Dubaj", "Zanzibar", "Tajlandia", "Dominikana", "Meksyk", "Malediwy", "Mauritius",
 ];
 
+const SEARCH_ALIASES: Record<string, string[]> = {
+  rzym: ["Rzym", "Rome", "Włochy", "Italy"],
+  paryz: ["Paryż", "Paris", "Francja", "France"],
+  mediolan: ["Mediolan", "Milan", "Włochy", "Italy"],
+  wenecja: ["Wenecja", "Venice", "Włochy", "Italy"],
+  barcelona: ["Barcelona", "Hiszpania", "Spain"],
+  lizbona: ["Lizbona", "Lisbon", "Portugalia", "Portugal"],
+  aten: ["Ateny", "Athens", "Grecja", "Greece"],
+  nowy_jork: ["Nowy Jork", "New York", "USA"],
+  tokio: ["Tokio", "Tokyo", "Japonia", "Japan"],
+  bangkok: ["Bangkok", "Tajlandia", "Thailand"],
+};
+
+function expandSearchTerms(rawTerms: string[]) {
+  const expanded: string[] = [];
+  for (const raw of rawTerms) {
+    const key = normalize(raw).replace(/ /g, "_");
+    expanded.push(raw);
+    if (SEARCH_ALIASES[key]) expanded.push(...SEARCH_ALIASES[key]);
+  }
+  return Array.from(new Set(expanded)).slice(0, 12);
+}
+
 const FLAGS: Record<string, string> = {
   polska: "🇵🇱",
   egipt: "🇪🇬",
@@ -522,14 +545,12 @@ export async function GET(request: NextRequest) {
 
   try {
     const searchTerms = query
-      ? Array.from(
-          new Set(
-            query
-              .split(",")
-              .map((item) => item.trim())
-              .filter(Boolean)
-              .slice(0, 6)
-          )
+      ? expandSearchTerms(
+          query
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean)
+            .slice(0, 6)
         )
       : [];
     const terms = mode === "search" && query
@@ -628,7 +649,9 @@ export async function GET(request: NextRequest) {
       return false;
     };
 
-    const pool = Array.from(unique.values()).filter((offer) =>
+    const allCandidates = Array.from(unique.values());
+
+    const exactPool = allCandidates.filter((offer) =>
       departureMatches(offer) &&
       nightsMatches(offer) &&
       boardMatches(offer) &&
@@ -636,11 +659,54 @@ export async function GET(request: NextRequest) {
       (!maxPrice || offer.price <= maxPrice)
     );
 
+    // Wyszukiwarka nie może kończyć się pustym ekranem tylko dlatego,
+    // że użytkownik połączył kilka bardzo wąskich filtrów.
+    // Rozluźniamy je stopniowo, ale zachowujemy kierunek wynikający z feed query.
+    let pool = exactPool;
+    let notice = "";
+
+    if (mode === "search" || mode === "citybreak") {
+      if (!pool.length && boardFilter !== "any") {
+        pool = allCandidates.filter((offer) =>
+          departureMatches(offer) &&
+          nightsMatches(offer) &&
+          weekendMatches(offer) &&
+          (!maxPrice || offer.price <= maxPrice)
+        );
+        if (pool.length) notice = "Brak ofert z wybranym wyżywieniem — pokazujemy najbliższe dostępne opcje.";
+      }
+
+      if (!pool.length && maxPrice) {
+        pool = allCandidates.filter((offer) =>
+          departureMatches(offer) &&
+          nightsMatches(offer) &&
+          weekendMatches(offer)
+        );
+        if (pool.length) notice = "Brak ofert w tym budżecie — pokazujemy najbliższe cenowo dostępne opcje.";
+      }
+
+      if (!pool.length && nightsFilter !== "any") {
+        pool = allCandidates.filter((offer) =>
+          departureMatches(offer) &&
+          weekendMatches(offer)
+        );
+        if (pool.length) notice = "Brak ofert dla dokładnej długości pobytu — pokazujemy najbliższe dostępne terminy.";
+      }
+
+      if (!pool.length && weekendOnly) {
+        pool = allCandidates.filter((offer) => departureMatches(offer));
+        if (pool.length) notice = "Nie znaleźliśmy terminu obejmującego cały weekend — pokazujemy dostępne terminy dla tego kierunku.";
+      }
+
+      if (!pool.length && departureFilter) {
+        pool = allCandidates;
+        if (pool.length) notice = "Brak ofert z wybranych lotnisk — pokazujemy dostępne opcje dla tego kierunku.";
+      }
+    }
+
     // LIVE ENGINE:
     // 1) najpierw wybieramy najtańszy aktualny PRODUKT dla każdego kierunku,
     // 2) dopiero z tych reprezentantów budujemy dzienną selekcję.
-    // Dzięki temu odświeżenie co 10 min może podmienić cenę / hotel / dokładny link,
-    // bez podstawiania droższego produktu tylko dlatego, że miał wyższy score.
     const cheapestDestinations = cheapestPerDestination(pool);
     const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && tripLengthMatches(offer));
 
@@ -668,7 +734,9 @@ export async function GET(request: NextRequest) {
           8
         )
       : mode === "search"
-        ? cheapestPerDestination(pool).sort((a,b) => a.price - b.price).slice(0, 20)
+        ? [...pool]
+            .sort((a,b) => a.price !== b.price ? a.price - b.price : b.score - a.score)
+            .slice(0, 200)
         : mode === "surprise"
           ? cheapestDestinations
               .filter((offer) => offer.price <= budget)
@@ -683,7 +751,9 @@ export async function GET(request: NextRequest) {
         mode,
         checkedAt: new Date().toISOString(),
         sourceCount: pool.length,
+        exactSourceCount: exactPool.length,
         destinationCount: cheapestDestinations.length,
+        notice,
         offers: selected,
       },
       {
