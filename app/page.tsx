@@ -177,6 +177,9 @@ const longHaulCards = [
   { href: "/dalekie-podroze#peru", region: "ameryka", label: "PERU", title: "Peru", subtitle: "Machu Picchu · Andy · Cusco", text: "Historia i krajobrazy, które spokojnie wypełnią dużą podróż.", imageCity: "Peru", imageCountry: "Peru", fallbackImage: LONG_HAUL_IMAGES.peru },
   { href: "/dalekie-podroze#zanzibar", region: "afryka", label: "ZANZIBAR", title: "Zanzibar", subtitle: "Plaże · Stone Town · przyprawy", text: "Tropikalna wyspa, którą łatwo połączyć z safari w Tanzanii.", imageCity: "Zanzibar", imageCountry: "Tanzania", fallbackImage: LONG_HAUL_IMAGES.zanzibar },
   { href: "/dalekie-podroze#mauritius", region: "afryka", label: "MAURITIUS", title: "Mauritius", subtitle: "Laguny · góry · plaże", text: "Wyspa na dłuższy wypoczynek, ale z dużą ilością rzeczy do zobaczenia poza resortem.", imageCity: "Mauritius", imageCountry: "Mauritius", fallbackImage: LONG_HAUL_IMAGES.mauritius },
+  { href: "/dalekie-podroze#nowa-zelandia", region: "oceania", label: "NOWA ZELANDIA", title: "Nowa Zelandia", subtitle: "Fiordy · road trip · natura", text: "Kierunek na dużą podróż i trasę, której nie warto robić w pośpiechu.", imageCity: "Nowa Zelandia", imageCountry: "Nowa Zelandia", fallbackImage: LONG_HAUL_IMAGES.nowa_zelandia },
+  { href: "/dalekie-podroze#kenia", region: "afryka", label: "KENIA", title: "Kenia", subtitle: "Safari · sawanna · ocean", text: "Safari i kilka dni nad oceanem — podróż, którą warto planować etapami.", imageCity: "Kenia", imageCountry: "Kenia", fallbackImage: LONG_HAUL_IMAGES.kenia },
+  { href: "/dalekie-podroze#dominikana", region: "ameryka", label: "DOMINIKANA", title: "Dominikana", subtitle: "Karaiby · plaże · natura", text: "Tropiki nie tylko w resorcie — wyspa ma dużo więcej do pokazania.", imageCity: "Dominikana", imageCountry: "Dominikana", fallbackImage: LONG_HAUL_IMAGES.dominikana },
 ];
 
 
@@ -823,7 +826,7 @@ export default function Home() {
       </section>
 
       <section className="section shell visual-chapter chapter-discover" id="odkrywaj">
-        <div className="section-heading"><div><div className="kicker">NIE TYLKO KLASYKI</div><h2>Masz już za sobą Barcelonę i Rzym?</h2></div></div>
+        <div className="section-heading"><div><div className="kicker">TROCHĘ DALEJ OD OCZYWISTOŚCI</div><h2>Czas odkryć coś mniej oczywistego.</h2></div></div>
         <div className="discovery-grid">
           <Link className="discovery-card" href="/maroko"><small>BLISKA EGZOTYKA</small><strong>🇲🇦 Maroko</strong><span>Kolor, jedzenie, pustynia i zupełnie inny klimat bez lotu na drugi koniec świata.</span></Link>
           <Link className="discovery-card" href="/riwiera-albanska"><small>MNIEJ OCZYWISTE</small><strong>🇦🇱 Albania</strong><span>Bałkany, morze i kierunek, który wciąż można odkrywać poza utartym szlakiem.</span></Link>
