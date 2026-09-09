@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Props = {
   city: string;
@@ -17,25 +17,51 @@ type ApiResponse = {
 
 const memoryCache = new Map<string, string>();
 
+function slugify(value: string) {
+  return value
+    .toLocaleLowerCase("pl")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ł/g, "l")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export default function TravelImage({ city, country, alt, className = "", overrideSrc }: Props) {
   const cacheKey = `${city}|${country}`;
-  const [src, setSrc] = useState<string | null>(() => memoryCache.get(cacheKey) || null);
-  const [loading, setLoading] = useState(!memoryCache.has(cacheKey));
+  const localCandidate = useMemo(() => `/images/destinations/${slugify(city)}.jpg`, [city]);
+  const [src, setSrc] = useState<string>(() => overrideSrc || memoryCache.get(cacheKey) || localCandidate);
+  const [triedLocal, setTriedLocal] = useState(false);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    if (overrideSrc) {
+      setSrc(overrideSrc);
+      setFailed(false);
+      setTriedLocal(false);
+      return;
+    }
+
     const cached = memoryCache.get(cacheKey);
     if (cached) {
       setSrc(cached);
-      setLoading(false);
       setFailed(false);
       return;
     }
 
-    const controller = new AbortController();
-    setLoading(true);
+    setSrc(localCandidate);
+    setTriedLocal(false);
     setFailed(false);
+  }, [cacheKey, localCandidate, overrideSrc]);
 
+  function loadDynamicFallback() {
+    if (triedLocal) {
+      setFailed(true);
+      return;
+    }
+
+    setTriedLocal(true);
+    const controller = new AbortController();
     fetch(`/api/destination-image?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`, {
       signal: controller.signal,
     })
@@ -45,32 +71,18 @@ export default function TravelImage({ city, country, alt, className = "", overri
         if (!url) throw new Error("No destination image");
         memoryCache.set(cacheKey, url);
         setSrc(url);
+        setFailed(false);
       })
-      .catch(() => setFailed(true))
-      .finally(() => setLoading(false));
-
-    return () => controller.abort();
-  }, [cacheKey, city, country]);
-
-  if (overrideSrc) {
-    return (
-      <img
-        src={overrideSrc}
-        alt={alt}
-        className={className}
-        loading="lazy"
-        decoding="async"
-      />
-    );
+      .catch(() => setFailed(true));
   }
 
-  if (loading || failed || !src) {
+  if (failed) {
     return (
       <div className={`tripownia-image-empty ${className}`} role="img" aria-label={alt}>
         <div className="tripownia-image-empty-inner">
           <span className="tripownia-image-mark">✈</span>
           <strong>{city}</strong>
-          <small>{loading ? "Szukamy najlepszego widoku" : "Tripownia.pl"}</small>
+          <small>Tripownia.pl</small>
         </div>
       </div>
     );
@@ -83,7 +95,7 @@ export default function TravelImage({ city, country, alt, className = "", overri
       className={className}
       loading="lazy"
       decoding="async"
-      onError={() => setFailed(true)}
+      onError={loadDynamicFallback}
     />
   );
 }
