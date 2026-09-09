@@ -8975,3 +8975,191 @@ vercel-toolbar,
     grid-template-columns:1fr !important;
   }
 }
+
+
+/* ==========================================================
+   V177 — RÓWNY LAYOUT + KIERUNEK I WEEKEND W JEDNEJ LINII
+========================================================== */
+
+/* Wszystkie główne sekcje mają identyczne lewe/prawe krawędzie. */
+.self-search-home-stage .legacy-search-tabs,
+.self-search-home-stage .search-text-row,
+.self-search-home-stage .compact-search-row,
+.self-search-home-stage .quick-destination-wrap,
+.self-search-home-stage .search-results-block{
+  width:calc(100% - 40px) !important;
+  max-width:calc(100% - 40px) !important;
+  margin-left:20px !important;
+  margin-right:20px !important;
+  box-sizing:border-box !important;
+}
+
+/* Taby nie mogą wystawać szerzej niż pozostałe sekcje. */
+.self-search-home-stage .legacy-search-tabs{
+  margin-top:10px !important;
+}
+
+/* Kierunek + weekend w JEDNEJ linii */
+.self-search-home-stage .search-text-row.search-text-row-with-weekend{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) 330px !important;
+  gap:12px !important;
+  align-items:stretch !important;
+  padding:0 !important;
+  margin-top:14px !important;
+  margin-bottom:12px !important;
+}
+
+/* Oba pola dokładnie ta sama wysokość */
+.self-search-home-stage .search-text-row-with-weekend .search-text-field,
+.self-search-home-stage .weekend-required.weekend-required-inline{
+  width:100% !important;
+  min-width:0 !important;
+  height:58px !important;
+  min-height:58px !important;
+  max-height:58px !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  border-radius:15px !important;
+}
+
+/* Pole wpisywania nie zajmuje już całej szerokości */
+.self-search-home-stage .search-text-row-with-weekend .search-text-field{
+  display:flex !important;
+  align-items:center !important;
+  padding:0 16px !important;
+}
+
+/* Weekend — ten sam język wizualny i ta sama "waga" */
+.self-search-home-stage .weekend-required.weekend-required-inline{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  padding:0 15px !important;
+  border:1px solid #ded1c8 !important;
+  background:linear-gradient(180deg,#fff 0%,#f8f3ef 100%) !important;
+  box-shadow:
+    0 8px 18px rgba(61,40,27,.065),
+    0 1px 0 rgba(255,255,255,.98) inset,
+    0 -2px 4px rgba(166,141,126,.07) inset !important;
+}
+
+.self-search-home-stage .weekend-required-inline > div{
+  min-width:0 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+}
+
+.self-search-home-stage .weekend-required-inline strong{
+  display:block !important;
+  margin:0 !important;
+  font-size:11px !important;
+  line-height:1.15 !important;
+  white-space:nowrap !important;
+}
+
+.self-search-home-stage .weekend-required-inline small{
+  display:block !important;
+  margin-top:2px !important;
+  color:#8a7c73 !important;
+  font-size:9px !important;
+  line-height:1.1 !important;
+  white-space:nowrap !important;
+}
+
+/* Drugi rząd: dokładnie ta sama szerokość i wysokość wszystkich pól */
+.self-search-home-stage .compact-search-row{
+  display:grid !important;
+  grid-template-columns:1.28fr 1.28fr .86fr .94fr .96fr 1.08fr !important;
+  gap:10px !important;
+  align-items:stretch !important;
+  padding:0 !important;
+  margin-top:0 !important;
+  margin-bottom:12px !important;
+}
+
+.self-search-home-stage .compact-search-row > *{
+  width:100% !important;
+  min-width:0 !important;
+  height:58px !important;
+  min-height:58px !important;
+  max-height:58px !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+}
+
+.self-search-home-stage .compact-search-row .dropdown-trigger,
+.self-search-home-stage .compact-search-row .compact-select,
+.self-search-home-stage .compact-search-row .compact-submit{
+  width:100% !important;
+  height:58px !important;
+  min-height:58px !important;
+  max-height:58px !important;
+}
+
+/* Quick starts też kończy się dokładnie na tej samej krawędzi */
+.self-search-home-stage .quick-destination-wrap{
+  margin-top:0 !important;
+  margin-bottom:18px !important;
+  padding:15px 16px 16px !important;
+}
+
+/* Nie zostawiamy starej osobnej sekcji weekendu / aktywnego świata */
+.self-search-home-stage .search-smart-options,
+.self-search-home-stage .active-filter-bar{
+  display:none !important;
+}
+
+/* Laptop */
+@media(max-width:1250px){
+  .self-search-home-stage .search-text-row.search-text-row-with-weekend{
+    grid-template-columns:minmax(0,1fr) 290px !important;
+  }
+
+  .self-search-home-stage .compact-search-row{
+    grid-template-columns:1.2fr 1.2fr .84fr .92fr .94fr 1.04fr !important;
+  }
+}
+
+/* Tablet */
+@media(max-width:950px){
+  .self-search-home-stage .search-text-row.search-text-row-with-weekend{
+    grid-template-columns:1fr !important;
+  }
+
+  .self-search-home-stage .compact-search-row{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
+  .self-search-home-stage .compact-search-row .compact-submit{
+    grid-column:1/-1 !important;
+  }
+}
+
+/* Mobile */
+@media(max-width:620px){
+  .self-search-home-stage .legacy-search-tabs,
+  .self-search-home-stage .search-text-row,
+  .self-search-home-stage .compact-search-row,
+  .self-search-home-stage .quick-destination-wrap,
+  .self-search-home-stage .search-results-block{
+    width:calc(100% - 24px) !important;
+    max-width:calc(100% - 24px) !important;
+    margin-left:12px !important;
+    margin-right:12px !important;
+  }
+
+  .self-search-home-stage .compact-search-row{
+    grid-template-columns:1fr !important;
+  }
+
+  .self-search-home-stage .compact-search-row .compact-submit{
+    grid-column:auto !important;
+  }
+
+  .self-search-home-stage .weekend-required-inline strong,
+  .self-search-home-stage .weekend-required-inline small{
+    white-space:normal !important;
+  }
+}
