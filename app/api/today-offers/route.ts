@@ -625,7 +625,9 @@ export async function GET(request: NextRequest) {
           8
         )
       : mode === "search"
-        ? cheapestPerDestination(pool).sort((a,b) => a.price - b.price).slice(0, 20)
+        ? [...pool]
+            .sort((a,b) => a.price !== b.price ? a.price - b.price : b.score - a.score)
+            .slice(0, 200)
         : mode === "surprise"
           ? cheapestDestinations
               .filter((offer) => offer.price <= budget)
