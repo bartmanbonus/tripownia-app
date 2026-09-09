@@ -8474,245 +8474,504 @@ vercel-toolbar,
 
 
 /* ==========================================================
-   V173 — WYSZUKIWARKA: RÓWNE RZĘDY + WEEKEND PRZY POLU TEKSTOWYM
+   V176 — SELF SEARCH: SPÓJNY, 3D, PREMIUM LAYOUT WE WSZYSTKICH TABACH
 ========================================================== */
 
-/* Pierwszy rząd: krótsze pole tekstowe + weekend obok */
-.search-text-row.search-text-row-with-weekend{
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) 300px !important;
-  gap:12px !important;
-  align-items:stretch !important;
-  padding:18px 20px 0 !important;
-}
-
-.search-text-row-with-weekend .search-text-field{
+.self-search-home-stage .legacy-self-search{
   width:100% !important;
-  height:58px !important;
-  min-height:58px !important;
-  margin:0 !important;
+  max-width:none !important;
 }
 
-.weekend-required.weekend-required-inline{
+.self-search-home-stage .legacy-search-card{
+  width:100% !important;
+  overflow:visible !important;
+  border:1px solid #e5d8cf !important;
+  border-radius:24px !important;
+  background:
+    linear-gradient(180deg,#fffefd 0%,#fbf6f1 100%) !important;
+  box-shadow:
+    0 24px 56px rgba(64,41,26,.08),
+    0 2px 0 rgba(255,255,255,.98) inset,
+    0 -1px 0 rgba(190,164,147,.14) inset !important;
+}
+
+/* ---------- TABS ---------- */
+
+.self-search-home-stage .legacy-search-tabs{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:8px !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:10px !important;
+  border:0 !important;
+  border-bottom:1px solid #eadfd7 !important;
+  border-radius:22px 22px 0 0 !important;
+  background:linear-gradient(180deg,#faf7f4 0%,#f4eee9 100%) !important;
+}
+
+.self-search-home-stage .legacy-search-tabs button{
+  appearance:none !important;
+  -webkit-appearance:none !important;
   display:flex !important;
   align-items:center !important;
-  gap:10px !important;
+  justify-content:center !important;
+  gap:8px !important;
   width:100% !important;
-  height:58px !important;
-  min-height:58px !important;
-  margin:0 !important;
-  padding:0 15px !important;
-  border:1px solid #ded1c8 !important;
-  border-radius:15px !important;
-  background:linear-gradient(180deg,#fff 0%,#f8f3ef 100%) !important;
-  box-shadow:
-    0 9px 20px rgba(63,41,27,.075),
-    0 1px 0 rgba(255,255,255,.98) inset,
-    0 -2px 4px rgba(166,141,126,.08) inset !important;
+  min-width:0 !important;
+  min-height:52px !important;
+  padding:0 12px !important;
+  border:1px solid transparent !important;
+  border-radius:14px !important;
+  background:transparent !important;
+  color:#544940 !important;
+  font:inherit !important;
+  font-size:14px !important;
+  font-weight:850 !important;
+  line-height:1 !important;
+  cursor:pointer !important;
   transition:.18s ease !important;
 }
 
-.weekend-required-inline:hover{
-  transform:translateY(-1px);
-  border-color:#f3aa88 !important;
+.self-search-home-stage .legacy-search-tabs button:hover{
+  transform:translateY(-1px) !important;
+  background:#fff !important;
   box-shadow:
-    0 12px 25px rgba(71,43,26,.09),
-    0 1px 0 rgba(255,255,255,.98) inset !important;
+    0 8px 20px rgba(59,39,26,.07),
+    0 1px 0 rgba(255,255,255,.96) inset !important;
 }
 
-.weekend-required-inline.active{
-  border-color:#ff9a71 !important;
-  background:linear-gradient(180deg,#fff8f4 0%,#ffede4 100%) !important;
+.self-search-home-stage .legacy-search-tabs button.active{
+  border-color:#ffc8ae !important;
+  background:linear-gradient(180deg,#fff7f2 0%,#ffe9dd 100%) !important;
+  color:#f15b24 !important;
   box-shadow:
-    0 12px 24px rgba(255,102,43,.10),
-    0 1px 0 rgba(255,255,255,.98) inset !important;
+    0 10px 22px rgba(255,104,43,.13),
+    0 1px 0 rgba(255,255,255,.98) inset,
+    0 -1px 0 rgba(240,147,104,.16) inset !important;
 }
 
-.weekend-required-inline .weekend-check{
-  flex:0 0 26px !important;
-  width:26px !important;
-  height:26px !important;
-  border-radius:8px !important;
-}
+/* ---------- PANEL ---------- */
 
-.weekend-required-inline > div{
-  min-width:0 !important;
-}
-
-.weekend-required-inline strong{
-  display:block !important;
-  font-size:11px !important;
-  line-height:1.15 !important;
-  white-space:nowrap !important;
-}
-
-.weekend-required-inline small{
-  display:block !important;
-  margin-top:2px !important;
-  color:#8a7c73 !important;
-  font-size:9px !important;
-  line-height:1.1 !important;
-  white-space:nowrap !important;
-}
-
-/* Drugi rząd: wszystkie pola identycznej wysokości i jedna linia podstawy */
-.compact-search-row{
-  display:grid !important;
-  grid-template-columns:1.35fr 1.35fr .9fr .95fr 1fr 1.15fr !important;
-  gap:10px !important;
-  align-items:stretch !important;
-  padding:12px 20px 12px !important;
-}
-
-.compact-search-row > *{
-  min-width:0 !important;
+.self-search-home-stage .legacy-search-panel{
   width:100% !important;
-  height:58px !important;
-  min-height:58px !important;
-  margin:0 !important;
-}
-
-.compact-search-row .dropdown-trigger,
-.compact-search-row .compact-select,
-.compact-search-row .compact-submit{
-  width:100% !important;
-  height:58px !important;
-  min-height:58px !important;
-}
-
-/* Usuwamy pusty pasek "Cały świat" — po jego usunięciu nie zostaje luka */
-.search-smart-options,
-.active-filter-bar{
-  display:none !important;
-}
-
-/* Quick starts zachowuje dokładnie tę samą szerokość co rzędy nad nim */
-.quick-destination-wrap{
-  margin:0 20px 18px !important;
-  padding:15px 16px 16px !important;
-}
-
-.quick-destination-head{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:space-between !important;
-  gap:16px !important;
-  min-height:24px !important;
-  margin-bottom:10px !important;
-}
-
-.quick-destination-head small{
-  margin:0 !important;
-}
-
-.quick-clear-filters{
-  appearance:none !important;
+  min-height:0 !important;
+  padding:22px !important;
   border:0 !important;
-  padding:4px 0 !important;
   background:transparent !important;
-  color:#f15b27 !important;
-  font:inherit !important;
-  font-size:10px !important;
-  font-weight:900 !important;
-  cursor:pointer !important;
 }
 
-.quick-clear-filters:hover{
-  text-decoration:underline;
-}
-
-.quick-destination-grid{
-  display:grid !important;
-  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
-  gap:9px !important;
-}
-
-.quick-destination-grid button{
+.self-search-home-stage .search-departure-block,
+.self-search-home-stage .search-destination-row,
+.self-search-home-stage .search-filter-grid,
+.self-search-home-stage .organized-search-intro,
+.self-search-home-stage .legacy-cta-box,
+.self-search-home-stage .legacy-widget-box{
   width:100% !important;
-  min-width:0 !important;
-  height:48px !important;
-  min-height:48px !important;
-  padding:0 12px !important;
-  justify-content:center !important;
-}
-
-.quick-destination-grid button strong{
-  white-space:nowrap !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-}
-
-/* Desktopowy kontener ma równy rytm od lewej do prawej */
-.search-tabs,
-.search-text-row-with-weekend,
-.compact-search-row,
-.quick-destination-wrap,
-.search-results-block{
   box-sizing:border-box !important;
 }
 
-/* Laptop */
-@media(max-width:1250px){
-  .search-text-row.search-text-row-with-weekend{
-    grid-template-columns:minmax(0,1fr) 270px !important;
+/* ---------- AIRPORTS ---------- */
+
+.self-search-home-stage .search-departure-block{
+  margin:0 0 18px !important;
+}
+
+.self-search-home-stage .search-mini-label{
+  display:flex !important;
+  align-items:center !important;
+  gap:7px !important;
+  margin:0 0 9px !important;
+  color:#443a34 !important;
+  font-size:12px !important;
+  font-weight:850 !important;
+}
+
+.self-search-home-stage .search-airport-chips{
+  display:grid !important;
+  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+  gap:9px !important;
+  width:100% !important;
+}
+
+.self-search-home-stage .search-airport-chips button{
+  appearance:none !important;
+  -webkit-appearance:none !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  align-items:flex-start !important;
+  gap:2px !important;
+  width:100% !important;
+  min-width:0 !important;
+  height:58px !important;
+  padding:0 12px !important;
+  border:1px solid #ded1c8 !important;
+  border-radius:14px !important;
+  background:linear-gradient(180deg,#fff 0%,#f8f3ef 100%) !important;
+  color:#241f1c !important;
+  font:inherit !important;
+  text-align:left !important;
+  box-shadow:
+    0 8px 18px rgba(61,40,27,.065),
+    0 1px 0 rgba(255,255,255,.98) inset,
+    0 -2px 4px rgba(166,141,126,.07) inset !important;
+  cursor:pointer !important;
+  transition:.18s ease !important;
+}
+
+.self-search-home-stage .search-airport-chips button:hover{
+  transform:translateY(-1px) !important;
+  border-color:#f3aa88 !important;
+}
+
+.self-search-home-stage .search-airport-chips button.active{
+  border-color:#ff9369 !important;
+  background:linear-gradient(180deg,#fff8f4 0%,#ffede4 100%) !important;
+  color:#e9531e !important;
+  box-shadow:
+    0 11px 24px rgba(255,102,43,.11),
+    0 1px 0 rgba(255,255,255,.98) inset !important;
+}
+
+.self-search-home-stage .search-airport-chips button strong{
+  font-size:13px !important;
+  line-height:1.05 !important;
+}
+
+.self-search-home-stage .search-airport-chips button span{
+  color:#81736a !important;
+  font-size:10px !important;
+  line-height:1 !important;
+}
+
+/* ---------- DESTINATION ---------- */
+
+.self-search-home-stage .search-destination-row{
+  margin:0 0 18px !important;
+}
+
+.self-search-home-stage .search-destination-row label{
+  display:block !important;
+  width:100% !important;
+}
+
+.self-search-home-stage .search-destination-row label>span{
+  display:block !important;
+  margin:0 0 7px !important;
+  color:#4b4039 !important;
+  font-size:12px !important;
+  font-weight:850 !important;
+}
+
+.self-search-home-stage .search-destination-row label>div{
+  display:flex !important;
+  align-items:center !important;
+  gap:9px !important;
+  width:100% !important;
+  height:56px !important;
+  padding:0 14px !important;
+  border:1px solid #ded1c8 !important;
+  border-radius:14px !important;
+  background:linear-gradient(180deg,#fff 0%,#faf6f2 100%) !important;
+  box-shadow:
+    0 8px 18px rgba(61,40,27,.06),
+    0 1px 0 rgba(255,255,255,.98) inset !important;
+}
+
+.self-search-home-stage .search-destination-row label>div:focus-within{
+  border-color:#ff9369 !important;
+  box-shadow:
+    0 10px 24px rgba(255,102,43,.10),
+    0 0 0 3px rgba(255,102,43,.06) !important;
+}
+
+.self-search-home-stage .search-destination-row input{
+  width:100% !important;
+  height:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  background:transparent !important;
+  color:#211c19 !important;
+  font:inherit !important;
+  font-size:14px !important;
+}
+
+/* ---------- FILTERS ---------- */
+
+.self-search-home-stage .search-filter-grid{
+  display:grid !important;
+  grid-template-columns:170px repeat(3,minmax(0,1fr)) !important;
+  gap:10px !important;
+  align-items:end !important;
+  margin:0 0 18px !important;
+  padding:14px !important;
+  border:1px solid #e4d8d0 !important;
+  border-radius:16px !important;
+  background:
+    linear-gradient(180deg,#fffdfa 0%,#f8f3ef 100%) !important;
+  box-shadow:
+    0 10px 24px rgba(58,38,25,.055),
+    0 1px 0 rgba(255,255,255,.96) inset !important;
+}
+
+.self-search-home-stage .search-filter-title{
+  display:flex !important;
+  align-items:center !important;
+  gap:7px !important;
+  min-height:46px !important;
+  color:#463b35 !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+}
+
+.self-search-home-stage .search-filter-grid label{
+  display:block !important;
+  width:100% !important;
+}
+
+.self-search-home-stage .search-filter-grid label>span{
+  display:block !important;
+  margin:0 0 6px !important;
+  color:#796b62 !important;
+  font-size:10px !important;
+  font-weight:800 !important;
+}
+
+.self-search-home-stage .search-filter-grid select{
+  appearance:none !important;
+  -webkit-appearance:none !important;
+  width:100% !important;
+  height:46px !important;
+  min-height:46px !important;
+  margin:0 !important;
+  padding:0 34px 0 12px !important;
+  border:1px solid #ddd0c7 !important;
+  border-radius:12px !important;
+  outline:0 !important;
+  background:
+    linear-gradient(45deg,transparent 50%,#6d5f57 50%) calc(100% - 16px) 20px/5px 5px no-repeat,
+    linear-gradient(135deg,#6d5f57 50%,transparent 50%) calc(100% - 11px) 20px/5px 5px no-repeat,
+    linear-gradient(180deg,#fff 0%,#f8f4f0 100%) !important;
+  color:#2a2420 !important;
+  font:inherit !important;
+  font-size:12px !important;
+  box-shadow:
+    0 6px 14px rgba(59,39,26,.055),
+    0 1px 0 rgba(255,255,255,.96) inset !important;
+}
+
+.self-search-home-stage .search-filter-grid select:focus{
+  border-color:#ff9369 !important;
+  box-shadow:
+    0 7px 18px rgba(255,102,43,.08),
+    0 0 0 3px rgba(255,102,43,.05) !important;
+}
+
+/* ---------- PACKAGE ---------- */
+
+.self-search-home-stage .legacy-search-panel-copy{
+  display:grid !important;
+  grid-template-columns:max-content minmax(0,1fr) !important;
+  align-items:center !important;
+  gap:4px 14px !important;
+  margin:0 0 13px !important;
+  padding:0 2px !important;
+}
+
+.self-search-home-stage .legacy-search-panel-copy strong{
+  font-size:13px !important;
+  color:#2a2420 !important;
+}
+
+.self-search-home-stage .legacy-search-panel-copy span{
+  color:#807168 !important;
+  font-size:11px !important;
+}
+
+.self-search-home-stage .legacy-widget-box{
+  padding:10px !important;
+  overflow:hidden !important;
+  border:1px solid #ded1c8 !important;
+  border-radius:17px !important;
+  background:linear-gradient(180deg,#fff 0%,#faf6f2 100%) !important;
+  box-shadow:
+    0 13px 28px rgba(61,40,27,.07),
+    0 1px 0 rgba(255,255,255,.98) inset !important;
+}
+
+/* ---------- CITY / HOLIDAY / FLIGHTS / HOTELS ---------- */
+
+.self-search-home-stage .organized-search-intro,
+.self-search-home-stage .legacy-cta-box{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:20px !important;
+  min-height:82px !important;
+  margin:0 !important;
+  padding:16px 18px !important;
+  border:1px solid #ded1c8 !important;
+  border-radius:16px !important;
+  background:linear-gradient(180deg,#fff 0%,#faf6f2 100%) !important;
+  box-shadow:
+    0 10px 24px rgba(61,40,27,.06),
+    0 1px 0 rgba(255,255,255,.98) inset !important;
+}
+
+.self-search-home-stage .organized-search-intro>div,
+.self-search-home-stage .legacy-cta-box>div{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:4px !important;
+  min-width:0 !important;
+}
+
+.self-search-home-stage .organized-search-intro strong,
+.self-search-home-stage .legacy-cta-box strong{
+  color:#241f1c !important;
+  font-size:13px !important;
+  line-height:1.2 !important;
+}
+
+.self-search-home-stage .organized-search-intro span,
+.self-search-home-stage .legacy-cta-box span{
+  color:#7b6d64 !important;
+  font-size:11px !important;
+  line-height:1.35 !important;
+}
+
+/* ---------- CTA ---------- */
+
+.self-search-home-stage .organized-search-intro button,
+.self-search-home-stage .legacy-cta-box a,
+.self-search-home-stage .legacy-search-open{
+  appearance:none !important;
+  -webkit-appearance:none !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  gap:8px !important;
+  flex:0 0 auto !important;
+  min-height:48px !important;
+  padding:0 18px !important;
+  border:1px solid #ed5d24 !important;
+  border-radius:13px !important;
+  background:linear-gradient(180deg,#ff8040 0%,#ff642b 100%) !important;
+  color:#fff !important;
+  font:inherit !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  text-decoration:none !important;
+  box-shadow:
+    0 12px 24px rgba(255,94,35,.22),
+    0 2px 0 rgba(255,255,255,.24) inset,
+    0 -2px 0 rgba(195,66,18,.16) inset !important;
+  cursor:pointer !important;
+  transition:.18s ease !important;
+}
+
+.self-search-home-stage .organized-search-intro button:hover,
+.self-search-home-stage .legacy-cta-box a:hover,
+.self-search-home-stage .legacy-search-open:hover{
+  transform:translateY(-2px) !important;
+  box-shadow:
+    0 16px 30px rgba(255,94,35,.27),
+    0 2px 0 rgba(255,255,255,.24) inset !important;
+}
+
+/* ---------- RESULTS ---------- */
+
+.self-search-home-stage .self-search-results{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:14px !important;
+  margin-top:16px !important;
+}
+
+.self-search-home-stage .self-search-result-card{
+  overflow:hidden !important;
+  border:1px solid #e1d5cd !important;
+  border-radius:17px !important;
+  background:#fff !important;
+  box-shadow:0 10px 24px rgba(58,38,25,.055) !important;
+}
+
+.self-search-home-stage .self-search-result-image{
+  height:140px !important;
+  background-size:cover !important;
+  background-position:center !important;
+}
+
+.self-search-home-stage .self-search-result-body{
+  padding:13px !important;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media(max-width:1100px){
+  .self-search-home-stage .legacy-search-tabs{
+    grid-template-columns:repeat(5,minmax(120px,1fr)) !important;
+    overflow-x:auto !important;
   }
 
-  .compact-search-row{
-    grid-template-columns:1.25fr 1.25fr .85fr .95fr 1fr 1.1fr !important;
-  }
-
-  .quick-destination-grid{
+  .self-search-home-stage .search-airport-chips{
     grid-template-columns:repeat(3,minmax(0,1fr)) !important;
   }
-}
 
-/* Tablet */
-@media(max-width:950px){
-  .search-text-row.search-text-row-with-weekend{
-    grid-template-columns:1fr !important;
+  .self-search-home-stage .search-filter-grid{
+    grid-template-columns:1fr 1fr 1fr !important;
   }
 
-  .compact-search-row{
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  }
-
-  .compact-search-row .compact-submit{
+  .self-search-home-stage .search-filter-title{
     grid-column:1/-1 !important;
+    min-height:auto !important;
   }
 
-  .quick-destination-grid{
+  .self-search-home-stage .self-search-results{
     grid-template-columns:repeat(2,minmax(0,1fr)) !important;
   }
 }
 
-/* Mobile */
-@media(max-width:620px){
-  .search-text-row.search-text-row-with-weekend{
-    padding-left:12px !important;
-    padding-right:12px !important;
+@media(max-width:700px){
+  .self-search-home-stage .legacy-search-panel{
+    padding:14px !important;
   }
 
-  .compact-search-row{
+  .self-search-home-stage .legacy-search-tabs{
+    display:flex !important;
+    padding:8px !important;
+  }
+
+  .self-search-home-stage .legacy-search-tabs button{
+    min-width:140px !important;
+    min-height:46px !important;
+  }
+
+  .self-search-home-stage .search-airport-chips{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+
+  .self-search-home-stage .search-filter-grid{
     grid-template-columns:1fr !important;
-    padding-left:12px !important;
-    padding-right:12px !important;
+    padding:12px !important;
   }
 
-  .compact-search-row .compact-submit{
-    grid-column:auto !important;
+  .self-search-home-stage .organized-search-intro,
+  .self-search-home-stage .legacy-cta-box{
+    align-items:stretch !important;
+    flex-direction:column !important;
   }
 
-  .quick-destination-wrap{
-    margin-left:12px !important;
-    margin-right:12px !important;
+  .self-search-home-stage .organized-search-intro button,
+  .self-search-home-stage .legacy-cta-box a,
+  .self-search-home-stage .legacy-search-open{
+    width:100% !important;
   }
 
-  .quick-destination-grid{
+  .self-search-home-stage .self-search-results{
     grid-template-columns:1fr !important;
-  }
-
-  .weekend-required-inline strong,
-  .weekend-required-inline small{
-    white-space:normal !important;
   }
 }
