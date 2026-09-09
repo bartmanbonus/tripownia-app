@@ -39,6 +39,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [submitted,setSubmitted]=useState(0);
   const [liveResults,setLiveResults]=useState<any[]>([]);
   const [liveLoading,setLiveLoading]=useState(false);
+  const [liveNotice,setLiveNotice]=useState("");
   const [initialSearchDone,setInitialSearchDone]=useState(false);
   const [activeTab,setActiveTab]=useState(initialTab);
   const [visibleCount,setVisibleCount]=useState(10);
@@ -151,16 +152,31 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
 
   async function runPartnerSearch(destinationOverride?:string, cityModeOverride?:boolean, initialLoad=false):Promise<number>{
     if(!initialLoad)setVisibleCount(10);
-    const destination=(destinationOverride||selectedTo[0]||text||"").trim();
+    const destination=(
+      destinationOverride ||
+      (selectedTo.length ? selectedTo.join(",") : "") ||
+      text ||
+      ""
+    ).trim();
+
     setLiveLoading(true);
+    setLiveNotice("");
+
     try{
       const cityMode=cityModeOverride ?? activeTab==="City break";
       const params=new URLSearchParams({mode:cityMode?"citybreak":"search"});
       if(destination) params.set("q", destination);
-      // Wejście bez konkretnego kierunku ma od razu zbudować szeroką pulę
-      // do 20 różnych, najtańszych kierunków z live feedów.
+
+      // Brak kierunku = szeroka pula. Przy konkretnym kierunku zachowujemy
+      // wszystkie wybrane miasta/kraje, a nie tylko pierwszy element.
       if(!destination && !cityMode) params.set("broad", "1");
-      if(airports[0]) params.set("from", airports[0]);
+
+      // Multi-select lotnisk działa również po stronie live API.
+      if(airports.length) params.set("from", airports.join(","));
+
+      // Weekend jest realnym filtrem API: sobota i niedziela muszą przypadać
+      // w trakcie pobytu.
+      if(weekendOnly) params.set("weekend", "1");
       if(duration==="1-2") params.set("nights", "1-2");
       else if(duration==="3-4") params.set("nights", "3-4");
       else if(duration==="5-7") params.set("nights", "5-7");
@@ -177,8 +193,13 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       const response=await fetch(`/api/today-offers?${params.toString()}`,{cache:"no-store"});
       const data=await response.json();
       const rows=Array.isArray(data?.offers)?data.offers:[];
-      const accepted=rows.filter((o:any)=>cityMode?String(o.partner||"").toLowerCase()==="exim":["exim","tui"].includes(String(o.partner||"").toLowerCase()));
+      const accepted=rows.filter((o:any)=>cityMode
+        ? String(o.partner||"").toLowerCase()==="exim"
+        : ["exim","tui"].includes(String(o.partner||"").toLowerCase())
+      );
+
       setLiveResults(accepted);
+      setLiveNotice(String(data?.notice||""));
       return accepted.length;
     }catch{
       setLiveResults([]);
@@ -294,7 +315,14 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       </div>
 
       <div className="search-results-block">
-        <div className="search-results-heading premium-results-heading"><div><small>ODKRYTE DLA CIEBIE</small><h3>{hasDestination?`Okazje: ${queryDestination}`:`${results.length} aktualnych okazji`}</h3></div><span>Pokazujemy najpierw 10 najlepszych dopasowań. Kolejne możesz odkrywać bez przeładowania strony.</span></div>
+        <div className="search-results-heading premium-results-heading">
+          <div>
+            <small>ODKRYTE DLA CIEBIE</small>
+            <h3>{hasDestination?`Okazje: ${queryDestination}`:`${results.length} aktualnych okazji`}</h3>
+            {liveNotice&&<em className="search-live-notice">{liveNotice}</em>}
+          </div>
+          <span>Pokazujemy najlepsze dostępne dopasowania. Jeśli kombinacja filtrów jest zbyt wąska, rozszerzamy ją zamiast zostawiać pusty ekran.</span>
+        </div>
         {liveLoading&&<div className="partner-search-banner search-results-carousel-head"><div><small>✦ AKTUALIZUJEMY W TLE</small><strong>Oferty są już widoczne — sprawdzamy teraz najnowsze ceny.</strong></div></div>}
         {results.length>0&&<>
           <div className="premium-results-summary premium-results-carousel-summary">
