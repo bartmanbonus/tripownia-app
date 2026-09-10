@@ -1,300 +1,112 @@
 "use client";
-
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, CalendarDays, Check, ChevronDown, Compass, MapPin, Plane, Search, Users, Utensils, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, Check, ChevronDown, Compass, MapPin, Plane, Search, Utensils, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
-import { airportOptions, offers, isOfferExpired } from "@/lib/offers";
+import { airportOptions, type Offer } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination } from "@/lib/worldDestinations";
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
+import { requestCatalog } from "@/lib/catalogClient";
+import { partners } from "@/lib/partners";
 
-type Props={initialAirports?:string[];initialDestinations?:string[];initialDuration?:string;searchRequest?:number;initialTab?:string};
-
-function offerText(o:any){return normalizeDestination([o.city,o.country,o.hotel,o.destination,o.title].filter(Boolean).join(" "));}
-function depCode(o:any){return String(o.departureCode||o.airportCode||o.departureAirportCode||"").toUpperCase()}
-function durationOk(o:any,d:string){
-  const n=Number(o.nights||o.duration||0);
-  if(d==="all")return true;
-  if(d==="1-2")return !n||(n>=1&&n<=2);
-  if(d==="3-4")return !n||(n>=3&&n<=4);
-  if(d==="5-7")return !n||(n>=5&&n<=7);
-  if(d==="8-10")return !n||(n>=8&&n<=10);
-  if(d==="11-14")return !n||(n>=11&&n<=14);
-  if(d==="15+")return !n||n>=15;
-  return true;
-}
-function budgetValue(v:string){return v==="all"?Infinity:Number(v)}
-
-export default function SearchHub({initialAirports=[],initialDestinations=[],initialDuration="all",searchRequest=0,initialTab="Inspiracje"}:Props){
-  const [airports,setAirports]=useState<string[]>(initialAirports);
-  const [destinations,setDestinations]=useState<string[]>(initialDestinations);
-  const [customDestination,setCustomDestination]=useState("");
-  const [duration,setDuration]=useState(initialDuration||"all");
-  const [budget,setBudget]=useState("5000");
-  const [board,setBoard]=useState("all");
-  const [weekendOnly,setWeekendOnly]=useState(false);
-  const [text,setText]=useState("");
-  const [open,setOpen]=useState<"from"|"to"|null>(null);
-  const [destinationQuery,setDestinationQuery]=useState("");
-  const [submitted,setSubmitted]=useState(0);
-  const [liveResults,setLiveResults]=useState<any[]>([]);
-  const [liveLoading,setLiveLoading]=useState(false);
-  const [liveNotice,setLiveNotice]=useState("");
-  const [liveVerified,setLiveVerified]=useState(false);
-  const [initialSearchDone,setInitialSearchDone]=useState(false);
-  const [activeTab,setActiveTab]=useState(initialTab);
-  const [visibleCount,setVisibleCount]=useState(10);
-  const [carouselIndex,setCarouselIndex]=useState(0);
-  const fromDropdownRef=useRef<HTMLDivElement>(null);
-  const toDropdownRef=useRef<HTMLDivElement>(null);
-  const resultsRailRef=useRef<HTMLDivElement>(null);
-  const moveResults=(direction:-1|1)=>{
-    const rail=resultsRailRef.current;
-    if(!rail)return;
-    const card=rail.querySelector<HTMLElement>(".search-results-carousel-item");
-    const step=card?card.getBoundingClientRect().width+14:304;
-    const next=Math.max(0,Math.min(results.length-1,carouselIndex+direction));
-    setCarouselIndex(next);
-    rail.scrollTo({left:next*step,behavior:"smooth"});
-  };
-
-  useEffect(()=>{setAirports(initialAirports);setDestinations(initialDestinations);setDuration(initialDuration||"all")},[initialAirports.join("|"),initialDestinations.join("|"),initialDuration]);
-  useEffect(()=>{if(searchRequest>0)setSubmitted(v=>v+1)},[searchRequest]);
-  useEffect(()=>{setVisibleCount(10);setCarouselIndex(0)},[airports.join("|"),destinations.join("|"),customDestination,duration,budget,board,text,weekendOnly,activeTab]);
-
-  useEffect(()=>{
-    if(!open)return;
-
-    const handlePointerDown=(event:PointerEvent)=>{
-      const target=event.target as Node;
-      const activeRef=open==="from"?fromDropdownRef.current:toDropdownRef.current;
-      if(activeRef && !activeRef.contains(target)){
-        setOpen(null);
-      }
-    };
-
-    const handleKeyDown=(event:KeyboardEvent)=>{
-      if(event.key==="Escape")setOpen(null);
-    };
-
-    // pointerdown reaguje wcześniej niż click i działa również dla touch/pen.
-    document.addEventListener("pointerdown",handlePointerDown);
-    document.addEventListener("keydown",handleKeyDown);
-
-    return ()=>{
-      document.removeEventListener("pointerdown",handlePointerDown);
-      document.removeEventListener("keydown",handleKeyDown);
-    };
-  },[open]);
-  useEffect(()=>{
-    // Ładujemy aktualną pulę automatycznie po wejściu na stronę.
-    // Bez ref-guardu: w React Strict Mode poprzednia wersja mogła anulować
-    // pierwszy timeout i zablokować drugi efekt, przez co wyniki pojawiały się
-    // dopiero po ręcznym kliknięciu „Pokaż wyniki”.
-    let cancelled=false;
-    const timer=window.setTimeout(async()=>{
-      const count=await runPartnerSearch(undefined,undefined,true);
-      if(!cancelled && count===0){
-        await new Promise(resolve=>window.setTimeout(resolve,700));
-        if(!cancelled) await runPartnerSearch(undefined,undefined,true);
-      }
-    },0);
-    return ()=>{cancelled=true;window.clearTimeout(timer)};
-  },[]);
-
-  const worldFiltered=useMemo(()=>WORLD_DESTINATIONS.filter(x=>isTravelDestinationAllowed(x.label,x.region)).filter(x=>destinationMatches(destinationQuery,x)),[destinationQuery]);
-  const selectedTo=[...destinations,...(customDestination?[customDestination]:[])];
-  const selectedToLabel=selectedTo.length===0?"Gdziekolwiek":selectedTo.length===1?selectedTo[0]:`${selectedTo.length} kierunki`;
-  const selectedFromLabel=airports.length===0?"Wszystkie lotniska":airports.length===1?(airportOptions.find((a:any)=>a.code===airports[0])?.label||airports[0]):`${airports.length} lotniska`;
-
-  const results=useMemo(()=>{
-    const max=budgetValue(budget);
-    const staticFallback=(offers as any[]).filter((o:any)=>
-      ["exim","tui","wakacje"].includes(String(o.partner||"").toLowerCase())
-    );
-    // Wyniki mają być widoczne od pierwszego renderu. W tle pobieramy live feed
-    // i podmieniamy pulę, gdy tylko wróci aktualna odpowiedź.
-    const usingLive=liveVerified && liveResults.length>0;
-    const source = usingLive ? liveResults : staticFallback;
-
-    // Dla wyników LIVE ufamy filtrom wykonanym już po stronie API.
-    // Nie filtrujemy drugi raz lotniska/kierunku po labelach UI, bo np.
-    // WAWA = "Warszawa — Chopin + Modlin", a feed może zwrócić samo "Warszawa".
-    // To właśnie zerowało poprawne wyniki po udanym pobraniu.
-    const filtered=source
-      .filter((o:any)=>{
-        if(isOfferExpired(o))return false;
-        if(!isTravelDestinationAllowed(String(o.city||""),String(o.country||"")))return false;
-
-        // Wyniki LIVE są już filtrowane i — jeśli trzeba — stopniowo
-        // rozluźniane w /api/today-offers. Nie filtrujemy ich ponownie tutaj,
-        // bo ponowne nałożenie budżetu/weekendu usuwało poprawny fallback API.
-        if(!usingLive){
-          if(Number(o.price||0)>max)return false;
-          const q=normalizeDestination(text);
-          const to:string[]=selectedTo.map(v=>normalizeDestination(String(v))).filter(Boolean);
-          if(airports.length && !airports.includes(depCode(o)) && !airports.some(a=>normalizeDestination(String(o.departure||"")).includes(normalizeDestination(airportOptions.find((x:any)=>x.code===a)?.label||a))))return false;
-          if(to.length && !to.some(d=>offerText(o).includes(d)||d.includes(normalizeDestination(String(o.city||o.country||"")))))return false;
-          if(!durationOk(o,duration))return false;
-          if(board!=="all"&&!normalizeDestination(String(o.board||"")).includes(normalizeDestination(board)))return false;
-          if(q&&!offerText(o).includes(q))return false;
-          if(weekendOnly){
-            const cats=(o.category||[]).map((c:any)=>normalizeDestination(String(c)));
-            const nights=Number(o.nights||o.duration||0);
-            if(!cats.some((c:string)=>c.includes("weekend")) && !(nights>=2&&nights<=4)) return false;
-          }
-        }
-        return true;
-      })
-      .sort((a:any,b:any)=>Number(a.price||Infinity)-Number(b.price||Infinity));
-
-    // W wyszukiwarce pokazujemy pełną pulę aktualnych okazji.
-    // Ograniczenie "1 kierunek = 1 oferta" pozostaje dla dziennej selekcji,
-    // ale nie ogranicza świadomego wyszukiwania użytkownika.
-    return filtered.slice(0,200);
-  },[airports,destinations,customDestination,duration,budget,board,text,weekendOnly,submitted,liveResults,liveLoading,liveVerified]);
-
-
-  async function runPartnerSearch(destinationOverride?:string, cityModeOverride?:boolean, initialLoad=false):Promise<number>{
-    if(!initialLoad)setVisibleCount(10);
-    const destination=(
-      destinationOverride ||
-      (selectedTo.length ? selectedTo.join(",") : "") ||
-      text ||
-      ""
-    ).trim();
-
-    setLiveLoading(true);
-    setLiveNotice("");
-
-    try{
-      const cityMode=cityModeOverride ?? activeTab==="City break";
-      const params=new URLSearchParams({mode:cityMode?"citybreak":"search"});
-      if(destination) params.set("q", destination);
-
-      // Brak kierunku = szeroka pula. Przy konkretnym kierunku zachowujemy
-      // wszystkie wybrane miasta/kraje, a nie tylko pierwszy element.
-      if(!destination && !cityMode) params.set("broad", "1");
-
-      // Multi-select lotnisk działa również po stronie live API.
-      if(airports.length) params.set("from", airports.join(","));
-
-      // Weekend jest realnym filtrem API: sobota i niedziela muszą przypadać
-      // w trakcie pobytu.
-      if(weekendOnly) params.set("weekend", "1");
-      if(duration==="1-2") params.set("nights", "1-2");
-      else if(duration==="3-4") params.set("nights", "3-4");
-      else if(duration==="5-7") params.set("nights", "5-7");
-      else if(duration==="8-10") params.set("nights", "8-10");
-      else if(duration==="11-14") params.set("nights", "11-14");
-      else if(duration==="15+") params.set("nights", "15+");
-      if(board==="all inclusive") params.set("board", "allinclusive");
-      else if(board==="ultra all inclusive") params.set("board", "ultraallinclusive");
-      else if(board==="śniadanie") params.set("board", "breakfast");
-      else if(board==="half board") params.set("board", "halfboard");
-      else if(board==="full board") params.set("board", "fullboard");
-      else if(board==="bez wyżywienia") params.set("board", "roomonly");
-      if(Number.isFinite(budgetValue(budget))) params.set("maxPrice", String(budgetValue(budget)));
-      const response=await fetch(`/api/today-offers?${params.toString()}`,{cache:"no-store"});
-      const data=await response.json();
-      if(!response.ok || data?.ok === false) throw new Error(String(data?.error||`Feed HTTP ${response.status}`));
-      const rows=Array.isArray(data?.offers)?data.offers:[];
-      let accepted=rows.filter((o:any)=>cityMode
-        ? String(o.partner||"").toLowerCase()==="exim"
-        : ["exim","tui"].includes(String(o.partner||"").toLowerCase())
-      );
-      let notice=String(data?.notice||"");
-
-      // Ostatnia siatka bezpieczeństwa: jeśli konkretny kierunek nie zwrócił
-      // ani jednego produktu, pobieramy szeroką pulę bez twardych filtrów.
-      // Nadal są to wyłącznie aktualne oferty z naszych feedów EXIM/TUI.
-      if(!accepted.length && destination){
-        const rescueParams=new URLSearchParams({mode:"search",broad:"1",rescue:"1"});
-        const rescueResponse=await fetch(`/api/today-offers?${rescueParams.toString()}`,{cache:"no-store"});
-        const rescueData=await rescueResponse.json();
-        const rescueRows=Array.isArray(rescueData?.offers)?rescueData.offers:[];
-        accepted=rescueRows.filter((o:any)=>
-          ["exim","tui"].includes(String(o.partner||"").toLowerCase())
-        );
-        if(accepted.length){
-          notice=`Nie mamy teraz feedowej oferty dokładnie dla „${destination}” w wybranej kombinacji. Pokazujemy najbliższe dostępne okazje z naszych feedów.`;
-        }
-      }
-
-      // Jeżeli pierwszy rescue chwilowo zwróci pustą paczkę, wykonujemy jeszcze
-      // pełny feed sweep bez żadnych filtrów użytkownika. To nadal są wyłącznie
-      // aktualne oferty EXIM/TUI, tylko z szerszego zakresu kierunków.
-      if(!accepted.length){
-        const finalParams=new URLSearchParams({mode:"search",broad:"1",rescue:"full"});
-        const finalResponse=await fetch(`/api/today-offers?${finalParams.toString()}`,{cache:"no-store"});
-        const finalData=await finalResponse.json();
-        const finalRows=Array.isArray(finalData?.offers)?finalData.offers:[];
-        accepted=finalRows.filter((o:any)=>
-          ["exim","tui"].includes(String(o.partner||"").toLowerCase())
-        );
-        if(accepted.length){
-          notice="Brak dokładnego dopasowania — pokazujemy najlepsze aktualne okazje dostępne teraz w naszych feedach.";
-        }
-      }
-
-      setLiveResults(accepted);
-      setLiveVerified(accepted.length>0);
-      setLiveNotice(accepted.length
-        ? notice
-        : "Partnerzy nie zwrócili teraz dostępnych ofert. Pokazujemy inspiracje z cenami orientacyjnymi — sprawdź cenę przed rezerwacją.");
-      return accepted.length;
-    }catch{
-      setLiveVerified(liveResults.length>0);
-      setLiveNotice(liveResults.length>0
-        ? "Nie udało się ponownie odświeżyć feedu — pokazujemy ostatnią zweryfikowaną pulę z tej sesji."
-        : "Feed ofert nie jest teraz dostępny. Pokazujemy inspiracje z cenami orientacyjnymi — sprawdź cenę przed rezerwacją.");
-      return liveResults.length;
-    }finally{
-      setLiveLoading(false);
-      setSubmitted(v=>v+1);
-      if(initialLoad)setInitialSearchDone(true);
-    }
+type Props = { initialAirports?: string[]; initialDestinations?: string[]; initialDuration?: string; searchRequest?: number; initialTab?: string };
+type Selection = { airports: string[]; destinations: string[]; customDestination: string; duration: string; budget: string; board: string; text: string; weekendOnly: boolean; dateFrom: string; dateTo: string; activeTab: string };
+type CatalogPage = { offers: Offer[]; totalMatches: number; page: number; pageSize: number; catalogSize: number; catalogCheckedAt: string | null; stale: boolean };
+const defaults: Selection = { airports: [], destinations: [], customDestination: "", duration: "all", budget: "all", board: "all", text: "", weekendOnly: false, dateFrom: "", dateTo: "", activeTab: "Inspiracje" };
+const boards: Record<string, string> = { "all inclusive": "allinclusive", "ultra all inclusive": "ultraallinclusive", "śniadanie": "breakfast", "half board": "halfboard", "full board": "fullboard", "bez wyżywienia": "roomonly" };
+export default function SearchHub({ initialAirports = [], initialDestinations = [], initialDuration = "all", searchRequest = 0, initialTab = "Inspiracje" }: Props) {
+  const [selection, setSelection] = useState<Selection>({ ...defaults, airports: initialAirports, destinations: initialDestinations, duration: initialDuration, activeTab: initialTab });
+  const { airports, destinations, customDestination, duration, budget, board, text, weekendOnly, dateFrom, dateTo, activeTab } = selection;
+  const [page, setPage] = useState(1), [refresh, setRefresh] = useState(0);
+  const [open, setOpen] = useState<"from" | "to" | null>(null);
+  const [destinationQuery, setDestinationQuery] = useState("");
+  const [state, setState] = useState<{ key: string; data?: CatalogPage; error?: string }>({ key: "" });
+  const [loadingKey, setLoadingKey] = useState("");
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const fromDropdownRef = useRef<HTMLDivElement>(null), toDropdownRef = useRef<HTMLDivElement>(null), resultsRailRef = useRef<HTMLDivElement>(null);
+  function change(patch: Partial<Selection>) { setSelection(current => ({ ...current, ...patch })); setPage(1); setCarouselIndex(0); }
+  const setAirports = (value: string[] | ((current: string[]) => string[])) => change({ airports: typeof value === "function" ? value(airports) : value });
+  const setDestinations = (value: string[]) => change({ destinations: value });
+  const setCustomDestination = (value: string) => change({ customDestination: value });
+  const setDuration = (value: string) => change({ duration: value });
+  const setBudget = (value: string) => change({ budget: value });
+  const setBoard = (value: string) => change({ board: value });
+  const setText = (value: string) => change({ text: value });
+  const setWeekendOnly = (value: boolean) => change({ weekendOnly: value });
+  useEffect(() => {
+    change({ airports: initialAirports, destinations: initialDestinations, duration: initialDuration, activeTab: initialTab });
+  }, [initialAirports.join("|"), initialDestinations.join("|"), initialDuration, initialTab, searchRequest]);
+  useEffect(() => {
+    if (!open) return;
+    const pointer = (event: PointerEvent) => { const target = event.target as Node; if (!(open === "from" ? fromDropdownRef : toDropdownRef).current?.contains(target)) setOpen(null); };
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(null); };
+    document.addEventListener("pointerdown", pointer); document.addEventListener("keydown", escape);
+    return () => { document.removeEventListener("pointerdown", pointer); document.removeEventListener("keydown", escape); };
+  }, [open]);
+  const selectedTo = [...destinations, ...(customDestination ? [customDestination] : [])];
+  const selectedToLabel = selectedTo.length === 0 ? "Gdziekolwiek" : selectedTo.length === 1 ? selectedTo[0] : `${selectedTo.length} kierunki`;
+  const selectedFromLabel = airports.length ? airports.map(code => airportOptions.find(a => a.code === code)?.label || code).join(", ") : "Wszystkie lotniska";
+  const worldFiltered = useMemo(() => WORLD_DESTINATIONS.filter(d => isTravelDestinationAllowed(d.label, d.region) && destinationMatches(destinationQuery, d)), [destinationQuery]);
+  const params = new URLSearchParams({ page: String(page), pageSize: "20", nights: duration === "all" ? "any" : duration, board: boards[board] || "any", tripType: activeTab === "City break" ? "citybreak" : "any" });
+  for (const destination of selectedTo) params.append("destination", destination);
+  if (text.trim()) params.set("q", text.trim());
+  if (airports.length) params.set("from", airports.join(","));
+  if (budget !== "all") params.set("maxPrice", budget);
+  if (weekendOnly) params.set("weekend", "1");
+  if (dateFrom) params.set("dateFrom", dateFrom);
+  if (dateTo) params.set("dateTo", dateTo);
+  const queryKey = params.toString();
+  useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+    setLoadingKey(queryKey);
+    const timer = window.setTimeout(() => {
+      requestCatalog(new URLSearchParams(queryKey), controller.signal)
+        .then(data => { if (active) setState({ key: queryKey, data }); })
+        .catch(error => { if (active) setState({ key: queryKey, error: error instanceof Error ? error.message : "Błąd pobierania katalogu." }); })
+        .finally(() => { if (active) setLoadingKey(""); });
+    }, 200);
+    return () => { active = false; window.clearTimeout(timer); controller.abort(); };
+  }, [queryKey, refresh]);
+  // Previous criteria never appear under new labels. Empty matches remain empty.
+  const current = state.key === queryKey ? state : null;
+  const data = current?.data;
+  const results = data?.offers || [];
+  const liveLoading = loadingKey === queryKey || !current;
+  const queryDestination = selectedTo[0] || text || "";
+  const activeChips = airports.length || selectedTo.length || duration !== "all" || budget !== "all" || board !== "all" || weekendOnly || text || dateFrom || dateTo ? ["filters"] : [];
+  function submit() { setRefresh(value => value + 1); setOpen(null); }
+  function clearAll() { setSelection(defaults); setPage(1); setCarouselIndex(0); setDestinationQuery(""); setOpen(null); }
+  function toggleDestination(value: string) { change({ customDestination: "", destinations: destinations.includes(value) ? destinations.filter(d => d !== value) : [...destinations, value] }); }
+  function useCustom() { const value = destinationQuery.trim(); if (!value || isTravelDestinationBlocked(value)) return; change({ destinations: [], customDestination: value }); setOpen(null); setDestinationQuery(""); }
+  function pickDestination(label: string, options?: { duration?: string; budget?: string; board?: string }) { change({ destinations: [label], customDestination: "", text: "", ...options }); setOpen(null); }
+  function chooseTab(tab: string) {
+    if (tab === "Atrakcje") { window.location.assign(partners.getyourguide.buildUrl()); return; }
+    if (tab === "Parkingi" || tab === "eSIM") { window.location.assign(tab === "Parkingi" ? "/parkingi" : "/esim"); return; }
+    change({ activeTab: tab });
   }
-  function toggleDestination(v:string){setCustomDestination("");setDestinations(prev=>prev.includes(v)?prev.filter(x=>x!==v):[...prev,v])}
-  function useCustom(){const v=destinationQuery.trim();if(!v||isTravelDestinationBlocked(v))return;setDestinations([]);setCustomDestination(v);setOpen(null);setDestinationQuery("")}
-  function clearAll(){setAirports([]);setDestinations([]);setCustomDestination("");setDuration("all");setBudget("5000");setBoard("all");setWeekendOnly(false);setText("");setDestinationQuery("")}
-  function pickDestination(label:string, opts?:{duration?:string;budget?:string;board?:string}, cityModeOverride?:boolean){
-    setDestinations([label]); setCustomDestination(""); setText(""); setDestinationQuery("");
-    if(opts?.duration)setDuration(opts.duration); if(opts?.budget)setBudget(opts.budget); if(opts?.board)setBoard(opts.board);
-    setOpen(null);
-    void runPartnerSearch(label, cityModeOverride);
+  function moveResults(direction: -1 | 1) {
+    const rail = resultsRailRef.current; if (!rail) return;
+    const card = rail.querySelector<HTMLElement>(".search-results-carousel-item");
+    const next = Math.max(0, Math.min(results.length - 1, carouselIndex + direction));
+    setCarouselIndex(next); rail.scrollTo({ left: next * ((card?.getBoundingClientRect().width || 290) + 14), behavior: "smooth" });
   }
-  function chooseTab(tab:string){
-    setActiveTab(tab);
-    if(tab==="Inspiracje") return;
-    if(tab==="City break") pickDestination("Rzym, Włochy",{duration:"3-4"},true);
-    if(tab==="Lot + hotel") pickDestination("Barcelona, Hiszpania",{duration:"3-4"},false);
-    if(tab==="Wakacje") pickDestination("Djerba, Tunezja",{duration:"5-7",board:"all inclusive"},false);
-    if(tab==="Atrakcje") pickDestination("Paryż, Francja",{duration:"3-4"},false);
-    if(tab==="Parkingi") window.location.href="/parkingi";
-    if(tab==="eSIM") window.location.href="/esim";
-  }
-  const activeChips=[...(airports.length?[`✈ ${selectedFromLabel}`]:[]),...(selectedTo.length?[`🌍 ${selectedToLabel}`]:[]),...(duration!=="all"?[`📅 ${duration==="1-2"?"1–2 noce":duration==="3-4"?"3–4 noce":duration==="5-7"?"5–7 nocy":duration==="8-10"?"8–10 nocy":duration==="11-14"?"11–14 nocy":"15+ nocy"}`]:[]),...(budget!=="5000"?[`💰 do ${Number(budget).toLocaleString("pl-PL")} zł`]:[]),...(board!=="all"?[`🍽 ${board}`]:[]),...(weekendOnly?[`🗓 musi obejmować weekend`]:[])];
-
-  const queryDestination=selectedTo[0]||text||"";
-  const hasDestination=Boolean(queryDestination.trim());
-  const quickPicks=[
-    ["🏛️","City break: Rzym","Rzym, Włochy",{duration:"3-4"}],
-    ["☀️","Ciepło zimą: Teneryfa","Teneryfa, Hiszpania",{duration:"5-7"}],
-    ["🏖️","All Inclusive: Djerba","Djerba, Tunezja",{duration:"5-7",board:"all inclusive"}],
-    ["💶","Tanio: Bergamo","Bergamo, Włochy",{duration:"3-4",budget:"1000"}],
-    ["🌴","Egzotyka: Zanzibar","Zanzibar, Tanzania",{duration:"11-14"}]
+  const quickPicks = [
+    ["🏛️", "City break: Rzym", "Rzym, Włochy", { duration: "3-4" }],
+    ["☀️", "Teneryfa", "Teneryfa, Hiszpania", { duration: "5-7" }],
+    ["🏖️", "All Inclusive: Djerba", "Djerba, Tunezja", { duration: "5-7", board: "all inclusive" }],
+    ["💶", "Bergamo do 1000 zł", "Bergamo, Włochy", { duration: "3-4", budget: "1000" }],
+    ["🌴", "Egzotyka: Zanzibar", "Zanzibar, Tanzania", { duration: "11-14" }],
   ] as const;
-
   return <section className="section shell" id="wyszukiwarka">
     <div className="search-hub">
       <div className="search-tabs">
-        {['Inspiracje','City break','Lot + hotel','Wakacje','Atrakcje','Parkingi','eSIM'].map(x=><button key={x} className={activeTab===x?'active':''} type="button" onClick={()=>chooseTab(x)}>{x}</button>)}
+        {['Inspiracje','City break','Lot + hotel','Wakacje','Atrakcje','Parkingi','eSIM'].map(x=><button key={x} className={activeTab===x?'active':''} type="button" onClick={()=>chooseTab(x)}>{x === "Inspiracje" ? "Wszystkie oferty" : x}</button>)}
       </div>
 
       <div className="search-text-row search-text-row-with-weekend search-top-inline">
-        <div className="search-text-field"><Search size={18}/><input value={text} onChange={e=>setText(e.target.value)} placeholder="Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam lub Resort 4★"/>{text&&<button onClick={()=>setText("")} aria-label="Wyczyść"><X size={16}/></button>}</div>
-        <label className={`weekend-required weekend-required-inline ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>setWeekendOnly(e.target.checked)}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Pobyt obejmuje sobotę i niedzielę</strong><small>Jesteś na miejscu w oba dni</small></div></label>
+        <div className="search-text-field"><Search size={18}/><input value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")submit()}} placeholder="Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam lub Resort 4★"/>{text&&<button onClick={()=>setText("")} aria-label="Wyczyść"><X size={16}/></button>}</div>
+        <label className={`weekend-required weekend-required-inline ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>setWeekendOnly(e.target.checked)}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Pobyt obejmuje sobotę i niedzielę</strong><small>Powrót najwcześniej w poniedziałek</small></div></label>
       </div>
 
       <div className="compact-search-row">
@@ -315,85 +127,59 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
         </div>
 
         <label className="compact-select"><span><CalendarDays size={14}/> Na ile?</span><select value={duration} onChange={e=>setDuration(e.target.value)}>
-          <option value="all">Dowolnie</option>
-          <option value="1-2">1–2 noce</option>
-          <option value="3-4">3–4 noce</option>
-          <option value="5-7">5–7 nocy</option>
-          <option value="8-10">8–10 nocy</option>
-          <option value="11-14">11–14 nocy</option>
-          <option value="15+">15+ nocy</option>
+          <option value="all">Dowolnie</option><option value="1-2">1–2 noce</option><option value="3-4">3–4 noce</option><option value="5-7">5–7 nocy</option><option value="8-10">8–10 nocy</option><option value="11-14">11–14 nocy</option><option value="15+">15+ nocy</option>
         </select></label>
         <label className="compact-select"><span>💳 Budżet / os.</span><select value={budget} onChange={e=>setBudget(e.target.value)}>
-          <option value="all">Dowolny</option>
-          <option value="500">do 500 zł</option>
-          <option value="750">do 750 zł</option>
-          <option value="1000">do 1 000 zł</option>
-          <option value="1500">do 1 500 zł</option>
-          <option value="2000">do 2 000 zł</option>
-          <option value="2500">do 2 500 zł</option>
-          <option value="3000">do 3 000 zł</option>
-          <option value="4000">do 4 000 zł</option>
-          <option value="5000">do 5 000 zł</option>
-          <option value="7500">do 7 500 zł</option>
-          <option value="10000">do 10 000 zł</option>
-          <option value="15000">do 15 000 zł</option>
-          <option value="20000">do 20 000 zł</option>
+          <option value="all">Dowolny</option><option value="500">do 500 zł</option><option value="750">do 750 zł</option><option value="1000">do 1 000 zł</option><option value="1500">do 1 500 zł</option><option value="2000">do 2 000 zł</option><option value="2500">do 2 500 zł</option><option value="3000">do 3 000 zł</option><option value="4000">do 4 000 zł</option><option value="5000">do 5 000 zł</option><option value="7500">do 7 500 zł</option><option value="10000">do 10 000 zł</option><option value="15000">do 15 000 zł</option><option value="20000">do 20 000 zł</option>
         </select></label>
         <label className="compact-select"><span><Utensils size={14}/> Wyżywienie</span><select value={board} onChange={e=>setBoard(e.target.value)}>
-          <option value="all">Dowolne</option>
-          <option value="bez wyżywienia">Bez wyżywienia</option>
-          <option value="śniadanie">Śniadanie</option>
-          <option value="half board">2 posiłki / Half Board</option>
-          <option value="full board">3 posiłki / Full Board</option>
-          <option value="all inclusive">All Inclusive</option>
-          <option value="ultra all inclusive">Ultra All Inclusive</option>
+          <option value="all">Dowolne</option><option value="bez wyżywienia">Bez wyżywienia</option><option value="śniadanie">Śniadanie</option><option value="half board">2 posiłki / Half Board</option><option value="full board">3 posiłki / Full Board</option><option value="all inclusive">All Inclusive</option><option value="ultra all inclusive">Ultra All Inclusive</option>
         </select></label>
-        <button className="search-submit compact-submit" onClick={()=>void runPartnerSearch()}><Search size={18}/> {liveLoading?"Szukamy okazji…":"Odkryj okazje"}</button>
+        <button className="search-submit compact-submit" onClick={submit}><Search size={18}/> {liveLoading?"Szukamy okazji…":"Odkryj okazje"}</button>
       </div>
 
       <div className="quick-destination-wrap">
-        <div className="quick-destination-head">
-          <small>SZYBKIE STARTY — KONKRETNY KIERUNEK</small>
-          {activeChips.length>0&&<button className="quick-clear-filters" type="button" onClick={clearAll}>Wyczyść filtry</button>}
-        </div>
+        <div className="quick-destination-head"><small>SZYBKIE STARTY — KONKRETNY KIERUNEK</small>{activeChips.length>0&&<button className="quick-clear-filters" type="button" onClick={clearAll}>Wyczyść filtry</button>}</div>
         <div className="quick-destination-grid">{quickPicks.map(([icon,label,dest,opts])=><button key={dest} type="button" onClick={()=>pickDestination(dest,opts)}><span>{icon}</span><strong>{label}</strong></button>)}</div>
       </div>
-
-      <div className="search-results-block">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, margin: "16px 0" }}>
+        <label className="compact-select"><span>Wylot od</span><input type="date" value={dateFrom} onChange={event => change({ dateFrom: event.target.value })}/></label>
+        <label className="compact-select"><span>Wylot do</span><input type="date" value={dateTo} min={dateFrom || undefined} onChange={event => change({ dateTo: event.target.value })}/></label>
+        <small>Zakres dotyczy daty wylotu, nie powrotu. Nieznane daty nie pasują do filtra terminu.</small>
+      </div>
+      <div className="search-results-block" aria-busy={liveLoading}>
         <div className="search-results-heading premium-results-heading">
-          <div>
-            <small>ODKRYTE DLA CIEBIE</small>
-            <h3>{hasDestination?`Okazje: ${queryDestination}`:liveVerified?`${results.length} aktualnych okazji`:`${results.length} inspiracji podróżniczych`}</h3>
-            {liveNotice&&<em className="search-live-notice">{liveNotice}</em>}
-          </div>
-          <span>Pokazujemy najlepsze dostępne dopasowania. Jeśli kombinacja filtrów jest zbyt wąska, rozszerzamy ją zamiast zostawiać pusty ekran.</span>
+          <div><small>KATALOG TRIPOWNI</small><h3>{data ? `${data.totalMatches} dopasowań` : "Wyszukiwarka ofert"}</h3></div>
+          <span>Przeszukujemy cały zapisany katalog Tripowni, niezależnie od Radaru. To wycinek ofert z integracji, nie cała oferta dostawców.</span>
         </div>
-        {liveLoading&&<div className="partner-search-banner search-results-carousel-head"><div><small>✦ AKTUALIZUJEMY W TLE</small><strong>Oferty są już widoczne — sprawdzamy teraz najnowsze ceny.</strong></div></div>}
-        {results.length>0&&<>
-          <div className="premium-results-summary premium-results-carousel-summary">
-            <div>
-              <small>✦ WYBRANE PRZEZ TRIPOWNIĘ</small>
-              <strong>{liveVerified
-                ? (results.length>=200?"200 ofert z aktualnego feedu":`${results.length} ofert z aktualnego feedu pasuje do parametrów`)
-                : `${results.length} inspiracji — ceny potwierdzisz u organizatora`}</strong>
+        {liveLoading && <p role="status">Szukamy według Twoich kryteriów…</p>}
+        {current?.error && <div className="empty-search" role="alert"><strong>{current.error}</strong><p>Nie zastępujemy wyników innymi kierunkami.</p><button type="button" onClick={submit}>Spróbuj ponownie</button></div>}
+        {data && <>
+          <p className="search-live-notice">Dostępna baza: {data.catalogSize} ofert. Odczyt danych: {data.catalogCheckedAt ? new Date(data.catalogCheckedAt).toLocaleString("pl-PL", { timeZone: "Europe/Warsaw" }) : "brak daty"}. {data.stale ? "Dane starsze niż 24 godziny. " : ""}Cenę i dostępność potwierdź u partnera.</p>
+          {data.totalMatches === 0 ? <div className="empty-search"><strong>Brak ofert spełniających wszystkie wybrane warunki.</strong><p>Nie zmieniliśmy Twoich kryteriów. Poszerz je samodzielnie lub skorzystaj z osobnej wyszukiwarki partnera poniżej.</p><button type="button" onClick={clearAll}>Wyczyść filtry i pokaż dostępną bazę</button></div> : <>
+            <div className="premium-results-summary premium-results-carousel-summary"><strong>{`Dopasowania: ${data.totalMatches}. Karty ${(data.page - 1) * data.pageSize + 1}–${(data.page - 1) * data.pageSize + results.length}.`}</strong></div>
+            <div className="search-results-carousel-wrap premium-search-results-wrap">
+              <div className="premium-results-carousel-controls premium-results-carousel-controls-overlay">
+                <button type="button" onClick={() => moveResults(-1)} disabled={carouselIndex === 0} aria-label="Poprzednia oferta"><ArrowLeft size={20}/></button>
+                <button type="button" onClick={() => moveResults(1)} disabled={carouselIndex >= results.length - 1} aria-label="Następna oferta"><ArrowRight size={20}/></button>
+              </div>
+              <div className="search-results-carousel premium-search-results-carousel" ref={resultsRailRef} key={queryKey}>
+                {results.map(offer => <div className="search-results-carousel-item" key={`${offer.partner}:${offer.id}`}><OfferCard offer={offer}/></div>)}
+              </div>
             </div>
-            <span className="premium-results-carousel-count">{Math.min(carouselIndex+1,results.length)} / {results.length}</span>
-          </div>
-
-          <div className="search-results-carousel-wrap premium-search-results-wrap">
-            <div className="premium-results-carousel-controls premium-results-carousel-controls-overlay">
-              <button type="button" onClick={()=>moveResults(-1)} disabled={carouselIndex===0} aria-label="Poprzednia oferta"><ArrowLeft size={20}/></button>
-              <button type="button" onClick={()=>moveResults(1)} disabled={carouselIndex>=results.length-1} aria-label="Następna oferta"><ArrowRight size={20}/></button>
+            <div className="premium-action-row" aria-label="Strony wyników">
+              <button type="button" className="secondary-cta" disabled={page <= 1 || liveLoading} onClick={() => { setPage(value => value - 1); setCarouselIndex(0); }}>Poprzednia strona</button>
+              <span>{`Strona ${page} z ${Math.ceil(data.totalMatches / data.pageSize)}`}</span>
+              <button type="button" className="secondary-cta" disabled={page * data.pageSize >= data.totalMatches || liveLoading} onClick={() => { setPage(value => value + 1); setCarouselIndex(0); }}>Następna strona</button>
             </div>
-
-            <div className="search-results-carousel premium-search-results-carousel" ref={resultsRailRef}>
-              {results.map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}
-            </div>
-          </div>
+          </>}
         </>}
-        {hasDestination&&<UnifiedPartnerSearch mode={activeTab==="City break"||activeTab==="Lot + hotel"?"city":activeTab==="Wakacje"?"holiday":"all"} initialDestination={queryDestination} initialDeparture={selectedFromLabel} initialDepartureCode={airports[0]} initialWeekendOnly={weekendOnly}/>}
-        {initialSearchDone&&!liveLoading&&!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
+        <details className="partner-search-banner">
+          <summary>Wyszukaj samodzielnie u partnera</summary>
+          <p>To osobna wyszukiwarka, nie dopasowania powyżej. Przekazujemy pierwszy kierunek i obsługiwane lotnisko; termin, budżet, liczbę osób i pozostałe warunki sprawdź w formularzu oraz u partnera. Brak wybranego lotniska oznacza tutaj domyślną Warszawę.</p>
+          <UnifiedPartnerSearch key={`${queryDestination}:${airports.join(",")}:${dateFrom}`} mode={activeTab === "City break" || activeTab === "Lot + hotel" ? "city" : activeTab === "Wakacje" ? "holiday" : "all"} initialDestination={queryDestination} initialDepartureCode={airports[0] === "WAWA" ? undefined : airports[0]} initialStartDate={dateFrom || undefined} initialWeekendOnly={weekendOnly}/>
+        </details>
       </div>
     </div>
-  </section>
+  </section>;
 }

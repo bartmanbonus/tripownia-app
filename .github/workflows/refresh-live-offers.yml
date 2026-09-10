@@ -1,99 +1,52 @@
 name: Refresh live offers snapshot
-
 on:
   schedule:
-    # GitHub cron uses UTC. Both possible UTC hours are scheduled and gated in Europe/Warsaw,
-    # so the morning refresh remains at 08:10 across CET/CEST changes.
     - cron: "10 6 * * *"
     - cron: "10 7 * * *"
-    # Midday safety refresh catches price/availability changes from partner feeds.
     - cron: "10 12 * * *"
   workflow_dispatch:
-
 permissions:
   contents: write
-
 concurrency:
   group: refresh-live-offers
   cancel-in-progress: false
-
 jobs:
   refresh:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-
-      - name: Check Warsaw refresh window
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check Warsaw schedule (delay-tolerant)
         id: warsaw
-        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          elif [ "$(TZ=Europe/Warsaw date +%H:%M)" = "08:10" ] || [ "${{ github.event.schedule }}" = "10 12 * * *" ]; then
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "run=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Fetch and validate current offers
+          node --experimental-strip-types --input-type=module <<'JS'
+          import { appendFileSync } from 'node:fs';
+          import { shouldRefresh } from './scripts/refresh-core.ts';
+          appendFileSync(process.env.GITHUB_OUTPUT, `run=${shouldRefresh(process.env.EVENT_NAME, process.env.SCHEDULE)}\n`);
+          JS
+      - name: Fetch every export page and validate before replacing snapshot
+        id: refresh
         if: steps.warsaw.outputs.run == 'true'
-        shell: bash
+        continue-on-error: true
+        run: node --experimental-strip-types scripts/refresh-live-offers.mjs
+      - name: Save snapshot or failure status
+        if: always() && steps.warsaw.outputs.run == 'true'
         run: |
           set -euo pipefail
-          url="https://tripownia.pl/api/today-offers?mode=search&broad=1&rescue=full&__direct=1"
-          curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 90 \
-            -H 'Accept: application/json' \
-            "$url" > /tmp/live-offers.json
-
-          python3 - <<'PY'
-          import json
-          from datetime import datetime, timezone
-
-          src = "/tmp/live-offers.json"
-          dst = "data/live-offers-snapshot.json"
-          with open(src, encoding="utf-8") as f:
-              data = json.load(f)
-
-          offers = data.get("offers") or []
-          if not data.get("ok") or len(offers) < 5:
-              raise SystemExit(f"Refusing snapshot: ok={data.get('ok')} offers={len(offers)}")
-
-          valid = []
-          for offer in offers:
-              price = offer.get("price")
-              link = offer.get("affiliateUrl") or offer.get("url")
-              if isinstance(price, (int, float)) and price > 0 and link:
-                  valid.append(offer)
-
-          if len(valid) < 5:
-              raise SystemExit(f"Refusing snapshot: only {len(valid)} valid offers")
-
-          snapshot = {
-              "ok": True,
-              "checkedAt": data.get("checkedAt"),
-              "snapshotAt": datetime.now(timezone.utc).isoformat(),
-              "sourceCount": data.get("sourceCount", 0),
-              "destinationCount": data.get("destinationCount", 0),
-              "offers": valid[:1000],
-          }
-          with open(dst, "w", encoding="utf-8") as f:
-              json.dump(snapshot, f, ensure_ascii=False, indent=2)
-              f.write("\n")
-          print(f"Validated {len(valid)} live offers")
-          PY
-
-      - name: Commit snapshot only when it changed
-        if: steps.warsaw.outputs.run == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          if git diff --quiet -- data/live-offers-snapshot.json; then
-            echo "Snapshot unchanged."
-            exit 0
-          fi
           git config user.name "tripownia-offers-bot"
           git config user.email "actions@users.noreply.github.com"
           git add data/live-offers-snapshot.json
-          git commit -m "chore: refresh live offers snapshot"
+          if [ -f data/refresh-status.json ]; then git add data/refresh-status.json; fi
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: record live catalog refresh"
           git push
+      - name: Report failed refresh
+        if: always() && steps.refresh.outcome == 'failure'
+        run: exit 1
