@@ -11,12 +11,13 @@ import {
   Search,
   BedDouble,
   Car,
-  ShieldCheck,
+  Ticket,
   BookOpen,
   Lightbulb,
   CircleHelp,
   UserRound,
 } from "lucide-react";
+import { partners } from "@/lib/partners";
 
 
 function SoccerBallIcon({ size = 23 }: { size?: number; strokeWidth?: number }) {
@@ -53,7 +54,7 @@ const serviceItems = [
   { href: "https://www.booking.com/?aid=818288", label: "Hotele", icon: BedDouble, tone: "hotel", external: true },
   { href: "https://kiwi.tpk.lv/7PnrR4dn", label: "Loty", icon: Plane, tone: "flight", external: true },
   { href: "/wynajem-auta", label: "Wynajem aut", icon: Car, tone: "car" },
-  { href: "/ubezpieczenia", label: "Ubezpieczenia", icon: ShieldCheck, tone: "insurance" },
+  { href: partners.getyourguide.buildUrl("https://www.getyourguide.pl/"), label: "Atrakcje", icon: Ticket, tone: "insurance", external: true },
   { href: "/poradniki", label: "Poradniki", icon: BookOpen, tone: "guides" },
   { href: "/inspiracje", label: "Inspiracje", icon: Lightbulb, tone: "ideas" },
 ] as const;
