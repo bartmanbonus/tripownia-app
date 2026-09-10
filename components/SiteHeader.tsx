@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Tag, Heart, Star, TreePine, PartyPopper, Plane, Search, BedDouble, Car, ShieldCheck, BookOpen, Lightbulb, CircleHelp, UserRound } from "lucide-react";
+import { Tag, Heart, Star, TreePine, PartyPopper, Plane, Search, BedDouble, Car, Ticket, BookOpen, Lightbulb, CircleHelp } from "lucide-react";
+import { partners } from "@/lib/partners";
 
 function SoccerBallIcon({ size = 23 }: { size?: number; strokeWidth?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.9"/><path d="M9.2 8.2 12 6.6l2.8 1.6-.7 3.2H9.9l-.7-3.2Z" fill="currentColor"/><path d="m9.9 11.4-3 2.1 1.1 3.3 3.3.1M14.1 11.4l3 2.1-1.1 3.3-3.3.1M12 6.6l-.2-3M6.9 13.5 4.2 12M17.1 13.5l2.7-1.5M8 16.8 6.8 19M16 16.8l1.2 2.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
@@ -19,11 +20,18 @@ const primaryItems = [
   { href: "/sylwester", label: "Sylwester", note: "Powitaj rok z nami", icon: PartyPopper, tone: "newyear" },
   { href: "/dalekie-podroze", label: "Dalekie podróże", note: "Świat czeka", icon: PalmIcon, tone: "longhaul" },
 ] as const;
+
 const serviceItems = [
   { href: "https://www.booking.com/?aid=818288", label: "Hotele", icon: BedDouble, tone: "hotel", external: true },
   { href: "https://kiwi.tpk.lv/7PnrR4dn", label: "Loty", icon: Plane, tone: "flight", external: true },
   { href: "/wynajem-auta", label: "Wynajem aut", icon: Car, tone: "car" },
-  { href: "/ubezpieczenia", label: "Ubezpieczenia", icon: ShieldCheck, tone: "insurance" },
+  {
+    href: partners.getyourguide.buildUrl("https://www.getyourguide.pl/"),
+    label: "Atrakcje",
+    icon: Ticket,
+    tone: "insurance",
+    external: true,
+  },
   { href: "/poradniki", label: "Poradniki", icon: BookOpen, tone: "guides" },
   { href: "/inspiracje", label: "Inspiracje", icon: Lightbulb, tone: "ideas" },
 ] as const;
@@ -41,7 +49,7 @@ export default function SiteHeader() {
       </nav>
       <nav className="menu-v5-secondary" aria-label="Usługi i pozostałe sekcje"><div className="menu-v5-services">
         {serviceItems.map(item=>{const Icon=item.icon;const className=`menu-v5-service menu-v5-service-${item.tone}`;if("external" in item&&item.external)return <a key={item.label} className={className} href={item.href} target="_blank" rel="sponsored noopener noreferrer"><Icon size={20} strokeWidth={2.1}/><span>{item.label}</span></a>;return <Link key={item.label} className={className} href={item.href}><Icon size={20} strokeWidth={2.1}/><span>{item.label}</span></Link>})}
-      </div><div className="menu-v5-account"><a href="mailto:kontakt@tripownia.pl?subject=Pomoc%20Tripownia"><CircleHelp size={20}/><span>Pomoc</span></a><Link href="/ulubione"><Heart size={20}/><span>Ulubione</span></Link><span className="menu-v5-service" title="Konto użytkownika nie jest jeszcze dostępne"><UserRound size={20}/><span>Konto — wkrótce</span></span></div></nav>
+      </div><div className="menu-v5-account"><a href="mailto:kontakt@tripownia.pl?subject=Pomoc%20Tripownia"><CircleHelp size={20}/><span>Pomoc</span></a><Link href="/ulubione"><Heart size={20}/><span>Ulubione</span></Link></div></nav>
     </div></header>
   </>;
 }
