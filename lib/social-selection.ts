@@ -52,8 +52,8 @@ function isCityBreak(offer: Offer) {
   return categories.includes("city") || (offer.nights >= 2 && offer.nights <= 5);
 }
 
-function isSeasonalNow(offer: Offer, now: Date) {
-  const month = monthInWarsaw(now);
+function isSeasonalForDate(offer: Offer, planDate: Date) {
+  const month = monthInWarsaw(planDate);
   const text = normalize(`${offer.city} ${offer.country}`);
   if ([11, 12, 1, 2, 3].includes(month)) {
     return /egipt|hurghada|marsa alam|sharm|teneryfa|fuerteventura|gran canaria|cypr|malta|zanzibar|kenia|mauritius|malediw|tajland|dominikan|meksyk|dubaj|emirat/.test(text);
@@ -64,34 +64,33 @@ function isSeasonalNow(offer: Offer, now: Date) {
   return /turcj|grecj|egipt|hiszpan|bulgar|tunez|cypr|alban|wloch/.test(text);
 }
 
-function sourcePool(source: Offer[], now: Date) {
-  const live = getSocialOfferPoolData(now).offers;
+function sourcePool(source: Offer[], evaluationNow: Date) {
+  const live = getSocialOfferPoolData(evaluationNow).offers;
   const combined = [...live, ...source]
     .filter((offer, index, all) => all.findIndex((item) => item.id === offer.id) === index)
     .filter((offer) => offer.availabilityStatus !== "expired" && getLinkMatch(offer) !== "unsafe");
-  return rankByPriceGem(combined, now);
+  return rankByPriceGem(combined, evaluationNow);
 }
 
-function choose(pool: Offer[], picked: Offer[], test: (offer: Offer) => boolean, preferredLevels: Array<PriceGemAssessment["level"]>, now: Date) {
+function choose(pool: Offer[], picked: Offer[], test: (offer: Offer) => boolean, preferredLevels: Array<PriceGemAssessment["level"]>, evaluationNow: Date) {
   const unused = pool.filter((offer) => !picked.some((item) => item.id === offer.id));
   for (const level of preferredLevels) {
-    const found = unused.find((offer) => assessPriceGem(offer, pool, now).level === level && test(offer));
+    const found = unused.find((offer) => assessPriceGem(offer, pool, evaluationNow).level === level && test(offer));
     if (found) return found;
   }
   return unused.find(test) || unused[0];
 }
 
-function itemLabel(offer: Offer, pool: Offer[], now: Date, fallback: string) {
-  const assessment = assessPriceGem(offer, pool, now);
-  if (assessment.level === "gem") return `${assessment.emoji} ${assessment.label}`;
-  if (assessment.level === "very-good") return `${assessment.emoji} ${assessment.label}`;
-  if (assessment.level === "good") return `${assessment.emoji} ${assessment.label}`;
+function itemLabel(offer: Offer, pool: Offer[], evaluationNow: Date, fallback: string) {
+  const assessment = assessPriceGem(offer, pool, evaluationNow);
+  if (assessment.level !== "unverified") return `${assessment.emoji} ${assessment.label}`;
   return `⚪ ${fallback}`;
 }
 
-export function getSocialDailyPlan(source: Offer[], now = new Date()): SocialDailyPlan {
-  const weekday = weekdayInWarsaw(now);
-  const pool = sourcePool(source, now);
+export function getSocialDailyPlan(source: Offer[], planDate = new Date()): SocialDailyPlan {
+  const evaluationNow = new Date();
+  const weekday = weekdayInWarsaw(planDate);
+  const pool = sourcePool(source, evaluationNow);
   const picked: Offer[] = [];
   const items: SocialPlanItem[] = [];
 
@@ -99,19 +98,19 @@ export function getSocialDailyPlan(source: Offer[], now = new Date()): SocialDai
     { test: () => true, kind: "market", tone: "daily", fallback: "Najmocniejsza cena dnia" },
     { test: (offer) => offer.nights >= 6, kind: "market", tone: "sales", fallback: "Wakacje 6+ nocy" },
     { test: isCityBreak, kind: "city", tone: "short", fallback: "City break" },
-    { test: (offer) => isSeasonalNow(offer, now), kind: "seasonal", tone: "sales", fallback: "Kierunek sezonowy" },
+    { test: (offer) => isSeasonalForDate(offer, planDate), kind: "seasonal", tone: "sales", fallback: "Kierunek sezonowy" },
     { test: () => true, kind: "market", tone: "short", fallback: "Mocna oferta" },
   ];
 
   slots.forEach((slot, index) => {
-    const offer = choose(pool, picked, slot.test, ["gem", "very-good", "good", "unverified"], now);
+    const offer = choose(pool, picked, slot.test, ["gem", "very-good", "good", "unverified"], evaluationNow);
     if (!offer) return;
     picked.push(offer);
-    const priceGem = assessPriceGem(offer, pool, now);
+    const priceGem = assessPriceGem(offer, pool, evaluationNow);
     items.push({
       offer,
       time: TIMES[index],
-      label: itemLabel(offer, pool, now, slot.fallback),
+      label: itemLabel(offer, pool, evaluationNow, slot.fallback),
       kind: slot.kind,
       tone: slot.tone,
       priceGem,
@@ -123,9 +122,9 @@ export function getSocialDailyPlan(source: Offer[], now = new Date()): SocialDai
 
   return {
     dayName: DAY_NAMES[weekday],
-    theme: gemCount ? `${gemCount} cenowych perełek na dziś` : "Najmocniejsze zweryfikowane ceny",
+    theme: gemCount ? `${gemCount} cenowych perełek` : "Najmocniejsze zweryfikowane ceny",
     description: `${verifiedCount}/5 ofert ma świeżą weryfikację ceny. 💎 oznacza min. 12% poniżej mediany podobnych ofert lub top 15% cen, przy świeżej cenie, konkretnym terminie i deeplinku.`,
-    dateKey: dateKeyInWarsaw(now),
+    dateKey: dateKeyInWarsaw(planDate),
     items: items.slice(0, 5),
   };
 }
