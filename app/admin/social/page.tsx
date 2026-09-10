@@ -1,6 +1,6 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import AdminSocialCenter from "@/components/AdminSocialCenter";
+import AdminSocialWeekPlanner from "@/components/AdminSocialWeekPlanner";
 
 export const metadata = {
   title: "Planner treści | Tripownia.pl",
@@ -15,10 +15,9 @@ export default function AdminSocialPage() {
         <div className="kicker">TRIPOWNIA SOCIAL STUDIO</div>
         <h1>Planner treści</h1>
         <p className="hub-lead">
-          Automat przygotowuje post na podstawie aktualnej oferty, ale niczego nie publikuje samodzielnie.
-          Najpierw widzisz zdjęcie i pełną treść, możesz ją poprawić, a dopiero potem zatwierdzić i opublikować na Facebooku oraz Instagramie.
+          O 07:00 dostajesz świeży zestaw znaleziony tego samego dnia. Maksymalnie jedna pozycja to perłka lotnicza, a pozostałe oferty różnią się kierunkiem i typem wyjazdu. Najpierw zatwierdzasz, potem publikujesz według godzin w planie.
         </p>
-        <AdminSocialCenter/>
+        <AdminSocialWeekPlanner/>
       </section>
       <SiteFooter/>
     </main>
