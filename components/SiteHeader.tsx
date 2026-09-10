@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import {
-  Tag,
   Heart,
   Star,
   TreePine,
@@ -41,10 +40,9 @@ function PalmIcon({ size = 23 }: { size?: number; strokeWidth?: number }) {
 }
 
 const primaryItems = [
-  { href: "/okazje", label: "Okazje", note: "Nasze najlepsze ceny", icon: Tag, tone: "deals" },
+  { href: "/podroze", label: "Okazje Tripowni", note: "Nasze propozycje", icon: Star, tone: "picks", badge: "TOP" },
   { href: "/wydarzenia", label: "Mecze i eventy", note: "Twoje emocje", icon: SoccerBallIcon, tone: "events" },
   { href: "/podroze-po-przezycia", label: "Przeżycia", note: "Nasze inspiracje", icon: Heart, tone: "experience" },
-  { href: "/podroze", label: "Okazje Tripowni", note: "Nasze propozycje", icon: Star, tone: "picks", badge: "TOP" },
   { href: "/jarmarki-bozonarodzeniowe", label: "Jarmarki", note: "Magia świąt", icon: TreePine, tone: "markets", seasonal: true },
   { href: "/sylwester", label: "Sylwester", note: "Powitaj rok z nami", icon: PartyPopper, tone: "newyear" },
   { href: "/dalekie-podroze", label: "Dalekie podróże", note: "Świat czeka", icon: PalmIcon, tone: "longhaul" },
@@ -61,6 +59,9 @@ const serviceItems = [
 
 export default function SiteHeader() {
   const showMarkets = Date.now() <= new Date("2027-01-07T22:59:59Z").getTime();
+  const visiblePrimaryItems = primaryItems.filter(
+    (item) => !("seasonal" in item && item.seasonal) || showMarkets,
+  );
   const siteSchema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -77,9 +78,9 @@ export default function SiteHeader() {
           <img src="/tripownia-logo.webp" alt="Tripownia.pl" width="92" height="92" />
         </Link>
 
-        <nav className="menu-v5-primary" aria-label="Najważniejsze sekcje">
-          {primaryItems.map((item) => {
-            if ("seasonal" in item && item.seasonal && !showMarkets) return null;
+        {/* The tablet grid follows visible cards; desktop and mobile retain their flex layout. */}
+        <nav className="menu-v5-primary" aria-label="Najważniejsze sekcje" style={{ gridTemplateColumns: `repeat(${visiblePrimaryItems.length}, 145px) 120px` }}>
+          {visiblePrimaryItems.map((item) => {
             const Icon = item.icon;
             return (
               <Link key={item.label} className={`menu-v5-card menu-v5-${item.tone}`} href={item.href}>
