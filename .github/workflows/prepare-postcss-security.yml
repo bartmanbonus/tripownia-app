@@ -1,0 +1,90 @@
+name: Prepare PostCSS security patch
+on:
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/prepare-postcss-security.yml']
+permissions:
+  contents: read
+jobs:
+  prepare:
+    if: github.event.pull_request.number == 4 && github.event.pull_request.head.repo.full_name == 'bartmanbonus/tripownia-app' && github.event.pull_request.head.ref == 'fix/search-radar-affiliate-admin-20260910'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Prepare only the PostCSS override
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+          if (pkg.overrides) throw new Error('Existing overrides require manual review.');
+          pkg.overrides = { next: { postcss: '8.5.23' } };
+          writeFileSync('package.json', `${JSON.stringify(pkg, null, 2)}\n`);
+          JS
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Reject unrelated dependency changes
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync } from 'node:fs';
+          import { execFileSync } from 'node:child_process';
+          import assert from 'node:assert/strict';
+          const before = JSON.parse(execFileSync('git', ['show', 'HEAD:package-lock.json'], { encoding: 'utf8' }));
+          const after = JSON.parse(readFileSync('package-lock.json', 'utf8'));
+          const stripPostcss = obj => Object.fromEntries(Object.entries(obj.packages).filter(([path]) => !path.endsWith('/postcss')));
+          assert.deepEqual(stripPostcss(after), stripPostcss(before), 'Only PostCSS lock entries may change');
+          const postcss = Object.entries(after.packages).filter(([path]) => path.endsWith('/postcss'));
+          assert.ok(postcss.length > 0);
+          assert.ok(postcss.every(([, value]) => value.version === '8.5.23'));
+          console.log('PATCH VERSIONS', JSON.stringify({ next: after.packages['node_modules/next'].version, postcss }));
+          JS
+          git diff --check
+          git diff -- package.json package-lock.json
+      - run: npm ci
+      - name: Audit proposed lockfile
+        run: |
+          npm audit --package-lock-only --json > dependency-audit.json
+          cat dependency-audit.json
+      - run: npm test
+      - run: npm run validate
+      - run: npm run typecheck
+      - run: npm run build
+      - run: node --experimental-strip-types scripts/smoke-preview.mjs
+      - name: Upload tested candidate for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: postcss-tested-candidate
+          path: |
+            package.json
+            package-lock.json
+            dependency-audit.json
+          retention-days: 7
+      - name: Register tested file blobs only (no branch or deployment changes)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE_BASE_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync } from 'node:fs';
+          const files = [];
+          for (const path of ['package.json', 'package-lock.json']) {
+            const response = await fetch('https://api.github.com/repos/bartmanbonus/tripownia-app/git/blobs', {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${process.env.GH_TOKEN}`, Accept: 'application/vnd.github+json', 'Content-Type': 'application/json' },
+              body: JSON.stringify({ content: readFileSync(path, 'utf8'), encoding: 'utf-8' }),
+              signal: AbortSignal.timeout(30000),
+            });
+            if (response.status !== 201) throw new Error(`Could not register tested blob: HTTP ${response.status}`);
+            const data = await response.json();
+            if (!/^[a-f0-9]{40}$/.test(data.sha)) throw new Error('Invalid blob response');
+            files.push({ path, sha: data.sha });
+          }
+          console.log('TESTED_CANDIDATE', JSON.stringify({ baseSha: process.env.CANDIDATE_BASE_SHA, files }));
+          JS
