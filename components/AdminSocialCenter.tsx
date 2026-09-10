@@ -6,8 +6,9 @@ import {
   CalendarClock, Trash2, Plus, Send, XCircle, Pencil, Instagram
 } from "lucide-react";
 import { offers } from "@/lib/offers";
+import { getSocialDailyPlan, type SocialTone } from "@/lib/social-selection";
 
-type Tone = "short" | "sales" | "daily";
+type Tone = SocialTone;
 type QueueStatus = "pending" | "approved" | "published" | "skipped";
 type QueueItem = {
   id: string;
@@ -28,7 +29,7 @@ const tones: { id: Tone; label: string }[] = [
   { id: "daily", label: "🔥 FOMO / Lecimy?" },
 ];
 
-const QUEUE_KEY = "tripownia-social-queue-v3";
+const QUEUE_KEY = "tripownia-social-queue-v4";
 
 function slugify(value: string) {
   return value
@@ -56,15 +57,25 @@ function statusLabel(status: QueueStatus) {
   return "DO AKCEPTACJI";
 }
 
+function scheduleTodayAt(time: string) {
+  const [hours, minutes] = time.split(":").map(Number);
+  const date = new Date();
+  date.setHours(hours, minutes, 0, 0);
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(hours)}:${pad(minutes)}`;
+}
+
 export default function AdminSocialCenter() {
   const activeOffers = useMemo(
     () => offers.filter((offer) => offer.availabilityStatus !== "expired"),
     []
   );
-  const [id, setId] = useState(activeOffers[0]?.id ?? 1);
-  const [tone, setTone] = useState<Tone>("sales");
+  const dailyPlan = useMemo(() => getSocialDailyPlan(activeOffers), [activeOffers]);
+  const firstPlanned = dailyPlan.items[0];
+  const [id, setId] = useState(firstPlanned?.offer.id ?? activeOffers[0]?.id ?? 1);
+  const [tone, setTone] = useState<Tone>(firstPlanned?.tone ?? "sales");
   const [copied, setCopied] = useState<"text" | "link" | null>(null);
-  const [scheduledAt, setScheduledAt] = useState("");
+  const [scheduledAt, setScheduledAt] = useState(firstPlanned ? scheduleTodayAt(firstPlanned.time) : "");
   const [linkPlacement, setLinkPlacement] = useState<"comment" | "post">("post");
   const [queue, setQueue] = useState<QueueItem[]>([]);
   const [draftText, setDraftText] = useState("");
@@ -83,8 +94,8 @@ export default function AdminSocialCenter() {
     const hashtag = slugify(offer.city);
     const baseTexts: Record<Tone, string> = {
       short: `${offer.flag} ${offer.city} za ${offer.price} zł/os.? 👀\n\n✈️ Wylot: ${offer.departure}\n🏨 ${offer.nights} nocy · ${offer.hotel}\n🍽️ ${offer.board}\n\n${offer.reason}\n\nSprawdź, zanim cena zrobi swoje ✈️\n\n#tripownia #podroze #${hashtag}`,
-      sales: `Piątek: praca. Chwilę później: ${offer.city}. Brzmi lepiej? ${offer.flag}\n\n✈️ Wylot: ${offer.departure}\n🏨 ${offer.nights} nocy · ${offer.hotel}\n🍽️ ${offer.board}\n💰 ostatnio od ${offer.price} zł/os.\n\n${offer.reason}\n\nTo nie jest „kolejna oferta”. To jest dobry pretekst, żeby naprawdę gdzieś polecieć. 😏\n\n#tripownia #okazjepodroznicze #wakacje #${hashtag}`,
-      daily: `🔥 SERIO, ZA TYLE MOŻNA LECIEĆ DO ${offer.city.toLocaleUpperCase("pl")}?\n\nOd ${offer.price} zł/os. za ${offer.nights} nocy z wylotem z ${offer.departure}.\n\n${offer.reason}\n\nJeśli ten kierunek chodzi Ci po głowie, to jest moment, żeby sprawdzić cenę.\n\n#tripownia #okazjadnia #podroze #${hashtag}`,
+      sales: `${offer.flag} ${offer.city} — to może być bardzo dobry plan na kolejny wyjazd.\n\n✈️ Wylot: ${offer.departure}\n🏨 ${offer.nights} nocy · ${offer.hotel}\n🍽️ ${offer.board}\n💰 ostatnio od ${offer.price} zł/os.\n\n${offer.reason}\n\nSprawdź aktualną dostępność i cenę.\n\n#tripownia #okazjepodroznicze #wakacje #${hashtag}`,
+      daily: `🔥 ${offer.city.toLocaleUpperCase("pl")} OD ${offer.price} ZŁ/OS.\n\n${offer.nights} nocy · wylot z ${offer.departure}\n🍽️ ${offer.board}\n\n${offer.reason}\n\nJeśli ten kierunek chodzi Ci po głowie, warto sprawdzić aktualną cenę.\n\n#tripownia #okazjadnia #podroze #${hashtag}`,
     };
     return linkPlacement === "post"
       ? `${baseTexts[tone]}\n\n👉 Sprawdź aktualną cenę: ${url}`
@@ -96,6 +107,14 @@ export default function AdminSocialCenter() {
   if (!offer) return null;
 
   const url = `https://tripownia.pl/oferta/${offer.id}`;
+
+  function loadPlannedOffer(index: number) {
+    const planned = dailyPlan.items[index];
+    if (!planned) return;
+    setId(planned.offer.id);
+    setTone(planned.tone);
+    setScheduledAt(scheduleTodayAt(planned.time));
+  }
 
   async function copy(value: string, type: "text" | "link") {
     await navigator.clipboard.writeText(value);
@@ -119,7 +138,29 @@ export default function AdminSocialCenter() {
       status: "pending",
       createdAt: new Date().toISOString(),
     };
-    saveQueue([item, ...queue].slice(0, 50));
+    saveQueue([item, ...queue].slice(0, 100));
+  }
+
+  function addWholeDayToQueue() {
+    const now = Date.now();
+    const next = dailyPlan.items.map((planned, index): QueueItem => {
+      const plannedUrl = `https://tripownia.pl/oferta/${planned.offer.id}`;
+      const hashtag = slugify(planned.offer.city);
+      const plannedText = `${planned.offer.flag} ${planned.offer.city} — od ${planned.offer.price} zł/os.\n\n✈️ ${planned.offer.departure}\n🏨 ${planned.offer.nights} nocy · ${planned.offer.hotel}\n🍽️ ${planned.offer.board}\n\n${planned.offer.reason}\n\n👉 Sprawdź aktualną cenę: ${plannedUrl}\n\n#tripownia #okazjepodroznicze #podroze #${hashtag}`;
+      return {
+        id: `${now + index}-${planned.offer.id}`,
+        offerId: planned.offer.id,
+        tone: planned.tone,
+        text: plannedText,
+        url: plannedUrl,
+        scheduledAt: scheduleTodayAt(planned.time),
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      };
+    });
+    const existingIds = new Set(queue.map((item) => `${item.offerId}:${item.scheduledAt.slice(0, 10)}`));
+    const withoutDuplicates = next.filter((item) => !existingIds.has(`${item.offerId}:${item.scheduledAt.slice(0, 10)}`));
+    saveQueue([...withoutDuplicates, ...queue].slice(0, 100));
   }
 
   function updateStatus(queueId: string, status: QueueStatus) {
@@ -149,9 +190,7 @@ export default function AdminSocialCenter() {
         }),
       });
       const result = await response.json();
-      if (!response.ok || !result.ok) {
-        throw new Error(result.error || "Publikacja nie powiodła się.");
-      }
+      if (!response.ok || !result.ok) throw new Error(result.error || "Publikacja nie powiodła się.");
       saveQueue(queue.map(item => item.id === queueItem.id ? {
         ...item,
         status: "published",
@@ -167,27 +206,44 @@ export default function AdminSocialCenter() {
 
   return (
     <div className="social-center">
+      <section className="admin-panel-section" style={{marginBottom:20}}>
+        <div className="admin-panel-head">
+          <div>
+            <div className="kicker">DZISIEJSZA PIĄTKA · {dailyPlan.dayName.toLocaleUpperCase("pl")}</div>
+            <h2>{dailyPlan.theme}</h2>
+            <p>{dailyPlan.description}</p>
+          </div>
+          <button type="button" onClick={addWholeDayToQueue}><Plus size={17}/> Dodaj wszystkie 5 do akceptacji</button>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:12,marginTop:14}}>
+          {dailyPlan.items.map((planned, index) => (
+            <button
+              key={planned.offer.id}
+              type="button"
+              onClick={() => loadPlannedOffer(index)}
+              style={{textAlign:"left",padding:14,borderRadius:14,border: planned.offer.id === offer.id ? "2px solid currentColor" : "1px solid #ddd",background:"transparent",cursor:"pointer"}}
+            >
+              <small>{planned.time} · {planned.label}</small>
+              <strong style={{display:"block",margin:"6px 0"}}>{planned.offer.flag} {planned.offer.city}</strong>
+              <span>{planned.offer.price} zł/os. · {planned.offer.nights} nocy</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
       <div className="social-center-toolbar">
         <label>
           <span>Oferta do pokazania</span>
           <select value={id} onChange={(event) => setId(Number(event.target.value))}>
             {activeOffers.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.flag} {item.city} · {item.price} zł · {item.departure}
-              </option>
+              <option key={item.id} value={item.id}>{item.flag} {item.city} · {item.price} zł · {item.departure}</option>
             ))}
           </select>
         </label>
 
         <div className="social-tone-picker">
           <span>Styl posta</span>
-          <div>
-            {tones.map((item) => (
-              <button type="button" key={item.id} className={tone === item.id ? "active" : ""} onClick={() => setTone(item.id)}>
-                {item.label}
-              </button>
-            ))}
-          </div>
+          <div>{tones.map((item) => <button type="button" key={item.id} className={tone === item.id ? "active" : ""} onClick={() => setTone(item.id)}>{item.label}</button>)}</div>
         </div>
 
         <div className="social-tone-picker">
@@ -206,17 +262,10 @@ export default function AdminSocialCenter() {
 
       <div className="social-center-grid">
         <section className="social-preview-card">
-          <div className="social-preview-head">
-            <div className="social-preview-logo">T</div>
-            <div><strong>Tripownia.pl</strong><span>Podgląd przed akceptacją</span></div>
-          </div>
+          <div className="social-preview-head"><div className="social-preview-logo">T</div><div><strong>Tripownia.pl</strong><span>Podgląd przed akceptacją</span></div></div>
           <div className="social-preview-text">{draftText}</div>
           <img src={offer.image} alt={`${offer.city} — oferta Tripownia`} />
-          <div className="social-link-preview">
-            <small>TRIPOWNIA.PL</small>
-            <strong>{offer.city} od {offer.price} zł/os.</strong>
-            <span>{offer.dates} · {offer.nights} nocy</span>
-          </div>
+          <div className="social-link-preview"><small>TRIPOWNIA.PL</small><strong>{offer.city} od {offer.price} zł/os.</strong><span>{offer.dates} · {offer.nights} nocy</span></div>
         </section>
 
         <aside className="social-publish-panel">
@@ -225,12 +274,8 @@ export default function AdminSocialCenter() {
           <p>Możesz poprawić tekst przed dodaniem do kolejki. Nic nie zostanie opublikowane bez osobnego zatwierdzenia.</p>
           <textarea value={draftText} onChange={e => setDraftText(e.target.value)} rows={13} />
           <div className="social-publish-actions">
-            <button type="button" onClick={() => copy(draftText, "text")}>
-              {copied === "text" ? <Check size={17}/> : <Copy size={17}/>} {copied === "text" ? "Skopiowano" : "Kopiuj tekst"}
-            </button>
-            <button type="button" onClick={() => copy(url, "link")}>
-              {copied === "link" ? <Check size={17}/> : <Link2 size={17}/>} {copied === "link" ? "Skopiowano" : "Kopiuj link"}
-            </button>
+            <button type="button" onClick={() => copy(draftText, "text")}>{copied === "text" ? <Check size={17}/> : <Copy size={17}/>} {copied === "text" ? "Skopiowano" : "Kopiuj tekst"}</button>
+            <button type="button" onClick={() => copy(url, "link")}>{copied === "link" ? <Check size={17}/> : <Link2 size={17}/>} {copied === "link" ? "Skopiowano" : "Kopiuj link"}</button>
             <button type="button" onClick={addToQueue}><Plus size={17}/> Dodaj do akceptacji</button>
           </div>
           <a className="social-offer-check" href={`/oferta/${offer.id}`} target="_blank" rel="noreferrer">Sprawdź ofertę przed publikacją <ExternalLink size={15}/></a>
@@ -239,16 +284,11 @@ export default function AdminSocialCenter() {
 
       <section className="social-queue">
         <div className="admin-panel-head">
-          <div>
-            <h2>Planner treści</h2>
-            <p>Każdy post trafia najpierw do akceptacji. Dopiero status „Zatwierdzone” odblokowuje przycisk publikacji na Facebooku i Instagramie.</p>
-          </div>
+          <div><h2>Planner treści</h2><p>Pięć postów dziennie, każdy osobno do akceptacji. Dopiero status „Zatwierdzone” odblokowuje publikację na Facebooku i Instagramie.</p></div>
           <span className="social-queue-count"><CalendarClock size={16}/> {queue.length} postów</span>
         </div>
 
-        {!queue.length ? (
-          <div className="social-queue-empty">Nie ma jeszcze żadnych postów do akceptacji.</div>
-        ) : (
+        {!queue.length ? <div className="social-queue-empty">Nie ma jeszcze żadnych postów do akceptacji.</div> : (
           <div className="social-queue-list">
             {queue.map(item => {
               const qOffer = activeOffers.find(o => o.id === item.offerId);
@@ -258,22 +298,10 @@ export default function AdminSocialCenter() {
                     <small>{item.scheduledAt ? new Date(item.scheduledAt).toLocaleString("pl-PL") : "bez terminu"}</small>
                     <strong>{qOffer ? `${qOffer.flag} ${qOffer.city}` : `Oferta #${item.offerId}`}</strong>
                     <span>{statusLabel(item.status)}</span>
-                    <textarea
-                      value={item.text}
-                      disabled={item.status === "published" || item.status === "skipped"}
-                      onChange={e => updateText(item.id, e.target.value)}
-                      rows={7}
-                      style={{width:"100%",marginTop:10}}
-                    />
+                    <textarea value={item.text} disabled={item.status === "published" || item.status === "skipped"} onChange={e => updateText(item.id, e.target.value)} rows={7} style={{width:"100%",marginTop:10}} />
                     <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
-                      {item.status === "pending" && <>
-                        <button type="button" onClick={() => updateStatus(item.id, "approved")}><Check size={16}/> Zatwierdź</button>
-                        <button type="button" onClick={() => updateStatus(item.id, "skipped")}><XCircle size={16}/> Pomiń</button>
-                      </>}
-                      {item.status === "approved" && <>
-                        <button type="button" onClick={() => updateStatus(item.id, "pending")}><Pencil size={16}/> Cofnij do poprawy</button>
-                        <button type="button" onClick={() => publish(item)} disabled={publishingId === item.id}><Send size={16}/> {publishingId === item.id ? "Publikuję…" : "Publikuj FB + IG"}</button>
-                      </>}
+                      {item.status === "pending" && <><button type="button" onClick={() => updateStatus(item.id, "approved")}><Check size={16}/> Zatwierdź</button><button type="button" onClick={() => updateStatus(item.id, "skipped")}><XCircle size={16}/> Pomiń</button></>}
+                      {item.status === "approved" && <><button type="button" onClick={() => updateStatus(item.id, "pending")}><Pencil size={16}/> Cofnij do poprawy</button><button type="button" onClick={() => publish(item)} disabled={publishingId === item.id}><Send size={16}/> {publishingId === item.id ? "Publikuję…" : "Publikuj FB + IG"}</button></>}
                       {item.status === "published" && <span><Facebook size={15}/> <Instagram size={15}/> Opublikowano {item.publishedAt ? new Date(item.publishedAt).toLocaleString("pl-PL") : ""}</span>}
                     </div>
                   </div>
