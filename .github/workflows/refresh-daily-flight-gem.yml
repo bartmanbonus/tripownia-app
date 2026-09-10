@@ -1,0 +1,58 @@
+name: Refresh daily flight gem
+
+on:
+  schedule:
+    # 04:50 UTC = 06:50 in Poland during CEST. Planner is ready for 07:00.
+    - cron: "50 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-daily-flight-gem
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch daily flight gem
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://tripownia.pl/api/daily-flight-gem"
+          curl --fail --silent --show-error --retry 2 --retry-delay 5 --max-time 180 \
+            -H 'Accept: application/json' \
+            "$url" > /tmp/daily-flight-gem.json
+
+          python3 - <<'PY'
+          import json
+          src = "/tmp/daily-flight-gem.json"
+          dst = "data/daily-flight-gem.json"
+          with open(src, encoding="utf-8") as f:
+              data = json.load(f)
+          if not data.get("ok"):
+              raise SystemExit("Daily flight gem endpoint returned ok=false")
+          with open(dst, "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False, indent=2)
+              f.write("\n")
+          print("Daily flight gem refreshed", bool(data.get("gem")))
+          PY
+
+      - name: Commit only when changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- data/daily-flight-gem.json; then
+            echo "Daily flight gem unchanged."
+            exit 0
+          fi
+          git config user.name "tripownia-offers-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add data/daily-flight-gem.json
+          git commit -m "chore: refresh daily flight gem"
+          git push
