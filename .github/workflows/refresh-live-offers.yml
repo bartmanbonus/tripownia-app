@@ -2,8 +2,10 @@ name: Refresh live offers snapshot
 
 on:
   schedule:
-    # 06:10 UTC = 08:10 in Poland during CEST. The app rotates its daily key at 08:00 Europe/Warsaw.
+    # GitHub cron uses UTC. Both possible UTC hours are scheduled and gated in Europe/Warsaw,
+    # so the morning refresh remains at 08:10 across CET/CEST changes.
     - cron: "10 6 * * *"
+    - cron: "10 7 * * *"
     # Midday safety refresh catches price/availability changes from partner feeds.
     - cron: "10 12 * * *"
   workflow_dispatch:
@@ -22,11 +24,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check Warsaw refresh window
+        id: warsaw
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "$(TZ=Europe/Warsaw date +%H:%M)" = "08:10" ] || [ "${{ github.event.schedule }}" = "10 12 * * *" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Fetch and validate current offers
+        if: steps.warsaw.outputs.run == 'true'
         shell: bash
         run: |
           set -euo pipefail
-          url="https://tripownia.pl/api/today-offers?mode=search&broad=1&rescue=full"
+          url="https://tripownia.pl/api/today-offers?mode=search&broad=1&rescue=full&__direct=1"
           curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 90 \
             -H 'Accept: application/json' \
             "$url" > /tmp/live-offers.json
@@ -60,7 +75,7 @@ jobs:
               "snapshotAt": datetime.now(timezone.utc).isoformat(),
               "sourceCount": data.get("sourceCount", 0),
               "destinationCount": data.get("destinationCount", 0),
-              "offers": valid[:200],
+              "offers": valid[:1000],
           }
           with open(dst, "w", encoding="utf-8") as f:
               json.dump(snapshot, f, ensure_ascii=False, indent=2)
@@ -69,6 +84,7 @@ jobs:
           PY
 
       - name: Commit snapshot only when it changed
+        if: steps.warsaw.outputs.run == 'true'
         shell: bash
         run: |
           set -euo pipefail
