@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import snapshot from "@/data/live-offers-snapshot.json";
-import { filterCatalog, paginate } from "@/lib/searchRules.mjs";
+import { filterCatalog, paginate } from "@/lib/searchRules";
 
 export const dynamic = "force-dynamic";
 
