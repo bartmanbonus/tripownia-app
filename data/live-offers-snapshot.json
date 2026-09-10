@@ -1,9 +1,9 @@
 {
   "ok": true,
-  "checkedAt": "2026-09-09T20:38:53.520Z",
-  "snapshotAt": "2026-09-09T20:38:53.622312+00:00",
-  "sourceCount": 691,
-  "destinationCount": 74,
+  "checkedAt": null,
+  "snapshotAt": "2026-09-10T16:20:09.587835+00:00",
+  "sourceCount": 0,
+  "destinationCount": 0,
   "offers": [
     {
       "id": 229799602,
