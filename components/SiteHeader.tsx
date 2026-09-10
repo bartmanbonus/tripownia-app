@@ -14,7 +14,6 @@ import {
   BookOpen,
   Lightbulb,
   CircleHelp,
-  UserRound,
 } from "lucide-react";
 import { partners } from "@/lib/partners";
 
@@ -115,7 +114,6 @@ export default function SiteHeader() {
           <div className="menu-v5-account">
             <a href="mailto:kontakt@tripownia.pl?subject=Pomoc%20Tripownia"><CircleHelp size={20}/><span>Pomoc</span></a>
             <Link href="/ulubione"><Heart size={20}/><span>Ulubione</span></Link>
-            <Link href="/ulubione"><UserRound size={20}/><span>Moje konto</span></Link>
           </div>
         </nav>
       </div>

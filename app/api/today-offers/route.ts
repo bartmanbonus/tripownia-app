@@ -1,193 +1,73 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { Offer } from "@/lib/offers";
+import { catalogExport } from "@/lib/catalogExport";
 
 type TdField = { name?: string; value?: string };
 type TdOffer = {
-  productUrl?: string;
-  legacyProductUrl?: string;
-  modified?: number;
-  sourceProductId?: string;
-  programName?: string;
+  productUrl?: string; legacyProductUrl?: string; modified?: number;
+  sourceProductId?: string; programName?: string;
   priceHistory?: Array<{ price?: { value?: string; currency?: string } }>;
 };
-type TdProduct = {
-  name?: string;
-  description?: string;
-  fields?: TdField[];
-  offers?: TdOffer[];
-  productImage?: { url?: string };
-};
-
+type TdProduct = { name?: string; description?: string; fields?: TdField[]; offers?: TdOffer[]; productImage?: { url?: string } };
 type Provider = "exim" | "tui";
+type LiveCandidate = Offer & { provider: Provider; modifiedAt: number; sourceKey: string; startDateISO?: string; endDateISO?: string };
 
-type LiveCandidate = Offer & {
-  provider: Provider;
-  modifiedAt: number;
-  sourceKey: string;
-  startDateISO?: string;
-  endDateISO?: string;
-};
-
-const CITY_BREAK_TERMS = [
-  "Rzym", "Barcelona", "Alicante", "Malta", "Pafos", "Sycylia", "Neapol", "Stambuł",
-  "Ateny", "Praga", "Budapeszt", "Wiedeń", "Lizbona", "Porto", "Walencja", "Sewilla",
-];
-
+const CITY_BREAK_TERMS = ["Rzym", "Barcelona", "Alicante", "Malta", "Pafos", "Sycylia", "Neapol", "Stambuł", "Ateny", "Praga", "Budapeszt", "Wiedeń", "Lizbona", "Porto", "Walencja", "Sewilla"];
 const SURPRISE_TERMS = {
   low: ["Malta", "Sycylia", "Alicante", "Pafos", "Stambuł", "Marrakesz"],
   mid: ["Djerba", "Marrakesz", "Teneryfa", "Fuerteventura", "Marsa Alam", "Hurghada"],
   high: ["Dubaj", "Zanzibar", "Dominikana", "Malediwy", "Kenia", "Meksyk", "Tajlandia", "Kuba"],
 };
-
-const EUROPE_SEARCH_TERMS = [
-  "Grecja", "Hiszpania", "Cypr", "Malta", "Bułgaria", "Włochy", "Portugalia", "Albania",
-  "Rodos", "Kreta", "Zakynthos", "Pafos", "Teneryfa", "Fuerteventura", "Majorka", "Sycylia",
-];
-
-const EXOTIC_SEARCH_TERMS = [
-  "Maroko", "Egipt", "Tunezja", "Djerba", "Hurghada", "Marsa Alam",
-  "Wietnam", "Bali", "Indonezja", "Tajlandia", "Sri Lanka", "Malediwy", "Japonia",
-  "Zanzibar", "Kenia", "Mauritius", "Wyspy Zielonego Przylądka", "Gambia", "Seszele",
-  "Dominikana", "Meksyk", "Kuba", "Jamajka", "USA", "Nowy Jork", "Floryda",
-  "Brazylia", "Kolumbia", "Peru", "Kostaryka",
-];
-
-const SEARCH_TERMS = [...EUROPE_SEARCH_TERMS, ...EXOTIC_SEARCH_TERMS];
-
-// Szeroki start wyszukiwarki. Celowo używamy kierunków, które w feedach
-// zwracają dużo realnych produktów / regionów. Dzięki temu wejście na stronę
-// nie kończy się jedną kartą tylko dlatego, że dzienny los wybrał słabe hasła.
-const BROAD_SEARCH_TERMS = [
-  "Grecja", "Hiszpania", "Cypr", "Turcja", "Tunezja", "Egipt",
-  "Bułgaria", "Albania", "Portugalia", "Włochy", "Maroko", "Malta",
-  "Teneryfa", "Fuerteventura", "Rodos", "Kreta", "Djerba", "Hurghada",
-  "Marsa Alam", "Zanzibar", "Kenia", "Mauritius", "Dominikana", "Meksyk"
-];
-
-const NEW_YEAR_SEARCH_TERMS = [
-  "Rzym", "Praga", "Budapeszt", "Wiedeń", "Stambuł", "Malta", "Cypr",
-  "Marrakesz", "Teneryfa", "Fuerteventura", "Egipt", "Hurghada", "Marsa Alam",
-  "Dubaj", "Zanzibar", "Tajlandia", "Dominikana", "Meksyk", "Malediwy", "Mauritius",
-];
-
+const EUROPE_SEARCH_TERMS = ["Grecja", "Hiszpania", "Cypr", "Malta", "Bułgaria", "Włochy", "Portugalia", "Albania", "Rodos", "Kreta", "Zakynthos", "Pafos", "Teneryfa", "Fuerteventura", "Majorka", "Sycylia"];
+const EXOTIC_SEARCH_TERMS = ["Maroko", "Egipt", "Tunezja", "Djerba", "Hurghada", "Marsa Alam", "Wietnam", "Bali", "Indonezja", "Tajlandia", "Sri Lanka", "Malediwy", "Japonia", "Zanzibar", "Kenia", "Mauritius", "Wyspy Zielonego Przylądka", "Gambia", "Seszele", "Dominikana", "Meksyk", "Kuba", "Jamajka", "USA", "Nowy Jork", "Floryda", "Brazylia", "Kolumbia", "Peru", "Kostaryka"];
+// These are the existing integration queries, not the whole supplier inventory.
+const BROAD_SEARCH_TERMS = ["Grecja", "Hiszpania", "Cypr", "Turcja", "Tunezja", "Egipt", "Bułgaria", "Albania", "Portugalia", "Włochy", "Maroko", "Malta", "Teneryfa", "Fuerteventura", "Rodos", "Kreta", "Djerba", "Hurghada", "Marsa Alam", "Zanzibar", "Kenia", "Mauritius", "Dominikana", "Meksyk"];
+const NEW_YEAR_SEARCH_TERMS = ["Rzym", "Praga", "Budapeszt", "Wiedeń", "Stambuł", "Malta", "Cypr", "Marrakesz", "Teneryfa", "Fuerteventura", "Egipt", "Hurghada", "Marsa Alam", "Dubaj", "Zanzibar", "Tajlandia", "Dominikana", "Meksyk", "Malediwy", "Mauritius"];
 const SEARCH_ALIASES: Record<string, string[]> = {
-  rzym: ["Rzym", "Rome", "Włochy", "Italy"],
-  paryz: ["Paryż", "Paris", "Francja", "France"],
-  mediolan: ["Mediolan", "Milan", "Włochy", "Italy"],
-  wenecja: ["Wenecja", "Venice", "Włochy", "Italy"],
-  barcelona: ["Barcelona", "Hiszpania", "Spain"],
-  lizbona: ["Lizbona", "Lisbon", "Portugalia", "Portugal"],
-  aten: ["Ateny", "Athens", "Grecja", "Greece"],
-  nowy_jork: ["Nowy Jork", "New York", "USA"],
-  tokio: ["Tokio", "Tokyo", "Japonia", "Japan"],
-  bangkok: ["Bangkok", "Tajlandia", "Thailand"],
-  djerba: ["Djerba", "Dżerba", "Tunezja", "Tunisia"],
-  hammamet: ["Hammamet", "Tunezja", "Tunisia"],
-  monastir: ["Monastir", "Tunezja", "Tunisia"],
-  sousse: ["Sousse", "Tunezja", "Tunisia"],
-  hurghada: ["Hurghada", "Egipt", "Egypt"],
-  marsa_alam: ["Marsa Alam", "Egipt", "Egypt"],
-  sharm_el_sheikh: ["Sharm el Sheikh", "Egipt", "Egypt"],
-  kreta: ["Kreta", "Crete", "Grecja", "Greece"],
-  rodos: ["Rodos", "Rhodes", "Grecja", "Greece"],
-  zakynthos: ["Zakynthos", "Zante", "Grecja", "Greece"],
-  teneryfa: ["Teneryfa", "Tenerife", "Hiszpania", "Spain"],
-  fuerteventura: ["Fuerteventura", "Hiszpania", "Spain"],
-  gran_canaria: ["Gran Canaria", "Hiszpania", "Spain"],
-  zanzibar: ["Zanzibar", "Tanzania"],
-  dubaj: ["Dubaj", "Dubai", "ZEA", "UAE", "United Arab Emirates"],
-  bali: ["Bali", "Indonezja", "Indonesia"],
+  rzym: ["Rzym", "Rome", "Włochy", "Italy"], paryz: ["Paryż", "Paris", "Francja", "France"],
+  mediolan: ["Mediolan", "Milan", "Włochy", "Italy"], wenecja: ["Wenecja", "Venice", "Włochy", "Italy"],
+  barcelona: ["Barcelona", "Hiszpania", "Spain"], lizbona: ["Lizbona", "Lisbon", "Portugalia", "Portugal"],
+  aten: ["Ateny", "Athens", "Grecja", "Greece"], nowy_jork: ["Nowy Jork", "New York", "USA"],
+  tokio: ["Tokio", "Tokyo", "Japonia", "Japan"], bangkok: ["Bangkok", "Tajlandia", "Thailand"],
+  djerba: ["Djerba", "Dżerba", "Tunezja", "Tunisia"], hammamet: ["Hammamet", "Tunezja", "Tunisia"],
+  monastir: ["Monastir", "Tunezja", "Tunisia"], sousse: ["Sousse", "Tunezja", "Tunisia"],
+  hurghada: ["Hurghada", "Egipt", "Egypt"], marsa_alam: ["Marsa Alam", "Egipt", "Egypt"],
+  sharm_el_sheikh: ["Sharm el Sheikh", "Egipt", "Egypt"], kreta: ["Kreta", "Crete", "Grecja", "Greece"],
+  rodos: ["Rodos", "Rhodes", "Grecja", "Greece"], zakynthos: ["Zakynthos", "Zante", "Grecja", "Greece"],
+  teneryfa: ["Teneryfa", "Tenerife", "Hiszpania", "Spain"], fuerteventura: ["Fuerteventura", "Hiszpania", "Spain"],
+  gran_canaria: ["Gran Canaria", "Hiszpania", "Spain"], zanzibar: ["Zanzibar", "Tanzania"],
+  dubaj: ["Dubaj", "Dubai", "ZEA", "UAE", "United Arab Emirates"], bali: ["Bali", "Indonezja", "Indonesia"],
 };
-
 function expandSearchTerms(rawTerms: string[]) {
   const expanded: string[] = [];
-  for (const raw of rawTerms) {
-    const key = normalize(raw).replace(/ /g, "_");
-    expanded.push(raw);
-    if (SEARCH_ALIASES[key]) expanded.push(...SEARCH_ALIASES[key]);
-  }
+  for (const raw of rawTerms) { const key = normalize(raw).replace(/ /g, "_"); expanded.push(raw); if (SEARCH_ALIASES[key]) expanded.push(...SEARCH_ALIASES[key]); }
   return Array.from(new Set(expanded)).slice(0, 12);
 }
-
-const FLAGS: Record<string, string> = {
-  polska: "🇵🇱",
-  egipt: "🇪🇬",
-  tunezja: "🇹🇳",
-  turcja: "🇹🇷",
-  grecja: "🇬🇷",
-  hiszpania: "🇪🇸",
-  cypr: "🇨🇾",
-  malta: "🇲🇹",
-  bulgaria: "🇧🇬",
-  bułgaria: "🇧🇬",
-  maroko: "🇲🇦",
-  portugalia: "🇵🇹",
-  albania: "🇦🇱",
-  wlochy: "🇮🇹",
-  włochy: "🇮🇹",
-};
-
+const FLAGS: Record<string, string> = { polska: "🇵🇱", egipt: "🇪🇬", tunezja: "🇹🇳", turcja: "🇹🇷", grecja: "🇬🇷", hiszpania: "🇪🇸", cypr: "🇨🇾", malta: "🇲🇹", bulgaria: "🇧🇬", bułgaria: "🇧🇬", maroko: "🇲🇦", portugalia: "🇵🇹", albania: "🇦🇱", wlochy: "🇮🇹", włochy: "🇮🇹" };
 function normalize(value: string | undefined | null) {
-  return (value || "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")
-    .replace(/[^a-z0-9]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return (value || "").toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
 }
-
 function fieldMap(product: TdProduct) {
-  return Object.fromEntries(
-    (product.fields || [])
-      .filter((field) => field.name)
-      .map((field) => [field.name as string, field.value || ""])
-  );
+  return Object.fromEntries((product.fields || []).filter(field => field.name).map(field => [field.name as string, field.value || ""]));
 }
-
 function dailyKey(now = new Date()) {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Warsaw",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(now).reduce<Record<string, string>>((acc, part) => {
-    acc[part.type] = part.value;
-    return acc;
-  }, {});
-
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", hourCycle: "h23" }).formatToParts(now).reduce<Record<string, string>>((acc, part) => { acc[part.type] = part.value; return acc; }, {});
   const date = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)));
   if (Number(parts.hour) < 8) date.setUTCDate(date.getUTCDate() - 1);
   return date.toISOString().slice(0, 10);
 }
-
 function hash(text: string) {
   let value = 2166136261;
-  for (let index = 0; index < text.length; index += 1) {
-    value ^= text.charCodeAt(index);
-    value = Math.imul(value, 16777619);
-  }
+  for (let index = 0; index < text.length; index += 1) { value ^= text.charCodeAt(index); value = Math.imul(value, 16777619); }
   return value >>> 0;
 }
-
 function shuffle<T>(items: T[], seedText: string) {
   let seed = hash(seedText) || 1;
   const out = [...items];
-  const random = () => {
-    seed ^= seed << 13;
-    seed ^= seed >>> 17;
-    seed ^= seed << 5;
-    return (seed >>> 0) / 4294967296;
-  };
-  for (let i = out.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
+  const random = () => { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; };
+  for (let i = out.length - 1; i > 0; i -= 1) { const j = Math.floor(random() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
   return out;
 }
-
 function parseDate(value: string | undefined) {
   if (!value) return null;
   const [day, month, year] = value.split(".").map(Number);
@@ -195,33 +75,14 @@ function parseDate(value: string | undefined) {
   const date = new Date(Date.UTC(year, month - 1, day));
   return Number.isNaN(date.getTime()) ? null : date;
 }
-
-function addDays(date: Date, days: number) {
-  const next = new Date(date);
-  next.setUTCDate(next.getUTCDate() + days);
-  return next;
-}
-
-function formatDate(date: Date) {
-  return new Intl.DateTimeFormat("pl-PL", {
-    timeZone: "UTC",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
-}
-
+function addDays(date: Date, days: number) { const next = new Date(date); next.setUTCDate(next.getUTCDate() + days); return next; }
+function formatDate(date: Date) { return new Intl.DateTimeFormat("pl-PL", { timeZone: "UTC", day: "2-digit", month: "2-digit", year: "numeric" }).format(date); }
 function decodeTrackedDestination(tracked: string | undefined) {
   if (!tracked) return null;
   const match = tracked.match(/url\((.+)\)$/);
   if (!match?.[1]) return null;
-  try {
-    return new URL(decodeURIComponent(match[1]));
-  } catch {
-    return null;
-  }
+  try { return new URL(decodeURIComponent(match[1])); } catch { return null; }
 }
-
 function boardFromEximUrl(url: string | undefined) {
   const destination = decodeTrackedDestination(url);
   const value = (destination?.searchParams.get("DI") || "").toUpperCase();
@@ -232,63 +93,47 @@ function boardFromEximUrl(url: string | undefined) {
   if (value.includes("AO") || value.includes("RO")) return "Bez wyżywienia";
   return "Wyżywienie wg oferty";
 }
-
-function countryFlag(country: string) {
-  return FLAGS[normalize(country)] || "🌍";
-}
-
+function countryFlag(country: string) { return FLAGS[normalize(country)] || "🌍"; }
 function tagFor(price: number, board: string): Offer["tag"] {
   if (price <= 1600) return "BIERZEMY";
   if (price <= 2300 || /all inclusive/i.test(board)) return "OKAZJA";
   return "DOBRA OPCJA";
 }
-
 function scoreFor(price: number, rating: number, board: string, daysOut: number) {
   let score = 7.4;
-  if (price <= 1500) score += 1.0;
-  else if (price <= 2200) score += 0.6;
-  else if (price <= 3000) score += 0.25;
+  if (price <= 1500) score += 1.0; else if (price <= 2200) score += 0.6; else if (price <= 3000) score += 0.25;
   if (rating >= 4) score += 0.35;
   if (/all inclusive/i.test(board)) score += 0.25;
   if (daysOut <= 45) score += 0.2;
   return Math.min(9.8, Math.round(score * 10) / 10);
 }
-
 function reasonFor(provider: Provider, price: number, nights: number, board: string) {
   const boardText = /all inclusive/i.test(board) ? " z All Inclusive" : "";
   return `${nights} nocy${boardText} w cenie od ${price.toLocaleString("pl-PL")} zł/os. Dobra opcja na ten termin.`;
 }
-
 async function fetchProducts(provider: Provider, query: string, token: string) {
   const fid = provider === "exim" ? 103442 : 24864;
   const endpoint = new URL("https://api.tradedoubler.com/1.0/products.json");
   const path = `${endpoint.origin}${endpoint.pathname};q=${encodeURIComponent(query)};page=1;pageSize=100;fid=${fid}?token=${encodeURIComponent(token)}`;
-  const response = await fetch(path, {
-    headers: { Accept: "application/json" },
-    cache: "no-store",
-  });
+  const response = await fetch(path, { headers: { Accept: "application/json" }, cache: "no-store", signal: AbortSignal.timeout(20000) });
   if (!response.ok) throw new Error(`${provider.toUpperCase()} feed ${response.status}`);
   const data = await response.json();
   return Array.isArray(data?.products) ? (data.products as TdProduct[]) : [];
 }
-
 function fromExim(product: TdProduct): LiveCandidate | null {
   const fields = fieldMap(product);
   const offer = product.offers?.[0];
   const productUrl = offer?.productUrl || offer?.legacyProductUrl;
   if (!productUrl) return null;
-
   const rawTotal = Number(fields.BestPrice || fields.SalePrice || offer?.priceHistory?.[0]?.price?.value || 0);
   if (!Number.isFinite(rawTotal) || rawTotal <= 0) return null;
-
   const destinationUrl = decodeTrackedDestination(productUrl);
   const adults = Math.max(1, Number(destinationUrl?.searchParams.get("AC1") || 2));
   const nights = Math.max(1, Number(destinationUrl?.searchParams.get("NN") || 7));
   const price = Math.round(rawTotal / adults);
   if (price < 350 || price > 9000) return null;
-
   const destinationAddress = fields.DestinationAddress || product.description || "";
-  const addressParts = destinationAddress.split(";").map((value) => value.trim()).filter(Boolean);
+  const addressParts = destinationAddress.split(";").map(value => value.trim()).filter(Boolean);
   const country = addressParts.at(-1) || product.description?.split(",").at(0)?.trim() || "";
   const city = fields.DestinationName || addressParts[0] || product.name || "Wakacje";
   const board = boardFromEximUrl(productUrl);
@@ -299,57 +144,30 @@ function fromExim(product: TdProduct): LiveCandidate | null {
   const rating = Number(fields.Stars || 0);
   const modifiedAt = Number(offer?.modified || 0);
   const sourceKey = offer?.sourceProductId || productUrl;
-
-  if (departureDate) {
-    const todayUtc = new Date();
-    todayUtc.setUTCHours(0, 0, 0, 0);
-    if (departureDate.getTime() < todayUtc.getTime()) return null;
-  }
-
+  if (departureDate) { const todayUtc = new Date(); todayUtc.setUTCHours(0, 0, 0, 0); if (departureDate.getTime() < todayUtc.getTime()) return null; }
   return {
-    id: 1_000_000 + (hash(`exim:${sourceKey}`) % 800_000_000),
-    flag: countryFlag(country),
-    city,
-    country,
-    price,
-    priceCheckedAt: new Date().toISOString(),
-    availabilityStatus: "available",
-    departure,
-    airportCode: "",
-    nights,
-    weather: "sprawdź",
-    score: scoreFor(price, rating, board, daysOut),
-    tag: tagFor(price, board),
-    reason: reasonFor("exim", price, nights, board),
+    id: 1_000_000 + (hash(`exim:${sourceKey}`) % 800_000_000), flag: countryFlag(country), city, country, price,
+    priceCheckedAt: new Date().toISOString(), availabilityStatus: "available", departure, airportCode: "", nights,
+    weather: "sprawdź", score: scoreFor(price, rating, board, daysOut), tag: tagFor(price, board), reason: reasonFor("exim", price, nights, board),
     image: product.productImage?.url || "/images/destinations/djerba.jpg",
     category: nights <= 5 ? ["city", "weekend", "exim", "transfer"] : ["wakacje", /all inclusive/i.test(board) ? "allinclusive" : "plaza"],
-    hotel: product.name || "Hotel",
-    board,
+    hotel: product.name || "Hotel", board,
     dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "najbliższy dostępny termin",
-    partner: "exim",
-    affiliateUrl: productUrl,
-    linkType: "exact",
-    linkMatch: "exact",
-    transferIncluded: true,
-    provider: "exim",
-    modifiedAt: modifiedAt || Date.now(),
-    sourceKey,
+    partner: "exim", affiliateUrl: productUrl, linkType: "exact", linkMatch: "exact", transferIncluded: true,
+    provider: "exim", modifiedAt: modifiedAt || Date.now(), sourceKey,
     startDateISO: departureDate ? departureDate.toISOString().slice(0, 10) : undefined,
     endDateISO: returnDate ? returnDate.toISOString().slice(0, 10) : undefined,
   };
 }
-
 function fromTui(product: TdProduct): LiveCandidate | null {
   const fields = fieldMap(product);
   const offer = product.offers?.[0];
   const productUrl = offer?.productUrl || offer?.legacyProductUrl;
   if (!productUrl) return null;
-
   const rawPrice = Number(offer?.priceHistory?.[0]?.price?.value || 0);
   if (!Number.isFinite(rawPrice) || rawPrice <= 0) return null;
   const price = Math.round(rawPrice);
   if (price < 350 || price > 9000) return null;
-
   const country = fields.Country || "";
   const city = fields.Region || fields.City || product.name || "Wakacje";
   const nights = Math.max(1, Number(fields.Duration || 7));
@@ -361,46 +179,20 @@ function fromTui(product: TdProduct): LiveCandidate | null {
   const rating = Number(fields.Rating || 0);
   const modifiedAt = Number(offer?.modified || 0);
   const sourceKey = offer?.sourceProductId || productUrl;
-
-  if (departureDate) {
-    const todayUtc = new Date();
-    todayUtc.setUTCHours(0, 0, 0, 0);
-    if (departureDate.getTime() < todayUtc.getTime()) return null;
-  }
-
+  if (departureDate) { const todayUtc = new Date(); todayUtc.setUTCHours(0, 0, 0, 0); if (departureDate.getTime() < todayUtc.getTime()) return null; }
   return {
-    id: 1_000_000 + (hash(`tui:${sourceKey}`) % 800_000_000),
-    flag: countryFlag(country),
-    city,
-    country,
-    price,
-    priceCheckedAt: new Date().toISOString(),
-    availabilityStatus: "available",
-    departure,
-    airportCode: fields.DeparturePlace || "",
-    nights,
-    weather: "sprawdź",
-    score: scoreFor(price, rating, board, daysOut),
-    tag: tagFor(price, board),
-    reason: reasonFor("tui", price, nights, board),
-    image: product.productImage?.url || "/images/destinations/rodos.jpg",
-    category: ["wakacje", /all inclusive/i.test(board) ? "allinclusive" : "plaza"],
-    hotel: fields.HotelName || product.name || "Hotel",
-    board,
+    id: 1_000_000 + (hash(`tui:${sourceKey}`) % 800_000_000), flag: countryFlag(country), city, country, price,
+    priceCheckedAt: new Date().toISOString(), availabilityStatus: "available", departure, airportCode: fields.DeparturePlace || "", nights,
+    weather: "sprawdź", score: scoreFor(price, rating, board, daysOut), tag: tagFor(price, board), reason: reasonFor("tui", price, nights, board),
+    image: product.productImage?.url || "/images/destinations/rodos.jpg", category: ["wakacje", /all inclusive/i.test(board) ? "allinclusive" : "plaza"],
+    hotel: fields.HotelName || product.name || "Hotel", board,
     dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "najbliższy dostępny termin",
-    partner: "tui",
-    affiliateUrl: productUrl,
-    linkType: "exact",
-    linkMatch: "exact",
-    provider: "tui",
-    modifiedAt: modifiedAt || Date.now(),
-    sourceKey,
+    partner: "tui", affiliateUrl: productUrl, linkType: "exact", linkMatch: "exact", provider: "tui",
+    modifiedAt: modifiedAt || Date.now(), sourceKey,
     startDateISO: departureDate ? departureDate.toISOString().slice(0, 10) : undefined,
     endDateISO: returnDate ? returnDate.toISOString().slice(0, 10) : undefined,
   };
 }
-
-
 function departurePriority(offer: LiveCandidate) {
   const haystack = normalize(`${offer.departure} ${offer.airportCode}`);
   if (/\bwaw\b|warszawa|chopin/.test(haystack)) return 3;
@@ -408,18 +200,8 @@ function departurePriority(offer: LiveCandidate) {
   if (/\bkrk\b|krakow|balice/.test(haystack)) return 3;
   return 0;
 }
-
-function destinationKey(offer: LiveCandidate) {
-  return normalize(`${offer.city}|${offer.country}`);
-}
-
-function countryLimit(offer: LiveCandidate) {
-  // Małe kierunki wyspowe nie powinny zajmować dwóch miejsc w jednej dziennej selekcji.
-  const country = normalize(offer.country);
-  if (/^malta$/.test(country)) return 1;
-  return 2;
-}
-
+function destinationKey(offer: LiveCandidate) { return normalize(`${offer.city}|${offer.country}`); }
+function countryLimit(offer: LiveCandidate) { return /^malta$/.test(normalize(offer.country)) ? 1 : 2; }
 function dealValue(offer: LiveCandidate) {
   let value = offer.score * 100 - offer.price / 20;
   value += departurePriority(offer) * 90;
@@ -429,9 +211,6 @@ function dealValue(offer: LiveCandidate) {
   if (offer.price <= 1300) value += 30;
   return value;
 }
-
-
-
 function continentFor(offer: LiveCandidate) {
   const text = normalize(`${offer.country} ${offer.city}`);
   if (/wietnam|bali|indonez|tajland|sri lanka|malediw|japon|dubaj|zea|emiraty|azja/.test(text)) return "asia";
@@ -439,103 +218,43 @@ function continentFor(offer: LiveCandidate) {
   if (/dominikan|meksyk|kuba|jamaj|usa|nowy jork|floryda|brazyl|kolumbi|peru|kostaryk|ameryk/.test(text)) return "americas";
   return "europe";
 }
-
-function hasConcreteDates(offer: LiveCandidate) {
-  return Boolean(offer.dates && !/najbliższy dostępny termin/i.test(offer.dates));
-}
-
-function tripLengthMatches(offer: LiveCandidate) {
-  const continent = continentFor(offer);
-  if (continent === "europe") return offer.nights >= 2 && offer.nights <= 8;
-  return offer.nights >= 7 && offer.nights <= 14;
-}
-
+function hasConcreteDates(offer: LiveCandidate) { return Boolean(offer.dates && !/najbliższy dostępny termin/i.test(offer.dates)); }
+function tripLengthMatches(offer: LiveCandidate) { return continentFor(offer) === "europe" ? offer.nights >= 2 && offer.nights <= 8 : offer.nights >= 7 && offer.nights <= 14; }
 function selectDailyDiversified(candidates: LiveCandidate[], key: string, limit = 20) {
   const buckets = {
-    europe: candidates.filter((o) => continentFor(o) === "europe"),
-    africa: candidates.filter((o) => continentFor(o) === "africa"),
-    asia: candidates.filter((o) => continentFor(o) === "asia"),
-    americas: candidates.filter((o) => continentFor(o) === "americas"),
+    europe: candidates.filter(o => continentFor(o) === "europe"), africa: candidates.filter(o => continentFor(o) === "africa"),
+    asia: candidates.filter(o => continentFor(o) === "asia"), americas: candidates.filter(o => continentFor(o) === "americas"),
   };
-
-  const quotas: Array<[keyof typeof buckets, number]> = [
-    ["europe", 8],
-    ["africa", 5],
-    ["asia", 4],
-    ["americas", 3],
-  ];
-
-  const picked: LiveCandidate[] = [];
-  const seen = new Set<string>();
+  const quotas: Array<[keyof typeof buckets, number]> = [["europe", 8], ["africa", 5], ["asia", 4], ["americas", 3]];
+  const picked: LiveCandidate[] = [], seen = new Set<string>();
   for (const [bucket, quota] of quotas) {
-    const ranked = shuffle([...buckets[bucket]].sort((a,b) => dealValue(b)-dealValue(a)).slice(0, 24), `${key}:${bucket}`);
-    for (const offer of ranked) {
-      const dk = destinationKey(offer);
-      if (seen.has(dk)) continue;
-      picked.push(offer);
-      seen.add(dk);
-      if (picked.filter((o) => continentFor(o) === bucket).length >= quota) break;
-    }
+    const ranked = shuffle([...buckets[bucket]].sort((a, b) => dealValue(b) - dealValue(a)).slice(0, 24), `${key}:${bucket}`);
+    for (const offer of ranked) { const dk = destinationKey(offer); if (seen.has(dk)) continue; picked.push(offer); seen.add(dk); if (picked.filter(o => continentFor(o) === bucket).length >= quota) break; }
   }
-
-  if (picked.length < limit) {
-    const rest = selectDaily(candidates.filter((o) => !seen.has(destinationKey(o))), `${key}:rest`, limit - picked.length);
-    picked.push(...rest);
-  }
+  if (picked.length < limit) picked.push(...selectDaily(candidates.filter(o => !seen.has(destinationKey(o))), `${key}:rest`, limit - picked.length));
   return picked.slice(0, limit);
 }
-
 function cheapestPerDestination(candidates: LiveCandidate[]) {
   const best = new Map<string, LiveCandidate>();
-  for (const offer of candidates) {
-    const key = destinationKey(offer);
-    const previous = best.get(key);
-    if (!previous || offer.price < previous.price || (offer.price === previous.price && departurePriority(offer) > departurePriority(previous))) {
-      best.set(key, offer);
-    }
-  }
+  for (const offer of candidates) { const key = destinationKey(offer), previous = best.get(key); if (!previous || offer.price < previous.price || (offer.price === previous.price && departurePriority(offer) > departurePriority(previous))) best.set(key, offer); }
   return Array.from(best.values());
 }
-
 function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
-  // Najpierw bierzemy jakościowy shortlist, a dopiero potem rotujemy go dziennym seedem.
-  // Dzięki temu 08:00 faktycznie zmienia pulę, zamiast codziennie pokazywać te same najwyżej punktowane rekordy.
   const ranked = [...candidates].sort((a, b) => dealValue(b) - dealValue(a));
   const shortlist = ranked.slice(0, Math.min(48, ranked.length));
   const shuffled = shuffle(shortlist, `tripownia-live:${key}`);
-
-  const selected: LiveCandidate[] = [];
-  const countryCounts = new Map<string, number>();
-  const providerCounts = new Map<Provider, number>();
-  const destinationKeys = new Set<string>();
+  const selected: LiveCandidate[] = [], countryCounts = new Map<string, number>(), providerCounts = new Map<Provider, number>(), destinationKeys = new Set<string>();
   let secondaryAirportCount = 0;
-
   for (const offer of shuffled) {
-    const destKey = destinationKey(offer);
-    if (destinationKeys.has(destKey)) continue;
-
-    const countryKey = normalize(offer.country);
-    const countryCount = countryCounts.get(countryKey) || 0;
-    if (countryCount >= countryLimit(offer)) continue;
-
-    const providerCount = providerCounts.get(offer.provider) || 0;
-    if (providerCount >= Math.max(10, Math.ceil(limit * 0.75))) continue;
-
-    const primaryAirport = departurePriority(offer) > 0;
-    if (!primaryAirport && secondaryAirportCount >= 2) continue;
-
-    selected.push(offer);
-    destinationKeys.add(destKey);
-    countryCounts.set(countryKey, countryCount + 1);
-    providerCounts.set(offer.provider, providerCount + 1);
+    const destKey = destinationKey(offer); if (destinationKeys.has(destKey)) continue;
+    const countryKey = normalize(offer.country), countryCount = countryCounts.get(countryKey) || 0; if (countryCount >= countryLimit(offer)) continue;
+    const providerCount = providerCounts.get(offer.provider) || 0; if (providerCount >= Math.max(10, Math.ceil(limit * 0.75))) continue;
+    const primaryAirport = departurePriority(offer) > 0; if (!primaryAirport && secondaryAirportCount >= 2) continue;
+    selected.push(offer); destinationKeys.add(destKey); countryCounts.set(countryKey, countryCount + 1); providerCounts.set(offer.provider, providerCount + 1);
     if (!primaryAirport) secondaryAirportCount += 1;
     if (selected.length >= limit) break;
   }
-
-  // Nie dopełniamy karuzeli duplikatami. Lepiej pokazać 9 dobrych, różnych propozycji niż 12 z powtórzeniami.
-  return selected
-    .sort((a, b) => dealValue(b) - dealValue(a))
-    .slice(0, limit);
+  return selected.sort((a, b) => dealValue(b) - dealValue(a)).slice(0, limit);
 }
 
 export async function GET(request: NextRequest) {
@@ -555,94 +274,54 @@ export async function GET(request: NextRequest) {
   const rescueMode = (request.nextUrl.searchParams.get("rescue") || "").trim();
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
-
-  if (!eximToken && !tuiToken) {
-    return NextResponse.json({ ok: false, key, offers: [], error: "Brak tokenów TradeDoubler." }, { status: 503 });
-  }
-
+  if (!eximToken && !tuiToken) return NextResponse.json({ ok: false, key, offers: [], error: "Brak tokenów TradeDoubler." }, { status: 503 });
   try {
-    const searchTerms = query
-      ? expandSearchTerms(
-          query
-            .split(",")
-            .map((item) => item.trim())
-            .filter(Boolean)
-            .slice(0, 6)
-        )
-      : [];
-    const terms = rescueMode === "full"
-      ? BROAD_SEARCH_TERMS
-      : rescueMode === "1"
-        ? BROAD_SEARCH_TERMS.slice(0, 18)
-      : mode === "search" && query
-      ? searchTerms
-      : mode === "search" && broadSearch
-        ? BROAD_SEARCH_TERMS
-      : mode === "citybreak"
-        ? (query ? searchTerms : shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 12))
-        : mode === "surprise"
-          ? shuffle(budget >= 3500 ? SURPRISE_TERMS.high : budget >= 1800 ? SURPRISE_TERMS.mid : SURPRISE_TERMS.low, `surprise:${key}:${budget}`).slice(0, 8)
-          : mode === "newyear"
-            ? NEW_YEAR_SEARCH_TERMS
-          : mode === "search"
-            ? BROAD_SEARCH_TERMS
-            : [
-                ...shuffle(EUROPE_SEARCH_TERMS, `terms-eu:${key}`).slice(0, 7),
-                ...shuffle(EXOTIC_SEARCH_TERMS, `terms-exotic:${key}`).slice(0, 11),
-              ];
+    const searchTerms = query ? expandSearchTerms(query.split(",").map(item => item.trim()).filter(Boolean).slice(0, 6)) : [];
+    const terms = rescueMode === "full" ? BROAD_SEARCH_TERMS : rescueMode === "1" ? BROAD_SEARCH_TERMS.slice(0, 18)
+      : mode === "search" && query ? searchTerms : mode === "search" && broadSearch ? BROAD_SEARCH_TERMS
+      : mode === "citybreak" ? (query ? searchTerms : shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 12))
+      : mode === "surprise" ? shuffle(budget >= 3500 ? SURPRISE_TERMS.high : budget >= 1800 ? SURPRISE_TERMS.mid : SURPRISE_TERMS.low, `surprise:${key}:${budget}`).slice(0, 8)
+      : mode === "newyear" ? NEW_YEAR_SEARCH_TERMS : mode === "search" ? BROAD_SEARCH_TERMS
+      : [...shuffle(EUROPE_SEARCH_TERMS, `terms-eu:${key}`).slice(0, 7), ...shuffle(EXOTIC_SEARCH_TERMS, `terms-exotic:${key}`).slice(0, 11)];
     const jobs: Promise<{ provider: Provider; products: TdProduct[] }>[] = [];
-
+    const jobSources: Provider[] = [];
     for (const term of terms) {
-      if (eximToken && providerOnly !== "tui") jobs.push(fetchProducts("exim", term, eximToken).then((products) => ({ provider: "exim" as const, products })));
-      if (mode !== "citybreak" && mode !== "newyear" && tuiToken && providerOnly !== "exim") jobs.push(fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
+      if (eximToken && providerOnly !== "tui") { jobSources.push("exim"); jobs.push(fetchProducts("exim", term, eximToken).then(products => ({ provider: "exim" as const, products }))); }
+      if (mode !== "citybreak" && mode !== "newyear" && tuiToken && providerOnly !== "exim") { jobSources.push("tui"); jobs.push(fetchProducts("tui", term, tuiToken).then(products => ({ provider: "tui" as const, products }))); }
     }
-
     const settled = await Promise.allSettled(jobs);
     const candidates: LiveCandidate[] = [];
     for (const item of settled) {
       if (item.status !== "fulfilled") continue;
-      for (const product of item.value.products) {
-        const candidate = item.value.provider === "exim" ? fromExim(product) : fromTui(product);
-        if (candidate) candidates.push(candidate);
-      }
+      for (const product of item.value.products) { const candidate = item.value.provider === "exim" ? fromExim(product) : fromTui(product); if (candidate) candidates.push(candidate); }
     }
-
-    // Jeśli bardzo konkretny query nie występuje w feedzie pod tą nazwą,
-    // nie kończymy pustą odpowiedzią. Pobieramy małą szeroką pulę z tych samych
-    // feedów. Front pokaże ją jako fallback zamiast pustego ekranu.
+    // Export ALL retrieved candidates before daily ranking or a 200-result cut.
+    // Pagination has a content version, so a changed feed cannot be mixed silently.
+    if (mode === "search" && request.nextUrl.searchParams.get("__direct") === "1") {
+      const sources = (["exim", "tui"] as Provider[]).map(provider => ({ provider, requested: jobSources.filter(name => name === provider).length,
+        failed: settled.filter((result, index) => jobSources[index] === provider && result.status === "rejected").length }));
+      const exported = await catalogExport(candidates, request.nextUrl.searchParams, sources);
+      return NextResponse.json(exported.body, { status: exported.status, headers: { "Cache-Control": "no-store" } });
+    }
+    // Legacy recommendation modes stay independent of the catalog endpoint.
+    // Normal search/citybreak requests are rewritten to /api/catalog in middleware.
     if (!candidates.length && query && (mode === "search" || mode === "citybreak")) {
-      const rescueTerms = BROAD_SEARCH_TERMS.slice(0, 10);
       const rescueJobs: Promise<{ provider: Provider; products: TdProduct[] }>[] = [];
-      for (const term of rescueTerms) {
-        if (eximToken && providerOnly !== "tui") rescueJobs.push(fetchProducts("exim", term, eximToken).then((products) => ({ provider: "exim" as const, products })));
-        if (mode !== "citybreak" && tuiToken && providerOnly !== "exim") rescueJobs.push(fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
+      for (const term of BROAD_SEARCH_TERMS.slice(0, 10)) {
+        if (eximToken && providerOnly !== "tui") rescueJobs.push(fetchProducts("exim", term, eximToken).then(products => ({ provider: "exim" as const, products })));
+        if (mode !== "citybreak" && tuiToken && providerOnly !== "exim") rescueJobs.push(fetchProducts("tui", term, tuiToken).then(products => ({ provider: "tui" as const, products })));
       }
-      const rescueSettled = await Promise.allSettled(rescueJobs);
-      for (const item of rescueSettled) {
+      for (const item of await Promise.allSettled(rescueJobs)) {
         if (item.status !== "fulfilled") continue;
-        for (const product of item.value.products) {
-          const candidate = item.value.provider === "exim" ? fromExim(product) : fromTui(product);
-          if (candidate) candidates.push(candidate);
-        }
+        for (const product of item.value.products) { const candidate = item.value.provider === "exim" ? fromExim(product) : fromTui(product); if (candidate) candidates.push(candidate); }
       }
     }
-
     const unique = new Map<string, LiveCandidate>();
-    for (const candidate of candidates) {
-      const keyValue = `${candidate.provider}:${candidate.sourceKey}`;
-      const previous = unique.get(keyValue);
-      if (!previous || candidate.price < previous.price) unique.set(keyValue, candidate);
-    }
-
+    for (const candidate of candidates) { const keyValue = `${candidate.provider}:${candidate.sourceKey}`, previous = unique.get(keyValue); if (!previous || candidate.price < previous.price) unique.set(keyValue, candidate); }
     const departureMatches = (offer: LiveCandidate) => {
       if (!departureFilter) return true;
       const haystack = normalize(`${offer.departure} ${offer.airportCode}`);
-      const codes = departureFilter
-        .split(",")
-        .map((item) => item.trim().toUpperCase())
-        .filter(Boolean);
-
-      return codes.some((code) => {
+      return departureFilter.split(",").map(item => item.trim().toUpperCase()).filter(Boolean).some(code => {
         if (code === "WAWA") return /warszawa|chopin|modlin|\bwaw\b|\bwmi\b/.test(haystack);
         if (code === "KRK") return /krakow|balice|\bkrk\b/.test(haystack);
         if (code === "KTW") return /katowice|pyrzowice|\bktw\b/.test(haystack);
@@ -672,145 +351,38 @@ export async function GET(request: NextRequest) {
       if (boardFilter === "roomonly") return /bez wyzywienia|room only|self catering|no meals/.test(value);
       return true;
     };
-
     const weekendMatches = (offer: LiveCandidate) => {
       if (!weekendOnly) return true;
       if (!offer.startDateISO || !offer.nights) return false;
-
       const start = new Date(`${offer.startDateISO}T00:00:00Z`);
       if (Number.isNaN(start.getTime())) return false;
-
-      // Pobyt musi obejmować CAŁĄ sobotę i następującą po niej niedzielę.
-      // Dzień powrotu = start + liczba nocy.
-      for (let offset = 0; offset < offer.nights; offset += 1) {
-        const day = new Date(start);
-        day.setUTCDate(start.getUTCDate() + offset);
-        if (day.getUTCDay() === 6 && offset + 1 <= offer.nights) return true;
-      }
+      for (let offset = 0; offset < offer.nights; offset += 1) { const day = new Date(start); day.setUTCDate(start.getUTCDate() + offset); if (day.getUTCDay() === 6 && offset + 1 <= offer.nights) return true; }
       return false;
     };
-
     const allCandidates = Array.from(unique.values());
-
-    const exactPool = rescueMode
-      ? allCandidates
-      : allCandidates.filter((offer) =>
-          departureMatches(offer) &&
-          nightsMatches(offer) &&
-          boardMatches(offer) &&
-          weekendMatches(offer) &&
-          (!maxPrice || offer.price <= maxPrice)
-        );
-
-    // Wyszukiwarka nie może kończyć się pustym ekranem tylko dlatego,
-    // że użytkownik połączył kilka bardzo wąskich filtrów.
-    // Rozluźniamy je stopniowo, ale zachowujemy kierunek wynikający z feed query.
+    const exactPool = rescueMode ? allCandidates : allCandidates.filter(offer => departureMatches(offer) && nightsMatches(offer) && boardMatches(offer) && weekendMatches(offer) && (!maxPrice || offer.price <= maxPrice));
     let pool = exactPool;
-    let notice = rescueMode
-      ? "Pokazujemy najlepsze aktualne oferty dostępne teraz w naszych feedach."
-      : "";
-
+    let notice = rescueMode ? "Pokazujemy najlepsze aktualne oferty dostępne teraz w naszych feedach." : "";
     if (mode === "search" || mode === "citybreak") {
-      if (!pool.length && boardFilter !== "any") {
-        pool = allCandidates.filter((offer) =>
-          departureMatches(offer) &&
-          nightsMatches(offer) &&
-          weekendMatches(offer) &&
-          (!maxPrice || offer.price <= maxPrice)
-        );
-        if (pool.length) notice = "Brak ofert z wybranym wyżywieniem — pokazujemy najbliższe dostępne opcje.";
-      }
-
-      if (!pool.length && maxPrice) {
-        pool = allCandidates.filter((offer) =>
-          departureMatches(offer) &&
-          nightsMatches(offer) &&
-          weekendMatches(offer)
-        );
-        if (pool.length) notice = "Brak ofert w tym budżecie — pokazujemy najbliższe cenowo dostępne opcje.";
-      }
-
-      if (!pool.length && nightsFilter !== "any") {
-        pool = allCandidates.filter((offer) =>
-          departureMatches(offer) &&
-          weekendMatches(offer)
-        );
-        if (pool.length) notice = "Brak ofert dla dokładnej długości pobytu — pokazujemy najbliższe dostępne terminy.";
-      }
-
-      if (!pool.length && weekendOnly) {
-        pool = allCandidates.filter((offer) => departureMatches(offer));
-        if (pool.length) notice = "Nie znaleźliśmy terminu obejmującego cały weekend — pokazujemy dostępne terminy dla tego kierunku.";
-      }
-
-      if (!pool.length && departureFilter) {
-        pool = allCandidates;
-        if (pool.length) notice = "Brak ofert z wybranych lotnisk — pokazujemy dostępne opcje dla tego kierunku.";
-      }
+      if (!pool.length && boardFilter !== "any") { pool = allCandidates.filter(offer => departureMatches(offer) && nightsMatches(offer) && weekendMatches(offer) && (!maxPrice || offer.price <= maxPrice)); if (pool.length) notice = "Brak ofert z wybranym wyżywieniem — pokazujemy najbliższe dostępne opcje."; }
+      if (!pool.length && maxPrice) { pool = allCandidates.filter(offer => departureMatches(offer) && nightsMatches(offer) && weekendMatches(offer)); if (pool.length) notice = "Brak ofert w tym budżecie — pokazujemy najbliższe cenowo dostępne opcje."; }
+      if (!pool.length && nightsFilter !== "any") { pool = allCandidates.filter(offer => departureMatches(offer) && weekendMatches(offer)); if (pool.length) notice = "Brak ofert dla dokładnej długości pobytu — pokazujemy najbliższe dostępne terminy."; }
+      if (!pool.length && weekendOnly) { pool = allCandidates.filter(offer => departureMatches(offer)); if (pool.length) notice = "Nie znaleźliśmy terminu obejmującego cały weekend — pokazujemy dostępne terminy dla tego kierunku."; }
+      if (!pool.length && departureFilter) { pool = allCandidates; if (pool.length) notice = "Brak ofert z wybranych lotnisk — pokazujemy dostępne opcje dla tego kierunku."; }
     }
-
-    // LIVE ENGINE:
-    // 1) najpierw wybieramy najtańszy aktualny PRODUKT dla każdego kierunku,
-    // 2) dopiero z tych reprezentantów budujemy dzienną selekcję.
     const cheapestDestinations = cheapestPerDestination(pool);
-    const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && tripLengthMatches(offer));
-
-    const selected = mode === "newyear"
-      ? cheapestPerDestination(
-          pool.filter((offer) => {
-            if (offer.provider !== "exim" || !offer.startDateISO) return false;
-            const start = offer.startDateISO;
-            return start >= "2026-12-26" && start <= "2027-01-02" && offer.nights >= 3 && offer.nights <= 12;
-          })
-        )
-          .sort((a, b) => {
-            const aCity = a.nights <= 6 ? 0 : 1;
-            const bCity = b.nights <= 6 ? 0 : 1;
-            if (aCity !== bCity) return aCity - bCity;
-            return a.price - b.price;
-          })
-          .slice(0, 30)
-      : mode === "citybreak"
-      ? selectDaily(
-          cheapestPerDestination(
-            pool.filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5)
-          ),
-          `${key}:citybreak`,
-          8
-        )
-      : mode === "search"
-        ? [...pool]
-            .sort((a,b) => a.price !== b.price ? a.price - b.price : b.score - a.score)
-            .slice(0, 200)
-        : mode === "surprise"
-          ? cheapestDestinations
-              .filter((offer) => offer.price <= budget)
-              .filter((offer) => budget < 3500 || offer.price >= Math.round(budget * 0.45))
-              .sort((a,b) => (b.score * 100 + b.price / 20) - (a.score * 100 + a.price / 20))
-              .slice(0, 12)
-          : selectDailyDiversified(dailyLengthPool.length >= 12 ? dailyLengthPool : cheapestDestinations, key, 20);
-    return NextResponse.json(
-      {
-        ok: selected.length > 0,
-        key,
-        mode,
-        checkedAt: new Date().toISOString(),
-        sourceCount: pool.length,
-        exactSourceCount: exactPool.length,
-        destinationCount: cheapestDestinations.length,
-        notice,
-        offers: selected,
-      },
-      {
-        headers: {
-          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-        },
-      }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { ok: false, key, offers: [], error: error instanceof Error ? error.message : "Nie udało się odświeżyć ofert." },
-      { status: 502 }
-    );
+    const dailyLengthPool = cheapestDestinations.filter(offer => hasConcreteDates(offer) && tripLengthMatches(offer));
+    const selected = mode === "newyear" ? cheapestPerDestination(pool.filter(offer => {
+      if (offer.provider !== "exim" || !offer.startDateISO) return false;
+      return offer.startDateISO >= "2026-12-26" && offer.startDateISO <= "2027-01-02" && offer.nights >= 3 && offer.nights <= 12;
+    })).sort((a, b) => { const aCity = a.nights <= 6 ? 0 : 1, bCity = b.nights <= 6 ? 0 : 1; return aCity !== bCity ? aCity - bCity : a.price - b.price; }).slice(0, 30)
+      : mode === "citybreak" ? selectDaily(cheapestPerDestination(pool.filter(offer => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5)), `${key}:citybreak`, 8)
+      : mode === "search" ? [...pool].sort((a, b) => a.price !== b.price ? a.price - b.price : b.score - a.score).slice(0, 200)
+      : mode === "surprise" ? cheapestDestinations.filter(offer => offer.price <= budget).filter(offer => budget < 3500 || offer.price >= Math.round(budget * 0.45)).sort((a, b) => (b.score * 100 + b.price / 20) - (a.score * 100 + a.price / 20)).slice(0, 12)
+      : selectDailyDiversified(dailyLengthPool.length >= 12 ? dailyLengthPool : cheapestDestinations, key, 20);
+    return NextResponse.json({ ok: selected.length > 0, key, mode, checkedAt: new Date().toISOString(), sourceCount: pool.length, exactSourceCount: exactPool.length, destinationCount: cheapestDestinations.length, notice, offers: selected }, { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } });
+  } catch {
+    // Do not expose request URLs containing provider tokens in errors.
+    return NextResponse.json({ ok: false, key, offers: [], error: "Nie udało się odświeżyć ofert." }, { status: 502 });
   }
 }

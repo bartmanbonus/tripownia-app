@@ -1,0 +1,60 @@
+name: Validate preview changes
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Audit locked dependencies
+        run: |
+          node --input-type=module <<'JS'
+          import { spawnSync } from 'node:child_process';
+          import { readFileSync, writeFileSync, appendFileSync } from 'node:fs';
+          const result = spawnSync('npm', ['audit', '--package-lock-only', '--json'], { encoding: 'utf8', timeout: 120000, maxBuffer: 5 * 1024 * 1024 });
+          if (result.error || result.signal || ![0, 1].includes(result.status)) throw new Error('Dependency audit failed to execute; no clean result available.');
+          const report = JSON.parse(result.stdout);
+          if (report.error || !report.metadata?.vulnerabilities) throw new Error('Dependency audit unavailable; do not treat as a clean report.');
+          writeFileSync('dependency-audit.json', JSON.stringify(report, null, 2));
+          const lock = JSON.parse(readFileSync('package-lock.json', 'utf8'));
+          console.log('AUDIT COUNTS', JSON.stringify(report.metadata.vulnerabilities));
+          for (const [name, item] of Object.entries(report.vulnerabilities || {})) {
+            console.log('AUDIT FINDING', JSON.stringify({ name, severity: item.severity, installed: (item.nodes || []).map(path => ({ path, version: lock.packages[path]?.version })), via: item.via, fixAvailable: item.fixAvailable }));
+          }
+          appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Locked dependency audit\n\n\`\`\`json\n${JSON.stringify(report.metadata.vulnerabilities, null, 2)}\n\`\`\`\n`);
+          const counts = report.metadata.vulnerabilities;
+          if (counts.moderate + counts.high + counts.critical > 0) process.exitCode = 1;
+          JS
+      - name: Upload dependency audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-audit
+          path: dependency-audit.json
+          if-no-files-found: warn
+          retention-days: 7
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm test
+      - run: npm run validate
+      - run: npm run typecheck
+      - run: npm run build
+      - run: node --experimental-strip-types scripts/smoke-preview.mjs
