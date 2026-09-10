@@ -3,7 +3,7 @@ import SiteFooter from "@/components/SiteFooter";
 import AdminSocialCenter from "@/components/AdminSocialCenter";
 
 export const metadata = {
-  title: "Social Center | Tripownia.pl",
+  title: "Planner treści | Tripownia.pl",
   robots: { index: false, follow: false },
 };
 
@@ -12,11 +12,11 @@ export default function AdminSocialPage() {
     <main>
       <SiteHeader/>
       <section className="shell hub-page admin-page social-admin-page">
-        <div className="kicker">TRIPOWNIA SOCIAL CENTER</div>
-        <h1>Oferty gotowe do pokazania na Facebooku</h1>
+        <div className="kicker">TRIPOWNIA SOCIAL STUDIO</div>
+        <h1>Planner treści</h1>
         <p className="hub-lead">
-          To nie jest CMS strony. Tutaj wybierasz aktualną ofertę Tripownii, generujesz gotowy post,
-          oglądasz jego podgląd i przechodzisz bezpośrednio do publikacji na Facebooku.
+          Automat przygotowuje post na podstawie aktualnej oferty, ale niczego nie publikuje samodzielnie.
+          Najpierw widzisz zdjęcie i pełną treść, możesz ją poprawić, a dopiero potem zatwierdzić i opublikować na Facebooku oraz Instagramie.
         </p>
         <AdminSocialCenter/>
       </section>
