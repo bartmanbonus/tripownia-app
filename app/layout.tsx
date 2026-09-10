@@ -19,10 +19,32 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Tripownia",
+  alternateName: "Tripownia.pl",
+  url: "https://tripownia.pl",
+  inLanguage: "pl-PL",
+};
+
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Tripownia",
+  url: "https://tripownia.pl",
+  logo: "https://tripownia.pl/icon.png",
+  description: "Serwis z codziennie wybieranymi okazjami podróżniczymi, tanimi lotami, city breakami i wakacjami.",
+};
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pl">
-      <body>{children}</body>
+      <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd).replace(/</g, "\\u003c") }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c") }} />
+        {children}
+      </body>
     </html>
   );
 }
