@@ -1,6 +1,7 @@
 import { getLinkMatch, type Offer } from "@/lib/offers";
 import { assessPriceGem, rankByPriceGem, type PriceGemAssessment } from "@/lib/price-gems";
 import { getSocialOfferPoolData } from "@/lib/social-offer-pool";
+import { DESTINATION_COOLDOWN_DAYS, isDestinationInRotationWindow, rotationPriority } from "@/lib/destination-rotation";
 
 export type SocialTone = "short" | "sales" | "daily";
 export type SocialSlotKind = "market" | "city" | "seasonal" | "flight";
@@ -55,12 +56,17 @@ function diverse(offer: Offer, picked: Offer[]) {
 function choose(pool: Offer[], picked: Offer[], test: (offer: Offer) => boolean, now: Date) {
   const unused = pool.filter((offer) => !picked.some((item) => item.id === offer.id) && !offer.category.includes("flight"));
   const different = unused.filter((offer) => diverse(offer, picked));
-  const candidates = different.length ? different : unused;
+  const candidates = (different.length ? different : unused)
+    .sort((a, b) => rotationPriority(b, now) - rotationPriority(a, now));
+
+  const rotationCandidates = candidates.filter((offer) => isDestinationInRotationWindow(offer, now));
+  const preferred = rotationCandidates.length >= 3 ? rotationCandidates : candidates;
+
   for (const level of ["gem","very-good","good","unverified"] as const) {
-    const found = candidates.find((offer) => assessPriceGem(offer, pool, now).level === level && test(offer));
+    const found = preferred.find((offer) => assessPriceGem(offer, pool, now).level === level && test(offer));
     if (found) return found;
   }
-  return candidates.find(test) || candidates[0];
+  return preferred.find(test) || preferred[0];
 }
 function flightAssessment(offer: Offer): PriceGemAssessment {
   return { level:"gem", label:"PERŁKA LOTNICZA", emoji:"✈️", median:null, discountPct:null, percentile:null, comparableCount:0, fresh:true, exact:true, concreteDates:true, reason:offer.reason };
@@ -82,7 +88,7 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
   const items: SocialPlanItem[] = [];
 
   const flight = poolData.flightGemId ? pool.find((offer) => offer.id === poolData.flightGemId) : undefined;
-  if (flight) {
+  if (flight && isDestinationInRotationWindow(flight, evaluationNow)) {
     picked.push(flight);
     items.push({ offer:flight, time:TIMES[0], label:"✈️ PERŁKA LOTNICZA", kind:"flight", tone:"daily", priceGem:flightAssessment(flight) });
   }
@@ -107,8 +113,8 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
   const verified = items.filter((item) => item.priceGem.level !== "unverified").length;
   return {
     dayName:DAY_NAMES[weekday],
-    theme:"Świeże okazje znalezione dzisiaj",
-    description:`${verified}/${items.length || 5} pozycji ma świeżą weryfikację. Maks. 1 perłka lotnicza dziennie; pozostałe oferty są dobierane tak, aby różniły się kierunkiem i typem wyjazdu.`,
+    theme:"Świeże okazje bez codziennych powtórek",
+    description:`${verified}/${items.length || 5} pozycji ma świeżą weryfikację. Kierunki mają ${DESTINATION_COOLDOWN_DAYS}-dniową rotację, więc ta sama destynacja nie powinna wracać dzień po dniu. Maks. 1 perłka lotnicza dziennie.`,
     dateKey:planKey,
     items,
   };
