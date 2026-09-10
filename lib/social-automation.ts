@@ -17,7 +17,7 @@ function absoluteImageUrl(image: string) {
 }
 
 function trackingUrl(offer: Offer, source: "facebook" | "instagram") {
-  const url = new URL(SITE_URL);
+  const url = new URL(`/oferta/${offer.id}`, SITE_URL);
   url.searchParams.set("utm_source", source);
   url.searchParams.set("utm_medium", "social");
   url.searchParams.set("utm_campaign", "oferta_dnia");
