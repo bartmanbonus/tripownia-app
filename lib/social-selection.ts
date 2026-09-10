@@ -1,7 +1,7 @@
 import { getDailyOffers, getLinkMatch, type Offer } from "@/lib/offers";
 
 export type SocialTone = "short" | "sales" | "daily";
-export type SocialSlotKind = "best" | "cheap" | "city" | "sun" | "beach" | "allinclusive" | "weekend" | "exotic";
+export type SocialSlotKind = "market" | "city" | "seasonal";
 
 export type SocialPlanItem = {
   offer: Offer;
@@ -19,106 +19,55 @@ export type SocialDailyPlan = {
   items: SocialPlanItem[];
 };
 
-type ThemeSlot = {
-  kind: SocialSlotKind;
-  label: string;
-  tone: SocialTone;
-};
-
-type DayTheme = {
-  name: string;
-  theme: string;
-  description: string;
-  slots: ThemeSlot[];
-};
-
 const TIMES = ["08:30", "11:30", "14:30", "18:00", "20:30"];
 
-const THEMES: Record<number, DayTheme> = {
-  1: {
-    name: "Poniedziałek",
-    theme: "Tanie strzały",
-    description: "Mocne ceny na start tygodnia, ale bez pięciu podobnych kierunków.",
-    slots: [
-      { kind: "cheap", label: "💸 Cena dnia", tone: "daily" },
-      { kind: "city", label: "🏙️ City break", tone: "short" },
-      { kind: "sun", label: "☀️ Do słońca", tone: "sales" },
-      { kind: "allinclusive", label: "🍹 All Inclusive", tone: "daily" },
-      { kind: "best", label: "⭐ Mocna okazja", tone: "short" },
-    ],
-  },
-  2: {
-    name: "Wtorek",
-    theme: "Słońce i plaża",
-    description: "Więcej ciepłych kierunków, z domieszką city breaku i dobrej ceny.",
-    slots: [
-      { kind: "sun", label: "☀️ Ciepło", tone: "daily" },
-      { kind: "beach", label: "🏖️ Plaża", tone: "sales" },
-      { kind: "allinclusive", label: "🍹 All Inclusive", tone: "short" },
-      { kind: "city", label: "🏙️ City break", tone: "sales" },
-      { kind: "cheap", label: "💸 Tania okazja", tone: "daily" },
-    ],
-  },
-  3: {
-    name: "Środa",
-    theme: "City break",
-    description: "Krótkie wyjazdy w roli głównej, ale nie cały dzień w jednym stylu.",
-    slots: [
-      { kind: "city", label: "🏙️ City break #1", tone: "daily" },
-      { kind: "city", label: "🏙️ City break #2", tone: "short" },
-      { kind: "cheap", label: "💸 Tani wypad", tone: "sales" },
-      { kind: "sun", label: "☀️ Ciepła odmiana", tone: "short" },
-      { kind: "best", label: "⭐ Oferta dnia", tone: "daily" },
-    ],
-  },
-  4: {
-    name: "Czwartek",
-    theme: "All Inclusive",
-    description: "Dzień pakietów i wygody, przełamany city breakiem i egzotyką.",
-    slots: [
-      { kind: "allinclusive", label: "🍹 All Inclusive #1", tone: "daily" },
-      { kind: "allinclusive", label: "🍹 All Inclusive #2", tone: "sales" },
-      { kind: "beach", label: "🏖️ Plaża", tone: "short" },
-      { kind: "city", label: "🏙️ City break", tone: "sales" },
-      { kind: "exotic", label: "🌴 Dalej od domu", tone: "daily" },
-    ],
-  },
-  5: {
-    name: "Piątek",
-    theme: "Weekendowe wypady",
-    description: "Krótsze wyjazdy i kierunki, które dobrze sprzedają marzenie o szybkim wyjeździe.",
-    slots: [
-      { kind: "weekend", label: "🧳 Weekend #1", tone: "daily" },
-      { kind: "city", label: "🏙️ Miasto", tone: "sales" },
-      { kind: "weekend", label: "🧳 Weekend #2", tone: "short" },
-      { kind: "sun", label: "☀️ Słońce", tone: "sales" },
-      { kind: "allinclusive", label: "🍹 Tydzień odpoczynku", tone: "daily" },
-    ],
-  },
-  6: {
-    name: "Sobota",
-    theme: "Egzotyka i inspiracje",
-    description: "Kierunki, które zatrzymują scrollowanie, plus jedna mocna cenowo alternatywa.",
-    slots: [
-      { kind: "exotic", label: "🌴 Egzotyka #1", tone: "sales" },
-      { kind: "exotic", label: "🌴 Egzotyka #2", tone: "daily" },
-      { kind: "allinclusive", label: "🍹 All Inclusive", tone: "short" },
-      { kind: "sun", label: "☀️ Ciepło", tone: "sales" },
-      { kind: "cheap", label: "💸 Dobra cena", tone: "daily" },
-    ],
-  },
-  0: {
-    name: "Niedziela",
-    theme: "TOP 5 Tripowni",
-    description: "Pięć najmocniejszych różnych ofert na domknięcie tygodnia.",
-    slots: [
-      { kind: "best", label: "🥇 TOP #1", tone: "daily" },
-      { kind: "best", label: "🥈 TOP #2", tone: "sales" },
-      { kind: "best", label: "🥉 TOP #3", tone: "short" },
-      { kind: "best", label: "⭐ TOP #4", tone: "sales" },
-      { kind: "best", label: "⭐ TOP #5", tone: "daily" },
-    ],
-  },
+// Polska Izba Turystyki, Zagraniczne wakacje Polaków 2026:
+// Turcja 28.3%, Grecja 18.0%, Egipt 13.6%, Hiszpania 9.6%,
+// Bułgaria 7.5%, Tunezja 7.3%, Włochy 4.0%.
+// Dodatkowo 82.2% klientów wybiera All Inclusive, a prawie 68% pobyty 7-8 dni.
+const MARKET_SHARE: Record<string, number> = {
+  turcja: 28.3,
+  grecja: 18.0,
+  egipt: 13.6,
+  hiszpania: 9.6,
+  bulgaria: 7.5,
+  tunezja: 7.3,
+  wlochy: 4.0,
+  albania: 1.8,
+  cypr: 1.4,
+  chorwacja: 1.1,
+};
+
+// 21 głównych slotów tygodniowo (3 dziennie) rozkładamy zbliżenie do udziałów sprzedaży.
+// Turcja 7x, Grecja 4x, Egipt 3x, Hiszpania 2x, Bułgaria 2x, Tunezja 2x, Włochy 1x.
+const CORE_ROTATION: Record<number, string[]> = {
+  1: ["turcja", "grecja", "egipt"],
+  2: ["turcja", "hiszpania", "bulgaria"],
+  3: ["grecja", "turcja", "tunezja"],
+  4: ["egipt", "turcja", "grecja"],
+  5: ["turcja", "bulgaria", "hiszpania"],
+  6: ["tunezja", "turcja", "egipt"],
+  0: ["grecja", "turcja", "wlochy"],
+};
+
+const DAY_NAMES: Record<number, string> = {
+  0: "Niedziela",
+  1: "Poniedziałek",
+  2: "Wtorek",
+  3: "Środa",
+  4: "Czwartek",
+  5: "Piątek",
+  6: "Sobota",
+};
+
+const COUNTRY_LABELS: Record<string, string> = {
+  turcja: "Turcja",
+  grecja: "Grecja",
+  egipt: "Egipt",
+  hiszpania: "Hiszpania",
+  bulgaria: "Bułgaria",
+  tunezja: "Tunezja",
+  wlochy: "Włochy",
 };
 
 function normalize(value: string) {
@@ -128,6 +77,21 @@ function normalize(value: string) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+}
+
+function countryKey(offer: Offer) {
+  const value = normalize(offer.country);
+  if (/turcj/.test(value)) return "turcja";
+  if (/grecj/.test(value)) return "grecja";
+  if (/egipt/.test(value)) return "egipt";
+  if (/hiszpan/.test(value)) return "hiszpania";
+  if (/bulgar/.test(value)) return "bulgaria";
+  if (/tunez/.test(value)) return "tunezja";
+  if (/wloch|ital/.test(value)) return "wlochy";
+  if (/alban/.test(value)) return "albania";
+  if (/cypr/.test(value)) return "cypr";
+  if (/chorw/.test(value)) return "chorwacja";
+  return value;
 }
 
 function dateKeyInWarsaw(now: Date) {
@@ -147,97 +111,195 @@ function weekdayInWarsaw(now: Date) {
   return ({ Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 } as Record<string, number>)[short] ?? 0;
 }
 
+function monthInWarsaw(now: Date) {
+  return Number(new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Warsaw",
+    month: "numeric",
+  }).format(now));
+}
+
 function isConcrete(offer: Offer) {
-  return !/wybrane|jesien|wiosn|lato|zima|najblizszy|dowoln|2026\s*$/.test(normalize(offer.dates || ""));
+  const dates = normalize(offer.dates || "");
+  if (!dates) return false;
+  return !/wybrane|jesien|wiosn|lato|zima|najblizszy|dowoln|weekendy/.test(dates);
 }
 
-function isExotic(offer: Offer) {
-  const text = normalize(`${offer.country} ${offer.city}`);
-  return /zanzibar|kenia|mauritius|malediw|tajland|bali|indonez|sri lanka|dominikan|meksyk|kuba|jamaj|wietnam|dubaj|emirat|gambia|seszel|zielonego przyladka/.test(text);
+function isCityBreak(offer: Offer) {
+  const categories = offer.category.map(normalize);
+  const text = normalize(`${offer.city} ${offer.country}`);
+  const knownCities = /rzym|barcelona|paryz|praga|budapeszt|wieden|lizbona|porto|mediolan|wenecja|ateny|malta|bergamo|neapol|stambul/;
+  return categories.includes("city") || (offer.nights >= 2 && offer.nights <= 5 && knownCities.test(text));
 }
 
-function matches(kind: SocialSlotKind, offer: Offer) {
-  const categories = new Set(offer.category.map(normalize));
-  const board = normalize(offer.board || "");
-  if (kind === "best") return true;
-  if (kind === "cheap") return offer.price <= 1900 || categories.has("tanio");
-  if (kind === "city") return categories.has("city") || (offer.nights >= 2 && offer.nights <= 5);
-  if (kind === "sun") return categories.has("cieplo") || categories.has("plaza") || isExotic(offer);
-  if (kind === "beach") return categories.has("plaza") || categories.has("wakacje") || /resort/.test(normalize(offer.hotel));
-  if (kind === "allinclusive") return categories.has("allinclusive") || /all inclusive|allinclusive/.test(board);
-  if (kind === "weekend") return categories.has("weekend") || (offer.nights >= 2 && offer.nights <= 4);
-  if (kind === "exotic") return isExotic(offer);
-  return true;
+function isAllInclusive(offer: Offer) {
+  return /all inclusive|allinclusive/.test(normalize(offer.board || ""));
+}
+
+function isSeasonalNow(offer: Offer, now: Date) {
+  const month = monthInWarsaw(now);
+  const text = normalize(`${offer.city} ${offer.country}`);
+
+  // Zima / późna jesień: największy sens mają ciepłe kierunki i egzotyka.
+  if ([11, 12, 1, 2, 3].includes(month)) {
+    return /egipt|hurghada|marsa alam|sharm|teneryfa|fuerteventura|gran canaria|cypr|malta|zanzibar|kenia|mauritius|malediw|tajland|dominikan|meksyk|dubaj|emirat/.test(text);
+  }
+
+  // Wrzesień-październik: wydłużamy lato, ale zaczynamy dokładać zimowe słońce.
+  if ([9, 10].includes(month)) {
+    return /turcj|grecj|egipt|hiszpan|teneryfa|fuerteventura|cypr|malta|tunez|djerba|alban/.test(text);
+  }
+
+  // Wiosna i lato: rdzeń sprzedaży czarterowej.
+  return /turcj|grecj|egipt|hiszpan|bulgar|tunez|cypr|alban|wloch/.test(text);
 }
 
 function qualityScore(offer: Offer, now = new Date()) {
   let value = offer.score * 100;
-  const match = getLinkMatch(offer);
-  if (match === "exact") value += 300;
-  else if (match === "parameters") value += 180;
-  else if (match === "destination") value += 60;
+  const linkMatch = getLinkMatch(offer);
+  if (linkMatch === "exact") value += 320;
+  else if (linkMatch === "parameters") value += 190;
+  else if (linkMatch === "destination") value += 50;
 
-  if (isConcrete(offer)) value += 140;
+  if (isConcrete(offer)) value += 180;
+  else value -= 80;
+
+  // Najsilniejsze zachowania zakupowe 2026: AI i tydzień pobytu.
+  if (isAllInclusive(offer)) value += 240;
+  if (offer.nights >= 7 && offer.nights <= 8) value += 210;
+  else if (offer.nights >= 6 && offer.nights <= 9) value += 90;
+
+  // Udział kierunku w realnej sprzedaży działa jako prior, ale nie przykrywa jakości oferty.
+  value += (MARKET_SHARE[countryKey(offer)] || 0) * 8;
+
+  // Cena ma pomagać znaleźć okazję, nie wymuszać tylko najtańszych wyjazdów.
+  if (offer.price <= 2000) value += 170;
+  else if (offer.price <= 2800) value += 125;
+  else if (offer.price <= 3600) value += 85;
+  else if (offer.price <= 4500) value += 35;
+
   if (offer.tag === "BIERZEMY") value += 90;
-  else if (offer.tag === "OKAZJA") value += 60;
-
-  if (offer.price <= 1400) value += 100;
-  else if (offer.price <= 2000) value += 70;
-  else if (offer.price <= 2800) value += 35;
-
-  if (/all inclusive/i.test(offer.board || "")) value += 30;
+  else if (offer.tag === "OKAZJA") value += 55;
 
   if (offer.priceCheckedAt) {
     const checked = new Date(offer.priceCheckedAt).getTime();
     if (Number.isFinite(checked)) {
       const ageHours = Math.max(0, (now.getTime() - checked) / 3600000);
-      if (ageHours <= 48) value += 160;
-      else if (ageHours <= 168) value += 90;
+      if (ageHours <= 24) value += 220;
+      else if (ageHours <= 48) value += 170;
+      else if (ageHours <= 168) value += 80;
     }
   }
+
   return value;
 }
 
 function rankedPool(source: Offer[], now: Date) {
   const active = source.filter((offer) => offer.availabilityStatus !== "expired" && getLinkMatch(offer) !== "unsafe");
-  const daily = getDailyOffers(active, Math.min(24, active.length), now);
+  const daily = getDailyOffers(active, Math.min(30, active.length), now);
   const combined = [...daily, ...active].filter((offer, index, all) => all.findIndex((item) => item.id === offer.id) === index);
   return combined.sort((a, b) => qualityScore(b, now) - qualityScore(a, now));
 }
 
+function chooseBest(
+  pool: Offer[],
+  picked: Offer[],
+  test: (offer: Offer) => boolean,
+  targetCountry?: string,
+) {
+  const unused = pool.filter((offer) => !picked.some((item) => item.id === offer.id));
+  const unusedCountry = unused.filter((offer) => !picked.some((item) => countryKey(item) === countryKey(offer)));
+
+  const targeted = targetCountry
+    ? unusedCountry.filter((offer) => countryKey(offer) === targetCountry && test(offer))
+    : [];
+  if (targeted[0]) return targeted[0];
+
+  const freshMatch = unusedCountry.find(test);
+  if (freshMatch) return freshMatch;
+
+  const fallbackTarget = targetCountry
+    ? unused.find((offer) => countryKey(offer) === targetCountry && test(offer))
+    : undefined;
+  if (fallbackTarget) return fallbackTarget;
+
+  return unused.find(test) || unusedCountry[0] || unused[0];
+}
+
 export function getSocialDailyPlan(source: Offer[], now = new Date()): SocialDailyPlan {
   const weekday = weekdayInWarsaw(now);
-  const theme = THEMES[weekday];
   const pool = rankedPool(source, now);
   const picked: Offer[] = [];
-
-  const choose = (kind: SocialSlotKind) => {
-    const unused = pool.filter((offer) => !picked.some((item) => item.id === offer.id));
-    const freshCountry = unused.filter((offer) => !picked.some((item) => normalize(item.country) === normalize(offer.country)));
-    return freshCountry.find((offer) => matches(kind, offer))
-      || unused.find((offer) => matches(kind, offer))
-      || freshCountry[0]
-      || unused[0];
-  };
-
   const items: SocialPlanItem[] = [];
-  theme.slots.forEach((slot, index) => {
-    const offer = choose(slot.kind);
+  const coreCountries = CORE_ROTATION[weekday] || CORE_ROTATION[1];
+
+  // 3/5 publikacji: to, co realnie dominuje w zakupach pakietów turystycznych.
+  coreCountries.forEach((targetCountry, index) => {
+    const offer = chooseBest(
+      pool,
+      picked,
+      (candidate) => {
+        const key = countryKey(candidate);
+        const core = MARKET_SHARE[key] >= 4;
+        const strongPackage = isAllInclusive(candidate) || (candidate.nights >= 6 && candidate.nights <= 9);
+        return core && strongPackage;
+      },
+      targetCountry,
+    );
     if (!offer) return;
     picked.push(offer);
     items.push({
       offer,
       time: TIMES[index],
-      label: slot.label,
-      kind: slot.kind,
-      tone: slot.tone,
+      label: `🔥 Hit rynku: ${COUNTRY_LABELS[targetCountry] || offer.country}`,
+      kind: "market",
+      tone: index === 0 ? "daily" : index === 1 ? "sales" : "short",
     });
   });
 
+  // 1/5: model indywidualny/dynamiczny — Europa i krótszy wyjazd.
+  const city = chooseBest(pool, picked, isCityBreak);
+  if (city) {
+    picked.push(city);
+    items.push({
+      offer: city,
+      time: TIMES[3],
+      label: "🏙️ Europa / city break",
+      kind: "city",
+      tone: "sales",
+    });
+  }
+
+  // 1/5: sezonowość. We wrześniu i październiku wydłużamy lato; zimą preferujemy słońce.
+  const seasonal = chooseBest(pool, picked, (offer) => isSeasonalNow(offer, now));
+  if (seasonal) {
+    picked.push(seasonal);
+    items.push({
+      offer: seasonal,
+      time: TIMES[4],
+      label: "☀️ Kierunek sezonowy",
+      kind: "seasonal",
+      tone: "daily",
+    });
+  }
+
+  // Gdy któryś segment jest chwilowo pusty w feedzie, dopełniamy tylko jakościowymi i różnymi ofertami.
+  while (items.length < 5) {
+    const fallback = chooseBest(pool, picked, () => true);
+    if (!fallback) break;
+    picked.push(fallback);
+    items.push({
+      offer: fallback,
+      time: TIMES[items.length],
+      label: "⭐ Mocna oferta",
+      kind: "market",
+      tone: "short",
+    });
+  }
+
   return {
-    dayName: theme.name,
-    theme: theme.theme,
-    description: theme.description,
+    dayName: DAY_NAMES[weekday],
+    theme: "Miks oparty na sprzedaży 2026",
+    description: "3 hity rynku + 1 Europa/city break + 1 kierunek sezonowy. Priorytet: All Inclusive, 7–8 nocy, świeża cena i konkretny termin.",
     dateKey: dateKeyInWarsaw(now),
     items: items.slice(0, 5),
   };
