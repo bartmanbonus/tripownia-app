@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
     { url:`${BASE_URL}/`,lastModified:now,changeFrequency:"daily",priority:1 },
     { url:`${BASE_URL}/okazje`,lastModified:now,changeFrequency:"daily",priority:.95 },
+    { url:`${BASE_URL}/tanie-loty`,lastModified:now,changeFrequency:"daily",priority:.95 },
     { url:`${BASE_URL}/city-break`,lastModified:now,changeFrequency:"daily",priority:.95 },
     { url:`${BASE_URL}/wakacje`,lastModified:now,changeFrequency:"daily",priority:.95 },
     { url:`${BASE_URL}/last-minute-oferty`,lastModified:now,changeFrequency:"daily",priority:.95 },
