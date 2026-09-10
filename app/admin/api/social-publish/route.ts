@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { offers } from "@/lib/offers";
 import { publishFacebook, publishInstagram } from "@/lib/social-automation";
+import { getSocialOfferById } from "@/lib/social-offer-pool";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "Treść posta jest pusta lub zbyt krótka." }, { status: 400 });
     }
 
-    const offer = offers.find((item) => item.id === Number(body.offerId));
+    const offer = getSocialOfferById(Number(body.offerId));
     if (!offer || offer.availabilityStatus === "expired") {
       return NextResponse.json({ ok: false, error: "Oferta nie istnieje lub wygasła." }, { status: 404 });
     }
