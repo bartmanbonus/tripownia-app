@@ -44,7 +44,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
   );
 
   const kiwiDeep = new URL("https://www.kiwi.com/deep");
-  kiwiDeep.searchParams.set("from", "WAW");
+  kiwiDeep.searchParams.set("from", page.departureCode || "WAW");
   kiwiDeep.searchParams.set("to", page.kiwiCode || "anywhere");
   kiwiDeep.searchParams.set("sort", "price");
   kiwiDeep.searchParams.set("asc", "1");
