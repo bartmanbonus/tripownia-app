@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import UnifiedPage from "@/components/UnifiedPage";
 import { findLegacy, legacyItems } from "@/lib/legacy";
 import { internalAliasPaths, isInternalAlias } from "@/lib/internalAliases";
@@ -23,6 +23,13 @@ function humanize(path: string) {
   return last.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
 }
 
+function withCanonical(path: string, metadata: Metadata): Metadata {
+  return {
+    ...metadata,
+    alternates: { ...(metadata.alternates || {}), canonical: path },
+  };
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string[] }> }): Promise<Metadata> {
   const { slug } = await params;
   const path = "/" + slug.join("/");
@@ -37,19 +44,30 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     "/wynajem-auta": { title: "Wynajem auta na wakacje | Tripownia.pl", description: "Na co uważać przy wynajmie samochodu za granicą." },
     "/podroze-po-przezycia": { title: "Podróże po przeżycia — zorza, sakura, safari i więcej | Tripownia.pl", description: "Kalendarz podróży planowanych pod właściwy moment: zorza polarna, sakura, fiordy, safari, wieloryby, jarmarki i egzotyka." },
     "/dalekie-podroze": { title: "Dalekie podróże — Wietnam, Pekin, Nowy Jork, Japonia i więcej | Tripownia.pl", description: "Pomysły na dalsze podróże z Polski: Wietnam, Pekin, Nowy Jork, Japonia, Tajlandia, Bali, Singapur, RPA i więcej." },
-    "/admin": { title: "Panel administracyjny | Tripownia.pl" },
+    "/admin": { title: "Panel administracyjny | Tripownia.pl", robots: { index: false, follow: false } },
   };
-  if (fixed[path]) return fixed[path];
+
+  if (fixed[path]) return withCanonical(path, fixed[path]);
+
   const item = findLegacy(path);
-  if (item) return { title: item.title, description: item.description || undefined };
-  if (isInternalAlias(path)) return { title: `${humanize(path)} | Tripownia.pl`, description: "Inspiracje i aktualne propozycje Tripowni dla tego tematu." };
+  if (item) {
+    return withCanonical(path, { title: item.title, description: item.description || undefined });
+  }
+
+  if (isInternalAlias(path)) {
+    return withCanonical(path, {
+      title: `${humanize(path)} | Tripownia.pl`,
+      description: "Inspiracje i aktualne propozycje Tripowni dla tego tematu.",
+    });
+  }
+
   return {};
 }
 
 export default async function RoutePage({ params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
   const path = "/" + slug.join("/");
-  if (path === "/indywidualne-planowanie-podrozy-bez-ukrytych-kosztow") redirect("/okazje");
+  if (path === "/indywidualne-planowanie-podrozy-bez-ukrytych-kosztow") permanentRedirect("/okazje");
   const isSystemPath = systemPaths.has(path);
   const legacyItem = findLegacy(path);
   if (!isSystemPath && !legacyItem && !isInternalAlias(path)) notFound();

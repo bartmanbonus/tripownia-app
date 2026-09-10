@@ -16,11 +16,22 @@ function absoluteImageUrl(image: string) {
   return `${SITE_URL}${image.startsWith("/") ? image : `/${image}`}`;
 }
 
+function socialLandingPath(offer: Offer) {
+  const isDynamicFeedOffer = offer.id >= 1_000_000;
+  const isFlight = offer.category.includes("flight") || offer.hotel === "Tylko lot";
+
+  // Dynamic feed IDs are replaced by the next daily snapshot. Linking them to
+  // /oferta/:id would create dead social URLs later. Keep those posts pointed
+  // at durable, indexable hubs instead; static catalog offers keep detail URLs.
+  if (isDynamicFeedOffer) return isFlight ? "/tanie-loty" : "/okazje";
+  return `/oferta/${offer.id}`;
+}
+
 export function socialTrackingUrl(offer: Offer, source: "facebook" | "instagram") {
-  const url = new URL(`/oferta/${offer.id}`, SITE_URL);
+  const url = new URL(socialLandingPath(offer), SITE_URL);
   url.searchParams.set("utm_source", source);
   url.searchParams.set("utm_medium", "social");
-  url.searchParams.set("utm_campaign", "oferta_dnia");
+  url.searchParams.set("utm_campaign", offer.category.includes("flight") ? "perelka_lotnicza" : "oferta_dnia");
   url.searchParams.set("utm_content", `${offer.city}-${offer.id}`.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
   return url.toString();
 }
