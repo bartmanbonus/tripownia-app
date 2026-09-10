@@ -3,6 +3,12 @@
   "git": {
     "deploymentEnabled": true
   },
+  "crons": [
+    {
+      "path": "/api/social-publish",
+      "schedule": "10 8 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
