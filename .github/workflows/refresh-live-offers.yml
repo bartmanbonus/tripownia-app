@@ -2,8 +2,8 @@ name: Refresh live offers snapshot
 
 on:
   schedule:
-    # 06:10 UTC = 08:10 in Poland during CEST. The app rotates its daily key at 08:00 Europe/Warsaw.
-    - cron: "10 6 * * *"
+    # 04:35 UTC = 06:35 in Poland during CEST. Fresh offers are ready before 07:00.
+    - cron: "35 4 * * *"
     # Midday safety refresh catches price/availability changes from partner feeds.
     - cron: "10 12 * * *"
   workflow_dispatch:
