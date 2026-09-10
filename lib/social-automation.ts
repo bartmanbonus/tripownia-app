@@ -16,39 +16,13 @@ function absoluteImageUrl(image: string) {
   return `${SITE_URL}${image.startsWith("/") ? image : `/${image}`}`;
 }
 
-function trackingUrl(offer: Offer, source: "facebook" | "instagram") {
+export function socialTrackingUrl(offer: Offer, source: "facebook" | "instagram") {
   const url = new URL(`/oferta/${offer.id}`, SITE_URL);
   url.searchParams.set("utm_source", source);
   url.searchParams.set("utm_medium", "social");
   url.searchParams.set("utm_campaign", "oferta_dnia");
   url.searchParams.set("utm_content", `${offer.city}-${offer.id}`.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
   return url.toString();
-}
-
-function compact(value: string | undefined) {
-  return (value || "").replace(/\s+/g, " ").trim();
-}
-
-export function socialCaption(offer: Offer, source: "facebook" | "instagram") {
-  const price = new Intl.NumberFormat("pl-PL").format(offer.price);
-  const trip = offer.nights ? `${offer.nights} ${offer.nights === 1 ? "noc" : "nocy"}` : "wyjazd";
-  const departure = compact(offer.departure);
-  const board = compact(offer.board);
-  const dates = compact(offer.dates);
-  const reason = compact(offer.reason);
-  const url = trackingUrl(offer, source);
-
-  const lines = [
-    `${offer.flag || "✈️"} ${offer.city}, ${offer.country} — od ${price} zł/os.`,
-    [trip, departure && `wylot: ${departure}`, board].filter(Boolean).join(" • "),
-    dates,
-    reason,
-    `Sprawdź ofertę: ${url}`,
-    "",
-    "#tripownia #okazjepodroznicze #wakacje #podroze #lastminute",
-  ].filter(Boolean);
-
-  return lines.join("\n");
 }
 
 async function graphPost(path: string, params: URLSearchParams) {
@@ -65,7 +39,7 @@ async function graphPost(path: string, params: URLSearchParams) {
   return data;
 }
 
-export async function publishFacebook(offer: Offer): Promise<SocialPublishResult> {
+export async function publishFacebook(offer: Offer, approvedText: string): Promise<SocialPublishResult> {
   const pageId = process.env.META_FACEBOOK_PAGE_ID;
   const token = process.env.META_PAGE_ACCESS_TOKEN;
   if (!pageId || !token) {
@@ -73,19 +47,21 @@ export async function publishFacebook(offer: Offer): Promise<SocialPublishResult
   }
 
   try {
-    const params = new URLSearchParams({
-      access_token: token,
-      message: socialCaption(offer, "facebook"),
-      link: trackingUrl(offer, "facebook"),
-    });
-    const data = await graphPost(`${pageId}/feed`, params);
+    const data = await graphPost(
+      `${pageId}/feed`,
+      new URLSearchParams({
+        access_token: token,
+        message: approvedText,
+        link: socialTrackingUrl(offer, "facebook"),
+      })
+    );
     return { platform: "facebook", ok: true, id: data.id };
   } catch (error) {
     return { platform: "facebook", ok: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 
-export async function publishInstagram(offer: Offer): Promise<SocialPublishResult> {
+export async function publishInstagram(offer: Offer, approvedText: string): Promise<SocialPublishResult> {
   const instagramId = process.env.META_INSTAGRAM_ACCOUNT_ID;
   const token = process.env.META_PAGE_ACCESS_TOKEN;
   if (!instagramId || !token) {
@@ -98,7 +74,7 @@ export async function publishInstagram(offer: Offer): Promise<SocialPublishResul
       new URLSearchParams({
         access_token: token,
         image_url: absoluteImageUrl(offer.image),
-        caption: socialCaption(offer, "instagram"),
+        caption: approvedText,
       })
     );
     if (!container.id) throw new Error("Meta API nie zwróciło ID kontenera Instagrama");
@@ -111,21 +87,4 @@ export async function publishInstagram(offer: Offer): Promise<SocialPublishResul
   } catch (error) {
     return { platform: "instagram", ok: false, error: error instanceof Error ? error.message : String(error) };
   }
-}
-
-export function pickOfferForToday(offers: Offer[], now = new Date()) {
-  if (!offers.length) return null;
-  const dayKey = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Warsaw",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(now);
-  let hash = 2166136261;
-  for (const char of dayKey) {
-    hash ^= char.charCodeAt(0);
-    hash = Math.imul(hash, 16777619);
-  }
-  const shortlist = offers.slice(0, Math.min(6, offers.length));
-  return shortlist[(hash >>> 0) % shortlist.length] || shortlist[0];
 }
