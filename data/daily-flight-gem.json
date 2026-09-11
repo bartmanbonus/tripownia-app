@@ -1,7 +1,7 @@
 {
-  "ok": false,
+  "ok": true,
   "configured": false,
-  "checkedAt": null,
+  "checkedAt": "2026-09-11T09:10:33.084Z",
   "searched": 0,
   "gem": null
 }
