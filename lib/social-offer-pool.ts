@@ -66,6 +66,30 @@ const FALLBACK_FLIGHT_ROUTES = [
   { from:"Kraków", fromCode:"KRK", city:"Malta", country:"Malta", flag:"🇲🇹", image:"/images/destinations/valletta.jpg", url:"https://www.esky.pl/tanie-loty/ci/krk/co/mt/krakow-malta" },
 ] as const;
 
+const MANUAL_FLIGHT_SPOTLIGHTS: Record<string, {
+  from:string;
+  fromCode:string;
+  city:string;
+  country:string;
+  flag:string;
+  image:string;
+  url:string;
+  price:number;
+  dates:string;
+}> = {
+  "2026-09-11": {
+    from:"Kraków",
+    fromCode:"KRK",
+    city:"Malta",
+    country:"Malta",
+    flag:"🇲🇹",
+    image:"/images/destinations/valletta.jpg",
+    url:"https://www.esky.pl/tanie-loty/ci/krk/co/mt/krakow-malta",
+    price:207,
+    dates:"wybrane terminy",
+  },
+};
+
 function warsawDateKey(value: Date | string) {
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return null;
@@ -169,14 +193,16 @@ function flightGemOffer(now: Date): Offer | null {
 export function getFallbackFlightOffer(now = new Date()): Offer {
   const key = warsawDateKey(now) || "2000-01-01";
   const numericKey = Number(key.replace(/-/g, ""));
-  const route = FALLBACK_FLIGHT_ROUTES[numericKey % FALLBACK_FLIGHT_ROUTES.length];
+  const spotlight = MANUAL_FLIGHT_SPOTLIGHTS[key];
+  const route = spotlight || FALLBACK_FLIGHT_ROUTES[numericKey % FALLBACK_FLIGHT_ROUTES.length];
   const affiliateUrl = buildEskyFlightsUrl(route.url);
+  const price = spotlight?.price || 0;
   return {
     id: 800_000_000 + numericKey,
     flag: route.flag,
     city: route.city,
     country: route.country,
-    price: 0,
+    price,
     availabilityStatus: "unknown",
     departure: route.from,
     airportCode: route.fromCode,
@@ -184,12 +210,14 @@ export function getFallbackFlightOffer(now = new Date()): Offer {
     weather: "sprawdź",
     score: 8.5,
     tag: "OKAZJA",
-    reason: "Brak potwierdzonej ceny live z API. Otwórz trasę, wybierz konkretny termin i sprawdź cenę przed publikacją.",
+    reason: spotlight
+      ? `🔥 WOW! Loty na Maltę od ${spotlight.price} zł — mocny hak do posta na dziś.`
+      : `✈️ ${route.city} to lotniczy kierunek dnia. Otwórz wyniki i wybierz najmocniejszy termin do posta.`,
     image: route.image,
     category: ["flight", "city", "manual-check"],
     hotel: "Tylko lot",
     board: "Bez wyżywienia",
-    dates: "wybierz termin w wyszukiwarce",
+    dates: spotlight?.dates || "wybrane terminy",
     partner: "esky",
     destinationUrl: affiliateUrl,
     affiliateUrl,
