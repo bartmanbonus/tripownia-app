@@ -16,50 +16,12 @@ import {
 import { partners } from "@/lib/partners";
 
 const primaryItems = [
-  {
-    href: "/podroze",
-    label: "Okazje Tripowni",
-    note: "Nasze propozycje",
-    image: "/images/destinations/santorini.jpg",
-    tone: "picks",
-    badge: "TOP",
-  },
-  {
-    href: "/wydarzenia",
-    label: "Mecze i eventy",
-    note: "Twoje emocje",
-    image: "/images/destinations/barcelona.jpg",
-    tone: "events",
-  },
-  {
-    href: "/podroze-po-przezycia",
-    label: "Przeżycia",
-    note: "Nasze inspiracje",
-    image: "/images/experiences/islandia-zorza.png",
-    tone: "experience",
-  },
-  {
-    href: "/jarmarki-bozonarodzeniowe",
-    label: "Jarmarki",
-    note: "Magia świąt",
-    image: "/images/experiences/jarmarki.png",
-    tone: "markets",
-    seasonal: true,
-  },
-  {
-    href: "/sylwester",
-    label: "Sylwester",
-    note: "Powitaj rok z nami",
-    image: "/images/destinations/dubaj.jpg",
-    tone: "newyear",
-  },
-  {
-    href: "/dalekie-podroze",
-    label: "Dalekie podróże",
-    note: "Świat czeka",
-    image: "/images/longhaul/malediwy.webp",
-    tone: "longhaul",
-  },
+  { href: "/podroze", label: "Okazje Tripowni", note: "Nasze propozycje", image: "/images/menu/okazje-tripowni.svg", tone: "picks", badge: "TOP" },
+  { href: "/wydarzenia", label: "Mecze i eventy", note: "Twoje emocje", image: "/images/menu/mecze-i-eventy.svg", tone: "events" },
+  { href: "/podroze-po-przezycia", label: "Przeżycia", note: "Nasze inspiracje", image: "/images/menu/przezycia.svg", tone: "experience" },
+  { href: "/jarmarki-bozonarodzeniowe", label: "Jarmarki", note: "Magia świąt", image: "/images/menu/jarmarki.svg", tone: "markets", seasonal: true },
+  { href: "/sylwester", label: "Sylwester", note: "Powitaj rok z nami", image: "/images/destinations/dubaj.jpg", tone: "newyear" },
+  { href: "/dalekie-podroze", label: "Dalekie podróże", note: "Świat czeka", image: "/images/menu/dalekie-podroze.svg", tone: "longhaul" },
 ] as const;
 
 const serviceItems = [
@@ -92,7 +54,6 @@ export default function SiteHeader() {
           <img src="/tripownia-logo.webp" alt="Tripownia.pl" width="92" height="92" />
         </Link>
 
-        {/* The tablet grid follows visible cards; desktop and mobile retain their flex layout. */}
         <nav className="menu-v5-primary" aria-label="Najważniejsze sekcje" style={{ gridTemplateColumns: `repeat(${visiblePrimaryItems.length}, 145px) 120px` }}>
           {visiblePrimaryItems.map((item) => (
             <Link key={item.label} className={`menu-v5-card menu-v5-${item.tone}`} href={item.href}>
