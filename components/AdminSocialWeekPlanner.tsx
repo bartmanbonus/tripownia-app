@@ -12,13 +12,20 @@ function key(date:Date){ return `${date.getFullYear()}-${pad(date.getMonth()+1)}
 function dateFromKey(value:string){ const [y,m,d]=value.split("-").map(Number); return new Date(y,m-1,d,12); }
 function monday(date:Date){ const d=new Date(date); const offset=(d.getDay()+6)%7; d.setDate(d.getDate()-offset); d.setHours(12,0,0,0); return d; }
 function addDays(date:Date, amount:number){ const d=new Date(date); d.setDate(d.getDate()+amount); return d; }
+function publicOfferUrl(item: ReturnType<typeof getSocialDailyPlan>["items"][number]) {
+  const o=item.offer;
+  if(o.id>=1_000_000) return item.kind==="flight" ? "https://tripownia.pl/tanie-loty" : "https://tripownia.pl/okazje";
+  return `https://tripownia.pl/oferta/${o.id}`;
+}
 function buildText(item: ReturnType<typeof getSocialDailyPlan>["items"][number]) {
   const o=item.offer;
   const flight=o.category.includes("flight");
+  const landing=publicOfferUrl(item);
   if(flight){
-    return `✈️ PERŁKA LOTNICZA: ${o.departure} → ${o.city}\n💰 ${o.price} zł/os.\n📅 ${o.dates}\n\n${o.reason}\n\n👉 Sprawdź lot: ${o.affiliateUrl}`;
+    const price=o.price>0 ? `💰 ${o.price} zł/os.\n` : "💰 Cena do sprawdzenia przed publikacją\n";
+    return `✈️ ${o.price>0?"PERŁKA LOTNICZA":"LOT DO SPRAWDZENIA"}: ${o.departure} → ${o.city}\n${price}📅 ${o.dates}\n\n${o.reason}\n\n👉 Sprawdź lot: ${landing}`;
   }
-  return `${o.flag} ${o.city} od ${o.price} zł/os.\n📅 ${o.dates}\n✈️ Wylot: ${o.departure}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\n👉 Sprawdź ofertę: https://tripownia.pl/oferta/${o.id}`;
+  return `${o.flag} ${o.city} od ${o.price} zł/os.\n📅 ${o.dates}\n✈️ Wylot: ${o.departure}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\n👉 Sprawdź ofertę: ${landing}`;
 }
 
 export default function AdminSocialWeekPlanner(){
@@ -96,6 +103,8 @@ export default function AdminSocialWeekPlanner(){
         {plan.items.map((item,index)=>{
           const status=statuses[item.offer.id]||"proposal";
           const flight=item.kind==="flight";
+          const hasPrice=item.offer.price>0;
+          const manualFlight=flight&&!hasPrice;
           return <article key={item.offer.id} className={styles.card}>
             <div className={styles.image} style={{backgroundImage:`url(${item.offer.image})`}}>
               <span className={styles.time}>{item.time}</span>
@@ -104,14 +113,14 @@ export default function AdminSocialWeekPlanner(){
             <div className={styles.body}>
               <small>POST {index+1}/5</small>
               <h3>{flight?"✈️ ":item.offer.flag+" "}{item.offer.city}</h3>
-              <strong className={styles.price}>od {item.offer.price} zł/os.</strong>
+              <strong className={styles.price}>{hasPrice?`od ${item.offer.price} zł/os.`:"cena do sprawdzenia"}</strong>
               <p>📅 {item.offer.dates}<br/>✈️ {item.offer.departure}{flight?` → ${item.offer.city}`:` · ${item.offer.nights} nocy`}</p>
               <div className={styles.reason}>{item.priceGem.reason}</div>
               <div className={styles.actions}>
-                {status==="proposal" && <button onClick={()=>setStatuses((s)=>({...s,[item.offer.id]:"approved"}))}><Check size={15}/> Zatwierdź</button>}
+                {status==="proposal" && <button onClick={()=>setStatuses((s)=>({...s,[item.offer.id]:"approved"}))}><Check size={15}/> {manualFlight?"Zatwierdź po sprawdzeniu":"Zatwierdź"}</button>}
                 {status==="approved" && <button onClick={()=>publish(item)} disabled={publishing===item.offer.id}><Send size={15}/> {publishing===item.offer.id?"Publikuję…":"Publikuj FB + IG"}</button>}
                 {status==="published" && <span>✓ Opublikowano</span>}
-                <a href={flight?item.offer.affiliateUrl:`/oferta/${item.offer.id}`} target="_blank" rel="noreferrer">Sprawdź <ExternalLink size={14}/></a>
+                <a href={item.offer.affiliateUrl} target="_blank" rel="sponsored noreferrer">{flight?"Sprawdź lot":"Sprawdź ofertę"} <ExternalLink size={14}/></a>
               </div>
             </div>
           </article>;
