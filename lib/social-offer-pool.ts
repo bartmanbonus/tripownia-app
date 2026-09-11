@@ -1,7 +1,7 @@
 import liveSnapshotRaw from "@/data/live-offers-snapshot.json";
 import dailyFlightGemRaw from "@/data/daily-flight-gem.json";
 import { isOfferExpired, offers, type AvailabilityStatus, type Offer } from "@/lib/offers";
-import type { PartnerKey } from "@/lib/partners";
+import { buildEskyFlightsUrl, type PartnerKey } from "@/lib/partners";
 
 const PARTNERS = new Set<PartnerKey>([
   "esky", "wakacje", "exim", "tui", "getyourguide", "seeplaces",
@@ -55,6 +55,16 @@ export type SocialOfferPoolData = {
 
 const liveSnapshot = liveSnapshotRaw as unknown as LiveSnapshot;
 const flightSnapshot = dailyFlightGemRaw as unknown as FlightGemSnapshot;
+
+const FALLBACK_FLIGHT_ROUTES = [
+  { from:"Warszawa", fromCode:"WAW", city:"Rzym", country:"Włochy", flag:"🇮🇹", image:"/images/destinations/rzym.jpg", url:"https://www.esky.pl/tanie-loty/ci/waw/ci/rom/warszawa-rzym" },
+  { from:"Kraków", fromCode:"KRK", city:"Barcelona", country:"Hiszpania", flag:"🇪🇸", image:"/images/destinations/barcelona.jpg", url:"https://www.esky.pl/tanie-loty/ci/krk/ci/bcn/krakow-barcelona" },
+  { from:"Wrocław", fromCode:"WRO", city:"Lizbona", country:"Portugalia", flag:"🇵🇹", image:"/images/destinations/lizbona.jpg", url:"https://www.esky.pl/tanie-loty/ci/wro/ci/lis/wroclaw-lizbona" },
+  { from:"Gdańsk", fromCode:"GDN", city:"Londyn", country:"Wielka Brytania", flag:"🇬🇧", image:"/images/destinations/londyn.jpg", url:"https://www.esky.pl/tanie-loty/ci/gdn/ci/lon/gdansk-londyn" },
+  { from:"Poznań", fromCode:"POZ", city:"Paryż", country:"Francja", flag:"🇫🇷", image:"/images/destinations/paryz.jpg", url:"https://www.esky.pl/tanie-loty/ci/poz/ci/par/poznan-paryz" },
+  { from:"Warszawa", fromCode:"WAW", city:"Wiedeń", country:"Austria", flag:"🇦🇹", image:"/images/destinations/wieden.jpg", url:"https://www.esky.pl/tanie-loty/ci/waw/ci/vie/warszawa-wieden" },
+  { from:"Kraków", fromCode:"KRK", city:"Malta", country:"Malta", flag:"🇲🇹", image:"/images/destinations/valletta.jpg", url:"https://www.esky.pl/tanie-loty/ci/krk/co/mt/krakow-malta" },
+] as const;
 
 function warsawDateKey(value: Date | string) {
   const date = value instanceof Date ? value : new Date(value);
@@ -156,6 +166,38 @@ function flightGemOffer(now: Date): Offer | null {
   };
 }
 
+export function getFallbackFlightOffer(now = new Date()): Offer {
+  const key = warsawDateKey(now) || "2000-01-01";
+  const numericKey = Number(key.replace(/-/g, ""));
+  const route = FALLBACK_FLIGHT_ROUTES[numericKey % FALLBACK_FLIGHT_ROUTES.length];
+  const affiliateUrl = buildEskyFlightsUrl(route.url);
+  return {
+    id: 800_000_000 + numericKey,
+    flag: route.flag,
+    city: route.city,
+    country: route.country,
+    price: 0,
+    availabilityStatus: "unknown",
+    departure: route.from,
+    airportCode: route.fromCode,
+    nights: 3,
+    weather: "sprawdź",
+    score: 8.5,
+    tag: "OKAZJA",
+    reason: "Brak potwierdzonej ceny live z API. Otwórz trasę, wybierz konkretny termin i sprawdź cenę przed publikacją.",
+    image: route.image,
+    category: ["flight", "city", "manual-check"],
+    hotel: "Tylko lot",
+    board: "Bez wyżywienia",
+    dates: "wybierz termin w wyszukiwarce",
+    partner: "esky",
+    destinationUrl: affiliateUrl,
+    affiliateUrl,
+    linkType: "search",
+    linkMatch: "parameters",
+  };
+}
+
 export function getSocialOfferPoolData(now = new Date()): SocialOfferPoolData {
   const live = (liveSnapshot.offers || [])
     .map(normalizeLiveOffer)
@@ -190,5 +232,7 @@ export function getSocialOfferPoolData(now = new Date()): SocialOfferPoolData {
 export function getSocialOfferById(id: number, now = new Date()) {
   const fresh = getSocialOfferPoolData(now).offers.find((offer) => offer.id === id);
   if (fresh) return fresh;
+  const fallbackFlight = getFallbackFlightOffer(now);
+  if (fallbackFlight.id === id) return fallbackFlight;
   return offers.find((offer) => offer.id === id && !isOfferExpired(offer, now));
 }
