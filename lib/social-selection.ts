@@ -1,6 +1,6 @@
 import { getLinkMatch, type Offer } from "@/lib/offers";
 import { assessPriceGem, rankByPriceGem, type PriceGemAssessment } from "@/lib/price-gems";
-import { getSocialOfferPoolData } from "@/lib/social-offer-pool";
+import { getFallbackFlightOffer, getSocialOfferPoolData } from "@/lib/social-offer-pool";
 import { DESTINATION_COOLDOWN_DAYS, isDestinationInRotationWindow, rotationPriority } from "@/lib/destination-rotation";
 
 export type SocialTone = "short" | "sales" | "daily";
@@ -71,6 +71,9 @@ function choose(pool: Offer[], picked: Offer[], test: (offer: Offer) => boolean,
 function flightAssessment(offer: Offer): PriceGemAssessment {
   return { level:"gem", label:"PERŁKA LOTNICZA", emoji:"✈️", median:null, discountPct:null, percentile:null, comparableCount:0, fresh:true, exact:true, concreteDates:true, reason:offer.reason };
 }
+function fallbackFlightAssessment(offer: Offer): PriceGemAssessment {
+  return { level:"unverified", label:"LOT DO SPRAWDZENIA", emoji:"✈️", median:null, discountPct:null, percentile:null, comparableCount:0, fresh:false, exact:false, concreteDates:false, reason:offer.reason };
+}
 
 export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date()): SocialDailyPlan {
   const evaluationNow = new Date();
@@ -91,6 +94,10 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
   if (flight && isDestinationInRotationWindow(flight, evaluationNow)) {
     picked.push(flight);
     items.push({ offer:flight, time:TIMES[0], label:"✈️ PERŁKA LOTNICZA", kind:"flight", tone:"daily", priceGem:flightAssessment(flight) });
+  } else {
+    const fallbackFlight = getFallbackFlightOffer(evaluationNow);
+    picked.push(fallbackFlight);
+    items.push({ offer:fallbackFlight, time:TIMES[0], label:"✈️ LOT DO SPRAWDZENIA", kind:"flight", tone:"daily", priceGem:fallbackFlightAssessment(fallbackFlight) });
   }
 
   const slots: Array<{test:(offer:Offer)=>boolean; kind:SocialSlotKind; tone:SocialTone; fallback:string}> = [
@@ -111,10 +118,11 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
   }
 
   const verified = items.filter((item) => item.priceGem.level !== "unverified").length;
+  const flightNote = flight ? "Maks. 1 perłka lotnicza dziennie." : "Lot jest dziś pozycją do ręcznego sprawdzenia, bo źródło cen live nie zwróciło perłki.";
   return {
     dayName:DAY_NAMES[weekday],
     theme:"Świeże okazje bez codziennych powtórek",
-    description:`${verified}/${items.length || 5} pozycji ma świeżą weryfikację. Kierunki mają ${DESTINATION_COOLDOWN_DAYS}-dniową rotację, więc ta sama destynacja nie powinna wracać dzień po dniu. Maks. 1 perłka lotnicza dziennie.`,
+    description:`${verified}/${items.length || 5} pozycji ma świeżą weryfikację. Kierunki mają ${DESTINATION_COOLDOWN_DAYS}-dniową rotację, więc ta sama destynacja nie powinna wracać dzień po dniu. ${flightNote}`,
     dateKey:planKey,
     items,
   };
