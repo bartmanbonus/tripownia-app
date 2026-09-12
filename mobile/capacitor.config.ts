@@ -3,7 +3,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'pl.tripownia.app',
   appName: 'Tripownia',
-  webDir: 'dist',
+  webDir: 'www',
   server: {
     url: 'https://tripownia.pl/app',
     cleartext: false,
