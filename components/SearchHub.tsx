@@ -53,6 +53,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   const [liveNotice,setLiveNotice]=useState("");
   const [liveVerified,setLiveVerified]=useState(false);
   const [initialSearchDone,setInitialSearchDone]=useState(false);
+  const [showResults,setShowResults]=useState(false);
   const [activeTab,setActiveTab]=useState(initialTab);
   const [carouselIndex,setCarouselIndex]=useState(0);
   const fromDropdownRef=useRef<HTMLDivElement>(null);
@@ -69,7 +70,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   };
 
   useEffect(()=>{setAirports(initialAirports);setDestinations(initialDestinations);setDuration(initialDuration||"all")},[initialAirports.join("|"),initialDestinations.join("|"),initialDuration]);
-  useEffect(()=>{if(searchRequest>0)setSubmitted(v=>v+1)},[searchRequest]);
+  useEffect(()=>{if(searchRequest>0){setShowResults(true);void runPartnerSearch()}},[searchRequest]);
   useEffect(()=>{setCarouselIndex(0)},[airports.join("|"),destinations.join("|"),customDestination,duration,budget,board,text,weekendOnly,activeTab]);
 
   useEffect(()=>{
@@ -84,18 +85,6 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
     document.addEventListener("keydown",handleKeyDown);
     return ()=>{document.removeEventListener("pointerdown",handlePointerDown);document.removeEventListener("keydown",handleKeyDown)};
   },[open]);
-
-  useEffect(()=>{
-    let cancelled=false;
-    const timer=window.setTimeout(async()=>{
-      const count=await runPartnerSearch(undefined,undefined,true);
-      if(!cancelled && count===0){
-        await new Promise(resolve=>window.setTimeout(resolve,700));
-        if(!cancelled)await runPartnerSearch(undefined,undefined,true);
-      }
-    },0);
-    return ()=>{cancelled=true;window.clearTimeout(timer)};
-  },[]);
 
   const worldFiltered=useMemo(()=>WORLD_DESTINATIONS.filter(x=>isTravelDestinationAllowed(x.label,x.region)).filter(x=>destinationMatches(destinationQuery,x)),[destinationQuery]);
   const selectedTo=[...destinations,...(customDestination?[customDestination]:[])];
@@ -131,6 +120,7 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
   },[airports,destinations,customDestination,duration,budget,board,text,weekendOnly,submitted,liveResults,liveLoading,liveVerified]);
 
   async function runPartnerSearch(destinationOverride?:string, cityModeOverride?:boolean, initialLoad=false):Promise<number>{
+    setShowResults(true);
     const destination=(destinationOverride||(selectedTo.length?selectedTo.join(","):"")||text||"").trim();
     setLiveLoading(true);setLiveNotice("");
     try{
@@ -177,15 +167,15 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
       setLiveNotice(liveResults.length>0?"Nie udało się odświeżyć feedu — pokazujemy ostatnią zweryfikowaną pulę z tej sesji.":"Feed ofert nie jest teraz dostępny. Pokazujemy inspiracje z cenami orientacyjnymi — sprawdź cenę przed rezerwacją.");
       return liveResults.length;
     }finally{
-      setLiveLoading(false);setSubmitted(v=>v+1);if(initialLoad)setInitialSearchDone(true);
+      setLiveLoading(false);setSubmitted(v=>v+1);if(initialLoad)setInitialSearchDone(true);else setInitialSearchDone(true);
     }
   }
 
   function toggleDestination(v:string){setCustomDestination("");setDestinations(prev=>prev.includes(v)?prev.filter(x=>x!==v):[...prev,v])}
   function useCustom(){const v=destinationQuery.trim();if(!v||isTravelDestinationBlocked(v))return;setDestinations([]);setCustomDestination(v);setOpen(null);setDestinationQuery("")}
-  function clearAll(){setAirports([]);setDestinations([]);setCustomDestination("");setDuration("all");setBudget("5000");setBoard("all");setWeekendOnly(false);setText("");setDestinationQuery("")}
+  function clearAll(){setAirports([]);setDestinations([]);setCustomDestination("");setDuration("all");setBudget("5000");setBoard("all");setWeekendOnly(false);setText("");setDestinationQuery("");setShowResults(false);setLiveResults([]);setLiveVerified(false);setLiveNotice("");setInitialSearchDone(false)}
   function pickDestination(label:string, opts?:{duration?:string;budget?:string;board?:string}, cityModeOverride?:boolean){setDestinations([label]);setCustomDestination("");setText("");setDestinationQuery("");if(opts?.duration)setDuration(opts.duration);if(opts?.budget)setBudget(opts.budget);if(opts?.board)setBoard(opts.board);setOpen(null);void runPartnerSearch(label,cityModeOverride)}
-  function chooseTab(tab:string){setActiveTab(tab);if(tab==="Inspiracje")return;if(tab==="City break")pickDestination("Rzym, Włochy",{duration:"3-4"},true);if(tab==="Lot + hotel")pickDestination("Barcelona, Hiszpania",{duration:"3-4"},false);if(tab==="Wakacje")pickDestination("Djerba, Tunezja",{duration:"5-7",board:"all inclusive"},false);if(tab==="Atrakcje")pickDestination("Paryż, Francja",{duration:"3-4"},false);if(tab==="Parkingi")window.location.href="/parkingi";if(tab==="eSIM")window.location.href="/esim"}
+  function chooseTab(tab:string){setActiveTab(tab);if(tab==="Inspiracje"){setShowResults(false);return;}if(tab==="City break")pickDestination("Rzym, Włochy",{duration:"3-4"},true);if(tab==="Lot + hotel")pickDestination("Barcelona, Hiszpania",{duration:"3-4"},false);if(tab==="Wakacje")pickDestination("Djerba, Tunezja",{duration:"5-7",board:"all inclusive"},false);if(tab==="Atrakcje")window.location.href="/atrakcje";if(tab==="Parkingi")window.location.href="/parkingi";if(tab==="eSIM")window.location.href="/esim"}
 
   const activeChips=[...(airports.length?[`✈ ${selectedFromLabel}`]:[]),...(selectedTo.length?[`🌍 ${selectedToLabel}`]:[]),...(duration!=="all"?[`📅 ${duration}`]:[]),...(budget!=="5000"?[`💰 do ${Number(budget).toLocaleString("pl-PL")} zł`]:[]),...(board!=="all"?[`🍽 ${board}`]:[]),...(weekendOnly?[`🗓 weekend`]:[])];
   const queryDestination=selectedTo[0]||text||"";
@@ -231,19 +221,21 @@ export default function SearchHub({initialAirports=[],initialDestinations=[],ini
         <div className="quick-destination-grid">{quickPicks.map(([icon,label,dest,opts])=><button key={dest} type="button" onClick={()=>pickDestination(dest,opts)}><span>{icon}</span><strong>{label}</strong></button>)}</div>
       </div>
 
-      <div className="search-results-block">
+      {!showResults&&<div className="search-intro-state"><small>NAJPIERW TY WYBIERASZ KIERUNEK</small><strong>Ustaw to, co ma znaczenie. Dopiero wtedy pokażemy dopasowane oferty.</strong><span>Możesz też kliknąć jeden z szybkich startów powyżej.</span></div>}
+
+      {showResults&&<div className="search-results-block">
         <div className="search-results-heading premium-results-heading">
           <div><small>ODKRYTE DLA CIEBIE</small><h3>{hasDestination?`Okazje: ${queryDestination}`:liveVerified?`${results.length} aktualnych okazji`:`${results.length} inspiracji podróżniczych`}</h3>{liveNotice&&<em className="search-live-notice">{liveNotice}</em>}</div>
           <span>Pokazujemy maksymalnie 20 różnych kierunków i najtańsze dopasowanie na każdy z nich.</span>
         </div>
-        {liveLoading&&<div className="partner-search-banner search-results-carousel-head"><div><small>✦ AKTUALIZUJEMY W TLE</small><strong>Oferty są już widoczne — sprawdzamy teraz najnowsze ceny.</strong></div></div>}
+        {liveLoading&&<div className="partner-search-banner search-results-carousel-head"><div><small>✦ SPRAWDZAMY TERAZ</small><strong>Szukamy aktualnych dopasowań do Twoich parametrów.</strong></div></div>}
         {results.length>0&&<>
           <div className="premium-results-summary premium-results-carousel-summary"><div><small>✦ WYBRANE PRZEZ TRIPOWNIĘ</small><strong>{liveVerified?`${results.length} różnych kierunków z aktualnego feedu`:`${results.length} inspiracji — ceny potwierdzisz u organizatora`}</strong></div><span className="premium-results-carousel-count">{Math.min(carouselIndex+1,results.length)} / {results.length}</span></div>
           <div className="search-results-carousel-wrap premium-search-results-wrap"><div className="premium-results-carousel-controls premium-results-carousel-controls-overlay"><button type="button" onClick={()=>moveResults(-1)} disabled={carouselIndex===0} aria-label="Poprzednia oferta"><ArrowLeft size={20}/></button><button type="button" onClick={()=>moveResults(1)} disabled={carouselIndex>=results.length-1} aria-label="Następna oferta"><ArrowRight size={20}/></button></div><div className="search-results-carousel premium-search-results-carousel" ref={resultsRailRef}>{results.map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></div>
         </>}
         {hasDestination&&<UnifiedPartnerSearch mode={activeTab==="City break"||activeTab==="Lot + hotel"?"city":activeTab==="Wakacje"?"holiday":"all"} initialDestination={queryDestination} initialDeparture={selectedFromLabel} initialDepartureCode={airports[0]} initialWeekendOnly={weekendOnly}/>}
-        {initialSearchDone&&!liveLoading&&!hasDestination&&results.length===0&&<div className="empty-search"><strong>Wpisz dowolne miejsce na świecie.</strong><p>Może to być miasto, kraj, wyspa albo konkretny hotel — wyszukiwanie nie jest ograniczone do opublikowanych okazji.</p></div>}
-      </div>
+        {initialSearchDone&&!liveLoading&&results.length===0&&<div className="empty-search"><strong>Nie znaleźliśmy teraz dobrego dopasowania.</strong><p>Zmień kierunek, budżet albo długość pobytu. Nie dokładamy przypadkowych wyników tylko po to, żeby zapełnić ekran.</p></div>}
+      </div>}
     </div>
   </section>
 }
