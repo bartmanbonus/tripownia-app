@@ -1,13 +1,14 @@
 {
   "name": "tripownia-mobile",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "sync": "npx cap sync",
     "android:add": "npx cap add android",
     "ios:add": "npx cap add ios",
     "android:open": "npx cap open android",
-    "ios:open": "npx cap open ios"
+    "ios:open": "npx cap open ios",
+    "assets": "npx @capacitor/assets generate"
   },
   "dependencies": {
     "@capacitor/android": "latest",
@@ -15,6 +16,7 @@
     "@capacitor/ios": "latest"
   },
   "devDependencies": {
+    "@capacitor/assets": "latest",
     "@capacitor/cli": "latest",
     "typescript": "^5.7.2"
   }
