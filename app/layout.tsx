@@ -12,6 +12,7 @@ import "./deals-premium.css";
 import "./homepage-dream.css";
 import "./offer-card-clean.css";
 import "./homepage-polish.css";
+import "./sitewide-polish.css";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
