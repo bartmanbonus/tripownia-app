@@ -21,11 +21,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url:`${BASE_URL}/polska`,lastModified:now,changeFrequency:"weekly",priority:.85 },
     { url:`${BASE_URL}/podroze`,lastModified:now,changeFrequency:"weekly",priority:.9 },
     { url:`${BASE_URL}/podroze-po-przezycia`,lastModified:now,changeFrequency:"weekly",priority:.8 },
+    { url:`${BASE_URL}/dalekie-podroze`,lastModified:now,changeFrequency:"weekly",priority:.85 },
     { url:`${BASE_URL}/magazyn-podrozniczy`,lastModified:now,changeFrequency:"weekly",priority:.8 },
     { url:`${BASE_URL}/poradniki`,lastModified:now,changeFrequency:"weekly",priority:.75 },
     { url:`${BASE_URL}/sylwester`,lastModified:now,changeFrequency:"daily",priority:.9 },
     { url:`${BASE_URL}/parkingi`,lastModified:now,changeFrequency:"weekly",priority:.7 },
-    { url:`${BASE_URL}/informacja-afiliacyjna`,lastModified:now,changeFrequency:"monthly",priority:.4 },
+    { url:`${BASE_URL}/atrakcje`,lastModified:now,changeFrequency:"weekly",priority:.7 },
+    { url:`${BASE_URL}/esim`,lastModified:now,changeFrequency:"weekly",priority:.65 },
+    { url:`${BASE_URL}/wynajem-auta`,lastModified:now,changeFrequency:"weekly",priority:.65 },
+    { url:`${BASE_URL}/regulamin`,lastModified:now,changeFrequency:"yearly",priority:.25 },
+    { url:`${BASE_URL}/polityka-prywatnosci`,lastModified:now,changeFrequency:"yearly",priority:.25 },
+    { url:`${BASE_URL}/informacja-afiliacyjna`,lastModified:now,changeFrequency:"yearly",priority:.4 },
   ];
 
   if (showMarkets) staticPages.push({ url:`${BASE_URL}/jarmarki-bozonarodzeniowe`,lastModified:now,changeFrequency:"daily",priority:.9 });
