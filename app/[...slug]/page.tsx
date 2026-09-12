@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import UnifiedPage from "@/components/UnifiedPage";
-import { findLegacy, legacyItems } from "@/lib/legacy";
+import { findLegacy, legacyCanonicalPath, legacyItems } from "@/lib/legacy";
 import { internalAliasPaths, isInternalAlias } from "@/lib/internalAliases";
 
 const systemPaths = new Set([
@@ -10,9 +10,40 @@ const systemPaths = new Set([
   "/podroze-po-przezycia", "/dalekie-podroze"
 ]);
 
+const seoOverrides: Record<string, Metadata> = {
+  "/lotniska-w-polsce-bez-limitu-100-ml-plynow": {
+    title: "Lotniska bez limitu 100 ml płynów w Polsce 2026 – aktualna lista | Tripownia",
+    description: "Które lotniska w Polsce zniosły limit 100 ml płynów? Sprawdź aktualną listę na 2026 rok, zasady kontroli i co możesz mieć w bagażu podręcznym.",
+  },
+  "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych": {
+    title: "Czy można mieć dwa bagaże podręczne? Zasady linii lotniczych 2026 | Tripownia",
+    description: "Sprawdź, kiedy możesz zabrać dwa bagaże podręczne do samolotu, czym różni się mały bagaż od kabinowego i co sprawdzić przed lotem.",
+  },
+  "/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad": {
+    title: "Czy można wnieść jedzenie do samolotu? Co wolno zabrać | Tripownia",
+    description: "Jedzenie w bagażu podręcznym: co możesz zabrać do samolotu, na co uważać przy płynach i jakie zasady sprawdzić przed kontrolą bezpieczeństwa.",
+  },
+  "/gdzie-jest-cieplo-w-listopadzie": {
+    title: "Gdzie jest ciepło w listopadzie? 12 kierunków na słońce | Tripownia",
+    description: "Gdzie polecieć w listopadzie po słońce? Zobacz ciepłe kierunki na krótki wyjazd i wakacje oraz sprawdź, gdzie warto szukać dobrej pogody.",
+  },
+  "/gdzie-na-sylwestra-2026-2027-15-kierunkow": {
+    title: "Gdzie na Sylwestra 2026/2027? 15 kierunków za granicę | Tripownia",
+    description: "Pomysły na Sylwestra 2026/2027 za granicą: city break, słońce i dalsze kierunki. Zobacz 15 propozycji i wybierz wyjazd dla siebie.",
+  },
+  "/gdzie-na-wakacje-we-wrzesniu": {
+    title: "Gdzie na wakacje we wrześniu 2026? Ciepłe kierunki | Tripownia",
+    description: "Gdzie lecieć we wrześniu na ciepłe wakacje? Sprawdź kierunki z dobrą pogodą, krótszymi kolejkami i propozycje na późne lato.",
+  },
+  "/jak-dojechac-z-lotniska-do-centrum-miasta-najtansze-opcje-transportu": {
+    title: "Jak dojechać z lotniska do centrum? Najtańsze opcje | Tripownia",
+    description: "Autobus, pociąg, transfer czy taxi? Sprawdź, jak porównać dojazd z lotniska do centrum i nie przepłacić po przylocie.",
+  },
+};
+
 export async function generateStaticParams() {
   const paths = new Set<string>();
-  for (const item of legacyItems) paths.add(item.path.replace(/^\//, ""));
+  for (const item of legacyItems) paths.add(legacyCanonicalPath(item.path).replace(/^\//, ""));
   for (const path of systemPaths) paths.add(path.replace(/^\//, ""));
   for (const path of internalAliasPaths) paths.add(path.replace(/^\//, ""));
   return [...paths].filter(Boolean).map((path) => ({ slug: path.split("/").filter(Boolean) }));
@@ -51,7 +82,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const item = findLegacy(path);
   if (item) {
-    return withCanonical(path, { title: item.title, description: item.description || undefined });
+    const metadata = seoOverrides[path] || { title: item.title, description: item.description || undefined };
+    return withCanonical(path, metadata);
   }
 
   if (isInternalAlias(path)) {
