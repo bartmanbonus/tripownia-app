@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./responsive-fixes.css";
 import "./app-pwa.css";
+import "./trip-mode.css";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
