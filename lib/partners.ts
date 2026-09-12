@@ -56,18 +56,17 @@ function buildKiwiAffiliateUrl(destinationUrl?: string) {
 
 /**
  * Legacy exports kept for compatibility with older code paths.
- * Tripownia no longer sends users to eSky; legacy calls resolve to Kiwi instead.
+ * Calls may still pass a destination URL, but users are routed through Kiwi.
  */
-export function buildEskyFlightsUrl() {
-  return buildKiwiAffiliateUrl();
+export function buildEskyFlightsUrl(destinationUrl?: string) {
+  return buildKiwiAffiliateUrl(destinationUrl);
 }
 
-export function buildEskyPackagesUrl() {
-  return buildKiwiAffiliateUrl();
+export function buildEskyPackagesUrl(destinationUrl?: string) {
+  return buildKiwiAffiliateUrl(destinationUrl);
 }
 
 export const partners: Record<PartnerKey, Partner> = {
-  // Compatibility alias only. It intentionally does not expose or open eSky.
   esky: {
     key: "esky",
     name: "Kiwi.com",
@@ -75,7 +74,7 @@ export const partners: Record<PartnerKey, Partner> = {
     description: "Loty i elastyczne wyszukiwanie połączeń",
     commissionType: "unknown",
     trackingId: "7PnrR4dn",
-    buildUrl: () => buildKiwiAffiliateUrl(),
+    buildUrl: (destinationUrl) => buildKiwiAffiliateUrl(destinationUrl),
   },
   wakacje: {
     key: "wakacje",
