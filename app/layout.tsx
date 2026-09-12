@@ -14,6 +14,7 @@ import "./offer-card-clean.css";
 import "./homepage-polish.css";
 import "./sitewide-polish.css";
 import "./sitewide-deep-polish.css";
+import "./search-ux-v2.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 
