@@ -29,11 +29,12 @@ export default function SiteFooter() {
         <div className="footer-column">
           <h3>Na czasie</h3>
           <Link href="/lotniska-w-polsce-bez-limitu-100-ml-plynow">Lotniska bez limitu 100 ml</Link>
-          <Link href="/gdzie-jest-cieplo-w-pazdzierniku-12-kierunkow-na-wakacje">Gdzie ciepło w październiku</Link>
-          <Link href="/gdzie-jest-cieplo-w-listopadzie">Gdzie ciepło w listopadzie</Link>
+          <Link href="/podroze/city-break-listopad-2026">City break — listopad 2026</Link>
+          <Link href="/podroze/cieple-wakacje-listopad-2026">Gdzie ciepło w listopadzie</Link>
+          <Link href="/podroze/wyspy-kanaryjskie-grudzien-2026">Kanary — grudzień 2026</Link>
+          <Link href="/podroze/wyspy-zielonego-przyladka-grudzien-2026">Cabo Verde — grudzień</Link>
           <Link href="/gdzie-na-sylwestra-2026-2027-15-kierunkow">Sylwester 2026/2027</Link>
           <Link href="/podroze/city-break-z-poznania">City break z Poznania</Link>
-          <Link href="/podroze/last-minute-z-poznania">Last minute z Poznania</Link>
           <Link href="/podroze/city-break-z-gdanska">City break z Gdańska</Link>
         </div>
 
