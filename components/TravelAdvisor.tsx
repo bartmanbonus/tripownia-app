@@ -43,7 +43,7 @@ export default function TravelAdvisor() {
 
   const recommendations = useMemo(() => {
     return offers
-      .filter((offer) => offer.partner !== "esky" && !isOfferExpired(offer))
+      .filter((offer) => !isOfferExpired(offer))
       .map((offer) => ({ offer, score: matchScore(offer, budget, maxNights, climate, style) }))
       .sort((a, b) => b.score - a.score)
       .slice(0, 3)
