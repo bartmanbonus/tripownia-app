@@ -17,30 +17,42 @@ import {
   Compass,
   MapPinned,
   LayoutDashboard,
+  ChevronDown,
+  CalendarDays,
+  Gift,
+  Globe2,
 } from "lucide-react";
 import { partners } from "@/lib/partners";
 
 const primaryItems = [
-  { href: "/podroze", label: "Okazje Tripowni", note: "Nasze propozycje", image: "/images/menu/okazje-tripowni.svg", tone: "picks", badge: "TOP" },
-  { href: "/wydarzenia", label: "Mecze i eventy", note: "Twoje emocje", image: "/images/menu/mecze-i-eventy.svg", tone: "events" },
-  { href: "/podroze-po-przezycia", label: "Przeżycia", note: "Nasze inspiracje", image: "/images/menu/przezycia.svg", tone: "experience" },
-  { href: "/jarmarki-bozonarodzeniowe", label: "Jarmarki", note: "Magia świąt", image: "/images/menu/jarmarki.svg", tone: "markets", seasonal: true },
-  { href: "/sylwester", label: "Sylwester", note: "Powitaj rok z nami", image: "/images/destinations/dubaj.jpg", tone: "newyear" },
-  { href: "/dalekie-podroze", label: "Dalekie podróże", note: "Świat czeka", image: "/images/menu/dalekie-podroze.svg", tone: "longhaul" },
+  { href: "/podroze", label: "Okazje", top: true },
+  { href: "/wydarzenia", label: "Mecze i eventy" },
+  { href: "/podroze-po-przezycia", label: "Przeżycia" },
+  { href: "/jarmarki-bozonarodzeniowe", label: "Jarmarki", seasonal: true },
+  { href: "/sylwester", label: "Sylwester" },
+  { href: "/dalekie-podroze", label: "Dalekie podróże" },
 ] as const;
 
-const serviceItems = [
-  { href: "https://www.booking.com/?aid=818288", label: "Hotele", icon: BedDouble, tone: "hotel", external: true },
-  { href: "https://kiwi.tpk.lv/7PnrR4dn", label: "Loty", icon: Plane, tone: "flight", external: true },
-  { href: "/wynajem-auta", label: "Wynajem aut", icon: Car, tone: "car" },
-  { href: partners.getyourguide.buildUrl("https://www.getyourguide.pl/"), label: "Atrakcje", icon: Ticket, tone: "insurance", external: true },
-  { href: "/poradniki", label: "Poradniki", icon: BookOpen, tone: "guides" },
-  { href: "/inspiracje", label: "Inspiracje", icon: Lightbulb, tone: "ideas" },
+const bookingItems = [
+  { href: "https://www.booking.com/?aid=818288", label: "Hotele", icon: BedDouble, external: true },
+  { href: "https://kiwi.tpk.lv/7PnrR4dn", label: "Loty", icon: Plane, external: true },
+  { href: "/wynajem-auta", label: "Wynajem auta", icon: Car },
+  { href: partners.getyourguide.buildUrl("https://www.getyourguide.pl/"), label: "Atrakcje", icon: Ticket, external: true },
+  { href: "/poradniki", label: "Poradniki", icon: BookOpen },
+  { href: "/inspiracje", label: "Inspiracje", icon: Lightbulb },
+] as const;
+
+const myTripowniaItems = [
+  { href: "/app", label: "Moja Tripownia", icon: LayoutDashboard },
+  { href: "/gdzie-leciec", label: "Gdzie lecieć?", icon: Compass },
+  { href: "/dla-ciebie", label: "Dla Ciebie", icon: Sparkles },
+  { href: "/moja-podroz", label: "Moja podróż", icon: MapPinned },
 ] as const;
 
 export default function SiteHeader() {
   const showMarkets = Date.now() <= new Date("2027-01-07T22:59:59Z").getTime();
   const visiblePrimaryItems = primaryItems.filter((item) => !("seasonal" in item && item.seasonal) || showMarkets);
+
   const siteSchema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -51,98 +63,89 @@ export default function SiteHeader() {
 
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema).replace(/</g, "\\u003c") }} />
-    <header className="menu-v5">
-      <div className="menu-v5-shell">
-        <Link className="menu-v5-brand" href="/" aria-label="Tripownia.pl — strona główna"><img src="/tripownia-logo.webp" alt="Tripownia.pl" width="92" height="92" /></Link>
 
-        <nav className="menu-v5-primary" aria-label="Najważniejsze sekcje" style={{ gridTemplateColumns: `repeat(${visiblePrimaryItems.length}, 145px) 120px` }}>
-          {visiblePrimaryItems.map((item) => (
-            <Link
-              key={item.label}
-              className={`menu-v5-card menu-v5-${item.tone}`}
-              href={item.href}
-              style={{ position: "relative", overflow: "hidden", isolation: "isolate", background: "#1d1d1d", color: "#fff" }}
-            >
-              <img
-                src={item.image}
-                alt=""
-                aria-hidden="true"
-                loading="eager"
-                decoding="async"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  objectPosition: "center",
-                  display: "block",
-                  zIndex: 0,
-                }}
-              />
-              <span
-                aria-hidden="true"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  zIndex: 1,
-                  pointerEvents: "none",
-                  background: "linear-gradient(90deg, rgba(10,10,10,.72) 0%, rgba(10,10,10,.44) 58%, rgba(10,10,10,.18) 100%)",
-                }}
-              />
-              <span
-                className="menu-v5-copy"
-                style={{
-                  position: "relative",
-                  zIndex: 2,
-                  width: "100%",
-                  minWidth: 0,
-                  color: "#fff",
-                  textShadow: "0 1px 4px rgba(0,0,0,.48)",
-                }}
-              >
-                {"badge" in item && item.badge ? (
-                  <span
-                    className="menu-v5-badge"
-                    style={{
-                      background: "rgba(255,90,56,.97)",
-                      color: "#fff",
-                      border: "1px solid rgba(255,255,255,.3)",
-                      boxShadow: "0 2px 8px rgba(0,0,0,.18)",
-                    }}
-                  >
-                    {item.badge}
-                  </span>
-                ) : null}
-                <strong style={{ color: "#fff" }}>{item.label}</strong>
-                <small style={{ color: "rgba(255,255,255,.9)" }}>{item.note}</small>
-              </span>
+    <header className="trip-header">
+      <div className="trip-header-shell">
+        <div className="trip-header-main">
+          <Link className="trip-header-brand" href="/" aria-label="Tripownia.pl — strona główna">
+            <img src="/tripownia-logo.webp" alt="Tripownia.pl" width="82" height="82" />
+          </Link>
+
+          <Link className="trip-header-search" href="/#wyszukiwarka" aria-label="Przejdź do wyszukiwarki wyjazdów">
+            <Search size={21} strokeWidth={2.1} />
+            <span className="trip-header-search-copy">
+              <strong>Dokąd chcesz lecieć?</strong>
+              <small>Znajdź lot, hotel, wakacje albo gotową okazję</small>
+            </span>
+            <span className="trip-header-search-cta">Szukaj</span>
+          </Link>
+
+          <nav className="trip-header-actions" aria-label="Twoje konto">
+            <Link className="trip-header-action" href="/ulubione" aria-label="Ulubione">
+              <Heart size={20} strokeWidth={2} />
+              <span>Ulubione</span>
             </Link>
-          ))}
-          <Link className="menu-v5-search" href="/#wyszukiwarka" aria-label="Szukaj wyjazdu"><Search size={25} strokeWidth={2.2} /><span>Szukaj</span></Link>
-        </nav>
+            <Link className="trip-header-action" href="/alerty" aria-label="Alerty">
+              <Bell size={20} strokeWidth={2} />
+              <span>Alerty</span>
+            </Link>
+            <Link className="trip-header-action" href="/profil" aria-label="Profil">
+              <UserRound size={20} strokeWidth={2} />
+              <span>Profil</span>
+            </Link>
+          </nav>
+        </div>
 
-        <nav className="menu-v5-secondary" aria-label="Usługi i pozostałe sekcje">
-          <div className="menu-v5-services">
-            {serviceItems.map((item) => {
-              const Icon = item.icon;
-              const className = `menu-v5-service menu-v5-service-${item.tone}`;
-              if ("external" in item && item.external) return <a key={item.label} className={className} href={item.href} target="_blank" rel="sponsored noopener noreferrer"><Icon size={20} strokeWidth={2.1}/><span>{item.label}</span></a>;
-              return <Link key={item.label} className={className} href={item.href}><Icon size={20} strokeWidth={2.1}/><span>{item.label}</span></Link>;
-            })}
-          </div>
+        <div className="trip-header-nav-wrap">
+          <nav className="trip-header-nav" aria-label="Główne kategorie podróży">
+            {visiblePrimaryItems.map((item) => (
+              <Link key={item.href} className={`trip-header-nav-link${"top" in item && item.top ? " is-active" : ""}`} href={item.href}>
+                {"top" in item && item.top ? <span className="trip-header-top">TOP</span> : null}
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </nav>
 
-          <div className="menu-v5-account">
-            <a href="mailto:kontakt@tripownia.pl?subject=Pomoc%20Tripownia"><CircleHelp size={20}/><span>Pomoc</span></a>
-            <Link href="/app"><LayoutDashboard size={20}/><span>Moja Tripownia</span></Link>
-            <Link href="/gdzie-leciec"><Compass size={20}/><span>Gdzie lecieć?</span></Link>
-            <Link href="/dla-ciebie"><Sparkles size={20}/><span>Dla Ciebie</span></Link>
-            <Link href="/moja-podroz"><MapPinned size={20}/><span>Moja podróż</span></Link>
-            <Link href="/ulubione"><Heart size={20}/><span>Ulubione</span></Link>
-            <Link href="/alerty"><Bell size={20}/><span>Alerty</span></Link>
-            <Link href="/profil"><UserRound size={20}/><span>Profil</span></Link>
+          <div className="trip-header-tools">
+            <details className="trip-header-menu">
+              <summary>
+                <Globe2 size={17} strokeWidth={2} />
+                <span>Zarezerwuj</span>
+                <ChevronDown size={14} strokeWidth={2.2} />
+              </summary>
+              <div className="trip-header-popover">
+                {bookingItems.map((item) => {
+                  const Icon = item.icon;
+                  if ("external" in item && item.external) {
+                    return <a key={item.label} href={item.href} target="_blank" rel="sponsored noopener noreferrer"><Icon size={18} strokeWidth={2}/><span>{item.label}</span></a>;
+                  }
+                  return <Link key={item.label} href={item.href}><Icon size={18} strokeWidth={2}/><span>{item.label}</span></Link>;
+                })}
+              </div>
+            </details>
+
+            <details className="trip-header-menu">
+              <summary>
+                <Sparkles size={17} strokeWidth={2} />
+                <span>Moja Tripownia</span>
+                <ChevronDown size={14} strokeWidth={2.2} />
+              </summary>
+              <div className="trip-header-popover">
+                {myTripowniaItems.map((item) => {
+                  const Icon = item.icon;
+                  return <Link key={item.label} href={item.href}><Icon size={18} strokeWidth={2}/><span>{item.label}</span></Link>;
+                })}
+                <Link href="/wydarzenia"><CalendarDays size={18} strokeWidth={2}/><span>Wydarzenia</span></Link>
+                <Link href="/podroze-po-przezycia"><Gift size={18} strokeWidth={2}/><span>Przeżycia</span></Link>
+              </div>
+            </details>
+
+            <a className="trip-header-help" href="mailto:kontakt@tripownia.pl?subject=Pomoc%20Tripownia">
+              <CircleHelp size={17} strokeWidth={2} />
+              <span>Pomoc</span>
+            </a>
           </div>
-        </nav>
+        </div>
       </div>
     </header>
   </>;
