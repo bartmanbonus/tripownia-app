@@ -46,8 +46,10 @@ export default async function SeoLandingPage({ params }: PageProps) {
   const page = getAllSeoLanding(slug);
   if (!page) notFound();
 
-  const startDate = "startDate" in page ? page.startDate : undefined;
-  const endDate = "endDate" in page ? page.endDate : undefined;
+  const rawStartDate = "startDate" in page ? page.startDate : undefined;
+  const rawEndDate = "endDate" in page ? page.endDate : undefined;
+  const startDate = typeof rawStartDate === "string" ? rawStartDate : undefined;
+  const endDate = typeof rawEndDate === "string" ? rawEndDate : undefined;
 
   const bookingUrl = partners.booking.buildUrl(
     `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(page.query)}`
