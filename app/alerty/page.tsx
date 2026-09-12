@@ -38,6 +38,7 @@ export default function AlertsPage() {
     const next = { ...settings, enabled: true };
     setSettings(next);
     localStorage.setItem("tripownia-alert-settings", JSON.stringify(next));
+    window.dispatchEvent(new Event("tripownia-alerts-updated"));
     setSaved(true);
     window.setTimeout(() => setSaved(false), 2500);
   }
