@@ -5,9 +5,10 @@ import Link from "next/link";
 import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, Clock3, Map, Plus, Trash2, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { offers } from "@/lib/offers";
+import { offers, publishedOfferOverrides } from "@/lib/offers";
 import { estimateTripCost } from "@/lib/tripCost";
 import { partners } from "@/lib/partners";
+import { getOfferOverride } from "@/lib/clientOfferOverrides";
 
 type DayPlanItem = { id: string; time: string; title: string; note?: string };
 type WeatherState = { temperature: number; apparent: number; code: number; wind: number; loading?: boolean; error?: string } | null;
@@ -90,6 +91,7 @@ export default function MyTrip() {
   const [newTitle, setNewTitle] = useState("");
   const [weather, setWeather] = useState<WeatherState>(null);
   const [notificationStatus, setNotificationStatus] = useState("");
+  const [offerRevision, setOfferRevision] = useState(0);
 
   useEffect(() => {
     try {
@@ -98,8 +100,20 @@ export default function MyTrip() {
     } catch {}
   }, []);
 
+  useEffect(() => {
+    const refresh = () => setOfferRevision((value) => value + 1);
+    window.addEventListener("tripownia-offer-overrides-updated", refresh);
+    return () => window.removeEventListener("tripownia-offer-overrides-updated", refresh);
+  }, []);
+
   const offer = useMemo(() => offers.find((item) => item.id === trip.offerId), [trip.offerId]);
-  const cost = offer ? estimateTripCost(offer) : null;
+  const displayPrice = useMemo(() => {
+    if (!offer) return 0;
+    const client = getOfferOverride(offer.id);
+    const published = publishedOfferOverrides[String(offer.id)] || {};
+    return client.price ?? published.price ?? offer.price;
+  }, [offer, offerRevision]);
+  const cost = offer ? estimateTripCost(offer, displayPrice) : null;
   const dayPlan = useMemo(() => [...(trip.dayPlan || [])].sort((a, b) => a.time.localeCompare(b.time)), [trip.dayPlan]);
   const reminder = reminderText(trip.departureAt);
   const reminders = useMemo(() => buildReminders(trip.departureAt), [trip.departureAt]);
@@ -211,27 +225,21 @@ export default function MyTrip() {
             <div className="my-trip-grid">
               <section className="my-trip-card"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p><strong>{offer.departure}</strong> → {offer.city}</p><input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="Dodaj numer lotu / godzinę" /></section>
               <section className="my-trip-card"><div className="my-trip-card-head"><BedDouble size={20}/><h2>Hotel</h2></div><p><strong>{offer.hotel}</strong> · {offer.board}</p><input value={trip.hotel || ""} onChange={(e) => save({ ...trip, hotel: e.target.value })} placeholder="Dodaj numer rezerwacji / adres" /></section>
-              <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet</h2></div><div className="my-trip-budget"><span>Oferta</span><strong>{offer.price.toLocaleString("pl-PL")} zł</strong></div>{cost && <div className="my-trip-budget total"><span>Szacowany pełny koszt</span><strong>{cost.total.toLocaleString("pl-PL")} zł / os.</strong></div>}<Link href="/porownaj">Porównaj z innymi ofertami →</Link></section>
+              <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet</h2></div><div className="my-trip-budget"><span>Oferta</span><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong></div>{cost && <div className="my-trip-budget total"><span>Szacowany pełny koszt</span><strong>{cost.total.toLocaleString("pl-PL")} zł / os.</strong></div>}<Link href="/porownaj">Porównaj z innymi ofertami →</Link></section>
               <section className="my-trip-card"><div className="my-trip-card-head"><Ticket size={20}/><h2>Co ogarnąć</h2></div><div className="my-trip-checklist">{checklistItems.map((item) => { const checked = Boolean(trip.checklist?.[item]); return <button key={item} onClick={() => toggleChecklist(item)}>{checked ? <CheckCircle2 size={18}/> : <Circle size={18}/>}<span>{item}</span></button>; })}</div></section>
             </div>
 
-            <section className="my-trip-card trip-attractions">
-              <div className="my-trip-card-head"><Sparkles size={20}/><h2>Co warto zrobić w {offer.city}</h2></div>
-              <p className="my-trip-subcopy">Tripownia podpowiada typ atrakcji pasujący do kierunku. Ceny i dostępność sprawdzasz u partnera.</p>
-              <div className="trip-attractions-grid">
-                {attractions.map((pick) => {
-                  const Icon = pick.icon === "landmark" ? Landmark : pick.icon === "food" ? UtensilsCrossed : pick.icon === "water" ? Waves : Sparkles;
-                  const destination = `https://www.getyourguide.pl/s/?q=${encodeURIComponent(pick.query)}`;
-                  return <a key={pick.title} href={partners.getyourguide.buildUrl(destination)} target="_blank" rel="sponsored noopener noreferrer"><Icon size={20}/><div><strong>{pick.title}</strong><span>{pick.subtitle}</span></div><ExternalLink size={15}/></a>;
-                })}
-              </div>
-            </section>
-
             <section className="my-trip-card my-trip-today">
-              <div className="my-trip-card-head"><Clock3 size={20}/><h2>Co robić dziś</h2></div><p className="my-trip-subcopy">Ułóż prosty plan dnia i miej go pod ręką w telefonie.</p>
+              <div className="my-trip-card-head"><Clock3 size={20}/><h2>Co robić dziś</h2></div>
+              <p className="my-trip-subcopy">Ułóż prosty plan dnia i miej go pod ręką w telefonie.</p>
               <div className="my-trip-plan-add"><input type="time" value={newTime} onChange={(e) => setNewTime(e.target.value)} aria-label="Godzina" /><input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addPlanItem(); }} placeholder="np. Koloseum, plaża, kolacja w centrum" /><button onClick={addPlanItem}><Plus size={17}/> Dodaj</button></div>
               {dayPlan.length ? <div className="my-trip-timeline">{dayPlan.map((item) => <div className="my-trip-timeline-item" key={item.id}><span className="my-trip-time">{item.time}</span><div><strong>{item.title}</strong>{item.note ? <small>{item.note}</small> : null}</div><button onClick={() => removePlanItem(item.id)} aria-label={`Usuń ${item.title}`}><Trash2 size={16}/></button></div>)}</div> : <div className="my-trip-empty-line">Dodaj pierwszy punkt dnia.</div>}
               <div className="my-trip-quick-links"><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${offer.city} attractions`)}`} target="_blank" rel="noopener noreferrer"><Map size={17}/> Atrakcje na mapie</a><Link href="/inspiracje"><Ticket size={17}/> Inspiracje Tripowni</Link></div>
+            </section>
+
+            <section className="my-trip-card trip-attractions">
+              <div className="my-trip-card-head"><Sparkles size={20}/><h2>Co warto zrobić w {offer.city}</h2></div>
+              <div className="trip-attraction-grid">{attractions.map((pick) => { const Icon = pick.icon === "landmark" ? Landmark : pick.icon === "food" ? UtensilsCrossed : pick.icon === "water" ? Waves : Sparkles; const partnerHref = partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(pick.query)}`); return <a key={pick.title} href={partnerHref} target="_blank" rel="sponsored noopener noreferrer"><Icon size={20}/><div><strong>{pick.title}</strong><span>{pick.subtitle}</span></div><ArrowRight size={16}/></a>; })}</div>
             </section>
 
             <section className="my-trip-card my-trip-notes"><div className="my-trip-card-head"><NotebookPen size={20}/><h2>Notatki</h2></div><textarea value={trip.notes || ""} onChange={(e) => save({ ...trip, notes: e.target.value })} placeholder="Restauracje, atrakcje, adresy, pomysły..." rows={5} /></section>
