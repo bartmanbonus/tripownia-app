@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, BadgeCheck, Scale } from "lucide-react";
+import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, BadgeCheck, Scale, TrendingDown, TrendingUp, Minus } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import TravelImage from "@/components/TravelImage";
@@ -10,6 +10,7 @@ import { getOfferOverride, type OfferOverride } from "@/lib/clientOfferOverrides
 import { isPriceStale } from "@/lib/offerQuality";
 import { isOfferExpired } from "@/lib/offers";
 import { getDealScore } from "@/lib/dealScore";
+import { getPriceDecision } from "@/lib/priceDecision";
 
 export default function OfferCard({ offer }: { offer: Offer }) {
   const [liked, setLiked] = useState(false);
@@ -51,6 +52,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
   const stalePrice = !isExpired && isPriceStale(effectiveCheckedAt);
   const deal = getDealScore(offer, displayPrice, isLiveExact);
+  const priceDecision = getPriceDecision(offer, displayPrice);
 
   function toggleLike() {
     const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
@@ -75,6 +77,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
 
   const buyHref = isExpired ? `/oferta/${offer.id}` : isLiveExact ? offer.affiliateUrl : `/go/${offer.id}?source=offer_card`;
   const ctaText = isExpired ? "Zobacz podobne oferty" : linkMatch === "exact" ? "Sprawdź tę ofertę" : "Sprawdź aktualne opcje";
+  const TrendIcon = priceDecision.trend === "spada" ? TrendingDown : priceDecision.trend === "rośnie" ? TrendingUp : Minus;
 
   return (
     <article className={`offer-card ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}>
@@ -97,6 +100,13 @@ export default function OfferCard({ offer }: { offer: Offer }) {
             <div className="deal-score-main"><div className="deal-score-number">{deal.score}<span>/100</span></div><div><span className="deal-score-label">TRIPOWNIA DEAL SCORE</span><strong><BadgeCheck size={16} /> {deal.verdict}</strong></div></div>
             <div className="deal-score-reasons">{deal.reasons.map((reason) => <span key={reason}>{reason}</span>)}</div>
             <small>Pewność oceny: {deal.confidence}{stalePrice ? " · cena może być nieaktualna" : ""}</small>
+          </div>
+        )}
+
+        {!isExpired && (
+          <div className={`price-decision price-decision-${priceDecision.action === "BRAĆ" ? "buy" : priceDecision.action === "OBSERWUJ" ? "watch" : "check"}`}>
+            <div className="price-decision-head"><TrendIcon size={18} /><strong>{priceDecision.action}</strong><span>· {priceDecision.trend}</span></div>
+            <p>{priceDecision.message}</p>
           </div>
         )}
 
