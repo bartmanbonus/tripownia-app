@@ -1,0 +1,17 @@
+.deals-hub-page{padding-top:72px!important}
+.deals-hub-hero{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:36px;margin-bottom:24px}
+.deals-hub-hero h1{max-width:860px;margin:7px 0 12px;font-size:clamp(44px,5vw,70px);line-height:.94;letter-spacing:-.055em}
+.deals-hub-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.deals-hub-actions .primary-cta,.deals-hub-actions .secondary-cta{min-height:46px;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:0 15px;border-radius:12px;font-size:10px;font-weight:900;text-decoration:none;cursor:pointer}
+.deals-hub-actions .primary-cta{border:1px solid #171412;background:#171412;color:#fff}
+.deals-hub-actions .secondary-cta{border:1px solid #e4d9d1;background:#fff;color:#4a433e}
+.deals-trust-bar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px;padding:11px 14px;border:1px solid #e8ded7;border-radius:13px;background:#fff;color:#786e67;font-size:9px;box-shadow:0 6px 16px rgba(45,30,21,.035)}
+.deals-trust-bar>span{display:inline-flex;align-items:center;gap:7px}.deals-trust-bar strong{color:#322c28;font-size:10px}
+.deals-premium-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;align-items:stretch!important}
+.deals-premium-grid .offer-card{height:100%!important}
+.deals-end-cta{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-top:30px;padding:22px 24px;border-radius:18px;background:linear-gradient(135deg,#191613,#28211d);color:#fff}
+.deals-end-cta>div{display:flex;flex-direction:column;gap:4px}.deals-end-cta strong{font-size:18px;letter-spacing:-.025em}.deals-end-cta span{color:#bbb1aa;font-size:10px;line-height:1.5}
+.deals-end-cta a{min-height:42px;display:inline-flex;align-items:center;gap:7px;padding:0 14px;border-radius:11px;background:#fff;color:#241e1a;font-size:10px;font-weight:900;text-decoration:none;white-space:nowrap}
+@media(max-width:1100px){.deals-premium-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:820px){.deals-hub-hero{grid-template-columns:1fr}.deals-hub-actions{justify-content:flex-start}.deals-premium-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}.deals-end-cta{align-items:flex-start;flex-direction:column}}
+@media(max-width:560px){.deals-hub-page{padding-top:46px!important}.deals-hub-hero h1{font-size:44px}.deals-hub-actions{display:grid;grid-template-columns:1fr;width:100%}.deals-premium-grid{grid-template-columns:1fr!important}.deals-trust-bar{align-items:flex-start;flex-direction:column}.deals-end-cta a{width:100%;justify-content:center}}
