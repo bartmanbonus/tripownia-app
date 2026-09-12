@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Bell, CheckCircle2, Plane, WalletCards } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import { trackEvent } from "@/lib/analytics";
 
 type AlertSettings = {
   departure: string;
@@ -39,6 +40,11 @@ export default function AlertsPage() {
     setSettings(next);
     localStorage.setItem("tripownia-alert-settings", JSON.stringify(next));
     window.dispatchEvent(new Event("tripownia-alerts-updated"));
+    trackEvent("alert_created", {
+      departure: next.departure.trim().slice(0, 80),
+      destinations: next.destinations.trim().slice(0, 120),
+      max_price: Number(next.maxPrice || 0),
+    });
     setSaved(true);
     window.setTimeout(() => setSaved(false), 2500);
   }
@@ -46,10 +52,12 @@ export default function AlertsPage() {
   async function enableNotifications() {
     if (!("Notification" in window)) {
       setPermission("unsupported");
+      trackEvent("notification_permission", { result: "unsupported" });
       return;
     }
     const result = await Notification.requestPermission();
     setPermission(result);
+    trackEvent("notification_permission", { result });
     if (result === "granted" && "serviceWorker" in navigator) {
       const registration = await navigator.serviceWorker.ready;
       await registration.showNotification("Tripownia — alerty włączone", {

@@ -19,6 +19,13 @@ const LEGACY_CATEGORY_REDIRECTS: Record<string, string> = {
   "/kategoria-produktu/ze-zwiedzaniem": "/podroze-po-przezycia",
 };
 
+const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
+  "/wakacje-z-gdanska-2": "/podroze/wakacje-z-gdanska",
+  "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-rzeszowa",
+  "/wakacje-ze-szczecina-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-ze-szczecina",
+  "/lublin-wakacje-city-break": "/podroze/wakacje-z-lublina",
+};
+
 function unauthorized() {
   return new NextResponse("Dostęp do panelu administracyjnego wymaga autoryzacji.", {
     status: 401,
@@ -68,6 +75,10 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
 
   if (LEGACY_CATEGORY_REDIRECTS[path]) {
     return permanentRedirect(request, LEGACY_CATEGORY_REDIRECTS[path]);
+  }
+
+  if (LEGACY_PAGE_REDIRECTS[path]) {
+    return permanentRedirect(request, LEGACY_PAGE_REDIRECTS[path]);
   }
 
   const isWooCategory = path.startsWith("/kategoria-produktu/");
