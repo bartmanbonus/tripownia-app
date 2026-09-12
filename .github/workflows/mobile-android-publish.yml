@@ -46,6 +46,12 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Generate Tripownia Android icons
+        run: |
+          mkdir -p assets
+          cp ../public/tripownia-app-icon-v2.png assets/icon.png
+          npx @capacitor/assets generate --android --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#ffffff' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#ffffff'
+
       - name: Build release bundle
         run: ./android/gradlew -p android bundleRelease
 
