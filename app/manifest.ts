@@ -4,8 +4,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Tripownia — My szukamy. Ty lecisz.",
     short_name: "Tripownia",
-    description: "Okazje podróżnicze, ulubione i alerty Tripowni w telefonie.",
-    start_url: "/?source=pwa",
+    description: "Twoje podróże, dopasowane oferty, alerty, porównanie, plan wyjazdu i tryb podróży w jednym miejscu.",
+    start_url: "/app?source=pwa",
     scope: "/",
     display: "standalone",
     background_color: "#ffffff",
@@ -22,9 +22,10 @@ export default function manifest(): MetadataRoute.Manifest {
       },
     ],
     shortcuts: [
-      { name: "Ulubione", short_name: "Ulubione", url: "/ulubione" },
+      { name: "Moja Tripownia", short_name: "Start", url: "/app" },
+      { name: "Moja podróż", short_name: "Podróż", url: "/moja-podroz" },
+      { name: "Dla Ciebie", short_name: "Dla Ciebie", url: "/dla-ciebie" },
       { name: "Alerty", short_name: "Alerty", url: "/alerty" },
-      { name: "Okazje", short_name: "Okazje", url: "/#okazje" },
     ],
   };
 }
