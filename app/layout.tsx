@@ -4,6 +4,7 @@ import "./responsive-fixes.css";
 import "./app-pwa.css";
 import "./trip-mode.css";
 import "./app-home.css";
+import "./mobile-search-tabs-fix.css";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
