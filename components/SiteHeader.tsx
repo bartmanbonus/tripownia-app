@@ -57,11 +57,66 @@ export default function SiteHeader() {
 
         <nav className="menu-v5-primary" aria-label="Najważniejsze sekcje" style={{ gridTemplateColumns: `repeat(${visiblePrimaryItems.length}, 145px) 120px` }}>
           {visiblePrimaryItems.map((item) => (
-            <Link key={item.label} className={`menu-v5-card menu-v5-${item.tone}`} href={item.href}>
-              <span className="menu-v5-icon" aria-hidden="true" style={{ overflow: "hidden", padding: 0, background: "#fff", border: "1px solid rgba(27, 31, 35, 0.08)", boxShadow: "0 3px 10px rgba(27, 31, 35, 0.10)" }}>
-                <img src={item.image} alt="" width="80" height="80" loading="eager" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+            <Link
+              key={item.label}
+              className={`menu-v5-card menu-v5-${item.tone}`}
+              href={item.href}
+              style={{ position: "relative", overflow: "hidden", isolation: "isolate", background: "#1d1d1d", color: "#fff" }}
+            >
+              <img
+                src={item.image}
+                alt=""
+                aria-hidden="true"
+                loading="eager"
+                decoding="async"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  objectPosition: "center",
+                  display: "block",
+                  zIndex: 0,
+                }}
+              />
+              <span
+                aria-hidden="true"
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  zIndex: 1,
+                  pointerEvents: "none",
+                  background: "linear-gradient(90deg, rgba(10,10,10,.72) 0%, rgba(10,10,10,.44) 58%, rgba(10,10,10,.18) 100%)",
+                }}
+              />
+              <span
+                className="menu-v5-copy"
+                style={{
+                  position: "relative",
+                  zIndex: 2,
+                  width: "100%",
+                  minWidth: 0,
+                  color: "#fff",
+                  textShadow: "0 1px 4px rgba(0,0,0,.48)",
+                }}
+              >
+                {"badge" in item && item.badge ? (
+                  <span
+                    className="menu-v5-badge"
+                    style={{
+                      background: "rgba(255,90,56,.97)",
+                      color: "#fff",
+                      border: "1px solid rgba(255,255,255,.3)",
+                      boxShadow: "0 2px 8px rgba(0,0,0,.18)",
+                    }}
+                  >
+                    {item.badge}
+                  </span>
+                ) : null}
+                <strong style={{ color: "#fff" }}>{item.label}</strong>
+                <small style={{ color: "rgba(255,255,255,.9)" }}>{item.note}</small>
               </span>
-              <span className="menu-v5-copy">{"badge" in item && item.badge ? <span className="menu-v5-badge">{item.badge}</span> : null}<strong>{item.label}</strong><small>{item.note}</small></span>
             </Link>
           ))}
           <Link className="menu-v5-search" href="/#wyszukiwarka" aria-label="Szukaj wyjazdu"><Search size={25} strokeWidth={2.2} /><span>Szukaj</span></Link>
