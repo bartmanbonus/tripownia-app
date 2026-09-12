@@ -5,12 +5,14 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, BadgeCheck, Scale } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { offers } from "@/lib/offers";
+import { offers, publishedOfferOverrides } from "@/lib/offers";
 import { getDealScore } from "@/lib/dealScore";
 import { estimateTripCost } from "@/lib/tripCost";
+import { getOfferOverride } from "@/lib/clientOfferOverrides";
 
 export default function ComparePage() {
   const [ids, setIds] = useState<number[]>([]);
+  const [priceVersion, setPriceVersion] = useState(0);
 
   useEffect(() => {
     const load = () => {
@@ -19,17 +21,20 @@ export default function ComparePage() {
       } catch {
         setIds([]);
       }
+      setPriceVersion((value) => value + 1);
     };
     load();
     window.addEventListener("tripownia-compare-updated", load);
+    window.addEventListener("tripownia-offer-overrides-updated", load);
     window.addEventListener("storage", load);
     return () => {
       window.removeEventListener("tripownia-compare-updated", load);
+      window.removeEventListener("tripownia-offer-overrides-updated", load);
       window.removeEventListener("storage", load);
     };
   }, []);
 
-  const selected = useMemo(() => ids.map((id) => offers.find((offer) => offer.id === id)).filter(Boolean), [ids]);
+  const selected = useMemo(() => ids.map((id) => offers.find((offer) => offer.id === id)).filter(Boolean), [ids, priceVersion]);
 
   function remove(id: number) {
     const next = ids.filter((item) => item !== id);
@@ -50,8 +55,11 @@ export default function ComparePage() {
           <div className="compare-grid" style={{ gridTemplateColumns: `repeat(${Math.min(selected.length, 3)}, minmax(0,1fr))` }}>
             {selected.map((offer) => {
               if (!offer) return null;
-              const deal = getDealScore(offer);
-              const cost = estimateTripCost(offer);
+              const clientOverride = getOfferOverride(offer.id);
+              const publishedOverride = publishedOfferOverrides[String(offer.id)] || {};
+              const displayPrice = clientOverride.price ?? publishedOverride.price ?? offer.price;
+              const deal = getDealScore(offer, displayPrice, false);
+              const cost = estimateTripCost(offer, displayPrice);
               return (
                 <article className="compare-card" key={offer.id}>
                   <button className="compare-remove" onClick={() => remove(offer.id)} aria-label={`Usuń ${offer.city} z porównania`}>×</button>
@@ -59,7 +67,7 @@ export default function ComparePage() {
                   <h2>{offer.city}</h2>
                   <div className="compare-score"><BadgeCheck size={17} /><strong>{deal.score}/100</strong><span>{deal.verdict}</span></div>
                   <dl>
-                    <div><dt>Cena oferty</dt><dd>{offer.price.toLocaleString("pl-PL")} zł/os.</dd></div>
+                    <div><dt>Cena oferty</dt><dd>{displayPrice.toLocaleString("pl-PL")} zł/os.</dd></div>
                     <div className="compare-total"><dt>Realny koszt Tripowni</dt><dd>ok. {cost.total.toLocaleString("pl-PL")} zł/os.</dd></div>
                     <div><dt>Wylot</dt><dd>{offer.departure}</dd></div>
                     <div><dt>Długość</dt><dd>{offer.nights} nocy</dd></div>
