@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays } from "lucide-react";
+import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, BadgeCheck } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import TravelImage from "@/components/TravelImage";
@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { getOfferOverride, type OfferOverride } from "@/lib/clientOfferOverrides";
 import { isPriceStale } from "@/lib/offerQuality";
 import { isOfferExpired } from "@/lib/offers";
+import { getDealScore } from "@/lib/dealScore";
 
 export default function OfferCard({ offer }: { offer: Offer }) {
   const [liked, setLiked] = useState(false);
@@ -47,18 +48,13 @@ export default function OfferCard({ offer }: { offer: Offer }) {
     offer.availabilityStatus ??
     "unknown";
 
-  const isExpired =
-    availabilityStatus === "expired" ||
-    isOfferExpired({ ...offer, availabilityStatus });
-
+  const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
   const stalePrice = !isExpired && isPriceStale(effectiveCheckedAt);
+  const deal = getDealScore(offer, displayPrice, isLiveExact);
 
   function toggleLike() {
     const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
-    const next = ids.includes(offer.id)
-      ? ids.filter((id) => id !== offer.id)
-      : [...ids, offer.id];
-
+    const next = ids.includes(offer.id) ? ids.filter((id) => id !== offer.id) : [...ids, offer.id];
     localStorage.setItem("tripownia-favorites", JSON.stringify(next));
     setLiked(next.includes(offer.id));
     window.dispatchEvent(new Event("tripownia-favorites-updated"));
@@ -67,24 +63,11 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   if (offer.partner === "esky") return null;
   if (override.hidden || publishedOverride.hidden) return null;
 
-  const buyHref = isExpired
-    ? `/oferta/${offer.id}`
-    : isLiveExact
-      ? offer.affiliateUrl
-      : `/go/${offer.id}?source=offer_card`;
-
-  const ctaText = isExpired
-    ? "Zobacz podobne oferty"
-    : linkMatch === "exact"
-      ? "Sprawdź tę ofertę"
-      : "Sprawdź aktualne opcje";
+  const buyHref = isExpired ? `/oferta/${offer.id}` : isLiveExact ? offer.affiliateUrl : `/go/${offer.id}?source=offer_card`;
+  const ctaText = isExpired ? "Zobacz podobne oferty" : linkMatch === "exact" ? "Sprawdź tę ofertę" : "Sprawdź aktualne opcje";
 
   return (
-    <article
-      className={`offer-card ${isFeatured ? "offer-card-featured" : ""} ${
-        isExpired ? "offer-card-expired" : ""
-      }`}
-    >
+    <article className={`offer-card ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}>
       <Link
         href={isLiveExact ? offer.affiliateUrl : `/oferta/${offer.id}`}
         target={isLiveExact ? "_blank" : undefined}
@@ -92,27 +75,9 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         className="offer-image"
         aria-label={`Otwórz szczegóły oferty ${offer.city}`}
       >
-        <TravelImage
-          city={offer.city}
-          country={offer.country}
-          alt={`${offer.city}, ${offer.country}`}
-          className="offer-photo-img"
-          overrideSrc={displayImage || offer.image}
-        />
-        <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>
-          {isExpired
-            ? "WYGASŁA"
-            : isLiveExact
-              ? offer.tag
-              : offer.partner === "exim"
-                ? offer.tag
-                : offer.tag}
-        </span>
-        {isFeatured && (
-          <span className="admin-featured-badge">
-            <Star size={12} fill="currentColor" /> HIT
-          </span>
-        )}
+        <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
+        <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
+        {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
       </Link>
 
       <button className="heart" aria-label="Dodaj do ulubionych" onClick={toggleLike}>
@@ -122,19 +87,28 @@ export default function OfferCard({ offer }: { offer: Offer }) {
       <div className="offer-body">
         <div className="offer-topline">
           <div>
-            <div className="eyebrow">
-              {offer.flag} {offer.country}
-            </div>
+            <div className="eyebrow">{offer.flag} {offer.country}</div>
             <h3>{offer.city}</h3>
           </div>
-          <div className="score">
-            <strong>{offer.score}</strong>
-            <span>/10</span>
-          </div>
+          <div className="score"><strong>{offer.score}</strong><span>/10</span></div>
         </div>
 
+        {!isExpired && (
+          <div className={`deal-score deal-score-${deal.verdict === "BIERZ" ? "buy" : deal.verdict === "DOBRA OPCJA" ? "good" : "check"}`}>
+            <div className="deal-score-main">
+              <div className="deal-score-number">{deal.score}<span>/100</span></div>
+              <div>
+                <span className="deal-score-label">TRIPOWNIA DEAL SCORE</span>
+                <strong><BadgeCheck size={16} /> {deal.verdict}</strong>
+              </div>
+            </div>
+            <div className="deal-score-reasons">{deal.reasons.map((reason) => <span key={reason}>{reason}</span>)}</div>
+            <small>Pewność oceny: {deal.confidence}{stalePrice ? " · cena może być nieaktualna" : ""}</small>
+          </div>
+        )}
+
         <div className="price">
-          <small>{isLiveExact ? `cena od` : offer.partner === "exim" ? "cena od" : "cena od"}</small>{" "}
+          <small>cena od</small>{" "}
           <><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></>
         </div>
 
@@ -143,12 +117,8 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           {isExpired
             ? "Ta oferta wygasła — pokażemy podobne aktualne propozycje"
             : isLiveExact
-              ? checkedAt
-                ? `Dane z feedu sprawdzone: ${checkedAt}`
-                : "Dane z aktualnego feedu partnera"
-            : checkedAt
-                ? `Cena orientacyjna — sprawdź aktualną cenę przed rezerwacją`
-                : "Cena orientacyjna — sprawdź aktualną cenę przed rezerwacją"}
+              ? checkedAt ? `Dane z feedu sprawdzone: ${checkedAt}` : "Dane z aktualnego feedu partnera"
+              : "Cena orientacyjna — sprawdź aktualną cenę przed rezerwacją"}
         </div>
 
         <div className="partner-chip partner-chip-tripownia">
@@ -156,20 +126,12 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           {isLiveExact ? " · dostępność potwierdzisz przed płatnością" : " · cena nie jest potwierdzona na żywo"}
         </div>
 
-        <div className="offer-date-line">
-          <CalendarDays size={15} /> <strong>{offer.dates}</strong>
-        </div>
+        <div className="offer-date-line"><CalendarDays size={15} /> <strong>{offer.dates}</strong></div>
 
         <div className="meta">
-          <span>
-            <Plane size={15} /> {offer.departure}
-          </span>
-          <span>
-            <Moon size={15} /> {offer.nights} noce
-          </span>
-          <span>
-            <Sun size={15} /> {offer.weather}
-          </span>
+          <span><Plane size={15} /> {offer.departure}</span>
+          <span><Moon size={15} /> {offer.nights} noce</span>
+          <span><Sun size={15} /> {offer.weather}</span>
           <span><Utensils size={15} /> {offer.board}</span>
         </div>
 
@@ -178,28 +140,17 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           <strong>{override.note || publishedOverride.note || offer.reason}</strong>
         </div>
 
-        <a
-          className="card-cta"
-          href={buyHref}
-          target={isLiveExact ? "_blank" : undefined}
-          rel={isExpired ? undefined : isLiveExact ? "sponsored noopener noreferrer" : "sponsored"}
-        >
+        <a className="card-cta" href={buyHref} target={isLiveExact ? "_blank" : undefined} rel={isExpired ? undefined : isLiveExact ? "sponsored noopener noreferrer" : "sponsored"}>
           {!isExpired && <Zap size={16} />}
           {ctaText}
           <ArrowRight size={17} />
         </a>
 
-        {!isExpired && (
-          isLiveExact ? (
-            <a className="admin-preview-link" href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
-              Zobacz szczegóły i warunki →
-            </a>
-          ) : (
-            <Link className="admin-preview-link" href={`/oferta/${offer.id}`}>
-              Zobacz szczegóły i warunki →
-            </Link>
-          )
-        )}
+        {!isExpired && (isLiveExact ? (
+          <a className="admin-preview-link" href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Zobacz szczegóły i warunki →</a>
+        ) : (
+          <Link className="admin-preview-link" href={`/oferta/${offer.id}`}>Zobacz szczegóły i warunki →</Link>
+        ))}
       </div>
     </article>
   );
