@@ -9,6 +9,7 @@ import "./trip-header.css";
 import "./search-dream.css";
 import "./premium-system.css";
 import "./deals-premium.css";
+import "./homepage-dream.css";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
