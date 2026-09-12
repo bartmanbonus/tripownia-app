@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Bell, Compass, Heart, MapPinned, Sparkles, UserRound, ArrowRight, Scale } from "lucide-react";
+import { Bell, CheckCircle2, Circle, Compass, Heart, MapPinned, Sparkles, UserRound, ArrowRight, Scale } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
@@ -49,6 +49,13 @@ export default function AppHome() {
 
   const tripOffer = useMemo(() => offers.find((offer) => offer.id === trip.offerId), [trip.offerId]);
   const topOffers = useMemo(() => offers.filter((offer) => offer.partner !== "esky" && !isOfferExpired(offer)).sort((a,b) => b.score - a.score).slice(0, 3), []);
+  const alertsReady = Boolean(alerts.maxPrice || alerts.destinations || alerts.departure);
+  const onboarding = [
+    { done: profileReady, href: "/profil", label: "Ustaw profil podróżnika" },
+    { done: alertsReady, href: "/alerty", label: "Ustaw pierwszy alert" },
+    { done: Boolean(tripOffer), href: "/gdzie-leciec", label: "Wybierz pierwszą podróż" },
+  ];
+  const completedSteps = onboarding.filter((step) => step.done).length;
 
   const tripCopy = tripOffer ? `${tripOffer.city} · ${tripOffer.dates}` : "Nie masz jeszcze wybranej podróży";
   const alertCopy = alerts.maxPrice || alerts.destinations ? `${alerts.destinations || "Dowolny kierunek"}${alerts.maxPrice ? ` · do ${alerts.maxPrice} zł` : ""}` : "Ustaw kierunki, budżet i miejsce wylotu";
@@ -65,6 +72,24 @@ export default function AppHome() {
           </div>
           <Link className="primary-cta" href="/gdzie-leciec"><Compass size={18}/> Nie wiem gdzie lecieć</Link>
         </div>
+
+        {completedSteps < onboarding.length && (
+          <section className="app-onboarding">
+            <div className="app-onboarding-head">
+              <div><div className="kicker">START</div><h2>3 kroki do gotowej Tripowni</h2></div>
+              <strong>{completedSteps}/3</strong>
+            </div>
+            <div className="app-onboarding-steps">
+              {onboarding.map((step) => (
+                <Link key={step.label} href={step.href} className={step.done ? "done" : ""}>
+                  {step.done ? <CheckCircle2 size={18}/> : <Circle size={18}/>}
+                  <span>{step.label}</span>
+                  <ArrowRight size={16}/>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         <div className="app-home-grid">
           <Link href="/dla-ciebie" className="app-home-tile app-home-tile-primary"><Sparkles size={22}/><div><strong>Dla Ciebie</strong><span>{profileReady ? "Oferty dopasowane do Twojego profilu" : "Uzupełnij profil, żeby lepiej dopasować oferty"}</span></div><ArrowRight size={18}/></Link>
