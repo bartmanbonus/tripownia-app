@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, BadgeCheck, Scale, TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, BadgeCheck, Scale, TrendingDown, TrendingUp, Minus, MapPinned } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import TravelImage from "@/components/TravelImage";
@@ -15,6 +15,7 @@ import { getPriceDecision } from "@/lib/priceDecision";
 export default function OfferCard({ offer }: { offer: Offer }) {
   const [liked, setLiked] = useState(false);
   const [compared, setCompared] = useState(false);
+  const [tripAdded, setTripAdded] = useState(false);
   const [override, setOverride] = useState<OfferOverride>({});
 
   useEffect(() => {
@@ -24,18 +25,22 @@ export default function OfferCard({ offer }: { offer: Offer }) {
       setLiked(ids.includes(offer.id));
       const compareIds = JSON.parse(localStorage.getItem("tripownia-compare") || "[]") as number[];
       setCompared(compareIds.includes(offer.id));
+      const trip = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null") as { offerId?: number } | null;
+      setTripAdded(trip?.offerId === offer.id);
     };
 
     load();
     window.addEventListener("tripownia-offer-overrides-updated", load as EventListener);
     window.addEventListener("tripownia-favorites-updated", load as EventListener);
     window.addEventListener("tripownia-compare-updated", load as EventListener);
+    window.addEventListener("tripownia-my-trip-updated", load as EventListener);
     window.addEventListener("storage", load);
 
     return () => {
       window.removeEventListener("tripownia-offer-overrides-updated", load as EventListener);
       window.removeEventListener("tripownia-favorites-updated", load as EventListener);
       window.removeEventListener("tripownia-compare-updated", load as EventListener);
+      window.removeEventListener("tripownia-my-trip-updated", load as EventListener);
       window.removeEventListener("storage", load);
     };
   }, [offer.id]);
@@ -70,6 +75,13 @@ export default function OfferCard({ offer }: { offer: Offer }) {
     localStorage.setItem("tripownia-compare", JSON.stringify(next));
     setCompared(next.includes(offer.id));
     window.dispatchEvent(new Event("tripownia-compare-updated"));
+  }
+
+  function addToTrip() {
+    const previous = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null") as Record<string, unknown> | null;
+    localStorage.setItem("tripownia-my-trip", JSON.stringify({ ...(previous || {}), offerId: offer.id }));
+    setTripAdded(true);
+    window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
   if (offer.partner === "esky") return null;
@@ -119,6 +131,9 @@ export default function OfferCard({ offer }: { offer: Offer }) {
 
         {!isExpired && <button className={`compare-toggle ${compared ? "active" : ""}`} onClick={toggleCompare}><Scale size={16} /> {compared ? "Dodano do porównania" : "Porównaj"}</button>}
         {compared && <Link className="compare-link" href="/porownaj">Przejdź do porównania →</Link>}
+
+        {!isExpired && <button className={`trip-toggle ${tripAdded ? "active" : ""}`} onClick={addToTrip}><MapPinned size={16} /> {tripAdded ? "W Mojej podróży" : "Dodaj do Mojej podróży"}</button>}
+        {tripAdded && <Link className="compare-link" href="/moja-podroz">Otwórz Moją podróż →</Link>}
 
         <a className="card-cta" href={buyHref} target={isLiveExact ? "_blank" : undefined} rel={isExpired ? undefined : isLiveExact ? "sponsored noopener noreferrer" : "sponsored"}>{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
 
