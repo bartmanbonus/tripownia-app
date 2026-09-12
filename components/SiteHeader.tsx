@@ -12,6 +12,8 @@ import {
   Lightbulb,
   CircleHelp,
   Bell,
+  UserRound,
+  Sparkles,
 } from "lucide-react";
 import { partners } from "@/lib/partners";
 
@@ -106,8 +108,10 @@ export default function SiteHeader() {
 
           <div className="menu-v5-account">
             <a href="mailto:kontakt@tripownia.pl?subject=Pomoc%20Tripownia"><CircleHelp size={20}/><span>Pomoc</span></a>
+            <Link href="/dla-ciebie"><Sparkles size={20}/><span>Dla Ciebie</span></Link>
             <Link href="/ulubione"><Heart size={20}/><span>Ulubione</span></Link>
             <Link href="/alerty"><Bell size={20}/><span>Alerty</span></Link>
+            <Link href="/profil"><UserRound size={20}/><span>Profil</span></Link>
           </div>
         </nav>
       </div>
