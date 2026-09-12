@@ -1,241 +1,379 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, CalendarDays, Check, ChevronDown, Compass, MapPin, Plane, Search, Utensils, X } from "lucide-react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { Check, ChevronDown, MapPin, Plane, Search, SlidersHorizontal, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
-import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
 import { airportOptions, offers, isOfferExpired } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination } from "@/lib/worldDestinations";
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
 
-type Props={initialAirports?:string[];initialDestinations?:string[];initialDuration?:string;searchRequest?:number;initialTab?:string};
+type Props = {
+  initialAirports?: string[];
+  initialDestinations?: string[];
+  initialDuration?: string;
+  searchRequest?: number;
+  initialTab?: string;
+};
 
-function offerText(o:any){return normalizeDestination([o.city,o.country,o.hotel,o.destination,o.title].filter(Boolean).join(" "));}
-function depCode(o:any){return String(o.departureCode||o.airportCode||o.departureAirportCode||"").toUpperCase()}
-function durationOk(o:any,d:string){
-  const n=Number(o.nights||o.duration||0);
-  if(d==="all")return true;
-  if(d==="1-2")return !n||(n>=1&&n<=2);
-  if(d==="3-4")return !n||(n>=3&&n<=4);
-  if(d==="5-7")return !n||(n>=5&&n<=7);
-  if(d==="8-10")return !n||(n>=8&&n<=10);
-  if(d==="11-14")return !n||(n>=11&&n<=14);
-  if(d==="15+")return !n||n>=15;
+type SearchOverrides = {
+  duration?: string;
+  budget?: string;
+  board?: string;
+  weekendOnly?: boolean;
+  tab?: string;
+};
+
+function normalizeOffer(o: any) {
+  return normalizeDestination([o.city, o.country, o.hotel, o.destination, o.title].filter(Boolean).join(" "));
+}
+
+function onePerDirection(rows: any[]) {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    const key = normalizeDestination(String(row.city || row.country || row.destination || row.hotel || row.title || ""));
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function durationMatches(o: any, value: string) {
+  const nights = Number(o.nights || o.duration || 0);
+  if (value === "all" || !nights) return true;
+  if (value === "1-2") return nights >= 1 && nights <= 2;
+  if (value === "3-4") return nights >= 3 && nights <= 4;
+  if (value === "5-7") return nights >= 5 && nights <= 7;
+  if (value === "8-10") return nights >= 8 && nights <= 10;
+  if (value === "11-14") return nights >= 11 && nights <= 14;
+  if (value === "15+") return nights >= 15;
   return true;
 }
-function budgetValue(v:string){return v==="all"?Infinity:Number(v)}
-function normalizeDirection(o:any){return normalizeDestination(String(o.city||o.country||o.destination||o.hotel||o.title||""));}
-function onePerDirection(rows:any[]){
-  const seen=new Set<string>();
-  const out:any[]=[];
-  for(const row of rows){
-    const key=normalizeDirection(row);
-    if(!key||seen.has(key))continue;
-    seen.add(key);out.push(row);
-  }
-  return out;
-}
 
-export default function SearchHub({initialAirports=[],initialDestinations=[],initialDuration="all",searchRequest=0,initialTab="Inspiracje"}:Props){
-  const [airports,setAirports]=useState<string[]>(initialAirports);
-  const [destinations,setDestinations]=useState<string[]>(initialDestinations);
-  const [customDestination,setCustomDestination]=useState("");
-  const [duration,setDuration]=useState(initialDuration||"all");
-  const [budget,setBudget]=useState("5000");
-  const [board,setBoard]=useState("all");
-  const [weekendOnly,setWeekendOnly]=useState(false);
-  const [text,setText]=useState("");
-  const [open,setOpen]=useState<"from"|"to"|null>(null);
-  const [destinationQuery,setDestinationQuery]=useState("");
-  const [submitted,setSubmitted]=useState(0);
-  const [liveResults,setLiveResults]=useState<any[]>([]);
-  const [liveLoading,setLiveLoading]=useState(false);
-  const [liveNotice,setLiveNotice]=useState("");
-  const [liveVerified,setLiveVerified]=useState(false);
-  const [initialSearchDone,setInitialSearchDone]=useState(false);
-  const [showResults,setShowResults]=useState(false);
-  const [activeTab,setActiveTab]=useState(initialTab);
-  const [carouselIndex,setCarouselIndex]=useState(0);
-  const fromDropdownRef=useRef<HTMLDivElement>(null);
-  const toDropdownRef=useRef<HTMLDivElement>(null);
-  const resultsRailRef=useRef<HTMLDivElement>(null);
-  const moveResults=(direction:-1|1)=>{
-    const rail=resultsRailRef.current;
-    if(!rail)return;
-    const card=rail.querySelector<HTMLElement>(".search-results-carousel-item");
-    const step=card?card.getBoundingClientRect().width+14:304;
-    const next=Math.max(0,Math.min(results.length-1,carouselIndex+direction));
-    setCarouselIndex(next);
-    rail.scrollTo({left:next*step,behavior:"smooth"});
-  };
+export default function SearchHub({
+  initialAirports = [],
+  initialDestinations = [],
+  initialDuration = "all",
+  searchRequest = 0,
+  initialTab = "Inspiracje",
+}: Props) {
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [destination, setDestination] = useState(initialDestinations[0] || "");
+  const [departure, setDeparture] = useState(initialAirports[0] || "");
+  const [duration, setDuration] = useState(initialDuration || "all");
+  const [budget, setBudget] = useState("5000");
+  const [board, setBoard] = useState("all");
+  const [weekendOnly, setWeekendOnly] = useState(false);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+  const [notice, setNotice] = useState("");
+  const destinationRef = useRef<HTMLDivElement>(null);
 
-  useEffect(()=>{setAirports(initialAirports);setDestinations(initialDestinations);setDuration(initialDuration||"all")},[initialAirports.join("|"),initialDestinations.join("|"),initialDuration]);
-  useEffect(()=>{if(searchRequest>0){setShowResults(true);void runPartnerSearch()}},[searchRequest]);
-  useEffect(()=>{setCarouselIndex(0)},[airports.join("|"),destinations.join("|"),customDestination,duration,budget,board,text,weekendOnly,activeTab]);
+  const suggestions = useMemo(() => {
+    const query = destination.trim();
+    if (!query) return WORLD_DESTINATIONS.filter((x) => isTravelDestinationAllowed(x.label, x.region)).slice(0, 8);
+    return WORLD_DESTINATIONS
+      .filter((x) => isTravelDestinationAllowed(x.label, x.region))
+      .filter((x) => destinationMatches(query, x))
+      .slice(0, 8);
+  }, [destination]);
 
-  useEffect(()=>{
-    if(!open)return;
-    const handlePointerDown=(event:PointerEvent)=>{
-      const target=event.target as Node;
-      const activeRef=open==="from"?fromDropdownRef.current:toDropdownRef.current;
-      if(activeRef && !activeRef.contains(target))setOpen(null);
+  useEffect(() => {
+    setDestination(initialDestinations[0] || "");
+    setDeparture(initialAirports[0] || "");
+    setDuration(initialDuration || "all");
+  }, [initialAirports.join("|"), initialDestinations.join("|"), initialDuration]);
+
+  useEffect(() => {
+    const onPointerDown = (event: PointerEvent) => {
+      if (destinationRef.current && !destinationRef.current.contains(event.target as Node)) setSuggestionsOpen(false);
     };
-    const handleKeyDown=(event:KeyboardEvent)=>{if(event.key==="Escape")setOpen(null)};
-    document.addEventListener("pointerdown",handlePointerDown);
-    document.addEventListener("keydown",handleKeyDown);
-    return ()=>{document.removeEventListener("pointerdown",handlePointerDown);document.removeEventListener("keydown",handleKeyDown)};
-  },[open]);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, []);
 
-  const worldFiltered=useMemo(()=>WORLD_DESTINATIONS.filter(x=>isTravelDestinationAllowed(x.label,x.region)).filter(x=>destinationMatches(destinationQuery,x)),[destinationQuery]);
-  const selectedTo=[...destinations,...(customDestination?[customDestination]:[])];
-  const selectedToLabel=selectedTo.length===0?"Gdziekolwiek":selectedTo.length===1?selectedTo[0]:`${selectedTo.length} kierunki`;
-  const selectedFromLabel=airports.length===0?"Wszystkie lotniska":airports.length===1?(airportOptions.find((a:any)=>a.code===airports[0])?.label||airports[0]):`${airports.length} lotniska`;
+  useEffect(() => {
+    if (searchRequest > 0) void runSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchRequest]);
 
-  const results=useMemo(()=>{
-    const max=budgetValue(budget);
-    const staticFallback=(offers as any[]).filter((o:any)=>["exim","tui","wakacje"].includes(String(o.partner||"").toLowerCase()));
-    const usingLive=liveVerified && liveResults.length>0;
-    const source=usingLive?liveResults:staticFallback;
-    const filtered=source.filter((o:any)=>{
-      if(isOfferExpired(o))return false;
-      if(!isTravelDestinationAllowed(String(o.city||""),String(o.country||"")))return false;
-      if(!usingLive){
-        if(Number(o.price||0)>max)return false;
-        const q=normalizeDestination(text);
-        const to:string[]=selectedTo.map(v=>normalizeDestination(String(v))).filter(Boolean);
-        if(airports.length && !airports.includes(depCode(o)) && !airports.some(a=>normalizeDestination(String(o.departure||"")).includes(normalizeDestination(airportOptions.find((x:any)=>x.code===a)?.label||a))))return false;
-        if(to.length && !to.some(d=>offerText(o).includes(d)||d.includes(normalizeDestination(String(o.city||o.country||"")))))return false;
-        if(!durationOk(o,duration))return false;
-        if(board!=="all"&&!normalizeDestination(String(o.board||"")).includes(normalizeDestination(board)))return false;
-        if(q&&!offerText(o).includes(q))return false;
-        if(weekendOnly){
-          const cats=(o.category||[]).map((c:any)=>normalizeDestination(String(c)));
-          const nights=Number(o.nights||o.duration||0);
-          if(!cats.some((c:string)=>c.includes("weekend")) && !(nights>=2&&nights<=4))return false;
-        }
-      }
-      return true;
-    }).sort((a:any,b:any)=>Number(a.price||Infinity)-Number(b.price||Infinity));
-    return onePerDirection(filtered).slice(0,20);
-  },[airports,destinations,customDestination,duration,budget,board,text,weekendOnly,submitted,liveResults,liveLoading,liveVerified]);
+  function staticFallback(query: string, overrides: SearchOverrides = {}) {
+    const activeDuration = overrides.duration ?? duration;
+    const activeBudget = overrides.budget ?? budget;
+    const activeBoard = overrides.board ?? board;
+    const activeWeekend = overrides.weekendOnly ?? weekendOnly;
+    const normalizedQuery = normalizeDestination(query);
+    const maxPrice = activeBudget === "all" ? Infinity : Number(activeBudget);
 
-  async function runPartnerSearch(destinationOverride?:string, cityModeOverride?:boolean, initialLoad=false):Promise<number>{
-    setShowResults(true);
-    const destination=(destinationOverride||(selectedTo.length?selectedTo.join(","):"")||text||"").trim();
-    setLiveLoading(true);setLiveNotice("");
-    try{
-      const cityMode=cityModeOverride ?? activeTab==="City break";
-      const params=new URLSearchParams({mode:cityMode?"citybreak":"search"});
-      if(destination)params.set("q",destination);
-      if(!destination&&!cityMode)params.set("broad","1");
-      if(airports.length)params.set("from",airports.join(","));
-      if(weekendOnly)params.set("weekend","1");
-      if(duration!=="all")params.set("nights",duration);
-      if(board==="all inclusive")params.set("board","allinclusive");
-      else if(board==="ultra all inclusive")params.set("board","ultraallinclusive");
-      else if(board==="śniadanie")params.set("board","breakfast");
-      else if(board==="half board")params.set("board","halfboard");
-      else if(board==="full board")params.set("board","fullboard");
-      else if(board==="bez wyżywienia")params.set("board","roomonly");
-      if(Number.isFinite(budgetValue(budget)))params.set("maxPrice",String(budgetValue(budget)));
-      const response=await fetch(`/api/today-offers?${params.toString()}`,{cache:"no-store"});
-      const data=await response.json();
-      if(!response.ok||data?.ok===false)throw new Error(String(data?.error||`Feed HTTP ${response.status}`));
-      const rows=Array.isArray(data?.offers)?data.offers:[];
-      let accepted=rows.filter((o:any)=>cityMode?String(o.partner||"").toLowerCase()==="exim":["exim","tui"].includes(String(o.partner||"").toLowerCase()));
-      let notice=String(data?.notice||"");
-      if(!accepted.length&&destination){
-        const rescueParams=new URLSearchParams({mode:"search",broad:"1",rescue:"1"});
-        const rescueResponse=await fetch(`/api/today-offers?${rescueParams.toString()}`,{cache:"no-store"});
-        const rescueData=await rescueResponse.json();
-        accepted=(Array.isArray(rescueData?.offers)?rescueData.offers:[]).filter((o:any)=>["exim","tui"].includes(String(o.partner||"").toLowerCase()));
-        if(accepted.length)notice=`Nie mamy teraz dokładnego dopasowania dla „${destination}”. Pokazujemy najbliższe aktualne okazje.`;
+    const rows = (offers as any[])
+      .filter((o) => !isOfferExpired(o))
+      .filter((o) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
+      .filter((o) => ["exim", "tui", "wakacje"].includes(String(o.partner || "").toLowerCase()))
+      .filter((o) => !normalizedQuery || normalizeOffer(o).includes(normalizedQuery) || normalizedQuery.includes(normalizeDestination(String(o.city || o.country || ""))))
+      .filter((o) => !departure || String(o.departureCode || o.airportCode || o.departureAirportCode || "").toUpperCase() === departure || normalizeDestination(String(o.departure || "")).includes(normalizeDestination(airportOptions.find((a: any) => a.code === departure)?.label || departure)))
+      .filter((o) => durationMatches(o, activeDuration))
+      .filter((o) => Number(o.price || 0) <= maxPrice)
+      .filter((o) => activeBoard === "all" || normalizeDestination(String(o.board || "")).includes(normalizeDestination(activeBoard)))
+      .filter((o) => {
+        if (!activeWeekend) return true;
+        const nights = Number(o.nights || o.duration || 0);
+        const categories = (o.category || []).map((c: any) => normalizeDestination(String(c)));
+        return categories.some((c: string) => c.includes("weekend")) || (nights >= 2 && nights <= 4);
+      })
+      .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
+
+    return onePerDirection(rows).slice(0, 9);
+  }
+
+  async function runSearch(destinationOverride?: string, overrides: SearchOverrides = {}) {
+    const query = (destinationOverride ?? destination).trim();
+    if (query && isTravelDestinationBlocked(query)) {
+      setSearched(true);
+      setResults([]);
+      setNotice("Tego kierunku Tripownia obecnie nie promuje ze względów bezpieczeństwa.");
+      return;
+    }
+
+    const activeDuration = overrides.duration ?? duration;
+    const activeBudget = overrides.budget ?? budget;
+    const activeBoard = overrides.board ?? board;
+    const activeWeekend = overrides.weekendOnly ?? weekendOnly;
+    const activeMode = overrides.tab ?? activeTab;
+
+    setLoading(true);
+    setSearched(true);
+    setSuggestionsOpen(false);
+    setNotice("");
+
+    try {
+      const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });
+      if (query) params.set("q", query);
+      else params.set("broad", "1");
+      if (departure) params.set("from", departure);
+      if (activeDuration !== "all") params.set("nights", activeDuration);
+      if (activeBudget !== "all") params.set("maxPrice", activeBudget);
+      if (activeWeekend) params.set("weekend", "1");
+      if (activeBoard === "all inclusive") params.set("board", "allinclusive");
+      else if (activeBoard === "ultra all inclusive") params.set("board", "ultraallinclusive");
+      else if (activeBoard === "śniadanie") params.set("board", "breakfast");
+      else if (activeBoard === "half board") params.set("board", "halfboard");
+      else if (activeBoard === "full board") params.set("board", "fullboard");
+      else if (activeBoard === "bez wyżywienia") params.set("board", "roomonly");
+
+      const response = await fetch(`/api/today-offers?${params.toString()}`, { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok || data?.ok === false) throw new Error(String(data?.error || `HTTP ${response.status}`));
+
+      let rows = Array.isArray(data?.offers) ? data.offers : [];
+      rows = rows.filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()));
+      rows = onePerDirection(rows.sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity))).slice(0, 9);
+
+      if (!rows.length) {
+        const fallback = staticFallback(query, overrides);
+        setResults(fallback);
+        setNotice(fallback.length ? "Nie mamy teraz dokładnego wyniku z feedu. Pokazujemy najbliższe sensowne propozycje Tripowni." : "Nie znaleźliśmy teraz dobrego dopasowania. Zmień kierunek, budżet albo długość pobytu.");
+      } else {
+        setResults(rows);
+        setNotice(String(data?.notice || ""));
       }
-      if(!accepted.length){
-        const finalParams=new URLSearchParams({mode:"search",broad:"1",rescue:"full"});
-        const finalResponse=await fetch(`/api/today-offers?${finalParams.toString()}`,{cache:"no-store"});
-        const finalData=await finalResponse.json();
-        accepted=(Array.isArray(finalData?.offers)?finalData.offers:[]).filter((o:any)=>["exim","tui"].includes(String(o.partner||"").toLowerCase()));
-        if(accepted.length)notice="Brak dokładnego dopasowania — pokazujemy najlepsze aktualne okazje dostępne teraz.";
-      }
-      accepted=onePerDirection(accepted.sort((a:any,b:any)=>Number(a.price||Infinity)-Number(b.price||Infinity))).slice(0,20);
-      setLiveResults(accepted);setLiveVerified(accepted.length>0);
-      setLiveNotice(accepted.length?notice:"Partnerzy nie zwrócili teraz dostępnych ofert. Pokazujemy inspiracje z cenami orientacyjnymi — sprawdź cenę przed rezerwacją.");
-      return accepted.length;
-    }catch{
-      setLiveVerified(liveResults.length>0);
-      setLiveNotice(liveResults.length>0?"Nie udało się odświeżyć feedu — pokazujemy ostatnią zweryfikowaną pulę z tej sesji.":"Feed ofert nie jest teraz dostępny. Pokazujemy inspiracje z cenami orientacyjnymi — sprawdź cenę przed rezerwacją.");
-      return liveResults.length;
-    }finally{
-      setLiveLoading(false);setSubmitted(v=>v+1);if(initialLoad)setInitialSearchDone(true);else setInitialSearchDone(true);
+    } catch {
+      const fallback = staticFallback(query, overrides);
+      setResults(fallback);
+      setNotice(fallback.length ? "Feed chwilowo nie odpowiedział. Pokazujemy sprawdzone propozycje z bazy Tripowni." : "Nie udało się pobrać ofert. Spróbuj zmienić parametry wyszukiwania.");
+    } finally {
+      setLoading(false);
     }
   }
 
-  function toggleDestination(v:string){setCustomDestination("");setDestinations(prev=>prev.includes(v)?prev.filter(x=>x!==v):[...prev,v])}
-  function useCustom(){const v=destinationQuery.trim();if(!v||isTravelDestinationBlocked(v))return;setDestinations([]);setCustomDestination(v);setOpen(null);setDestinationQuery("")}
-  function clearAll(){setAirports([]);setDestinations([]);setCustomDestination("");setDuration("all");setBudget("5000");setBoard("all");setWeekendOnly(false);setText("");setDestinationQuery("");setShowResults(false);setLiveResults([]);setLiveVerified(false);setLiveNotice("");setInitialSearchDone(false)}
-  function pickDestination(label:string, opts?:{duration?:string;budget?:string;board?:string}, cityModeOverride?:boolean){setDestinations([label]);setCustomDestination("");setText("");setDestinationQuery("");if(opts?.duration)setDuration(opts.duration);if(opts?.budget)setBudget(opts.budget);if(opts?.board)setBoard(opts.board);setOpen(null);void runPartnerSearch(label,cityModeOverride)}
-  function chooseTab(tab:string){setActiveTab(tab);if(tab==="Inspiracje"){setShowResults(false);return;}if(tab==="City break")pickDestination("Rzym, Włochy",{duration:"3-4"},true);if(tab==="Lot + hotel")pickDestination("Barcelona, Hiszpania",{duration:"3-4"},false);if(tab==="Wakacje")pickDestination("Djerba, Tunezja",{duration:"5-7",board:"all inclusive"},false);if(tab==="Atrakcje")window.location.href="/atrakcje";if(tab==="Parkingi")window.location.href="/parkingi";if(tab==="eSIM")window.location.href="/esim"}
+  function submitSearch(event: FormEvent) {
+    event.preventDefault();
+    void runSearch();
+  }
 
-  const activeChips=[...(airports.length?[`✈ ${selectedFromLabel}`]:[]),...(selectedTo.length?[`🌍 ${selectedToLabel}`]:[]),...(duration!=="all"?[`📅 ${duration}`]:[]),...(budget!=="5000"?[`💰 do ${Number(budget).toLocaleString("pl-PL")} zł`]:[]),...(board!=="all"?[`🍽 ${board}`]:[]),...(weekendOnly?[`🗓 weekend`]:[])];
-  const queryDestination=selectedTo[0]||text||"";
-  const hasDestination=Boolean(queryDestination.trim());
-  const quickPicks=[
-    ["🏛️","City break: Rzym","Rzym, Włochy",{duration:"3-4"}],
-    ["☀️","Ciepło zimą: Teneryfa","Teneryfa, Hiszpania",{duration:"5-7"}],
-    ["🏖️","All Inclusive: Djerba","Djerba, Tunezja",{duration:"5-7",board:"all inclusive"}],
-    ["💶","Tanio: Bergamo","Bergamo, Włochy",{duration:"3-4",budget:"1000"}],
-    ["🌴","Egzotyka: Zanzibar","Zanzibar, Tanzania",{duration:"11-14"}]
-  ] as const;
+  function chooseTab(tab: string) {
+    if (tab === "Atrakcje") {
+      window.location.href = "/atrakcje";
+      return;
+    }
+    if (tab === "Parkingi") {
+      window.location.href = "/parkingi";
+      return;
+    }
+    if (tab === "eSIM") {
+      window.location.href = "/esim";
+      return;
+    }
 
-  return <section className="section shell" id="wyszukiwarka">
-    <div className="search-hub">
-      <div className="search-tabs">
-        {['Inspiracje','City break','Lot + hotel','Wakacje','Atrakcje','Parkingi','eSIM'].map(x=><button key={x} className={activeTab===x?'active':''} type="button" onClick={()=>chooseTab(x)}>{x}</button>)}
-      </div>
+    setActiveTab(tab);
+    setSearched(false);
+    setResults([]);
+    setNotice("");
+    if (tab === "City break" || tab === "Lot + hotel") setDuration("3-4");
+    if (tab === "Wakacje") setDuration("5-7");
+  }
 
-      <div className="search-text-row search-text-row-with-weekend search-top-inline">
-        <div className="search-text-field"><Search size={18}/><input value={text} onChange={e=>setText(e.target.value)} placeholder="Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam lub Resort 4★"/>{text&&<button onClick={()=>setText("")} aria-label="Wyczyść"><X size={16}/></button>}</div>
-        <label className={`weekend-required weekend-required-inline ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>setWeekendOnly(e.target.checked)}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Pobyt obejmuje sobotę i niedzielę</strong><small>Jesteś na miejscu w oba dni</small></div></label>
-      </div>
+  function quickSearch(label: string, overrides: SearchOverrides) {
+    setDestination(label);
+    if (overrides.duration) setDuration(overrides.duration);
+    if (overrides.budget) setBudget(overrides.budget);
+    if (overrides.board) setBoard(overrides.board);
+    if (typeof overrides.weekendOnly === "boolean") setWeekendOnly(overrides.weekendOnly);
+    if (overrides.tab) setActiveTab(overrides.tab);
+    void runSearch(label, overrides);
+  }
 
-      <div className="compact-search-row">
-        <div className="dropdown-filter" ref={fromDropdownRef}>
-          <button className={`dropdown-trigger ${open==='from'?'open':''}`} onClick={()=>setOpen(open==='from'?null:'from')}><span className="dropdown-icon"><Plane size={18}/></span><span className="dropdown-copy"><small>Skąd?</small><strong>{selectedFromLabel}</strong></span><ChevronDown className={`dropdown-chevron ${open==='from'?'rotated':''}`} size={17}/></button>
-          {open==='from'&&<div className="dropdown-menu"><div className="dropdown-menu-head"><strong>Skąd?</strong><button onClick={()=>setOpen(null)}><X size={18}/></button></div><button className={`dropdown-anywhere ${airports.length===0?'active':''}`} onClick={()=>setAirports([])}><Check size={16}/> Wszystkie lotniska</button><div className="dropdown-options">{airportOptions.map((a:any)=><button key={a.code} className={`dropdown-option ${airports.includes(a.code)?'active':''}`} onClick={()=>setAirports(p=>p.includes(a.code)?p.filter(x=>x!==a.code):[...p,a.code])}><span className="check-box">{airports.includes(a.code)&&<Check size={13}/>}</span>{a.label}</button>)}</div><button className="dropdown-done" onClick={()=>setOpen(null)}>Gotowe</button></div>}
+  function resetSearch() {
+    setDestination("");
+    setDeparture("");
+    setDuration("all");
+    setBudget("5000");
+    setBoard("all");
+    setWeekendOnly(false);
+    setAdvancedOpen(false);
+    setResults([]);
+    setNotice("");
+    setSearched(false);
+  }
+
+  const quickPicks: Array<[string, string, SearchOverrides]> = [
+    ["Rzym, Włochy", "Rzym na city break", { duration: "3-4", budget: "1500", tab: "City break" }],
+    ["Teneryfa, Hiszpania", "Ciepło na Teneryfie", { duration: "5-7", budget: "3000", tab: "Wakacje" }],
+    ["Djerba, Tunezja", "All Inclusive na Djerbie", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Wakacje" }],
+    ["Bergamo, Włochy", "Tani weekend w Bergamo", { duration: "3-4", budget: "1000", weekendOnly: true, tab: "City break" }],
+    ["Zanzibar, Tanzania", "Egzotyka: Zanzibar", { duration: "11-14", budget: "7500", tab: "Wakacje" }],
+  ];
+
+  return (
+    <section className="section shell search-v3-section" id="wyszukiwarka">
+      <div className="search-v3">
+        <div className="search-v3-head">
+          <div>
+            <small>WYSZUKIWARKA TRIPOWNI</small>
+            <h2>Gdzie chcesz lecieć?</h2>
+            <p>Najpierw kierunek. Resztę doprecyzujesz w kilku kliknięciach.</p>
+          </div>
+          <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
 
-        <div className="dropdown-filter" ref={toDropdownRef}>
-          <button className={`dropdown-trigger ${open==='to'?'open':''}`} onClick={()=>setOpen(open==='to'?null:'to')}><span className="dropdown-icon"><Compass size={18}/></span><span className="dropdown-copy"><small>Dokąd?</small><strong>{selectedToLabel}</strong></span><ChevronDown className={`dropdown-chevron ${open==='to'?'rotated':''}`} size={17}/></button>
-          {open==='to'&&<div className="dropdown-menu"><div className="dropdown-menu-head"><strong>Dokąd? — cały świat</strong><button onClick={()=>setOpen(null)}><X size={18}/></button></div><div className="search-text-field" style={{height:44,marginBottom:8}}><Search size={15}/><input autoFocus value={destinationQuery} onChange={e=>setDestinationQuery(e.target.value)} placeholder="Wpisz kraj, miasto lub wyspę…"/></div><button className={`dropdown-anywhere ${selectedTo.length===0?'active':''}`} onClick={()=>{setDestinations([]);setCustomDestination("")}}><Check size={16}/> Gdziekolwiek</button><div className="dropdown-options">{worldFiltered.map(d=><button key={d.label} className={`dropdown-option ${destinations.includes(d.label)?'active':''}`} onClick={()=>toggleDestination(d.label)}><span className="check-box">{destinations.includes(d.label)&&<Check size={13}/>}</span><span>{d.label}<small style={{display:'block',fontWeight:600,opacity:.6}}>{d.region}</small></span></button>)}</div>{destinationQuery.trim()&&!WORLD_DESTINATIONS.some(d=>normalizeDestination(d.label)===normalizeDestination(destinationQuery))&&!isTravelDestinationBlocked(destinationQuery)&&<button className="dropdown-anywhere" onClick={useCustom}><MapPin size={16}/> Szukaj dokładnie: „{destinationQuery.trim()}”</button>}{isTravelDestinationBlocked(destinationQuery)&&<div style={{padding:'10px 12px',borderRadius:12,background:'#fff2ed',color:'#8a2b12',fontWeight:750,fontSize:13}}>Tego kierunku Tripownia obecnie nie promuje ze względów bezpieczeństwa.</div>}<button className="dropdown-done" onClick={()=>setOpen(null)}>Gotowe</button></div>}
+        <div className="search-v3-tabs" role="tablist" aria-label="Rodzaj podróży">
+          {["Inspiracje", "City break", "Lot + hotel", "Wakacje", "Atrakcje", "Parkingi", "eSIM"].map((tab) => (
+            <button key={tab} type="button" className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
+          ))}
         </div>
 
-        <label className="compact-select"><span><CalendarDays size={14}/> Na ile?</span><select value={duration} onChange={e=>setDuration(e.target.value)}><option value="all">Dowolnie</option><option value="1-2">1–2 noce</option><option value="3-4">3–4 noce</option><option value="5-7">5–7 nocy</option><option value="8-10">8–10 nocy</option><option value="11-14">11–14 nocy</option><option value="15+">15+ nocy</option></select></label>
-        <label className="compact-select"><span>💳 Budżet / os.</span><select value={budget} onChange={e=>setBudget(e.target.value)}><option value="all">Dowolny</option><option value="500">do 500 zł</option><option value="750">do 750 zł</option><option value="1000">do 1 000 zł</option><option value="1500">do 1 500 zł</option><option value="2000">do 2 000 zł</option><option value="2500">do 2 500 zł</option><option value="3000">do 3 000 zł</option><option value="4000">do 4 000 zł</option><option value="5000">do 5 000 zł</option><option value="7500">do 7 500 zł</option><option value="10000">do 10 000 zł</option><option value="15000">do 15 000 zł</option><option value="20000">do 20 000 zł</option></select></label>
-        <label className="compact-select"><span><Utensils size={14}/> Wyżywienie</span><select value={board} onChange={e=>setBoard(e.target.value)}><option value="all">Dowolne</option><option value="bez wyżywienia">Bez wyżywienia</option><option value="śniadanie">Śniadanie</option><option value="half board">2 posiłki / Half Board</option><option value="full board">3 posiłki / Full Board</option><option value="all inclusive">All Inclusive</option><option value="ultra all inclusive">Ultra All Inclusive</option></select></label>
-        <button className="search-submit compact-submit" onClick={()=>void runPartnerSearch()}><Search size={18}/> {liveLoading?"Szukamy okazji…":"Odkryj okazje"}</button>
-      </div>
+        <form className="search-v3-form" onSubmit={submitSearch}>
+          <div className="search-v3-field search-v3-destination" ref={destinationRef}>
+            <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd?</label>
+            <div className="search-v3-input-wrap">
+              <input
+                id="tripownia-destination"
+                value={destination}
+                onChange={(event) => { setDestination(event.target.value); setSuggestionsOpen(true); }}
+                onFocus={() => setSuggestionsOpen(true)}
+                placeholder="Miasto, kraj albo wyspa"
+                autoComplete="off"
+              />
+              {destination && <button type="button" aria-label="Wyczyść kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
+            </div>
 
-      <div className="quick-destination-wrap">
-        <div className="quick-destination-head"><small>SZYBKIE STARTY — KONKRETNY KIERUNEK</small>{activeChips.length>0&&<button className="quick-clear-filters" type="button" onClick={clearAll}>Wyczyść filtry</button>}</div>
-        <div className="quick-destination-grid">{quickPicks.map(([icon,label,dest,opts])=><button key={dest} type="button" onClick={()=>pickDestination(dest,opts)}><span>{icon}</span><strong>{label}</strong></button>)}</div>
-      </div>
+            {suggestionsOpen && (
+              <div className="search-v3-suggestions">
+                {suggestions.length > 0 ? suggestions.map((item) => (
+                  <button key={item.label} type="button" onClick={() => { setDestination(item.label); setSuggestionsOpen(false); }}>
+                    <MapPin size={15}/><span><strong>{item.label}</strong><small>{item.region}</small></span>
+                  </button>
+                )) : destination.trim() && !isTravelDestinationBlocked(destination) ? (
+                  <button type="button" onClick={() => setSuggestionsOpen(false)}><Search size={15}/><span><strong>Szukaj dokładnie „{destination.trim()}”</strong><small>Dowolny kierunek na świecie</small></span></button>
+                ) : null}
+              </div>
+            )}
+          </div>
 
-      {!showResults&&<div className="search-intro-state"><small>NAJPIERW TY WYBIERASZ KIERUNEK</small><strong>Ustaw to, co ma znaczenie. Dopiero wtedy pokażemy dopasowane oferty.</strong><span>Możesz też kliknąć jeden z szybkich startów powyżej.</span></div>}
+          <label className="search-v3-field">
+            <span><Plane size={15}/> Skąd?</span>
+            <select value={departure} onChange={(event) => setDeparture(event.target.value)}>
+              <option value="">Wszystkie lotniska</option>
+              {airportOptions.map((airport: any) => <option key={airport.code} value={airport.code}>{airport.label}</option>)}
+            </select>
+            <ChevronDown size={15} className="search-v3-chevron"/>
+          </label>
 
-      {showResults&&<div className="search-results-block">
-        <div className="search-results-heading premium-results-heading">
-          <div><small>ODKRYTE DLA CIEBIE</small><h3>{hasDestination?`Okazje: ${queryDestination}`:liveVerified?`${results.length} aktualnych okazji`:`${results.length} inspiracji podróżniczych`}</h3>{liveNotice&&<em className="search-live-notice">{liveNotice}</em>}</div>
-          <span>Pokazujemy maksymalnie 20 różnych kierunków i najtańsze dopasowanie na każdy z nich.</span>
+          <label className="search-v3-field">
+            <span>Na ile?</span>
+            <select value={duration} onChange={(event) => setDuration(event.target.value)}>
+              <option value="all">Dowolnie</option>
+              <option value="1-2">1–2 noce</option>
+              <option value="3-4">3–4 noce</option>
+              <option value="5-7">5–7 nocy</option>
+              <option value="8-10">8–10 nocy</option>
+              <option value="11-14">11–14 nocy</option>
+              <option value="15+">15+ nocy</option>
+            </select>
+            <ChevronDown size={15} className="search-v3-chevron"/>
+          </label>
+
+          <label className="search-v3-field">
+            <span>Budżet / os.</span>
+            <select value={budget} onChange={(event) => setBudget(event.target.value)}>
+              <option value="all">Dowolny</option>
+              <option value="750">do 750 zł</option>
+              <option value="1000">do 1 000 zł</option>
+              <option value="1500">do 1 500 zł</option>
+              <option value="2000">do 2 000 zł</option>
+              <option value="3000">do 3 000 zł</option>
+              <option value="5000">do 5 000 zł</option>
+              <option value="7500">do 7 500 zł</option>
+              <option value="10000">do 10 000 zł</option>
+              <option value="15000">do 15 000 zł</option>
+            </select>
+            <ChevronDown size={15} className="search-v3-chevron"/>
+          </label>
+
+          <button type="submit" className="search-v3-submit" disabled={loading}><Search size={18}/>{loading ? "Szukamy…" : "Szukaj wyjazdu"}</button>
+        </form>
+
+        <div className="search-v3-options-row">
+          <button type="button" className={`search-v3-more ${advancedOpen ? "active" : ""}`} onClick={() => setAdvancedOpen((value) => !value)}>
+            <SlidersHorizontal size={15}/> Więcej filtrów
+          </button>
+          <button type="button" className={`search-v3-weekend ${weekendOnly ? "active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
+            <span className="search-v3-check">{weekendOnly && <Check size={13}/>}</span> Pobyt obejmuje sobotę i niedzielę
+          </button>
+          {advancedOpen && (
+            <label className="search-v3-board">
+              <span>Wyżywienie</span>
+              <select value={board} onChange={(event) => setBoard(event.target.value)}>
+                <option value="all">Dowolne</option>
+                <option value="bez wyżywienia">Bez wyżywienia</option>
+                <option value="śniadanie">Śniadanie</option>
+                <option value="half board">Half Board</option>
+                <option value="full board">Full Board</option>
+                <option value="all inclusive">All Inclusive</option>
+                <option value="ultra all inclusive">Ultra All Inclusive</option>
+              </select>
+            </label>
+          )}
         </div>
-        {liveLoading&&<div className="partner-search-banner search-results-carousel-head"><div><small>✦ SPRAWDZAMY TERAZ</small><strong>Szukamy aktualnych dopasowań do Twoich parametrów.</strong></div></div>}
-        {results.length>0&&<>
-          <div className="premium-results-summary premium-results-carousel-summary"><div><small>✦ WYBRANE PRZEZ TRIPOWNIĘ</small><strong>{liveVerified?`${results.length} różnych kierunków z aktualnego feedu`:`${results.length} inspiracji — ceny potwierdzisz u organizatora`}</strong></div><span className="premium-results-carousel-count">{Math.min(carouselIndex+1,results.length)} / {results.length}</span></div>
-          <div className="search-results-carousel-wrap premium-search-results-wrap"><div className="premium-results-carousel-controls premium-results-carousel-controls-overlay"><button type="button" onClick={()=>moveResults(-1)} disabled={carouselIndex===0} aria-label="Poprzednia oferta"><ArrowLeft size={20}/></button><button type="button" onClick={()=>moveResults(1)} disabled={carouselIndex>=results.length-1} aria-label="Następna oferta"><ArrowRight size={20}/></button></div><div className="search-results-carousel premium-search-results-carousel" ref={resultsRailRef}>{results.map((o:any)=><div className="search-results-carousel-item" key={o.id}><OfferCard offer={o}/></div>)}</div></div>
-        </>}
-        {hasDestination&&<UnifiedPartnerSearch mode={activeTab==="City break"||activeTab==="Lot + hotel"?"city":activeTab==="Wakacje"?"holiday":"all"} initialDestination={queryDestination} initialDeparture={selectedFromLabel} initialDepartureCode={airports[0]} initialWeekendOnly={weekendOnly}/>}
-        {initialSearchDone&&!liveLoading&&results.length===0&&<div className="empty-search"><strong>Nie znaleźliśmy teraz dobrego dopasowania.</strong><p>Zmień kierunek, budżet albo długość pobytu. Nie dokładamy przypadkowych wyników tylko po to, żeby zapełnić ekran.</p></div>}
-      </div>}
-    </div>
-  </section>
+
+        <div className="search-v3-quick">
+          <span>Szybki start</span>
+          <div>{quickPicks.map(([destinationLabel, label, overrides]) => <button type="button" key={destinationLabel} onClick={() => quickSearch(destinationLabel, overrides)}>{label}</button>)}</div>
+        </div>
+
+        {searched && (
+          <div className="search-v3-results">
+            <div className="search-v3-results-head">
+              <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `${results.length} propozycji dla Ciebie` : "Brak dopasowania"}</h3></div>
+              {notice && <p>{notice}</p>}
+            </div>
+
+            {!loading && results.length > 0 && <div className="search-v3-results-grid">{results.map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>}
+            {!loading && results.length === 0 && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Zmień kierunek, budżet albo długość pobytu — nie dokładamy przypadkowych ofert tylko po to, żeby zapełnić ekran.</span></div>}
+          </div>
+        )}
+      </div>
+    </section>
+  );
 }
