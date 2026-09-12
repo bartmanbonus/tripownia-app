@@ -1,0 +1,49 @@
+name: Mobile iOS Validation
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/native-mobile-app
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/mobile-ios.yml'
+
+jobs:
+  build-ios-simulator:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: mobile
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Verify mobile shell
+        run: test -f www/index.html
+
+      - name: Generate iOS project
+        run: npx cap add ios
+
+      - name: Sync Capacitor
+        run: npx cap sync ios
+
+      - name: Build iOS simulator app
+        run: xcodebuild -project ios/App/App.xcodeproj -scheme App -sdk iphonesimulator -configuration Debug -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+
+      - name: Upload simulator app
+        uses: actions/upload-artifact@v4
+        with:
+          name: tripownia-ios-simulator
+          path: mobile/build/Build/Products/Debug-iphonesimulator/App.app
+          if-no-files-found: error
