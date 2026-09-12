@@ -1,5 +1,15 @@
-const CACHE_NAME = "tripownia-v1";
-const APP_SHELL = ["/", "/ulubione", "/alerty", "/tripownia-app-icon.svg"];
+const CACHE_NAME = "tripownia-v2";
+const APP_SHELL = [
+  "/app",
+  "/dla-ciebie",
+  "/moja-podroz",
+  "/gdzie-leciec",
+  "/porownaj",
+  "/ulubione",
+  "/alerty",
+  "/profil",
+  "/tripownia-app-icon.svg",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
@@ -24,7 +34,7 @@ self.addEventListener("fetch", (event) => {
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
         return response;
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/")))
+      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/app")))
   );
 });
 
@@ -33,16 +43,16 @@ self.addEventListener("push", (event) => {
   try { data = event.data?.json?.() || {}; } catch {}
   const title = data.title || "Tripownia";
   const options = {
-    body: data.body || "Pojawiła się nowa okazja podróżnicza.",
+    body: data.body || "Pojawiła się nowa informacja o Twojej podróży.",
     icon: "/tripownia-app-icon.svg",
     badge: "/tripownia-app-icon.svg",
-    data: { url: data.url || "/" },
+    data: { url: data.url || "/app" },
   };
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const url = event.notification?.data?.url || "/";
+  const url = event.notification?.data?.url || "/app";
   event.waitUntil(clients.openWindow(url));
 });
