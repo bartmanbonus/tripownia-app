@@ -14,6 +14,7 @@ import {
   Bell,
   UserRound,
   Sparkles,
+  Compass,
 } from "lucide-react";
 import { partners } from "@/lib/partners";
 
@@ -37,9 +38,7 @@ const serviceItems = [
 
 export default function SiteHeader() {
   const showMarkets = Date.now() <= new Date("2027-01-07T22:59:59Z").getTime();
-  const visiblePrimaryItems = primaryItems.filter(
-    (item) => !("seasonal" in item && item.seasonal) || showMarkets,
-  );
+  const visiblePrimaryItems = primaryItems.filter((item) => !("seasonal" in item && item.seasonal) || showMarkets);
   const siteSchema = {
     "@context": "https://schema.org",
     "@graph": [
@@ -52,46 +51,18 @@ export default function SiteHeader() {
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema).replace(/</g, "\\u003c") }} />
     <header className="menu-v5">
       <div className="menu-v5-shell">
-        <Link className="menu-v5-brand" href="/" aria-label="Tripownia.pl — strona główna">
-          <img src="/tripownia-logo.webp" alt="Tripownia.pl" width="92" height="92" />
-        </Link>
+        <Link className="menu-v5-brand" href="/" aria-label="Tripownia.pl — strona główna"><img src="/tripownia-logo.webp" alt="Tripownia.pl" width="92" height="92" /></Link>
 
         <nav className="menu-v5-primary" aria-label="Najważniejsze sekcje" style={{ gridTemplateColumns: `repeat(${visiblePrimaryItems.length}, 145px) 120px` }}>
           {visiblePrimaryItems.map((item) => (
             <Link key={item.label} className={`menu-v5-card menu-v5-${item.tone}`} href={item.href}>
-              <span
-                className="menu-v5-icon"
-                aria-hidden="true"
-                style={{
-                  overflow: "hidden",
-                  padding: 0,
-                  background: "#fff",
-                  border: "1px solid rgba(27, 31, 35, 0.08)",
-                  boxShadow: "0 3px 10px rgba(27, 31, 35, 0.10)",
-                }}
-              >
-                <img
-                  src={item.image}
-                  alt=""
-                  width="80"
-                  height="80"
-                  loading="eager"
-                  decoding="async"
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
+              <span className="menu-v5-icon" aria-hidden="true" style={{ overflow: "hidden", padding: 0, background: "#fff", border: "1px solid rgba(27, 31, 35, 0.08)", boxShadow: "0 3px 10px rgba(27, 31, 35, 0.10)" }}>
+                <img src={item.image} alt="" width="80" height="80" loading="eager" decoding="async" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               </span>
-              <span className="menu-v5-copy">
-                {"badge" in item && item.badge ? <span className="menu-v5-badge">{item.badge}</span> : null}
-                <strong>{item.label}</strong>
-                <small>{item.note}</small>
-              </span>
+              <span className="menu-v5-copy">{"badge" in item && item.badge ? <span className="menu-v5-badge">{item.badge}</span> : null}<strong>{item.label}</strong><small>{item.note}</small></span>
             </Link>
           ))}
-
-          <Link className="menu-v5-search" href="/#wyszukiwarka" aria-label="Szukaj wyjazdu">
-            <Search size={25} strokeWidth={2.2} />
-            <span>Szukaj</span>
-          </Link>
+          <Link className="menu-v5-search" href="/#wyszukiwarka" aria-label="Szukaj wyjazdu"><Search size={25} strokeWidth={2.2} /><span>Szukaj</span></Link>
         </nav>
 
         <nav className="menu-v5-secondary" aria-label="Usługi i pozostałe sekcje">
@@ -99,15 +70,14 @@ export default function SiteHeader() {
             {serviceItems.map((item) => {
               const Icon = item.icon;
               const className = `menu-v5-service menu-v5-service-${item.tone}`;
-              if ("external" in item && item.external) {
-                return <a key={item.label} className={className} href={item.href} target="_blank" rel="sponsored noopener noreferrer"><Icon size={20} strokeWidth={2.1}/><span>{item.label}</span></a>;
-              }
+              if ("external" in item && item.external) return <a key={item.label} className={className} href={item.href} target="_blank" rel="sponsored noopener noreferrer"><Icon size={20} strokeWidth={2.1}/><span>{item.label}</span></a>;
               return <Link key={item.label} className={className} href={item.href}><Icon size={20} strokeWidth={2.1}/><span>{item.label}</span></Link>;
             })}
           </div>
 
           <div className="menu-v5-account">
             <a href="mailto:kontakt@tripownia.pl?subject=Pomoc%20Tripownia"><CircleHelp size={20}/><span>Pomoc</span></a>
+            <Link href="/gdzie-leciec"><Compass size={20}/><span>Gdzie lecieć?</span></Link>
             <Link href="/dla-ciebie"><Sparkles size={20}/><span>Dla Ciebie</span></Link>
             <Link href="/ulubione"><Heart size={20}/><span>Ulubione</span></Link>
             <Link href="/alerty"><Bell size={20}/><span>Alerty</span></Link>
