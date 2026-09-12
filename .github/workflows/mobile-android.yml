@@ -36,7 +36,7 @@ jobs:
         run: npm install
 
       - name: Verify mobile shell
-        run: test -f dist/index.html
+        run: test -f www/index.html
 
       - name: Generate Android project
         run: npx cap add android
