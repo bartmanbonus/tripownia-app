@@ -14,6 +14,7 @@ import "./offer-card-clean.css";
 import "./homepage-polish.css";
 import "./sitewide-polish.css";
 import PWARegister from "@/components/PWARegister";
+import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 
 const HOME_TITLE = "Tanie wakacje, city break i lot + hotel – okazje podróżnicze | Tripownia";
 const HOME_DESCRIPTION = "Codziennie wybieramy dobre okazje na wakacje, city breaki i lot + hotel. Sprawdź cenę, termin, hotel i aktualne propozycje z polskich lotnisk.";
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd).replace(/</g, "\\u003c") }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c") }} />
+        <LegacyHomeAnchorBridge />
         {children}
         <PWARegister />
       </body>
