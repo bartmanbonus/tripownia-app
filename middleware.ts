@@ -44,6 +44,11 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
     /^query-\d+-page$/i.test(key)
   );
 
+  if (path.endsWith("/post_id")) {
+    const cleanPath = path.slice(0, -"/post_id".length) || "/";
+    return permanentRedirect(request, cleanPath);
+  }
+
   if (hasWpPostId) {
     return new NextResponse("Ta stara strona WordPress nie jest już dostępna.", {
       status: 410,
