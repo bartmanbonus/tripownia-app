@@ -79,12 +79,15 @@ export default function OfferCard({ offer }: { offer: Offer }) {
 
   function addToTrip() {
     const previous = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null") as Record<string, unknown> | null;
-    localStorage.setItem("tripownia-my-trip", JSON.stringify({ ...(previous || {}), offerId: offer.id }));
+    const sameTrip = previous?.offerId === offer.id;
+    const nextTrip = sameTrip
+      ? { ...previous, offerId: offer.id }
+      : { offerId: offer.id, checklist: {}, dayPlan: [] };
+    localStorage.setItem("tripownia-my-trip", JSON.stringify(nextTrip));
     setTripAdded(true);
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
-  if (offer.partner === "esky") return null;
   if (override.hidden || publishedOverride.hidden) return null;
 
   const buyHref = isExpired ? `/oferta/${offer.id}` : isLiveExact ? offer.affiliateUrl : `/go/${offer.id}?source=offer_card`;
