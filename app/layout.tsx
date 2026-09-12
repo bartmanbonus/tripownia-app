@@ -6,6 +6,7 @@ import "./trip-mode.css";
 import "./app-home.css";
 import "./mobile-search-tabs-fix.css";
 import "./trip-header.css";
+import "./search-dream.css";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
