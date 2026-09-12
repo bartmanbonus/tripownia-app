@@ -7,6 +7,7 @@ on:
     branches:
       - main
       - feature/**
+      - chore/**
 
 jobs:
   build:
@@ -30,3 +31,48 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+      - name: Smoke test production routes
+        shell: bash
+        run: |
+          npm run start > /tmp/tripownia-next.log 2>&1 &
+          APP_PID=$!
+          trap 'kill "$APP_PID" 2>/dev/null || true' EXIT
+
+          ready=0
+          for attempt in {1..30}; do
+            if curl --fail --silent --show-error http://127.0.0.1:3000/ > /dev/null; then
+              ready=1
+              break
+            fi
+            sleep 1
+          done
+
+          if [ "$ready" -ne 1 ]; then
+            echo "Next.js server did not become ready"
+            cat /tmp/tripownia-next.log
+            exit 1
+          fi
+
+          routes=(
+            "/"
+            "/app"
+            "/gdzie-leciec"
+            "/dla-ciebie"
+            "/moja-podroz"
+            "/porownaj"
+            "/alerty"
+            "/profil"
+            "/ulubione"
+          )
+
+          for route in "${routes[@]}"; do
+            status=$(curl --silent --show-error --output /tmp/tripownia-body --write-out "%{http_code}" "http://127.0.0.1:3000${route}")
+            echo "${route} -> ${status}"
+            if [ "$status" != "200" ]; then
+              echo "Unexpected status for ${route}"
+              cat /tmp/tripownia-body
+              cat /tmp/tripownia-next.log
+              exit 1
+            fi
+          done

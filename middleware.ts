@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const PRIVATE_APP_PATHS = [
+  "/app",
+  "/dla-ciebie",
+  "/moja-podroz",
+  "/porownaj",
+  "/ulubione",
+  "/alerty",
+  "/profil",
+];
+
 function unauthorized() {
   return new NextResponse("Dostęp do panelu administracyjnego wymaga autoryzacji.", {
     status: 401,
@@ -52,12 +62,21 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
   return null;
 }
 
+function isPrivateAppPath(pathname: string) {
+  return PRIVATE_APP_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+}
+
 export function middleware(request: NextRequest) {
   const legacyResponse = cleanLegacyWordPressUrl(request);
   if (legacyResponse) return legacyResponse;
 
   if (!request.nextUrl.pathname.startsWith("/admin")) {
-    return NextResponse.next();
+    const response = NextResponse.next();
+    if (isPrivateAppPath(request.nextUrl.pathname)) {
+      response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+      response.headers.set("Cache-Control", "private, no-store");
+    }
+    return response;
   }
 
   const username = process.env.TRIPOWNIA_ADMIN_USER;

@@ -1,4 +1,4 @@
-const CACHE_NAME = "tripownia-v2";
+const CACHE_NAME = "tripownia-v3";
 const APP_SHELL = [
   "/app",
   "/dla-ciebie",
@@ -12,7 +12,17 @@ const APP_SHELL = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(async (cache) => {
+      for (const url of APP_SHELL) {
+        try {
+          await cache.add(url);
+        } catch (error) {
+          console.warn("Tripownia SW cache skipped", url, error);
+        }
+      }
+    })
+  );
   self.skipWaiting();
 });
 
@@ -26,15 +36,35 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+  const request = event.request;
+  if (request.method !== "GET") return;
+
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/admin")) {
+    return;
+  }
+
+  const isNavigation = request.mode === "navigate";
+  const isStaticAsset = /\.(?:css|js|svg|png|jpg|jpeg|webp|ico|woff2?)$/i.test(url.pathname);
+  if (!isNavigation && !isStaticAsset) return;
+
   event.respondWith(
-    fetch(event.request)
+    fetch(request)
       .then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy)).catch(() => {});
+        if (response.ok && (isNavigation || isStaticAsset)) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
+        }
         return response;
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("/app")))
+      .catch(async () => {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        if (isNavigation) return caches.match("/app");
+        return Response.error();
+      })
   );
 });
 

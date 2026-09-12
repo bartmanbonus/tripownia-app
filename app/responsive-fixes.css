@@ -47,6 +47,63 @@ svg {
   overflow-wrap: anywhere;
 }
 
+/* New app/PWA surfaces: never allow grid children or long labels to force overflow. */
+.app-home-page,
+.app-alerts-page,
+.compare-page,
+.advisor-page,
+.my-trip-page,
+.app-home-grid,
+.app-onboarding-steps,
+.app-alerts-grid,
+.compare-grid,
+.advisor-controls,
+.trip-mode-grid,
+.my-trip-grid,
+.cards-grid,
+.app-home-tile,
+.app-onboarding-steps > *,
+.app-alerts-card,
+.compare-card,
+.advisor-controls > *,
+.trip-mode-card,
+.my-trip-card,
+.offer-card {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.app-home-page *,
+.app-alerts-page *,
+.compare-page *,
+.advisor-page *,
+.my-trip-page * {
+  box-sizing: border-box;
+}
+
+.app-home-page h1,
+.app-home-page h2,
+.app-home-page p,
+.app-home-tile strong,
+.app-home-tile span,
+.app-onboarding-steps a,
+.app-alerts-page h1,
+.app-alerts-page h2,
+.app-alerts-page p,
+.compare-card h2,
+.compare-card dd,
+.advisor-page h1,
+.advisor-page p,
+.my-trip-page h1,
+.my-trip-page h2,
+.my-trip-page p,
+.my-trip-budget,
+.my-trip-timeline-item,
+.deal-score,
+.price-decision {
+  overflow-wrap: anywhere;
+}
+
 /* Tablets: avoid two-column sections becoming too narrow and colliding. */
 @media (max-width: 1100px) {
   .inspo-premium-hero-inner {
@@ -141,6 +198,51 @@ svg {
   .inspo-premium-cta > a {
     width: 100%;
     justify-content: center;
+  }
+
+  /* App screens: collapse every potentially colliding desktop grid. */
+  .app-home-grid,
+  .app-onboarding-steps,
+  .app-alerts-grid,
+  .compare-grid,
+  .advisor-controls,
+  .trip-mode-grid,
+  .my-trip-grid,
+  .cards-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .app-home-hero,
+  .app-alerts-hero,
+  .advisor-hero,
+  .my-trip-hero,
+  .app-home-recommendations .section-heading {
+    align-items: flex-start !important;
+  }
+
+  .app-home-hero {
+    flex-direction: column;
+  }
+
+  .app-home-hero .primary-cta,
+  .advisor-submit,
+  .app-alerts-save {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .app-onboarding-head {
+    align-items: flex-start;
+  }
+
+  .app-onboarding-steps a,
+  .app-home-tile {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .compare-card dl div,
+  .my-trip-budget {
+    align-items: flex-start;
   }
 }
 
@@ -249,6 +351,175 @@ svg {
     max-width: 100%;
     min-width: 0;
   }
+
+  /* Mobile app spacing and stacking. */
+  .app-home-page,
+  .app-alerts-page,
+  .compare-page,
+  .advisor-page,
+  .my-trip-page {
+    padding-top: 24px !important;
+    padding-bottom: 48px !important;
+  }
+
+  .app-home-hero,
+  .app-alerts-hero,
+  .advisor-hero,
+  .my-trip-hero {
+    gap: 10px !important;
+    margin-bottom: 20px !important;
+  }
+
+  .app-home-hero h1,
+  .app-alerts-hero h1,
+  .advisor-hero h1,
+  .my-trip-hero h1,
+  .compare-page h1 {
+    font-size: clamp(32px, 10vw, 42px) !important;
+    line-height: 1.02 !important;
+  }
+
+  .app-alerts-icon,
+  .advisor-icon,
+  .my-trip-icon {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 14px !important;
+  }
+
+  .app-home-grid,
+  .app-onboarding-steps,
+  .app-alerts-grid,
+  .compare-grid,
+  .advisor-controls,
+  .trip-mode-grid,
+  .my-trip-grid,
+  .cards-grid {
+    gap: 12px !important;
+  }
+
+  .app-home-tile,
+  .app-onboarding,
+  .app-alerts-card,
+  .compare-card,
+  .advisor-controls,
+  .trip-mode-card,
+  .my-trip-card {
+    padding: 16px !important;
+    border-radius: 18px !important;
+  }
+
+  .app-home-tile {
+    min-height: 0 !important;
+  }
+
+  .app-onboarding-head {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px !important;
+  }
+
+  .app-onboarding-steps a,
+  .app-home-tile {
+    grid-template-columns: auto minmax(0, 1fr) auto !important;
+    gap: 9px !important;
+  }
+
+  .for-you-summary {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .for-you-summary a {
+    width: 100%;
+    margin-left: 0 !important;
+  }
+
+  .advisor-range-row,
+  .app-alerts-price-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 8px !important;
+  }
+
+  .advisor-range-row strong {
+    min-width: 0 !important;
+    text-align: left !important;
+  }
+
+  .profile-chips {
+    gap: 8px !important;
+  }
+
+  .profile-chip {
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+  }
+
+  .compare-card dl div,
+  .my-trip-budget {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 3px !important;
+  }
+
+  .compare-card dd {
+    text-align: left !important;
+  }
+
+  .my-trip-plan-add {
+    grid-template-columns: 1fr !important;
+  }
+
+  .my-trip-plan-add button {
+    min-height: 44px;
+    justify-content: center;
+    padding: 11px 14px !important;
+  }
+
+  .my-trip-timeline-item {
+    grid-template-columns: 52px minmax(0, 1fr) auto !important;
+    gap: 8px !important;
+    padding: 11px !important;
+  }
+
+  .my-trip-quick-links {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .my-trip-quick-links a {
+    width: 100%;
+  }
+
+  .deal-score-main {
+    align-items: flex-start !important;
+  }
+
+  .deal-score-reasons {
+    gap: 5px !important;
+  }
+
+  .price-decision-head {
+    flex-wrap: wrap;
+  }
+
+  .pwa-install-banner {
+    width: calc(100% - 16px) !important;
+    bottom: max(8px, env(safe-area-inset-bottom)) !important;
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .pwa-install-copy {
+    min-width: 0;
+  }
+
+  .pwa-install-copy span,
+  .pwa-install-copy strong {
+    overflow-wrap: anywhere;
+  }
 }
 
 /* Very narrow devices. */
@@ -259,5 +530,21 @@ svg {
 
   .inspo-mood-card {
     min-height: 330px !important;
+  }
+
+  .app-onboarding-head {
+    grid-template-columns: 1fr !important;
+  }
+
+  .app-onboarding-steps a,
+  .app-home-tile,
+  .my-trip-timeline-item {
+    grid-template-columns: 1fr !important;
+  }
+
+  .app-onboarding-steps a > svg,
+  .app-home-tile > svg,
+  .my-trip-timeline-item > button {
+    justify-self: start;
   }
 }

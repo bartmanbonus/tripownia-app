@@ -12,6 +12,26 @@ import { isOfferExpired } from "@/lib/offers";
 import { getDealScore } from "@/lib/dealScore";
 import { getPriceDecision } from "@/lib/priceDecision";
 
+function readNumberArray(key: string) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key) || "[]");
+    return Array.isArray(parsed) ? parsed.filter((value): value is number => typeof value === "number") : [];
+  } catch {
+    localStorage.removeItem(key);
+    return [];
+  }
+}
+
+function readTrip() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null");
+    return parsed && typeof parsed === "object" ? parsed as Record<string, unknown> : null;
+  } catch {
+    localStorage.removeItem("tripownia-my-trip");
+    return null;
+  }
+}
+
 export default function OfferCard({ offer }: { offer: Offer }) {
   const [liked, setLiked] = useState(false);
   const [compared, setCompared] = useState(false);
@@ -21,11 +41,11 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   useEffect(() => {
     const load = () => {
       setOverride(getOfferOverride(offer.id));
-      const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
+      const ids = readNumberArray("tripownia-favorites");
       setLiked(ids.includes(offer.id));
-      const compareIds = JSON.parse(localStorage.getItem("tripownia-compare") || "[]") as number[];
+      const compareIds = readNumberArray("tripownia-compare");
       setCompared(compareIds.includes(offer.id));
-      const trip = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null") as { offerId?: number } | null;
+      const trip = readTrip();
       setTripAdded(trip?.offerId === offer.id);
     };
 
@@ -60,7 +80,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const priceDecision = getPriceDecision(offer, displayPrice);
 
   function toggleLike() {
-    const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
+    const ids = readNumberArray("tripownia-favorites");
     const next = ids.includes(offer.id) ? ids.filter((id) => id !== offer.id) : [...ids, offer.id];
     localStorage.setItem("tripownia-favorites", JSON.stringify(next));
     setLiked(next.includes(offer.id));
@@ -68,7 +88,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   }
 
   function toggleCompare() {
-    const ids = JSON.parse(localStorage.getItem("tripownia-compare") || "[]") as number[];
+    const ids = readNumberArray("tripownia-compare");
     let next: number[];
     if (ids.includes(offer.id)) next = ids.filter((id) => id !== offer.id);
     else next = [...ids.filter((id) => id !== offer.id), offer.id].slice(-3);
@@ -78,7 +98,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   }
 
   function addToTrip() {
-    const previous = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null") as Record<string, unknown> | null;
+    const previous = readTrip();
     const sameTrip = previous?.offerId === offer.id;
     const nextTrip = sameTrip
       ? { ...previous, offerId: offer.id }
