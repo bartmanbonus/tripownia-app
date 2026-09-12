@@ -50,7 +50,7 @@ export default function AppHome() {
   }, []);
 
   const tripOffer = useMemo(() => offers.find((offer) => offer.id === trip.offerId), [trip.offerId]);
-  const topOffers = useMemo(() => offers.filter((offer) => offer.partner !== "esky" && !isOfferExpired(offer)).sort((a,b) => b.score - a.score).slice(0, 3), []);
+  const topOffers = useMemo(() => offers.filter((offer) => !isOfferExpired(offer)).sort((a,b) => b.score - a.score).slice(0, 3), []);
   const alertsReady = Boolean(alerts.maxPrice || alerts.destinations || alerts.departure);
   const onboarding = [
     { done: profileReady, href: "/profil", label: "Ustaw profil podróżnika" },
