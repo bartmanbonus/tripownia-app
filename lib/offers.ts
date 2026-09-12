@@ -25,8 +25,6 @@ export type Offer = {
   hotel: string;
   board: string;
   dates: string;
-  startDateISO?: string;
-  endDateISO?: string;
   partner: PartnerKey;
   destinationUrl?: string;
   affiliateUrl: string;
@@ -76,7 +74,7 @@ const eximDestination = (path: string) => {
 };
 
 const baseOffers: Offer[] = [
-  { id:1, flag:"🇲🇹", city:"Malta", country:"Malta", price:699, departure:"Warszawa Modlin", airportCode:"WMI", nights:3, weather:"20°C", score:9.6, tag:"BIERZEMY", reason:"Bardzo dobra cena, sensowny termin i świetny kierunek na szybki city break.", image:"/images/destinations/valletta.jpg", category:["city","tanio","cieplo","weekend"], hotel:"St. Julian's Bay", board:"Bez wyżywienia", dates:"23–26 listopada 2026", startDateISO:"2026-11-23", endDateISO:"2026-11-26", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"co-MT", stayLength:"3:3", airportCode:"WMI", departureDate:"2026-11-23", returnDate:"2026-11-26" }) , linkType:"search"},
+  { id:1, flag:"🇲🇹", city:"Malta", country:"Malta", price:699, departure:"Warszawa Modlin", airportCode:"WMI", nights:3, weather:"20°C", score:9.6, tag:"BIERZEMY", reason:"Bardzo dobra cena, sensowny termin i świetny kierunek na szybki city break.", image:"/images/destinations/valletta.jpg", category:["city","tanio","cieplo","weekend"], hotel:"St. Julian's Bay", board:"Bez wyżywienia", dates:"23–26 listopada 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"co-MT", stayLength:"3:3", airportCode:"WMI", departureDate:"2026-11-23", returnDate:"2026-11-26" }) , linkType:"search"},
   { id:2, flag:"🇪🇸", city:"Barcelona", country:"Hiszpania", price:1099, departure:"Warszawa", airportCode:"WAW", nights:3, weather:"22°C", score:9.2, tag:"DOBRA OPCJA", reason:"Dobry balans ceny, lotu i lokalizacji. Idealny krótki wypad.", image:"/images/destinations/barcelona.jpg", category:["city","weekend","cieplo"], hotel:"Hotel w centrum", board:"Śniadanie", dates:"wybrane terminy jesień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-BCN", stayLength:"3:3", airportCode:"WAW" }) , linkType:"search"},
   { id:3, flag:"🇹🇳", city:"Djerba", country:"Tunezja", price:1799, departure:"Warszawa", airportCode:"WAW", nights:7, weather:"26°C", score:9.4, tag:"BIERZEMY", reason:"7 nocy All Inclusive i ciepło — bardzo mocna relacja ceny do długości wyjazdu.", image:"/images/destinations/djerba.jpg", category:["plaza","cieplo","allinclusive"], hotel:"Resort 4★", board:"All Inclusive", dates:"wybrane terminy jesień 2026", partner:"exim", transferIncluded:true, ...eximDestination("/kierunki/tunezja/djerba"), linkType:"search"},
   { id:4, flag:"🇮🇹", city:"Bergamo", country:"Włochy", price:599, departure:"Kraków", airportCode:"KRK", nights:2, weather:"18°C", score:8.8, tag:"OKAZJA", reason:"Bardzo tani szybki wypad i świetna baza do Mediolanu lub nad Como.", image:"/images/destinations/bergamo.jpg", category:["city","tanio","weekend"], hotel:"Hotel 3★", board:"Bez wyżywienia", dates:"wybrane weekendy 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-29266", stayLength:"2:2", airportCode:"KRK" }) , linkType:"search"},
@@ -90,43 +88,221 @@ const baseOffers: Offer[] = [
   { id:12, flag:"🇨🇿", city:"Praga", country:"Czechy", price:649, departure:"Warszawa", airportCode:"WAW", nights:2, weather:"17°C", score:8.9, tag:"OKAZJA", reason:"Tani weekend bez dużego planowania, idealny na szybki reset.", image:"/images/destinations/praga.jpg", category:["city","weekend","tanio"], hotel:"Hotel 3★", board:"Śniadanie", dates:"weekendy 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-PRG", stayLength:"2:3", airportCode:"WAW" }) , linkType:"search"},
   { id:13, flag:"🇦🇹", city:"Wiedeń", country:"Austria", price:799, departure:"Warszawa", airportCode:"WAW", nights:2, weather:"15°C", score:8.8, tag:"DOBRA OPCJA", reason:"Idealny na jarmarki, muzea i elegancki weekend bez długiego lotu.", image:"/images/destinations/wieden.jpg", category:["city","weekend","tanio"], hotel:"Hotel 3★", board:"Śniadanie", dates:"listopad–grudzień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-VIE", stayLength:"2:3", airportCode:"WAW" }) , linkType:"search"},
   { id:14, flag:"🇭🇺", city:"Budapeszt", country:"Węgry", price:699, departure:"Kraków", airportCode:"KRK", nights:3, weather:"17°C", score:9.0, tag:"OKAZJA", reason:"Dobry stosunek ceny do jakości i dużo atrakcji na 3 dni.", image:"/images/destinations/budapeszt.jpg", category:["city","weekend","tanio"], hotel:"Hotel 4★", board:"Śniadanie", dates:"jesień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-BUD", stayLength:"2:4", airportCode:"KRK" }) , linkType:"search"},
-  { id:15, flag:"🇪🇸", city:"Teneryfa", country:"Hiszpania", price:2299, departure:"Warszawa", airportCode:"WAW", nights:7, weather:"25°C", score:9.2, tag:"BIERZEMY", reason:"Jedna z najpewniejszych pogodowo opcji na ciepły wyjazd poza sezonem.", image:"/images/destinations/teneryfa.jpg", category:["plaza","cieplo","allinclusive"], hotel:"Hotel 4★", board:"Śniadanie", dates:"listopad–grudzień 2026", partner:"wakacje", destinationUrl:"https://www.wakacje.pl/wczasy/teneryfa/", affiliateUrl:partners.wakacje.buildUrl("https://www.wakacje.pl/wczasy/teneryfa/") , linkType:"search"},
-  { id:16, flag:"🇪🇬", city:"Marsa Alam", country:"Egipt", price:2499, departure:"Katowice", airportCode:"KTW", nights:7, weather:"28°C", score:9.0, tag:"DOBRA OPCJA", reason:"Spokojniejszy klimat, rafa i wysoka szansa na dobrą pogodę jesienią.", image:"/images/destinations/marsa-alam.jpg", category:["plaza","cieplo","allinclusive"], hotel:"Resort 4★", board:"All Inclusive", dates:"jesień 2026", partner:"tui", affiliateUrl:partners.tui.buildUrl() , linkType:"search"},
-  { id:17, flag:"🇹🇷", city:"Stambuł", country:"Turcja", price:999, departure:"Warszawa", airportCode:"WAW", nights:3, weather:"19°C", score:9.1, tag:"BIERZEMY", reason:"Mocny city break: dużo do zobaczenia, dobre jedzenie i atrakcyjne ceny noclegów.", image:"/images/destinations/stambul.jpg", category:["city","weekend","tanio"], hotel:"Hotel 4★", board:"Śniadanie", dates:"jesień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-IST", stayLength:"3:3", airportCode:"WAW" }) , linkType:"search"},
-  { id:18, flag:"🇲🇦", city:"Marrakesz", country:"Maroko", price:1499, departure:"Kraków", airportCode:"KRK", nights:4, weather:"27°C", score:9.3, tag:"BIERZEMY", reason:"Ciepło, egzotyka i krótki wyjazd bez dalekiego lotu.", image:"/images/destinations/marrakesz.jpg", category:["city","cieplo","weekend"], hotel:"Riad 4★", board:"Śniadanie", dates:"listopad 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-RAK", stayLength:"3:5", airportCode:"KRK" }) , linkType:"search"},
-  { id:19, flag:"🇦🇪", city:"Dubaj", country:"ZEA", price:2999, departure:"Warszawa", airportCode:"WAW", nights:5, weather:"30°C", score:8.9, tag:"DOBRA OPCJA", reason:"Pewne ciepło i bardzo łatwy kierunek na 5 dni intensywnego wyjazdu.", image:"/images/destinations/dubaj.jpg", category:["city","cieplo","premium"], hotel:"Hotel 4★", board:"Śniadanie", dates:"listopad–grudzień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-DXB", stayLength:"4:6", airportCode:"WAW" }) , linkType:"search"},
-  { id:20, flag:"🇪🇸", city:"Walencja", country:"Hiszpania", price:949, departure:"Warszawa", airportCode:"WAW", nights:3, weather:"22°C", score:9.0, tag:"OKAZJA", reason:"Miasto i plaża w jednym, z łagodną pogodą poza sezonem.", image:"/images/destinations/walencja.jpg", category:["city","plaza","weekend"], hotel:"Hotel 3★", board:"Bez wyżywienia", dates:"październik 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-VLC", stayLength:"3:4", airportCode:"WAW" }) , linkType:"search"},
+  { id:15, flag:"🇫🇷", city:"Paryż", country:"Francja", price:1399, departure:"Warszawa", airportCode:"WAW", nights:3, weather:"18°C", score:8.9, tag:"DOBRA OPCJA", reason:"Dobra opcja na romantyczny city break przy sensownym budżecie.", image:"/images/destinations/paryz.jpg", category:["city","weekend"], hotel:"Hotel 3★", board:"Śniadanie", dates:"wybrane terminy 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-PAR", stayLength:"2:4", airportCode:"WAW" }) , linkType:"search"},
+  { id:16, flag:"🇵🇹", city:"Lizbona", country:"Portugalia", price:1499, departure:"Warszawa", airportCode:"WAW", nights:4, weather:"22°C", score:9.3, tag:"BIERZEMY", reason:"Ciepło, klimat i świetne jedzenie — dobry kompromis między city breakiem a odpoczynkiem.", image:"/images/destinations/lizbona.jpg", category:["city","cieplo"], hotel:"Hotel 3★", board:"Śniadanie", dates:"jesień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-LIS", stayLength:"3:5", airportCode:"WAW" }) , linkType:"search"},
+  { id:17, flag:"🇲🇦", city:"Marrakesz", country:"Maroko", price:1699, departure:"Warszawa", airportCode:"WAW", nights:4, weather:"27°C", score:9.2, tag:"BIERZEMY", reason:"Dużo słońca i egzotyki bez dalekiego lotu — mocny jesienny kierunek.", image:"https://images.unsplash.com/photo-1597212618440-806262de4f6b?auto=format&fit=crop&w=1600&q=80", category:["city","cieplo"], hotel:"Riad 4★", board:"Śniadanie", dates:"listopad 2026", partner:"wakacje", destinationUrl:"https://www.wakacje.pl/wczasy/marakesz-m44000887/", affiliateUrl:partners.wakacje.buildUrl("https://www.wakacje.pl/wczasy/marakesz-m44000887/") , linkType:"search"},
+  { id:18, flag:"🇹🇷", city:"Antalya", country:"Turcja", price:1999, departure:"Katowice", airportCode:"KTW", nights:7, weather:"27°C", score:9.2, tag:"BIERZEMY", reason:"Klasyczne All Inclusive i dobra pogoda na końcówkę sezonu.", image:"https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1600&q=80", category:["plaza","cieplo","allinclusive"], hotel:"Resort 5★", board:"All Inclusive", dates:"wrzesień–październik 2026", partner:"tui", affiliateUrl:partners.tui.buildUrl() , linkType:"search"},
+  { id:19, flag:"🇧🇬", city:"Słoneczny Brzeg", country:"Bułgaria", price:1599, departure:"Gdańsk", airportCode:"GDN", nights:7, weather:"25°C", score:8.8, tag:"OKAZJA", reason:"Tani tydzień nad morzem i sporo hoteli z All Inclusive.", image:"/images/destinations/sloneczny-brzeg.jpg", category:["plaza","cieplo","allinclusive","tanio"], hotel:"Hotel 4★", board:"All Inclusive", dates:"wrzesień 2026", partner:"exim", transferIncluded:true, ...eximDestination("/kierunki/bulgaria/sloneczny-brzeg"), linkType:"search"},
+  { id:20, flag:"🇹🇳", city:"Hammamet", country:"Tunezja", price:1899, departure:"Katowice", airportCode:"KTW", nights:7, weather:"27°C", score:9.0, tag:"DOBRA OPCJA", reason:"Dużo słońca i solidny pakiet All Inclusive w dobrej cenie.", image:"/images/destinations/hammamet.jpg", category:["plaza","cieplo","allinclusive"], hotel:"Resort 4★", board:"All Inclusive", dates:"jesień 2026", partner:"exim", transferIncluded:true, ...eximDestination("/kierunki/tunezja/tunezja-kontynent/hammamet-yasmine"), linkType:"search"},
+  { id:21, flag:"🇪🇸", city:"Teneryfa", country:"Hiszpania", price:2499, departure:"Warszawa", airportCode:"WAW", nights:7, weather:"25°C", score:9.4, tag:"BIERZEMY", reason:"Pewna pogoda jesienią i zimą, dobry kierunek na pełny tydzień odpoczynku.", image:"/images/destinations/teneryfa.jpg", category:["plaza","cieplo","allinclusive"], hotel:"Hotel 4★", board:"All Inclusive", dates:"jesień–zima 2026", partner:"wakacje", destinationUrl:"https://www.wakacje.pl/wczasy/teneryfa/", affiliateUrl:partners.wakacje.buildUrl("https://www.wakacje.pl/wczasy/teneryfa/") , linkType:"search"},
+  { id:22, flag:"🇪🇸", city:"Fuerteventura", country:"Hiszpania", price:2299, departure:"Warszawa", airportCode:"WAW", nights:5, weather:"24°C", score:9.3, tag:"BIERZEMY", reason:"Krótki kanaryjski reset, plaże i bardzo przyjemna pogoda zimą.", image:"/images/destinations/fuerteventura.jpg", category:["plaza","cieplo"], hotel:"Hotel 4★", board:"Śniadanie", dates:"grudzień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"co-ES", stayLength:"4:6", airportCode:"WAW" }) , linkType:"search"},
+  { id:23, flag:"🇬🇷", city:"Rodos", country:"Grecja", price:2116, departure:"Katowice", airportCode:"KTW", nights:7, weather:"26°C", score:9.1, tag:"DOBRA OPCJA", reason:"Konkretny hotel TUI z All Inclusive; link prowadzi bezpośrednio do tej oferty.", image:"/images/destinations/rodos.jpg", category:["plaza","cieplo","allinclusive"], hotel:"Stamos Hotel", board:"All Inclusive", dates:"26 października – 2 listopada 2026", partner:"tui", destinationUrl:"https://www.tui.pl/wypoczynek/grecja/rodos/stamos-hotel-rho13034/OfferCodeWS/KTWRHO20261026000520261026202611020420L07RHO130347BEAA02ROA7BEA02FCYY", affiliateUrl:partners.tui.buildUrl("https://www.tui.pl/wypoczynek/grecja/rodos/stamos-hotel-rho13034/OfferCodeWS/KTWRHO20261026000520261026202611020420L07RHO130347BEAA02ROA7BEA02FCYY"), linkType:"exact" },
+  { id:24, flag:"🇦🇱", city:"Riwiera Albańska", country:"Albania", price:1999, departure:"Warszawa", airportCode:"WAW", nights:7, weather:"26°C", score:9.0, tag:"DOBRA OPCJA", reason:"Coraz popularniejszy kierunek, dobre ceny i piękne plaże.", image:"/images/destinations/riwiera-albanska.jpg", category:["plaza","cieplo","allinclusive"], hotel:"Hotel 4★", board:"All Inclusive", dates:"wrzesień 2026", partner:"wakacje", destinationUrl:"https://www.wakacje.pl/wczasy/albania/", affiliateUrl:partners.wakacje.buildUrl("https://www.wakacje.pl/wczasy/albania/") , linkType:"search"},
+  { id:25, flag:"🇭🇷", city:"Split", country:"Chorwacja", price:1299, departure:"Kraków", airportCode:"KRK", nights:4, weather:"23°C", score:9.0, tag:"DOBRA OPCJA", reason:"Świetne połączenie miasta, morza i jednodniowych wypadów.", image:"https://images.unsplash.com/photo-1555990538-1e6c3c6f4826?auto=format&fit=crop&w=1600&q=80", category:["city","plaza","cieplo"], hotel:"Hotel 3★", board:"Śniadanie", dates:"wrzesień–październik 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-SPU", stayLength:"4:4", airportCode:"KRK" }) , linkType:"search"},
+  { id:26, flag:"🇮🇹", city:"Neapol", country:"Włochy", price:999, departure:"Warszawa Modlin", airportCode:"WMI", nights:3, weather:"22°C", score:9.1, tag:"OKAZJA", reason:"Pizza, Pompeje i Wybrzeże Amalfi — dużo możliwości na jeden krótki wypad.", image:"https://images.unsplash.com/photo-1533104816931-20fa691ff6ca?auto=format&fit=crop&w=1600&q=80", category:["city","weekend","tanio","cieplo"], hotel:"Hotel 3★", board:"Bez wyżywienia", dates:"jesień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-NAP", stayLength:"2:4", airportCode:"WMI" }) , linkType:"search"},
+  { id:27, flag:"🇪🇸", city:"Sewilla", country:"Hiszpania", price:1399, departure:"Kraków", airportCode:"KRK", nights:4, weather:"25°C", score:9.2, tag:"BIERZEMY", reason:"Bardzo dobry kierunek na jesień: słońce, jedzenie i klimat bez tłumów lata.", image:"https://images.unsplash.com/photo-1559564484-e48b3e040ff4?auto=format&fit=crop&w=1600&q=80", category:["city","cieplo"], hotel:"Hotel 3★", board:"Śniadanie", dates:"październik–listopad 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-SVQ", stayLength:"3:5", airportCode:"KRK" }) , linkType:"search"},
+  { id:28, flag:"🇳🇱", city:"Amsterdam", country:"Holandia", price:1199, departure:"Gdańsk", airportCode:"GDN", nights:3, weather:"15°C", score:8.7, tag:"DOBRA OPCJA", reason:"Krótki miejski wypad z bardzo dobrym transportem i masą atrakcji.", image:"https://images.unsplash.com/photo-1534351590666-13e3e96b5017?auto=format&fit=crop&w=1600&q=80", category:["city","weekend"], hotel:"Hotel 3★", board:"Śniadanie", dates:"wybrane terminy 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-AMS", stayLength:"2:4", airportCode:"GDN" }) , linkType:"search"},
+  { id:29, flag:"🇩🇰", city:"Kopenhaga", country:"Dania", price:1099, departure:"Warszawa", airportCode:"WAW", nights:3, weather:"14°C", score:8.6, tag:"DOBRA OPCJA", reason:"Stylowy city break, świetne jedzenie i łatwe zwiedzanie na piechotę.", image:"/images/destinations/kopenhaga.jpg", category:["city","weekend"], hotel:"Hotel 3★", board:"Śniadanie", dates:"jesień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-CPH", stayLength:"2:4", airportCode:"WAW" }) , linkType:"search"},
+  { id:30, flag:"🇦🇪", city:"Dubaj", country:"ZEA", price:2999, departure:"Warszawa", airportCode:"WAW", nights:5, weather:"31°C", score:9.2, tag:"BIERZEMY", reason:"Pewna pogoda, dobry standard hoteli i dużo atrakcji na 5 dni.", image:"https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1600&q=80", category:["city","cieplo","plaza"], hotel:"Hotel 4★", board:"Śniadanie", dates:"listopad–grudzień 2026", partner:"wakacje", destinationUrl:"https://www.wakacje.pl/wczasy/dubaj/", affiliateUrl:partners.wakacje.buildUrl("https://www.wakacje.pl/wczasy/dubaj/") , linkType:"search"},
+  { id:31, flag:"🇪🇬", city:"Marsa Alam", country:"Egipt", price:2399, departure:"Gdańsk", airportCode:"GDN", nights:7, weather:"30°C", score:9.2, tag:"BIERZEMY", reason:"Spokojniejsze od Hurghady, świetne rafy i bardzo dobra pogoda zimą.", image:"/images/destinations/marsa-alam.jpg", category:["plaza","cieplo","allinclusive"], hotel:"Resort 5★", board:"All Inclusive", dates:"jesień–zima 2026", partner:"exim", transferIncluded:true, ...eximDestination("/kierunki/egipt/marsa-alam"), linkType:"search"},
+  { id:32, flag:"🇹🇷", city:"Bodrum", country:"Turcja", price:2099, departure:"Warszawa", airportCode:"WAW", nights:7, weather:"26°C", score:8.9, tag:"DOBRA OPCJA", reason:"Ładniejsze, bardziej butikowe oblicze Turcji i dobre hotele przy plaży.", image:"https://images.unsplash.com/photo-1544986581-efac024faf62?auto=format&fit=crop&w=1600&q=80", category:["plaza","cieplo","allinclusive"], hotel:"Hotel 4★", board:"All Inclusive", dates:"wrzesień 2026", partner:"tui", affiliateUrl:partners.tui.buildUrl() , linkType:"search"},
+  { id:33, flag:"🇮🇹", city:"Sycylia", country:"Włochy", price:1699, departure:"Katowice", airportCode:"KTW", nights:5, weather:"24°C", score:9.1, tag:"BIERZEMY", reason:"Świetna kuchnia, morze i dużo zwiedzania — dobra opcja na 5 dni.", image:"/images/destinations/sycylia.jpg", category:["city","plaza","cieplo"], hotel:"Hotel 4★", board:"Śniadanie", dates:"październik 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"co-IT", stayLength:"5:5", airportCode:"KTW" }) , linkType:"search"},
+  { id:34, flag:"🇪🇸", city:"Majorka", country:"Hiszpania", price:1999, departure:"Kraków", airportCode:"KRK", nights:7, weather:"25°C", score:9.0, tag:"DOBRA OPCJA", reason:"Wciąż jeden z najłatwiejszych kierunków na tygodniowe wakacje w dobrym standardzie.", image:"/images/destinations/majorka.jpg", category:["plaza","cieplo","allinclusive"], hotel:"Hotel 4★", board:"All Inclusive", dates:"wrzesień 2026", partner:"wakacje", destinationUrl:"https://www.wakacje.pl/wczasy/majorka/", affiliateUrl:partners.wakacje.buildUrl("https://www.wakacje.pl/wczasy/majorka/") , linkType:"search"},
+  { id:35, flag:"🇵🇹", city:"Madera", country:"Portugalia", price:2599, departure:"Warszawa", airportCode:"WAW", nights:7, weather:"23°C", score:9.4, tag:"BIERZEMY", reason:"Dla osób, które chcą połączyć naturę, trekking i łagodny klimat przez cały rok.", image:"/images/destinations/madera.jpg", category:["cieplo","plaza"], hotel:"Hotel 4★", board:"Śniadanie", dates:"jesień–zima 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"co-PT", stayLength:"7:7", airportCode:"WAW" }) , linkType:"search"},
+  { id:36, flag:"🇪🇸", city:"Malaga", country:"Hiszpania", price:1199, departure:"Warszawa", airportCode:"WAW", nights:4, weather:"24°C", score:9.2, tag:"BIERZEMY", reason:"Ciepła Andaluzja, plaża i stare miasto w jednym wyjeździe.", image:"https://images.unsplash.com/photo-1509840841025-9088ba78a826?auto=format&fit=crop&w=1600&q=80", category:["city","plaza","cieplo"], hotel:"Hotel 3★", board:"Śniadanie", dates:"jesień 2026", partner:"esky", affiliateUrl:esky({ arrivalPlaces:"ci-AGP", stayLength:"3:5", airportCode:"WAW" }) , linkType:"search"}
 ];
 
-// A lot of implementation follows below unchanged.
 
-export const featuredOfferIds = new Set<number>([1, 3, 15]);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const publishedOfferOverrides = (publishedOverridesRaw || {}) as Record<string, any>;
+const POLISH_MONTHS: Record<string, number> = {
+  stycznia:0, lutego:1, marca:2, kwietnia:3, maja:4, czerwca:5, lipca:6, sierpnia:7, wrzesnia:8, października:9, pazdziernika:9, listopada:10, grudnia:11,
+  styczen:0, luty:1, marzec:2, kwiecien:3, maj:4, czerwiec:5, lipiec:6, sierpien:7, wrzesien:8, pazdziernik:9, listopad:10, grudzien:11,
+};
 
-export const offers: Offer[] = baseOffers;
-
-export function isOfferExpired(offer: Offer) {
-  if (offer.availabilityStatus === "expired") return true;
-  if (!offer.dates) return false;
-  const matches = offer.dates.match(/(\d{1,2})[.–-](\d{1,2})\s+([a-ząćęłńóśźż]+)\s+(\d{4})/i);
-  if (!matches) return false;
-  const endDay = Number(matches[2]);
-  const year = Number(matches[4]);
-  const months: Record<string, number> = { stycznia:0,lutego:1,marca:2,kwietnia:3,maja:4,czerwca:5,lipca:6,sierpnia:7,września:8,października:9,listopada:10,grudnia:11 };
-  const month = months[matches[3].toLocaleLowerCase("pl")];
-  if (month === undefined) return false;
-  return new Date(year, month, endDay, 23, 59, 59).getTime() < Date.now();
+function normalizeDateText(value: string) {
+  return value.toLocaleLowerCase("pl").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-export function getLinkMatch(offer: Offer) {
-  return offer.linkMatch || (offer.linkType === "exact" ? "exact" : "parameters");
+export function inferOfferEndDate(value?: string): Date | null {
+  if (!value) return null;
+  const raw = normalizeDateText(value).replace(/[–—]/g, "-");
+  // np. 23-26 listopada 2026 / 26 listopada 2026
+  const exact = raw.match(/(?:\d{1,2}\s*-\s*)?(\d{1,2})\s+([a-z]+)\s+(20\d{2})/);
+  if (exact) {
+    const month = POLISH_MONTHS[exact[2]];
+    if (month !== undefined) return new Date(Date.UTC(Number(exact[3]), month, Number(exact[1]), 23, 59, 59));
+  }
+  // np. wrzesien 2026 — aktywna do końca miesiąca
+  const monthOnly = raw.match(/\b([a-z]+)\s+(20\d{2})\b/);
+  if (monthOnly) {
+    const month = POLISH_MONTHS[monthOnly[1]];
+    if (month !== undefined) return new Date(Date.UTC(Number(monthOnly[2]), month + 1, 0, 23, 59, 59));
+  }
+  return null;
+}
+
+export function isOfferExpired(offer: Pick<Offer, "availabilityStatus" | "dates">, now = new Date()) {
+  if (offer.availabilityStatus === "expired") return true;
+  const end = inferOfferEndDate(offer.dates);
+  return Boolean(end && end.getTime() < now.getTime());
+}
+
+export function getLinkMatch(offer: Offer): "exact" | "parameters" | "destination" | "unsafe" {
+  if (offer.linkMatch) return offer.linkMatch;
+  if (offer.linkType === "exact") return "exact";
+  if (offer.partner === "esky") return "parameters";
+  if (offer.partner === "tui") return "unsafe";
+  if (offer.destinationUrl) return "destination";
+  return "unsafe";
+}
+
+export function linkPromiseLabel(offer: Offer) {
+  const match = getLinkMatch(offer);
+  if (match === "exact") return "konkretna oferta";
+  if (match === "parameters") return "wyszukiwanie z parametrami";
+  if (match === "destination") return "strona kierunku";
+  return "link niespójny";
+}
+
+type PublishedOverride = {
+  hidden?: boolean;
+  featured?: boolean;
+  price?: number;
+  affiliateUrl?: string;
+  imageUrl?: string;
+  note?: string;
+  updatedAt?: string;
+  linkMatch?: "exact" | "parameters" | "destination";
+  availabilityStatus?: AvailabilityStatus;
+};
+
+export const publishedOfferOverrides = publishedOverridesRaw as Record<string, PublishedOverride>;
+
+export const offers: Offer[] = baseOffers
+  .filter((offer) => !publishedOfferOverrides[String(offer.id)]?.hidden)
+  .map((offer) => {
+    const override = publishedOfferOverrides[String(offer.id)];
+    const merged: Offer = {
+      ...offer,
+      price: typeof override?.price === "number" ? override.price : offer.price,
+      priceCheckedAt: typeof override?.price === "number" ? (override.updatedAt || offer.priceCheckedAt) : offer.priceCheckedAt,
+      affiliateUrl: override?.affiliateUrl || offer.affiliateUrl,
+      reason: override?.note || offer.reason,
+      image: override?.imageUrl || offer.image,
+      linkMatch: override?.linkMatch || offer.linkMatch,
+      availabilityStatus: override?.availabilityStatus || offer.availabilityStatus,
+    };
+    return { ...merged, linkMatch: getLinkMatch(merged) };
+  })
+  .filter((offer) => offer.linkMatch !== "unsafe")
+  .filter((offer) => offer.partner !== "esky");
+
+export const featuredOfferIds = new Set(
+  Object.entries(publishedOfferOverrides)
+    .filter(([, value]) => Boolean(value.featured))
+    .map(([id]) => Number(id))
+);
+
+export function getDailyOffers(source: Offer[] = offers, limit = 8, now = new Date()) {
+  const dateFormatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit",
+  });
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", hourCycle: "h23",
+  }).formatToParts(now);
+  const part = (type: string) => parts.find(x => x.type === type)?.value || "";
+  const hour = Number(part("hour"));
+  const effective = new Date(now.getTime() - (hour < 12 ? 86400000 : 0));
+  const key = dateFormatter.format(effective);
+  const previousKey = dateFormatter.format(new Date(effective.getTime() - 86400000));
+
+  const active = source.filter(o => !isOfferExpired(o, now));
+  const linkWeight = (o: Offer) => {
+    const match = getLinkMatch(o);
+    if (match === "exact") return 3;
+    if (match === "parameters") return 2;
+    if (match === "destination") return 1;
+    return 0;
+  };
+
+  const qualityPool = [...active]
+    .sort((a, b) => linkWeight(b) - linkWeight(a) || b.score - a.score || a.price - b.price)
+    .slice(0, Math.min(active.length, Math.max(limit * 4, 28)));
+
+  const seeded = (seedKey: string) => {
+    let seed = Array.from(seedKey).reduce((acc, ch) => ((acc * 31) + ch.charCodeAt(0)) >>> 0, 2166136261);
+    const random = () => {
+      seed = (seed * 1664525 + 1013904223) >>> 0;
+      return seed / 4294967296;
+    };
+    return qualityPool
+      .map(o => ({ o, r: random() }))
+      .sort((a, b) => b.r - a.r || linkWeight(b.o) - linkWeight(a.o) || b.o.score - a.o.score)
+      .map(x => x.o);
+  };
+
+  const diversePick = (ordered: Offer[], max: number) => {
+    const out: Offer[] = [];
+    const add = (offer?: Offer) => {
+      if (offer && !out.some(x => x.id === offer.id)) out.push(offer);
+    };
+    const groups = [
+      (o: Offer) => o.category.includes("city") || o.category.includes("weekend"),
+      (o: Offer) => o.category.includes("allinclusive") || o.category.includes("plaza"),
+      (o: Offer) => o.category.includes("cieplo"),
+      (o: Offer) => o.category.includes("tanio"),
+    ];
+    groups.forEach(test => add(ordered.find(test)));
+    ordered.forEach(add);
+    return out.slice(0, max);
+  };
+
+  const currentCandidates = diversePick(seeded(key), Math.max(limit * 2, 16));
+  const previousSelection = new Set(diversePick(seeded(previousKey), limit).map(o => o.id));
+
+  // Po zmianie klucza o 12:00 wymuszamy świeżość: jeśli pula na to pozwala,
+  // co najmniej 3 miejsca w dziennej ósemce pochodzą spoza poprzedniej selekcji.
+  const freshTarget = Math.min(3, limit, currentCandidates.filter(o => !previousSelection.has(o.id)).length);
+  const fresh = currentCandidates.filter(o => !previousSelection.has(o.id)).slice(0, freshTarget);
+  const remainder = currentCandidates.filter(o => !fresh.some(f => f.id === o.id));
+
+  return [...fresh, ...remainder]
+    .filter((o, index, all) => all.findIndex(x => x.id === o.id) === index)
+    .slice(0, limit);
 }
 
 export function formatPriceCheckedAt(value?: string) {
-  if (!value) return "";
+  if (!value) return null;
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("pl-PL", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" }).format(date);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Intl.DateTimeFormat("pl-PL", {
+    timeZone: "Europe/Warsaw",
+    day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"
+  }).format(date);
 }
+
+export const airportOptions = [
+  { code: "WAW", label: "Warszawa Chopina" },
+  { code: "WMI", label: "Warszawa Modlin" },
+  { code: "KRK", label: "Kraków" },
+  { code: "KTW", label: "Katowice" },
+  { code: "GDN", label: "Gdańsk" },
+  { code: "WRO", label: "Wrocław" },
+  { code: "POZ", label: "Poznań" },
+  { code: "RZE", label: "Rzeszów" },
+  { code: "LCJ", label: "Łódź" },
+  { code: "LUZ", label: "Lublin" },
+  { code: "SZZ", label: "Szczecin" },
+  { code: "BZG", label: "Bydgoszcz" },
+  { code: "IEG", label: "Zielona Góra" },
+];
+
+export const destinationOptions = Array.from(
+  new Set(
+    offers.flatMap((offer) => [
+      offer.country,
+      `${offer.city}, ${offer.country}`,
+    ])
+  )
+).sort((a, b) => a.localeCompare(b, "pl"));
