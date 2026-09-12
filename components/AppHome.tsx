@@ -37,12 +37,14 @@ export default function AppHome() {
     window.addEventListener("tripownia-profile-updated", load as EventListener);
     window.addEventListener("tripownia-my-trip-updated", load as EventListener);
     window.addEventListener("tripownia-favorites-updated", load as EventListener);
+    window.addEventListener("tripownia-alerts-updated", load as EventListener);
     window.addEventListener("storage", load);
 
     return () => {
       window.removeEventListener("tripownia-profile-updated", load as EventListener);
       window.removeEventListener("tripownia-my-trip-updated", load as EventListener);
       window.removeEventListener("tripownia-favorites-updated", load as EventListener);
+      window.removeEventListener("tripownia-alerts-updated", load as EventListener);
       window.removeEventListener("storage", load);
     };
   }, []);
