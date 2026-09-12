@@ -15,11 +15,14 @@ import "./homepage-polish.css";
 import "./sitewide-polish.css";
 import PWARegister from "@/components/PWARegister";
 
+const HOME_TITLE = "Tanie wakacje, city break i lot + hotel – okazje podróżnicze | Tripownia";
+const HOME_DESCRIPTION = "Codziennie wybieramy dobre okazje na wakacje, city breaki i lot + hotel. Sprawdź cenę, termin, hotel i aktualne propozycje z polskich lotnisk.";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://tripownia.pl"),
-  title: { default: "Tripownia — My szukamy. Ty lecisz.", template: "%s | Tripownia.pl" },
-  description: "Codziennie wybieramy konkretne okazje, city breaki, wakacje i podróże po przeżyciach. Dodatkowo możesz samodzielnie przeszukać więcej ofert.",
-  keywords: ["tanie loty", "city break", "wakacje", "last minute", "lot hotel", "okazje podróżnicze", "Tripownia"],
+  title: { default: HOME_TITLE, template: "%s | Tripownia.pl" },
+  description: HOME_DESCRIPTION,
+  keywords: ["tanie wakacje", "city break", "wakacje", "last minute", "lot hotel", "tanie loty", "okazje podróżnicze", "Tripownia"],
   manifest: "/manifest.webmanifest",
   applicationName: "Tripownia",
   icons: {
@@ -32,17 +35,18 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pl_PL",
     siteName: "Tripownia",
-    title: "Tripownia — My szukamy. Ty lecisz.",
-    description: "Codziennie wybieramy konkretne okazje, city breaki, wakacje i podróże po przeżyciach. Dodatkowo możesz samodzielnie przeszukać więcej ofert.",
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    url: "https://tripownia.pl/",
     images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Tripownia.pl — My szukamy. Ty lecisz." }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tripownia — My szukamy. Ty lecisz.",
-    description: "Codziennie wybieramy konkretne okazje, city breaki, wakacje i podróże po przeżyciach.",
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
     images: ["/opengraph-image"],
   },
-  robots: { index: true, follow: true },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
 };
 
 const websiteJsonLd = { "@context": "https://schema.org", "@type": "WebSite", name: "Tripownia", alternateName: "Tripownia.pl", url: "https://tripownia.pl", inLanguage: "pl-PL" };

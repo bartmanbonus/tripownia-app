@@ -5,7 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SeoEximOffers from "@/components/SeoEximOffers";
 import { partners } from "@/lib/partners";
-import { getSeoLanding, seoLandings } from "@/lib/seoLandings";
+import { allSeoLandings, getAllSeoLanding } from "@/lib/allSeoLandings";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 type PageProps = { params: Promise<{ slug: string }> };
@@ -13,16 +13,16 @@ type PageProps = { params: Promise<{ slug: string }> };
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return seoLandings.map(({ slug }) => ({ slug }));
+  return allSeoLandings.map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const page = getSeoLanding(slug);
+  const page = getAllSeoLanding(slug);
   if (!page) return {};
 
   return {
-    title: `${page.title} | Tripownia.pl`,
+    title: page.title,
     description: page.lead,
     alternates: { canonical: `/podroze/${page.slug}` },
     openGraph: {
@@ -30,13 +30,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: page.lead,
       type: "website",
       url: `/podroze/${page.slug}`,
+      images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: page.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${page.title} | Tripownia.pl`,
+      description: page.lead,
+      images: ["/opengraph-image"],
     },
   };
 }
 
 export default async function SeoLandingPage({ params }: PageProps) {
   const { slug } = await params;
-  const page = getSeoLanding(slug);
+  const page = getAllSeoLanding(slug);
   if (!page) notFound();
 
   const bookingUrl = partners.booking.buildUrl(
@@ -52,6 +59,17 @@ export default async function SeoLandingPage({ params }: PageProps) {
   kiwiDeep.searchParams.set("locale", "pl");
 
   const kiwiUrl = partners.kiwi.buildUrl(kiwiDeep.toString());
+
+  const related = allSeoLandings
+    .filter((item) => item.slug !== page.slug)
+    .sort((a, b) => {
+      const departureMatchA = Number(Boolean(page.departure && a.departure === page.departure));
+      const departureMatchB = Number(Boolean(page.departure && b.departure === page.departure));
+      const queryMatchA = Number(a.query === page.query);
+      const queryMatchB = Number(b.query === page.query);
+      return (departureMatchB + queryMatchB) - (departureMatchA + queryMatchA);
+    })
+    .slice(0, 6);
 
   return (
     <main>
@@ -78,10 +96,8 @@ export default async function SeoLandingPage({ params }: PageProps) {
         <div className="section-heading">
           <div>
             <div className="kicker">AKTUALNE OFERTY</div>
-            <h2>Najlepsze dostępne propozycje dla tego kierunku</h2>
-            <p>
-              Pobieramy bieżące produkty, ceny i terminy automatycznie. Każda karta prowadzi bezpośrednio do konkretnej oferty.
-            </p>
+            <h2>Najlepsze dostępne propozycje dla tego wyszukiwania</h2>
+            <p>Pobieramy bieżące produkty, ceny i terminy automatycznie. Każda karta prowadzi do konkretnej oferty.</p>
           </div>
         </div>
         <SeoEximOffers
@@ -110,18 +126,13 @@ export default async function SeoLandingPage({ params }: PageProps) {
         <div className="kicker">WARTO WIEDZIEĆ</div>
         <h2>{page.title}</h2>
         {page.paragraphs.map((text) => <p key={text}>{text}</p>)}
-        <p>
-          Ceny i dostępność zmieniają się dynamicznie. Tripownia pokazuje zapisane propozycje
-          i prowadzi dalej dopiero wtedy, gdy chcesz sprawdzić aktualną cenę przed zakupem.
-        </p>
+        <p>Ceny i dostępność zmieniają się dynamicznie. Tripownia pokazuje zapisane propozycje i prowadzi dalej dopiero wtedy, gdy chcesz sprawdzić aktualną cenę przed zakupem.</p>
       </section>
 
       <section className="shell seo-related-block">
         <div className="kicker">MOŻE CIĘ TEŻ ZAINTERESOWAĆ</div>
         <div className="seo-related-links">
-          {seoLandings.filter(item => item.slug !== page.slug).slice(0, 4).map(item => (
-            <Link key={item.slug} href={`/podroze/${item.slug}`}>{item.title} →</Link>
-          ))}
+          {related.map((item) => <Link key={item.slug} href={`/podroze/${item.slug}`}>{item.title} →</Link>)}
         </div>
         <div className="seo-related">
           <Link href="/podroze">← Wszystkie pomysły na podróże</Link>
