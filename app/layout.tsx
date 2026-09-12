@@ -1,12 +1,23 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./responsive-fixes.css";
+import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tripownia.pl"),
   title: { default: "Tripownia — My szukamy. Ty lecisz.", template: "%s | Tripownia.pl" },
   description: "Codziennie wybieramy konkretne okazje, city breaki, wakacje i podróże po przeżyciach. Dodatkowo możesz samodzielnie przeszukać więcej ofert.",
   keywords: ["tanie loty", "city break", "wakacje", "last minute", "lot hotel", "okazje podróżnicze", "Tripownia"],
+  manifest: "/manifest.webmanifest",
+  applicationName: "Tripownia",
+  icons: {
+    icon: "/tripownia-app-icon.svg",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Tripownia",
+  },
   openGraph: {
     type: "website",
     locale: "pl_PL",
@@ -42,6 +53,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd).replace(/</g, "\\u003c") }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c") }} />
         {children}
+        <PWARegister />
       </body>
     </html>
   );
