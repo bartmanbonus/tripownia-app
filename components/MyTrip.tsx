@@ -2,17 +2,19 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, Clock3, Map, Plus, Trash2 } from "lucide-react";
+import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, Clock3, Map, Plus, Trash2, CloudSun, BellRing, ExternalLink } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { offers } from "@/lib/offers";
 import { estimateTripCost } from "@/lib/tripCost";
 
 type DayPlanItem = { id: string; time: string; title: string; note?: string };
+type WeatherState = { temperature: number; apparent: number; code: number; wind: number; loading?: boolean; error?: string } | null;
 
 type TripState = {
   offerId?: number;
   flight?: string;
+  departureAt?: string;
   hotel?: string;
   notes?: string;
   checklist?: Record<string, boolean>;
@@ -28,10 +30,36 @@ const checklistItems = [
   "Sprawdź internet / eSIM",
 ];
 
+function weatherLabel(code: number) {
+  if (code === 0) return "Bezchmurnie";
+  if ([1, 2, 3].includes(code)) return "Częściowe zachmurzenie";
+  if ([45, 48].includes(code)) return "Mgła";
+  if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) return "Deszcz";
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return "Śnieg";
+  if ([95, 96, 99].includes(code)) return "Burze";
+  return "Warunki zmienne";
+}
+
+function reminderText(departureAt?: string) {
+  if (!departureAt) return "Dodaj datę i godzinę wylotu, a Tripownia pokaże, co zrobić przed podróżą.";
+  const departure = new Date(departureAt);
+  const now = new Date();
+  const hours = Math.round((departure.getTime() - now.getTime()) / 3600000);
+  if (Number.isNaN(hours)) return "Sprawdź ustawioną datę wylotu.";
+  if (hours < -6) return "Wyjazd już się rozpoczął — przełączamy się w tryb podróży.";
+  if (hours <= 0) return "To dziś. Sprawdź dokumenty, boarding pass i dojazd na lotnisko.";
+  if (hours <= 24) return `Wylot za około ${hours} h. Czas na odprawę i ostatnie sprawdzenie bagażu.`;
+  const days = Math.ceil(hours / 24);
+  if (days <= 3) return `Wylot za ${days} dni. Sprawdź odprawę, transfer i prognozę pogody.`;
+  if (days <= 7) return `Wylot za ${days} dni. Dobry moment na ubezpieczenie, atrakcje i eSIM.`;
+  return `Do wyjazdu około ${days} dni. Możesz spokojnie domknąć plan i rezerwacje.`;
+}
+
 export default function MyTrip() {
   const [trip, setTrip] = useState<TripState>({ checklist: {}, dayPlan: [] });
   const [newTime, setNewTime] = useState("10:00");
   const [newTitle, setNewTitle] = useState("");
+  const [weather, setWeather] = useState<WeatherState>(null);
 
   useEffect(() => {
     try {
@@ -43,6 +71,39 @@ export default function MyTrip() {
   const offer = useMemo(() => offers.find((item) => item.id === trip.offerId), [trip.offerId]);
   const cost = offer ? estimateTripCost(offer) : null;
   const dayPlan = useMemo(() => [...(trip.dayPlan || [])].sort((a, b) => a.time.localeCompare(b.time)), [trip.dayPlan]);
+  const reminder = reminderText(trip.departureAt);
+
+  useEffect(() => {
+    if (!offer?.city) {
+      setWeather(null);
+      return;
+    }
+
+    let cancelled = false;
+    async function loadWeather() {
+      setWeather({ temperature: 0, apparent: 0, code: 0, wind: 0, loading: true });
+      try {
+        const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(offer!.city)}&count=1&language=pl&format=json`);
+        const geo = await geoResponse.json();
+        const place = geo?.results?.[0];
+        if (!place) throw new Error("Nie znaleziono lokalizacji");
+        const forecastResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto`);
+        const forecast = await forecastResponse.json();
+        if (cancelled) return;
+        setWeather({
+          temperature: Math.round(forecast.current.temperature_2m),
+          apparent: Math.round(forecast.current.apparent_temperature),
+          code: forecast.current.weather_code,
+          wind: Math.round(forecast.current.wind_speed_10m),
+        });
+      } catch {
+        if (!cancelled) setWeather({ temperature: 0, apparent: 0, code: 0, wind: 0, error: "Nie udało się pobrać pogody." });
+      }
+    }
+
+    loadWeather();
+    return () => { cancelled = true; };
+  }, [offer?.city]);
 
   function save(next: TripState) {
     setTrip(next);
@@ -88,6 +149,30 @@ export default function MyTrip() {
           </div>
         ) : (
           <>
+            <section className="trip-mode-grid">
+              <div className="trip-mode-card trip-mode-reminder">
+                <div className="trip-mode-title"><BellRing size={20}/><strong>Co teraz?</strong></div>
+                <p>{reminder}</p>
+                <label><span>Data i godzina wylotu</span><input type="datetime-local" value={trip.departureAt || ""} onChange={(e) => save({ ...trip, departureAt: e.target.value })} /></label>
+              </div>
+
+              <div className="trip-mode-card">
+                <div className="trip-mode-title"><CloudSun size={20}/><strong>Pogoda teraz</strong></div>
+                {weather?.loading ? <p>Sprawdzam pogodę w {offer.city}…</p> : weather?.error ? <p>{weather.error}</p> : weather ? (
+                  <div className="trip-weather">
+                    <strong>{weather.temperature}°C</strong>
+                    <div><span>{weatherLabel(weather.code)}</span><small>Odczuwalna {weather.apparent}°C · wiatr {weather.wind} km/h</small></div>
+                  </div>
+                ) : <p>Brak danych pogodowych.</p>}
+              </div>
+
+              <div className="trip-mode-card">
+                <div className="trip-mode-title"><Plane size={20}/><strong>Status lotu</strong></div>
+                <input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="np. FR 1234" />
+                {trip.flight?.trim() ? <a href={`https://www.google.com/search?q=${encodeURIComponent(`${trip.flight} flight status`)}`} target="_blank" rel="noopener noreferrer">Sprawdź status lotu <ExternalLink size={15}/></a> : <small>Dodaj numer rejsu, aby szybko sprawdzić aktualny status.</small>}
+              </div>
+            </section>
+
             <div className="my-trip-grid">
               <section className="my-trip-card">
                 <div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div>
