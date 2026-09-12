@@ -2,15 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Bell, Compass, Heart, MapPinned, Plane, Sparkles, UserRound, ArrowRight, Scale } from "lucide-react";
+import { Bell, Compass, Heart, MapPinned, Sparkles, UserRound, ArrowRight, Scale } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
 import { offers, isOfferExpired } from "@/lib/offers";
-import { readTravelProfile } from "@/lib/travelProfile";
+import { TRAVEL_PROFILE_KEY } from "@/lib/travelProfile";
 
 type TripState = { offerId?: number; departureAt?: string };
-type AlertState = { departure?: string; destinations?: string; maxPrice?: number };
+type AlertState = { departure?: string; destinations?: string; maxPrice?: string | number };
 
 export default function AppHome() {
   const [profileReady, setProfileReady] = useState(false);
@@ -19,14 +19,32 @@ export default function AppHome() {
   const [favoriteCount, setFavoriteCount] = useState(0);
 
   useEffect(() => {
-    const profile = readTravelProfile();
-    setProfileReady(Boolean(profile));
-    try {
-      setTrip(JSON.parse(localStorage.getItem("tripownia-my-trip") || "{}"));
-      setAlerts(JSON.parse(localStorage.getItem("tripownia-alert-settings") || "{}"));
-      const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
-      setFavoriteCount(ids.length);
-    } catch {}
+    const load = () => {
+      setProfileReady(Boolean(localStorage.getItem(TRAVEL_PROFILE_KEY)));
+      try {
+        setTrip(JSON.parse(localStorage.getItem("tripownia-my-trip") || "{}"));
+        setAlerts(JSON.parse(localStorage.getItem("tripownia-alert-settings") || "{}"));
+        const ids = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[];
+        setFavoriteCount(ids.length);
+      } catch {
+        setTrip({});
+        setAlerts({});
+        setFavoriteCount(0);
+      }
+    };
+
+    load();
+    window.addEventListener("tripownia-profile-updated", load as EventListener);
+    window.addEventListener("tripownia-my-trip-updated", load as EventListener);
+    window.addEventListener("tripownia-favorites-updated", load as EventListener);
+    window.addEventListener("storage", load);
+
+    return () => {
+      window.removeEventListener("tripownia-profile-updated", load as EventListener);
+      window.removeEventListener("tripownia-my-trip-updated", load as EventListener);
+      window.removeEventListener("tripownia-favorites-updated", load as EventListener);
+      window.removeEventListener("storage", load);
+    };
   }, []);
 
   const tripOffer = useMemo(() => offers.find((offer) => offer.id === trip.offerId), [trip.offerId]);
