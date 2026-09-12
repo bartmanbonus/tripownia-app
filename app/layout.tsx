@@ -7,6 +7,7 @@ import "./app-home.css";
 import "./mobile-search-tabs-fix.css";
 import "./trip-header.css";
 import "./search-dream.css";
+import "./premium-system.css";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
@@ -28,6 +29,13 @@ export const metadata: Metadata = {
     siteName: "Tripownia",
     title: "Tripownia — My szukamy. Ty lecisz.",
     description: "Codziennie wybieramy konkretne okazje, city breaki, wakacje i podróże po przeżyciach. Dodatkowo możesz samodzielnie przeszukać więcej ofert.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Tripownia.pl — My szukamy. Ty lecisz." }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tripownia — My szukamy. Ty lecisz.",
+    description: "Codziennie wybieramy konkretne okazje, city breaki, wakacje i podróże po przeżyciach.",
+    images: ["/opengraph-image"],
   },
   robots: { index: true, follow: true },
 };
