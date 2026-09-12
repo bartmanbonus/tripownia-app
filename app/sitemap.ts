@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { isOfferExpired, offers } from "@/lib/offers";
-import { seoLandings } from "@/lib/seoLandings";
+import { allSeoLandings } from "@/lib/allSeoLandings";
 
 const BASE_URL = "https://tripownia.pl";
 
@@ -36,11 +36,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   if (showMarkets) staticPages.push({ url:`${BASE_URL}/jarmarki-bozonarodzeniowe`,lastModified:now,changeFrequency:"daily",priority:.9 });
 
-  const landingPages: MetadataRoute.Sitemap = seoLandings.map(page => ({
+  const landingPages: MetadataRoute.Sitemap = allSeoLandings.map(page => ({
     url: `${BASE_URL}/podroze/${page.slug}`,
     lastModified: now,
     changeFrequency: "daily" as const,
-    priority: .8,
+    priority: .82,
   }));
 
   const offerPages: MetadataRoute.Sitemap = offers
