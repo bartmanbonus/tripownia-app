@@ -29,6 +29,12 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync ios
 
+      - name: Generate Tripownia iOS icons
+        run: |
+          mkdir -p assets
+          cp ../public/tripownia-app-icon-v2.png assets/icon.png
+          npx @capacitor/assets generate --ios --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#ffffff' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#ffffff'
+
       - name: Create temporary keychain
         run: |
           security create-keychain -p "$RUNNER_TEMP" tripownia-build.keychain
@@ -55,9 +61,12 @@ jobs:
         run: |
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           echo "$IOS_PROVISION_PROFILE_BASE64" | base64 --decode > "$RUNNER_TEMP/profile.mobileprovision"
-          PROFILE_UUID=$(security cms -D -i "$RUNNER_TEMP/profile.mobileprovision" | /usr/libexec/PlistBuddy -c 'Print UUID' /dev/stdin)
+          security cms -D -i "$RUNNER_TEMP/profile.mobileprovision" > "$RUNNER_TEMP/profile.plist"
+          PROFILE_UUID=$(/usr/libexec/PlistBuddy -c 'Print :UUID' "$RUNNER_TEMP/profile.plist")
+          PROFILE_NAME=$(/usr/libexec/PlistBuddy -c 'Print :Name' "$RUNNER_TEMP/profile.plist")
           cp "$RUNNER_TEMP/profile.mobileprovision" "$HOME/Library/MobileDevice/Provisioning Profiles/$PROFILE_UUID.mobileprovision"
           echo "PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
+          echo "PROFILE_NAME=$PROFILE_NAME" >> "$GITHUB_ENV"
 
       - name: Archive iOS app
         env:
@@ -71,7 +80,7 @@ jobs:
             -archivePath "$RUNNER_TEMP/Tripownia.xcarchive" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             PRODUCT_BUNDLE_IDENTIFIER="pl.tripownia.app" \
-            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
+            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_NAME" \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY='Apple Distribution' \
             clean archive
@@ -90,7 +99,7 @@ jobs:
             <key>signingStyle</key><string>manual</string>
             <key>provisioningProfiles</key>
             <dict>
-              <key>pl.tripownia.app</key><string>$PROFILE_UUID</string>
+              <key>pl.tripownia.app</key><string>$PROFILE_NAME</string>
             </dict>
           </dict>
           </plist>
