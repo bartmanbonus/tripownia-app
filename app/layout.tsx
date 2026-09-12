@@ -3,6 +3,7 @@ import "./globals.css";
 import "./responsive-fixes.css";
 import "./app-pwa.css";
 import "./trip-mode.css";
+import "./app-home.css";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
