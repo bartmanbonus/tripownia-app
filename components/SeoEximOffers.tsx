@@ -4,17 +4,24 @@ import { useEffect, useMemo, useState } from "react";
 import OfferCard from "@/components/OfferCard";
 import type { Offer } from "@/lib/offers";
 
+type SeasonalOffer = Offer & {
+  startDateISO?: string;
+  endDateISO?: string;
+};
+
 type Props = {
   query: string;
   departure?: string;
   minNights?: number;
   maxNights?: number;
   maxPrice?: number;
+  startDate?: string;
+  endDate?: string;
 };
 
 type ApiResponse = {
   ok?: boolean;
-  offers?: Offer[];
+  offers?: SeasonalOffer[];
   checkedAt?: string;
 };
 
@@ -25,7 +32,10 @@ const FALLBACKS: Record<string, string[]> = {
   cypr: ["Cypr", "Pafos", "Larnaka"],
   madera: ["Madera", "Portugalia"],
   teneryfa: ["Teneryfa", "Wyspy Kanaryjskie"],
-  "city break": ["Malta", "Rzym", "Cypr", "Stambuł"],
+  "wyspy kanaryjskie": ["Teneryfa", "Fuerteventura", "Gran Canaria"],
+  "wyspy zielonego przyladka": ["Wyspy Zielonego Przylądka", "Sal", "Boa Vista"],
+  "city break": ["Malta", "Rzym", "Cypr", "Stambuł", "Wiedeń", "Praga", "Budapeszt"],
+  "cieple wakacje": ["Egipt", "Teneryfa", "Fuerteventura", "Maroko", "Malta", "Cypr"],
   "all inclusive": ["Egipt", "Turcja", "Tunezja"],
   egzotyka: ["Zanzibar", "Malediwy", "Tajlandia", "Dominikana", "Mauritius"],
   "last minute": ["Egipt", "Turcja", "Tunezja", "Cypr"],
@@ -48,12 +58,17 @@ function departureCode(value?: string) {
   if (n.includes("gdansk")) return "GDN";
   if (n.includes("wrocl")) return "WRO";
   if (n.includes("pozn")) return "POZ";
+  if (n.includes("rzesz")) return "RZE";
+  if (n.includes("lublin")) return "LUZ";
+  if (n.includes("szczec")) return "SZZ";
+  if (n.includes("lodz")) return "LCJ";
+  if (n.includes("bydgos")) return "BZG";
   return "";
 }
 
-function uniqByProduct(items: Offer[]) {
+function uniqByProduct(items: SeasonalOffer[]) {
   const seen = new Set<string>();
-  const result: Offer[] = [];
+  const result: SeasonalOffer[] = [];
   for (const offer of items) {
     const key = `${offer.affiliateUrl}|${offer.hotel}|${offer.dates}`;
     if (seen.has(key)) continue;
@@ -63,8 +78,8 @@ function uniqByProduct(items: Offer[]) {
   return result;
 }
 
-export default function SeoEximOffers({ query, departure, minNights, maxNights, maxPrice }: Props) {
-  const [offers, setOffers] = useState<Offer[]>([]);
+export default function SeoEximOffers({ query, departure, minNights, maxNights, maxPrice, startDate, endDate }: Props) {
+  const [offers, setOffers] = useState<SeasonalOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [relaxed, setRelaxed] = useState(false);
   const [error, setError] = useState(false);
@@ -82,13 +97,25 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
       const params = new URLSearchParams({ mode: "search", provider: "exim", q: term });
       if (from) params.set("from", from);
       const response = await fetch(`/api/today-offers?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
-      if (!response.ok) return [] as Offer[];
+      if (!response.ok) return [] as SeasonalOffer[];
       const data = (await response.json()) as ApiResponse;
       return Array.isArray(data.offers) ? data.offers.filter((offer) => offer.partner === "exim") : [];
     }
 
-    function strictFilter(items: Offer[]) {
-      return items.filter((offer) => {
+    function dateMatches(offer: SeasonalOffer) {
+      if (!startDate && !endDate) return true;
+      if (!offer.startDateISO) return false;
+      if (startDate && offer.startDateISO < startDate) return false;
+      if (endDate && offer.startDateISO > endDate) return false;
+      return true;
+    }
+
+    function seasonalScope(items: SeasonalOffer[]) {
+      return items.filter(dateMatches);
+    }
+
+    function strictFilter(items: SeasonalOffer[]) {
+      return seasonalScope(items).filter((offer) => {
         if (typeof minNights === "number" && offer.nights < minNights) return false;
         if (typeof maxNights === "number" && offer.nights > maxNights) return false;
         if (typeof maxPrice === "number" && offer.price > maxPrice) return false;
@@ -102,9 +129,8 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
       setRelaxed(false);
       try {
         const from = departureCode(departure);
-        const gathered: Offer[] = [];
+        const gathered: SeasonalOffer[] = [];
 
-        // Najpierw szukamy dokładnie pod kierunek i wskazane lotnisko.
         for (const term of queries) {
           const rows = await fetchFor(term, from || undefined);
           gathered.push(...rows);
@@ -114,10 +140,8 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
         let unique = uniqByProduct(gathered).sort((a, b) => a.price - b.price);
         let strict = strictFilter(unique);
 
-        // Jeżeli z konkretnego lotniska nie ma wystarczającej puli, nie zostawiamy pustej strony:
-        // pobieramy aktualne oferty tego samego kierunku z innych polskich lotnisk.
         if (strict.length < 3 && from) {
-          const broader: Offer[] = [];
+          const broader: SeasonalOffer[] = [];
           for (const term of queries) {
             broader.push(...(await fetchFor(term)));
             if (strictFilter(uniqByProduct([...unique, ...broader])).length >= 6) break;
@@ -130,14 +154,15 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
         if (strict.length > 0) {
           setOffers(strict.slice(0, 6));
           setRelaxed(false);
-        } else if (unique.length > 0) {
-          // Budżet / długość mogą chwilowo nie mieć trafienia. Nadal pokazujemy prawdziwe,
-          // bieżące produkty dla kierunku zamiast starego statycznego komunikatu „brak ofert”.
-          setOffers(unique.slice(0, 6));
-          setRelaxed(true);
         } else {
-          setOffers([]);
-          setError(true);
+          const seasonal = seasonalScope(unique);
+          if (seasonal.length > 0) {
+            setOffers(seasonal.slice(0, 6));
+            setRelaxed(true);
+          } else {
+            setOffers([]);
+            setError(true);
+          }
         }
       } catch {
         if (!cancelled) {
@@ -155,7 +180,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [queries, departure, minNights, maxNights, maxPrice]);
+  }, [queries, departure, minNights, maxNights, maxPrice, startDate, endDate]);
 
   if (loading) {
     return (
@@ -169,8 +194,8 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   if (error || offers.length === 0) {
     return (
       <div className="seo-live-status seo-live-status-warning">
-        <strong>Odświeżamy aktualną pulę ofert.</strong>
-        <span>Spróbuj ponownie za chwilę — nie podstawiamy starych ani fikcyjnych kart.</span>
+        <strong>Nie znaleźliśmy teraz pasującej oferty w tym terminie.</strong>
+        <span>Nie pokazujemy ofert z innego miesiąca tylko po to, żeby zapełnić stronę. Sprawdź ponownie później albo ustaw alert.</span>
       </div>
     );
   }
@@ -179,7 +204,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     <>
       {relaxed && (
         <div className="seo-live-note">
-          Pokazujemy najbliższe aktualne propozycje dla tego kierunku — cena lub długość pobytu może różnić się od filtra strony.
+          Termin się zgadza. Pokazujemy najbliższe aktualne propozycje — cena lub długość pobytu może różnić się od dodatkowego filtra strony.
         </div>
       )}
       <div className="cards-grid seo-live-offers-grid">

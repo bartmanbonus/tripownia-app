@@ -18,17 +18,32 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
   const hay = `${item.title} ${item.path}`.toLowerCase();
   if (hay.includes("limit") && hay.includes("płyn")) return [
     { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
-    { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
+    { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa" },
+    { href: "/podroze/city-break-z-katowic", label: "City break z Katowic" },
     { href: "/podroze/city-break-z-gdanska", label: "City break z Gdańska" },
+    { href: "/podroze/city-break-z-wroclawia", label: "City break z Wrocławia" },
+    { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
   ];
-  if (hay.includes("październik") || hay.includes("listopad") || hay.includes("ciepło")) return [
-    { href: "/podroze/egzotyka-zima", label: "Egzotyka na chłodniejsze miesiące" },
+  if (hay.includes("listopad") && (hay.includes("ciepło") || hay.includes("gdzie"))) return [
+    { href: "/podroze/cieple-wakacje-listopad-2026", label: "Ciepłe wakacje — listopad 2026" },
+    { href: "/podroze/wyspy-kanaryjskie-listopad-2026", label: "Wyspy Kanaryjskie — listopad" },
+    { href: "/podroze/egipt-listopad-2026", label: "Egipt — listopad 2026" },
+    { href: "/podroze/malta-listopad-2026", label: "Malta — listopad 2026" },
+  ];
+  if (hay.includes("październik") || hay.includes("pazdziernik")) return [
+    { href: "/podroze/city-break-pazdziernik-2026", label: "City break — październik 2026" },
     { href: "/podroze/teneryfa-z-warszawy", label: "Teneryfa z Warszawy" },
     { href: "/podroze/wakacje-do-2500-zl", label: "Wakacje do 2500 zł" },
   ];
+  if (hay.includes("ciepło") || hay.includes("cieplo")) return [
+    { href: "/podroze/cieple-wakacje-listopad-2026", label: "Gdzie ciepło w listopadzie" },
+    { href: "/podroze/cieple-wakacje-grudzien-2026", label: "Gdzie ciepło w grudniu" },
+    { href: "/podroze/wyspy-kanaryjskie-grudzien-2026", label: "Kanary — grudzień 2026" },
+  ];
   if (hay.includes("sylwestr")) return [
     { href: "/sylwester", label: "Aktualne pomysły na Sylwestra" },
-    { href: "/podroze/egzotyka-zima", label: "Ciepłe kierunki zimą" },
+    { href: "/podroze/city-break-grudzien-2026", label: "City break — grudzień 2026" },
+    { href: "/podroze/cieple-wakacje-grudzien-2026", label: "Ciepłe kierunki w grudniu" },
     { href: "/dalekie-podroze", label: "Dalekie podróże" },
   ];
   if (hay.includes("bagaż") || hay.includes("karta pokładowa") || hay.includes("jedzenie do samolotu") || hay.includes("lotnisk")) return [

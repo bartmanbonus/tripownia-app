@@ -46,6 +46,11 @@ export default async function SeoLandingPage({ params }: PageProps) {
   const page = getAllSeoLanding(slug);
   if (!page) notFound();
 
+  const rawStartDate = "startDate" in page ? page.startDate : undefined;
+  const rawEndDate = "endDate" in page ? page.endDate : undefined;
+  const startDate = typeof rawStartDate === "string" ? rawStartDate : undefined;
+  const endDate = typeof rawEndDate === "string" ? rawEndDate : undefined;
+
   const bookingUrl = partners.booking.buildUrl(
     `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(page.query)}`
   );
@@ -59,6 +64,10 @@ export default async function SeoLandingPage({ params }: PageProps) {
   kiwiDeep.searchParams.set("locale", "pl");
 
   const kiwiUrl = partners.kiwi.buildUrl(kiwiDeep.toString());
+
+  const alertParams = new URLSearchParams({ destination: page.query });
+  if (page.departure) alertParams.set("departure", page.departure);
+  if (page.maxPrice) alertParams.set("maxPrice", String(page.maxPrice));
 
   const related = allSeoLandings
     .filter((item) => item.slug !== page.slug)
@@ -88,6 +97,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
           <div className="seo-hero-actions">
             <Link className="primary-cta" href="/#wyszukiwarka">Ustaw własne parametry →</Link>
             <a className="secondary-cta" href="#aktualne-oferty">Zobacz oferty</a>
+            <Link className="secondary-cta" href={`/alerty?${alertParams.toString()}`}>Ustaw alert →</Link>
           </div>
         </div>
       </section>
@@ -97,7 +107,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
           <div>
             <div className="kicker">AKTUALNE OFERTY</div>
             <h2>Najlepsze dostępne propozycje dla tego wyszukiwania</h2>
-            <p>Pobieramy bieżące produkty, ceny i terminy automatycznie. Każda karta prowadzi do konkretnej oferty.</p>
+            <p>{startDate || endDate ? "Filtrujemy również realną datę wylotu — nie podstawiamy ofert z innego miesiąca." : "Pobieramy bieżące produkty, ceny i terminy automatycznie. Każda karta prowadzi do konkretnej oferty."}</p>
           </div>
         </div>
         <SeoEximOffers
@@ -106,6 +116,8 @@ export default async function SeoLandingPage({ params }: PageProps) {
           minNights={page.minNights}
           maxNights={page.maxNights}
           maxPrice={page.maxPrice}
+          startDate={startDate}
+          endDate={endDate}
         />
       </section>
 

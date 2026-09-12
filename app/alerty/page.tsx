@@ -27,10 +27,29 @@ export default function AlertsPage() {
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
 
   useEffect(() => {
+    let next = { ...DEFAULTS };
     try {
       const stored = JSON.parse(localStorage.getItem("tripownia-alert-settings") || "null") as AlertSettings | null;
-      if (stored) setSettings({ ...DEFAULTS, ...stored });
+      if (stored) next = { ...next, ...stored };
     } catch {}
+
+    const params = new URLSearchParams(window.location.search);
+    const destination = params.get("destination")?.trim();
+    const departure = params.get("departure")?.trim();
+    const maxPrice = params.get("maxPrice")?.replace(/\D/g, "");
+    if (destination) next.destinations = destination.slice(0, 120);
+    if (departure) next.departure = departure.slice(0, 80);
+    if (maxPrice) next.maxPrice = maxPrice.slice(0, 8);
+    setSettings(next);
+
+    if (destination || departure || maxPrice) {
+      trackEvent("alert_prefilled", {
+        destination: destination?.slice(0, 120),
+        departure: departure?.slice(0, 80),
+        max_price: Number(maxPrice || 0),
+      });
+    }
+
     setPermission("Notification" in window ? Notification.permission : "unsupported");
   }, []);
 
