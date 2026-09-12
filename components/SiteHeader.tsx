@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Heart,
   Plane,
@@ -23,7 +24,7 @@ import {
 import { partners } from "@/lib/partners";
 
 const primaryItems = [
-  { href: "/podroze", label: "Okazje" },
+  { href: "/okazje", label: "Okazje" },
   { href: "/wydarzenia", label: "Mecze i eventy" },
   { href: "/podroze-po-przezycia", label: "Przeżycia" },
   { href: "/jarmarki-bozonarodzeniowe", label: "Jarmarki", seasonal: true },
@@ -32,6 +33,7 @@ const primaryItems = [
 ] as const;
 
 const planningItems = [
+  { href: "/kierunki", label: "Kierunki", icon: Compass },
   { href: "https://www.booking.com/?aid=818288", label: "Hotele", icon: BedDouble, external: true },
   { href: "https://kiwi.tpk.lv/7PnrR4dn", label: "Loty", icon: Plane, external: true },
   { href: "/wynajem-auta", label: "Wynajem auta", icon: Car },
@@ -48,8 +50,13 @@ const myTripowniaItems = [
 ] as const;
 
 export default function SiteHeader() {
+  const pathname = usePathname();
   const showMarkets = Date.now() <= new Date("2027-01-07T22:59:59Z").getTime();
   const visiblePrimaryItems = primaryItems.filter((item) => !("seasonal" in item && item.seasonal) || showMarkets);
+  const isActive = (href: string) => {
+    if (href === "/okazje") return pathname === "/okazje" || pathname.startsWith("/oferta/");
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   const siteSchema = {
     "@context": "https://schema.org",
@@ -96,11 +103,19 @@ export default function SiteHeader() {
 
         <div className="trip-header-nav-wrap">
           <nav className="trip-header-nav" aria-label="Główne kategorie podróży">
-            {visiblePrimaryItems.map((item, index) => (
-              <Link key={item.href} className={`trip-header-nav-link${index === 0 ? " is-active" : ""}`} href={item.href}>
-                <span>{item.label}</span>
-              </Link>
-            ))}
+            {visiblePrimaryItems.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  className={`trip-header-nav-link${active ? " is-active" : ""}`}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                >
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="trip-header-tools">
