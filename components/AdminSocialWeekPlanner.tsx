@@ -19,15 +19,24 @@ function publicOfferUrl(item: ReturnType<typeof getSocialDailyPlan>["items"][num
 }
 function buildText(item: ReturnType<typeof getSocialDailyPlan>["items"][number]) {
   const o=item.offer;
-  const flight=o.category.includes("flight");
   const landing=publicOfferUrl(item);
-  if(flight){
-    const headline=o.price>0
-      ? `🔥 WOW! Loty na ${o.city} od ${o.price} zł!`
-      : `✈️ ${o.city} — sprawdź dzisiejsze ceny lotów`;
-    return `${headline}\n\n✈️ Wylot: ${o.departure}\n📅 ${o.dates}\n\n${o.reason}\n\n👉 Sprawdź lot: ${landing}`;
+  const price=o.price>0 ? `${o.price} zł/os.` : "sprawdź aktualną cenę";
+  const tags = item.kind === "city" ? "#Tripownia #CityBreak #TaniePodróże" : item.kind === "flight" ? "#Tripownia #TanieLoty #Podróże" : "#Tripownia #Wakacje #Podróże";
+
+  if(item.kind === "flight"){
+    const hook=o.price>0 ? `${o.city} od ${o.price} zł. Taki lot dziś trafia na nasz radar. ✈️` : `${o.city} na radarze Tripowni. Dziś warto sprawdzić ceny lotów. ✈️`;
+    return `${hook}\n\nWylot: ${o.departure}\nTermin: ${o.dates}\n\n${o.reason}\n\nSprawdź aktualne opcje: ${landing}\n\n${tags}`;
   }
-  return `${o.flag} ${o.city} od ${o.price} zł/os.\n📅 ${o.dates}\n✈️ Wylot: ${o.departure}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\n👉 Sprawdź ofertę: ${landing}`;
+
+  if(item.kind === "city"){
+    return `${o.city} na krótki wyjazd? Dzisiaj znaleźliśmy opcję za ${price}.\n\n✈️ ${o.departure}\n📅 ${o.dates}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\nSprawdź na Tripowni: ${landing}\n\n${tags}`;
+  }
+
+  if(item.kind === "seasonal"){
+    return `Gdy w Polsce robi się chłodniej, ${o.city} wygląda coraz lepiej. ☀️\n\nCena: ${price}\nWylot: ${o.departure}\nTermin: ${o.dates}\nHotel: ${o.hotel}\n\n${o.reason}\n\nZobacz aktualną ofertę: ${landing}\n\n${tags}`;
+  }
+
+  return `${o.city} za ${price}. To jedna z mocniejszych ofert, które dziś wyłapała Tripownia.\n\n✈️ Wylot: ${o.departure}\n📅 ${o.dates}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\nMy szukamy. Ty lecisz. → ${landing}\n\n${tags}`;
 }
 
 export default function AdminSocialWeekPlanner(){
@@ -67,8 +76,8 @@ export default function AdminSocialWeekPlanner(){
     <div className={styles.topbar}>
       <div>
         <div className="kicker">TYDZIEŃ PUBLIKACJI</div>
-        <h2>Świeże okazje, bez przeładowania</h2>
-        <p>Każdy dzień dostaje własny zestaw dopiero po porannym skanie. Przyszłych dni nie wypełniamy starymi cenami.</p>
+        <h2>5 różnych powodów, żeby wejść dziś na Tripownię</h2>
+        <p>Każdego dnia miksujemy lot, city break, wakacje, kierunek sezonowy i najmocniejszą okazję. Bez pięciu identycznych postów z ceną.</p>
       </div>
       <div className={styles.nav}>
         <button onClick={()=>moveWeek(-1)} aria-label="Poprzedni tydzień"><ChevronLeft size={17}/></button>
@@ -114,12 +123,8 @@ export default function AdminSocialWeekPlanner(){
             </div>
             <div className={styles.body}>
               <small>POST {index+1}/5</small>
-              <h3>{flight
-                ? hasPrice ? `🔥 WOW! Loty na ${item.offer.city}` : `✈️ Loty na ${item.offer.city}`
-                : `${item.offer.flag} ${item.offer.city}`}</h3>
-              <strong className={styles.price}>{flight && hasPrice
-                ? `od ${item.offer.price} zł!`
-                : hasPrice ? `od ${item.offer.price} zł/os.` : "sprawdź ceny lotów"}</strong>
+              <h3>{flight ? hasPrice ? `✈️ ${item.offer.city} — mocna cena` : `✈️ ${item.offer.city} na radarze` : `${item.offer.flag} ${item.offer.city}`}</h3>
+              <strong className={styles.price}>{flight && hasPrice ? `od ${item.offer.price} zł` : hasPrice ? `od ${item.offer.price} zł/os.` : "sprawdź ceny lotów"}</strong>
               <p>📅 {item.offer.dates}<br/>✈️ {item.offer.departure}{flight?` → ${item.offer.city}`:` · ${item.offer.nights} nocy`}</p>
               <div className={styles.reason}>{item.priceGem.reason}</div>
               <div className={styles.actions}>

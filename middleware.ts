@@ -10,6 +10,15 @@ const PRIVATE_APP_PATHS = [
   "/profil",
 ];
 
+const LEGACY_CATEGORY_REDIRECTS: Record<string, string> = {
+  "/kategoria-produktu/all-inclusive": "/wakacje",
+  "/kategoria-produktu/wakacje": "/wakacje",
+  "/kategoria-produktu/last-minute": "/last-minute",
+  "/kategoria-produktu/city-break": "/city-break",
+  "/kategoria-produktu/tanie-loty": "/tanie-loty",
+  "/kategoria-produktu/ze-zwiedzaniem": "/podroze-po-przezycia",
+};
+
 function unauthorized() {
   return new NextResponse("Dostęp do panelu administracyjnego wymaga autoryzacji.", {
     status: 401,
@@ -18,6 +27,13 @@ function unauthorized() {
       "Cache-Control": "no-store",
     },
   });
+}
+
+function permanentRedirect(request: NextRequest, pathname: string) {
+  const target = request.nextUrl.clone();
+  target.pathname = pathname;
+  target.search = "";
+  return NextResponse.redirect(target, 308);
 }
 
 function cleanLegacyWordPressUrl(request: NextRequest) {
@@ -45,18 +61,17 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
     return NextResponse.redirect(url, 308);
   }
 
-  // WooCommerce was the old publishing layer. Keep those URLs useful without
-  // exposing stale product prices or expired catalog listings on the new site.
+  if (LEGACY_CATEGORY_REDIRECTS[path]) {
+    return permanentRedirect(request, LEGACY_CATEGORY_REDIRECTS[path]);
+  }
+
   const isWooCategory = path.startsWith("/kategoria-produktu/");
   const isWooProduct = path.startsWith("/produkt/");
   const isOldShop = path === "/sklep" || path === "/tripownia-pl/sklep";
   const isOldDealsCatalog = path === "/tripownia-pl/okazje-tripownia";
 
   if (isWooCategory || isWooProduct || isOldShop || isOldDealsCatalog) {
-    const target = request.nextUrl.clone();
-    target.pathname = "/okazje";
-    target.search = "";
-    return NextResponse.redirect(target, 308);
+    return permanentRedirect(request, "/okazje");
   }
 
   return null;
@@ -82,7 +97,6 @@ export function middleware(request: NextRequest) {
   const username = process.env.TRIPOWNIA_ADMIN_USER;
   const password = process.env.TRIPOWNIA_ADMIN_PASSWORD;
 
-  // Fail closed on production: an unconfigured admin must not become public.
   if (!username || !password) {
     return new NextResponse(
       "Panel administratora jest zablokowany do czasu ustawienia TRIPOWNIA_ADMIN_USER i TRIPOWNIA_ADMIN_PASSWORD w Vercel.",
@@ -99,9 +113,7 @@ export function middleware(request: NextRequest) {
     const suppliedUser = separator >= 0 ? decoded.slice(0, separator) : "";
     const suppliedPassword = separator >= 0 ? decoded.slice(separator + 1) : "";
 
-    if (suppliedUser !== username || suppliedPassword !== password) {
-      return unauthorized();
-    }
+    if (suppliedUser !== username || suppliedPassword !== password) return unauthorized();
   } catch {
     return unauthorized();
   }
