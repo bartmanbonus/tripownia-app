@@ -27,7 +27,9 @@ for (const item of legacyItems) {
   legacyByPath.set(canonicalPath, item);
 }
 
-export const legacyPosts = legacyItems.filter((item) => item.type === "post");
+export const legacyPosts = legacyItems
+  .filter((item) => item.type === "post")
+  .map((item) => ({ ...item, path: legacyCanonicalPath(item.path) }));
 
 export function findLegacy(path: string) {
   const normalized = path !== "/" ? path.replace(/\/$/, "") : path;
