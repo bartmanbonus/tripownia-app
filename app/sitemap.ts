@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { isOfferExpired, offers } from "@/lib/offers";
 import { allSeoLandings } from "@/lib/allSeoLandings";
+import { legacyCanonicalPath, legacyPosts } from "@/lib/legacy";
 
 const BASE_URL = "https://tripownia.pl";
 
@@ -36,6 +37,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   if (showMarkets) staticPages.push({ url:`${BASE_URL}/jarmarki-bozonarodzeniowe`,lastModified:now,changeFrequency:"daily",priority:.9 });
 
+  const legacyArticlePaths = [...new Set(legacyPosts.map(post => legacyCanonicalPath(post.path)))]
+    .filter(path => path !== "/city-break-2");
+
+  const legacyArticlePages: MetadataRoute.Sitemap = legacyArticlePaths.map(path => ({
+    url: `${BASE_URL}${path}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: .72,
+  }));
+
   const landingPages: MetadataRoute.Sitemap = allSeoLandings.map(page => ({
     url: `${BASE_URL}/podroze/${page.slug}`,
     lastModified: now,
@@ -52,5 +63,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: .85,
     }));
 
-  return [...staticPages, ...landingPages, ...offerPages];
+  return [...staticPages, ...legacyArticlePages, ...landingPages, ...offerPages];
 }
