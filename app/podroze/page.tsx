@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { seoLandings } from "@/lib/seoLandings";
+import { allSeoLandings } from "@/lib/allSeoLandings";
 
 export const metadata: Metadata = {
-  title: "Pomysły na podróże i tanie wyjazdy | Tripownia.pl",
+  title: "Pomysły na podróże i tanie wyjazdy",
   description: "City breaki, wakacje, All Inclusive, tanie loty, last minute i wyjazdy z polskich lotnisk. Wybierz temat i przejdź do aktualnych ofert.",
   alternates: { canonical: "/podroze" },
 };
@@ -26,6 +26,7 @@ const landingVisuals: Record<string, { image: string; region: string; type: stri
 };
 
 function fallbackVisual(slug: string) {
+  if (slug.includes("do-2000") || slug.includes("do-2500")) return { image: "/images/destinations/djerba.jpg", region: "Budżet", type: "Dobra cena", nights: "5–10 nocy" };
   if (slug.startsWith("tanie-loty")) return { image: "/images/destinations/barcelona.jpg", region: "Loty", type: "Tanie loty", nights: "2–10 nocy" };
   if (slug.startsWith("last-minute")) return { image: "/images/destinations/djerba.jpg", region: "Okazje", type: "Last minute", nights: "5–10 nocy" };
   if (slug.startsWith("all-inclusive")) return { image: "/images/destinations/marsa-alam.jpg", region: "Wakacje", type: "All Inclusive", nights: "7–14 nocy" };
@@ -34,10 +35,7 @@ function fallbackVisual(slug: string) {
 }
 
 function cleanTitle(title: string) {
-  return title
-    .replace(" z Warszawy — ", " — ")
-    .replace(" z Warszawy", "")
-    .replace(" z Krakowa", " z Krakowa");
+  return title.replace(" z Warszawy — ", " — ").replace(" z Warszawy", "");
 }
 
 export default function TravelIdeasPage() {
@@ -55,27 +53,16 @@ export default function TravelIdeasPage() {
         </div>
 
         <div className="travel-hub-search-row">
-          <Link href="/#szukaj-samodzielnie" className="travel-hub-search">
-            <span aria-hidden="true">⌕</span>
-            <strong>Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam, Resort 4★</strong>
-          </Link>
-          <Link href="/#szukaj-samodzielnie" className="travel-hub-weekend">
-            <span className="travel-hub-check">✓</span>
-            <span><strong>Pobyt obejmuje sobotę i niedzielę</strong><small>Jesteś na miejscu w oba dni</small></span>
-          </Link>
+          <Link href="/#szukaj-samodzielnie" className="travel-hub-search"><span aria-hidden="true">⌕</span><strong>Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam, Resort 4★</strong></Link>
+          <Link href="/#szukaj-samodzielnie" className="travel-hub-weekend"><span className="travel-hub-check">✓</span><span><strong>Pobyt obejmuje sobotę i niedzielę</strong><small>Jesteś na miejscu w oba dni</small></span></Link>
         </div>
 
         <div className="travel-hub-filters" aria-label="Kategorie podróży">
-          <span className="active">🌐 Wszystkie</span>
-          <span>✈ Tanie loty</span>
-          <span>⚡ Last minute</span>
-          <span>▦ City break</span>
-          <span>△ Wakacje</span>
-          <span>◉ All Inclusive</span>
+          <span className="active">🌐 Wszystkie</span><span>✈ Tanie loty</span><span>⚡ Last minute</span><span>▦ City break</span><span>△ Wakacje</span><span>◉ All Inclusive</span>
         </div>
 
         <div className="travel-hub-grid">
-          {seoLandings.map((item) => {
+          {allSeoLandings.map((item) => {
             const visual = landingVisuals[item.slug] || fallbackVisual(item.slug);
             return (
               <Link className="travel-hub-card" href={`/podroze/${item.slug}`} key={item.slug}>
@@ -87,9 +74,7 @@ export default function TravelIdeasPage() {
                 <div className="travel-hub-card-body">
                   <strong>{cleanTitle(item.title)}</strong>
                   <p>{item.lead}</p>
-                  <div className="travel-hub-card-meta">
-                    <span>✈ {visual.type}</span><span>▣ {visual.nights}</span><b>→</b>
-                  </div>
+                  <div className="travel-hub-card-meta"><span>✈ {visual.type}</span><span>▣ {visual.nights}</span><b>→</b></div>
                 </div>
               </Link>
             );
