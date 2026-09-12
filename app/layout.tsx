@@ -14,7 +14,11 @@ export const metadata: Metadata = {
   keywords: ["tanie loty", "city break", "wakacje", "last minute", "lot hotel", "okazje podróżnicze", "Tripownia"],
   manifest: "/manifest.webmanifest",
   applicationName: "Tripownia",
-  icons: { icon: "/tripownia-app-icon.svg" },
+  icons: {
+    icon: [{ url: "/tripownia-app-icon-v2.png", type: "image/png", sizes: "256x256" }],
+    shortcut: ["/tripownia-app-icon-v2.png"],
+    apple: [{ url: "/tripownia-app-icon-v2.png", type: "image/png", sizes: "256x256" }],
+  },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Tripownia" },
   openGraph: {
     type: "website",
