@@ -5,7 +5,7 @@ import "./app-pwa.css";
 import "./trip-mode.css";
 import "./app-home.css";
 import "./mobile-search-tabs-fix.css";
-import "./menu-v5-premium.css";
+import "./trip-header.css";
 import PWARegister from "@/components/PWARegister";
 
 export const metadata: Metadata = {
