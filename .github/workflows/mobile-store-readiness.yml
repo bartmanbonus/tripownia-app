@@ -1,0 +1,69 @@
+name: Mobile Store Readiness
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - chore/store-compliance
+      - main
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/mobile-store-readiness.yml'
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate store files and public URLs
+        run: |
+          test -f mobile/store/README.md
+          test -f mobile/store/compliance.md
+          test -f mobile/fastlane/metadata/android/pl-PL/title.txt
+          test -f mobile/fastlane/metadata/android/pl-PL/short_description.txt
+          curl --fail --silent --show-error --location https://tripownia.pl/polityka-prywatnosci > /dev/null
+          curl --fail --silent --show-error --location https://tripownia.pl/app > /dev/null
+
+      - name: Report publishing credential readiness
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          IOS_DISTRIBUTION_CERT_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERT_BASE64 }}
+          IOS_CERT_PASSWORD: ${{ secrets.IOS_CERT_PASSWORD }}
+          IOS_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+          APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          missing=0
+          for name in \
+            ANDROID_KEYSTORE_BASE64 \
+            ANDROID_KEYSTORE_PASSWORD \
+            ANDROID_KEY_ALIAS \
+            ANDROID_KEY_PASSWORD \
+            GOOGLE_PLAY_SERVICE_ACCOUNT_JSON \
+            IOS_DISTRIBUTION_CERT_BASE64 \
+            IOS_CERT_PASSWORD \
+            IOS_PROVISION_PROFILE_BASE64 \
+            APPLE_TEAM_ID \
+            APP_STORE_CONNECT_API_KEY_P8_BASE64 \
+            APP_STORE_CONNECT_API_KEY_ID \
+            APP_STORE_CONNECT_ISSUER_ID
+          do
+            if [ -z "${!name}" ]; then
+              echo "MISSING: $name"
+              missing=$((missing + 1))
+            else
+              echo "READY: $name"
+            fi
+          done
+
+          echo "Missing publishing credentials: $missing"
+          echo "This check is informational and intentionally does not print secret values."
