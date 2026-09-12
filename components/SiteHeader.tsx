@@ -16,6 +16,7 @@ import {
   Sparkles,
   Compass,
   MapPinned,
+  LayoutDashboard,
 } from "lucide-react";
 import { partners } from "@/lib/partners";
 
@@ -78,6 +79,7 @@ export default function SiteHeader() {
 
           <div className="menu-v5-account">
             <a href="mailto:kontakt@tripownia.pl?subject=Pomoc%20Tripownia"><CircleHelp size={20}/><span>Pomoc</span></a>
+            <Link href="/app"><LayoutDashboard size={20}/><span>Moja Tripownia</span></Link>
             <Link href="/gdzie-leciec"><Compass size={20}/><span>Gdzie lecieć?</span></Link>
             <Link href="/dla-ciebie"><Sparkles size={20}/><span>Dla Ciebie</span></Link>
             <Link href="/moja-podroz"><MapPinned size={20}/><span>Moja podróż</span></Link>
