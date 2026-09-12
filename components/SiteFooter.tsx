@@ -11,30 +11,32 @@ export default function SiteFooter() {
           <Link href="/" className="footer-logo" aria-label="Tripownia.pl — strona główna">
             <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={180} height={180} />
           </Link>
-          <p><strong>My szukamy. Ty lecisz.</strong><br/>Wybrane okazje podróżnicze i konkretne propozycje w jednym miejscu.</p>
+          <p><strong>My szukamy. Ty lecisz.</strong><br/>Wybrane okazje, inspiracje i narzędzia do planowania podróży w jednym miejscu.</p>
           <a className="footer-mail" href="mailto:kontakt@tripownia.pl">kontakt@tripownia.pl</a>
         </div>
 
         <div className="footer-column">
-          <h3>Znajdź wyjazd</h3>
-          <Link href="/okazje">Okazje</Link>
+          <h3>Odkrywaj</h3>
+          <Link href="/okazje">Dzisiejsze okazje</Link>
+          <Link href="/inspiracje">Inspiracje</Link>
           <Link href="/city-break">City break</Link>
           <Link href="/last-minute">Last minute</Link>
-          <Link href="/polska">Polska</Link>
-          <Link href="/wydarzenia">Mecze piłkarskie</Link>
-          <Link href="/ulubione">Ulubione</Link>
+          <Link href="/podroze-po-przezycia">Podróże po przeżycia</Link>
+          <Link href="/dalekie-podroze">Dalekie podróże</Link>
+          <Link href="/wydarzenia">Mecze i eventy</Link>
         </div>
 
         <div className="footer-column">
-          <h3>Przygotuj podróż</h3>
+          <h3>Planuj</h3>
+          <Link href="/kierunki">Kierunki</Link>
+          <Link href="/polska">Polska</Link>
           <Link href="/parkingi">Parkingi</Link>
           <Link href="/esim">eSIM</Link>
           <Link href="/atrakcje">Atrakcje</Link>
           <Link href="/ubezpieczenia">Ubezpieczenia</Link>
           <Link href="/transfery">Transfery</Link>
           <Link href="/wynajem-auta">Wynajem auta</Link>
-          <Link href="/magazyn-podrozniczy">Poradniki i magazyn</Link>
-          <Link href="/kierunki">Przewodniki po kierunkach</Link>
+          <Link href="/poradniki">Poradniki</Link>
         </div>
 
         <div className="footer-column footer-company">
