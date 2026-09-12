@@ -1,0 +1,195 @@
+/* Tripownia site-wide premium polish for public travel hubs */
+
+.shopping-hero{
+  position:relative!important;
+  margin-top:26px!important;
+  padding:68px 54px!important;
+  overflow:hidden!important;
+  border:1px solid #e7ded7!important;
+  border-radius:30px!important;
+  background:
+    linear-gradient(110deg,rgba(255,253,251,.98) 0%,rgba(255,253,251,.90) 46%,rgba(255,253,251,.56) 70%,rgba(255,253,251,.28) 100%),
+    url('/images/destinations/madera.jpg') center/cover no-repeat!important;
+  box-shadow:0 24px 70px rgba(46,31,22,.10)!important;
+}
+.shopping-hero:after{
+  content:"";
+  position:absolute;
+  inset:auto -8% -40% auto;
+  width:360px;
+  height:360px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,104,58,.13),transparent 68%);
+  pointer-events:none;
+}
+.shopping-hero .kicker{position:relative!important;z-index:1!important}
+.shopping-hero h1{
+  position:relative!important;
+  z-index:1!important;
+  max-width:860px!important;
+  margin:14px 0 18px!important;
+  font-size:clamp(48px,5.4vw,78px)!important;
+  line-height:.94!important;
+  letter-spacing:-.06em!important;
+  text-wrap:balance!important;
+}
+.shopping-hero p{
+  position:relative!important;
+  z-index:1!important;
+  max-width:660px!important;
+  margin:0!important;
+  color:#655a54!important;
+  font-size:15px!important;
+  line-height:1.7!important;
+}
+.shopping-hero .editorial-link{
+  position:relative!important;
+  z-index:1!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  min-height:42px!important;
+  margin-top:22px!important;
+  padding:0 15px!important;
+  border:1px solid rgba(227,214,205,.95)!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.78)!important;
+  color:#2a211c!important;
+  font-size:10px!important;
+  font-weight:850!important;
+  backdrop-filter:blur(12px)!important;
+}
+
+.shopping-hero + .section{padding-top:70px!important}
+.shopping-hero + .section>.section-heading{margin-bottom:28px!important}
+.shopping-hero + .section>.section-heading h2,
+.city-break-idea-head h2{
+  max-width:760px!important;
+  font-size:clamp(38px,4.2vw,58px)!important;
+  line-height:.98!important;
+  letter-spacing:-.05em!important;
+  text-wrap:balance!important;
+}
+
+.city-shopping-row{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:16px!important;
+  align-items:start!important;
+}
+.city-shopping-row>.offer-card:nth-child(n+9){display:none!important}
+
+.city-break-idea-head{margin:86px 0 26px!important}
+.city-break-idea-head p{max-width:720px!important;color:#756b65!important;line-height:1.65!important}
+.city-break-idea-grid{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:14px!important;
+}
+.city-break-idea-card{
+  position:relative!important;
+  min-height:390px!important;
+  overflow:hidden!important;
+  border:0!important;
+  border-radius:24px!important;
+  background:#e9e1db!important;
+  box-shadow:0 16px 40px rgba(44,31,23,.12)!important;
+  isolation:isolate!important;
+}
+.city-break-idea-card>img{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  transition:transform .55s cubic-bezier(.2,.7,.2,1)!important;
+}
+.city-break-idea-card:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:linear-gradient(180deg,rgba(10,10,10,.02) 18%,rgba(10,10,10,.16) 48%,rgba(10,10,10,.84) 100%);
+}
+.city-break-idea-card>span{
+  position:absolute!important;
+  inset:auto 0 0!important;
+  z-index:2!important;
+  padding:24px!important;
+  color:#fff!important;
+}
+.city-break-idea-card small{color:rgba(255,255,255,.78)!important;font-size:8px!important;letter-spacing:.1em!important}
+.city-break-idea-card strong{display:block!important;margin-top:5px!important;color:#fff!important;font-size:28px!important;line-height:1!important}
+.city-break-idea-card p{margin:8px 0 13px!important;color:rgba(255,255,255,.84)!important;font-size:11px!important;line-height:1.5!important}
+.city-break-idea-card b{color:#fff!important;font-size:10px!important}
+.city-break-idea-card:hover>img{transform:scale(1.045)!important}
+.city-break-idea-card:hover{transform:translateY(-5px)!important;box-shadow:0 24px 54px rgba(44,31,23,.18)!important}
+
+.single-partner-search-wrap{
+  margin-top:88px!important;
+  padding:30px!important;
+  border:1px solid #e7ddd6!important;
+  border-radius:28px!important;
+  background:linear-gradient(180deg,#fff 0%,#fbf8f5 100%)!important;
+  box-shadow:0 18px 52px rgba(46,31,22,.08)!important;
+}
+.single-partner-search-wrap:before{
+  content:"WYSZUKAJ PO SWOJEMU";
+  display:block;
+  width:max-content;
+  margin:0 0 14px;
+  padding:7px 10px;
+  border-radius:999px;
+  background:#181512;
+  color:#fff;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.12em;
+}
+
+/* Different hero mood for holidays */
+body:has(.shopping-hero .kicker:first-child) .shopping-hero{background-position:center!important}
+
+@media(max-width:1100px){
+  .city-shopping-row,.city-break-idea-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+
+@media(max-width:820px){
+  .shopping-hero{
+    margin-top:14px!important;
+    padding:48px 24px 54px!important;
+    border-radius:22px!important;
+    background-position:62% center!important;
+  }
+  .shopping-hero h1{font-size:46px!important}
+  .shopping-hero p{font-size:13px!important;max-width:94%!important}
+  .shopping-hero + .section{padding-top:48px!important}
+  .city-shopping-row{
+    display:flex!important;
+    overflow-x:auto!important;
+    gap:12px!important;
+    padding:0 18px 14px 0!important;
+    scroll-snap-type:x mandatory!important;
+    scrollbar-width:none!important;
+  }
+  .city-shopping-row::-webkit-scrollbar{display:none!important}
+  .city-shopping-row>.offer-card{flex:0 0 82vw!important;scroll-snap-align:start!important}
+  .city-break-idea-grid{
+    display:flex!important;
+    overflow-x:auto!important;
+    gap:12px!important;
+    padding:0 18px 14px 0!important;
+    scroll-snap-type:x mandatory!important;
+    scrollbar-width:none!important;
+  }
+  .city-break-idea-grid::-webkit-scrollbar{display:none!important}
+  .city-break-idea-card{flex:0 0 82vw!important;min-height:430px!important;scroll-snap-align:start!important}
+  .city-break-idea-head{margin-top:62px!important}
+  .single-partner-search-wrap{margin-top:62px!important;padding:18px!important;border-radius:22px!important}
+}
+
+@media(max-width:560px){
+  .shopping-hero{padding:42px 20px 48px!important}
+  .shopping-hero h1{font-size:40px!important}
+  .shopping-hero .editorial-link{max-width:100%!important;text-align:center!important}
+  .city-shopping-row>.offer-card,.city-break-idea-card{flex-basis:86vw!important}
+}
