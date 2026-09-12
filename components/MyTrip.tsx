@@ -2,11 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight } from "lucide-react";
+import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, Clock3, Map, Plus, Trash2 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { offers } from "@/lib/offers";
 import { estimateTripCost } from "@/lib/tripCost";
+
+type DayPlanItem = { id: string; time: string; title: string; note?: string };
 
 type TripState = {
   offerId?: number;
@@ -14,6 +16,7 @@ type TripState = {
   hotel?: string;
   notes?: string;
   checklist?: Record<string, boolean>;
+  dayPlan?: DayPlanItem[];
 };
 
 const checklistItems = [
@@ -26,17 +29,20 @@ const checklistItems = [
 ];
 
 export default function MyTrip() {
-  const [trip, setTrip] = useState<TripState>({ checklist: {} });
+  const [trip, setTrip] = useState<TripState>({ checklist: {}, dayPlan: [] });
+  const [newTime, setNewTime] = useState("10:00");
+  const [newTitle, setNewTitle] = useState("");
 
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null") as TripState | null;
-      if (saved) setTrip({ checklist: {}, ...saved });
+      if (saved) setTrip({ checklist: {}, dayPlan: [], ...saved });
     } catch {}
   }, []);
 
   const offer = useMemo(() => offers.find((item) => item.id === trip.offerId), [trip.offerId]);
   const cost = offer ? estimateTripCost(offer) : null;
+  const dayPlan = useMemo(() => [...(trip.dayPlan || [])].sort((a, b) => a.time.localeCompare(b.time)), [trip.dayPlan]);
 
   function save(next: TripState) {
     setTrip(next);
@@ -46,6 +52,18 @@ export default function MyTrip() {
 
   function toggleChecklist(item: string) {
     save({ ...trip, checklist: { ...(trip.checklist || {}), [item]: !trip.checklist?.[item] } });
+  }
+
+  function addPlanItem() {
+    const title = newTitle.trim();
+    if (!title) return;
+    const item: DayPlanItem = { id: `${Date.now()}`, time: newTime, title };
+    save({ ...trip, dayPlan: [...(trip.dayPlan || []), item] });
+    setNewTitle("");
+  }
+
+  function removePlanItem(id: string) {
+    save({ ...trip, dayPlan: (trip.dayPlan || []).filter((item) => item.id !== id) });
   }
 
   return (
@@ -100,6 +118,33 @@ export default function MyTrip() {
                 </div>
               </section>
             </div>
+
+            <section className="my-trip-card my-trip-today">
+              <div className="my-trip-card-head"><Clock3 size={20}/><h2>Co robić dziś</h2></div>
+              <p className="my-trip-subcopy">Ułóż prosty plan dnia i miej go pod ręką w telefonie.</p>
+              <div className="my-trip-plan-add">
+                <input type="time" value={newTime} onChange={(e) => setNewTime(e.target.value)} aria-label="Godzina" />
+                <input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addPlanItem(); }} placeholder="np. Koloseum, plaża, kolacja w centrum" />
+                <button onClick={addPlanItem}><Plus size={17}/> Dodaj</button>
+              </div>
+
+              {dayPlan.length ? (
+                <div className="my-trip-timeline">
+                  {dayPlan.map((item) => (
+                    <div className="my-trip-timeline-item" key={item.id}>
+                      <span className="my-trip-time">{item.time}</span>
+                      <div><strong>{item.title}</strong>{item.note ? <small>{item.note}</small> : null}</div>
+                      <button onClick={() => removePlanItem(item.id)} aria-label={`Usuń ${item.title}`}><Trash2 size={16}/></button>
+                    </div>
+                  ))}
+                </div>
+              ) : <div className="my-trip-empty-line">Dodaj pierwszy punkt dnia.</div>}
+
+              <div className="my-trip-quick-links">
+                <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${offer.city} attractions`)}`} target="_blank" rel="noopener noreferrer"><Map size={17}/> Atrakcje na mapie</a>
+                <Link href="/inspiracje"><Ticket size={17}/> Inspiracje Tripowni</Link>
+              </div>
+            </section>
 
             <section className="my-trip-card my-trip-notes">
               <div className="my-trip-card-head"><NotebookPen size={20}/><h2>Notatki</h2></div>
