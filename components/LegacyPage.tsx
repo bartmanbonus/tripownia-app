@@ -2,7 +2,7 @@ import Link from "next/link";
 import OfferCard from "@/components/OfferCard";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
+import ArticlePartnerSearch from "@/components/ArticlePartnerSearch";
 import ArticleDeepDiveBlock from "@/components/ArticleDeepDiveBlock";
 import type { LegacyItem } from "@/lib/legacy";
 import { legacyCanonicalPath } from "@/lib/legacy";
@@ -208,7 +208,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         </section>
         <section className="legacy-article-search">
           <div className="section-heading"><div><div className="kicker">WYSZUKIWANIE USTAWIONE POD ARTYKUŁ</div><h2>{effectiveDestination ? `Sprawdź aktualne wyjazdy: ${effectiveDestination}` : context.searchTitle}</h2><p>{effectiveDestination && !context.destination ? `Ustawiliśmy wyszukiwarkę pod ${effectiveDestination}. Wszystkie pola możesz zmienić.` : context.searchLead}</p></div></div>
-          <UnifiedPartnerSearch
+          <ArticlePartnerSearch
             mode={deepDive?.searchMode || context.mode}
             initialDestination={effectiveDestination || ""}
             initialDeparture={context.departure || "Warszawa Chopina"}
