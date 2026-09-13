@@ -2,11 +2,12 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Compass, Sparkles, WalletCards, Sun, Moon, ArrowRight } from "lucide-react";
+import { Compass, Sparkles, WalletCards, Sun, Moon, ArrowRight, RefreshCw } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
-import { offers, isOfferExpired } from "@/lib/offers";
+import { type Offer } from "@/lib/offers";
+import { useLiveOffers } from "@/lib/useLiveOffers";
 
 const climates = [
   { key: "dowolnie", label: "Dowolnie" },
@@ -22,7 +23,7 @@ const styles = [
   { key: "allinclusive", label: "Wygodnie / All Inclusive" },
 ];
 
-function matchScore(offer: (typeof offers)[number], budget: number, maxNights: number, climate: string, style: string) {
+function matchScore(offer: Offer, budget: number, maxNights: number, climate: string, style: string) {
   let score = offer.score * 10;
   if (offer.price <= budget) score += 20;
   else score -= Math.min(30, ((offer.price - budget) / Math.max(1, budget)) * 35);
@@ -40,15 +41,20 @@ export default function TravelAdvisor() {
   const [climate, setClimate] = useState("dowolnie");
   const [style, setStyle] = useState("dowolnie");
   const [submitted, setSubmitted] = useState(false);
+  const { offers, source, loading, checkedAt, refresh } = useLiveOffers("/api/today-offers?mode=search&broad=1");
 
   const recommendations = useMemo(() => {
     return offers
-      .filter((offer) => !isOfferExpired(offer))
+      .filter((offer) => offer.availabilityStatus !== "expired")
       .map((offer) => ({ offer, score: matchScore(offer, budget, maxNights, climate, style) }))
       .sort((a, b) => b.score - a.score)
       .slice(0, 3)
       .map((row) => row.offer);
-  }, [budget, maxNights, climate, style]);
+  }, [offers, budget, maxNights, climate, style]);
+
+  const freshness = source === "live"
+    ? checkedAt ? `Aktualne oferty · ${new Date(checkedAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}` : "Aktualne oferty"
+    : "Tryb awaryjny — ostatnia dostępna pula";
 
   return (
     <main>
@@ -94,12 +100,17 @@ export default function TravelAdvisor() {
             </div>
           </div>
 
+          <div className="advisor-next" style={{ justifyContent: "space-between" }}>
+            <span>{freshness}</span>
+            <button type="button" className="app-secondary-button" onClick={refresh}><RefreshCw size={16}/> {loading ? "Odświeżam…" : "Odśwież oferty"}</button>
+          </div>
+
           <button className="primary-cta advisor-submit" onClick={() => setSubmitted(true)}><Sparkles size={18}/> Pokaż moje 3 kierunki</button>
         </div>
 
         {submitted && (
           <section className="advisor-results">
-            <div className="section-heading"><div><div className="kicker">TOP 3 DLA CIEBIE</div><h2>Najlepsze dopasowanie</h2><p>Wybraliśmy oferty, które najlepiej mieszczą się w Twoim budżecie i stylu podróży.</p></div></div>
+            <div className="section-heading"><div><div className="kicker">TOP 3 DLA CIEBIE</div><h2>Najlepsze dopasowanie</h2><p>Wybraliśmy aktualne oferty, które najlepiej mieszczą się w Twoim budżecie i stylu podróży.</p></div></div>
             <div className="cards-grid">{recommendations.map((offer) => <OfferCard key={offer.id} offer={offer} />)}</div>
             <div className="advisor-next"><Link href="/dla-ciebie">Zobacz więcej dopasowanych ofert <ArrowRight size={16}/></Link></div>
           </section>
