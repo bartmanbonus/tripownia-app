@@ -9,7 +9,7 @@ main > .self-search-home-stage{display:none!important}
 #wyszukiwarka.search-v3-section{
   width:min(1760px,calc(100vw - 12px))!important;
   margin:-58px auto 8px!important;
-  padding:34px 22px 72px!important;
+  padding:24px 22px 22px!important;
   border-radius:42px!important;
   background:
     radial-gradient(circle at 88% 4%,rgba(255,116,72,.22),transparent 28%),
@@ -23,6 +23,10 @@ main > .self-search-home-stage{display:none!important}
   border:1px solid rgba(255,255,255,.78)!important;
   border-radius:34px!important;
   box-shadow:0 34px 90px rgba(0,0,0,.24)!important;
+}
+
+#wyszukiwarka .search-v3:not(:has(.search-v3-results)) .search-v3-quick{
+  border-radius:0 0 33px 33px!important;
 }
 
 #wyszukiwarka .search-v3-head{
@@ -155,7 +159,7 @@ main > .self-search-home-stage{display:none!important}
   #wyszukiwarka.search-v3-section{
     width:calc(100vw - 6px)!important;
     margin-top:-34px!important;
-    padding:20px 8px 48px!important;
+    padding:14px 8px!important;
     border-radius:30px!important;
   }
   #wyszukiwarka .search-v3-head{padding:28px 22px 19px!important}
@@ -180,10 +184,11 @@ main > .self-search-home-stage{display:none!important}
   #wyszukiwarka.search-v3-section{
     width:100%!important;
     margin-top:-20px!important;
-    padding:10px 4px 34px!important;
+    padding:8px 4px 10px!important;
     border-radius:24px!important;
   }
   #wyszukiwarka .search-v3{border-radius:22px!important}
+  #wyszukiwarka .search-v3:not(:has(.search-v3-results)) .search-v3-quick{border-radius:0 0 21px 21px!important}
   #wyszukiwarka .search-v3-head{padding:22px 16px 15px!important}
   #wyszukiwarka .search-v3-head h2{font-size:36px!important}
   #wyszukiwarka .search-v3-head p{font-size:13px!important}
