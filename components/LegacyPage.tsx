@@ -236,6 +236,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
             initialStartDate={context.startDate}
             initialEndDate={context.endDate}
             initialWeekendOnly={context.weekendOnly}
+            presets={deepDive?.searchPresets}
           />
         </section>
       </>}
