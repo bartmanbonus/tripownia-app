@@ -11,6 +11,7 @@ import { getArticleContext, type ArticleContext } from "@/lib/articleContext";
 import { getArticleDeepDive } from "@/lib/articleDeepDive";
 import { getArticleDeepDiveWave7 } from "@/lib/articleDeepDiveWave7";
 import { getArticleDeepDiveWave8 } from "@/lib/articleDeepDiveWave8";
+import { getArticleDeepDiveWave9 } from "@/lib/articleDeepDiveWave9";
 
 type GrowthLink = { href: string; label: string };
 
@@ -117,6 +118,21 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
     { href: "/podroze/cieple-wakacje-grudzien-2026", label: "Ciepłe kierunki w grudniu" },
     { href: "/dalekie-podroze", label: "Dalekie podróże" },
   ];
+  if (hay.includes("psem") || hay.includes("z psem")) return [
+    { href: "/wakacje", label: "Aktualne wakacje" },
+    { href: "/wynajem-auta", label: "Wynajem auta na wyjazd" },
+    { href: "/ubezpieczenia", label: "Ubezpieczenie podróżne" },
+  ];
+  if (hay.includes("etna") || hay.includes("sycyli") || hay.includes("katanii")) return [
+    { href: "/tanie-loty", label: "Sprawdź aktualne loty" },
+    { href: "/ubezpieczenia", label: "Ubezpieczenie podróżne" },
+    { href: "/alerty", label: "Ustaw alert podróżniczy" },
+  ];
+  if (hay.includes("dojechac") || hay.includes("dojechać") || hay.includes("dostać się z lotniska")) return [
+    { href: "/transfery", label: "Transfery lotniskowe" },
+    { href: "/wynajem-auta", label: "Wynajem auta" },
+    { href: "/city-break", label: "City break" },
+  ];
   if (hay.includes("bagaż") || hay.includes("karta pokładowa") || hay.includes("jedzenie do samolotu") || hay.includes("lotnisk")) return [
     { href: "/tanie-loty", label: "Sprawdź tanie loty" },
     { href: "/city-break", label: "Znajdź city break" },
@@ -140,8 +156,12 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     ? "/gdzie-jest-cieplo-w-pazdzierniku"
     : canonicalPath;
   const deepDive = item.type === "post"
-    ? getArticleDeepDiveWave8(deepDiveLookupPath) || getArticleDeepDiveWave7(deepDiveLookupPath) || getArticleDeepDive(deepDiveLookupPath)
+    ? getArticleDeepDiveWave9(deepDiveLookupPath) || getArticleDeepDiveWave8(deepDiveLookupPath) || getArticleDeepDiveWave7(deepDiveLookupPath) || getArticleDeepDive(deepDiveLookupPath)
     : undefined;
+  const effectiveDestination = context.destination || deepDive?.searchPresets?.[0];
+  const shouldRenderSearch = item.type === "post"
+    && !deepDive?.hideSearch
+    && (context.hasUsefulSearchContext || Boolean(deepDive?.searchPresets?.length));
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -180,17 +200,17 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
 
       {deepDive && <ArticleDeepDiveBlock deepDive={deepDive} />}
 
-      {item.type === "post" && context.hasUsefulSearchContext && <>
+      {shouldRenderSearch && <>
         <section className="legacy-internal-links">
           <div className="kicker">KONKRET DLA TEGO ARTYKUŁU</div>
-          <h2>{context.focusTitle}</h2>
+          <h2>{effectiveDestination && !context.destination ? `${effectiveDestination}: sprawdź aktualne możliwości` : context.focusTitle}</h2>
           <ul>{context.focusPoints.map((point) => <li key={point}>{point}</li>)}</ul>
         </section>
         <section className="legacy-article-search">
-          <div className="section-heading"><div><div className="kicker">WYSZUKIWANIE USTAWIONE POD ARTYKUŁ</div><h2>{context.searchTitle}</h2><p>{context.searchLead}</p></div></div>
+          <div className="section-heading"><div><div className="kicker">WYSZUKIWANIE USTAWIONE POD ARTYKUŁ</div><h2>{effectiveDestination ? `Sprawdź aktualne wyjazdy: ${effectiveDestination}` : context.searchTitle}</h2><p>{effectiveDestination && !context.destination ? `Ustawiliśmy wyszukiwarkę pod ${effectiveDestination}. Wszystkie pola możesz zmienić.` : context.searchLead}</p></div></div>
           <UnifiedPartnerSearch
             mode={deepDive?.searchMode || context.mode}
-            initialDestination={context.destination || deepDive?.searchPresets?.[0] || ""}
+            initialDestination={effectiveDestination || ""}
             initialDeparture={context.departure || "Warszawa Chopina"}
             initialDepartureCode={context.departureCode}
             initialStartDate={context.startDate}
