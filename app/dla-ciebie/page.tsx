@@ -2,23 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Sparkles, SlidersHorizontal } from "lucide-react";
+import { RefreshCw, Sparkles, SlidersHorizontal } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
-import { offers, isOfferExpired, publishedOfferOverrides } from "@/lib/offers";
-import { getOfferOverride } from "@/lib/clientOfferOverrides";
+import { type Offer } from "@/lib/offers";
 import { DEFAULT_TRAVEL_PROFILE, readTravelProfile, type TravelProfile } from "@/lib/travelProfile";
+import { useLiveOffers } from "@/lib/useLiveOffers";
 
-function effectivePrice(offer: (typeof offers)[number]) {
-  const client = getOfferOverride(offer.id);
-  const published = publishedOfferOverrides[String(offer.id)] || {};
-  return client.price ?? published.price ?? offer.price;
-}
-
-function scoreOffer(offer: (typeof offers)[number], profile: TravelProfile) {
+function scoreOffer(offer: Offer, profile: TravelProfile) {
   let score = offer.score * 10;
-  const price = effectivePrice(offer);
+  const price = offer.price;
   const departure = offer.departure.toLowerCase();
   const preferredDeparture = profile.departure.toLowerCase();
   if (preferredDeparture && departure.includes(preferredDeparture)) score += 24;
@@ -33,33 +27,28 @@ function scoreOffer(offer: (typeof offers)[number], profile: TravelProfile) {
 
 export default function ForYouPage() {
   const [profile, setProfile] = useState<TravelProfile>(DEFAULT_TRAVEL_PROFILE);
-  const [offerRevision, setOfferRevision] = useState(0);
+  const { offers, source, loading, checkedAt, refresh } = useLiveOffers("/api/today-offers?mode=search&broad=1");
 
   useEffect(() => {
     const loadProfile = () => setProfile(readTravelProfile());
-    const refreshOffers = () => setOfferRevision((value) => value + 1);
     loadProfile();
     window.addEventListener("tripownia-profile-updated", loadProfile);
-    window.addEventListener("tripownia-offer-overrides-updated", refreshOffers);
     window.addEventListener("storage", loadProfile);
     return () => {
       window.removeEventListener("tripownia-profile-updated", loadProfile);
-      window.removeEventListener("tripownia-offer-overrides-updated", refreshOffers);
       window.removeEventListener("storage", loadProfile);
     };
   }, []);
 
   const matches = useMemo(() => offers
-    .filter((offer) => {
-      const client = getOfferOverride(offer.id);
-      const published = publishedOfferOverrides[String(offer.id)] || {};
-      if (client.hidden || published.hidden) return false;
-      const availabilityStatus = client.availabilityStatus ?? published.availabilityStatus ?? offer.availabilityStatus;
-      return !isOfferExpired({ ...offer, availabilityStatus });
-    })
+    .filter((offer) => offer.availabilityStatus !== "expired")
     .map((offer) => ({ offer, match: scoreOffer(offer, profile) }))
     .sort((a, b) => b.match - a.match)
-    .slice(0, 8), [profile, offerRevision]);
+    .slice(0, 8), [offers, profile]);
+
+  const sourceLabel = source === "live"
+    ? `Aktualne oferty${checkedAt ? ` · sprawdzone ${new Date(checkedAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}` : ""}`
+    : "Tryb awaryjny — pokazujemy ostatnią dostępną pulę";
 
   return (
     <main>
@@ -70,7 +59,7 @@ export default function ForYouPage() {
           <div>
             <div className="kicker">PERSONALIZOWANE</div>
             <h1>Dla Ciebie</h1>
-            <p>Wybraliśmy oferty najlepiej pasujące do Twojego budżetu, miejsca wylotu i stylu podróżowania.</p>
+            <p>Tripownia dopasowuje aktualne oferty do Twojego budżetu, miejsca wylotu i stylu podróżowania.</p>
           </div>
         </div>
 
@@ -78,6 +67,8 @@ export default function ForYouPage() {
           <span>Wylot: <strong>{profile.departure}</strong></span>
           <span>Budżet: <strong>do {profile.budget.toLocaleString("pl-PL")} zł</strong></span>
           <span>Styl: <strong>{profile.styles.length ? profile.styles.join(", ") : "dowolny"}</strong></span>
+          <span>{sourceLabel}</span>
+          <button type="button" onClick={refresh} className="app-secondary-button"><RefreshCw size={16} /> {loading ? "Odświeżam…" : "Odśwież"}</button>
           <Link href="/profil"><SlidersHorizontal size={16} /> Zmień profil</Link>
         </div>
 
