@@ -12,8 +12,8 @@ const systemPaths = new Set([
 
 const seoOverrides: Record<string, Metadata> = {
   "/lotniska-w-polsce-bez-limitu-100-ml-plynow": {
-    title: "Lotniska bez limitu 100 ml płynów w Polsce 2026 – aktualna lista | Tripownia",
-    description: "Które lotniska w Polsce zniosły limit 100 ml płynów? Sprawdź aktualną listę na 2026 rok, zasady kontroli i co możesz mieć w bagażu podręcznym.",
+    title: "Na których lotniskach w Polsce nie ma limitu 100 ml? Lista 2026 | Tripownia",
+    description: "Które lotniska w Polsce zniosły limit 100 ml płynów? Sprawdź aktualne zasady na 2026 dla Krakowa, Poznania, Rzeszowa i Gdańska oraz co nadal obowiązuje na innych lotniskach.",
   },
   "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych": {
     title: "Czy bagaż podręczny jest ważony? Ile bagaży można mieć? 2026 | Tripownia",
@@ -36,8 +36,16 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Gdzie lecieć we wrześniu na ciepłe wakacje? Sprawdź kierunki z dobrą pogodą, krótszymi kolejkami i propozycje na późne lato.",
   },
   "/jak-dojechac-z-lotniska-do-centrum-miasta-najtansze-opcje-transportu": {
-    title: "Jak dojechać z lotniska do centrum? Autobus, pociąg czy taxi | Tripownia",
-    description: "Jak najtaniej dostać się z lotniska do centrum? Porównaj autobus, pociąg, transfer i taxi oraz sprawdź pełny koszt dojazdu.",
+    title: "Jak dostać się z lotniska do centrum najtaniej? 2026 | Tripownia",
+    description: "Autobus, pociąg, taxi czy transfer? Sprawdź, jak najtaniej dostać się z lotniska do centrum i policzyć pełny koszt dojazdu dla 1–4 osób.",
+  },
+  "/wakacje-z-psem-za-granica-gdzie-jechac-i-jak-sie-przygotowac": {
+    title: "Camping z psem za granicą 2026 – gdzie jechać? | Tripownia",
+    description: "Które kraje warto sprawdzić na camping z psem? Porównaj Włochy, Chorwację, Austrię i Niemcy oraz sprawdź paszport, szczepienia i zasady konkretnego campingu.",
+  },
+  "/etna-sparalizowala-loty-na-sycylie-co-zrobic-po-odwolaniu-lotu-do-katanii": {
+    title: "Loty na Sycylię odwołane przez Etnę? Katania 2026 – co robić | Tripownia",
+    description: "Etna wpływa na lot do Katanii? Sprawdź kolejność działania, status lotu, prawa do zwrotu lub zmiany trasy i kiedy odszkodowanie nie jest automatyczne.",
   },
   "/gdzie-poleciec-na-weekend-z-polski-12-pomyslow-na-city-break": {
     title: "Gdzie polecieć na weekend z Polski? City break 2026 | Tripownia",

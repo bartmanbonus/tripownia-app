@@ -1,5 +1,12 @@
 import type { ArticleDeepDive } from "@/lib/articleDeepDive";
 
+function checkedAtIso(value?: string) {
+  if (!value) return undefined;
+  const match = value.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!match) return undefined;
+  return `${match[3]}-${match[2]}-${match[1]}`;
+}
+
 export default function ArticleDeepDiveBlock({ deepDive }: { deepDive: ArticleDeepDive }) {
   const faqJsonLd = deepDive.faq?.length ? {
     "@context": "https://schema.org",
@@ -10,10 +17,24 @@ export default function ArticleDeepDiveBlock({ deepDive }: { deepDive: ArticleDe
       acceptedAnswer: { "@type": "Answer", text: item.answer },
     })),
   } : null;
+  const checkedDate = checkedAtIso(deepDive.checkedAt);
+  const freshnessJsonLd = checkedDate ? {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: deepDive.title,
+    dateModified: checkedDate,
+    inLanguage: "pl-PL",
+    publisher: {
+      "@type": "Organization",
+      name: "Tripownia",
+      url: "https://tripownia.pl",
+    },
+  } : null;
 
   return (
     <section className="article-deep-dive">
       {faqJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c") }} />}
+      {freshnessJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(freshnessJsonLd).replace(/</g, "\\u003c") }} />}
       <div className="article-deep-dive-head">
         <div className="kicker">{deepDive.kicker}</div>
         <h2>{deepDive.title}</h2>
