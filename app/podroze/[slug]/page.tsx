@@ -69,14 +69,26 @@ export default async function SeoLandingPage({ params }: PageProps) {
   if (page.departure) alertParams.set("departure", page.departure);
   if (page.maxPrice) alertParams.set("maxPrice", String(page.maxPrice));
 
+  const airportCluster = page.departure
+    ? allSeoLandings
+        .filter((item) => item.slug !== page.slug && item.departure === page.departure)
+        .sort((a, b) => {
+          const order = ["City break", "Tanie loty", "Wakacje", "Last Minute", "All Inclusive"];
+          const ai = order.findIndex((label) => a.query === label);
+          const bi = order.findIndex((label) => b.query === label);
+          return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+        })
+        .slice(0, 8)
+    : [];
+
   const related = allSeoLandings
-    .filter((item) => item.slug !== page.slug)
+    .filter((item) => item.slug !== page.slug && !airportCluster.some((cluster) => cluster.slug === item.slug))
     .sort((a, b) => {
-      const departureMatchA = Number(Boolean(page.departure && a.departure === page.departure));
-      const departureMatchB = Number(Boolean(page.departure && b.departure === page.departure));
       const queryMatchA = Number(a.query === page.query);
       const queryMatchB = Number(b.query === page.query);
-      return (departureMatchB + queryMatchB) - (departureMatchA + queryMatchA);
+      const departureMatchA = Number(Boolean(page.departure && a.departure === page.departure));
+      const departureMatchB = Number(Boolean(page.departure && b.departure === page.departure));
+      return (queryMatchB * 2 + departureMatchB) - (queryMatchA * 2 + departureMatchA);
     })
     .slice(0, 6);
 
@@ -101,6 +113,18 @@ export default async function SeoLandingPage({ params }: PageProps) {
           </div>
         </div>
       </section>
+
+      {airportCluster.length > 0 && (
+        <section className="shell seo-related-block" aria-label={`Więcej wyjazdów z ${page.departure}`}>
+          <div className="kicker">WIĘCEJ Z TEGO LOTNISKA</div>
+          <h2>Sprawdź inne typy wyjazdów z {page.departure}</h2>
+          <div className="seo-related-links">
+            {airportCluster.map((item) => (
+              <Link key={item.slug} href={`/podroze/${item.slug}`}>{item.title} →</Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="shell seo-offer-section" id="aktualne-oferty">
         <div className="section-heading">
