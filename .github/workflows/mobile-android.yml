@@ -43,12 +43,34 @@ jobs:
       - name: Generate Android project
         run: npx cap add android
 
-      - name: Prepare Tripownia launcher icon
+      - name: Prepare branded Tripownia launcher assets
         run: |
           sudo apt-get update -y
           sudo apt-get install -y imagemagick
           mkdir -p assets
-          convert ../public/tripownia-logo.webp -resize 900x900 -gravity center -background none -extent 1024x1024 assets/icon-only.png
+
+          # Launcher icons should use the pictorial mark, not the tiny wordmark.
+          # Crop the upper brand mark from the square Tripownia logo and keep it
+          # comfortably inside Android's adaptive-icon safe zone.
+          convert ../public/tripownia-logo.webp \
+            -crop 1920x1450+0+0 +repage \
+            -trim +repage \
+            -resize 760x760 \
+            -gravity center \
+            -background white \
+            -extent 1024x1024 \
+            assets/icon-only.png
+
+          convert ../public/tripownia-logo.webp \
+            -crop 1920x1450+0+0 +repage \
+            -trim +repage \
+            -resize 650x650 \
+            -gravity center \
+            -background none \
+            -extent 1024x1024 \
+            assets/icon-foreground.png
+
+          convert -size 1024x1024 xc:white assets/icon-background.png
 
       - name: Generate Android app assets
         run: npm run assets -- --android
