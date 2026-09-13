@@ -16,6 +16,10 @@ const OFFER_VIEW_SESSION_KEY = "tripownia-viewed-offers-v1";
 const viewedOfferIds = new Set<number>();
 let hydratedViewedOfferIds = false;
 
+function createTripId(offerId: number) {
+  return `trip-${offerId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 function hydrateViewedOfferIds() {
   if (hydratedViewedOfferIds || typeof window === "undefined") return;
   hydratedViewedOfferIds = true;
@@ -184,12 +188,13 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   function addToTrip() {
     const previous = readTrip();
     const sameTrip = previous?.offerId === offer.id;
+    const tripId = typeof previous?.tripId === "string" && previous.tripId ? previous.tripId : createTripId(offer.id);
     const nextTrip = sameTrip
-      ? { ...previous, offerId: offer.id }
-      : { offerId: offer.id, checklist: {}, dayPlan: [] };
+      ? { ...previous, offerId: offer.id, tripId }
+      : { tripId: createTripId(offer.id), offerId: offer.id, checklist: {}, dayPlan: [] };
     localStorage.setItem("tripownia-my-trip", JSON.stringify(nextTrip));
     setTripAdded(true);
-    trackEvent("trip_add", eventBase);
+    trackEvent("trip_add", { ...eventBase, trip_id: nextTrip.tripId });
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
