@@ -1,53 +1,143 @@
 /* Mobile polish for the Android/PWA shell — keep the experience app-like on narrow screens. */
+.trip-mobile-top{display:none}
 @media (max-width: 560px) {
   .trip-header-shell {
     width: calc(100% - 12px);
   }
 
+  .trip-mobile-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    min-height:54px;
+    padding:4px 0 2px;
+  }
+
+  .trip-mobile-brand{
+    display:inline-flex;
+    align-items:center;
+    text-decoration:none;
+  }
+
+  .trip-mobile-brand img{
+    width:42px;
+    height:42px;
+    object-fit:contain;
+  }
+
+  .trip-mobile-top-actions{
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+
+  .trip-mobile-account,
+  .trip-mobile-menu>summary{
+    min-height:38px;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:0 11px;
+    border:1px solid #e7e1dc;
+    border-radius:12px;
+    background:#fff;
+    color:#24211f;
+    font-size:11px;
+    font-weight:850;
+    text-decoration:none;
+    list-style:none;
+  }
+
+  .trip-mobile-menu{position:relative}
+  .trip-mobile-menu>summary{cursor:pointer}
+  .trip-mobile-menu>summary::-webkit-details-marker{display:none}
+
+  .trip-mobile-menu-panel{
+    position:absolute;
+    right:0;
+    top:calc(100% + 8px);
+    z-index:120;
+    width:min(88vw,320px);
+    max-height:72vh;
+    overflow-y:auto;
+    padding:10px;
+    border:1px solid #e7dfd8;
+    border-radius:16px;
+    background:#fff;
+    box-shadow:0 18px 46px rgba(30,24,20,.16);
+  }
+
+  .trip-mobile-menu-section+ .trip-mobile-menu-section{
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid #f0ece8;
+  }
+
+  .trip-mobile-menu-section>strong{
+    display:block;
+    margin:2px 7px 7px;
+    color:#8b817a;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+
+  .trip-mobile-menu-section a{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-height:42px;
+    padding:0 10px;
+    border-radius:10px;
+    color:#292522;
+    text-decoration:none;
+    font-size:13px;
+    font-weight:780;
+  }
+
+  .trip-mobile-menu-section a:hover{background:#faf7f4}
+
   .trip-header-main {
-    min-height: 60px;
-    grid-template-columns: 44px minmax(0, 1fr);
-    gap: 8px;
+    min-height:52px;
+    display:block;
   }
 
   .trip-header-brand,
-  .trip-header-brand img {
-    width: 42px;
-    height: 42px;
-  }
-
   .trip-header-actions {
     display: none;
   }
 
   .trip-header-search {
     width: 100%;
-    height: 40px;
-    gap: 8px;
-    padding: 3px 4px 3px 10px;
-    border-radius: 14px;
-    overflow: hidden;
+    height: 44px;
+    grid-template-columns:22px minmax(0,1fr) 42px;
+    gap:8px;
+    padding:4px 4px 4px 12px;
+    border-radius:15px;
+    overflow:visible;
   }
 
   .trip-header-search > svg {
-    width: 18px;
-    height: 18px;
-    color: #22272f;
-    opacity: 1;
-    stroke-width: 2.4;
+    width:20px;
+    height:20px;
+    color:#1d232c;
+    opacity:1;
+    stroke-width:2.5;
   }
 
   .trip-header-search-copy strong {
-    font-size: 11.5px;
+    font-size:12px;
   }
 
   .trip-header-search-cta {
     position: relative;
-    width: 32px;
-    min-width: 32px;
-    height: 32px;
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
     padding: 0;
-    border-radius: 10px;
+    border-radius: 11px;
     font-size: 0;
     overflow: visible;
   }
@@ -55,10 +145,10 @@
   .trip-header-search-cta::before {
     content: "";
     position: absolute;
-    left: 9px;
-    top: 8px;
-    width: 9px;
-    height: 9px;
+    left: 10px;
+    top: 9px;
+    width: 10px;
+    height: 10px;
     border: 2px solid #fff;
     border-radius: 50%;
     box-sizing: border-box;
@@ -67,8 +157,8 @@
   .trip-header-search-cta::after {
     content: "";
     position: absolute;
-    left: 18px;
-    top: 18px;
+    left: 20px;
+    top: 20px;
     width: 7px;
     height: 2px;
     border-radius: 99px;
