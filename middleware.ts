@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const PRIVATE_APP_PATHS = [
-  "/app",
-  "/dla-ciebie",
-  "/moja-podroz",
-  "/porownaj",
-  "/ulubione",
-  "/alerty",
-  "/profil",
+  "/app", "/dla-ciebie", "/moja-podroz", "/porownaj", "/ulubione", "/alerty", "/profil",
 ];
 
 const EXPERIENCE_IMAGE_FILES: Record<string, string> = {
@@ -36,6 +30,8 @@ const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/wakacje-ze-szczecina-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-ze-szczecina",
   "/lublin-wakacje-city-break": "/podroze/city-break-z-lublina",
   "/wakacje-z-poznania": "/podroze/city-break-z-poznania",
+  "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-olsztyna-mazur",
+  "/wroclaw": "/podroze/tanie-loty-z-wroclawia",
   "/katowice": "/podroze/tanie-loty-z-katowic",
   "/city-break-2": "/city-break",
 };
@@ -43,27 +39,17 @@ const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
 function unauthorized() {
   return new NextResponse("Dostęp do panelu administracyjnego wymaga autoryzacji.", {
     status: 401,
-    headers: {
-      "WWW-Authenticate": 'Basic realm="Tripownia Admin", charset="UTF-8"',
-      "Cache-Control": "no-store",
-    },
+    headers: { "WWW-Authenticate": 'Basic realm="Tripownia Admin", charset="UTF-8"', "Cache-Control": "no-store" },
   });
 }
 
 function highQualityExperienceImageRedirect(request: NextRequest) {
   const filename = EXPERIENCE_IMAGE_FILES[request.nextUrl.pathname];
   if (!filename) return null;
-
-  const target = new URL(
-    `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(filename)}`,
-  );
+  const target = new URL(`https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(filename)}`);
   target.searchParams.set("width", "2400");
-
   const response = NextResponse.redirect(target, 307);
-  response.headers.set(
-    "Cache-Control",
-    "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000",
-  );
+  response.headers.set("Cache-Control", "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000");
   return response;
 }
 
@@ -78,9 +64,7 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
   const url = request.nextUrl.clone();
   const path = url.pathname.replace(/\/$/, "") || "/";
   const hasWpPostId = url.searchParams.has("p");
-  const hasLegacyQueryPagination = Array.from(url.searchParams.keys()).some((key) =>
-    /^query-\d+-page$/i.test(key)
-  );
+  const hasLegacyQueryPagination = Array.from(url.searchParams.keys()).some((key) => /^query-\d+-page$/i.test(key));
 
   if (path.endsWith("/post_id")) {
     const cleanPath = path.slice(0, -"/post_id".length) || "/";
@@ -90,37 +74,24 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
   if (hasWpPostId) {
     return new NextResponse("Ta stara strona WordPress nie jest już dostępna.", {
       status: 410,
-      headers: {
-        "X-Robots-Tag": "noindex, nofollow, noarchive",
-        "Cache-Control": "public, max-age=3600",
-      },
+      headers: { "X-Robots-Tag": "noindex, nofollow, noarchive", "Cache-Control": "public, max-age=3600" },
     });
   }
 
   if (hasLegacyQueryPagination) {
-    for (const key of Array.from(url.searchParams.keys())) {
-      if (/^query-\d+-page$/i.test(key)) url.searchParams.delete(key);
-    }
+    for (const key of Array.from(url.searchParams.keys())) if (/^query-\d+-page$/i.test(key)) url.searchParams.delete(key);
     return NextResponse.redirect(url, 308);
   }
 
-  if (LEGACY_CATEGORY_REDIRECTS[path]) {
-    return permanentRedirect(request, LEGACY_CATEGORY_REDIRECTS[path]);
-  }
-
-  if (LEGACY_PAGE_REDIRECTS[path]) {
-    return permanentRedirect(request, LEGACY_PAGE_REDIRECTS[path]);
-  }
+  if (LEGACY_CATEGORY_REDIRECTS[path]) return permanentRedirect(request, LEGACY_CATEGORY_REDIRECTS[path]);
+  if (LEGACY_PAGE_REDIRECTS[path]) return permanentRedirect(request, LEGACY_PAGE_REDIRECTS[path]);
 
   const isWooCategory = path.startsWith("/kategoria-produktu/");
   const isWooProduct = path.startsWith("/produkt/");
   const isOldShop = path === "/sklep" || path === "/tripownia-pl/sklep";
   const isOldDealsCatalog = path === "/tripownia-pl/okazje-tripownia";
 
-  if (isWooCategory || isWooProduct || isOldShop || isOldDealsCatalog) {
-    return permanentRedirect(request, "/okazje");
-  }
-
+  if (isWooCategory || isWooProduct || isOldShop || isOldDealsCatalog) return permanentRedirect(request, "/okazje");
   return null;
 }
 
@@ -131,7 +102,6 @@ function isPrivateAppPath(pathname: string) {
 export function middleware(request: NextRequest) {
   const experienceImageResponse = highQualityExperienceImageRedirect(request);
   if (experienceImageResponse) return experienceImageResponse;
-
   const legacyResponse = cleanLegacyWordPressUrl(request);
   if (legacyResponse) return legacyResponse;
 
@@ -146,12 +116,8 @@ export function middleware(request: NextRequest) {
 
   const username = process.env.TRIPOWNIA_ADMIN_USER;
   const password = process.env.TRIPOWNIA_ADMIN_PASSWORD;
-
   if (!username || !password) {
-    return new NextResponse(
-      "Panel administratora jest zablokowany do czasu ustawienia TRIPOWNIA_ADMIN_USER i TRIPOWNIA_ADMIN_PASSWORD w Vercel.",
-      { status: 503, headers: { "Cache-Control": "no-store" } }
-    );
+    return new NextResponse("Panel administratora jest zablokowany do czasu ustawienia TRIPOWNIA_ADMIN_USER i TRIPOWNIA_ADMIN_PASSWORD w Vercel.", { status: 503, headers: { "Cache-Control": "no-store" } });
   }
 
   const authorization = request.headers.get("authorization");
@@ -162,7 +128,6 @@ export function middleware(request: NextRequest) {
     const separator = decoded.indexOf(":");
     const suppliedUser = separator >= 0 ? decoded.slice(0, separator) : "";
     const suppliedPassword = separator >= 0 ? decoded.slice(separator + 1) : "";
-
     if (suppliedUser !== username || suppliedPassword !== password) return unauthorized();
   } catch {
     return unauthorized();
@@ -174,6 +139,4 @@ export function middleware(request: NextRequest) {
   return response;
 }
 
-export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)"],
-};
+export const config = { matcher: ["/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)"] };
