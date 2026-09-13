@@ -6,6 +6,7 @@ import { seoRegionalLandings } from "@/lib/seoRegionalLandings";
 import { seoAirportWave10 } from "@/lib/seoAirportWave10";
 import { seoLegacyMigrationWave11 } from "@/lib/seoLegacyMigrationWave11";
 import { seoAirportWave20 } from "@/lib/seoAirportWave20";
+import { seoAirportWave22 } from "@/lib/seoAirportWave22";
 
 type SeasonalSeoLanding = SeoLanding & {
   startDate?: string;
@@ -24,12 +25,16 @@ const baseLandings = [
   ...seasonalLandings,
 ];
 
-const wave20Overrides = new Map(seoAirportWave20.map((item) => [item.slug, item]));
+const seoOverrides = new Map(
+  [...seoAirportWave20, ...seoAirportWave22].map((item) => [item.slug, item])
+);
 const baseSlugs = new Set(baseLandings.map((item) => item.slug));
+const supplementalOverrides = [...seoAirportWave20, ...seoAirportWave22]
+  .filter((item) => !baseSlugs.has(item.slug));
 
 export const allSeoLandings = [
-  ...baseLandings.map((item) => wave20Overrides.get(item.slug) || item),
-  ...seoAirportWave20.filter((item) => !baseSlugs.has(item.slug)),
+  ...baseLandings.map((item) => seoOverrides.get(item.slug) || item),
+  ...supplementalOverrides,
 ];
 
 export function getAllSeoLanding(slug: string) {
