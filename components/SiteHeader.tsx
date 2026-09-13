@@ -120,7 +120,9 @@ export default function SiteHeader() {
               <strong>Dokąd chcesz lecieć?</strong>
               <small>Loty, hotele, wakacje i gotowe okazje w jednym miejscu</small>
             </span>
-            <span className="trip-header-search-cta">Szukaj</span>
+            <span className="trip-header-search-cta" aria-hidden="true">
+              <Search size={24} strokeWidth={2.8} />
+            </span>
           </Link>
 
           <nav className="trip-header-actions" aria-label="Twoje konto">
