@@ -22,6 +22,7 @@ import "./search-v3-focus.css";
 import "./footer-v2.css";
 import "./article-depth.css";
 import "./mobile-native-polish.css";
+import "./score-section-fix.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 import AnalyticsClient from "@/components/AnalyticsClient";
