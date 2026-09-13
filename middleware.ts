@@ -29,10 +29,10 @@ const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-rzeszowa",
   "/wakacje-ze-szczecina-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-ze-szczecina",
   "/lublin-wakacje-city-break": "/podroze/city-break-z-lublina",
-  "/wakacje-z-poznania": "/podroze/city-break-z-poznania",
+  "/wakacje-z-poznania": "/podroze/wakacje-z-poznania",
   "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-olsztyna-mazur",
-  "/wroclaw": "/podroze/tanie-loty-z-wroclawia",
-  "/katowice": "/podroze/tanie-loty-z-katowic",
+  "/wroclaw": "/podroze/wakacje-z-wroclawia",
+  "/katowice": "/podroze/wakacje-z-katowic",
   "/city-break-2": "/city-break",
 };
 
