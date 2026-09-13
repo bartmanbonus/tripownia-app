@@ -75,7 +75,8 @@ const destinationRules: Array<{ terms: string[]; destination: string }> = [
 ];
 
 const departureRules: Array<{ terms: string[]; departure: string; code: string }> = [
-  { terms: ["z warszawy", "z modlina", "warszawa chopina"], departure: "Warszawa Chopina", code: "WAW" },
+  { terms: ["z modlina", "warszawa modlin", "modlin"], departure: "Warszawa Modlin", code: "WMI" },
+  { terms: ["z warszawy", "warszawa chopina"], departure: "Warszawa Chopina", code: "WAW" },
   { terms: ["z krakowa", "z balic"], departure: "Kraków", code: "KRK" },
   { terms: ["z katowic", "z pyrzowic"], departure: "Katowice", code: "KTW" },
   { terms: ["z gdanska", "z gdańska"], departure: "Gdańsk", code: "GDN" },
