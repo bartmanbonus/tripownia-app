@@ -12,16 +12,17 @@ declare global {
   }
 }
 
+const GA_DISABLE_KEY = `ga-disable-${GA_MEASUREMENT_ID}`;
+
 export function getAnalyticsConsent(): AnalyticsConsent {
   if (typeof window === "undefined") return null;
   const value = window.localStorage.getItem(ANALYTICS_CONSENT_KEY);
   return value === "analytics" || value === "necessary" ? value : null;
 }
 
-export function setAnalyticsConsent(consent: Exclude<AnalyticsConsent, null>) {
+function setGaDisabled(disabled: boolean) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(ANALYTICS_CONSENT_KEY, consent);
-  window.dispatchEvent(new CustomEvent(ANALYTICS_CONSENT_EVENT, { detail: consent }));
+  (window as unknown as Record<string, unknown>)[GA_DISABLE_KEY] = disabled;
 }
 
 function ensureGtag() {
@@ -34,10 +35,39 @@ function ensureGtag() {
   }
 }
 
+function updateGoogleConsent(granted: boolean) {
+  if (typeof window === "undefined") return;
+  setGaDisabled(!granted);
+
+  if (!window.gtag) return;
+  window.gtag("consent", "update", {
+    analytics_storage: granted ? "granted" : "denied",
+    ad_storage: "denied",
+    ad_user_data: "denied",
+    ad_personalization: "denied",
+  });
+}
+
+export function setAnalyticsConsent(consent: Exclude<AnalyticsConsent, null>) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(ANALYTICS_CONSENT_KEY, consent);
+
+  if (consent === "analytics") {
+    ensureGtag();
+    updateGoogleConsent(true);
+  } else {
+    updateGoogleConsent(false);
+  }
+
+  window.dispatchEvent(new CustomEvent(ANALYTICS_CONSENT_EVENT, { detail: consent }));
+}
+
 export function bootstrapAnalytics() {
   if (typeof window === "undefined" || getAnalyticsConsent() !== "analytics") return false;
 
   ensureGtag();
+  updateGoogleConsent(true);
+
   const scriptId = "tripownia-ga4";
   if (!document.getElementById(scriptId)) {
     const script = document.createElement("script");
