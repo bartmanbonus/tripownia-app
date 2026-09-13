@@ -21,7 +21,7 @@ export default function ForYouPage() {
     return `/api/today-offers?${params.toString()}`;
   }, [profile.departure, profile.budget]);
 
-  const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
+  const { offers, source, loading, checkedAt, refresh } = useLiveOffers(endpoint);
 
   useEffect(() => {
     const loadProfile = () => setProfile(readTravelProfile());
@@ -34,14 +34,11 @@ export default function ForYouPage() {
     };
   }, []);
 
-  const strictMatches = useMemo(() => rankOffersForProfile(offers, profile, true).slice(0, 8), [offers, profile]);
-  const relaxedMatches = useMemo(() => rankOffersForProfile(offers, profile, false).slice(0, 8), [offers, profile]);
-  const matches = strictMatches.length ? strictMatches : relaxedMatches;
-  const relaxed = !strictMatches.length && relaxedMatches.length > 0;
+  const matches = useMemo(() => rankOffersForProfile(offers, profile, true).slice(0, 8), [offers, profile]);
 
   const sourceLabel = source === "live"
     ? `Aktualne oferty${checkedAt ? ` · sprawdzone ${new Date(checkedAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}` : ""}`
-    : "Tryb awaryjny — pokazujemy ostatnią dostępną pulę";
+    : "Tryb awaryjny — sprawdzamy ostatnią dostępną pulę według tych samych filtrów";
 
   return (
     <main>
@@ -52,7 +49,7 @@ export default function ForYouPage() {
           <div>
             <div className="kicker">PERSONALIZOWANE</div>
             <h1>Dla Ciebie</h1>
-            <p>Tripownia dopasowuje aktualne oferty do Twojego budżetu, miejsca wylotu i stylu podróżowania.</p>
+            <p>Tripownia pokazuje tylko oferty zgodne z zapisanym budżetem, miejscem wylotu i wybranym stylem podróżowania.</p>
           </div>
         </div>
 
@@ -65,24 +62,18 @@ export default function ForYouPage() {
           <Link href="/profil"><SlidersHorizontal size={16} /> Zmień profil</Link>
         </div>
 
-        {(relaxed || notice) && (
-          <p className="app-results-notice">
-            {relaxed
-              ? "Nie ma teraz ofert spełniających wszystkie ustawienia jednocześnie. Poniżej pokazujemy najbliższe dopasowania, uporządkowane według Twojego profilu."
-              : notice}
-          </p>
-        )}
-
         {!loading && matches.length === 0 && (
           <div className="search-v3-empty">
-            <strong>Brak dobrych dopasowań do profilu.</strong>
-            <span>Zmień budżet, miejsce wylotu albo styl podróży — nie dokładamy przypadkowych ofert tylko po to, żeby zapełnić ekran.</span>
+            <strong>Teraz nie ma pełnego dopasowania do Twojego profilu.</strong>
+            <span>Zmień budżet, miejsce wylotu albo styl podróży. Nie pokazujemy przypadkowych ofert spoza ustawionych preferencji.</span>
           </div>
         )}
 
-        <div className="cards-grid">
-          {matches.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
-        </div>
+        {matches.length > 0 && (
+          <div className="cards-grid">
+            {matches.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
+          </div>
+        )}
       </section>
       <SiteFooter />
     </main>
