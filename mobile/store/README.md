@@ -18,6 +18,14 @@ The project can build an APK for direct testing and an AAB for Google Play. Prod
 
 The project validates on the iOS simulator. TestFlight/App Store distribution additionally requires an Apple Developer team, App Store Connect app record, signing certificate/profile (or automatic signing), and authenticated App Store Connect access.
 
+### Current iOS release target
+
+- Release channel: TestFlight first, then App Store review after device validation.
+- Bundle ID: `pl.tripownia.app`
+- Release candidate source: current `main` branch.
+- Native shell: Capacitor iOS loading `https://tripownia.pl/app`.
+- App Store category: Travel.
+
 ## Proposed store copy
 
 **Name:** Tripownia
