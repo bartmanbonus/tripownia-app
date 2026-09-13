@@ -19,6 +19,7 @@ import "./search-ux-v2.css";
 import "./search-v3.css";
 import "./search-v3-focus.css";
 import "./footer-v2.css";
+import "./article-depth.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 import AnalyticsClient from "@/components/AnalyticsClient";

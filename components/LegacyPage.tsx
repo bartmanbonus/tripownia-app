@@ -3,10 +3,12 @@ import OfferCard from "@/components/OfferCard";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
+import ArticleDeepDiveBlock from "@/components/ArticleDeepDiveBlock";
 import type { LegacyItem } from "@/lib/legacy";
 import { legacyCanonicalPath } from "@/lib/legacy";
 import { offers } from "@/lib/offers";
 import { getArticleContext, type ArticleContext } from "@/lib/articleContext";
+import { getArticleDeepDive } from "@/lib/articleDeepDive";
 
 type GrowthLink = { href: string; label: string };
 
@@ -86,6 +88,10 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const archived = item.type === "product";
   const canonicalPath = legacyCanonicalPath(item.path);
   const canonicalUrl = `https://tripownia.pl${canonicalPath}`;
+  const deepDiveLookupPath = canonicalPath.startsWith("/gdzie-jest-cieplo-w-pazdzierniku")
+    ? "/gdzie-jest-cieplo-w-pazdzierniku"
+    : canonicalPath;
+  const deepDive = item.type === "post" ? getArticleDeepDive(deepDiveLookupPath) : undefined;
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -122,6 +128,8 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
       </article>
 
+      {deepDive && <ArticleDeepDiveBlock deepDive={deepDive} />}
+
       {item.type === "post" && context.hasUsefulSearchContext && <>
         <section className="legacy-internal-links">
           <div className="kicker">KONKRET DLA TEGO ARTYKUŁU</div>
@@ -131,8 +139,8 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         <section className="legacy-article-search">
           <div className="section-heading"><div><div className="kicker">WYSZUKIWANIE USTAWIONE POD ARTYKUŁ</div><h2>{context.searchTitle}</h2><p>{context.searchLead}</p></div></div>
           <UnifiedPartnerSearch
-            mode={context.mode}
-            initialDestination={context.destination || ""}
+            mode={deepDive?.searchMode || context.mode}
+            initialDestination={context.destination || deepDive?.searchPresets?.[0] || ""}
             initialDeparture={context.departure || "Warszawa Chopina"}
             initialDepartureCode={context.departureCode}
             initialStartDate={context.startDate}
