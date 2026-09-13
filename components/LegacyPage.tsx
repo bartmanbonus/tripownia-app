@@ -19,14 +19,32 @@ function norm(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
-function relatedOffers(context: ArticleContext) {
-  if (context.destination) {
-    const destination = norm(context.destination);
-    return offers.filter((offer) => {
+function checkedAtIso(value?: string) {
+  if (!value) return undefined;
+  const match = value.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if (!match) return undefined;
+  return `${match[3]}-${match[2]}-${match[1]}`;
+}
+
+const relatedDestinationAliases: Record<string, string[]> = {
+  sycylia: ["sycylia", "catania", "palermo"],
+  albania: ["albania", "saranda", "vlora", "ksamil", "durres"],
+  wietnam: ["wietnam", "hanoi", "da nang", "phu quoc", "ho chi minh"],
+  cypr: ["cypr", "pafos", "larnaka", "larnaca"],
+  hiszpania: ["hiszpania", "majorka", "teneryfa", "alicante", "malaga", "barcelona"],
+};
+
+function relatedOffers(context: ArticleContext, destinationOverride?: string) {
+  const selectedDestination = destinationOverride || context.destination;
+  if (selectedDestination) {
+    const destination = norm(selectedDestination);
+    const terms = relatedDestinationAliases[destination] || [destination];
+    const matched = offers.filter((offer) => {
       const city = norm(offer.city);
       const country = norm(offer.country);
-      return destination.includes(city) || destination.includes(country) || city.includes(destination) || country.includes(destination);
+      return terms.some((term) => term.includes(city) || term.includes(country) || city.includes(term) || country.includes(term));
     }).slice(0, 3);
+    if (matched.length) return matched;
   }
 
   if (context.mode === "city") {
@@ -147,7 +165,6 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
 
 export default function LegacyPage({ item }: { item: LegacyItem }) {
   const context = getArticleContext(item);
-  const related = relatedOffers(context);
   const growthLinks = contextualGrowthLinks(item);
   const archived = item.type === "product";
   const canonicalPath = legacyCanonicalPath(item.path);
@@ -159,6 +176,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     ? getArticleDeepDiveWave9(deepDiveLookupPath) || getArticleDeepDiveWave8(deepDiveLookupPath) || getArticleDeepDiveWave7(deepDiveLookupPath) || getArticleDeepDive(deepDiveLookupPath)
     : undefined;
   const effectiveDestination = context.destination || deepDive?.searchPresets?.[0];
+  const related = relatedOffers(context, effectiveDestination);
   const shouldRenderSearch = item.type === "post"
     && !deepDive?.hideSearch
     && (context.hasUsefulSearchContext || Boolean(deepDive?.searchPresets?.length));
@@ -171,6 +189,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
       { "@type": "ListItem", position: 3, name: item.title, item: canonicalUrl },
     ],
   };
+  const dateModified = checkedAtIso(deepDive?.checkedAt);
   const articleJsonLd = item.type === "post" ? {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -178,6 +197,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     description: item.description || undefined,
     mainEntityOfPage: canonicalUrl,
     url: canonicalUrl,
+    dateModified,
     inLanguage: "pl-PL",
     publisher: {
       "@type": "Organization",
@@ -222,7 +242,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
 
       {item.type === "post" && <section className="legacy-internal-links"><h2>Sprawdź dalej w tym temacie</h2><div>{growthLinks.map(link=><Link key={link.href} href={link.href}>{link.label} →</Link>)}</div></section>}
 
-      {related.length > 0 && <section className="legacy-offers"><div className="section-heading"><div><div className="kicker">DOPASOWANE WYNIKI TRIPOWNI</div><h2>{context.destination ? `Aktualne propozycje: ${context.destination}` : "Aktualne propozycje pasujące do artykułu"}</h2></div><Link href="/okazje">Wszystkie okazje →</Link></div><div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>}
+      {related.length > 0 && <section className="legacy-offers"><div className="section-heading"><div><div className="kicker">DOPASOWANE WYNIKI TRIPOWNI</div><h2>{effectiveDestination ? `Aktualne propozycje: ${effectiveDestination}` : "Aktualne propozycje pasujące do artykułu"}</h2></div><Link href="/okazje">Wszystkie okazje →</Link></div><div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>}
 
       <section className="legacy-internal-links"><h2>Zostań na Tripowni</h2><div><Link href="/kierunki">Kierunki</Link><Link href="/city-break">City break</Link><Link href="/last-minute">Last minute</Link><Link href="/poradniki">Poradniki</Link><Link href="/alerty">Alerty</Link></div></section>
     </div><SiteFooter/></main>;
