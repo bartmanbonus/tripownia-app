@@ -49,6 +49,84 @@ function durationMatches(o: any, value: string) {
   return true;
 }
 
+function destinationQueryMatches(o: any, query: string) {
+  const rawParts = query.split(",").map((part) => normalizeDestination(part)).filter(Boolean);
+  if (!rawParts.length) return true;
+
+  const city = normalizeDestination(String(o.city || o.destination || ""));
+  const country = normalizeDestination(String(o.country || ""));
+  const haystack = normalizeOffer(o);
+
+  if (rawParts.length >= 2) {
+    const [place, requestedCountry] = rawParts;
+    const placeMatches = city.includes(place) || place.includes(city) || haystack.includes(place);
+    const countryMatches = country.includes(requestedCountry) || requestedCountry.includes(country) || haystack.includes(requestedCountry);
+    return placeMatches && countryMatches;
+  }
+
+  const term = rawParts[0];
+  return haystack.includes(term) || term.includes(city) || term.includes(country);
+}
+
+function departureMatchesStrict(o: any, departure: string) {
+  if (!departure) return true;
+  const code = String(departure).toUpperCase();
+  const haystack = normalizeDestination(`${o.departure || ""} ${o.airportCode || o.departureCode || o.departureAirportCode || ""}`);
+
+  if (code === "WAWA") return /warszaw|chopin|modlin|\bwaw\b|\bwmi\b/.test(haystack);
+  if (code === "KRK") return /krakow|balice|\bkrk\b/.test(haystack);
+  if (code === "KTW") return /katowic|pyrzowic|\bktw\b/.test(haystack);
+  if (code === "GDN") return /gdansk|rebiechow|\bgdn\b/.test(haystack);
+  if (code === "WRO") return /wroclaw|strachowic|\bwro\b/.test(haystack);
+  if (code === "POZ") return /poznan|lawica|\bpoz\b/.test(haystack);
+
+  const airportLabel = normalizeDestination(airportOptions.find((a: any) => a.code === departure)?.label || departure);
+  return haystack.includes(normalizeDestination(code)) || haystack.includes(airportLabel);
+}
+
+function boardMatchesStrict(o: any, value: string) {
+  if (value === "all") return true;
+  const boardValue = normalizeDestination(String(o.board || ""));
+  if (value === "all inclusive") return /all inclusive|allinclusive/.test(boardValue) && !/ultra/.test(boardValue);
+  if (value === "ultra all inclusive") return /ultra all|ultraall/.test(boardValue);
+  if (value === "śniadanie") return /sniad|breakfast|\bbb\b/.test(boardValue);
+  if (value === "half board") return /half board|\bhb\b|2 posil|sniad.*kolac/.test(boardValue);
+  if (value === "full board") return /full board|\bfb\b|3 posil|pelne wyzywienie/.test(boardValue);
+  if (value === "bez wyżywienia") return /bez wyzywienia|room only|self catering|no meals/.test(boardValue);
+  return false;
+}
+
+function weekendMatchesStrict(o: any, enabled: boolean) {
+  if (!enabled) return true;
+  const startDateISO = String(o.startDateISO || "");
+  const nights = Number(o.nights || o.duration || 0);
+
+  if (startDateISO && nights > 0) {
+    const start = new Date(`${startDateISO}T00:00:00Z`);
+    if (!Number.isNaN(start.getTime())) {
+      for (let offset = 0; offset < nights; offset += 1) {
+        const day = new Date(start);
+        day.setUTCDate(start.getUTCDate() + offset);
+        if (day.getUTCDay() === 6 && offset + 1 <= nights) return true;
+      }
+      return false;
+    }
+  }
+
+  const categories = (o.category || []).map((c: any) => normalizeDestination(String(c)));
+  return categories.some((c: string) => c.includes("weekend"));
+}
+
+function strictSearchMatches(o: any, query: string, departure: string, duration: string, budget: string, board: string, weekendOnly: boolean) {
+  const maxPrice = budget === "all" ? Infinity : Number(budget);
+  return destinationQueryMatches(o, query)
+    && departureMatchesStrict(o, departure)
+    && durationMatches(o, duration)
+    && Number(o.price || 0) <= maxPrice
+    && boardMatchesStrict(o, board)
+    && weekendMatchesStrict(o, weekendOnly);
+}
+
 export default function SearchHub({
   initialAirports = [],
   initialDestinations = [],
@@ -104,24 +182,12 @@ export default function SearchHub({
     const activeBudget = overrides.budget ?? budget;
     const activeBoard = overrides.board ?? board;
     const activeWeekend = overrides.weekendOnly ?? weekendOnly;
-    const normalizedQuery = normalizeDestination(query);
-    const maxPrice = activeBudget === "all" ? Infinity : Number(activeBudget);
 
     const rows = (offers as any[])
       .filter((o) => !isOfferExpired(o))
       .filter((o) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
       .filter((o) => ["exim", "tui", "wakacje"].includes(String(o.partner || "").toLowerCase()))
-      .filter((o) => !normalizedQuery || normalizeOffer(o).includes(normalizedQuery) || normalizedQuery.includes(normalizeDestination(String(o.city || o.country || ""))))
-      .filter((o) => !departure || String(o.departureCode || o.airportCode || o.departureAirportCode || "").toUpperCase() === departure || normalizeDestination(String(o.departure || "")).includes(normalizeDestination(airportOptions.find((a: any) => a.code === departure)?.label || departure)))
-      .filter((o) => durationMatches(o, activeDuration))
-      .filter((o) => Number(o.price || 0) <= maxPrice)
-      .filter((o) => activeBoard === "all" || normalizeDestination(String(o.board || "")).includes(normalizeDestination(activeBoard)))
-      .filter((o) => {
-        if (!activeWeekend) return true;
-        const nights = Number(o.nights || o.duration || 0);
-        const categories = (o.category || []).map((c: any) => normalizeDestination(String(c)));
-        return categories.some((c: string) => c.includes("weekend")) || (nights >= 2 && nights <= 4);
-      })
+      .filter((o) => strictSearchMatches(o, query, departure, activeDuration, activeBudget, activeBoard, activeWeekend))
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
     return onePerDirection(rows).slice(0, 9);
@@ -167,21 +233,27 @@ export default function SearchHub({
       if (!response.ok || data?.ok === false) throw new Error(String(data?.error || `HTTP ${response.status}`));
 
       let rows = Array.isArray(data?.offers) ? data.offers : [];
-      rows = rows.filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()));
+      rows = rows
+        .filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()))
+        .filter((o: any) => strictSearchMatches(o, query, departure, activeDuration, activeBudget, activeBoard, activeWeekend));
       rows = onePerDirection(rows.sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity))).slice(0, 9);
 
       if (!rows.length) {
         const fallback = staticFallback(query, overrides);
         setResults(fallback);
-        setNotice(fallback.length ? "Nie mamy teraz dokładnego wyniku z feedu. Pokazujemy najbliższe sensowne propozycje Tripowni." : "Nie znaleźliśmy teraz dobrego dopasowania. Zmień kierunek, budżet albo długość pobytu.");
+        setNotice(fallback.length
+          ? "Live feed nie zwrócił pełnego dopasowania. Pokazujemy wyłącznie sprawdzone oferty z bazy Tripowni, które nadal spełniają wszystkie wybrane filtry."
+          : "Nie ma teraz oferty spełniającej wszystkie wybrane warunki. Zmień jeden z filtrów, aby poszerzyć wyniki.");
       } else {
         setResults(rows);
-        setNotice(String(data?.notice || ""));
+        setNotice("");
       }
     } catch {
       const fallback = staticFallback(query, overrides);
       setResults(fallback);
-      setNotice(fallback.length ? "Feed chwilowo nie odpowiedział. Pokazujemy sprawdzone propozycje z bazy Tripowni." : "Nie udało się pobrać ofert. Spróbuj zmienić parametry wyszukiwania.");
+      setNotice(fallback.length
+        ? "Feed chwilowo nie odpowiedział. Pokazujemy tylko sprawdzone oferty z bazy Tripowni spełniające wszystkie wybrane filtry."
+        : "Nie udało się znaleźć oferty zgodnej ze wszystkimi parametrami. Spróbuj później lub zmień jeden z filtrów.");
     } finally {
       setLoading(false);
     }
@@ -370,7 +442,7 @@ export default function SearchHub({
             </div>
 
             {!loading && results.length > 0 && <div className="search-v3-results-grid">{results.map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>}
-            {!loading && results.length === 0 && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Zmień kierunek, budżet albo długość pobytu — nie dokładamy przypadkowych ofert tylko po to, żeby zapełnić ekran.</span></div>}
+            {!loading && results.length === 0 && <div className="search-v3-empty"><strong>Brak pełnego dopasowania.</strong><span>Zmień jeden z warunków — kierunek, lotnisko, budżet, długość pobytu albo wyżywienie. Nie pokazujemy ofert niespełniających wybranych filtrów.</span></div>}
           </div>
         )}
       </div>
