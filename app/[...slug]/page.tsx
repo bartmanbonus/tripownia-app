@@ -16,8 +16,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Które lotniska w Polsce zniosły limit 100 ml płynów? Sprawdź aktualną listę na 2026 rok, zasady kontroli i co możesz mieć w bagażu podręcznym.",
   },
   "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych": {
-    title: "Czy można mieć dwa bagaże podręczne? Zasady linii lotniczych 2026 | Tripownia",
-    description: "Sprawdź, kiedy możesz zabrać dwa bagaże podręczne do samolotu, czym różni się mały bagaż od kabinowego i co sprawdzić przed lotem.",
+    title: "Czy bagaż podręczny jest ważony? Ile bagaży można mieć? 2026 | Tripownia",
+    description: "Sprawdź limity bagażu podręcznego Ryanair, Wizz Air i LOT, wagę, wymiary oraz kiedy możesz zabrać drugą sztukę na pokład.",
   },
   "/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad": {
     title: "Czy można wnieść jedzenie do samolotu? Co wolno zabrać | Tripownia",
@@ -36,12 +36,32 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Gdzie lecieć we wrześniu na ciepłe wakacje? Sprawdź kierunki z dobrą pogodą, krótszymi kolejkami i propozycje na późne lato.",
   },
   "/jak-dojechac-z-lotniska-do-centrum-miasta-najtansze-opcje-transportu": {
-    title: "Jak dojechać z lotniska do centrum? Najtańsze opcje | Tripownia",
-    description: "Autobus, pociąg, transfer czy taxi? Sprawdź, jak porównać dojazd z lotniska do centrum i nie przepłacić po przylocie.",
+    title: "Jak dojechać z lotniska do centrum? Autobus, pociąg czy taxi | Tripownia",
+    description: "Jak najtaniej dostać się z lotniska do centrum? Porównaj autobus, pociąg, transfer i taxi oraz sprawdź pełny koszt dojazdu.",
+  },
+  "/gdzie-poleciec-na-weekend-z-polski-12-pomyslow-na-city-break": {
+    title: "Gdzie polecieć na weekend z Polski? City break 2026 | Tripownia",
+    description: "Pomysły na city break z Polski: wybierz kierunek pod godziny lotów, transfer i realny czas na miejscu. Porównaj weekendowe wyjazdy na 2–4 dni.",
   },
   "/grecja": {
     title: "Grecja 2026 – którą wyspę wybrać? Kreta, Rodos, Kos czy Korfu | Tripownia",
     description: "Którą grecką wyspę wybrać na wakacje? Porównaj Kretę, Rodos, Kos, Korfu, Zakynthos i Chalkidiki pod kątem plaż, zwiedzania, rodzin i All Inclusive.",
+  },
+  "/hiszpania": {
+    title: "Hiszpania nad morzem – gdzie jechać? Costa del Sol, Majorka czy Kanary | Tripownia",
+    description: "Gdzie do Hiszpanii nad morze? Porównaj Costa del Sol, Costa Blanca, Majorkę, Costa Brava i Wyspy Kanaryjskie pod kątem plaż, pogody i zwiedzania.",
+  },
+  "/wietnam": {
+    title: "Wietnam 2026 – Hanoi, Da Nang czy Phu Quoc? Gdzie na plażę i zwiedzanie | Tripownia",
+    description: "Planujesz Wietnam? Sprawdź różnice między Hanoi, Da Nang, Hoi An, Ho Chi Minh City i Phu Quoc. Dowiedz się, gdzie szukać plaż i jak połączyć regiony.",
+  },
+  "/cypr": {
+    title: "Cypr 2026 – Pafos, Larnaka czy Ayia Napa? Gdzie najlepiej lecieć | Tripownia",
+    description: "Porównaj Pafos, Larnakę, Ayia Napę, Protaras i Limassol. Sprawdź plaże, logistykę, pogodę i wybierz najlepszą bazę na Cyprze.",
+  },
+  "/albania": {
+    title: "Albania 2026 – Saranda, Ksamil, Vlora czy Durrës? Kurorty nad morzem | Tripownia",
+    description: "Który kurort w Albanii wybrać? Porównaj Sarandę, Ksamil, Vlorę, Durrës i Himarë pod kątem plaż, transferu, rodzin i samodzielnego zwiedzania.",
   },
   "/malta": {
     title: "Malta 2026 – gdzie spać i ile dni zaplanować? | Tripownia",
