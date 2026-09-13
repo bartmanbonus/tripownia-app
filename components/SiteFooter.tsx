@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Mail, MapPin } from "lucide-react";
+import { Mail, MapPin } from "lucide-react";
 
 export default function SiteFooter() {
   return (
@@ -13,13 +13,6 @@ export default function SiteFooter() {
             <Link href="/" className="footer-v2-logo" aria-label="Tripownia.pl — strona główna">
               <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={220} height={220} />
             </Link>
-            <div className="footer-v2-kicker">MY SZUKAMY. TY LECISZ.</div>
-            <h2>Podróże bez przekopywania całego internetu.</h2>
-            <p>Okazje, kierunki i narzędzia do planowania w jednym miejscu. Ty wybierasz, co Cię rusza — Tripownia pomaga dojść do konkretu.</p>
-            <div className="footer-v2-actions">
-              <Link href="/#wyszukiwarka" className="footer-v2-primary">Znajdź wyjazd <ArrowRight size={18} /></Link>
-              <Link href="/okazje" className="footer-v2-secondary">Dzisiejsze okazje</Link>
-            </div>
           </div>
 
           <div className="footer-v2-nav">
