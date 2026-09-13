@@ -29,15 +29,52 @@
     overflow: hidden;
   }
 
+  .trip-header-search > svg {
+    width: 18px;
+    height: 18px;
+    color: #22272f;
+    opacity: 1;
+    stroke-width: 2.4;
+  }
+
   .trip-header-search-copy strong {
     font-size: 11.5px;
   }
 
   .trip-header-search-cta {
-    width: 31px;
-    min-width: 31px;
-    height: 31px;
+    position: relative;
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    padding: 0;
     border-radius: 10px;
+    font-size: 0;
+    overflow: visible;
+  }
+
+  .trip-header-search-cta::before {
+    content: "";
+    position: absolute;
+    left: 9px;
+    top: 8px;
+    width: 9px;
+    height: 9px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-sizing: border-box;
+  }
+
+  .trip-header-search-cta::after {
+    content: "";
+    position: absolute;
+    left: 18px;
+    top: 18px;
+    width: 7px;
+    height: 2px;
+    border-radius: 99px;
+    background: #fff;
+    transform: rotate(45deg);
+    transform-origin: left center;
   }
 
   .trip-header-nav-wrap {
