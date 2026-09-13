@@ -2,12 +2,13 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Bell, CheckCircle2, Plane, WalletCards } from "lucide-react";
+import { Bell, CheckCircle2, Plane, RefreshCw, WalletCards } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
-import { offers, type Offer } from "@/lib/offers";
+import { type Offer } from "@/lib/offers";
 import { trackEvent } from "@/lib/analytics";
+import { useLiveOffers } from "@/lib/useLiveOffers";
 
 type AlertSettings = {
   departure: string;
@@ -56,12 +57,12 @@ function offerMatchesDestination(offer: Offer, terms: string[]) {
   });
 }
 
-function findMatchingOffers(settings: AlertSettings) {
+function findMatchingOffers(settings: AlertSettings, sourceOffers: Offer[]) {
   const departure = norm(settings.departure);
   const terms = destinationTerms(settings.destinations);
   const maxPrice = Number(settings.maxPrice || 0);
 
-  return offers
+  return sourceOffers
     .filter((offer) => offer.availabilityStatus !== "expired")
     .filter((offer) => {
       if (!departure) return true;
@@ -78,7 +79,7 @@ function matchFingerprint(settings: AlertSettings, matches: Offer[]) {
     norm(settings.departure),
     destinationTerms(settings.destinations).join(","),
     settings.maxPrice,
-    matches.map((offer) => offer.id).sort((a, b) => a - b).join("-"),
+    matches.map((offer) => `${offer.id}:${offer.price}`).sort().join("-"),
   ].join("|");
 }
 
@@ -98,8 +99,8 @@ async function showMatchNotification(settings: AlertSettings, matches: Offer[]) 
     matches.length ? `Tripownia: ${matches.length} ${matches.length === 1 ? "trafienie" : "trafienia"}` : "Tripownia: alert sprawdzony",
     {
       body,
-      icon: "/tripownia-app-icon.svg",
-      badge: "/tripownia-app-icon.svg",
+      icon: "/tripownia-app-icon-v2.png",
+      badge: "/tripownia-app-icon-v2.png",
       data: { url: "/alerty" },
     },
   );
@@ -115,7 +116,8 @@ export default function AlertsPage() {
   const [saved, setSaved] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
-  const matchingOffers = useMemo(() => findMatchingOffers(settings), [settings]);
+  const { offers, source, loading, checkedAt, refresh } = useLiveOffers("/api/today-offers?mode=search&broad=1", 3 * 60 * 1000);
+  const matchingOffers = useMemo(() => findMatchingOffers(settings, offers), [settings, offers]);
 
   useEffect(() => {
     let next = { ...DEFAULTS };
@@ -146,14 +148,14 @@ export default function AlertsPage() {
   }, []);
 
   useEffect(() => {
-    if (!hydrated || !settings.enabled || permission !== "granted") return;
+    if (!hydrated || !settings.enabled || permission !== "granted" || loading) return;
     showMatchNotification(settings, matchingOffers).catch(() => {});
-  }, [hydrated, matchingOffers, permission, settings]);
+  }, [hydrated, matchingOffers, permission, settings, loading]);
 
   function save(event: FormEvent) {
     event.preventDefault();
     const next = { ...settings, enabled: true };
-    const matches = findMatchingOffers(next);
+    const matches = findMatchingOffers(next, offers);
     setSettings(next);
     localStorage.setItem("tripownia-alert-settings", JSON.stringify(next));
     window.dispatchEvent(new Event("tripownia-alerts-updated"));
@@ -162,6 +164,7 @@ export default function AlertsPage() {
       destinations: next.destinations.trim().slice(0, 120),
       max_price: Number(next.maxPrice || 0),
       match_count: matches.length,
+      offer_source: source,
     });
     setSaved(true);
     window.setTimeout(() => setSaved(false), 2500);
@@ -192,14 +195,18 @@ export default function AlertsPage() {
       } else {
         const registration = await navigator.serviceWorker.ready;
         await registration.showNotification("Tripownia — powiadomienia włączone", {
-          body: "Zapisz alert, a Tripownia będzie sprawdzać pasujące okazje na tym urządzeniu.",
-          icon: "/tripownia-app-icon.svg",
-          badge: "/tripownia-app-icon.svg",
+          body: "Zapisz alert, a Tripownia będzie sprawdzać aktualne oferty na tym urządzeniu.",
+          icon: "/tripownia-app-icon-v2.png",
+          badge: "/tripownia-app-icon-v2.png",
           data: { url: "/alerty" },
         });
       }
     }
   }
+
+  const freshness = source === "live"
+    ? checkedAt ? `Live · ${new Date(checkedAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}` : "Live"
+    : "Tryb awaryjny";
 
   return (
     <main>
@@ -210,7 +217,7 @@ export default function AlertsPage() {
           <div>
             <div className="kicker">TWOJA TRIPOWNIA</div>
             <h1>Alerty podróżnicze</h1>
-            <p>Powiedz, czego szukasz. Tripownia od razu porówna ustawienia z aktualnymi propozycjami i pokaże trafienia.</p>
+            <p>Powiedz, czego szukasz. Tripownia porównuje alert z aktualnymi ofertami i pokaże trafienia.</p>
           </div>
         </div>
 
@@ -231,6 +238,7 @@ export default function AlertsPage() {
                 <strong>zł</strong>
               </div>
             </label>
+            <div className="app-alerts-status"><span>{freshness}</span><button type="button" className="app-secondary-button" onClick={refresh}><RefreshCw size={16}/> {loading ? "Sprawdzam…" : "Sprawdź teraz"}</button></div>
             <button className="primary-cta app-alerts-save" type="submit">
               {saved ? <><CheckCircle2 size={18} /> Zapisano</> : settings.enabled ? "Aktualizuj alert" : "Zapisz alert"}
             </button>
@@ -241,7 +249,7 @@ export default function AlertsPage() {
           <aside className="app-alerts-card app-alerts-notification-card">
             <div className="kicker">POWIADOMIENIA</div>
             <h2>Daj znać od razu</h2>
-            <p>Włącz zgodę na powiadomienia. Przy kolejnych wizytach Tripownia sprawdzi zapisany alert i poinformuje Cię, gdy zestaw trafień się zmieni.</p>
+            <p>Włącz zgodę na powiadomienia. Gdy używasz Tripowni, aplikacja regularnie odświeża live feed i poinformuje Cię, gdy zestaw trafień się zmieni.</p>
             {permission === "granted" ? (
               <div className="app-alerts-status success"><CheckCircle2 size={18} /> Powiadomienia są włączone</div>
             ) : permission === "denied" ? (
@@ -251,7 +259,7 @@ export default function AlertsPage() {
             ) : (
               <button className="app-secondary-button" onClick={enableNotifications}><Bell size={18} /> Włącz powiadomienia</button>
             )}
-            <p className="app-alerts-note">Pełny Web Push działający także przy zamkniętej stronie nadal wymaga backendu subskrypcji i bezpiecznego magazynu urządzeń. Obecny alert działa bez konta i sprawdza nowe trafienia podczas wizyty w Tripowni.</p>
+            <p className="app-alerts-note">Pełny push działający również przy całkowicie zamkniętej aplikacji wymaga kolejnego kroku: backendu subskrypcji push i bezpiecznego magazynu urządzeń. Live dopasowanie alertów jest już podłączone.</p>
           </aside>
         </div>
 
@@ -260,8 +268,8 @@ export default function AlertsPage() {
             <div className="section-heading">
               <div>
                 <div className="kicker">TRAFIENIA ALERTU</div>
-                <h2>{matchingOffers.length ? `Mamy ${matchingOffers.length} ${matchingOffers.length === 1 ? "pasującą propozycję" : "pasujące propozycje"}` : "Na razie brak trafień"}</h2>
-                <p>{matchingOffers.length ? "Pokazujemy najlepsze wyniki według zapisanych warunków. Cenę i dostępność zawsze sprawdź przed rezerwacją." : "Alert jest aktywny. Zmień kierunek, lotnisko lub budżet albo wróć później."}</p>
+                <h2>{matchingOffers.length ? `Mamy ${matchingOffers.length} ${matchingOffers.length === 1 ? "pasującą propozycję" : "pasujące propozycje"}` : loading ? "Sprawdzamy aktualne oferty…" : "Na razie brak trafień"}</h2>
+                <p>{matchingOffers.length ? "Pokazujemy najlepsze aktualne wyniki według zapisanych warunków." : "Alert jest aktywny. Zmień kierunek, lotnisko lub budżet albo wróć później."}</p>
               </div>
               <Link href="/okazje">Wszystkie okazje →</Link>
             </div>
