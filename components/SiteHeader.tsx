@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import {
   Heart,
@@ -50,10 +51,61 @@ const myTripowniaItems = [
   { href: "/moja-podroz", label: "Moja podróż", icon: MapPinned },
 ] as const;
 
+const OPEN_MENU_SELECTOR = "details.trip-mobile-menu[open], details.trip-header-menu[open]";
+
+function closeOpenMenus(except?: HTMLDetailsElement | null) {
+  document.querySelectorAll<HTMLDetailsElement>(OPEN_MENU_SELECTOR).forEach((details) => {
+    if (details !== except) details.open = false;
+  });
+}
+
 export default function SiteHeader() {
   const pathname = usePathname();
   const showMarkets = Date.now() <= new Date("2027-01-07T22:59:59Z").getTime();
   const visiblePrimaryItems = primaryItems.filter((item) => !("seasonal" in item && item.seasonal) || showMarkets);
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const clickedMenu = target.closest<HTMLDetailsElement>("details.trip-mobile-menu, details.trip-header-menu");
+      if (!clickedMenu) {
+        closeOpenMenus();
+        return;
+      }
+
+      // Only one header menu can stay open at a time.
+      closeOpenMenus(clickedMenu);
+    };
+
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest("details.trip-mobile-menu a, details.trip-header-menu a")) {
+        closeOpenMenus();
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeOpenMenus();
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown, true);
+    document.addEventListener("click", handleClick, true);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown, true);
+      document.removeEventListener("click", handleClick, true);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    closeOpenMenus();
+  }, [pathname]);
+
   const isActive = (href: string) => {
     if (href === "/okazje") return pathname === "/okazje" || pathname.startsWith("/oferta/");
     return pathname === href || pathname.startsWith(`${href}/`);
