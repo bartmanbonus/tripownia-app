@@ -61,7 +61,23 @@ type ToolkitState = {
   localTransportNotes?: string;
 };
 
-const STORAGE_KEY = "tripownia-trip-toolkit";
+const LEGACY_STORAGE_KEY = "tripownia-trip-toolkit";
+const EMPTY_STATE: ToolkitState = { travelers: ["Ja"], reservations: [], expenses: [], photoSpots: [] };
+
+function storageKey(tripId: string) {
+  return `tripownia-trip-toolkit:${tripId}`;
+}
+
+function normalizeState(saved?: ToolkitState | null): ToolkitState {
+  if (!saved) return { ...EMPTY_STATE };
+  return {
+    ...saved,
+    travelers: saved.travelers?.length ? saved.travelers : ["Ja"],
+    reservations: saved.reservations || [],
+    expenses: saved.expenses || [],
+    photoSpots: saved.photoSpots || [],
+  };
+}
 
 const reservationLabels: Record<Reservation["type"], string> = {
   flight: "Lot",
@@ -72,8 +88,8 @@ const reservationLabels: Record<Reservation["type"], string> = {
   other: "Inne",
 };
 
-export default function TripToolkit({ city, country }: { city: string; country: string }) {
-  const [state, setState] = useState<ToolkitState>({ travelers: ["Ja"], reservations: [], expenses: [], photoSpots: [] });
+export default function TripToolkit({ city, country, tripId }: { city: string; country: string; tripId: string }) {
+  const [state, setState] = useState<ToolkitState>({ ...EMPTY_STATE });
   const [newTraveler, setNewTraveler] = useState("");
   const [reservation, setReservation] = useState<Omit<Reservation, "id">>({ type: "flight", title: "", reference: "", date: "", url: "", note: "" });
   const [expense, setExpense] = useState({ title: "", amount: "", payer: "Ja", participants: ["Ja"] as string[] });
@@ -81,22 +97,33 @@ export default function TripToolkit({ city, country }: { city: string; country: 
 
   useEffect(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") as ToolkitState | null;
-      if (saved) {
-        setState({
-          ...saved,
-          travelers: saved.travelers?.length ? saved.travelers : ["Ja"],
-          reservations: saved.reservations || [],
-          expenses: saved.expenses || [],
-          photoSpots: saved.photoSpots || [],
-        });
+      const key = storageKey(tripId);
+      let raw = localStorage.getItem(key);
+      if (!raw) {
+        const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (legacy) {
+          localStorage.setItem(key, legacy);
+          localStorage.removeItem(LEGACY_STORAGE_KEY);
+          raw = legacy;
+        }
       }
-    } catch {}
-  }, []);
+      const saved = raw ? JSON.parse(raw) as ToolkitState : null;
+      const next = normalizeState(saved);
+      setState(next);
+      setExpense((current) => ({
+        ...current,
+        payer: next.travelers[0] || "Ja",
+        participants: [...next.travelers],
+      }));
+    } catch {
+      setState({ ...EMPTY_STATE });
+      setExpense({ title: "", amount: "", payer: "Ja", participants: ["Ja"] });
+    }
+  }, [tripId]);
 
   function save(next: ToolkitState) {
     setState(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    localStorage.setItem(storageKey(tripId), JSON.stringify(next));
   }
 
   function addTraveler() {
