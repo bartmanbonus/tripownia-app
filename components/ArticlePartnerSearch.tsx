@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
 import type { ArticleSearchMode } from "@/lib/articleContext";
 
@@ -9,6 +12,7 @@ type Props = {
   initialStartDate?: string;
   initialEndDate?: string;
   initialWeekendOnly?: boolean;
+  presets?: string[];
 };
 
 function plusDays(iso: string, days: number) {
@@ -34,6 +38,9 @@ function nextFriday(iso: string) {
 
 export default function ArticlePartnerSearch(props: Props) {
   const mode = props.mode || "all";
+  const presets = [...new Set((props.presets || []).filter(Boolean))];
+  const firstDestination = props.initialDestination || presets[0] || "";
+  const [selectedDestination, setSelectedDestination] = useState(firstDestination);
   let startDate = props.initialStartDate;
   let endDate = props.initialEndDate;
 
@@ -51,14 +58,32 @@ export default function ArticlePartnerSearch(props: Props) {
   }
 
   return (
-    <UnifiedPartnerSearch
-      mode={mode}
-      initialDestination={props.initialDestination}
-      initialDeparture={props.initialDeparture}
-      initialDepartureCode={props.initialDepartureCode}
-      initialStartDate={startDate}
-      initialEndDate={endDate}
-      initialWeekendOnly={props.initialWeekendOnly}
-    />
+    <>
+      {presets.length > 1 && (
+        <div className="article-search-presets" aria-label="Szybki wybór kierunku">
+          <span>Porównaj też:</span>
+          {presets.map((preset) => (
+            <button
+              key={preset}
+              type="button"
+              aria-pressed={selectedDestination === preset}
+              onClick={() => setSelectedDestination(preset)}
+            >
+              {preset}
+            </button>
+          ))}
+        </div>
+      )}
+      <UnifiedPartnerSearch
+        key={selectedDestination || "article-search"}
+        mode={mode}
+        initialDestination={selectedDestination || props.initialDestination}
+        initialDeparture={props.initialDeparture}
+        initialDepartureCode={props.initialDepartureCode}
+        initialStartDate={startDate}
+        initialEndDate={endDate}
+        initialWeekendOnly={props.initialWeekendOnly}
+      />
+    </>
   );
 }
