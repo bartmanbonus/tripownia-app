@@ -82,7 +82,15 @@ export default function TripToolkit({ city, country }: { city: string; country: 
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") as ToolkitState | null;
-      if (saved) setState({ travelers: ["Ja"], reservations: [], expenses: [], photoSpots: [], ...saved });
+      if (saved) {
+        setState({
+          ...saved,
+          travelers: saved.travelers?.length ? saved.travelers : ["Ja"],
+          reservations: saved.reservations || [],
+          expenses: saved.expenses || [],
+          photoSpots: saved.photoSpots || [],
+        });
+      }
     } catch {}
   }, []);
 
