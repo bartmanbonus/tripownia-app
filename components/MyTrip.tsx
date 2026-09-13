@@ -17,6 +17,7 @@ type ReminderItem = { label: string; due: string; active: boolean };
 type AttractionPick = { title: string; subtitle: string; query: string; icon: "landmark" | "food" | "water" | "sparkles" };
 
 type TripState = {
+  tripId?: string;
   offerId?: number;
   flight?: string;
   departureAt?: string;
@@ -26,6 +27,16 @@ type TripState = {
   dayPlan?: DayPlanItem[];
   remindersEnabled?: boolean;
 };
+
+const LEGACY_TOOLKIT_KEY = "tripownia-trip-toolkit";
+
+function createTripId(offerId?: number) {
+  return `trip-${offerId ?? "custom"}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function toolkitStorageKey(tripId: string) {
+  return `tripownia-trip-toolkit:${tripId}`;
+}
 
 const checklistItems = [
   "Sprawdź dokumenty",
@@ -97,7 +108,20 @@ export default function MyTrip() {
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null") as TripState | null;
-      if (saved) setTrip({ checklist: {}, dayPlan: [], ...saved });
+      if (!saved) return;
+
+      const tripId = saved.tripId || createTripId(saved.offerId);
+      const normalized: TripState = { checklist: {}, dayPlan: [], ...saved, tripId };
+      const scopedToolkitKey = toolkitStorageKey(tripId);
+      const legacyToolkit = localStorage.getItem(LEGACY_TOOLKIT_KEY);
+
+      if (legacyToolkit && !localStorage.getItem(scopedToolkitKey)) {
+        localStorage.setItem(scopedToolkitKey, legacyToolkit);
+        localStorage.removeItem(LEGACY_TOOLKIT_KEY);
+      }
+
+      if (!saved.tripId) localStorage.setItem("tripownia-my-trip", JSON.stringify(normalized));
+      setTrip(normalized);
     } catch {}
   }, []);
 
@@ -148,8 +172,9 @@ export default function MyTrip() {
   }, [offer?.city]);
 
   function save(next: TripState) {
-    setTrip(next);
-    localStorage.setItem("tripownia-my-trip", JSON.stringify(next));
+    const normalized: TripState = { ...next, tripId: next.tripId || trip.tripId || createTripId(next.offerId) };
+    setTrip(normalized);
+    localStorage.setItem("tripownia-my-trip", JSON.stringify(normalized));
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
@@ -167,7 +192,7 @@ export default function MyTrip() {
     setNotificationStatus("Przypomnienia są włączone na tym urządzeniu.");
     try {
       const registration = await navigator.serviceWorker?.ready;
-      await registration?.showNotification("Tripownia pilnuje wyjazdu ✈️", { body: reminder, icon: "/tripownia-app-icon.svg", tag: "tripownia-trip-reminder" });
+      await registration?.showNotification("Tripownia pilnuje wyjazdu ✈️", { body: reminder, icon: "/tripownia-app-icon-v2.png", tag: `tripownia-trip-reminder-${trip.tripId || "active"}` });
     } catch {}
   }
 
@@ -243,7 +268,7 @@ export default function MyTrip() {
               <div className="trip-attraction-grid">{attractions.map((pick) => { const Icon = pick.icon === "landmark" ? Landmark : pick.icon === "food" ? UtensilsCrossed : pick.icon === "water" ? Waves : Sparkles; const partnerHref = partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(pick.query)}`); return <a key={pick.title} href={partnerHref} target="_blank" rel="sponsored noopener noreferrer"><Icon size={20}/><div><strong>{pick.title}</strong><span>{pick.subtitle}</span></div><ArrowRight size={16}/></a>; })}</div>
             </section>
 
-            <TripToolkit city={offer.city} country={offer.country} />
+            <TripToolkit city={offer.city} country={offer.country} tripId={trip.tripId || `trip-${offer.id}`} />
 
             <section className="my-trip-card my-trip-notes"><div className="my-trip-card-head"><NotebookPen size={20}/><h2>Notatki</h2></div><textarea value={trip.notes || ""} onChange={(e) => save({ ...trip, notes: e.target.value })} placeholder="Restauracje, atrakcje, adresy, pomysły..." rows={5} /></section>
           </>
