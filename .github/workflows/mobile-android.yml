@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - feature/native-mobile-app
     paths:
       - 'mobile/**'
