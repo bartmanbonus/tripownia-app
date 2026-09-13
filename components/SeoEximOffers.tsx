@@ -25,6 +25,7 @@ function normalize(value: string) {
 
 function departureCode(value?: string) {
   const n = normalize(value || "");
+  if (n.includes("modlin")) return "WMI";
   if (n.includes("warsz")) return "WAWA";
   if (n.includes("krak")) return "KRK";
   if (n.includes("katow")) return "KTW";
