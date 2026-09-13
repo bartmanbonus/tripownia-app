@@ -131,7 +131,7 @@ export default function TripToolkit({ city, country }: { city: string; country: 
   }
 
   const balances = useMemo(() => {
-    const values = new Map<string, number>();
+    const values = new globalThis.Map<string, number>();
     state.travelers.forEach((person) => values.set(person, 0));
     state.expenses.forEach((item) => {
       const share = item.amount / item.participants.length;
