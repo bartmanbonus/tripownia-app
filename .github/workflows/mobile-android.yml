@@ -50,8 +50,6 @@ jobs:
           mkdir -p assets
 
           # Launcher icons should use the pictorial mark, not the tiny wordmark.
-          # Crop the upper brand mark from the square Tripownia logo and keep it
-          # comfortably inside Android's adaptive-icon safe zone.
           convert ../public/tripownia-logo.webp \
             -crop 1920x1450+0+0 +repage \
             -trim +repage \
@@ -74,6 +72,24 @@ jobs:
 
       - name: Generate Android app assets
         run: npm run assets -- --android
+
+      - name: Fix adaptive launcher icon references
+        run: |
+          mkdir -p android/app/src/main/res/mipmap-anydpi-v26
+          cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@mipmap/ic_launcher_background" />
+              <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+          </adaptive-icon>
+          EOF
+          cat > android/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml <<'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+              <background android:drawable="@mipmap/ic_launcher_background" />
+              <foreground android:drawable="@mipmap/ic_launcher_foreground" />
+          </adaptive-icon>
+          EOF
 
       - name: Sync Capacitor
         run: npx cap sync android
