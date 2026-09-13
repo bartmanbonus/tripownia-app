@@ -6,7 +6,7 @@ import { Compass, Sparkles, WalletCards, Sun, Moon, ArrowRight, RefreshCw } from
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
-import { type Offer } from "@/lib/offers";
+import { inferredOfferCategories } from "@/lib/offerPersonalization";
 import { useLiveOffers } from "@/lib/useLiveOffers";
 
 const climates = [
@@ -23,34 +23,41 @@ const styles = [
   { key: "allinclusive", label: "Wygodnie / All Inclusive" },
 ];
 
-function matchScore(offer: Offer, budget: number, maxNights: number, climate: string, style: string) {
-  let score = offer.score * 10;
-  if (offer.price <= budget) score += 20;
-  else score -= Math.min(30, ((offer.price - budget) / Math.max(1, budget)) * 35);
-  if (offer.nights <= maxNights) score += 10;
-  else score -= Math.min(18, (offer.nights - maxNights) * 3);
-  if (climate !== "dowolnie" && offer.category.includes(climate)) score += 18;
-  if (style !== "dowolnie" && offer.category.includes(style)) score += 14;
-  if (offer.tag === "BIERZEMY") score += 5;
-  return score;
-}
-
 export default function TravelAdvisor() {
   const [budget, setBudget] = useState(2000);
   const [maxNights, setMaxNights] = useState(5);
   const [climate, setClimate] = useState("dowolnie");
   const [style, setStyle] = useState("dowolnie");
   const [submitted, setSubmitted] = useState(false);
-  const { offers, source, loading, checkedAt, refresh } = useLiveOffers("/api/today-offers?mode=search&broad=1");
+  const endpoint = useMemo(() => `/api/today-offers?mode=search&broad=1&maxPrice=${budget}`, [budget]);
+  const { offers, source, loading, checkedAt, refresh } = useLiveOffers(endpoint);
 
-  const recommendations = useMemo(() => {
-    return offers
-      .filter((offer) => offer.availabilityStatus !== "expired")
-      .map((offer) => ({ offer, score: matchScore(offer, budget, maxNights, climate, style) }))
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3)
-      .map((row) => row.offer);
-  }, [offers, budget, maxNights, climate, style]);
+  const strictRecommendations = useMemo(() => offers
+    .filter((offer) => offer.availabilityStatus !== "expired")
+    .filter((offer) => offer.price <= budget)
+    .filter((offer) => offer.nights <= maxNights)
+    .filter((offer) => climate === "dowolnie" || inferredOfferCategories(offer).has(climate))
+    .filter((offer) => style === "dowolnie" || inferredOfferCategories(offer).has(style))
+    .sort((a, b) => b.score - a.score || a.price - b.price)
+    .slice(0, 3), [offers, budget, maxNights, climate, style]);
+
+  const relaxedRecommendations = useMemo(() => offers
+    .filter((offer) => offer.availabilityStatus !== "expired")
+    .filter((offer) => offer.price <= budget)
+    .map((offer) => {
+      const categories = inferredOfferCategories(offer);
+      let score = offer.score * 10;
+      score += offer.nights <= maxNights ? 16 : -Math.min(30, (offer.nights - maxNights) * 5);
+      if (climate !== "dowolnie") score += categories.has(climate) ? 24 : -40;
+      if (style !== "dowolnie") score += categories.has(style) ? 20 : -35;
+      return { offer, score };
+    })
+    .sort((a, b) => b.score - a.score || a.offer.price - b.offer.price)
+    .slice(0, 3)
+    .map((row) => row.offer), [offers, budget, maxNights, climate, style]);
+
+  const recommendations = strictRecommendations.length ? strictRecommendations : relaxedRecommendations;
+  const relaxed = !strictRecommendations.length && relaxedRecommendations.length > 0;
 
   const freshness = source === "live"
     ? checkedAt ? `Aktualne oferty · ${new Date(checkedAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}` : "Aktualne oferty"
@@ -111,6 +118,8 @@ export default function TravelAdvisor() {
         {submitted && (
           <section className="advisor-results">
             <div className="section-heading"><div><div className="kicker">TOP 3 DLA CIEBIE</div><h2>Najlepsze dopasowanie</h2><p>Wybraliśmy aktualne oferty, które najlepiej mieszczą się w Twoim budżecie i stylu podróży.</p></div></div>
+            {relaxed && <p className="app-results-notice">Nie ma teraz oferty spełniającej wszystkie warunki jednocześnie. Pokazujemy najbliższe dopasowania, ale nadal mieszczące się w podanym budżecie.</p>}
+            {!loading && recommendations.length === 0 && <div className="search-v3-empty"><strong>Brak ofert w tym budżecie.</strong><span>Zwiększ budżet albo zmień długość lub styl wyjazdu.</span></div>}
             <div className="cards-grid">{recommendations.map((offer) => <OfferCard key={offer.id} offer={offer} />)}</div>
             <div className="advisor-next"><Link href="/dla-ciebie">Zobacz więcej dopasowanych ofert <ArrowRight size={16}/></Link></div>
           </section>
