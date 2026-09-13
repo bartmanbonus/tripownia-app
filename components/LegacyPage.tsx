@@ -88,7 +88,10 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const archived = item.type === "product";
   const canonicalPath = legacyCanonicalPath(item.path);
   const canonicalUrl = `https://tripownia.pl${canonicalPath}`;
-  const deepDive = item.type === "post" ? getArticleDeepDive(canonicalPath) : undefined;
+  const deepDiveLookupPath = canonicalPath.startsWith("/gdzie-jest-cieplo-w-pazdzierniku")
+    ? "/gdzie-jest-cieplo-w-pazdzierniku"
+    : canonicalPath;
+  const deepDive = item.type === "post" ? getArticleDeepDive(deepDiveLookupPath) : undefined;
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -144,7 +147,6 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
             initialEndDate={context.endDate}
             initialWeekendOnly={context.weekendOnly}
           />
-          {deepDive?.searchPresets?.length ? <div className="article-search-presets"><span>Spróbuj też:</span>{deepDive.searchPresets.map((preset) => <span key={preset}>{preset}</span>)}</div> : null}
         </section>
       </>}
 
