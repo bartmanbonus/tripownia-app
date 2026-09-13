@@ -1,0 +1,149 @@
+/* Mobile polish for the Android/PWA shell — keep the experience app-like on narrow screens. */
+@media (max-width: 560px) {
+  .trip-header-shell {
+    width: calc(100% - 12px);
+  }
+
+  .trip-header-main {
+    min-height: 60px;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .trip-header-brand,
+  .trip-header-brand img {
+    width: 42px;
+    height: 42px;
+  }
+
+  .trip-header-actions {
+    display: none;
+  }
+
+  .trip-header-search {
+    width: 100%;
+    height: 40px;
+    gap: 8px;
+    padding: 3px 4px 3px 10px;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  .trip-header-search-copy strong {
+    font-size: 11.5px;
+  }
+
+  .trip-header-search-cta {
+    width: 31px;
+    min-width: 31px;
+    height: 31px;
+    border-radius: 10px;
+  }
+
+  .trip-header-nav-wrap {
+    min-height: 40px;
+  }
+
+  .trip-header-nav {
+    width: 100%;
+    gap: 1px;
+    padding: 0 1px;
+    scroll-snap-type: x proximity;
+  }
+
+  .trip-header-nav-link {
+    min-height: 32px;
+    padding: 0 10px;
+    font-size: 10.5px;
+    scroll-snap-align: start;
+  }
+
+  .app-home-page {
+    padding-top: 22px;
+    padding-bottom: 54px;
+  }
+
+  .app-home-hero {
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .app-home-hero > div {
+    max-width: none;
+  }
+
+  .app-home-hero h1 {
+    font-size: clamp(32px, 9.3vw, 38px);
+    line-height: 1.01;
+    letter-spacing: -1.65px;
+    margin: 6px 0 12px;
+  }
+
+  .app-home-hero p {
+    font-size: 16px;
+    line-height: 1.48;
+  }
+
+  .app-home-hero .primary-cta {
+    width: 100%;
+    min-height: 52px;
+    margin: 0;
+    border-radius: 16px;
+    font-size: 15px;
+  }
+
+  .app-onboarding {
+    margin-bottom: 18px;
+    padding: 15px;
+    border-radius: 18px;
+  }
+
+  .app-onboarding-head {
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .app-onboarding-head h2 {
+    font-size: 20px;
+    line-height: 1.12;
+  }
+
+  .app-onboarding-steps {
+    gap: 8px;
+  }
+
+  .app-onboarding-steps a {
+    min-height: 51px;
+    padding: 11px 12px;
+    border-radius: 13px;
+    font-size: 14px;
+  }
+
+  .app-home-grid {
+    gap: 10px;
+  }
+
+  .app-home-tile {
+    min-height: 88px;
+    padding: 15px;
+    border-radius: 17px;
+  }
+
+  .app-home-tile strong {
+    font-size: 16px;
+  }
+
+  .app-home-tile span {
+    font-size: 12.5px;
+  }
+
+  button[aria-label="Otwórz ustawienia prywatności"] {
+    position: static !important;
+    display: block !important;
+    width: max-content;
+    margin: 14px auto 18px !important;
+    padding: 7px 10px !important;
+    font-size: 11px !important;
+    box-shadow: none !important;
+  }
+}
