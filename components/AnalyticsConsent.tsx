@@ -37,9 +37,24 @@ export default function AnalyticsConsentBanner() {
       {consent !== null && !open && (
         <button
           type="button"
-          className="analytics-consent-reopen"
           onClick={() => setOpen(true)}
           aria-label="Otwórz ustawienia prywatności"
+          style={{
+            position: "fixed",
+            right: 12,
+            bottom: 12,
+            zIndex: 40,
+            border: "1px solid rgba(20,20,20,.14)",
+            borderRadius: 999,
+            background: "rgba(255,255,255,.94)",
+            color: "#4f4f4b",
+            padding: "8px 11px",
+            font: "inherit",
+            fontSize: 12,
+            fontWeight: 700,
+            boxShadow: "0 8px 24px rgba(0,0,0,.08)",
+            cursor: "pointer",
+          }}
         >
           Prywatność
         </button>
