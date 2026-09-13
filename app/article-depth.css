@@ -21,7 +21,9 @@
 .article-faq p{margin:10px 0 0;line-height:1.6}
 .article-sources>div{display:flex;flex-wrap:wrap;gap:10px}
 .article-sources a{display:inline-flex;padding:10px 13px;border-radius:999px;border:1px solid #dedede;text-decoration:none;font-weight:700}
-.article-search-presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;align-items:center}
+.article-search-presets{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 14px;align-items:center}
 .article-search-presets>span:first-child{font-weight:700;color:#686868}
-.article-search-presets>span:not(:first-child){padding:8px 11px;border-radius:999px;background:#f4f4f1;font-weight:750}
-@media(max-width:720px){.article-deep-dive{padding:20px;border-radius:22px;margin:24px 0}.article-quick-answer p{font-size:16px}.article-table-wrap{margin-left:-4px;margin-right:-4px}.article-deep-section h3,.article-checklist h3,.article-faq h3,.article-sources h3{font-size:20px}}
+.article-search-presets button{appearance:none;border:1px solid #dedede;background:#f4f4f1;padding:8px 12px;border-radius:999px;font:inherit;font-weight:750;cursor:pointer}
+.article-search-presets button[aria-pressed="true"]{background:#111;color:#fff;border-color:#111}
+.article-search-presets button:focus-visible{outline:2px solid #111;outline-offset:2px}
+@media(max-width:720px){.article-deep-dive{padding:20px;border-radius:22px;margin:24px 0}.article-quick-answer p{font-size:16px}.article-table-wrap{margin-left:-4px;margin-right:-4px}.article-deep-section h3,.article-checklist h3,.article-faq h3,.article-sources h3{font-size:20px}.article-search-presets{align-items:flex-start}.article-search-presets>span:first-child{width:100%}}
