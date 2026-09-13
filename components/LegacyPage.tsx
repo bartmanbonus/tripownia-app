@@ -2,16 +2,37 @@ import Link from "next/link";
 import OfferCard from "@/components/OfferCard";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
 import type { LegacyItem } from "@/lib/legacy";
 import { legacyCanonicalPath } from "@/lib/legacy";
 import { offers } from "@/lib/offers";
+import { getArticleContext, type ArticleContext } from "@/lib/articleContext";
 
 type GrowthLink = { href: string; label: string };
 
-function relatedOffers(item: LegacyItem) {
-  const hay = `${item.title} ${item.path}`.toLowerCase();
-  const found = offers.filter(o => hay.includes(o.country.toLowerCase()) || hay.includes(o.city.toLowerCase()));
-  return (found.length ? found : offers).slice(0, 3);
+function norm(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function relatedOffers(context: ArticleContext) {
+  if (context.destination) {
+    const destination = norm(context.destination);
+    return offers.filter((offer) => {
+      const city = norm(offer.city);
+      const country = norm(offer.country);
+      return destination.includes(city) || destination.includes(country) || city.includes(destination) || country.includes(destination);
+    }).slice(0, 3);
+  }
+
+  if (context.mode === "city") {
+    return offers.filter((offer) => offer.category.includes("city") || offer.category.includes("weekend")).slice(0, 3);
+  }
+
+  if (context.mode === "holiday" || context.mode === "lastminute") {
+    return offers.filter((offer) => offer.category.includes("allinclusive") || offer.category.includes("plaza") || offer.category.includes("cieplo")).slice(0, 3);
+  }
+
+  return [];
 }
 
 function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
@@ -59,7 +80,8 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
 }
 
 export default function LegacyPage({ item }: { item: LegacyItem }) {
-  const related = relatedOffers(item);
+  const context = getArticleContext(item);
+  const related = relatedOffers(context);
   const growthLinks = contextualGrowthLinks(item);
   const archived = item.type === "product";
   const canonicalPath = legacyCanonicalPath(item.path);
@@ -99,8 +121,31 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         <header><div className="kicker">{archived ? "ARCHIWUM OFERT" : item.type === "post" ? "MAGAZYN TRIPOWNI" : "TRIPOWNIA"}</div><h1>{item.title}</h1></header>
         <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
       </article>
-      {item.type === "post" && <section className="legacy-internal-links"><h2>Sprawdź teraz na Tripowni</h2><div>{growthLinks.map(link=><Link key={link.href} href={link.href}>{link.label} →</Link>)}</div></section>}
-      <section className="legacy-offers"><div className="section-heading"><div><div className="kicker">WYNIKI TRIPOWNIA.PL</div><h2>Sprawdź też aktualne wyniki Tripownia.pl</h2></div><Link href="/okazje">Wszystkie okazje →</Link></div><div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>
-      <section className="legacy-internal-links"><h2>Zostań na Tripowni</h2><div><Link href="/kierunki">🌍 Kierunki</Link><Link href="/city-break">🏙 City break</Link><Link href="/last-minute">🏖 Last minute</Link><Link href="/poradniki">🧭 Poradniki</Link><Link href="/alerty">🔔 Alerty</Link></div></section>
+
+      {item.type === "post" && context.hasUsefulSearchContext && <>
+        <section className="legacy-internal-links">
+          <div className="kicker">KONKRET DLA TEGO ARTYKUŁU</div>
+          <h2>{context.focusTitle}</h2>
+          <ul>{context.focusPoints.map((point) => <li key={point}>{point}</li>)}</ul>
+        </section>
+        <section className="legacy-article-search">
+          <div className="section-heading"><div><div className="kicker">WYSZUKIWANIE USTAWIONE POD ARTYKUŁ</div><h2>{context.searchTitle}</h2><p>{context.searchLead}</p></div></div>
+          <UnifiedPartnerSearch
+            mode={context.mode}
+            initialDestination={context.destination || ""}
+            initialDeparture={context.departure || "Warszawa Chopina"}
+            initialDepartureCode={context.departureCode}
+            initialStartDate={context.startDate}
+            initialEndDate={context.endDate}
+            initialWeekendOnly={context.weekendOnly}
+          />
+        </section>
+      </>}
+
+      {item.type === "post" && <section className="legacy-internal-links"><h2>Sprawdź dalej w tym temacie</h2><div>{growthLinks.map(link=><Link key={link.href} href={link.href}>{link.label} →</Link>)}</div></section>}
+
+      {related.length > 0 && <section className="legacy-offers"><div className="section-heading"><div><div className="kicker">DOPASOWANE WYNIKI TRIPOWNI</div><h2>{context.destination ? `Aktualne propozycje: ${context.destination}` : "Aktualne propozycje pasujące do artykułu"}</h2></div><Link href="/okazje">Wszystkie okazje →</Link></div><div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>}
+
+      <section className="legacy-internal-links"><h2>Zostań na Tripowni</h2><div><Link href="/kierunki">Kierunki</Link><Link href="/city-break">City break</Link><Link href="/last-minute">Last minute</Link><Link href="/poradniki">Poradniki</Link><Link href="/alerty">Alerty</Link></div></section>
     </div><SiteFooter/></main>;
 }
