@@ -1,4 +1,4 @@
-const CACHE_NAME = "tripownia-v3";
+const CACHE_NAME = "tripownia-v4";
 const APP_SHELL = [
   "/app",
   "/dla-ciebie",
