@@ -12,7 +12,33 @@ import { isOfferExpired } from "@/lib/offers";
 import { getDealScore } from "@/lib/dealScore";
 import { ANALYTICS_CONSENT_EVENT, getAnalyticsConsent, trackEvent } from "@/lib/analytics";
 
+const OFFER_VIEW_SESSION_KEY = "tripownia-viewed-offers-v1";
 const viewedOfferIds = new Set<number>();
+let hydratedViewedOfferIds = false;
+
+function hydrateViewedOfferIds() {
+  if (hydratedViewedOfferIds || typeof window === "undefined") return;
+  hydratedViewedOfferIds = true;
+
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(OFFER_VIEW_SESSION_KEY) || "[]");
+    if (!Array.isArray(parsed)) return;
+    parsed.forEach((value) => {
+      if (typeof value === "number" && Number.isFinite(value)) viewedOfferIds.add(value);
+    });
+  } catch {
+    sessionStorage.removeItem(OFFER_VIEW_SESSION_KEY);
+  }
+}
+
+function rememberViewedOffer(id: number) {
+  viewedOfferIds.add(id);
+  if (typeof window === "undefined") return;
+
+  try {
+    sessionStorage.setItem(OFFER_VIEW_SESSION_KEY, JSON.stringify([...viewedOfferIds]));
+  } catch {}
+}
 
 function readNumberArray(key: string) {
   try {
@@ -91,6 +117,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   };
 
   useEffect(() => {
+    hydrateViewedOfferIds();
     const node = cardRef.current;
     if (!node || viewedOfferIds.has(offer.id)) return;
 
@@ -99,7 +126,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
 
     const trackIfEligible = () => {
       if (!visibleEnough || viewedOfferIds.has(offer.id) || getAnalyticsConsent() !== "analytics") return;
-      viewedOfferIds.add(offer.id);
+      rememberViewedOffer(offer.id);
       trackEvent("offer_view", {
         offer_id: offer.id,
         destination: offer.city,
