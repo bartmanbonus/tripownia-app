@@ -15,6 +15,13 @@ type Props = {
   presets?: string[];
 };
 
+const destinationPresetGroups: Record<string, string[]> = {
+  Hiszpania: ["Hiszpania", "Majorka", "Teneryfa", "Alicante"],
+  Wietnam: ["Wietnam", "Da Nang", "Phu Quoc"],
+  Cypr: ["Cypr", "Pafos", "Larnaka"],
+  Albania: ["Albania", "Saranda", "Vlora"],
+};
+
 function plusDays(iso: string, days: number) {
   const date = new Date(`${iso}T12:00:00Z`);
   date.setUTCDate(date.getUTCDate() + days);
@@ -38,7 +45,8 @@ function nextFriday(iso: string) {
 
 export default function ArticlePartnerSearch(props: Props) {
   const mode = props.mode || "all";
-  const presets = [...new Set((props.presets || []).filter(Boolean))];
+  const fallbackPresets = props.initialDestination ? destinationPresetGroups[props.initialDestination] || [] : [];
+  const presets = [...new Set((props.presets?.length ? props.presets : fallbackPresets).filter(Boolean))];
   const firstDestination = props.initialDestination || presets[0] || "";
   const [selectedDestination, setSelectedDestination] = useState(firstDestination);
   let startDate = props.initialStartDate;
