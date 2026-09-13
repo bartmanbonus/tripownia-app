@@ -38,7 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   if (showMarkets) staticPages.push({ url:`${BASE_URL}/jarmarki-bozonarodzeniowe`,lastModified:now,changeFrequency:"daily",priority:.9 });
 
   const legacyArticlePaths = [...new Set(legacyPosts.map(post => legacyCanonicalPath(post.path)))]
-    .filter(path => path !== "/city-break-2");
+    .filter(path => path !== "/city-break-2" && path !== "/grecja-2");
 
   const legacyArticlePages: MetadataRoute.Sitemap = legacyArticlePaths.map(path => ({
     url: `${BASE_URL}${path}`,
