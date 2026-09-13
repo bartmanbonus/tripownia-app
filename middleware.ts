@@ -10,6 +10,17 @@ const PRIVATE_APP_PATHS = [
   "/profil",
 ];
 
+const EXPERIENCE_IMAGE_FILES: Record<string, string> = {
+  "/images/experiences/islandia-zorza.png": "Aurora Borealis activity on top of the Kirkjufell mountain in September 2018.jpg",
+  "/images/experiences/japonia-sakura.png": "Mount Fuji April Cherry Blossom.jpg",
+  "/images/experiences/norwegia-fiordy.png": "Geirangerfjord from Ørnesvingen, 2013 June.jpg",
+  "/images/experiences/nowa-zelandia.png": "Milford Sound, New Zealand (002).JPG",
+  "/images/experiences/holandia-tulipany.png": "Tulip fields of Holland.jpg",
+  "/images/experiences/kenia-safari.png": "Elephant in Maasai Mara landscape, Kenya.jpg",
+  "/images/experiences/jarmarki.png": "Rathaus Wien Christkindlmarkt Front Panorama.jpg",
+  "/images/experiences/egzotyka.png": "Anse Source d'Argent - La Digue - Seychelles - 03.jpg",
+};
+
 const LEGACY_CATEGORY_REDIRECTS: Record<string, string> = {
   "/kategoria-produktu/all-inclusive": "/wakacje",
   "/kategoria-produktu/wakacje": "/wakacje",
@@ -37,6 +48,23 @@ function unauthorized() {
       "Cache-Control": "no-store",
     },
   });
+}
+
+function highQualityExperienceImageRedirect(request: NextRequest) {
+  const filename = EXPERIENCE_IMAGE_FILES[request.nextUrl.pathname];
+  if (!filename) return null;
+
+  const target = new URL(
+    `https://commons.wikimedia.org/wiki/Special:Redirect/file/${encodeURIComponent(filename)}`,
+  );
+  target.searchParams.set("width", "2400");
+
+  const response = NextResponse.redirect(target, 307);
+  response.headers.set(
+    "Cache-Control",
+    "public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000",
+  );
+  return response;
 }
 
 function permanentRedirect(request: NextRequest, pathname: string) {
@@ -101,6 +129,9 @@ function isPrivateAppPath(pathname: string) {
 }
 
 export function middleware(request: NextRequest) {
+  const experienceImageResponse = highQualityExperienceImageRedirect(request);
+  if (experienceImageResponse) return experienceImageResponse;
+
   const legacyResponse = cleanLegacyWordPressUrl(request);
   if (legacyResponse) return legacyResponse;
 
