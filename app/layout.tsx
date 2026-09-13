@@ -4,6 +4,7 @@ import "./globals.css";
 import "./responsive-fixes.css";
 import "./app-pwa.css";
 import "./trip-mode.css";
+import "./trip-toolkit.css";
 import "./app-home.css";
 import "./mobile-search-tabs-fix.css";
 import "./trip-header.css";
