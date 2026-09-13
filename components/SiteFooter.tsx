@@ -8,28 +8,23 @@ export default function SiteFooter() {
   return (
     <footer className="footer footer-v2">
       <div className="shell footer-v2-shell">
-        <div className="footer-v2-cta">
-          <div className="footer-v2-cta-copy">
+        <div className="footer-v2-topline">
+          <div className="footer-v2-topline-copy">
             <span className="footer-v2-kicker">MY SZUKAMY. TY LECISZ.</span>
-            <div>
-              <h2>Podróże bez przekopywania całego internetu.</h2>
-              <p>Oferty, inspiracje i planowanie w jednym miejscu — bez tracenia czasu na dziesiątki kart.</p>
-            </div>
+            <p><strong>Masz ochotę gdzieś polecieć?</strong> Zacznij od okazji albo wyszukiwarki.</p>
           </div>
           <div className="footer-v2-actions">
-            <Link href="/#wyszukiwarka" className="footer-v2-primary">
-              Znajdź wyjazd <ArrowRight size={18} />
-            </Link>
+            <Link href="/#wyszukiwarka" className="footer-v2-primary">Znajdź wyjazd <ArrowRight size={17} /></Link>
             <Link href="/okazje" className="footer-v2-secondary">Dzisiejsze okazje</Link>
           </div>
         </div>
 
-        <div className="footer-v2-lead">
+        <div className="footer-v2-main">
           <div className="footer-v2-brand-card">
             <Link href="/" className="footer-v2-logo" aria-label="Tripownia.pl — strona główna">
               <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={220} height={220} />
             </Link>
-            <p>Tripownia zbiera w jednym miejscu pomysły na wyjazd, aktualne okazje i narzędzia, które pomagają szybciej przejść od „może gdzieś polecę” do konkretnego planu.</p>
+            <p>Okazje, inspiracje i narzędzia do planowania wyjazdów w jednym miejscu.</p>
           </div>
 
           <div className="footer-v2-nav">
