@@ -5,12 +5,14 @@ import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, Calen
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import TravelImage from "@/components/TravelImage";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getOfferOverride, type OfferOverride } from "@/lib/clientOfferOverrides";
 import { isPriceStale } from "@/lib/offerQuality";
 import { isOfferExpired } from "@/lib/offers";
 import { getDealScore } from "@/lib/dealScore";
-import { trackEvent } from "@/lib/analytics";
+import { ANALYTICS_CONSENT_EVENT, getAnalyticsConsent, trackEvent } from "@/lib/analytics";
+
+const viewedOfferIds = new Set<number>();
 
 function readNumberArray(key: string) {
   try {
@@ -37,6 +39,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const [compared, setCompared] = useState(false);
   const [tripAdded, setTripAdded] = useState(false);
   const [override, setOverride] = useState<OfferOverride>({});
+  const cardRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     const load = () => {
@@ -50,13 +53,6 @@ export default function OfferCard({ offer }: { offer: Offer }) {
     };
 
     load();
-    trackEvent("offer_view", {
-      offer_id: offer.id,
-      destination: offer.city,
-      country: offer.country,
-      partner: offer.partner,
-      price: offer.price,
-    });
     window.addEventListener("tripownia-offer-overrides-updated", load as EventListener);
     window.addEventListener("tripownia-favorites-updated", load as EventListener);
     window.addEventListener("tripownia-compare-updated", load as EventListener);
@@ -70,7 +66,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
       window.removeEventListener("tripownia-my-trip-updated", load as EventListener);
       window.removeEventListener("storage", load);
     };
-  }, [offer.id, offer.city, offer.country, offer.partner, offer.price]);
+  }, [offer.id]);
 
   const publishedOverride = publishedOfferOverrides[String(offer.id)] || {};
   const displayPrice = override.price ?? publishedOverride.price ?? offer.price;
@@ -93,6 +89,48 @@ export default function OfferCard({ offer }: { offer: Offer }) {
     price: displayPrice,
     live_exact: isLiveExact,
   };
+
+  useEffect(() => {
+    const node = cardRef.current;
+    if (!node || viewedOfferIds.has(offer.id)) return;
+
+    let visibleEnough = false;
+    let observer: IntersectionObserver | null = null;
+
+    const trackIfEligible = () => {
+      if (!visibleEnough || viewedOfferIds.has(offer.id) || getAnalyticsConsent() !== "analytics") return;
+      viewedOfferIds.add(offer.id);
+      trackEvent("offer_view", {
+        offer_id: offer.id,
+        destination: offer.city,
+        country: offer.country,
+        partner: offer.partner,
+        price: displayPrice,
+        live_exact: isLiveExact,
+      });
+      observer?.disconnect();
+    };
+
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver((entries) => {
+        const entry = entries[0];
+        visibleEnough = Boolean(entry?.isIntersecting && entry.intersectionRatio >= 0.5);
+        trackIfEligible();
+      }, { threshold: [0.5] });
+      observer.observe(node);
+    } else {
+      visibleEnough = true;
+      trackIfEligible();
+    }
+
+    const handleConsent = () => trackIfEligible();
+    window.addEventListener(ANALYTICS_CONSENT_EVENT, handleConsent as EventListener);
+
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener(ANALYTICS_CONSENT_EVENT, handleConsent as EventListener);
+    };
+  }, [offer.id, offer.city, offer.country, offer.partner, displayPrice, isLiveExact]);
 
   function toggleLike() {
     const ids = readNumberArray("tripownia-favorites");
@@ -147,7 +185,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
       : stalePrice ? "Cena orientacyjna · sprawdź przed rezerwacją" : "Cena orientacyjna";
 
   return (
-    <article className={`offer-card offer-card-clean ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}>
+    <article ref={cardRef} className={`offer-card offer-card-clean ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}>
       <Link href={isLiveExact ? offer.affiliateUrl : `/oferta/${offer.id}`} target={isLiveExact ? "_blank" : undefined} rel={isLiveExact ? "sponsored noopener noreferrer" : undefined} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
         <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
         <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
