@@ -39,6 +39,22 @@ const seoOverrides: Record<string, Metadata> = {
     title: "Jak dojechać z lotniska do centrum? Najtańsze opcje | Tripownia",
     description: "Autobus, pociąg, transfer czy taxi? Sprawdź, jak porównać dojazd z lotniska do centrum i nie przepłacić po przylocie.",
   },
+  "/grecja": {
+    title: "Grecja 2026 – którą wyspę wybrać? Kreta, Rodos, Kos czy Korfu | Tripownia",
+    description: "Którą grecką wyspę wybrać na wakacje? Porównaj Kretę, Rodos, Kos, Korfu, Zakynthos i Chalkidiki pod kątem plaż, zwiedzania, rodzin i All Inclusive.",
+  },
+  "/malta": {
+    title: "Malta 2026 – gdzie spać i ile dni zaplanować? | Tripownia",
+    description: "Malta na 3 dni czy tydzień? Porównaj Vallettę, Sliemę, St. Julian’s, Mellieħę i Gozo. Zobacz, gdzie nocować i jak zaplanować pierwszy wyjazd.",
+  },
+  "/wyspy-kanaryjskie-wakacje-all-inclusive-i-last-minute": {
+    title: "Wyspy Kanaryjskie – którą wyspę wybrać? Teneryfa, Gran Canaria, Fuerteventura czy Lanzarote | Tripownia",
+    description: "Porównaj Teneryfę, Gran Canarię, Fuerteventurę i Lanzarote. Sprawdź plaże, wiatr, pogodę zimą, All Inclusive i wybierz najlepszą wyspę dla siebie.",
+  },
+  "/riwiera-turecka-czy-egejska-co-wybrac": {
+    title: "Riwiera Turecka czy Egejska – co wybrać? Antalya, Side, Bodrum czy Marmaris | Tripownia",
+    description: "Riwiera Turecka czy Turcja Egejska? Porównaj plaże, resorty, All Inclusive, pogodę, transfery i kurorty: Antalya, Side, Alanya, Bodrum i Marmaris.",
+  },
 };
 
 export async function generateStaticParams() {
@@ -100,6 +116,7 @@ export default async function RoutePage({ params }: { params: Promise<{ slug: st
   const { slug } = await params;
   const path = "/" + slug.join("/");
   if (path === "/indywidualne-planowanie-podrozy-bez-ukrytych-kosztow") permanentRedirect("/okazje");
+  if (path === "/grecja-2") permanentRedirect("/grecja");
   const isSystemPath = systemPaths.has(path);
   const legacyItem = findLegacy(path);
   if (!isSystemPath && !legacyItem && !isInternalAlias(path)) notFound();
