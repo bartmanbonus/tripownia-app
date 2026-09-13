@@ -7,20 +7,24 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
 import { offers, isOfferExpired } from "@/lib/offers";
-import { TRAVEL_PROFILE_KEY } from "@/lib/travelProfile";
+import { DEFAULT_TRAVEL_PROFILE, readTravelProfile, TRAVEL_PROFILE_KEY, type TravelProfile } from "@/lib/travelProfile";
+import { rankOffersForProfile } from "@/lib/offerPersonalization";
 
 type TripState = { offerId?: number; departureAt?: string };
 type AlertState = { departure?: string; destinations?: string; maxPrice?: string | number };
 
 export default function AppHome() {
   const [profileReady, setProfileReady] = useState(false);
+  const [profile, setProfile] = useState<TravelProfile>(DEFAULT_TRAVEL_PROFILE);
   const [trip, setTrip] = useState<TripState>({});
   const [alerts, setAlerts] = useState<AlertState>({});
   const [favoriteCount, setFavoriteCount] = useState(0);
 
   useEffect(() => {
     const load = () => {
-      setProfileReady(Boolean(localStorage.getItem(TRAVEL_PROFILE_KEY)));
+      const hasProfile = Boolean(localStorage.getItem(TRAVEL_PROFILE_KEY));
+      setProfileReady(hasProfile);
+      setProfile(readTravelProfile());
       try {
         setTrip(JSON.parse(localStorage.getItem("tripownia-my-trip") || "{}"));
         setAlerts(JSON.parse(localStorage.getItem("tripownia-alert-settings") || "{}"));
@@ -50,7 +54,12 @@ export default function AppHome() {
   }, []);
 
   const tripOffer = useMemo(() => offers.find((offer) => offer.id === trip.offerId), [trip.offerId]);
-  const topOffers = useMemo(() => offers.filter((offer) => !isOfferExpired(offer)).sort((a,b) => b.score - a.score).slice(0, 3), []);
+  const topOffers = useMemo(() => {
+    const activeOffers = offers.filter((offer) => !isOfferExpired(offer));
+    if (!profileReady) return [...activeOffers].sort((a,b) => b.score - a.score).slice(0, 3);
+    const strict = rankOffersForProfile(activeOffers, profile, true);
+    return (strict.length ? strict : rankOffersForProfile(activeOffers, profile, false)).slice(0, 3);
+  }, [profile, profileReady]);
   const alertsReady = Boolean(alerts.maxPrice || alerts.destinations || alerts.departure);
   const onboarding = [
     { done: profileReady, href: "/profil", label: "Ustaw profil podróżnika" },
@@ -103,7 +112,7 @@ export default function AppHome() {
         </div>
 
         <section className="app-home-recommendations">
-          <div className="section-heading"><div><div className="kicker">NA START</div><h2>Najmocniejsze propozycje</h2><p>Trzy aktualne oferty z wysoką oceną Tripowni.</p></div><Link href="/podroze">Zobacz wszystkie <ArrowRight size={16}/></Link></div>
+          <div className="section-heading"><div><div className="kicker">NA START</div><h2>{profileReady ? "Najlepsze dla Ciebie" : "Najmocniejsze propozycje"}</h2><p>{profileReady ? "Trzy propozycje dobrane do zapisanego profilu podróżnika." : "Trzy aktualne oferty z wysoką oceną Tripowni."}</p></div><Link href={profileReady ? "/dla-ciebie" : "/podroze"}>Zobacz wszystkie <ArrowRight size={16}/></Link></div>
           <div className="cards-grid">{topOffers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}</div>
         </section>
       </section>
