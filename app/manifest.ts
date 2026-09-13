@@ -15,7 +15,7 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "pl-PL",
     icons: [
       {
-        src: "/tripownia-app-icon-v2.png",
+        src: "/tripownia-app-icon-v2.png?v=20260913",
         sizes: "256x256",
         type: "image/png",
         purpose: "any",

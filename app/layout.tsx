@@ -36,9 +36,9 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   applicationName: "Tripownia",
   icons: {
-    icon: [{ url: "/tripownia-app-icon-v2.png", type: "image/png", sizes: "256x256" }],
-    shortcut: ["/tripownia-app-icon-v2.png"],
-    apple: [{ url: "/tripownia-app-icon-v2.png", type: "image/png", sizes: "256x256" }],
+    icon: [{ url: "/tripownia-app-icon-v2.png?v=20260913", type: "image/png", sizes: "256x256" }],
+    shortcut: ["/tripownia-app-icon-v2.png?v=20260913"],
+    apple: [{ url: "/tripownia-app-icon-v2.png?v=20260913", type: "image/png", sizes: "256x256" }],
   },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Tripownia" },
   openGraph: {
