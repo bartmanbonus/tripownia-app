@@ -10,6 +10,7 @@ import { offers } from "@/lib/offers";
 import { getArticleContext, type ArticleContext } from "@/lib/articleContext";
 import { getArticleDeepDive } from "@/lib/articleDeepDive";
 import { getArticleDeepDiveWave7 } from "@/lib/articleDeepDiveWave7";
+import { getArticleDeepDiveWave8 } from "@/lib/articleDeepDiveWave8";
 
 type GrowthLink = { href: string; label: string };
 
@@ -64,6 +65,26 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
     { href: "/podroze/cieple-wakacje-listopad-2026", label: "Ciepłe kierunki po sezonie" },
     { href: "/wakacje", label: "Aktualne wakacje" },
   ];
+  if (hay.includes("hiszpan")) return [
+    { href: "/podroze/wyspy-kanaryjskie-listopad-2026", label: "Kanary — listopad" },
+    { href: "/podroze/wyspy-kanaryjskie-grudzien-2026", label: "Kanary — grudzień" },
+    { href: "/city-break", label: "City break w Hiszpanii" },
+  ];
+  if (hay.includes("wietnam") || hay.includes("hanoi")) return [
+    { href: "/dalekie-podroze", label: "Dalekie podróże" },
+    { href: "/okazje", label: "Aktualne okazje" },
+    { href: "/alerty", label: "Ustaw alert na Wietnam" },
+  ];
+  if (hay.includes("cypr")) return [
+    { href: "/podroze/cieple-wakacje-listopad-2026", label: "Ciepłe kierunki — listopad" },
+    { href: "/wakacje", label: "Aktualne wakacje" },
+    { href: "/last-minute", label: "Last minute" },
+  ];
+  if (hay.includes("alban")) return [
+    { href: "/wakacje", label: "Aktualne wakacje" },
+    { href: "/last-minute", label: "Last minute" },
+    { href: "/wynajem-auta", label: "Wynajem auta" },
+  ];
   if (hay.includes("malta")) return [
     { href: "/podroze/malta-listopad-2026", label: "Malta — listopad 2026" },
     { href: "/city-break", label: "City break" },
@@ -78,6 +99,12 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
     { href: "/last-minute", label: "Last minute do Turcji" },
     { href: "/wakacje", label: "Wakacje All Inclusive" },
     { href: "/okazje", label: "Dzisiejsze okazje" },
+  ];
+  if (hay.includes("weekend") || hay.includes("city break")) return [
+    { href: "/city-break", label: "Aktualne city breaki" },
+    { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
+    { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
+    { href: "/podroze/city-break-z-wroclawia", label: "City break z Wrocławia" },
   ];
   if (hay.includes("ciepło") || hay.includes("cieplo")) return [
     { href: "/podroze/cieple-wakacje-listopad-2026", label: "Gdzie ciepło w listopadzie" },
@@ -113,7 +140,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     ? "/gdzie-jest-cieplo-w-pazdzierniku"
     : canonicalPath;
   const deepDive = item.type === "post"
-    ? getArticleDeepDiveWave7(deepDiveLookupPath) || getArticleDeepDive(deepDiveLookupPath)
+    ? getArticleDeepDiveWave8(deepDiveLookupPath) || getArticleDeepDiveWave7(deepDiveLookupPath) || getArticleDeepDive(deepDiveLookupPath)
     : undefined;
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
