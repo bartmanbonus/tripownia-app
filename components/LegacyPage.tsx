@@ -9,6 +9,7 @@ import { legacyCanonicalPath } from "@/lib/legacy";
 import { offers } from "@/lib/offers";
 import { getArticleContext, type ArticleContext } from "@/lib/articleContext";
 import { getArticleDeepDive } from "@/lib/articleDeepDive";
+import { getArticleDeepDiveWave7 } from "@/lib/articleDeepDiveWave7";
 
 type GrowthLink = { href: string; label: string };
 
@@ -58,6 +59,26 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
     { href: "/podroze/teneryfa-z-warszawy", label: "Teneryfa z Warszawy" },
     { href: "/podroze/wakacje-do-2500-zl", label: "Wakacje do 2500 zł" },
   ];
+  if (hay.includes("grecj")) return [
+    { href: "/podroze/wakacje-do-2500-zl", label: "Wakacje do 2500 zł" },
+    { href: "/podroze/cieple-wakacje-listopad-2026", label: "Ciepłe kierunki po sezonie" },
+    { href: "/wakacje", label: "Aktualne wakacje" },
+  ];
+  if (hay.includes("malta")) return [
+    { href: "/podroze/malta-listopad-2026", label: "Malta — listopad 2026" },
+    { href: "/city-break", label: "City break" },
+    { href: "/tanie-loty", label: "Tanie loty" },
+  ];
+  if (hay.includes("kanar")) return [
+    { href: "/podroze/wyspy-kanaryjskie-listopad-2026", label: "Kanary — listopad 2026" },
+    { href: "/podroze/wyspy-kanaryjskie-grudzien-2026", label: "Kanary — grudzień 2026" },
+    { href: "/podroze/teneryfa-z-warszawy", label: "Teneryfa z Warszawy" },
+  ];
+  if (hay.includes("riwiera turecka") || hay.includes("egejska")) return [
+    { href: "/last-minute", label: "Last minute do Turcji" },
+    { href: "/wakacje", label: "Wakacje All Inclusive" },
+    { href: "/okazje", label: "Dzisiejsze okazje" },
+  ];
   if (hay.includes("ciepło") || hay.includes("cieplo")) return [
     { href: "/podroze/cieple-wakacje-listopad-2026", label: "Gdzie ciepło w listopadzie" },
     { href: "/podroze/cieple-wakacje-grudzien-2026", label: "Gdzie ciepło w grudniu" },
@@ -91,7 +112,9 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const deepDiveLookupPath = canonicalPath.startsWith("/gdzie-jest-cieplo-w-pazdzierniku")
     ? "/gdzie-jest-cieplo-w-pazdzierniku"
     : canonicalPath;
-  const deepDive = item.type === "post" ? getArticleDeepDive(deepDiveLookupPath) : undefined;
+  const deepDive = item.type === "post"
+    ? getArticleDeepDiveWave7(deepDiveLookupPath) || getArticleDeepDive(deepDiveLookupPath)
+    : undefined;
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
