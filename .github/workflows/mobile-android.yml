@@ -8,6 +8,7 @@ on:
       - feature/native-mobile-app
     paths:
       - 'mobile/**'
+      - 'public/tripownia-logo.webp'
       - '.github/workflows/mobile-android.yml'
 
 jobs:
@@ -41,6 +42,16 @@ jobs:
 
       - name: Generate Android project
         run: npx cap add android
+
+      - name: Prepare Tripownia launcher icon
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y imagemagick
+          mkdir -p assets
+          convert ../public/tripownia-logo.webp -resize 900x900 -gravity center -background none -extent 1024x1024 assets/icon-only.png
+
+      - name: Generate Android app assets
+        run: npm run assets -- --android
 
       - name: Sync Capacitor
         run: npx cap sync android
