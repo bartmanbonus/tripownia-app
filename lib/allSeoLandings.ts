@@ -2,6 +2,7 @@ import { seoLandings as baseSeoLandings, type SeoLanding } from "@/lib/seoLandin
 import { seoGrowthLandings } from "@/lib/seoGrowthLandings";
 import { seoAirportLandings } from "@/lib/seoAirportLandings";
 import { seoSeasonalLandings } from "@/lib/seoSeasonalLandings";
+import { seoRegionalLandings } from "@/lib/seoRegionalLandings";
 
 type SeasonalSeoLanding = SeoLanding & {
   startDate?: string;
@@ -10,7 +11,13 @@ type SeasonalSeoLanding = SeoLanding & {
 
 const seasonalLandings = seoSeasonalLandings as unknown as SeasonalSeoLanding[];
 
-export const allSeoLandings = [...baseSeoLandings, ...seoGrowthLandings, ...seoAirportLandings, ...seasonalLandings];
+export const allSeoLandings = [
+  ...baseSeoLandings,
+  ...seoGrowthLandings,
+  ...seoAirportLandings,
+  ...seoRegionalLandings,
+  ...seasonalLandings,
+];
 
 export function getAllSeoLanding(slug: string) {
   return allSeoLandings.find((item) => item.slug === slug);
