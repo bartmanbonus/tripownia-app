@@ -82,7 +82,15 @@ export default function TripToolkit({ city, country }: { city: string; country: 
   useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") as ToolkitState | null;
-      if (saved) setState({ travelers: ["Ja"], reservations: [], expenses: [], photoSpots: [], ...saved });
+      if (saved) {
+        setState({
+          ...saved,
+          travelers: saved.travelers?.length ? saved.travelers : ["Ja"],
+          reservations: saved.reservations || [],
+          expenses: saved.expenses || [],
+          photoSpots: saved.photoSpots || [],
+        });
+      }
     } catch {}
   }, []);
 
@@ -123,7 +131,7 @@ export default function TripToolkit({ city, country }: { city: string; country: 
   }
 
   const balances = useMemo(() => {
-    const values = new Map<string, number>();
+    const values = new globalThis.Map<string, number>();
     state.travelers.forEach((person) => values.set(person, 0));
     state.expenses.forEach((item) => {
       const share = item.amount / item.participants.length;
