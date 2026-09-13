@@ -20,6 +20,7 @@ import {
   LayoutDashboard,
   ChevronDown,
   Globe2,
+  Menu,
 } from "lucide-react";
 import { partners } from "@/lib/partners";
 
@@ -71,13 +72,50 @@ export default function SiteHeader() {
 
     <header className="trip-header">
       <div className="trip-header-shell">
+        <div className="trip-mobile-top">
+          <Link className="trip-mobile-brand" href="/app" aria-label="Tripownia — start aplikacji">
+            <img src="/tripownia-logo.webp" alt="Tripownia.pl" width="64" height="64" />
+          </Link>
+          <div className="trip-mobile-top-actions">
+            <Link className="trip-mobile-account" href="/profil" aria-label="Konto">
+              <UserRound size={19} strokeWidth={2.2} />
+              <span>Konto</span>
+            </Link>
+            <details className="trip-mobile-menu">
+              <summary aria-label="Otwórz menu">
+                <Menu size={20} strokeWidth={2.2} />
+                <span>Menu</span>
+              </summary>
+              <div className="trip-mobile-menu-panel">
+                <div className="trip-mobile-menu-section">
+                  <strong>Twoja Tripownia</strong>
+                  <Link href="/app"><LayoutDashboard size={18} /><span>Start</span></Link>
+                  <Link href="/moja-podroz"><MapPinned size={18} /><span>Moja podróż</span></Link>
+                  <Link href="/ulubione"><Heart size={18} /><span>Ulubione</span></Link>
+                  <Link href="/alerty"><Bell size={18} /><span>Alerty</span></Link>
+                  <Link href="/dla-ciebie"><Sparkles size={18} /><span>Dla Ciebie</span></Link>
+                  <Link href="/profil"><UserRound size={18} /><span>Profil i konto</span></Link>
+                </div>
+                <div className="trip-mobile-menu-section">
+                  <strong>Planuj i rezerwuj</strong>
+                  <Link href="/kierunki"><Compass size={18} /><span>Kierunki</span></Link>
+                  <a href="https://kiwi.tpk.lv/7PnrR4dn" target="_blank" rel="sponsored noopener noreferrer"><Plane size={18} /><span>Loty</span></a>
+                  <a href="https://www.booking.com/?aid=818288" target="_blank" rel="sponsored noopener noreferrer"><BedDouble size={18} /><span>Hotele</span></a>
+                  <a href={partners.getyourguide.buildUrl("https://www.getyourguide.pl/")} target="_blank" rel="sponsored noopener noreferrer"><Ticket size={18} /><span>Atrakcje</span></a>
+                  <Link href="/wynajem-auta"><Car size={18} /><span>Wynajem auta</span></Link>
+                </div>
+              </div>
+            </details>
+          </div>
+        </div>
+
         <div className="trip-header-main">
           <Link className="trip-header-brand" href="/" aria-label="Tripownia.pl — strona główna">
             <img src="/tripownia-logo.webp" alt="Tripownia.pl" width="68" height="68" />
           </Link>
 
           <Link className="trip-header-search" href="/#wyszukiwarka" aria-label="Przejdź do wyszukiwarki wyjazdów">
-            <Search size={20} strokeWidth={2.1} />
+            <Search size={20} strokeWidth={2.3} />
             <span className="trip-header-search-copy">
               <strong>Dokąd chcesz lecieć?</strong>
               <small>Loty, hotele, wakacje i gotowe okazje w jednym miejscu</small>
