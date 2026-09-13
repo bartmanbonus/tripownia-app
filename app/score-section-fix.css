@@ -1,0 +1,139 @@
+/* Compact score chapter — keep the explanation, remove the oversized empty stage. */
+.chapter-score.score-section {
+  min-height: 0 !important;
+  height: auto !important;
+  width: calc(100% - 32px);
+  max-width: 1440px;
+  margin: 36px auto 64px !important;
+  padding: 52px 56px !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, 430px) !important;
+  gap: clamp(36px, 6vw, 88px) !important;
+  align-items: center !important;
+  border: 1px solid #eadfd8;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(255, 102, 61, .07), transparent 28%),
+    linear-gradient(135deg, #fffdfb 0%, #faf7f3 100%);
+  overflow: hidden;
+}
+
+.chapter-score .score-copy {
+  align-self: center !important;
+  max-width: 760px;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.chapter-score .score-copy .kicker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  margin: 0 0 14px !important;
+  border: 1px solid rgba(244, 81, 44, .14);
+  border-radius: 999px;
+  background: #fff3ee !important;
+  color: #c63e22;
+  box-shadow: none !important;
+}
+
+.chapter-score .score-copy h2 {
+  max-width: 720px;
+  margin: 0 0 16px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: clamp(42px, 5vw, 68px) !important;
+  line-height: .98 !important;
+  letter-spacing: -3px !important;
+}
+
+.chapter-score .score-copy p {
+  max-width: 650px;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #625b56;
+  font-size: 17px !important;
+  line-height: 1.55 !important;
+}
+
+.chapter-score .score-box {
+  width: 100%;
+  max-width: 430px;
+  margin: 0 0 0 auto !important;
+  padding: 28px 30px !important;
+  border: 1px solid #e8e0da;
+  border-radius: 24px !important;
+  background: rgba(255,255,255,.92) !important;
+  box-shadow: 0 16px 42px rgba(39, 29, 22, .08) !important;
+}
+
+.chapter-score .bigscore {
+  margin: 0 0 10px !important;
+  font-size: clamp(58px, 5vw, 78px) !important;
+  line-height: .9 !important;
+  letter-spacing: -4px !important;
+}
+
+.chapter-score .bigscore span {
+  margin-left: 3px;
+  font-size: 18px !important;
+  letter-spacing: -1px !important;
+  color: #655d57;
+}
+
+.chapter-score .score-row {
+  min-height: 50px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #eee6e0 !important;
+  font-size: 16px !important;
+}
+
+.chapter-score .score-row strong {
+  font-size: 16px !important;
+}
+
+.chapter-score .verdict {
+  min-height: 50px;
+  margin-top: 16px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px !important;
+  background: #fff0ea !important;
+  color: #c63e22 !important;
+  font-size: 16px !important;
+  font-weight: 900;
+}
+
+@media (max-width: 820px) {
+  .chapter-score.score-section {
+    width: calc(100% - 20px);
+    margin: 22px auto 42px !important;
+    padding: 34px 24px !important;
+    grid-template-columns: 1fr !important;
+    gap: 26px !important;
+    border-radius: 24px;
+  }
+
+  .chapter-score .score-copy h2 {
+    font-size: clamp(36px, 10vw, 50px) !important;
+    letter-spacing: -2px !important;
+  }
+
+  .chapter-score .score-copy p {
+    font-size: 15px !important;
+  }
+
+  .chapter-score .score-box {
+    max-width: none;
+    margin: 0 !important;
+    padding: 24px !important;
+  }
+}
