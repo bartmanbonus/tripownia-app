@@ -12,6 +12,10 @@ function normalize(value: string) {
     .trim();
 }
 
+function setTextIfChanged(node: HTMLElement | null, text: string) {
+  if (node && node.textContent !== text) node.textContent = text;
+}
+
 function deduplicateRails() {
   const root = document.querySelector<HTMLElement>(".streaming-offers");
   if (!root) return;
@@ -83,10 +87,38 @@ function simplifySearchFlow() {
   if (duplicateStage) duplicateStage.hidden = true;
 }
 
+function syncFreshnessCopy() {
+  const daily = document.querySelector<HTMLElement>("#okazje");
+  if (!daily) return;
+
+  const trustLines = Array.from(daily.querySelectorAll<HTMLElement>(".offer-trust-line"));
+  if (!trustLines.length) return;
+
+  const hasUnconfirmedPrice = trustLines.some((line) => {
+    const text = normalize(line.textContent || "");
+    return text.includes("orientacyjna") || text.includes("potwierdzi") || text.includes("wymaga potwierdzenia");
+  });
+
+  const description = daily.querySelector<HTMLElement>(".section-heading p");
+  setTextIfChanged(
+    description,
+    hasUnconfirmedPrice
+      ? "Pokazujemy najlepsze dostępne dziś propozycje. Przy cenach oznaczonych jako orientacyjne partner potwierdzi aktualną kwotę przed rezerwacją."
+      : "Codziennie wybieramy aktualne propozycje. Ceny z feedu i dokładne linki oznaczamy bezpośrednio na kartach."
+  );
+
+  const radarCountLabel = document.querySelector<HTMLElement>(".hero-daily-stat span");
+  setTextIfChanged(
+    radarCountLabel,
+    hasUnconfirmedPrice ? "propozycji w dzisiejszej puli" : "aktualnych ofert w dzisiejszej puli"
+  );
+}
+
 function synchronizeHomeExperience() {
   simplifySearchFlow();
   deduplicateRails();
   syncRadarLinks();
+  syncFreshnessCopy();
 }
 
 export default function OfferRailDeduper() {
