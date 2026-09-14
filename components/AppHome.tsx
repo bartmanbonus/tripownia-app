@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Bell, CheckCircle2, Circle, Compass, Heart, MapPinned, Sparkles, UserRound, ArrowRight, Scale } from "lucide-react";
+import { Bell, CheckCircle2, Circle, Compass, Heart, MapPinned, Sparkles, UserRound, ArrowRight, Scale, Ticket, BookOpen, Wifi, Car, ParkingCircle, ListChecks } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
@@ -13,7 +13,7 @@ import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type TripOffer = (typeof offers)[number];
-type TripState = { offerId?: number; offerSnapshot?: TripOffer; departureAt?: string };
+type TripState = { offerId?: number; offerSnapshot?: TripOffer; departureAt?: string; checklist?: Record<string, boolean> };
 type AlertState = { departure?: string; destinations?: string; maxPrice?: string | number };
 
 function onePerDirection(rows: TripOffer[]) {
@@ -91,6 +91,7 @@ export default function AppHome() {
   );
   const topOffers = useMemo(() => liveOffers.slice(0, 3), [liveOffers]);
   const alertsReady = Boolean(alerts.maxPrice || alerts.destinations || alerts.departure);
+  const checklistDone = Object.values(trip.checklist || {}).filter(Boolean).length;
   const onboarding = [
     { done: profileReady, href: "/profil", label: "Ustaw profil podróżnika" },
     { done: alertsReady, href: "/alerty", label: "Ustaw pierwszy alert" },
@@ -110,21 +111,35 @@ export default function AppHome() {
         <div className="app-home-hero">
           <div>
             <div className="kicker">MOJA TRIPOWNIA</div>
-            <h1>Wszystko, czego potrzebujesz do podróży — w jednym miejscu.</h1>
-            <p>Znajdź kierunek, porównaj aktualne oferty, zapisz wyjazd i przygotuj wszystko przed podróżą.</p>
+            <h1>Od pomysłu do gotowego wyjazdu.</h1>
+            <p>Znajdź ofertę, zapisz podróż, dopnij checklistę, atrakcje, transfer, internet i plan dnia — wszystko w jednym miejscu.</p>
           </div>
           <div className="app-home-hero-actions">
-            <Link className="primary-cta" href="#wyszukiwarka"><Compass size={18}/> Wiem, czego szukam</Link>
-            <Link className="secondary-cta" href="/gdzie-leciec"><Sparkles size={18}/> Nie wiem gdzie lecieć</Link>
+            <Link className="primary-cta" href="#wyszukiwarka"><Compass size={18}/> Znajdź wyjazd</Link>
+            <Link className="secondary-cta" href="/moja-podroz"><MapPinned size={18}/> Otwórz moją podróż</Link>
           </div>
         </div>
 
         <SearchHub initialTab="Inspiracje" />
 
+        {tripOffer && (
+          <section className="app-trip-now">
+            <div>
+              <div className="kicker">TWÓJ WYJAZD</div>
+              <h2>{tripOffer.city}, {tripOffer.country}</h2>
+              <p>{tripOffer.dates} · {tripOffer.nights} nocy · wylot: {tripOffer.departure}</p>
+            </div>
+            <div className="app-trip-now-status">
+              <span><ListChecks size={17}/><strong>{checklistDone}</strong> zadań odhaczonych</span>
+              <Link href="/moja-podroz">Kontynuuj plan <ArrowRight size={16}/></Link>
+            </div>
+          </section>
+        )}
+
         {completedSteps < onboarding.length && (
           <section className="app-onboarding">
             <div className="app-onboarding-head">
-              <div><div className="kicker">START</div><h2>3 kroki do gotowej Tripowni</h2></div>
+              <div><div className="kicker">START</div><h2>3 kroki do własnej Tripowni</h2></div>
               <strong>{completedSteps}/3</strong>
             </div>
             <div className="app-onboarding-steps">
@@ -139,23 +154,37 @@ export default function AppHome() {
           </section>
         )}
 
+        <section className="app-pretrip-section">
+          <div className="section-heading">
+            <div><div className="kicker">PRZED WYJAZDEM</div><h2>Ogarnij rzeczy, o których najłatwiej zapomnieć</h2><p>Najważniejsze narzędzia podróżnika są teraz pod ręką, nie na końcu strony.</p></div>
+          </div>
+          <div className="app-pretrip-grid">
+            <Link href="/moja-podroz"><ListChecks size={21}/><strong>Plan i checklista</strong><span>Dokumenty, odprawa, rezerwacje, notatki i plan dnia.</span></Link>
+            <Link href="/atrakcje"><Ticket size={21}/><strong>Atrakcje</strong><span>Znajdź bilety, rejsy, wycieczki i rzeczy do zrobienia na miejscu.</span></Link>
+            <Link href="/transfery"><Car size={21}/><strong>Transfer</strong><span>Zaplanuj dojazd z lotniska i nie szukaj go po przylocie.</span></Link>
+            <Link href="/parkingi"><ParkingCircle size={21}/><strong>Parking</strong><span>Zostaw auto przy lotnisku i miej jedną rzecz mniej do ogarnięcia.</span></Link>
+            <Link href="/esim"><Wifi size={21}/><strong>Internet / eSIM</strong><span>Przygotuj internet przed lądowaniem, szczególnie poza UE.</span></Link>
+            <Link href="/poradniki"><BookOpen size={21}/><strong>Poradniki</strong><span>Bagaż, dokumenty, bezpieczeństwo, pieniądze i praktyczne wskazówki.</span></Link>
+          </div>
+        </section>
+
         <div className="app-home-grid">
           <Link href="/dla-ciebie" className="app-home-tile app-home-tile-primary"><Sparkles size={22}/><div><strong>Dla Ciebie</strong><span>{profileReady ? "Oferty dopasowane do Twojego profilu" : "Uzupełnij profil, żeby lepiej dopasować oferty"}</span></div><ArrowRight size={18}/></Link>
           <Link href="/moja-podroz" className="app-home-tile"><MapPinned size={22}/><div><strong>Moja podróż</strong><span>{tripCopy}</span></div><ArrowRight size={18}/></Link>
           <Link href="/alerty" className="app-home-tile"><Bell size={22}/><div><strong>Alerty</strong><span>{alertCopy}</span></div><ArrowRight size={18}/></Link>
           <Link href="/ulubione" className="app-home-tile"><Heart size={22}/><div><strong>Ulubione</strong><span>{favoriteCount ? `${favoriteCount} zapisanych ofert` : "Zapisz oferty, do których chcesz wrócić"}</span></div><ArrowRight size={18}/></Link>
           <Link href="/porownaj" className="app-home-tile"><Scale size={22}/><div><strong>Porównaj</strong><span>Zestaw 2–3 wyjazdy i zobacz realny koszt</span></div><ArrowRight size={18}/></Link>
-          <Link href="/profil" className="app-home-tile"><UserRound size={22}/><div><strong>Profil podróżnika</strong><span>Budżet, lotnisko, styl i preferencje</span></div><ArrowRight size={18}/></Link>
+          <Link href="/profil" className="app-home-tile"><UserRound size={22}/><div><strong>Profil podróżnika</strong><span>Budżet, lotnisko, styl, preferencje i prywatność</span></div><ArrowRight size={18}/></Link>
         </div>
 
         <section className="app-home-recommendations">
           <div className="section-heading">
             <div>
               <div className="kicker">DZISIAJ</div>
-              <h2>Aktualne propozycje</h2>
-              <p>{liveLoading ? "Sprawdzamy dzisiejsze oferty…" : topOffers.length ? "Najlepsze różne kierunki z aktualnego feedu Tripowni." : "Nie pokazujemy starych kart, jeśli feed nie potwierdzi aktualnych ofert."}</p>
+              <h2>Najtańsze aktualne propozycje</h2>
+              <p>{liveLoading ? "Sprawdzamy dzisiejsze oferty…" : topOffers.length ? "Różne kierunki z aktualnego feedu Tripowni — najpierw cena, potem inspiracja." : "Nie pokazujemy starych kart, jeśli feed nie potwierdzi aktualnych ofert."}</p>
             </div>
-            <Link href="/podroze">Zobacz wszystkie <ArrowRight size={16}/></Link>
+            <Link href="/okazje">Zobacz Okazje <ArrowRight size={16}/></Link>
           </div>
           {!liveLoading && topOffers.length > 0 && <div className="cards-grid">{topOffers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}</div>}
           {!liveLoading && topOffers.length === 0 && <div className="self-search-empty"><strong>Aktualizujemy oferty.</strong><span>Wróć do wyszukiwarki powyżej albo sprawdź inspiracje — nie podstawiamy niezweryfikowanych cen.</span></div>}
