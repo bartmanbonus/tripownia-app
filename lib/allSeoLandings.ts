@@ -5,6 +5,7 @@ import { seoSeasonalLandings } from "@/lib/seoSeasonalLandings";
 import { seoRegionalLandings } from "@/lib/seoRegionalLandings";
 import { seoAirportWave10 } from "@/lib/seoAirportWave10";
 import { seoLegacyMigrationWave11 } from "@/lib/seoLegacyMigrationWave11";
+import { seoBudgetLandings } from "@/lib/seoBudgetLandings";
 import { seoAirportWave20 } from "@/lib/seoAirportWave20";
 import { seoAirportWave22 } from "@/lib/seoAirportWave22";
 import { seoAirportWave23 } from "@/lib/seoAirportWave23";
@@ -23,6 +24,7 @@ const baseLandings = [
   ...seoRegionalLandings,
   ...seoAirportWave10,
   ...seoLegacyMigrationWave11,
+  ...seoBudgetLandings,
   ...seasonalLandings,
 ];
 
