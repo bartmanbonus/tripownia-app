@@ -101,5 +101,33 @@ requireText(
   "strony transient ofert mogą znów trafić do indeksu"
 );
 
+// Homepage ma być strukturalnie live-first już w SSR/HTML, a nie dopiero po
+// schowaniu starej treści przez JavaScript.
+forbidText(
+  "app/page.tsx",
+  "SelfSearchLegacy",
+  "stara druga wyszukiwarka wróciła do homepage"
+);
+forbidText(
+  "app/page.tsx",
+  "getDailyOffers",
+  "statyczna dzienna pula wróciła jako fallback homepage"
+);
+forbidText(
+  "app/page.tsx",
+  "#szukaj-samodzielnie",
+  "stara kotwica wyszukiwarki wróciła do homepage"
+);
+requireText(
+  "app/page.tsx",
+  'useState<TripOffer[]>([])',
+  "homepage nie startuje od pustej puli live"
+);
+requireText(
+  "app/page.tsx",
+  "DAILY_CACHE_MAX_AGE_MS",
+  "homepage nie ma limitu wieku ostatniej dobrej puli"
+);
+
 console.log(`✅ Audyt OK: ${legacy.length} zmigrowanych stron + ${aliasMatches.length} naprawionych starych adresów. Brak znanych wewnętrznych linków prowadzących do 404.`);
-console.log("✅ Krytyczne guardy OK: search scope, EXIM/TUI exact flow, affiliate validation i SEO transient ofert.");
+console.log("✅ Krytyczne guardy OK: search scope, live-first homepage, EXIM/TUI exact flow, affiliate validation i SEO transient ofert.");
