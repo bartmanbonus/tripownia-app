@@ -9,6 +9,9 @@ import OfferCard from "@/components/OfferCard";
 import { type Offer } from "@/lib/offers";
 import { trackEvent } from "@/lib/analytics";
 import { useLiveOffers } from "@/lib/useLiveOffers";
+import { recommendationScore } from "@/lib/offerQuality";
+import { isTravelDestinationAllowed } from "@/lib/travelSafety";
+import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type AlertSettings = {
   departure: string;
@@ -62,8 +65,9 @@ function findMatchingOffers(settings: AlertSettings, sourceOffers: Offer[]) {
   const terms = destinationTerms(settings.destinations);
   const maxPrice = Number(settings.maxPrice || 0);
 
-  return sourceOffers
+  const ranked = sourceOffers
     .filter((offer) => offer.availabilityStatus !== "expired")
+    .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
     .filter((offer) => {
       if (!departure) return true;
       const offerDeparture = norm(offer.departure);
@@ -71,7 +75,18 @@ function findMatchingOffers(settings: AlertSettings, sourceOffers: Offer[]) {
     })
     .filter((offer) => offerMatchesDestination(offer, terms))
     .filter((offer) => !maxPrice || offer.price <= maxPrice)
-    .sort((a, b) => a.price - b.price || b.score - a.score);
+    .map((offer) => ({ offer, quality: recommendationScore(offer, "all") }))
+    .sort((a, b) => b.quality - a.quality || a.offer.price - b.offer.price);
+
+  const seen = new Set<string>();
+  return ranked
+    .filter(({ offer }) => {
+      const key = touristDestinationKey(offer);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map(({ offer }) => offer);
 }
 
 function matchFingerprint(settings: AlertSettings, matches: Offer[]) {
@@ -79,7 +94,7 @@ function matchFingerprint(settings: AlertSettings, matches: Offer[]) {
     norm(settings.departure),
     destinationTerms(settings.destinations).join(","),
     settings.maxPrice,
-    matches.map((offer) => `${offer.id}:${offer.price}`).sort().join("-"),
+    matches.map((offer) => `${offer.id}:${offer.price}:${offer.priceCheckedAt || ""}`).sort().join("-"),
   ].join("|");
 }
 
@@ -92,8 +107,8 @@ async function showMatchNotification(settings: AlertSettings, matches: Offer[]) 
 
   const best = matches[0];
   const body = best
-    ? `${best.city} z ${best.departure} od ${best.price} zł/os. Sprawdź aktualną cenę i pozostałe trafienia.`
-    : "Na razie nie mamy nowej oferty pasującej do Twojego alertu.";
+    ? `${best.city} z ${best.departure} od ${best.price} zł/os. Otwórz Tripownię i potwierdź aktualną cenę u partnera.`
+    : "Na razie nie mamy nowej potwierdzonej oferty pasującej do Twojego alertu.";
 
   await registration.showNotification(
     matches.length ? `Tripownia: ${matches.length} ${matches.length === 1 ? "trafienie" : "trafienia"}` : "Tripownia: alert sprawdzony",
@@ -148,9 +163,11 @@ export default function AlertsPage() {
   }, []);
 
   useEffect(() => {
-    if (!hydrated || !settings.enabled || permission !== "granted" || loading) return;
+    // Powiadomienie wysyłamy wyłącznie po świeżym odczycie feedu.
+    // Ostatnia poprawna pula może być pokazana jako kontekst, ale nie udaje nowego alertu.
+    if (!hydrated || !settings.enabled || permission !== "granted" || loading || source !== "live") return;
     showMatchNotification(settings, matchingOffers).catch(() => {});
-  }, [hydrated, matchingOffers, permission, settings, loading]);
+  }, [hydrated, matchingOffers, permission, settings, loading, source]);
 
   function save(event: FormEvent) {
     event.preventDefault();
@@ -189,7 +206,7 @@ export default function AlertsPage() {
     setPermission(result);
     trackEvent("notification_permission", { result });
     if (result === "granted" && "serviceWorker" in navigator) {
-      if (settings.enabled) {
+      if (settings.enabled && source === "live") {
         localStorage.removeItem("tripownia-alert-last-notified");
         await showMatchNotification(settings, matchingOffers);
       } else {
@@ -205,8 +222,18 @@ export default function AlertsPage() {
   }
 
   const freshness = source === "live"
-    ? checkedAt ? `Live · ${new Date(checkedAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}` : "Live"
-    : "Tryb awaryjny";
+    ? checkedAt
+      ? `Live · ${new Date(checkedAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}`
+      : "Live"
+    : offers.length
+      ? checkedAt
+        ? `Ostatnia poprawna pula · ${new Date(checkedAt).toLocaleString("pl-PL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`
+        : "Ostatnia poprawna pula"
+      : "Brak potwierdzonej puli";
+
+  const matchesCopy = source === "live"
+    ? "Pokazujemy najlepsze aktualne wyniki według zapisanych warunków i jakości danych."
+    : "Pokazujemy trafienia z ostatniej poprawnej puli. Nowe powiadomienie wyślemy dopiero po świeżym sprawdzeniu feedu.";
 
   return (
     <main>
@@ -217,7 +244,7 @@ export default function AlertsPage() {
           <div>
             <div className="kicker">TWOJA TRIPOWNIA</div>
             <h1>Alerty podróżnicze</h1>
-            <p>Powiedz, czego szukasz. Tripownia porównuje alert z aktualnymi ofertami i pokaże trafienia.</p>
+            <p>Powiedz, czego szukasz. Tripownia porównuje alert z aktualnym feedem i wybiera różne kierunki z najlepszą jakością danych.</p>
           </div>
         </div>
 
@@ -249,7 +276,7 @@ export default function AlertsPage() {
           <aside className="app-alerts-card app-alerts-notification-card">
             <div className="kicker">POWIADOMIENIA</div>
             <h2>Daj znać od razu</h2>
-            <p>Włącz zgodę na powiadomienia. Gdy używasz Tripowni, aplikacja regularnie odświeża live feed i poinformuje Cię, gdy zestaw trafień się zmieni.</p>
+            <p>Włącz zgodę na powiadomienia. Gdy używasz Tripowni, aplikacja regularnie odświeża feed i poinformuje Cię dopiero po świeżym dopasowaniu.</p>
             {permission === "granted" ? (
               <div className="app-alerts-status success"><CheckCircle2 size={18} /> Powiadomienia są włączone</div>
             ) : permission === "denied" ? (
@@ -259,7 +286,7 @@ export default function AlertsPage() {
             ) : (
               <button className="app-secondary-button" onClick={enableNotifications}><Bell size={18} /> Włącz powiadomienia</button>
             )}
-            <p className="app-alerts-note">Pełny push działający również przy całkowicie zamkniętej aplikacji wymaga kolejnego kroku: backendu subskrypcji push i bezpiecznego magazynu urządzeń. Live dopasowanie alertów jest już podłączone.</p>
+            <p className="app-alerts-note">Pełny push działający również przy całkowicie zamkniętej aplikacji wymaga backendu subskrypcji push i bezpiecznego magazynu urządzeń. Live dopasowanie alertów podczas działania aplikacji jest już podłączone.</p>
           </aside>
         </div>
 
@@ -269,7 +296,7 @@ export default function AlertsPage() {
               <div>
                 <div className="kicker">TRAFIENIA ALERTU</div>
                 <h2>{matchingOffers.length ? `Mamy ${matchingOffers.length} ${matchingOffers.length === 1 ? "pasującą propozycję" : "pasujące propozycje"}` : loading ? "Sprawdzamy aktualne oferty…" : "Na razie brak trafień"}</h2>
-                <p>{matchingOffers.length ? "Pokazujemy najlepsze aktualne wyniki według zapisanych warunków." : "Alert jest aktywny. Zmień kierunek, lotnisko lub budżet albo wróć później."}</p>
+                <p>{matchingOffers.length ? matchesCopy : "Alert jest aktywny. Zmień kierunek, lotnisko lub budżet albo wróć później."}</p>
               </div>
               <Link href="/okazje">Wszystkie okazje →</Link>
             </div>
