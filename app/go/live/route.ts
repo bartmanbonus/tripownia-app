@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordClick } from "@/lib/clickStats";
-import type { PartnerKey } from "@/lib/partners";
+import { partners, type PartnerKey } from "@/lib/partners";
 
 const ALLOWED_PARTNERS = new Set<PartnerKey>([
   "wakacje",
@@ -62,11 +62,68 @@ function safeTarget(value: string | null) {
   }
 }
 
+function affiliateTarget(partner: PartnerKey, target: URL) {
+  const host = target.hostname.toLowerCase();
+  const original = target.toString();
+
+  try {
+    if (partner === "exim") {
+      if (host === "reklamy.exim.pl") return target;
+      return new URL(partners.exim.buildUrl(original));
+    }
+
+    if (partner === "tui") {
+      if (host === "clk.tradedoubler.com") return target;
+      return new URL(partners.tui.buildUrl(original));
+    }
+
+    if (partner === "wakacje") return new URL(partners.wakacje.buildUrl(original));
+
+    if (partner === "kiwi") {
+      if (host === "c111.travelpayouts.com" || host === "kiwi.tpk.lv") return target;
+      return new URL(partners.kiwi.buildUrl(original));
+    }
+
+    if (partner === "booking") return new URL(partners.booking.buildUrl(original));
+
+    if (partner === "getyourguide") {
+      if (host === "clk.tradedoubler.com") return target;
+      return new URL(partners.getyourguide.buildUrl(original));
+    }
+
+    if (partner === "seeplaces") {
+      if (host === "ad.seeplaces.com" || host === "clk.tradedoubler.com") return target;
+      return new URL(partners.seeplaces.buildUrl(original));
+    }
+
+    if (partner === "holidaypark") {
+      if (host === "visit.holidaypark.pl" || host === "clk.tradedoubler.com") return target;
+      return new URL(partners.holidaypark.buildUrl(original));
+    }
+
+    if (partner === "fonia") {
+      if (host === "clk.tradedoubler.com") return target;
+      return new URL(partners.fonia.buildUrl(original));
+    }
+
+    if (partner === "parklot") return new URL(partners.parklot.buildUrl(original));
+  } catch {
+    return null;
+  }
+
+  return target;
+}
+
 export async function GET(request: NextRequest) {
-  const target = safeTarget(request.nextUrl.searchParams.get("target"));
+  const originalTarget = safeTarget(request.nextUrl.searchParams.get("target"));
   const partner = safePartner(request.nextUrl.searchParams.get("partner"));
 
-  if (!target || !partner) {
+  if (!originalTarget || !partner) {
+    return NextResponse.redirect(new URL("/okazje", request.url), 307);
+  }
+
+  const target = affiliateTarget(partner, originalTarget);
+  if (!target || !safeTarget(target.toString())) {
     return NextResponse.redirect(new URL("/okazje", request.url), 307);
   }
 
@@ -83,6 +140,7 @@ export async function GET(request: NextRequest) {
       source,
       offer,
       destination,
+      originalHost: originalTarget.hostname,
       targetHost: target.hostname,
       live: true,
       path: request.nextUrl.pathname,
