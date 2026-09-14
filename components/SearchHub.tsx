@@ -4,8 +4,9 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, MapPin, Plane, Search, SlidersHorizontal, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import { airportOptions } from "@/lib/offers";
-import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination } from "@/lib/worldDestinations";
+import { WORLD_DESTINATIONS, destinationMatches } from "@/lib/worldDestinations";
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
+import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type Props = {
   initialAirports?: string[];
@@ -26,7 +27,7 @@ type SearchOverrides = {
 function onePerDirection(rows: any[]) {
   const seen = new Set<string>();
   return rows.filter((row) => {
-    const key = normalizeDestination(String(row.city || row.country || row.destination || row.hotel || row.title || ""));
+    const key = touristDestinationKey(row);
     if (!key || seen.has(key)) return false;
     seen.add(key);
     return true;
