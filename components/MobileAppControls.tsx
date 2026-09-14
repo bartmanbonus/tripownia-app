@@ -5,7 +5,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUp, Bell, Heart, Home, MapPinned, RefreshCw, Search } from "lucide-react";
 
-const APP_PATHS = ["/app", "/dla-ciebie", "/moja-podroz", "/porownaj", "/ulubione", "/alerty", "/profil"];
+const APP_PATHS = [
+  "/app",
+  "/dla-ciebie",
+  "/gdzie-leciec",
+  "/okazje",
+  "/oferta",
+  "/moja-podroz",
+  "/porownaj",
+  "/ulubione",
+  "/alerty",
+  "/profil",
+];
 
 function isAppPath(pathname: string) {
   return APP_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
@@ -51,8 +62,8 @@ export default function MobileAppControls() {
   if (!visible) return null;
 
   const nav = [
-    { href: "/app", label: "Start", icon: Home, active: pathname === "/app" },
-    { href: "/app#wyszukiwarka", label: "Szukaj", icon: Search, active: false },
+    { href: "/app", label: "Start", icon: Home, active: pathname === "/app" || pathname.startsWith("/dla-ciebie") },
+    { href: "/app#wyszukiwarka", label: "Szukaj", icon: Search, active: pathname.startsWith("/gdzie-leciec") || pathname.startsWith("/okazje") || pathname.startsWith("/oferta") },
     { href: "/moja-podroz", label: "Podróż", icon: MapPinned, active: pathname.startsWith("/moja-podroz") },
     { href: "/ulubione", label: "Ulubione", icon: Heart, active: pathname.startsWith("/ulubione") || pathname.startsWith("/porownaj") },
     { href: "/alerty", label: "Alerty", icon: Bell, active: pathname.startsWith("/alerty") },
