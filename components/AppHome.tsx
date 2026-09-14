@@ -6,17 +6,31 @@ import { Bell, CheckCircle2, Circle, Compass, Heart, MapPinned, Sparkles, UserRo
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
-import { offers, isOfferExpired } from "@/lib/offers";
+import SearchHub from "@/components/SearchHub";
+import { offers } from "@/lib/offers";
 import { TRAVEL_PROFILE_KEY } from "@/lib/travelProfile";
 
 type TripState = { offerId?: number; departureAt?: string };
 type AlertState = { departure?: string; destinations?: string; maxPrice?: string | number };
+type TripOffer = (typeof offers)[number];
+
+function onePerDirection(rows: TripOffer[]) {
+  const seen = new Set<string>();
+  return rows.filter((offer) => {
+    const key = `${String(offer.city || "").toLowerCase()}|${String(offer.country || "").toLowerCase()}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 
 export default function AppHome() {
   const [profileReady, setProfileReady] = useState(false);
   const [trip, setTrip] = useState<TripState>({});
   const [alerts, setAlerts] = useState<AlertState>({});
   const [favoriteCount, setFavoriteCount] = useState(0);
+  const [liveOffers, setLiveOffers] = useState<TripOffer[]>([]);
+  const [liveLoading, setLiveLoading] = useState(true);
 
   useEffect(() => {
     const load = () => {
@@ -49,8 +63,25 @@ export default function AppHome() {
     };
   }, []);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    setLiveLoading(true);
+
+    fetch("/api/today-offers?broad=1", { cache: "no-store", signal: controller.signal })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("today-offers")))
+      .then((data) => {
+        const rows = Array.isArray(data?.offers) ? data.offers : [];
+        const clean = onePerDirection(rows.filter((offer: TripOffer) => offer?.price > 0 && offer?.affiliateUrl));
+        setLiveOffers(clean.slice(0, 6));
+      })
+      .catch(() => setLiveOffers([]))
+      .finally(() => setLiveLoading(false));
+
+    return () => controller.abort();
+  }, []);
+
   const tripOffer = useMemo(() => offers.find((offer) => offer.id === trip.offerId), [trip.offerId]);
-  const topOffers = useMemo(() => offers.filter((offer) => !isOfferExpired(offer)).sort((a,b) => b.score - a.score).slice(0, 3), []);
+  const topOffers = useMemo(() => liveOffers.slice(0, 3), [liveOffers]);
   const alertsReady = Boolean(alerts.maxPrice || alerts.destinations || alerts.departure);
   const onboarding = [
     { done: profileReady, href: "/profil", label: "Ustaw profil podróżnika" },
@@ -60,7 +91,9 @@ export default function AppHome() {
   const completedSteps = onboarding.filter((step) => step.done).length;
 
   const tripCopy = tripOffer ? `${tripOffer.city} · ${tripOffer.dates}` : "Nie masz jeszcze wybranej podróży";
-  const alertCopy = alerts.maxPrice || alerts.destinations ? `${alerts.destinations || "Dowolny kierunek"}${alerts.maxPrice ? ` · do ${alerts.maxPrice} zł` : ""}` : "Ustaw kierunki, budżet i miejsce wylotu";
+  const alertCopy = alerts.maxPrice || alerts.destinations
+    ? `${alerts.destinations || "Dowolny kierunek"}${alerts.maxPrice ? ` · do ${alerts.maxPrice} zł` : ""}`
+    : "Ustaw kierunki, budżet i miejsce wylotu";
 
   return (
     <main>
@@ -70,10 +103,15 @@ export default function AppHome() {
           <div>
             <div className="kicker">MOJA TRIPOWNIA</div>
             <h1>Wszystko, czego potrzebujesz do podróży — w jednym miejscu.</h1>
-            <p>Znajdź kierunek, zapisz wyjazd, pilnuj ceny, przygotuj plan i wracaj tu przed podróżą.</p>
+            <p>Znajdź kierunek, porównaj aktualne oferty, zapisz wyjazd i przygotuj wszystko przed podróżą.</p>
           </div>
-          <Link className="primary-cta" href="/gdzie-leciec"><Compass size={18}/> Nie wiem gdzie lecieć</Link>
+          <div className="app-home-hero-actions">
+            <Link className="primary-cta" href="#wyszukiwarka"><Compass size={18}/> Wiem, czego szukam</Link>
+            <Link className="secondary-cta" href="/gdzie-leciec"><Sparkles size={18}/> Nie wiem gdzie lecieć</Link>
+          </div>
         </div>
+
+        <SearchHub initialTab="Inspiracje" />
 
         {completedSteps < onboarding.length && (
           <section className="app-onboarding">
@@ -103,8 +141,16 @@ export default function AppHome() {
         </div>
 
         <section className="app-home-recommendations">
-          <div className="section-heading"><div><div className="kicker">NA START</div><h2>Najmocniejsze propozycje</h2><p>Trzy aktualne oferty z wysoką oceną Tripowni.</p></div><Link href="/podroze">Zobacz wszystkie <ArrowRight size={16}/></Link></div>
-          <div className="cards-grid">{topOffers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}</div>
+          <div className="section-heading">
+            <div>
+              <div className="kicker">DZISIAJ</div>
+              <h2>Aktualne propozycje</h2>
+              <p>{liveLoading ? "Sprawdzamy dzisiejsze oferty…" : topOffers.length ? "Najlepsze różne kierunki z aktualnego feedu Tripowni." : "Nie pokazujemy starych kart, jeśli feed nie potwierdzi aktualnych ofert."}</p>
+            </div>
+            <Link href="/podroze">Zobacz wszystkie <ArrowRight size={16}/></Link>
+          </div>
+          {!liveLoading && topOffers.length > 0 && <div className="cards-grid">{topOffers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}</div>}
+          {!liveLoading && topOffers.length === 0 && <div className="self-search-empty"><strong>Aktualizujemy oferty.</strong><span>Wróć do wyszukiwarki powyżej albo sprawdź inspiracje — nie podstawiamy niezweryfikowanych cen.</span></div>}
         </section>
       </section>
       <SiteFooter />
