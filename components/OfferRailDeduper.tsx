@@ -79,8 +79,8 @@ function simplifySearchFlow() {
   const primarySearch = document.querySelector<HTMLElement>("#wyszukiwarka");
   if (!primarySearch) return;
 
-  document.querySelectorAll<HTMLAnchorElement>('a[href="#szukaj-samodzielnie"]').forEach((link) => {
-    link.setAttribute("href", "#wyszukiwarka");
+  document.querySelectorAll<HTMLAnchorElement>('a[href="#szukaj-samodzielnie"], a[href="/#szukaj-samodzielnie"]').forEach((link) => {
+    link.setAttribute("href", window.location.pathname === "/" ? "#wyszukiwarka" : "/#wyszukiwarka");
   });
 
   const duplicateStage = document.querySelector<HTMLElement>(".self-search-home-stage");
@@ -98,6 +98,7 @@ function syncFreshnessCopy() {
     const text = normalize(line.textContent || "");
     return text.includes("orientacyjna") || text.includes("potwierdzi") || text.includes("wymaga potwierdzenia");
   });
+  const confirmedCount = trustLines.filter((line) => normalize(line.textContent || "").includes("cena z feedu")).length;
 
   const description = daily.querySelector<HTMLElement>(".section-heading p");
   setTextIfChanged(
@@ -112,6 +113,19 @@ function syncFreshnessCopy() {
     radarCountLabel,
     hasUnconfirmedPrice ? "propozycji w dzisiejszej puli" : "aktualnych ofert w dzisiejszej puli"
   );
+
+  const radarIntro = document.querySelector<HTMLElement>(".hero-radar-panel > p");
+  setTextIfChanged(
+    radarIntro,
+    hasUnconfirmedPrice
+      ? "Trzy propozycje z dzisiejszej selekcji. Dokładny status ceny zobaczysz na karcie oferty poniżej."
+      : "Nie przypadkowe kierunki — trzy aktualne propozycje wyciągnięte z dzisiejszej selekcji."
+  );
+
+  const radarUpdate = document.querySelector<HTMLElement>(".hero-daily-stat:nth-child(2) span");
+  if (hasUnconfirmedPrice && confirmedCount === 0) {
+    setTextIfChanged(radarUpdate, "Pula kierunków jest gotowa · ceny partnerów wymagają potwierdzenia");
+  }
 }
 
 function synchronizeHomeExperience() {
