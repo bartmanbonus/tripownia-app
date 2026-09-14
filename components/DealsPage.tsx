@@ -128,7 +128,12 @@ export default function DealsPage() {
   const [airport, setAirport] = useState("any");
   const [month, setMonth] = useState("any");
   const monthOptions = useMemo(() => buildMonthOptions(12), []);
-  const { offers, source, loading, checkedAt, refresh } = useLiveOffers("/api/today-offers?mode=search&broad=1");
+  const endpoint = useMemo(() => {
+    const params = new URLSearchParams({ mode: "search", broad: "1" });
+    if (airport !== "any") params.set("from", airport);
+    return `/api/today-offers?${params.toString()}`;
+  }, [airport]);
+  const { offers, source, loading, checkedAt, refresh } = useLiveOffers(endpoint);
 
   const matchingPool = useMemo(() => (offers as DealsOffer[])
     .filter((offer) => airportMatches(offer, airport))
