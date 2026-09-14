@@ -18,6 +18,7 @@ export default function robots(): MetadataRoute.Robots {
         "/dla-ciebie/",
         "/moja-podroz/",
         "/moje-podroze/",
+        "/organizer/",
       ],
     },
     sitemap: "https://tripownia.pl/sitemap.xml",
