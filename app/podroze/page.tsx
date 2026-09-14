@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -53,8 +54,8 @@ export default function TravelIdeasPage() {
         </div>
 
         <div className="travel-hub-search-row">
-          <Link href="/#szukaj-samodzielnie" className="travel-hub-search"><span aria-hidden="true">⌕</span><strong>Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam, Resort 4★</strong></Link>
-          <Link href="/#szukaj-samodzielnie" className="travel-hub-weekend"><span className="travel-hub-check">✓</span><span><strong>Pobyt obejmuje sobotę i niedzielę</strong><small>Jesteś na miejscu w oba dni</small></span></Link>
+          <Link href="/#wyszukiwarka" className="travel-hub-search"><span aria-hidden="true">⌕</span><strong>Wpisz kierunek, miasto albo hotel, np. Nowy Jork, Wietnam, Resort 4★</strong></Link>
+          <Link href="/#wyszukiwarka" className="travel-hub-weekend"><span className="travel-hub-check">✓</span><span><strong>Pobyt obejmuje sobotę i niedzielę</strong><small>Jesteś na miejscu w oba dni</small></span></Link>
         </div>
 
         <div className="travel-hub-filters" aria-label="Kategorie podróży">
@@ -67,7 +68,7 @@ export default function TravelIdeasPage() {
             return (
               <Link className="travel-hub-card" href={`/podroze/${item.slug}`} key={item.slug}>
                 <div className="travel-hub-card-image">
-                  <img src={visual.image} alt={item.query} loading="lazy" decoding="async" />
+                  <Image src={visual.image} alt={item.query} width={640} height={420} sizes="(max-width: 720px) 92vw, (max-width: 1200px) 44vw, 31vw" loading="lazy" />
                   <span className="travel-hub-region">{visual.region}</span>
                   <span className="travel-hub-heart" aria-hidden="true">♡</span>
                 </div>
