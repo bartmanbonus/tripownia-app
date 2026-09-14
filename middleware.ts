@@ -22,6 +22,8 @@ const LEGACY_CATEGORY_REDIRECTS: Record<string, string> = {
   "/kategoria-produktu/city-break": "/city-break",
   "/kategoria-produktu/tanie-loty": "/tanie-loty",
   "/kategoria-produktu/ze-zwiedzaniem": "/podroze-po-przezycia",
+  "/kategoria-produktu/do-1000-zl": "/podroze/wyjazdy-do-1000-zl",
+  "/kategoria-produktu/wylot-z-krakowa": "/podroze/wakacje-z-krakowa",
 };
 
 const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
