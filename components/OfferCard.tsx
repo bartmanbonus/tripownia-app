@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, BadgeCheck, Scale, MapPinned } from "lucide-react";
+import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, BadgeCheck, Scale, MapPinned, BadgePercent } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import TravelImage from "@/components/TravelImage";
@@ -22,6 +22,11 @@ import {
 const OFFER_VIEW_SESSION_KEY = "tripownia-viewed-offers-v1";
 const viewedOfferIds = new Set<number>();
 let hydratedViewedOfferIds = false;
+
+type PriceHighlight = {
+  label: string;
+  detail?: string;
+};
 
 function createTripId(offerId: number) {
   return `trip-${offerId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -71,7 +76,7 @@ function readTrip() {
   }
 }
 
-export default function OfferCard({ offer }: { offer: Offer }) {
+export default function OfferCard({ offer, priceHighlight }: { offer: Offer; priceHighlight?: PriceHighlight }) {
   const [liked, setLiked] = useState(false);
   const [compared, setCompared] = useState(false);
   const [tripAdded, setTripAdded] = useState(false);
@@ -253,7 +258,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
 
   return (
     <article ref={cardRef} className={`offer-card offer-card-clean ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}>
-      <Link href={detailHref} target={externalCardLink ? "_blank" : undefined} rel={externalCardLink ? "sponsored noopener noreferrer" : undefined} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
+      <Link href={detailHref} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
         <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
         <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
         {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
@@ -273,6 +278,14 @@ export default function OfferCard({ offer }: { offer: Offer }) {
             <span>Deal Score</span>
             <strong>{deal.score}/100</strong>
             <em>{deal.verdict}</em>
+          </div>
+        )}
+
+        {priceHighlight && !isExpired && (
+          <div className="offer-price-highlight">
+            <BadgePercent size={14} />
+            <strong>{priceHighlight.label}</strong>
+            {priceHighlight.detail && <span>{priceHighlight.detail}</span>}
           </div>
         )}
 
@@ -296,7 +309,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           </div>
         )}
 
-        <a className="card-cta" href={buyHref} target={!isExpired && externalCardLink ? "_blank" : undefined} rel={isExpired ? undefined : externalCardLink ? "sponsored noopener noreferrer" : "sponsored"} onClick={() => trackOfferClick("card_cta")}>{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
+        <a className="card-cta" href={buyHref} rel={isExpired ? undefined : externalCardLink ? "sponsored" : "sponsored"} onClick={() => trackOfferClick("card_cta")}>{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
 
         {(compared || tripAdded) && (
           <div className="offer-after-actions">
