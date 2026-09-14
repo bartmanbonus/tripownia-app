@@ -17,6 +17,12 @@ type Partner =
   | "kiwitaxi"
   | "gettransfer";
 
+function tradeDoublerProgram(url: URL) {
+  const queryProgram = url.searchParams.get("p");
+  if (queryProgram) return queryProgram;
+  return url.toString().match(/p\((\d+)\)/)?.[1] || "";
+}
+
 function partnerFromUrl(value: string): Partner | null {
   try {
     const url = new URL(value, window.location.origin);
@@ -38,7 +44,7 @@ function partnerFromUrl(value: string): Partner | null {
     if (host === "gettransfer.tpk.lv") return "gettransfer";
 
     if (host === "clk.tradedoubler.com") {
-      const program = url.searchParams.get("p");
+      const program = tradeDoublerProgram(url);
       if (program === "308388") return "tui";
       if (program === "356307") return "getyourguide";
       if (program === "383711") return "seeplaces";
@@ -96,36 +102,39 @@ function wrapAnchor(anchor: HTMLAnchorElement) {
   anchor.dataset.tripowniaOutboundWrapped = "1";
 }
 
-function wrapKnownPartnerLinks(root: ParentNode = document) {
-  root.querySelectorAll<HTMLAnchorElement>('a[href^="http://"], a[href^="https://"]').forEach(wrapAnchor);
+function wrapInitialPartnerLinks() {
+  document
+    .querySelectorAll<HTMLAnchorElement>('a[href^="http://"], a[href^="https://"]')
+    .forEach(wrapAnchor);
+}
+
+function interactiveAnchor(event: Event) {
+  const target = event.target;
+  if (!(target instanceof Element)) return null;
+  return target.closest<HTMLAnchorElement>("a[href]");
 }
 
 export default function AffiliateClickBridge() {
   useEffect(() => {
-    wrapKnownPartnerLinks();
+    // One cheap initial pass keeps copy-link/context-menu behavior correct for
+    // links already present at hydration. Dynamic links are wrapped lazily on
+    // first interaction instead of keeping a MutationObserver on document.body.
+    wrapInitialPartnerLinks();
 
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.type === "attributes" && mutation.target instanceof HTMLAnchorElement) {
-          wrapAnchor(mutation.target);
-          return;
-        }
+    const handleInteraction = (event: Event) => {
+      const anchor = interactiveAnchor(event);
+      if (anchor) wrapAnchor(anchor);
+    };
 
-        mutation.addedNodes.forEach((node) => {
-          if (!(node instanceof Element)) return;
-          if (node instanceof HTMLAnchorElement) wrapAnchor(node);
-          else wrapKnownPartnerLinks(node);
-        });
-      });
-    });
+    document.addEventListener("pointerdown", handleInteraction, true);
+    document.addEventListener("focusin", handleInteraction, true);
+    document.addEventListener("contextmenu", handleInteraction, true);
 
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["href"],
-    });
-    return () => observer.disconnect();
+    return () => {
+      document.removeEventListener("pointerdown", handleInteraction, true);
+      document.removeEventListener("focusin", handleInteraction, true);
+      document.removeEventListener("contextmenu", handleInteraction, true);
+    };
   }, []);
 
   return null;
