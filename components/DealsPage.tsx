@@ -29,6 +29,16 @@ const MONTH_NAMES = [
   "lipiec", "sierpień", "wrzesień", "październik", "listopad", "grudzień",
 ];
 
+const MONTH_OPTIONS = MONTH_NAMES.map((label, index) => ({
+  value: String(index + 1).padStart(2, "0"),
+  label,
+}));
+
+function buildYearOptions(count = 3) {
+  const currentYear = new Date().getFullYear();
+  return Array.from({ length: count }, (_, index) => String(currentYear + index));
+}
+
 function normalize(value: string) {
   return value
     .toLowerCase()
@@ -36,22 +46,6 @@ function normalize(value: string) {
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
-}
-
-function buildMonthOptions(count = 12) {
-  const now = new Date();
-  const startYear = now.getFullYear();
-  const startMonth = now.getMonth();
-
-  return Array.from({ length: count }, (_, index) => {
-    const date = new Date(Date.UTC(startYear, startMonth + index, 1, 12));
-    const year = date.getUTCFullYear();
-    const month = date.getUTCMonth();
-    return {
-      value: `${year}-${String(month + 1).padStart(2, "0")}`,
-      label: `${MONTH_NAMES[month]} ${year}`,
-    };
-  });
 }
 
 function airportMatches(offer: DealsOffer, airport: string) {
@@ -101,9 +95,17 @@ function offerMonthKeys(offer: DealsOffer) {
   return keys;
 }
 
-function monthMatches(offer: DealsOffer, month: string) {
-  if (month === "any") return true;
-  return offerMonthKeys(offer).has(month);
+function periodMatches(offer: DealsOffer, month: string, year: string) {
+  if (month === "any" && year === "any") return true;
+  const keys = offerMonthKeys(offer);
+  if (!keys.size) return false;
+
+  return Array.from(keys).some((key) => {
+    const [offerYear, offerMonth] = key.split("-");
+    if (month !== "any" && offerMonth !== month) return false;
+    if (year !== "any" && offerYear !== year) return false;
+    return true;
+  });
 }
 
 function cheapestUnique(rows: DealsOffer[]) {
@@ -125,19 +127,26 @@ function cheapestUnique(rows: DealsOffer[]) {
 }
 
 export default function DealsPage() {
+  const now = useMemo(() => new Date(), []);
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  const yearOptions = useMemo(() => buildYearOptions(3), []);
   const [airport, setAirport] = useState("any");
   const [month, setMonth] = useState("any");
-  const monthOptions = useMemo(() => buildMonthOptions(12), []);
+  const [year, setYear] = useState("any");
+
   const endpoint = useMemo(() => {
-    const params = new URLSearchParams({ mode: "search", broad: "1" });
+    const params = new URLSearchParams({ mode: "search", broad: "1", strict: "1" });
     if (airport !== "any") params.set("from", airport);
+    if (month !== "any") params.set("month", month);
+    if (year !== "any") params.set("year", year);
     return `/api/today-offers?${params.toString()}`;
-  }, [airport]);
+  }, [airport, month, year]);
   const { offers, source, loading, checkedAt, refresh } = useLiveOffers(endpoint);
 
   const matchingPool = useMemo(() => (offers as DealsOffer[])
     .filter((offer) => airportMatches(offer, airport))
-    .filter((offer) => monthMatches(offer, month)), [offers, airport, month]);
+    .filter((offer) => periodMatches(offer, month, year)), [offers, airport, month, year]);
 
   const rows = useMemo(() => cheapestUnique(matchingPool), [matchingPool]);
 
@@ -152,8 +161,20 @@ export default function DealsPage() {
       : "Brak potwierdzonej puli — odświeżamy dane";
 
   const airportLabel = AIRPORTS.find((item) => item.value === airport)?.label || "Wszystkie lotniska";
-  const monthLabel = monthOptions.find((item) => item.value === month)?.label || "dowolny miesiąc";
-  const filtering = airport !== "any" || month !== "any";
+  const monthLabel = MONTH_OPTIONS.find((item) => item.value === month)?.label || "dowolny miesiąc";
+  const yearLabel = year === "any" ? "dowolny rok" : year;
+  const filtering = airport !== "any" || month !== "any" || year !== "any";
+
+  const handleYearChange = (nextYear: string) => {
+    setYear(nextYear);
+    if (nextYear === String(currentYear) && month !== "any" && Number(month) < currentMonth) setMonth("any");
+  };
+
+  const clearFilters = () => {
+    setAirport("any");
+    setMonth("any");
+    setYear("any");
+  };
 
   return <main>
     <SiteHeader/>
@@ -162,7 +183,7 @@ export default function DealsPage() {
         <div>
           <div className="kicker">OKAZJE TRIPOWNI</div>
           <h1>Wybierz skąd i kiedy. My pokażemy okazje.</h1>
-          <p className="hub-lead">Nie ograniczamy Cię do najbliższych terminów. Wybierz lotnisko i miesiąc, a pokażemy najtańszą potwierdzoną propozycję na każdy kierunek dostępny w tej kombinacji.</p>
+          <p className="hub-lead">Nie ograniczamy Cię do najbliższych terminów. Wybierz lotnisko, miesiąc i rok, a pokażemy najtańszą potwierdzoną propozycję na każdy kierunek dostępny dokładnie w tej kombinacji.</p>
         </div>
         <div className="deals-hub-actions">
           <Link className="primary-cta" href="/#wyszukiwarka"><Search size={17}/> Wyszukaj dokładniej</Link>
@@ -178,18 +199,28 @@ export default function DealsPage() {
           </select>
         </label>
         <label>
-          <span><CalendarDays size={15}/> Miesiąc wyjazdu</span>
+          <span><CalendarDays size={15}/> Miesiąc</span>
           <select value={month} onChange={(event) => setMonth(event.target.value)}>
             <option value="any">Wszystkie miesiące</option>
-            {monthOptions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+            {MONTH_OPTIONS.map((item) => {
+              const disabled = year === String(currentYear) && Number(item.value) < currentMonth;
+              return <option key={item.value} value={item.value} disabled={disabled}>{item.label}</option>;
+            })}
           </select>
         </label>
-        {filtering && <button type="button" className="deals-clear-filters" onClick={() => { setAirport("any"); setMonth("any"); }}>Wyczyść filtry</button>}
+        <label>
+          <span><CalendarDays size={15}/> Rok</span>
+          <select value={year} onChange={(event) => handleYearChange(event.target.value)}>
+            <option value="any">Wszystkie lata</option>
+            {yearOptions.map((item) => <option key={item} value={item}>{item}</option>)}
+          </select>
+        </label>
+        {filtering && <button type="button" className="deals-clear-filters" onClick={clearFilters}>Wyczyść filtry</button>}
       </div>
 
       <div className="deals-trust-bar">
         <span><Sparkles size={15}/><strong>{rows.length} {rows.length === 1 ? "różny kierunek" : "różnych kierunków"}</strong></span>
-        <span>{filtering ? `${airportLabel} · ${monthLabel}` : "Wszystkie dostępne lotniska i miesiące"}</span>
+        <span>{filtering ? `${airportLabel} · ${monthLabel} · ${yearLabel}` : "Wszystkie dostępne lotniska, miesiące i lata"}</span>
         <span>{sourceCopy}</span>
       </div>
 
@@ -197,8 +228,8 @@ export default function DealsPage() {
         <div className="cards-grid deals-premium-grid">{rows.map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
       ) : !loading ? (
         <div className="self-search-empty">
-          <strong>{filtering ? "Nie mamy teraz potwierdzonej okazji dla tego lotniska i miesiąca." : "Nie mamy teraz potwierdzonej puli okazji."}</strong>
-          <span>{filtering ? "Nie podstawiamy innego lotniska ani najbliższego terminu. Zmień miesiąc lub lotnisko albo odśwież dane." : "Nie podstawiamy statycznych cen. Odśwież dane albo skorzystaj z wyszukiwarki Tripowni."}</span>
+          <strong>{filtering ? "Nie mamy teraz potwierdzonej okazji dla wybranego lotniska i terminu." : "Nie mamy teraz potwierdzonej puli okazji."}</strong>
+          <span>{filtering ? "Nie podstawiamy innego lotniska, miesiąca ani roku. Zmień wybrany filtr albo odśwież dane." : "Nie podstawiamy statycznych cen. Odśwież dane albo skorzystaj z wyszukiwarki Tripowni."}</span>
         </div>
       ) : null}
 
