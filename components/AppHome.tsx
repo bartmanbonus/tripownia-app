@@ -9,6 +9,7 @@ import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
 import { offers } from "@/lib/offers";
 import { TRAVEL_PROFILE_KEY } from "@/lib/travelProfile";
+import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
 type TripOffer = (typeof offers)[number];
 type TripState = { offerId?: number; offerSnapshot?: TripOffer; departureAt?: string };
@@ -71,7 +72,10 @@ export default function AppHome() {
       .then((response) => response.ok ? response.json() : Promise.reject(new Error("today-offers")))
       .then((data) => {
         const rows = Array.isArray(data?.offers) ? data.offers : [];
-        const clean = onePerDirection(rows.filter((offer: TripOffer) => offer?.price > 0 && offer?.affiliateUrl));
+        const clean = onePerDirection(rows
+          .filter((offer: TripOffer) => offer?.price > 0 && offer?.affiliateUrl)
+          .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country))
+        );
         setLiveOffers(clean.slice(0, 6));
       })
       .catch(() => setLiveOffers([]))
