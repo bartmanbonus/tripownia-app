@@ -11,7 +11,10 @@ export type PartnerKey =
   | "fonia"
   | "parklot"
   | "kiwi"
-  | "booking";
+  | "booking"
+  | "rentacar"
+  | "kiwitaxi"
+  | "gettransfer";
 
 export type Partner = {
   key: PartnerKey;
@@ -60,8 +63,6 @@ function buildLegacyEskyAlias(destinationUrl?: string) {
   try {
     const url = new URL(destinationUrl);
     if (url.hostname.toLowerCase().includes("esky.")) {
-      // Legacy callers can still pass an old eSky URL, but it must never leave
-      // Tripownia as an eSky destination. Use the Kiwi affiliate entry instead.
       return buildKiwiAffiliateUrl();
     }
   } catch {
@@ -71,10 +72,6 @@ function buildLegacyEskyAlias(destinationUrl?: string) {
   return buildKiwiAffiliateUrl(destinationUrl);
 }
 
-/**
- * Legacy exports kept for compatibility with older code paths.
- * They never send users to eSky; all traffic is routed through Kiwi.
- */
 export function buildEskyFlightsUrl(destinationUrl?: string) {
   return buildLegacyEskyAlias(destinationUrl);
 }
@@ -216,6 +213,33 @@ export const partners: Record<PartnerKey, Partner> = {
     trackingId: "3212",
     buildUrl: () =>
       "https://www.parklot.pl/?utm_source=travellead&utm_medium=cps&utm_campaign=3212-tripownia.pl&a_cid=a988c2f2&a_aid=3212",
+  },
+  rentacar: {
+    key: "rentacar",
+    name: "GetRentACar",
+    category: "travel",
+    description: "Wynajem samochodu w podróży",
+    commissionType: "unknown",
+    trackingId: "buzTQvPf",
+    buildUrl: () => "https://getrentacar.tpk.lv/buzTQvPf",
+  },
+  kiwitaxi: {
+    key: "kiwitaxi",
+    name: "Kiwitaxi",
+    category: "travel",
+    description: "Taxi i transfery lotniskowe",
+    commissionType: "unknown",
+    trackingId: "UuvtPHby",
+    buildUrl: () => "https://kiwitaxi.tpk.lv/UuvtPHby",
+  },
+  gettransfer: {
+    key: "gettransfer",
+    name: "GetTransfer",
+    category: "travel",
+    description: "Transfery prywatne i lotniskowe",
+    commissionType: "unknown",
+    trackingId: "SqNqK9Q7",
+    buildUrl: () => "https://gettransfer.tpk.lv/SqNqK9Q7",
   },
 };
 
