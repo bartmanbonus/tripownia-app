@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { offers as fallbackOffers, type Offer } from "@/lib/offers";
+import type { Offer } from "@/lib/offers";
 
 type LiveOffersResponse = {
   ok?: boolean;
@@ -20,11 +20,44 @@ type LiveOffersState = {
   error?: string;
 };
 
+type CachedLiveOffers = {
+  checkedAt?: string;
+  savedAt: string;
+  offers: Offer[];
+};
+
 const DEFAULT_ENDPOINT = "/api/today-offers?mode=search&broad=1";
+
+function cacheKey(endpoint: string) {
+  return `tripownia-live-cache:${encodeURIComponent(endpoint)}`;
+}
+
+function readCache(endpoint: string): CachedLiveOffers | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const parsed = JSON.parse(localStorage.getItem(cacheKey(endpoint)) || "null") as CachedLiveOffers | null;
+    if (!parsed || !Array.isArray(parsed.offers) || !parsed.offers.length) return null;
+    return parsed;
+  } catch {
+    localStorage.removeItem(cacheKey(endpoint));
+    return null;
+  }
+}
+
+function writeCache(endpoint: string, offers: Offer[], checkedAt?: string) {
+  if (typeof window === "undefined" || !offers.length) return;
+  try {
+    localStorage.setItem(cacheKey(endpoint), JSON.stringify({
+      checkedAt,
+      savedAt: new Date().toISOString(),
+      offers,
+    } satisfies CachedLiveOffers));
+  } catch {}
+}
 
 export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 1000) {
   const [state, setState] = useState<LiveOffersState>({
-    offers: fallbackOffers,
+    offers: [],
     source: "fallback",
     loading: true,
   });
@@ -36,37 +69,71 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
       const live = Array.isArray(data.offers) ? data.offers : [];
 
       if (!response.ok || !live.length) {
-        setState((current) => ({
-          ...current,
-          offers: current.source === "live" && current.offers.length ? current.offers : fallbackOffers,
-          source: current.source === "live" && current.offers.length ? "live" : "fallback",
-          loading: false,
-          checkedAt: data.checkedAt || current.checkedAt,
-          notice: data.notice,
-          error: data.error || (!response.ok ? `HTTP ${response.status}` : "Brak aktualnych ofert z feedu."),
-        }));
+        setState((current) => {
+          if (current.source === "live" && current.offers.length) {
+            return {
+              ...current,
+              loading: false,
+              notice: data.notice,
+              error: data.error || (!response.ok ? `HTTP ${response.status}` : "Brak aktualnych ofert z feedu."),
+            };
+          }
+
+          const cached = readCache(endpoint);
+          return {
+            offers: cached?.offers || [],
+            source: "fallback",
+            loading: false,
+            checkedAt: cached?.checkedAt || data.checkedAt,
+            notice: data.notice,
+            error: data.error || (!response.ok ? `HTTP ${response.status}` : "Brak aktualnych ofert z feedu."),
+          };
+        });
         return;
       }
 
+      const checkedAt = data.checkedAt || new Date().toISOString();
+      writeCache(endpoint, live, checkedAt);
       setState({
         offers: live,
         source: "live",
         loading: false,
-        checkedAt: data.checkedAt || new Date().toISOString(),
+        checkedAt,
         notice: data.notice,
       });
     } catch (error) {
-      setState((current) => ({
-        ...current,
-        offers: current.source === "live" && current.offers.length ? current.offers : fallbackOffers,
-        source: current.source === "live" && current.offers.length ? "live" : "fallback",
-        loading: false,
-        error: error instanceof Error ? error.message : "Nie udało się pobrać aktualnych ofert.",
-      }));
+      setState((current) => {
+        if (current.source === "live" && current.offers.length) {
+          return {
+            ...current,
+            loading: false,
+            error: error instanceof Error ? error.message : "Nie udało się pobrać aktualnych ofert.",
+          };
+        }
+
+        const cached = readCache(endpoint);
+        return {
+          offers: cached?.offers || [],
+          source: "fallback",
+          loading: false,
+          checkedAt: cached?.checkedAt,
+          error: error instanceof Error ? error.message : "Nie udało się pobrać aktualnych ofert.",
+        };
+      });
     }
   }, [endpoint]);
 
   useEffect(() => {
+    const cached = readCache(endpoint);
+    if (cached) {
+      setState({
+        offers: cached.offers,
+        source: "fallback",
+        loading: true,
+        checkedAt: cached.checkedAt,
+      });
+    }
+
     refresh();
 
     const handleFocus = () => refresh();
@@ -83,7 +150,7 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
       document.removeEventListener("visibilitychange", handleVisibility);
       if (timer) window.clearInterval(timer);
     };
-  }, [refresh, refreshMs]);
+  }, [endpoint, refresh, refreshMs]);
 
   return { ...state, refresh };
 }
