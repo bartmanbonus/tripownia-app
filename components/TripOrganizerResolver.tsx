@@ -6,6 +6,7 @@ import { ArrowRight, MapPinned } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TripOrganizer from "@/components/TripOrganizer";
+import TripPhasePanel from "@/components/TripPhasePanel";
 import { offers, type Offer } from "@/lib/offers";
 
 type ActiveTrip = {
@@ -57,15 +58,18 @@ export default function TripOrganizerResolver() {
         </div>
 
         {!ready ? null : offer && trip?.tripId ? (
-          <TripOrganizer
-            tripId={trip.tripId}
-            city={offer.city}
-            country={offer.country}
-            nights={offer.nights}
-            categories={offer.category || []}
-            weather={offer.weather || ""}
-            departureAt={trip.departureAt}
-          />
+          <>
+            <TripPhasePanel departureAt={trip.departureAt} nights={offer.nights} />
+            <TripOrganizer
+              tripId={trip.tripId}
+              city={offer.city}
+              country={offer.country}
+              nights={offer.nights}
+              categories={offer.category || []}
+              weather={offer.weather || ""}
+              departureAt={trip.departureAt}
+            />
+          </>
         ) : (
           <div className="favorites-empty">
             <MapPinned size={30}/>
