@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { ArrowRight, CarTaxiFront, ExternalLink, UsersRound } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -51,7 +52,7 @@ export default function TransfersPage() {
 
         <div className="deals-end-cta">
           <div><strong>Masz już wybraną ofertę?</strong><span>Dodaj ją do Mojej podróży i ogarnij transfer razem z lotem, pogodą, atrakcjami i checklistą.</span></div>
-          <a href="/moja-podroz">Otwórz Moją podróż <ArrowRight size={16}/></a>
+          <Link href="/moja-podroz">Otwórz Moją podróż <ArrowRight size={16}/></Link>
         </div>
       </section>
       <SiteFooter />
