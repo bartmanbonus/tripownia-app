@@ -14,6 +14,11 @@ import { useLiveOffers } from "@/lib/useLiveOffers";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
+type PriceHighlight = {
+  label: string;
+  detail: string;
+};
+
 const AIRPORTS = [
   { value: "any", label: "Wszystkie lotniska" },
   { value: "WAWA", label: "Warszawa (WAW + WMI)" },
@@ -57,6 +62,37 @@ function cheapestUnique(rows: DealsOffer[]) {
     .slice(0, 20);
 }
 
+function buildPriceHighlights(rows: DealsOffer[]) {
+  const highlights = new Map<number, PriceHighlight>();
+  if (rows.length < 5) return highlights;
+
+  const prices = rows
+    .map((offer) => Number(offer.price))
+    .filter((price) => Number.isFinite(price) && price > 0)
+    .sort((a, b) => a - b);
+  if (prices.length < 5) return highlights;
+
+  const middle = Math.floor(prices.length / 2);
+  const median = prices.length % 2
+    ? prices[middle]
+    : (prices[middle - 1] + prices[middle]) / 2;
+  if (!Number.isFinite(median) || median <= 0) return highlights;
+
+  const threshold = median * 0.82;
+  rows
+    .filter((offer) => Number(offer.price) <= threshold)
+    .slice(0, 4)
+    .forEach((offer) => {
+      const belowMedian = Math.max(18, Math.round((1 - Number(offer.price) / median) * 100));
+      highlights.set(offer.id, {
+        label: "TOP CENA W PULI",
+        detail: `${belowMedian}% poniżej mediany aktualnych okazji`,
+      });
+    });
+
+  return highlights;
+}
+
 export default function DealsPage() {
   const now = useMemo(() => new Date(), []);
   const currentYear = now.getFullYear();
@@ -77,6 +113,7 @@ export default function DealsPage() {
 
   const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
   const rows = useMemo(() => cheapestUnique(offers as DealsOffer[]), [offers]);
+  const priceHighlights = useMemo(() => buildPriceHighlights(rows), [rows]);
 
   const checkedLabel = checkedAt
     ? new Intl.DateTimeFormat("pl-PL", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Warsaw" }).format(new Date(checkedAt))
@@ -110,8 +147,8 @@ export default function DealsPage() {
       <div className="deals-hub-hero">
         <div>
           <div className="kicker">OKAZJE TRIPOWNI</div>
-          <h1>Wybierz skąd i kiedy. My pokażemy okazje.</h1>
-          <p className="hub-lead">Najpierw szukamy dokładnie według lotniska, miesiąca i roku. Jeśli nie ma takiej kombinacji, pokazujemy najbliższe potwierdzone opcje i jasno oznaczamy, co się różni.</p>
+          <h1>Najpierw cena. Potem kierunek.</h1>
+          <p className="hub-lead">Sortujemy aktualne oferty od najtańszych, zostawiamy najniższą cenę dla każdego kierunku i wyróżniamy tylko te ceny, które naprawdę odstają od bieżącej puli.</p>
         </div>
         <div className="deals-hub-actions">
           <Link className="primary-cta" href="/#wyszukiwarka"><Search size={17}/> Wyszukaj dokładniej</Link>
@@ -148,6 +185,7 @@ export default function DealsPage() {
 
       <div className="deals-trust-bar">
         <span><Sparkles size={15}/><strong>{rows.length} {rows.length === 1 ? "różny kierunek" : "różnych kierunków"}</strong></span>
+        <span>{priceHighlights.size ? `${priceHighlights.size} cen wyraźnie poniżej mediany puli` : "Oferty od najniższej ceny"}</span>
         <span>{filtering ? `${airportLabel} · ${monthLabel} · ${yearLabel}` : "Wszystkie dostępne lotniska, miesiące i lata"}</span>
         <span>{sourceCopy}</span>
       </div>
@@ -155,7 +193,7 @@ export default function DealsPage() {
       {notice && <div className="deals-filter-notice">{notice}</div>}
 
       {rows.length > 0 ? (
-        <div className="cards-grid deals-premium-grid">{rows.map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
+        <div className="cards-grid deals-premium-grid">{rows.map((offer) => <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>)}</div>
       ) : !loading ? (
         <div className="self-search-empty">
           <strong>Nie mamy teraz potwierdzonych okazji w tej puli.</strong>
