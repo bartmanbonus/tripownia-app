@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CheckCircle2, Plane, UserRound, WalletCards } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import PrivacyDataControls from "@/components/PrivacyDataControls";
 import { DEFAULT_TRAVEL_PROFILE, readTravelProfile, saveTravelProfile, type TravelProfile } from "@/lib/travelProfile";
 
 const styleOptions = [
@@ -98,7 +99,9 @@ export default function ProfilePage() {
           <small>Profil zapisujemy na tym urządzeniu. Możesz go zmienić w dowolnym momencie.</small>
         </form>
 
-        <div className="app-alerts-footer-link"><Link href="/dla-ciebie">Pokaż oferty dla mnie →</Link></div>
+        <PrivacyDataControls />
+
+        <div className="app-alerts-footer-link"><Link href="/dla-ciebie">Pokaż oferty dla mnie →</Link> · <Link href="/polityka-prywatnosci">Prywatność i RODO</Link></div>
       </section>
       <SiteFooter />
     </main>
