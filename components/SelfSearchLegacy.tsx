@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BedDouble, Plane, Search, Sun, Package, MapPin, SlidersHorizontal, ArrowRight } from "lucide-react";
-import EskyLiveWidget from "@/components/EskyLiveWidget";
+import { BedDouble, Plane, Search, Sun, Package, MapPin, SlidersHorizontal, ArrowRight, Clock3 } from "lucide-react";
 import { partners } from "@/lib/partners";
 
 type Tab = "package" | "city" | "holiday" | "flights" | "hotels";
@@ -19,6 +18,8 @@ type SearchOffer = {
   dates: string;
   image?: string;
   affiliateUrl?: string;
+  priceCheckedAt?: string;
+  linkMatch?: "exact" | "parameters" | "destination" | "unsafe";
 };
 
 const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
@@ -56,6 +57,27 @@ function buildFlightUrl(origin: string, destination: string) {
   return partners.kiwi.buildUrl(url.toString());
 }
 
+function directionKey(offer: SearchOffer) {
+  return `${slug(offer.city)}|${slug(offer.country)}`;
+}
+
+function cheapestPerDirection(rows: SearchOffer[]) {
+  const best = new Map<string, SearchOffer>();
+  for (const row of rows) {
+    const key = directionKey(row);
+    const current = best.get(key);
+    if (!current || Number(row.price) < Number(current.price)) best.set(key, row);
+  }
+  return Array.from(best.values()).sort((a, b) => Number(a.price) - Number(b.price));
+}
+
+function checkedLabel(value?: string) {
+  if (!value) return "Aktualna oferta partnera";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Aktualna oferta partnera";
+  return `Sprawdzono ${new Intl.DateTimeFormat("pl-PL", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit", timeZone: "Europe/Warsaw" }).format(date)}`;
+}
+
 export default function SelfSearchLegacy() {
   const [tab, setTab] = useState<Tab>("package");
   const [from, setFrom] = useState<string[]>(["WAWA"]);
@@ -70,12 +92,14 @@ export default function SelfSearchLegacy() {
   const [submitted, setSubmitted] = useState(false);
 
   const selectedDepartures = departures.filter((item) => from.includes(item.key));
-  const activeDeparture = selectedDepartures[0] || departures[0];
-  const destinationQuery = destinations.join(", ");
   const effectiveDestination = destinationDraft.trim() || destinations[0] || "";
 
-  const packageUrl = partners.esky.buildUrl("https://www2.esky.pl/lot+hotel/portfolio?context=pl-packages&sort[TotalPrice]=asc");
-  const hotelUrl = partners.booking.buildUrl(effectiveDestination ? `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(effectiveDestination)}` : "https://www.booking.com/");
+  const hotelUrl = partners.booking.buildUrl(
+    effectiveDestination
+      ? `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(effectiveDestination)}`
+      : "https://www.booking.com/"
+  );
+
   const flightUrl = useMemo(
     () => buildFlightUrl(selectedDepartures.map((item) => item.kiwi).join(","), effectiveDestination),
     [selectedDepartures.map((item) => item.kiwi).join(","), effectiveDestination]
@@ -83,24 +107,15 @@ export default function SelfSearchLegacy() {
 
   function toggleDeparture(key: string) {
     setFrom((current) => {
-      if (current.includes(key)) {
-        return current.length === 1 ? current : current.filter((item) => item !== key);
-      }
+      if (current.includes(key)) return current.length === 1 ? current : current.filter((item) => item !== key);
       return [...current, key];
     });
   }
 
   function addDestination(raw = destinationDraft) {
-    const next = raw
-      .split(",")
-      .map((item) => item.trim())
-      .filter(Boolean);
-
+    const next = raw.split(",").map((item) => item.trim()).filter(Boolean);
     if (!next.length) return;
-
-    setDestinations((current) =>
-      Array.from(new Set([...current, ...next])).slice(0, 6)
-    );
+    setDestinations((current) => Array.from(new Set([...current, ...next])).slice(0, 6));
     setDestinationDraft("");
   }
 
@@ -111,15 +126,14 @@ export default function SelfSearchLegacy() {
   async function searchOrganized() {
     setLoading(true);
     setSubmitted(true);
-    try {
-      if (destinationDraft.trim()) addDestination(destinationDraft);
 
-      const queryValues = Array.from(
-        new Set([
-          ...destinations,
-          ...destinationDraft.split(",").map((item) => item.trim()).filter(Boolean),
-        ])
-      ).slice(0, 6);
+    try {
+      const queryValues = Array.from(new Set([
+        ...destinations,
+        ...destinationDraft.split(",").map((item) => item.trim()).filter(Boolean),
+      ])).slice(0, 6);
+
+      if (destinationDraft.trim()) addDestination(destinationDraft);
 
       const params = new URLSearchParams({
         mode: tab === "city" ? "citybreak" : "search",
@@ -134,7 +148,8 @@ export default function SelfSearchLegacy() {
 
       const response = await fetch(`/api/today-offers?${params.toString()}`, { cache: "no-store" });
       const data = response.ok ? await response.json() : null;
-      setResults(Array.isArray(data?.offers) ? data.offers : []);
+      const rows = Array.isArray(data?.offers) ? data.offers as SearchOffer[] : [];
+      setResults(cheapestPerDirection(rows.filter((offer) => offer?.price > 0 && offer?.affiliateUrl)).slice(0, 12));
     } catch {
       setResults([]);
     } finally {
@@ -148,15 +163,16 @@ export default function SelfSearchLegacy() {
     setSubmitted(false);
   }
 
-  const showDeparture = tab === "city" || tab === "holiday" || tab === "flights";
-  const showFilters = tab === "city" || tab === "holiday";
+  const isTripowniaSearch = tab === "package" || tab === "city" || tab === "holiday";
+  const showDeparture = isTripowniaSearch || tab === "flights";
+  const showFilters = isTripowniaSearch;
 
   return (
     <section className="legacy-self-search self-search-premium" id="szukaj-samodzielnie">
       <div className="legacy-self-search-head">
         <small>SZUKAJ PO SWOJEMU</small>
-        <h2>Ty ustawiasz plan. My prowadzimy prosto do najlepszych dostępnych opcji.</h2>
-        <p>Wybierz typ wyjazdu, miejsce startu i najważniejsze parametry. Bez przekopywania się przez dziesiątki przypadkowych wyników.</p>
+        <h2>Najpierw wyniki w Tripowni. Do partnera przechodzisz dopiero, gdy wybierzesz ofertę.</h2>
+        <p>Ustaw kierunek, lotnisko i najważniejsze filtry. Tripownia pokaże dostępne propozycje bez wyrzucania Cię od razu do zewnętrznej wyszukiwarki.</p>
       </div>
 
       <div className="legacy-search-card self-search-card-premium">
@@ -174,13 +190,7 @@ export default function SelfSearchLegacy() {
               <div className="search-mini-label"><MapPin size={14}/> Skąd chcesz lecieć?</div>
               <div className="search-airport-chips">
                 {departures.map((item) => (
-                  <button
-                    key={item.key}
-                    type="button"
-                    aria-pressed={from.includes(item.key)}
-                    className={from.includes(item.key) ? "active" : ""}
-                    onClick={() => toggleDeparture(item.key)}
-                  >
+                  <button key={item.key} type="button" aria-pressed={from.includes(item.key)} className={from.includes(item.key) ? "active" : ""} onClick={() => toggleDeparture(item.key)}>
                     <strong>{item.short}</strong><span>{item.label}</span>
                   </button>
                 ))}
@@ -188,30 +198,28 @@ export default function SelfSearchLegacy() {
             </div>
           )}
 
-          {(tab === "city" || tab === "holiday" || tab === "flights" || tab === "hotels") && (
+          {(isTripowniaSearch || tab === "flights" || tab === "hotels") && (
             <div className="search-destination-row search-destination-multi">
               <label>
-                <span>Kierunek <small>— możesz dodać kilka</small></span>
+                <span>Kierunek <small>— możesz dodać kilka albo zostawić puste</small></span>
                 <div>
                   <Search size={16}/>
                   <input
                     value={destinationDraft}
                     onChange={(event) => {
                       const value = event.target.value;
-                      if (value.includes(",")) {
-                        addDestination(value);
-                      } else {
-                        setDestinationDraft(value);
-                      }
+                      if (value.includes(",")) addDestination(value);
+                      else setDestinationDraft(value);
                     }}
                     onKeyDown={(event) => {
                       if (event.key === "Enter") {
                         event.preventDefault();
-                        addDestination();
+                        if (isTripowniaSearch) searchOrganized();
+                        else addDestination();
                       }
                     }}
                     onBlur={() => addDestination()}
-                    placeholder={tab === "flights" ? "np. Mediolan, Bangkok, Nowy Jork" : "np. Rzym, Malta, Egipt"}
+                    placeholder={tab === "flights" ? "np. Mediolan, Bangkok, Nowy Jork" : "np. Rzym, Malta, Egipt lub zostaw puste"}
                   />
                 </div>
               </label>
@@ -277,30 +285,24 @@ export default function SelfSearchLegacy() {
               <label className={`self-search-weekend-toggle ${weekendOnly ? "active" : ""}`}>
                 <input type="checkbox" checked={weekendOnly} onChange={(event) => setWeekendOnly(event.target.checked)}/>
                 <span className="self-search-weekend-check">{weekendOnly ? "✓" : ""}</span>
-                <span className="self-search-weekend-copy">
-                  <strong>Pobyt obejmuje sobotę i niedzielę</strong>
-                  <small>Jesteś na miejscu w oba dni weekendu</small>
-                </span>
+                <span className="self-search-weekend-copy"><strong>Weekend na miejscu</strong><small>Pobyt obejmuje sobotę i niedzielę</small></span>
               </label>
             </div>
           )}
 
-          {tab === "package" && (
-            <>
-              <div className="legacy-search-panel-copy"><strong>Lot + hotel w jednym kroku</strong><span>Ustaw miasto wylotu, termin i liczbę osób bezpośrednio w wyszukiwarce.</span></div>
-              <div className="legacy-widget-box"><EskyLiveWidget mode="packages" /></div>
-              <a className="legacy-search-open premium-search-cta" href={packageUrl} target="_blank" rel="sponsored noopener noreferrer"><Search size={17}/> Otwórz pełne wyszukiwanie <ArrowRight size={16}/></a>
-            </>
-          )}
-
-          {(tab === "city" || tab === "holiday") && (
+          {isTripowniaSearch && (
             <>
               <div className="organized-search-intro">
-                <div><strong>{tab === "city" ? "Krótki wyjazd, gotowy do rezerwacji" : "Pełne wakacje w jednym pakiecie"}</strong><span>{tab === "city" ? "Pokazujemy krótkie wyjazdy 2–5 nocy z lotem i hotelem." : "Lot, hotel i dostępne wyżywienie w jednym miejscu."}</span></div>
+                <div>
+                  <strong>{tab === "city" ? "Krótki wyjazd z aktualnego feedu" : tab === "holiday" ? "Wakacje z aktualnego feedu" : "Lot + hotel bez opuszczania Tripowni"}</strong>
+                  <span>Najpierw pokażemy konkretne dostępne propozycje. Dopiero wybrana karta otworzy stronę rezerwacji partnera.</span>
+                </div>
                 <button type="button" onClick={searchOrganized} disabled={loading}>{loading ? "Szukamy…" : "Pokaż oferty"}<ArrowRight size={17}/></button>
               </div>
 
-              {submitted && !loading && results.length === 0 && <div className="self-search-empty"><strong>Nie znaleźliśmy dobrego dopasowania.</strong><span>Zmień kierunek, lotnisko lub poluzuj filtry.</span></div>}
+              {submitted && !loading && results.length === 0 && (
+                <div className="self-search-empty"><strong>Nie znaleźliśmy dziś dobrego dopasowania.</strong><span>Zmień kierunek, lotnisko lub poluzuj filtry. Nie pokazujemy przypadkowych wyników tylko po to, żeby zapełnić ekran.</span></div>
+              )}
 
               {results.length > 0 && (
                 <div className="self-search-results">
@@ -312,7 +314,11 @@ export default function SelfSearchLegacy() {
                         <h3>{offer.hotel}</h3>
                         <div className="self-search-result-meta"><span>✈️ {offer.departure}</span><span>🌙 {offer.nights} nocy</span><span>🍽️ {offer.board}</span></div>
                         <small>{offer.dates}</small>
-                        <div className="self-search-result-bottom"><div><strong>{Number(offer.price).toLocaleString("pl-PL")} zł</strong><span>/ os.</span></div>{offer.affiliateUrl && <a href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Zobacz ofertę <ArrowRight size={15}/></a>}</div>
+                        <div className="offer-trust-line"><Clock3 size={12}/> {checkedLabel(offer.priceCheckedAt)}</div>
+                        <div className="self-search-result-bottom">
+                          <div><strong>{Number(offer.price).toLocaleString("pl-PL")} zł</strong><span>/ os.</span></div>
+                          {offer.affiliateUrl && <a href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Sprawdź tę ofertę <ArrowRight size={15}/></a>}
+                        </div>
                       </div>
                     </article>
                   ))}
@@ -323,23 +329,14 @@ export default function SelfSearchLegacy() {
 
           {tab === "flights" && (
             <div className="legacy-cta-box self-search-single-cta">
-              <div>
-                <strong>Znajdź najlepsze połączenie</strong>
-                <span>
-                  Start: {selectedDepartures.map((item) => item.label).join(", ")}.
-                  {destinations.length ? ` Kierunki: ${destinations.join(", ")}.` : destinationDraft.trim() ? ` Kierunek: ${destinationDraft.trim()}.` : " Dodaj jeden lub kilka kierunków."}
-                </span>
-              </div>
+              <div><strong>Loty sprawdzamy u Kiwi</strong><span>Tripownia zachowuje Twój kierunek i miasto wylotu, a finalne połączenia pokazuje partner lotniczy.</span></div>
               <a href={flightUrl} target="_blank" rel="sponsored noopener noreferrer">Szukaj lotów <ArrowRight size={16}/></a>
             </div>
           )}
 
           {tab === "hotels" && (
             <div className="legacy-cta-box self-search-single-cta">
-              <div>
-                <strong>Masz już transport?</strong>
-                <span>{effectiveDestination ? `Pokaż noclegi w: ${effectiveDestination}.` : "Dodaj kierunek i przejdź do dostępnych noclegów."}</span>
-              </div>
+              <div><strong>Noclegi sprawdzamy w Booking.com</strong><span>{effectiveDestination ? `Pokaż noclegi w: ${effectiveDestination}.` : "Dodaj kierunek i przejdź do dostępnych noclegów."}</span></div>
               <a href={hotelUrl} target="_blank" rel="sponsored noopener noreferrer">Szukaj noclegów <ArrowRight size={16}/></a>
             </div>
           )}
