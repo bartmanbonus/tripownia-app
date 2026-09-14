@@ -19,8 +19,26 @@ const FALLBACKS: Record<string, string[]> = {
   "last minute": ["Egipt", "Turcja", "Tunezja", "Cypr"], wakacje: ["Grecja", "Turcja", "Egipt", "Cypr"],
 };
 
+const GENERIC_TERMS = new Set(["city break", "cieple wakacje", "all inclusive", "egzotyka", "last minute", "wakacje"]);
+
 function normalize(value: string) {
   return value.toLocaleLowerCase("pl").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+}
+
+function termMatchesOffer(term: string, offer: SeasonalOffer) {
+  const needle = normalize(term);
+  if (!needle) return true;
+
+  if (GENERIC_TERMS.has(needle)) {
+    if (needle === "city break") return offer.category.includes("city") || offer.category.includes("weekend");
+    if (needle === "all inclusive") return offer.category.includes("allinclusive") || normalize(offer.board).includes("all inclusive");
+    if (needle === "cieple wakacje") return offer.category.includes("cieplo");
+    if (needle === "last minute" || needle === "wakacje") return true;
+    if (needle === "egzotyka") return /zanzibar|malediw|tajland|dominik|mauritius|seszel|kenia|meksyk/i.test(normalize(`${offer.city} ${offer.country}`));
+  }
+
+  const haystack = normalize(`${offer.city} ${offer.country} ${offer.hotel}`);
+  return haystack.includes(needle);
 }
 
 function departureCode(value?: string) {
@@ -74,7 +92,9 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
       const response = await fetch(`/api/today-offers?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
       if (!response.ok) return [] as SeasonalOffer[];
       const data = (await response.json()) as ApiResponse;
-      return Array.isArray(data.offers) ? data.offers.filter((offer) => offer.partner === "exim") : [];
+      return Array.isArray(data.offers)
+        ? data.offers.filter((offer) => offer.partner === "exim" && termMatchesOffer(term, offer))
+        : [];
     }
 
     function dateMatches(offer: SeasonalOffer) {
@@ -135,11 +155,11 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
 
   if (loading) return <div className="seo-live-status"><span className="seo-live-pulse" /><strong>Sprawdzamy teraz aktualne oferty…</strong></div>;
   if (error || offers.length === 0) {
-    return <div className="seo-live-status seo-live-status-warning"><strong>Nie znaleźliśmy teraz pasującej oferty dla tego lotniska i terminu.</strong><span>Nie podstawiamy ofert z innego lotniska ani miesiąca tylko po to, żeby zapełnić stronę. Sprawdź ponownie później albo ustaw alert.</span></div>;
+    return <div className="seo-live-status seo-live-status-warning"><strong>Nie znaleźliśmy teraz pasującej oferty dla tego lotniska i terminu.</strong><span>Nie podstawiamy ofert z innego kierunku, lotniska ani miesiąca tylko po to, żeby zapełnić stronę. Sprawdź ponownie później albo ustaw alert.</span></div>;
   }
 
   return <>
-    {relaxed && <div className="seo-live-note">Lotnisko i termin się zgadzają. Pokazujemy najbliższe aktualne propozycje — cena lub długość pobytu może różnić się od dodatkowego filtra strony.</div>}
+    {relaxed && <div className="seo-live-note">Kierunek, lotnisko i termin się zgadzają. Pokazujemy najbliższe aktualne propozycje — cena lub długość pobytu może różnić się od dodatkowego filtra strony.</div>}
     <div className="cards-grid seo-live-offers-grid">{offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} />)}</div>
   </>;
 }
