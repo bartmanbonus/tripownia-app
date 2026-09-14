@@ -16,6 +16,54 @@ function setTextIfChanged(node: HTMLElement | null, text: string) {
   if (node && node.textContent !== text) node.textContent = text;
 }
 
+function homepageHasLivePool() {
+  const daily = document.querySelector<HTMLElement>("#okazje");
+  if (!daily) return true;
+  const trustLines = Array.from(daily.querySelectorAll<HTMLElement>(".offer-trust-line"));
+  if (!trustLines.length) return true;
+  return trustLines.some((line) => normalize(line.textContent || "").includes("feedu"));
+}
+
+function suppressStaticDailyFallback() {
+  const daily = document.querySelector<HTMLElement>("#okazje");
+  const radarPanel = document.querySelector<HTMLElement>(".hero-radar-panel");
+  if (!daily) return;
+
+  const trustLines = Array.from(daily.querySelectorAll<HTMLElement>(".offer-trust-line"));
+  if (!trustLines.length) return;
+
+  const hasLivePool = homepageHasLivePool();
+  const dailyItems = daily.querySelectorAll<HTMLElement>(".daily-carousel-item");
+  const radarList = radarPanel?.querySelector<HTMLElement>(".hero-radar-list") || null;
+  const streamingRows = document.querySelectorAll<HTMLElement>(".streaming-offers .offer-stream-row");
+  let empty = daily.querySelector<HTMLElement>(".daily-static-fallback-empty");
+
+  if (!hasLivePool) {
+    dailyItems.forEach((item) => { item.hidden = true; });
+    streamingRows.forEach((row) => { row.hidden = true; });
+    if (radarList) radarList.hidden = true;
+
+    if (!empty) {
+      empty = document.createElement("div");
+      empty.className = "daily-live-empty daily-static-fallback-empty";
+      empty.innerHTML = "<strong>Aktualizujemy dzisiejsze oferty</strong><span>Nie pokazujemy starych cen jako bieżących. Gdy tylko feed lub ostatnia poprawna pula będą dostępne, oferty wrócą automatycznie.</span>";
+      daily.querySelector<HTMLElement>(".daily-carousel")?.appendChild(empty);
+    }
+
+    const radarCount = radarPanel?.querySelector<HTMLElement>(".hero-daily-stat strong") || null;
+    setTextIfChanged(radarCount, "—");
+    const radarCountLabel = radarPanel?.querySelector<HTMLElement>(".hero-daily-stat span") || null;
+    setTextIfChanged(radarCountLabel, "czekamy na potwierdzoną pulę ofert");
+    const radarIntro = radarPanel?.querySelector<HTMLElement>(":scope > p") || null;
+    setTextIfChanged(radarIntro, "Aktualizujemy dzisiejszą selekcję. Nie pokazujemy archiwalnych cen w zastępstwie live feedu.");
+    return;
+  }
+
+  dailyItems.forEach((item) => { item.hidden = false; });
+  if (radarList) radarList.hidden = false;
+  empty?.remove();
+}
+
 function deduplicateRails() {
   const root = document.querySelector<HTMLElement>(".streaming-offers");
   if (!root) return;
@@ -24,6 +72,11 @@ function deduplicateRails() {
   const rows = root.querySelectorAll<HTMLElement>(".offer-stream-row");
 
   rows.forEach((row) => {
+    if (!homepageHasLivePool()) {
+      row.hidden = true;
+      return;
+    }
+
     const items = row.querySelectorAll<HTMLElement>(".offer-stream-item");
     items.forEach((item) => {
       item.hidden = false;
@@ -44,7 +97,7 @@ function deduplicateRails() {
 function syncRadarLinks() {
   const radar = document.querySelector<HTMLElement>(".hero-radar-list");
   const daily = document.querySelector<HTMLElement>(".daily-carousel");
-  if (!radar || !daily) return;
+  if (!radar || !daily || !homepageHasLivePool()) return;
 
   const ctaByCity = new Map<string, string>();
   daily.querySelectorAll<HTMLElement>(".offer-card").forEach((card) => {
@@ -89,7 +142,7 @@ function simplifySearchFlow() {
 
 function syncFreshnessCopy() {
   const daily = document.querySelector<HTMLElement>("#okazje");
-  if (!daily) return;
+  if (!daily || !homepageHasLivePool()) return;
 
   const trustLines = Array.from(daily.querySelectorAll<HTMLElement>(".offer-trust-line"));
   if (!trustLines.length) return;
@@ -130,6 +183,7 @@ function syncFreshnessCopy() {
 
 function synchronizeHomeExperience() {
   simplifySearchFlow();
+  suppressStaticDailyFallback();
   deduplicateRails();
   syncRadarLinks();
   syncFreshnessCopy();
