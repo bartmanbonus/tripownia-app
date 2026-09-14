@@ -94,7 +94,7 @@ async function fetchProducts(query: string, token: string) {
   return Array.isArray(data?.products) ? (data.products as TdProduct[]) : [];
 }
 
-function candidate(product: TdProduct, target: { destination: string; country: string; from: string; nights: number; board: string }) {
+function candidate(product: TdProduct, target: { destination: string; country: string; from: string; nights: number; board: string; targetPrice: number }) {
   const fields = fieldMap(product);
   const offer = product.offers?.[0];
   const productUrl = offer?.productUrl || offer?.legacyProductUrl;
@@ -105,7 +105,6 @@ function candidate(product: TdProduct, target: { destination: string; country: s
   const destination = normalize(target.destination);
   const country = normalize(target.country);
 
-  // Nie podstawiamy innego kurortu tylko dlatego, że zgadza się kraj.
   if (destination && !haystack.includes(destination)) return null;
   if (country && !haystack.includes(country)) return null;
 
@@ -127,10 +126,19 @@ function candidate(product: TdProduct, target: { destination: string; country: s
   const pricePerPerson = Math.round(rawPrice / adults);
 
   let score = 0;
-  score += 100; // dokładny kierunek
+  score += 100;
   if (departureMatch) score += 35;
   if (target.nights > 0 && nights === target.nights) score += 25;
   if (target.board && boardMatches(target.board, board)) score += 25;
+
+  const priceDelta = target.targetPrice > 0 ? Math.abs(pricePerPerson - target.targetPrice) : Number.POSITIVE_INFINITY;
+  if (target.targetPrice > 0) {
+    const ratio = priceDelta / target.targetPrice;
+    if (ratio <= 0.03) score += 35;
+    else if (ratio <= 0.08) score += 25;
+    else if (ratio <= 0.15) score += 15;
+    else if (ratio <= 0.25) score += 5;
+  }
 
   return {
     product,
@@ -142,6 +150,7 @@ function candidate(product: TdProduct, target: { destination: string; country: s
     nights,
     board,
     score,
+    priceDelta,
   };
 }
 
@@ -151,6 +160,7 @@ export async function findBestEximOffer(target: {
   from?: string;
   nights?: number;
   board?: string;
+  targetPrice?: number;
 }): Promise<EximLiveResult> {
   const token = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const checkedAt = new Date().toISOString();
@@ -161,6 +171,7 @@ export async function findBestEximOffer(target: {
   const from = (target.from || "WAW").toUpperCase();
   const nights = Math.max(0, Number(target.nights || 0));
   const board = target.board || "";
+  const targetPrice = Math.max(0, Number(target.targetPrice || 0));
 
   const queries = Array.from(new Set([destination, country].filter(Boolean)));
   let products: TdProduct[] = [];
@@ -173,17 +184,13 @@ export async function findBestEximOffer(target: {
   }
 
   const matches = Array.from(unique.values())
-    .map((product) => candidate(product, { destination, country, from, nights, board }))
+    .map((product) => candidate(product, { destination, country, from, nights, board, targetPrice }))
     .filter(Boolean) as NonNullable<ReturnType<typeof candidate>>[];
 
   if (!matches.length) return { available: false, checkedAt };
 
-  // Najpierw zgodność, a w ramach równie dobrych dopasowań najniższa aktualna cena.
-  matches.sort((a, b) => b.score - a.score || a.pricePerPerson - b.pricePerPerson);
-  const bestScore = matches[0].score;
-  const equallyGood = matches.filter((item) => item.score === bestScore);
-  equallyGood.sort((a, b) => a.pricePerPerson - b.pricePerPerson);
-  const best = equallyGood[0];
+  matches.sort((a, b) => b.score - a.score || a.priceDelta - b.priceDelta || a.pricePerPerson - b.pricePerPerson);
+  const best = matches[0];
 
   return {
     available: true,
