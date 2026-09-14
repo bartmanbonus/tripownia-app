@@ -37,8 +37,8 @@ const primaryItems = [
 
 const planningItems = [
   { href: "/kierunki", label: "Kierunki", icon: Compass },
-  { href: "https://www.booking.com/?aid=818288", label: "Hotele", icon: BedDouble, external: true },
-  { href: "https://kiwi.tpk.lv/7PnrR4dn", label: "Loty", icon: Plane, external: true },
+  { href: partners.booking.buildUrl(), label: "Hotele", icon: BedDouble, external: true },
+  { href: partners.kiwi.buildUrl(), label: "Loty", icon: Plane, external: true },
   { href: "/wynajem-auta", label: "Wynajem auta", icon: Car },
   { href: partners.getyourguide.buildUrl("https://www.getyourguide.pl/"), label: "Atrakcje", icon: Ticket, external: true },
   { href: "/poradniki", label: "Poradniki", icon: BookOpen },
@@ -157,8 +157,8 @@ export default function SiteHeader() {
                 <div className="trip-mobile-menu-section">
                   <strong>Planuj i rezerwuj</strong>
                   <Link href="/kierunki"><Compass size={18} /><span>Kierunki</span></Link>
-                  <a href="https://kiwi.tpk.lv/7PnrR4dn" target="_blank" rel="sponsored noopener noreferrer"><Plane size={18} /><span>Loty</span></a>
-                  <a href="https://www.booking.com/?aid=818288" target="_blank" rel="sponsored noopener noreferrer"><BedDouble size={18} /><span>Hotele</span></a>
+                  <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><Plane size={18} /><span>Loty</span></a>
+                  <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><BedDouble size={18} /><span>Hotele</span></a>
                   <a href={partners.getyourguide.buildUrl("https://www.getyourguide.pl/")} target="_blank" rel="sponsored noopener noreferrer"><Ticket size={18} /><span>Atrakcje</span></a>
                   <Link href="/wynajem-auta"><Car size={18} /><span>Wynajem auta</span></Link>
                 </div>
