@@ -4,16 +4,15 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5, Heart, Plane, Globe2, Palmtree, Building2, BadgePercent, ShieldCheck, Compass } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5, Plane, Globe2, Palmtree, Building2, BadgePercent, ShieldCheck, Compass } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import SelfSearchLegacy from "@/components/SelfSearchLegacy";
-import { offers, getDailyOffers, isOfferExpired } from "@/lib/offers";
+import { offers, isOfferExpired } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { LONG_HAUL_IMAGES } from "@/lib/longHaulImages";
 
-
+const DAILY_CACHE_MAX_AGE_MS = 48 * 60 * 60 * 1000;
 
 const LOCAL_IMAGE_BY_CITY: Record<string, string> = {
   malta: "/images/destinations/valletta.jpg",
@@ -69,9 +68,6 @@ function normalizeKey(value: string) {
 
 function destinationGroupKey(offer: { city: string; country: string }) {
   const text = `${normalizeKey(offer.city)} ${normalizeKey(offer.country)}`;
-
-  // Jeden kierunek turystyczny może zawierać wiele miejscowości/hoteli.
-  // Grupujemy je tak, jak widzi je użytkownik, a nie według technicznej nazwy resortu.
   const groups: Array<[RegExp, string]> = [
     [/zanzibar|kiwengwa|matemwe|mangapwani|nungwi|kendwa|paje|jambiani|makunduchi/, "zanzibar"],
     [/durres|durrës|golem|shkembi|riwiera albanska|albania/, "riwiera-albanska"],
@@ -89,7 +85,7 @@ function destinationGroupKey(offer: { city: string; country: string }) {
     [/kreta|crete|heraklion|hersonissos|malia|rethymno|chania/, "kreta"],
     [/majorka|mallorca|palma de mallorca|alcudia|magaluf/, "majorka"],
     [/cypr|cyprus|pafos|paphos|larnaka|larnaca|ayia napa|protaras/, "cypr"],
-    [/mauritius|mauritius/, "mauritius"],
+    [/mauritius/, "mauritius"],
     [/malediw|maldives/, "malediwy"],
     [/seszel|seychelles/, "seszele"],
   ];
@@ -115,8 +111,31 @@ function cheapestPerDirection<T extends { city: string; country: string; price: 
 
 type TripOffer = (typeof offers)[number];
 
+type DailyCache = {
+  key?: string;
+  checkedAt?: string;
+  offers?: TripOffer[];
+};
+
+function readLastGoodDaily(): DailyCache | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = JSON.parse(localStorage.getItem("tripownia:last-good-daily") || "null") as DailyCache | null;
+    if (!saved || !Array.isArray(saved.offers) || !saved.offers.length || !saved.checkedAt) return null;
+    const checkedAt = new Date(saved.checkedAt).getTime();
+    const age = Date.now() - checkedAt;
+    if (!Number.isFinite(checkedAt) || age < 0 || age > DAILY_CACHE_MAX_AGE_MS) {
+      localStorage.removeItem("tripownia:last-good-daily");
+      return null;
+    }
+    return saved;
+  } catch {
+    localStorage.removeItem("tripownia:last-good-daily");
+    return null;
+  }
+}
+
 function offerForDisplay(offer: TripOffer): TripOffer {
-  // Oferty z feedów live mają własne zdjęcie konkretnego hotelu i gotowy deeplink.
   if (offer.id >= 1_000_000 && offer.linkMatch === "exact") return offer;
   const key = normalizeKey(offer.city);
   const mapped = LOCAL_IMAGE_BY_CITY[key];
@@ -182,13 +201,11 @@ const longHaulCards = [
   { href: "/dalekie-podroze#dominikana", region: "ameryka", label: "DOMINIKANA", title: "Dominikana", subtitle: "Karaiby · plaże · natura", text: "Tropiki nie tylko w resorcie — wyspa ma dużo więcej do pokazania.", imageCity: "Dominikana", imageCountry: "Dominikana", fallbackImage: LONG_HAUL_IMAGES.dominikana },
 ];
 
-
 function LongHaulCardImage({ city, country, fallbackSrc }: { city: string; country: string; fallbackSrc?: string }) {
   const [dynamicSrc, setDynamicSrc] = useState<string | null>(null);
 
   useEffect(() => {
     if (fallbackSrc) return;
-
     let active = true;
     const controller = new AbortController();
     const params = new URLSearchParams({ city, country });
@@ -302,7 +319,6 @@ function LongHaulHomeSection() {
         <button className="long-haul-arrow long-haul-arrow-right" type="button" onClick={() => scroll(1)} aria-label="Następne kierunki"><ArrowRight size={22}/></button>
       </div>
 
-
       <div className="long-haul-trust">
         <div><span><Globe2 size={19}/></span><p><strong>Sprawdzone kierunki</strong><small>Tylko miejsca, które polecamy</small></p></div>
         <div><span><BadgePercent size={19}/></span><p><strong>Dobre ceny</strong><small>Oferty z zaufanych partnerów</small></p></div>
@@ -314,79 +330,20 @@ function LongHaulHomeSection() {
 }
 
 const experienceCards = [
-  {
-    href: "/podroze-po-przezycia#zorza",
-    season: "WRZESIEŃ–MARZEC",
-    title: "🌌 Zorza na Islandii",
-    text: "Ciemne noce, geotermia i wyjazd planowany pod szansę zobaczenia zorzy.",
-    imageCity: "zorza islandia", imageCountry: "Islandia", fallbackImage: "/images/experiences/islandia-zorza.png",
-  },
-  {
-    href: "/podroze-po-przezycia#sakura",
-    season: "MARZEC–KWIECIEŃ",
-    title: "🌸 Sakura w Japonii",
-    text: "Tokio i Kioto wtedy, gdy kwitnienie wiśni staje się głównym punktem podróży.",
-    imageCity: "sakura japonia", imageCountry: "Japonia", fallbackImage: "/images/experiences/japonia-sakura.png",
-  },
-  {
-    href: "/podroze-po-przezycia#fiordy",
-    season: "MAJ–WRZESIEŃ",
-    title: "🏔️ Fiordy i białe noce",
-    text: "Długie dni, trekking, rejsy i spektakularne trasy widokowe po Norwegii.",
-    imageCity: "fiordy norwegia", imageCountry: "Norwegia", fallbackImage: "/images/experiences/norwegia-fiordy.png",
-  },
-  {
-    href: "/podroze-po-przezycia#nowa-zelandia",
-    season: "LISTOPAD–MARZEC",
-    title: "🥾 Nowa Zelandia",
-    text: "Road trip, góry i lato na południowej półkuli w najlepszym oknie na aktywny wyjazd.",
-    imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia", fallbackImage: "/images/experiences/nowa-zelandia.png",
-  },
-  {
-    href: "/podroze-po-przezycia#tulipany",
-    season: "KWIECIEŃ–MAJ",
-    title: "🌷 Tulipany w Holandii",
-    text: "Krótki city break połączony z polami kwiatów i sezonem, który trwa tylko chwilę.",
-    imageCity: "tulipany holandia", imageCountry: "Holandia", fallbackImage: "/images/experiences/holandia-tulipany.png",
-  },
-  {
-    href: "/podroze-po-przezycia#safari",
-    season: "CZERWIEC–PAŹDZIERNIK",
-    title: "🦁 Safari w Kenii i Tanzanii",
-    text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.",
-    imageCity: "safari kenia tanzania", imageCountry: "Kenia", fallbackImage: "/images/experiences/kenia-safari.png",
-  },
-  {
-    href: "/podroze-po-przezycia#jarmarki",
-    season: "LISTOPAD–GRUDZIEŃ",
-    title: "🎄 Jarmarki bożonarodzeniowe",
-    text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.",
-    imageCity: "jarmarki wieden", imageCountry: "Austria", fallbackImage: "/images/experiences/jarmarki.png",
-  },
-  {
-    href: "/podroze-po-przezycia#egzotyka",
-    season: "ZIMA W POLSCE",
-    title: "🌴 Egzotyka w porze suchej",
-    text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.",
-    imageCity: "egzotyka pora sucha", imageCountry: "Seszele", fallbackImage: "/images/experiences/egzotyka.png",
-  },
+  { href: "/podroze-po-przezycia#zorza", season: "WRZESIEŃ–MARZEC", title: "🌌 Zorza na Islandii", text: "Ciemne noce, geotermia i wyjazd planowany pod szansę zobaczenia zorzy.", imageCity: "zorza islandia", imageCountry: "Islandia", fallbackImage: "/images/experiences/islandia-zorza.png" },
+  { href: "/podroze-po-przezycia#sakura", season: "MARZEC–KWIECIEŃ", title: "🌸 Sakura w Japonii", text: "Tokio i Kioto wtedy, gdy kwitnienie wiśni staje się głównym punktem podróży.", imageCity: "sakura japonia", imageCountry: "Japonia", fallbackImage: "/images/experiences/japonia-sakura.png" },
+  { href: "/podroze-po-przezycia#fiordy", season: "MAJ–WRZESIEŃ", title: "🏔️ Fiordy i białe noce", text: "Długie dni, trekking, rejsy i spektakularne trasy widokowe po Norwegii.", imageCity: "fiordy norwegia", imageCountry: "Norwegia", fallbackImage: "/images/experiences/norwegia-fiordy.png" },
+  { href: "/podroze-po-przezycia#nowa-zelandia", season: "LISTOPAD–MARZEC", title: "🥾 Nowa Zelandia", text: "Road trip, góry i lato na południowej półkuli w najlepszym oknie na aktywny wyjazd.", imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia", fallbackImage: "/images/experiences/nowa-zelandia.png" },
+  { href: "/podroze-po-przezycia#tulipany", season: "KWIECIEŃ–MAJ", title: "🌷 Tulipany w Holandii", text: "Krótki city break połączony z polami kwiatów i sezonem, który trwa tylko chwilę.", imageCity: "tulipany holandia", imageCountry: "Holandia", fallbackImage: "/images/experiences/holandia-tulipany.png" },
+  { href: "/podroze-po-przezycia#safari", season: "CZERWIEC–PAŹDZIERNIK", title: "🦁 Safari w Kenii i Tanzanii", text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.", imageCity: "safari kenia tanzania", imageCountry: "Kenia", fallbackImage: "/images/experiences/kenia-safari.png" },
+  { href: "/podroze-po-przezycia#jarmarki", season: "LISTOPAD–GRUDZIEŃ", title: "🎄 Jarmarki bożonarodzeniowe", text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.", imageCity: "jarmarki wieden", imageCountry: "Austria", fallbackImage: "/images/experiences/jarmarki.png" },
+  { href: "/podroze-po-przezycia#egzotyka", season: "ZIMA W POLSCE", title: "🌴 Egzotyka w porze suchej", text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.", imageCity: "egzotyka pora sucha", imageCountry: "Seszele", fallbackImage: "/images/experiences/egzotyka.png" },
 ];
 
-function ExperienceTeaserImage({
-  city,
-  country,
-  title,
-  fallbackSrc,
-}: {
-  city: string;
-  country: string;
-  title: string;
-  fallbackSrc?: string;
-}) {
+function ExperienceTeaserImage({ city, country, title, fallbackSrc }: { city: string; country: string; title: string; fallbackSrc?: string }) {
   const [src, setSrc] = useState<string | null>(fallbackSrc || null);
 
   useEffect(() => {
-    // Dla kart kuratorskich lokalna grafika ma pierwszeństwo i nie jest nadpisywana API-em.
     if (fallbackSrc) {
       setSrc(fallbackSrc);
       return;
@@ -412,15 +369,7 @@ function ExperienceTeaserImage({
   return (
     <div className="experience-teaser-media" aria-hidden="true">
       {src ? (
-        <img
-          src={src}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          onError={(event) => {
-            event.currentTarget.style.display = "none";
-          }}
-        />
+        <img src={src} alt="" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.style.display = "none"; }} />
       ) : (
         <div className="experience-teaser-skeleton" />
       )}
@@ -447,14 +396,12 @@ function OfferRail({ kicker, title, description, items }: { kicker: string; titl
     <div className={`offer-stream-rail-wrap${sparse ? " is-sparse" : ""}`}>
       {items.length > 1 && <div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div>}
       <div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>{items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}</div>
-      {sparse && <div className="offer-stream-sparse-helper"><small>CHCESZ WIĘCEJ OPCJI?</small><strong>Nie rozciągamy jednej oferty na cały ekran.</strong><span>Jeśli dzisiejszy feed ma mało dobrych dopasowań, pokażemy tylko zweryfikowane propozycje. Resztę możesz wyszukać po swoich parametrach.</span><Link href="#szukaj-samodzielnie">Wyszukaj samodzielnie <ArrowRight size={16}/></Link></div>}
+      {sparse && <div className="offer-stream-sparse-helper"><small>CHCESZ WIĘCEJ OPCJI?</small><strong>Nie rozciągamy jednej oferty na cały ekran.</strong><span>Jeśli dzisiejszy feed ma mało dobrych dopasowań, pokażemy tylko zweryfikowane propozycje. Resztę możesz wyszukać po swoich parametrach.</span><Link href="#wyszukiwarka">Wyszukaj samodzielnie <ArrowRight size={16}/></Link></div>}
     </div>
   </section>;
 }
 
 export default function Home() {
-  // V101: selekcja dzienna przełącza się o 08:00 czasu polskiego.
-  // Nie zależy od deploymentu ani od ponownego otwarcia karty.
   const [dailyKey, setDailyKey] = useState(() => publicationKey());
 
   useEffect(() => {
@@ -467,7 +414,7 @@ export default function Home() {
     return () => window.clearInterval(timer);
   }, []);
 
-  const [liveOffers, setLiveOffers] = useState<TripOffer[]>(() => getDailyOffers(offers, 20));
+  const [liveOffers, setLiveOffers] = useState<TripOffer[]>([]);
   const [liveOffersStatus, setLiveOffersStatus] = useState<"loading" | "live" | "fallback">("loading");
   const [eximCityBreaks, setEximCityBreaks] = useState<TripOffer[]>([]);
   const [liveRefreshTick, setLiveRefreshTick] = useState(0);
@@ -483,62 +430,50 @@ export default function Home() {
     const controller = new AbortController();
     setLiveOffersStatus("loading");
 
+    const useCachedPool = () => {
+      const saved = readLastGoodDaily();
+      if (saved?.offers?.length) {
+        setLiveOffers(saved.offers.slice(0, 20));
+        setLastLiveCheckedAt(saved.checkedAt || null);
+      } else {
+        setLiveOffers([]);
+        setLastLiveCheckedAt(null);
+      }
+      setLiveOffersStatus("fallback");
+    };
+
     fetch(`/api/today-offers?key=${encodeURIComponent(dailyKey)}&refresh=${liveRefreshTick}`, {
       signal: controller.signal,
       cache: "no-store",
     })
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error("today-offers")))
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok || data?.ok === false) throw new Error("today-offers");
+        return data;
+      })
       .then((data) => {
         if (!active) return;
         const rows = Array.isArray(data?.offers) ? data.offers : [];
         const safeRows = rows
           .filter((offer: TripOffer) => offer && offer.id && offer.price > 0 && offer.affiliateUrl)
           .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country));
-        if (safeRows.length >= 8) {
-          const freshPool = safeRows.slice(0, 20);
-          setLiveOffers(freshPool);
-          try {
-            localStorage.setItem("tripownia:last-good-daily", JSON.stringify({
-              key: dailyKey,
-              checkedAt: data?.checkedAt || new Date().toISOString(),
-              offers: freshPool,
-            }));
-          } catch {}
-          setLastLiveCheckedAt(typeof data?.checkedAt === "string" ? data.checkedAt : new Date().toISOString());
-          setLiveOffersStatus("live");
-        } else {
-          try {
-            const saved = JSON.parse(localStorage.getItem("tripownia:last-good-daily") || "null");
-            if (Array.isArray(saved?.offers) && saved.offers.length) {
-              setLiveOffers(saved.offers.slice(0, 20));
-              setLastLiveCheckedAt(saved.checkedAt || null);
-            } else {
-              setLiveOffers(getDailyOffers(offers, 20));
-              setLastLiveCheckedAt(null);
-            }
-          } catch {
-            setLiveOffers(getDailyOffers(offers, 20));
-            setLastLiveCheckedAt(null);
-          }
-          setLiveOffersStatus("fallback");
+
+        if (!safeRows.length) {
+          useCachedPool();
+          return;
         }
+
+        const checkedAt = typeof data?.checkedAt === "string" ? data.checkedAt : new Date().toISOString();
+        const freshPool = safeRows.slice(0, 20);
+        setLiveOffers(freshPool);
+        setLastLiveCheckedAt(checkedAt);
+        setLiveOffersStatus("live");
+        try {
+          localStorage.setItem("tripownia:last-good-daily", JSON.stringify({ key: dailyKey, checkedAt, offers: freshPool }));
+        } catch {}
       })
       .catch(() => {
-        if (!active) return;
-        try {
-          const saved = JSON.parse(localStorage.getItem("tripownia:last-good-daily") || "null");
-          if (Array.isArray(saved?.offers) && saved.offers.length) {
-            setLiveOffers(saved.offers.slice(0, 20));
-            setLastLiveCheckedAt(saved.checkedAt || null);
-          } else {
-            setLiveOffers(getDailyOffers(offers, 20));
-            setLastLiveCheckedAt(null);
-          }
-        } catch {
-          setLiveOffers(getDailyOffers(offers, 20));
-          setLastLiveCheckedAt(null);
-        }
-        setLiveOffersStatus("fallback");
+        if (active) useCachedPool();
       });
 
     return () => {
@@ -562,35 +497,27 @@ export default function Home() {
     return () => controller.abort();
   }, [dailyKey, liveRefreshTick]);
 
-  // Sekcja „dzisiejsze” pokazuje wyłącznie dane pobrane na żywo.
-  // Nie podstawiamy starych kart jako rzekomo aktualnej puli.
   const todaysOffers = useMemo(() =>
     cheapestPerDirection(liveOffers.map(offerForDisplay))
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity)),
-    [liveOffersStatus, liveOffers]
+    [liveOffers]
   );
 
   const newOffersCount = todaysOffers.length;
+  const hasOffers = newOffersCount > 0;
 
   const refreshStatus = useMemo(() => {
     const checked = lastLiveCheckedAt ? new Date(lastLiveCheckedAt) : null;
     const last = checked && !Number.isNaN(checked.getTime())
       ? new Intl.DateTimeFormat("pl-PL", { timeZone: "Europe/Warsaw", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(checked)
       : "w trakcie";
-    return {
-      last,
-      next: "ceny sprawdzamy ponownie automatycznie co 10 min",
-    };
+    return { last, next: "ceny sprawdzamy ponownie automatycznie co 10 min" };
   }, [lastLiveCheckedAt]);
 
   const themedRails = useMemo(() => {
     const key = dailyKey;
-    const homePool = liveOffers;
-    // Najpierw wybieramy NAJTAŃSZĄ ofertę dla każdego kierunku, dopiero potem układamy kolejność dnia.
     const cheapestDirections = cheapestPerDirection(
-      homePool
-        .filter(o => isTravelDestinationAllowed(o.city, o.country))
-        .map(offerForDisplay)
+      liveOffers.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay)
     );
     const active: TripOffer[] = seededShuffle<TripOffer>(cheapestDirections, `tripownia-rails:${key}`);
     const uniqueDestinations = (rows: typeof active) => {
@@ -602,7 +529,7 @@ export default function Home() {
         return true;
       });
     };
-    const pick = (match: (o: (typeof offers)[number]) => boolean, limit = 8) => uniqueDestinations(active.filter(match)).slice(0, limit);
+    const pick = (match: (o: TripOffer) => boolean, limit = 8) => uniqueDestinations(active.filter(match)).slice(0, limit);
     const fillRail = (primary: typeof active, minimum = 5) => {
       const result = uniqueDestinations(primary);
       const used = new Set(result.map(destinationGroupKey));
@@ -613,8 +540,6 @@ export default function Home() {
       }
       return result;
     };
-    // City breaki nadal opieramy na EXIM, ale łączymy dedykowany feed z aktualną pulą EXIM,
-    // żeby pojedynczy słabszy response nie zostawiał sekcji z jedną samotną kartą.
     const eximCityPool = [
       ...eximCityBreaks,
       ...liveOffers.filter(o => o.partner === "exim" && o.nights >= 2 && o.nights <= 5),
@@ -624,11 +549,11 @@ export default function Home() {
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
     const unusual = fillRail(pick(o => unusualNames.test(o.city)), 5);
     return { city, sun, unusual };
-  }, [dailyKey, liveOffersStatus, liveOffers, eximCityBreaks]);
+  }, [dailyKey, liveOffers, eximCityBreaks]);
+
   const offersRailRef = useRef<HTMLDivElement>(null);
   const [budget, setBudget] = useState(2500);
   const [surprise, setSurprise] = useState<TripOffer | null>(null);
-
   const [surpriseLive, setSurpriseLive] = useState<TripOffer[]>([]);
   const [surpriseLoading, setSurpriseLoading] = useState(false);
 
@@ -667,9 +592,7 @@ export default function Home() {
         return (tierScore(bText) + bFit * 80 + Number(b.score || 0) * 10) - (tierScore(aText) + aFit * 80 + Number(a.score || 0) * 10);
       })
       .slice(0, 10);
-  }, [budget, surpriseLive, liveOffersStatus, liveOffers]);
-
-
+  }, [budget, surpriseLive, liveOffers]);
 
   function moveOffersRail(direction: -1 | 1) {
     const rail = offersRailRef.current;
@@ -692,6 +615,12 @@ export default function Home() {
     setSurprise(next);
   }
 
+  const dailyCopy = liveOffersStatus === "live"
+    ? "Dzisiejsza pula pochodzi z aktualnego feedu. Status ceny i dokładność linku oznaczamy na każdej karcie."
+    : hasOffers
+      ? "Pokazujemy ostatnią poprawnie potwierdzoną pulę z ostatnich 48 godzin. Status ceny sprawdzisz na każdej karcie."
+      : "Sprawdzamy dzisiejszą pulę. Nie pokazujemy archiwalnych cen w zastępstwie aktualnych danych.";
+
   return (
     <main>
       <SiteHeader />
@@ -704,7 +633,7 @@ export default function Home() {
             <p>Nie wiesz gdzie? Pokażemy najlepsze znalezione dziś. Wiesz czego chcesz? Wyszukaj po swojemu — bez wychodzenia z Tripowni.</p>
             <div className="hero-mode-actions">
               <Link href="#okazje">🔥 Pokaż mi okazje</Link>
-              <Link href="#szukaj-samodzielnie">🔎 Wyszukaj samodzielnie</Link>
+              <Link href="#wyszukiwarka">🔎 Wyszukaj samodzielnie</Link>
             </div>
           </div>
 
@@ -712,12 +641,12 @@ export default function Home() {
             <div className="hero-daily-icon">✦</div>
             <div className="kicker">NA RADARZE DZISIAJ</div>
             <h2>Co warto kliknąć teraz?</h2>
-            <p>Nie przypadkowe kierunki — trzy propozycje wyciągnięte z dzisiejszej selekcji.</p>
+            <p>{liveOffersStatus === "loading" ? "Sprawdzamy dzisiejszą selekcję." : liveOffersStatus === "live" ? "Trzy propozycje z aktualnej dzisiejszej puli." : hasOffers ? "Trzy propozycje z ostatniej potwierdzonej puli." : "Aktualizujemy selekcję — bez zastępowania jej archiwalnymi cenami."}</p>
             <div className="hero-daily-stats">
-              <div className="hero-daily-stat"><strong>{newOffersCount}</strong><span>aktualnych ofert w dzisiejszej puli</span></div>
+              <div className="hero-daily-stat"><strong>{liveOffersStatus === "loading" ? "…" : hasOffers ? newOffersCount : "—"}</strong><span>{liveOffersStatus === "live" ? "aktualnych propozycji w dzisiejszej puli" : hasOffers ? "propozycji z ostatniej potwierdzonej puli" : "czekamy na potwierdzoną pulę ofert"}</span></div>
               <div className="hero-daily-stat"><Clock3 size={17}/><div><strong>Ostatnia aktualizacja: {refreshStatus.last}</strong><span>{refreshStatus.next}</span></div></div>
             </div>
-            <div className="hero-radar-list">
+            {hasOffers && <div className="hero-radar-list">
               {todaysOffers.slice(0,3).map((offer, index) => (
                 <a href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer" className="hero-radar-offer" key={offer.id}>
                   <span>{offer.flag}</span>
@@ -725,7 +654,7 @@ export default function Home() {
                   <b>od {offer.price.toLocaleString("pl-PL")} zł →</b>
                 </a>
               ))}
-            </div>
+            </div>}
             <Link className="hero-daily-cta" href="#okazje"><span>Zobacz dzisiejsze okazje</span><ArrowRight size={16}/></Link>
           </aside>
           <a className="hero-photo-credit" href="https://commons.wikimedia.org/wiki/File:Bora_Bora_(16542797633).jpg" target="_blank" rel="noopener noreferrer">Bora Bora · The TerraMar Project · CC BY 2.0</a>
@@ -739,50 +668,37 @@ export default function Home() {
           <div>
             <div className="kicker">DZISIEJSZA SELEKCJA</div>
             <h2>Dziś bralibyśmy te</h2>
-            <p>Codziennie wybieramy aktualne propozycje i o 08:00 czasu polskiego publikujemy nową pulę z cenami i bezpośrednim przejściem do rezerwacji.</p>
+            <p>{dailyCopy}</p>
           </div>
-          <Link className="section-premium-link" href="#okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
+          <Link className="section-premium-link" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
         <div className="daily-carousel-wrap">
-          <div className="daily-carousel-controls" aria-label="Sterowanie karuzelą ofert">
+          {todaysOffers.length > 1 && <div className="daily-carousel-controls" aria-label="Sterowanie karuzelą ofert">
             <button type="button" onClick={() => moveOffersRail(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={18}/></button>
             <button type="button" onClick={() => moveOffersRail(1)} aria-label="Następne oferty"><ArrowRight size={18}/></button>
-          </div>
+          </div>}
           <div className="daily-carousel" ref={offersRailRef}>
             {todaysOffers.length > 0 ? (
               todaysOffers.map(o => <div className="daily-carousel-item" key={o.id}><OfferCard offer={o}/></div>)
             ) : (
               <div className="daily-live-empty">
-                <strong>Aktualizujemy dzisiejszą pulę</strong>
-                <span>Nie udało się pobrać nowej puli. Pokazujemy ostatnią poprawnie zweryfikowaną selekcję, jeśli jest dostępna.</span>
+                <strong>{liveOffersStatus === "loading" ? "Sprawdzamy dzisiejszą pulę" : "Aktualizujemy dzisiejsze oferty"}</strong>
+                <span>Nie pokazujemy starych cen jako bieżących. Wyszukiwarka powyżej również działa wyłącznie na potwierdzonych danych.</span>
               </div>
             )}
           </div>
         </div>
         <div className="premium-action-row">
-          <Link className="premium-action-main" href="#szukaj-samodzielnie">Wyszukaj po swojemu <ArrowRight size={17}/></Link>
-          <Link className="premium-action-secondary" href="#okazje">Zobacz wszystkie okazje <ArrowRight size={17}/></Link>
-        </div>
-      </section>
-
-      <section className="self-search-home-stage" aria-label="Wyszukaj podróż samodzielnie">
-        <div className="shell self-search-home-shell">
-          <div className="self-search-home-intro">
-            <div>
-              <span className="self-search-home-badge">🔎 WIESZ, CZEGO SZUKASZ?</span>
-              <strong>Przejdź z inspiracji do konkretu.</strong>
-            </div>
-            <p>Tu nie podpowiadamy przypadkowych kierunków. Ustaw własne parametry i przejdź prosto do dostępnych opcji.</p>
-          </div>
-          <SelfSearchLegacy />
+          <Link className="premium-action-main" href="#wyszukiwarka">Wyszukaj po swojemu <ArrowRight size={17}/></Link>
+          <Link className="premium-action-secondary" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={17}/></Link>
         </div>
       </section>
 
       <section className="section shell streaming-discovery streaming-offers visual-chapter chapter-streaming" aria-label="Odkrywaj oferty Tripowni">
-        <div className="section-heading"><div><div className="kicker">NETFLIX PODRÓŻY</div><h2>Przewijaj, aż coś kliknie.</h2><p>Nie jedna ściana ofert. Różne nastroje, różne budżety i konkretne kierunki — codziennie w innym układzie.</p></div></div>
-        <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety: lot + hotel + transfer w cenie. Konkretne terminy i ceny w jednym miejscu." items={themedRails.city}/>
+        <div className="section-heading"><div><div className="kicker">NETFLIX PODRÓŻY</div><h2>Przewijaj, aż coś kliknie.</h2><p>Nie jedna ściana ofert. Różne nastroje, różne budżety i konkretne kierunki — z tej samej potwierdzonej puli.</p></div></div>
+        <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety z aktualnego feedu i konkretnymi terminami." items={themedRails.city}/>
         <OfferRail kicker="☀️ SŁOŃCE / ALL INCLUSIVE" title="Jeszcze trochę lata" description="Plaża, ciepło i gotowe wakacje — od krótkiego resetu po pełny tydzień." items={themedRails.sun}/>
-        <OfferRail kicker="✨ UKRYTE PEREŁKI" title="Nie kolejny Rzym i Barcelona" description="Mniej oczywiste kierunki, które robią większe wrażenie niż kolejny klasyk." items={themedRails.unusual}/>
+        <OfferRail kicker="✨ UKRYTE PEREŁKI" title="Nie kolejny Rzym i Barcelona" description="Mniej oczywiste kierunki wybrane z aktualnej lub ostatniej poprawnej puli." items={themedRails.unusual}/>
         <div className="streaming-rail editorial-streaming-rail">
           <Link href="/dalekie-podroze" className="streaming-tile"><small>🌏 DALEJ</small><strong>Europa to dziś za mało</strong><span>Wietnam, Japonia, Bali, Nowy Jork i kierunki na większą podróż.</span></Link>
           <Link href="/podroze-po-przezycia" className="streaming-tile"><small>✨ PO PRZEŻYCIA</small><strong>Nie jedź tylko „gdzieś”</strong><span>Zorza, sakura, safari, fiordy, jarmarki i podróże pod właściwy moment.</span></Link>
@@ -805,8 +721,8 @@ export default function Home() {
             <button onClick={pickSurprise} disabled={surpriseLoading}><Dice5 size={18}/> {surpriseLoading?"Szukamy czegoś lepszego…":"Zaskocz mnie"}</button>
             {!budgetCandidates.length && (
               <div className="surprise-result surprise-result-v2">
-                <strong>W tym budżecie nie mamy dziś zweryfikowanej okazji.</strong>
-                <em>Przy tym budżecie szukamy kierunku, który naprawdę ma sens — bez wciskania przypadkowego klasyka.</em>
+                <strong>W tym budżecie nie mamy teraz potwierdzonej okazji.</strong>
+                <em>Nie podstawiamy starej ceny ani przypadkowego kierunku tylko po to, żeby coś pokazać.</em>
               </div>
             )}
             {surprise && (
@@ -850,7 +766,7 @@ export default function Home() {
         <div className="discovery-grid experience-home-grid">
           {experienceCards.filter(card => card.href !== "/podroze-po-przezycia#jarmarki" || Date.now() <= new Date("2027-01-07T22:59:59Z").getTime()).map(card => (
             <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
-              <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={"fallbackImage" in card ? card.fallbackImage : undefined} />
+              <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={card.fallbackImage} />
               <div className="experience-teaser-copy">
                 <small>{card.season}</small>
                 <strong>{card.title}</strong>
@@ -878,7 +794,7 @@ export default function Home() {
           </div>
         </div>
         <div className="hub-grid">
-          <a href="#szukaj-samodzielnie"><strong>🧩 Zacznij od własnych parametrów</strong><span>Ustaw filtry i przeszukaj aktualną bazę Tripowni.</span></a>
+          <a href="#wyszukiwarka"><strong>🧩 Zacznij od własnych parametrów</strong><span>Ustaw filtry i przeszukaj aktualną bazę Tripowni.</span></a>
           <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><strong>✈️ Dobierz lot</strong><span>Porównaj połączenia i dobierz najlepszy wariant.</span></a>
           <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><strong>🏨 Dobierz nocleg</strong><span>Porównaj noclegi dla wybranego kierunku i terminu.</span></a>
         </div>
