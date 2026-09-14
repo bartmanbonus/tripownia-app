@@ -89,14 +89,15 @@ function trackedHref(anchor: HTMLAnchorElement) {
   return `/go/live?${params.toString()}`;
 }
 
+function wrapAnchor(anchor: HTMLAnchorElement) {
+  const href = trackedHref(anchor);
+  if (!href) return;
+  anchor.href = href;
+  anchor.dataset.tripowniaOutboundWrapped = "1";
+}
+
 function wrapKnownPartnerLinks(root: ParentNode = document) {
-  root.querySelectorAll<HTMLAnchorElement>('a[href^="http://"], a[href^="https://"]').forEach((anchor) => {
-    if (anchor.dataset.tripowniaOutboundWrapped === "1") return;
-    const href = trackedHref(anchor);
-    if (!href) return;
-    anchor.href = href;
-    anchor.dataset.tripowniaOutboundWrapped = "1";
-  });
+  root.querySelectorAll<HTMLAnchorElement>('a[href^="http://"], a[href^="https://"]').forEach(wrapAnchor);
 }
 
 export default function AffiliateClickBridge() {
@@ -105,15 +106,25 @@ export default function AffiliateClickBridge() {
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
+        if (mutation.type === "attributes" && mutation.target instanceof HTMLAnchorElement) {
+          wrapAnchor(mutation.target);
+          return;
+        }
+
         mutation.addedNodes.forEach((node) => {
           if (!(node instanceof Element)) return;
-          if (node.matches("a")) wrapKnownPartnerLinks(node.parentNode || document);
+          if (node instanceof HTMLAnchorElement) wrapAnchor(node);
           else wrapKnownPartnerLinks(node);
         });
       });
     });
 
-    observer.observe(document.body, { childList: true, subtree: true });
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["href"],
+    });
     return () => observer.disconnect();
   }, []);
 
