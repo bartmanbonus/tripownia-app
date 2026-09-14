@@ -18,7 +18,7 @@ export default function PrivacyPage() {
         {
           title: "1. Administrator danych i kontakt",
           paragraphs: [
-            "Administratorem danych przetwarzanych w związku z serwisem Tripownia.pl jest podmiot prowadzący serwis: Be in IT, ul. Batalionów Chłopskich 77E/11, 01-305 Warszawa.",
+            "Administratorem danych przetwarzanych w związku z serwisem Tripownia.pl jest podmiot prowadzący serwis Tripownia.pl. Pełne dane identyfikacyjne administratora powinny być podane w informacjach formalnych serwisu przed uruchomieniem kont synchronizowanych lub innych funkcji wymagających przekazywania danych osobowych do Tripowni.",
             "W sprawach dotyczących prywatności, danych osobowych lub realizacji praw możesz napisać na kontakt@tripownia.pl.",
           ],
         },
@@ -53,8 +53,8 @@ export default function PrivacyPage() {
         {
           title: "6. Cele i podstawy przetwarzania",
           bullets: [
-            "działanie serwisu, bezpieczeństwo i obsługa żądań — gdy jest to niezbędne do świadczenia usługi lub wynika z naszego prawnie uzasadnionego interesu w utrzymaniu bezpiecznego serwisu;",
-            "odpowiedź na wiadomości przesłane do Tripowni — w celu obsługi kontaktu i ustalenia, obrony lub dochodzenia roszczeń, jeżeli jest to potrzebne;",
+            "działanie serwisu, bezpieczeństwo i obsługa żądań — gdy jest to niezbędne do świadczenia usługi lub wynika z prawnie uzasadnionego interesu w utrzymaniu bezpiecznego serwisu;",
+            "odpowiedź na wiadomości przesłane do Tripowni — w celu obsługi kontaktu i ewentualnego ustalenia, obrony lub dochodzenia roszczeń;",
             "analityka korzystania z serwisu — na podstawie Twojej zgody;",
             "realizacja obowiązków prawnych — jeżeli taki obowiązek wynika z przepisów.",
           ],
@@ -90,7 +90,7 @@ export default function PrivacyPage() {
         {
           title: "10. Zarządzanie danymi na urządzeniu",
           paragraphs: [
-            "W Profilu podróżnika możesz sprawdzić, wyeksportować lub usunąć dane zapisane lokalnie przez funkcje osobiste Tripowni. Możesz też wyczyścić dane witryny w ustawieniach przeglądarki.",
+            "W Profilu podróżnika możesz wyeksportować lub usunąć dane zapisane lokalnie przez funkcje osobiste Tripowni. Możesz też wyczyścić dane witryny w ustawieniach przeglądarki.",
             "Usunięcie danych lokalnych może skasować zapisane oferty, ustawienia, checklisty i plan podróży z danego urządzenia. Jeżeli w przyszłości uruchomimy konta synchronizowane z serwerem, przed ich użyciem pokażemy dodatkowe informacje o przetwarzaniu danych.",
           ],
         },
