@@ -27,16 +27,33 @@ type CachedLiveOffers = {
 };
 
 const DEFAULT_ENDPOINT = "/api/today-offers?mode=search&broad=1";
+const MAX_CACHE_AGE_MS = 48 * 60 * 60 * 1000;
 
 function cacheKey(endpoint: string) {
   return `tripownia-live-cache:${encodeURIComponent(endpoint)}`;
 }
 
+function isFreshTimestamp(value?: string) {
+  if (!value) return false;
+  const timestamp = new Date(value).getTime();
+  if (!Number.isFinite(timestamp)) return false;
+  const age = Date.now() - timestamp;
+  return age >= 0 && age <= MAX_CACHE_AGE_MS;
+}
+
 function readCache(endpoint: string): CachedLiveOffers | null {
   if (typeof window === "undefined") return null;
   try {
-    const parsed = JSON.parse(localStorage.getItem(cacheKey(endpoint)) || "null") as CachedLiveOffers | null;
+    const key = cacheKey(endpoint);
+    const parsed = JSON.parse(localStorage.getItem(key) || "null") as CachedLiveOffers | null;
     if (!parsed || !Array.isArray(parsed.offers) || !parsed.offers.length) return null;
+
+    const freshnessTimestamp = parsed.checkedAt || parsed.savedAt;
+    if (!isFreshTimestamp(freshnessTimestamp)) {
+      localStorage.removeItem(key);
+      return null;
+    }
+
     return parsed;
   } catch {
     localStorage.removeItem(cacheKey(endpoint));
@@ -70,7 +87,7 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
 
       if (!response.ok || !live.length) {
         setState((current) => {
-          if (current.source === "live" && current.offers.length) {
+          if (current.source === "live" && current.offers.length && isFreshTimestamp(current.checkedAt)) {
             return {
               ...current,
               loading: false,
@@ -103,7 +120,7 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
       });
     } catch (error) {
       setState((current) => {
-        if (current.source === "live" && current.offers.length) {
+        if (current.source === "live" && current.offers.length && isFreshTimestamp(current.checkedAt)) {
           return {
             ...current,
             loading: false,
