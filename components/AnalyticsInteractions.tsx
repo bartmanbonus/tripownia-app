@@ -4,51 +4,62 @@ import { useEffect } from "react";
 import { trackEvent } from "@/lib/analytics";
 
 function readSearchContext(root: HTMLElement) {
-  const inputs = Array.from(root.querySelectorAll<HTMLInputElement>("input"));
-  const selects = Array.from(root.querySelectorAll<HTMLSelectElement>("select"));
-  const destination = inputs.map(input => input.value.trim()).filter(Boolean).join(" | ").slice(0, 120);
-  const values = selects.map(select => select.value).filter(Boolean);
+  const destination = root.querySelector<HTMLInputElement>("#tripownia-destination")?.value.trim() || "";
+  const formSelects = Array.from(root.querySelectorAll<HTMLSelectElement>(".search-v3-form select"));
+  const board = root.querySelector<HTMLSelectElement>(".search-v3-board select")?.value || "all";
+
   return {
-    destination,
-    duration: values[0] || "all",
-    budget: values[1] || "all",
-    board: values[2] || "all",
+    destination: destination.slice(0, 120),
+    departure: formSelects[0]?.value || "all",
+    duration: formSelects[1]?.value || "all",
+    budget: formSelects[2]?.value || "all",
+    board,
   };
 }
 
 export default function AnalyticsInteractions() {
   useEffect(() => {
+    const onSubmit = (event: SubmitEvent) => {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement) || !form.matches(".search-v3-form")) return;
+      const searchRoot = form.closest<HTMLElement>("#wyszukiwarka");
+      if (!searchRoot) return;
+
+      trackEvent("search_use", {
+        ...readSearchContext(searchRoot),
+        trigger: "submit",
+      });
+    };
+
     const onClick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (!target) return;
+      const target = event.target;
+      if (!(target instanceof Element)) return;
       const button = target.closest<HTMLButtonElement>("button");
       const searchRoot = target.closest<HTMLElement>("#wyszukiwarka");
+      if (!button || !searchRoot) return;
 
-      if (button && searchRoot && button.matches(".compact-submit, .search-submit")) {
+      if (button.closest(".search-v3-quick")) {
         trackEvent("search_use", {
           ...readSearchContext(searchRoot),
-          trigger: "submit",
-        });
-        return;
-      }
-
-      if (button && searchRoot && button.closest(".quick-destination-grid")) {
-        trackEvent("search_use", {
           quick_pick: button.textContent?.replace(/\s+/g, " ").trim().slice(0, 100) || "quick_pick",
           trigger: "quick_pick",
         });
         return;
       }
 
-      if (button && searchRoot && button.closest(".search-tabs")) {
+      if (button.closest(".search-v3-tabs")) {
         trackEvent("search_tab", {
           tab: button.textContent?.trim().slice(0, 60) || "unknown",
         });
       }
     };
 
+    document.addEventListener("submit", onSubmit, true);
     document.addEventListener("click", onClick, true);
-    return () => document.removeEventListener("click", onClick, true);
+    return () => {
+      document.removeEventListener("submit", onSubmit, true);
+      document.removeEventListener("click", onClick, true);
+    };
   }, []);
 
   return null;
