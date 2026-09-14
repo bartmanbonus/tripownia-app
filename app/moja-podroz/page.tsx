@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import MyTrip from "@/components/MyTrip";
+import MyTripResolver from "@/components/MyTripResolver";
 
 export const metadata: Metadata = {
   title: "Moja podróż | Tripownia.pl",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <MyTrip />;
+  return <MyTripResolver />;
 }
