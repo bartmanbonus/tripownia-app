@@ -20,6 +20,7 @@ const APP_PATHS = [
   "/okazje",
   "/oferta",
   "/moja-podroz",
+  "/moje-podroze",
   "/porownaj",
   "/ulubione",
   "/alerty",
@@ -80,7 +81,7 @@ export default function MobileAppControls() {
   const nav = [
     { href: "/app", label: "Start", icon: Home, active: pathname === "/app" || pathname.startsWith("/dla-ciebie") },
     { href: "/app#wyszukiwarka", label: "Szukaj", icon: Search, active: isPlanningPath(pathname) },
-    { href: "/moja-podroz", label: "Podróż", icon: MapPinned, active: pathname.startsWith("/moja-podroz") },
+    { href: "/moja-podroz", label: "Podróż", icon: MapPinned, active: pathname.startsWith("/moja-podroz") || pathname.startsWith("/moje-podroze") },
     { href: "/ulubione", label: "Ulubione", icon: Heart, active: pathname.startsWith("/ulubione") || pathname.startsWith("/porownaj") },
     { href: "/alerty", label: "Alerty", icon: Bell, active: pathname.startsWith("/alerty") },
   ];
