@@ -19,6 +19,7 @@ function normalize(value: string | undefined) {
     .toLowerCase()
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -29,6 +30,38 @@ function fieldMap(product: TdProduct) {
       .filter((field) => field.name)
       .map((field) => [field.name as string, field.value || ""])
   );
+}
+
+function productHaystack(product: TdProduct) {
+  const fields = fieldMap(product);
+  return normalize([
+    product.name,
+    product.description,
+    fields.Country,
+    fields.Region,
+    fields.City,
+    fields.HotelName,
+  ].filter(Boolean).join(" "));
+}
+
+function destinationMatchesProduct(product: TdProduct, destination: string) {
+  const haystack = productHaystack(product);
+  const wanted = normalize(destination);
+  if (!wanted) return false;
+  if (haystack.includes(wanted)) return true;
+
+  const aliases: Record<string, RegExp> = {
+    antalya: /antalya|riwiera turecka|side|belek|alanya|kemer/,
+    bodrum: /bodrum|wybrzeze egejskie/,
+    hurghada: /hurghada|makadi bay|soma bay|sahl hasheesh/,
+    "marsa alam": /marsa alam|port ghalib|el quseir/,
+    djerba: /djerba|dzerba|midoun|zarzis/,
+    teneryfa: /teneryf|tenerife|costa adeje|playa de las americas|puerto de la cruz/,
+    rodos: /rodos|rhodes|faliraki|kolymbia|lindos/,
+    kreta: /kreta|crete|heraklion|hersonissos|malia|rethymno|chania/,
+  };
+
+  return Boolean(aliases[wanted]?.test(haystack));
 }
 
 function boardScore(expected: string, actual: string) {
@@ -66,20 +99,14 @@ function scoreProduct(
   }
 ) {
   const fields = fieldMap(product);
-  const haystack = normalize([
-    product.name,
-    product.description,
-    fields.Country,
-    fields.Region,
-    fields.City,
-    fields.HotelName,
-  ].filter(Boolean).join(" "));
+  const haystack = productHaystack(product);
 
   let score = 0;
   const dest = normalize(target.destination);
   const country = normalize(target.country);
 
   if (dest && haystack.includes(dest)) score += 60;
+  else if (destinationMatchesProduct(product, target.destination)) score += 55;
   if (country && normalize(fields.Country) === country) score += 20;
 
   if (target.departure && normalize(fields.DeparturePlace) === normalize(target.departure)) score += 35;
@@ -103,7 +130,6 @@ function scoreProduct(
     }
   }
 
-  // Prefer products with a concrete tracked URL and a recent price.
   if (product.offers?.[0]?.productUrl) score += 15;
   if (product.offers?.[0]?.priceHistory?.[0]?.price?.value) score += 5;
 
@@ -112,18 +138,14 @@ function scoreProduct(
 
 async function fetchProducts(query: string, token: string) {
   const endpoint = new URL("https://api.tradedoubler.com/1.0/products.json");
-  // Tradedoubler Product API uses semicolon-separated path parameters.
   const path = `${endpoint.origin}${endpoint.pathname};q=${encodeURIComponent(query)};page=1;pageSize=100;fid=24864?token=${encodeURIComponent(token)}`;
 
   const response = await fetch(path, {
     headers: { Accept: "application/json" },
-    next: { revalidate: 1800 },
+    next: { revalidate: 600 },
   });
 
-  if (!response.ok) {
-    throw new Error(`Tradedoubler API ${response.status}`);
-  }
-
+  if (!response.ok) throw new Error(`Tradedoubler API ${response.status}`);
   const data = await response.json();
   return Array.isArray(data?.products) ? (data.products as TdProduct[]) : [];
 }
@@ -133,10 +155,7 @@ export async function GET(request: NextRequest) {
 
   if (!token) {
     return NextResponse.json(
-      {
-        ok: false,
-        error: "Brak TRADEDOUBLER_TUI_TOKEN w zmiennych środowiskowych Vercel.",
-      },
+      { ok: false, error: "Brak TRADEDOUBLER_TUI_TOKEN w zmiennych środowiskowych Vercel." },
       { status: 503 }
     );
   }
@@ -158,13 +177,12 @@ export async function GET(request: NextRequest) {
   try {
     let products: TdProduct[] = [];
 
-    // First ask the feed for the exact destination. If that does not return
-    // useful products, broaden to known region/country terms.
     for (const term of destinationTerms(target.destination, target.country)) {
       const batch = await fetchProducts(term, token);
       products = [...products, ...batch];
 
       const strong = batch
+        .filter((product) => destinationMatchesProduct(product, target.destination))
         .map((product) => ({ product, score: scoreProduct(product, target) }))
         .filter((item) => item.score >= 90);
 
@@ -173,6 +191,7 @@ export async function GET(request: NextRequest) {
 
     const unique = new Map<string, TdProduct>();
     for (const product of products) {
+      if (!destinationMatchesProduct(product, target.destination)) continue;
       const url = product.offers?.[0]?.productUrl || product.offers?.[0]?.legacyProductUrl;
       if (url) unique.set(url, product);
     }
@@ -184,21 +203,22 @@ export async function GET(request: NextRequest) {
     const best = ranked[0];
     const bestUrl = best?.product.offers?.[0]?.productUrl || best?.product.offers?.[0]?.legacyProductUrl;
 
-    // Never send a user to TUI homepage when we cannot match the requested trip.
     if (!best || !bestUrl || best.score < 55) {
       const fallback = new URL("/okazje", request.url);
       fallback.searchParams.set("tui", "brak-dopasowania");
       fallback.searchParams.set("kierunek", target.destination);
-      return NextResponse.redirect(fallback);
+      return NextResponse.redirect(fallback, 307);
     }
 
-    return NextResponse.redirect(bestUrl);
+    const tracked = new URL("/go/live", request.url);
+    tracked.searchParams.set("target", bestUrl);
+    tracked.searchParams.set("partner", "tui");
+    tracked.searchParams.set("source", "tui_resolver");
+    tracked.searchParams.set("destination", target.destination);
+    return NextResponse.redirect(tracked, 307);
   } catch (error) {
     return NextResponse.json(
-      {
-        ok: false,
-        error: error instanceof Error ? error.message : "Nie udało się pobrać feedu TUI.",
-      },
+      { ok: false, error: error instanceof Error ? error.message : "Nie udało się pobrać feedu TUI." },
       { status: 502 }
     );
   }
