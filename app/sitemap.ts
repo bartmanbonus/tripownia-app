@@ -29,6 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url:`${BASE_URL}/atrakcje`,lastModified:now,changeFrequency:"weekly",priority:.7 },
     { url:`${BASE_URL}/esim`,lastModified:now,changeFrequency:"weekly",priority:.65 },
     { url:`${BASE_URL}/wynajem-auta`,lastModified:now,changeFrequency:"weekly",priority:.65 },
+    { url:`${BASE_URL}/transfery`,lastModified:now,changeFrequency:"weekly",priority:.65 },
     { url:`${BASE_URL}/regulamin`,lastModified:now,changeFrequency:"yearly",priority:.25 },
     { url:`${BASE_URL}/polityka-prywatnosci`,lastModified:now,changeFrequency:"yearly",priority:.25 },
     { url:`${BASE_URL}/informacja-afiliacyjna`,lastModified:now,changeFrequency:"yearly",priority:.4 },
