@@ -26,6 +26,7 @@ import "./score-section-fix.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 import OfferRailDeduper from "@/components/OfferRailDeduper";
+import AffiliateClickBridge from "@/components/AffiliateClickBridge";
 import AnalyticsClient from "@/components/AnalyticsClient";
 import AnalyticsConsentBanner from "@/components/AnalyticsConsent";
 import AnalyticsInteractions from "@/components/AnalyticsInteractions";
@@ -77,6 +78,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <LegacyHomeAnchorBridge />
         {children}
         <OfferRailDeduper />
+        <AffiliateClickBridge />
         <MobileAppControls />
         <Suspense fallback={null}><AnalyticsClient /></Suspense>
         <AnalyticsInteractions />
