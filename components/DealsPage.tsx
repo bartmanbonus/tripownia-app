@@ -39,75 +39,6 @@ function buildYearOptions(count = 3) {
   return Array.from({ length: count }, (_, index) => String(currentYear + index));
 }
 
-function normalize(value: string) {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim();
-}
-
-function airportMatches(offer: DealsOffer, airport: string) {
-  if (airport === "any") return true;
-  const code = String(offer.airportCode || "").toUpperCase();
-  const departure = normalize(offer.departure || "");
-
-  if (airport === "WAWA") return code === "WAW" || code === "WMI" || departure.includes("warszawa") || departure.includes("modlin");
-  if (code === airport) return true;
-
-  const aliases: Record<string, string[]> = {
-    KRK: ["krakow", "balice"],
-    KTW: ["katowice", "pyrzowice"],
-    GDN: ["gdansk", "rebiechowo"],
-    WRO: ["wroclaw", "strachowice"],
-    POZ: ["poznan", "lawica"],
-  };
-
-  return (aliases[airport] || []).some((alias) => departure.includes(alias));
-}
-
-function offerMonthKeys(offer: DealsOffer) {
-  const keys = new Set<string>();
-  if (offer.startDateISO && /^20\d{2}-\d{2}/.test(offer.startDateISO)) {
-    keys.add(offer.startDateISO.slice(0, 7));
-    return keys;
-  }
-
-  const raw = normalize(offer.dates || "");
-  const numeric = raw.match(/(?:\d{1,2}[.\/-])?(\d{1,2})[.\/-](20\d{2})/g) || [];
-  numeric.forEach((part) => {
-    const match = part.match(/(?:\d{1,2}[.\/-])?(\d{1,2})[.\/-](20\d{2})/);
-    if (!match) return;
-    const month = Number(match[1]);
-    if (month >= 1 && month <= 12) keys.add(`${match[2]}-${String(month).padStart(2, "0")}`);
-  });
-
-  const yearMatch = raw.match(/20\d{2}/);
-  if (yearMatch) {
-    const year = yearMatch[0];
-    const normalizedMonths = MONTH_NAMES.map(normalize);
-    normalizedMonths.forEach((name, index) => {
-      if (raw.includes(name)) keys.add(`${year}-${String(index + 1).padStart(2, "0")}`);
-    });
-  }
-
-  return keys;
-}
-
-function periodMatches(offer: DealsOffer, month: string, year: string) {
-  if (month === "any" && year === "any") return true;
-  const keys = offerMonthKeys(offer);
-  if (!keys.size) return false;
-
-  return Array.from(keys).some((key) => {
-    const [offerYear, offerMonth] = key.split("-");
-    if (month !== "any" && offerMonth !== month) return false;
-    if (year !== "any" && offerYear !== year) return false;
-    return true;
-  });
-}
-
 function cheapestUnique(rows: DealsOffer[]) {
   const best = new Map<string, DealsOffer>();
 
@@ -143,13 +74,9 @@ export default function DealsPage() {
     const query = params.toString();
     return query ? `/api/deals?${query}` : "/api/deals";
   }, [airport, month, year]);
-  const { offers, source, loading, checkedAt, refresh } = useLiveOffers(endpoint);
 
-  const matchingPool = useMemo(() => (offers as DealsOffer[])
-    .filter((offer) => airportMatches(offer, airport))
-    .filter((offer) => periodMatches(offer, month, year)), [offers, airport, month, year]);
-
-  const rows = useMemo(() => cheapestUnique(matchingPool), [matchingPool]);
+  const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
+  const rows = useMemo(() => cheapestUnique(offers as DealsOffer[]), [offers]);
 
   const checkedLabel = checkedAt
     ? new Intl.DateTimeFormat("pl-PL", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Warsaw" }).format(new Date(checkedAt))
@@ -184,7 +111,7 @@ export default function DealsPage() {
         <div>
           <div className="kicker">OKAZJE TRIPOWNI</div>
           <h1>Wybierz skąd i kiedy. My pokażemy okazje.</h1>
-          <p className="hub-lead">Nie ograniczamy Cię do najbliższych terminów. Wybierz lotnisko, miesiąc i rok, a pokażemy najtańszą potwierdzoną propozycję na każdy kierunek dostępny dokładnie w tej kombinacji.</p>
+          <p className="hub-lead">Najpierw szukamy dokładnie według lotniska, miesiąca i roku. Jeśli nie ma takiej kombinacji, pokazujemy najbliższe potwierdzone opcje i jasno oznaczamy, co się różni.</p>
         </div>
         <div className="deals-hub-actions">
           <Link className="primary-cta" href="/#wyszukiwarka"><Search size={17}/> Wyszukaj dokładniej</Link>
@@ -225,12 +152,14 @@ export default function DealsPage() {
         <span>{sourceCopy}</span>
       </div>
 
+      {notice && <div className="deals-filter-notice">{notice}</div>}
+
       {rows.length > 0 ? (
         <div className="cards-grid deals-premium-grid">{rows.map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
       ) : !loading ? (
         <div className="self-search-empty">
-          <strong>{filtering ? "Nie mamy teraz potwierdzonej okazji dla wybranego lotniska i terminu." : "Nie mamy teraz potwierdzonej puli okazji."}</strong>
-          <span>{filtering ? "Nie podstawiamy innego lotniska, miesiąca ani roku. Zmień wybrany filtr albo odśwież dane." : "Nie podstawiamy statycznych cen. Odśwież dane albo skorzystaj z wyszukiwarki Tripowni."}</span>
+          <strong>Nie mamy teraz potwierdzonych okazji w tej puli.</strong>
+          <span>Spróbuj odświeżyć dane lub zmienić jeden filtr. Tripownia nie podmieni ceny na statyczną.</span>
         </div>
       ) : null}
 
