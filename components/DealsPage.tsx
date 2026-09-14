@@ -136,11 +136,12 @@ export default function DealsPage() {
   const [year, setYear] = useState("any");
 
   const endpoint = useMemo(() => {
-    const params = new URLSearchParams({ mode: "search", broad: "1", strict: "1" });
+    const params = new URLSearchParams();
     if (airport !== "any") params.set("from", airport);
     if (month !== "any") params.set("month", month);
     if (year !== "any") params.set("year", year);
-    return `/api/today-offers?${params.toString()}`;
+    const query = params.toString();
+    return query ? `/api/deals?${query}` : "/api/deals";
   }, [airport, month, year]);
   const { offers, source, loading, checkedAt, refresh } = useLiveOffers(endpoint);
 
