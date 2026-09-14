@@ -78,8 +78,11 @@ export default function ComparePage() {
               const publishedOverride = publishedOfferOverrides[String(offer.id)] || {};
               const displayPrice = clientOverride.price ?? publishedOverride.price ?? offer.price;
               const checkedAt = clientOverride.updatedAt || publishedOverride.updatedAt || offer.priceCheckedAt;
-              const isExactLink = offer.linkMatch === "exact" && /^https?:\/\//.test(offer.affiliateUrl || "");
-              const isFreshLiveExact = offer.id >= 1_000_000 && isExactLink && Boolean(checkedAt) && !isPriceStale(checkedAt);
+              const hasExternalAffiliateUrl = /^https?:\/\//.test(offer.affiliateUrl || "");
+              const isLiveOffer = offer.id >= 1_000_000;
+              const isExactLink = offer.linkMatch === "exact" && hasExternalAffiliateUrl;
+              const hasSafeLivePartnerLink = isLiveOffer && hasExternalAffiliateUrl;
+              const isFreshLiveExact = isLiveOffer && isExactLink && Boolean(checkedAt) && !isPriceStale(checkedAt);
               const deal = getDealScore({ ...offer, priceCheckedAt: checkedAt }, displayPrice, isFreshLiveExact);
               const cost = estimateTripCost(offer, displayPrice);
               return (
@@ -100,8 +103,10 @@ export default function ComparePage() {
                     <div><dt>Transfer</dt><dd>{offer.transferIncluded ? "w cenie" : `szacunek ${cost.transfer} zł`}</dd></div>
                   </dl>
                   <p className="compare-reason">{offer.reason}</p>
-                  {isExactLink ? (
-                    <a className="primary-cta" href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Sprawdź tę ofertę</a>
+                  {isExactLink || hasSafeLivePartnerLink ? (
+                    <a className="primary-cta" href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
+                      {isExactLink ? "Sprawdź tę ofertę" : "Sprawdź aktualne oferty"}
+                    </a>
                   ) : (
                     <Link className="primary-cta" href={`/oferta/${offer.id}`}>Zobacz ofertę</Link>
                   )}
