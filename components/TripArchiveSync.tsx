@@ -10,14 +10,17 @@ export default function TripArchiveSync() {
       if (active) upsertTripArchive(active);
     };
 
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === ACTIVE_TRIP_KEY) sync();
+    };
+
     sync();
     window.addEventListener("tripownia-my-trip-updated", sync as EventListener);
-    window.addEventListener("storage", (event) => {
-      if (event.key === ACTIVE_TRIP_KEY) sync();
-    });
+    window.addEventListener("storage", handleStorage);
 
     return () => {
       window.removeEventListener("tripownia-my-trip-updated", sync as EventListener);
+      window.removeEventListener("storage", handleStorage);
     };
   }, []);
 
