@@ -1,5 +1,4 @@
 import type { MetadataRoute } from "next";
-import { isOfferExpired, offers } from "@/lib/offers";
 import { allSeoLandings } from "@/lib/allSeoLandings";
 import { legacyCanonicalPath, legacyPosts } from "@/lib/legacy";
 
@@ -54,14 +53,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: .82,
   }));
 
-  const offerPages: MetadataRoute.Sitemap = offers
-    .filter(o => !isOfferExpired(o, now))
-    .map(o => ({
-      url: `${BASE_URL}/oferta/${o.id}`,
-      lastModified: o.priceCheckedAt ? new Date(o.priceCheckedAt) : now,
-      changeFrequency: "daily" as const,
-      priority: .85,
-    }));
-
-  return [...staticPages, ...legacyArticlePages, ...landingPages, ...offerPages];
+  // Transient /oferta/{id} pages intentionally stay out of the sitemap.
+  // They can expire or carry an orientational price, while evergreen hubs and
+  // SEO landings remain stable entry points for search engines.
+  return [...staticPages, ...legacyArticlePages, ...landingPages];
 }
