@@ -71,19 +71,32 @@ function syncRadarLinks() {
   });
 }
 
-function synchronizeOfferExperience() {
+function simplifySearchFlow() {
+  const primarySearch = document.querySelector<HTMLElement>("#wyszukiwarka");
+  if (!primarySearch) return;
+
+  document.querySelectorAll<HTMLAnchorElement>('a[href="#szukaj-samodzielnie"]').forEach((link) => {
+    link.setAttribute("href", "#wyszukiwarka");
+  });
+
+  const duplicateStage = document.querySelector<HTMLElement>(".self-search-home-stage");
+  if (duplicateStage) duplicateStage.hidden = true;
+}
+
+function synchronizeHomeExperience() {
+  simplifySearchFlow();
   deduplicateRails();
   syncRadarLinks();
 }
 
 export default function OfferRailDeduper() {
   useEffect(() => {
-    synchronizeOfferExperience();
+    synchronizeHomeExperience();
 
     const main = document.querySelector<HTMLElement>("main");
     if (!main) return;
 
-    const observer = new MutationObserver(() => synchronizeOfferExperience());
+    const observer = new MutationObserver(() => synchronizeHomeExperience());
     observer.observe(main, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, []);
