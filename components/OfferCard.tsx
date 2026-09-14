@@ -209,12 +209,12 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   if (override.hidden || publishedOverride.hidden) return null;
 
   const buyHref = isExpired ? `/oferta/${offer.id}` : isLiveExact ? offer.affiliateUrl : `/go/${offer.id}?source=offer_card`;
-  const ctaText = isExpired ? "Zobacz podobne oferty" : isLiveExact ? "Sprawdź tę ofertę" : "Sprawdź aktualną cenę";
+  const ctaText = isExpired ? "Zobacz podobne oferty" : isLiveExact ? "Sprawdź tę ofertę" : "Sprawdź aktualne oferty";
   const trustText = isExpired
     ? "Oferta wygasła"
     : isLiveExact
       ? checkedAt ? `Cena z feedu · ${checkedAt}` : "Cena z aktualnego feedu"
-      : stalePrice ? "Cena orientacyjna · sprawdź przed rezerwacją" : "Cena orientacyjna";
+      : stalePrice ? "Cena orientacyjna · partner potwierdzi aktualną cenę" : "Cena orientacyjna · partner potwierdzi aktualną cenę";
 
   return (
     <article ref={cardRef} className={`offer-card offer-card-clean ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}>
