@@ -81,8 +81,21 @@ function hostMatches(url: URL, hosts: string[]) {
   return hosts.includes(url.hostname.toLowerCase());
 }
 
+function embeddedDestination(wrapper: URL) {
+  const queryValue = wrapper.searchParams.get("url");
+  if (queryValue) return queryValue;
+
+  const legacyMatch = wrapper.toString().match(/(?:[?&;])url\((.+)\)$/);
+  if (!legacyMatch?.[1]) return null;
+  try {
+    return decodeURIComponent(legacyMatch[1]);
+  } catch {
+    return legacyMatch[1];
+  }
+}
+
 function embeddedDestinationMatches(wrapper: URL, allowedHosts: string[]) {
-  const value = wrapper.searchParams.get("url");
+  const value = embeddedDestination(wrapper);
   if (!value) return false;
   try {
     const destination = new URL(value);
