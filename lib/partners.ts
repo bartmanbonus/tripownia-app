@@ -54,16 +54,33 @@ function buildKiwiAffiliateUrl(destinationUrl?: string) {
   return "https://kiwi.tpk.lv/7PnrR4dn";
 }
 
-/**
- * Legacy exports kept for compatibility with older code paths.
- * Calls may still pass a destination URL, but users are routed through Kiwi.
- */
-export function buildEskyFlightsUrl(destinationUrl?: string) {
+function buildLegacyEskyAlias(destinationUrl?: string) {
+  if (!destinationUrl) return buildKiwiAffiliateUrl();
+
+  try {
+    const url = new URL(destinationUrl);
+    if (url.hostname.toLowerCase().includes("esky.")) {
+      // Legacy callers can still pass an old eSky URL, but it must never leave
+      // Tripownia as an eSky destination. Use the Kiwi affiliate entry instead.
+      return buildKiwiAffiliateUrl();
+    }
+  } catch {
+    return buildKiwiAffiliateUrl();
+  }
+
   return buildKiwiAffiliateUrl(destinationUrl);
 }
 
+/**
+ * Legacy exports kept for compatibility with older code paths.
+ * They never send users to eSky; all traffic is routed through Kiwi.
+ */
+export function buildEskyFlightsUrl(destinationUrl?: string) {
+  return buildLegacyEskyAlias(destinationUrl);
+}
+
 export function buildEskyPackagesUrl(destinationUrl?: string) {
-  return buildKiwiAffiliateUrl(destinationUrl);
+  return buildLegacyEskyAlias(destinationUrl);
 }
 
 export const partners: Record<PartnerKey, Partner> = {
@@ -71,10 +88,10 @@ export const partners: Record<PartnerKey, Partner> = {
     key: "esky",
     name: "Kiwi.com",
     category: "travel",
-    description: "Loty i elastyczne wyszukiwanie połączeń",
+    description: "Legacy alias kierowany wyłącznie do Kiwi.com",
     commissionType: "unknown",
     trackingId: "7PnrR4dn",
-    buildUrl: (destinationUrl) => buildKiwiAffiliateUrl(destinationUrl),
+    buildUrl: (destinationUrl) => buildLegacyEskyAlias(destinationUrl),
   },
   wakacje: {
     key: "wakacje",
