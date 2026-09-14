@@ -1,0 +1,123 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { Archive, ArrowRight, CalendarDays, MapPinned, RotateCcw, Trash2 } from "lucide-react";
+import SiteHeader from "@/components/SiteHeader";
+import SiteFooter from "@/components/SiteFooter";
+import {
+  TRIP_ARCHIVE_EVENT,
+  activateArchivedTrip,
+  readActiveTrip,
+  readTripArchive,
+  removeArchivedTrip,
+  type TripArchiveSnapshot,
+} from "@/lib/tripArchive";
+
+type OfferSnapshot = {
+  city?: string;
+  country?: string;
+  dates?: string;
+  departure?: string;
+};
+
+function tripLabel(trip: TripArchiveSnapshot) {
+  const offer = trip.offerSnapshot as OfferSnapshot | undefined;
+  if (offer?.city) return `${offer.city}${offer.country ? `, ${offer.country}` : ""}`;
+  return "Podróż bez nazwy";
+}
+
+export default function MyTripsPage() {
+  const [trips, setTrips] = useState<TripArchiveSnapshot[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const load = () => {
+    const active = readActiveTrip();
+    setActiveId(active?.tripId || null);
+    setTrips(readTripArchive());
+  };
+
+  useEffect(() => {
+    load();
+    window.addEventListener(TRIP_ARCHIVE_EVENT, load as EventListener);
+    window.addEventListener("tripownia-my-trip-updated", load as EventListener);
+    window.addEventListener("storage", load);
+    return () => {
+      window.removeEventListener(TRIP_ARCHIVE_EVENT, load as EventListener);
+      window.removeEventListener("tripownia-my-trip-updated", load as EventListener);
+      window.removeEventListener("storage", load);
+    };
+  }, []);
+
+  const ordered = useMemo(() => {
+    return [...trips].sort((a, b) => {
+      if (a.tripId === activeId) return -1;
+      if (b.tripId === activeId) return 1;
+      return b.updatedAt.localeCompare(a.updatedAt);
+    });
+  }, [trips, activeId]);
+
+  function activate(tripId: string) {
+    if (activateArchivedTrip(tripId)) window.location.href = "/moja-podroz";
+  }
+
+  function remove(tripId: string) {
+    if (tripId === activeId) return;
+    removeArchivedTrip(tripId);
+    load();
+  }
+
+  return (
+    <main>
+      <SiteHeader />
+      <section className="shell my-trips-page">
+        <div className="my-trips-hero">
+          <div className="my-trips-icon"><Archive size={28}/></div>
+          <div>
+            <div className="kicker">TWOJA TRIPOWNIA</div>
+            <h1>Moje podróże</h1>
+            <p>Aktywny wyjazd i poprzednie plany w jednym miejscu. Archiwum zapisuje się lokalnie na tym urządzeniu.</p>
+          </div>
+        </div>
+
+        {ordered.length ? (
+          <div className="my-trips-list">
+            {ordered.map((trip) => {
+              const offer = trip.offerSnapshot as OfferSnapshot | undefined;
+              const active = trip.tripId === activeId;
+              const completed = Object.values(trip.checklist || {}).filter(Boolean).length;
+              return (
+                <article key={trip.tripId} className={`my-trip-archive-card${active ? " active" : ""}`}>
+                  <div>
+                    <div className="my-trip-archive-topline">
+                      <span>{active ? "AKTYWNA PODRÓŻ" : "ZAPISANY PLAN"}</span>
+                      {offer?.dates && <small><CalendarDays size={13}/>{offer.dates}</small>}
+                    </div>
+                    <h2>{tripLabel(trip)}</h2>
+                    <p>{offer?.departure ? `Wylot: ${offer.departure}` : "Plan zapisany lokalnie"} · {completed} odhaczonych zadań</p>
+                  </div>
+                  <div className="my-trip-archive-actions">
+                    {active ? (
+                      <Link href="/moja-podroz"><MapPinned size={16}/> Otwórz plan <ArrowRight size={15}/></Link>
+                    ) : (
+                      <button type="button" onClick={() => activate(trip.tripId)}><RotateCcw size={16}/> Ustaw jako aktywną</button>
+                    )}
+                    {!active && <button type="button" className="danger" onClick={() => remove(trip.tripId)}><Trash2 size={15}/> Usuń</button>}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="favorites-empty">
+            <Archive size={30}/>
+            <h2>Nie masz jeszcze zapisanych podróży</h2>
+            <p>Dodaj ofertę do „Mojej podróży”, a Tripownia zachowa jej plan, checklistę i notatki na tym urządzeniu.</p>
+            <Link className="primary-cta" href="/okazje">Znajdź okazję <ArrowRight size={17}/></Link>
+          </div>
+        )}
+      </section>
+      <SiteFooter />
+    </main>
+  );
+}
