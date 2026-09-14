@@ -13,6 +13,9 @@ const ALLOWED_PARTNERS = new Set<PartnerKey>([
   "parklot",
   "kiwi",
   "booking",
+  "rentacar",
+  "kiwitaxi",
+  "gettransfer",
 ]);
 
 const ALLOWED_HOSTS = new Set([
@@ -42,6 +45,9 @@ const ALLOWED_HOSTS = new Set([
   "www.fonia.app",
   "www.parklot.pl",
   "parklot.pl",
+  "getrentacar.tpk.lv",
+  "kiwitaxi.tpk.lv",
+  "gettransfer.tpk.lv",
 ]);
 
 function safePartner(value: string | null): PartnerKey | null {
@@ -107,6 +113,9 @@ function affiliateTarget(partner: PartnerKey, target: URL) {
     }
 
     if (partner === "parklot") return new URL(partners.parklot.buildUrl(original));
+    if (partner === "rentacar") return new URL(partners.rentacar.buildUrl(original));
+    if (partner === "kiwitaxi") return new URL(partners.kiwitaxi.buildUrl(original));
+    if (partner === "gettransfer") return new URL(partners.gettransfer.buildUrl(original));
   } catch {
     return null;
   }
