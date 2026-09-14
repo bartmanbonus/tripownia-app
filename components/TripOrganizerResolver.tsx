@@ -67,7 +67,6 @@ export default function TripOrganizerResolver() {
               nights={offer.nights}
               categories={offer.category || []}
               weather={offer.weather || ""}
-              departureAt={trip.departureAt}
             />
           </>
         ) : (
