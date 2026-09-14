@@ -46,14 +46,29 @@ export function matchesPreset(offer: Offer, preset: SmartPreset) {
 
 export function recommendationScore(offer: Offer, preset: SmartPreset) {
   let score = offer.score * 10;
-  score += offer.linkType === "exact" ? 4 : 0;
-  score += offer.tag === "BIERZEMY" ? 4 : offer.tag === "OKAZJA" ? 2 : 0;
+  const linkMatch = offer.linkMatch ?? (offer.linkType === "exact" ? "exact" : offer.destinationUrl ? "destination" : "parameters");
+  const issues = getOfferQualityIssues({
+    availabilityStatus: offer.availabilityStatus,
+    priceCheckedAt: offer.priceCheckedAt,
+    linkMatch,
+  });
+
+  // Rekomendacja nie może wygrywać samą atrakcyjnością kierunku.
+  // Najpierw obniżamy oferty ze starą ceną, niepewną dostępnością lub słabym linkiem.
+  for (const issue of issues) {
+    score -= issue.severity === "high" ? 30 : issue.severity === "medium" ? 12 : 4;
+  }
+
+  if (linkMatch === "exact" && !isPriceStale(offer.priceCheckedAt) && offer.availabilityStatus !== "expired") score += 8;
+  if (offer.tag === "BIERZEMY" && !isPriceStale(offer.priceCheckedAt)) score += 3;
+  else if (offer.tag === "OKAZJA" && !isPriceStale(offer.priceCheckedAt)) score += 2;
+
   if (preset === "cheap") score += Math.max(0, 15 - offer.price / 150);
   if (preset === "discover" && isLessObvious(offer)) score += 8;
   if (preset === "warm" && offer.category.includes("cieplo")) score += 5;
+
   return score;
 }
-
 
 export type OfferQualityIssue = {
   code: "expired" | "unknown-status" | "stale-price" | "weak-link" | "missing-price-date";
