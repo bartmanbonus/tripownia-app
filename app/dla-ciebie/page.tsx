@@ -15,13 +15,10 @@ import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 function scoreOffer(offer: Offer, profile: TravelProfile) {
   let score = recommendationScore(offer, "all");
-  const price = offer.price;
   const departure = offer.departure.toLowerCase();
   const preferredDeparture = profile.departure.toLowerCase();
 
   if (preferredDeparture && departure.includes(preferredDeparture)) score += 24;
-  if (price <= profile.budget) score += 20;
-  else score -= Math.min(25, Math.round((price - profile.budget) / 100));
   for (const style of profile.styles) if (offer.category.includes(style)) score += 8;
   if (profile.warmOnly && offer.category.includes("cieplo")) score += 12;
   if (profile.standard === "budget" && offer.category.includes("tanio")) score += 8;
@@ -48,8 +45,10 @@ export default function ForYouPage() {
     const ranked = offers
       .filter((offer) => offer.availabilityStatus !== "expired")
       .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
+      .filter((offer) => Number(offer.price) > 0 && Number(offer.price) <= profile.budget)
+      .filter((offer) => !profile.warmOnly || offer.category.includes("cieplo"))
       .map((offer) => ({ offer, match: scoreOffer(offer, profile) }))
-      .sort((a, b) => b.match - a.match);
+      .sort((a, b) => b.match - a.match || a.offer.price - b.offer.price);
 
     const seen = new Set<string>();
     return ranked.filter(({ offer }) => {
@@ -66,6 +65,10 @@ export default function ForYouPage() {
       ? `Ostatnia poprawna pula${checkedAt ? ` · sprawdzona ${new Date(checkedAt).toLocaleString("pl-PL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}` : ""}`
       : "Brak potwierdzonej puli — odświeżamy dane";
 
+  const emptyCopy = profile.warmOnly
+    ? `Nie mamy teraz potwierdzonej ciepłej oferty do ${profile.budget.toLocaleString("pl-PL")} zł.`
+    : `Nie mamy teraz potwierdzonej oferty do ${profile.budget.toLocaleString("pl-PL")} zł.`;
+
   return (
     <main>
       <SiteHeader />
@@ -75,7 +78,7 @@ export default function ForYouPage() {
           <div>
             <div className="kicker">PERSONALIZOWANE</div>
             <h1>Dla Ciebie</h1>
-            <p>Tripownia dopasowuje oferty do Twojego budżetu, miejsca wylotu i stylu podróżowania, ale obniża ranking propozycjom ze starą ceną lub słabym linkiem.</p>
+            <p>Tripownia respektuje Twój budżet i ustawienie „tylko ciepło”, a potem układa wyniki według miejsca wylotu, stylu podróży i jakości danych oferty.</p>
           </div>
         </div>
 
@@ -83,6 +86,7 @@ export default function ForYouPage() {
           <span>Wylot: <strong>{profile.departure}</strong></span>
           <span>Budżet: <strong>do {profile.budget.toLocaleString("pl-PL")} zł</strong></span>
           <span>Styl: <strong>{profile.styles.length ? profile.styles.join(", ") : "dowolny"}</strong></span>
+          {profile.warmOnly && <span>Klimat: <strong>tylko ciepło</strong></span>}
           <span>{sourceLabel}</span>
           <button type="button" onClick={refresh} className="app-secondary-button"><RefreshCw size={16} /> {loading ? "Odświeżam…" : "Odśwież"}</button>
           <Link href="/profil"><SlidersHorizontal size={16} /> Zmień profil</Link>
@@ -94,8 +98,8 @@ export default function ForYouPage() {
           </div>
         ) : !loading ? (
           <div className="self-search-empty">
-            <strong>Nie mamy teraz potwierdzonych propozycji dla Ciebie.</strong>
-            <span>Odśwież dane albo zmień profil — nie podstawiamy statycznych ofert jako aktualnych.</span>
+            <strong>{emptyCopy}</strong>
+            <span>Odśwież dane albo zmień profil — nie pokazujemy droższych lub niespełniających warunków ofert tylko po to, żeby zapełnić ekran.</span>
           </div>
         ) : null}
       </section>
