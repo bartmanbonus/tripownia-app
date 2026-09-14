@@ -5,6 +5,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUp, Bell, Heart, Home, MapPinned, RefreshCw, Search } from "lucide-react";
 
+const SERVICE_PATHS = [
+  "/wynajem-auta",
+  "/transfery",
+  "/atrakcje",
+  "/parkingi",
+  "/esim",
+];
+
 const APP_PATHS = [
   "/app",
   "/dla-ciebie",
@@ -16,10 +24,18 @@ const APP_PATHS = [
   "/ulubione",
   "/alerty",
   "/profil",
+  ...SERVICE_PATHS,
 ];
 
 function isAppPath(pathname: string) {
   return APP_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+}
+
+function isPlanningPath(pathname: string) {
+  return pathname.startsWith("/gdzie-leciec")
+    || pathname.startsWith("/okazje")
+    || pathname.startsWith("/oferta")
+    || SERVICE_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
 export default function MobileAppControls() {
@@ -63,7 +79,7 @@ export default function MobileAppControls() {
 
   const nav = [
     { href: "/app", label: "Start", icon: Home, active: pathname === "/app" || pathname.startsWith("/dla-ciebie") },
-    { href: "/app#wyszukiwarka", label: "Szukaj", icon: Search, active: pathname.startsWith("/gdzie-leciec") || pathname.startsWith("/okazje") || pathname.startsWith("/oferta") },
+    { href: "/app#wyszukiwarka", label: "Szukaj", icon: Search, active: isPlanningPath(pathname) },
     { href: "/moja-podroz", label: "Podróż", icon: MapPinned, active: pathname.startsWith("/moja-podroz") },
     { href: "/ulubione", label: "Ulubione", icon: Heart, active: pathname.startsWith("/ulubione") || pathname.startsWith("/porownaj") },
     { href: "/alerty", label: "Alerty", icon: Bell, active: pathname.startsWith("/alerty") },
