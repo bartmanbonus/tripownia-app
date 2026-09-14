@@ -99,6 +99,7 @@ function wrapAnchor(anchor: HTMLAnchorElement) {
   const href = trackedHref(anchor);
   if (!href) return;
   anchor.href = href;
+  anchor.removeAttribute("target");
   anchor.dataset.tripowniaOutboundWrapped = "1";
 }
 
@@ -116,9 +117,6 @@ function interactiveAnchor(event: Event) {
 
 export default function AffiliateClickBridge() {
   useEffect(() => {
-    // One cheap initial pass keeps copy-link/context-menu behavior correct for
-    // links already present at hydration. Dynamic links are wrapped lazily on
-    // first interaction instead of keeping a MutationObserver on document.body.
     wrapInitialPartnerLinks();
 
     const handleInteraction = (event: Event) => {
