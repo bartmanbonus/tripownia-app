@@ -24,6 +24,7 @@ import "./article-depth.css";
 import "./mobile-native-polish.css";
 import "./score-section-fix.css";
 import "./privacy-controls.css";
+import "./my-trips.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 import OfferRailDeduper from "@/components/OfferRailDeduper";
