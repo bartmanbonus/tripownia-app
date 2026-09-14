@@ -9,12 +9,16 @@ import OfferCard from "@/components/OfferCard";
 import { type Offer } from "@/lib/offers";
 import { DEFAULT_TRAVEL_PROFILE, readTravelProfile, type TravelProfile } from "@/lib/travelProfile";
 import { useLiveOffers } from "@/lib/useLiveOffers";
+import { recommendationScore } from "@/lib/offerQuality";
+import { isTravelDestinationAllowed } from "@/lib/travelSafety";
+import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 function scoreOffer(offer: Offer, profile: TravelProfile) {
-  let score = offer.score * 10;
+  let score = recommendationScore(offer, "all");
   const price = offer.price;
   const departure = offer.departure.toLowerCase();
   const preferredDeparture = profile.departure.toLowerCase();
+
   if (preferredDeparture && departure.includes(preferredDeparture)) score += 24;
   if (price <= profile.budget) score += 20;
   else score -= Math.min(25, Math.round((price - profile.budget) / 100));
@@ -40,15 +44,27 @@ export default function ForYouPage() {
     };
   }, []);
 
-  const matches = useMemo(() => offers
-    .filter((offer) => offer.availabilityStatus !== "expired")
-    .map((offer) => ({ offer, match: scoreOffer(offer, profile) }))
-    .sort((a, b) => b.match - a.match)
-    .slice(0, 8), [offers, profile]);
+  const matches = useMemo(() => {
+    const ranked = offers
+      .filter((offer) => offer.availabilityStatus !== "expired")
+      .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
+      .map((offer) => ({ offer, match: scoreOffer(offer, profile) }))
+      .sort((a, b) => b.match - a.match);
+
+    const seen = new Set<string>();
+    return ranked.filter(({ offer }) => {
+      const key = touristDestinationKey(offer);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    }).slice(0, 8);
+  }, [offers, profile]);
 
   const sourceLabel = source === "live"
     ? `Aktualne oferty${checkedAt ? ` · sprawdzone ${new Date(checkedAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}` : ""}`
-    : "Tryb awaryjny — pokazujemy ostatnią dostępną pulę";
+    : offers.length
+      ? `Ostatnia poprawna pula${checkedAt ? ` · sprawdzona ${new Date(checkedAt).toLocaleString("pl-PL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}` : ""}`
+      : "Brak potwierdzonej puli — odświeżamy dane";
 
   return (
     <main>
@@ -59,7 +75,7 @@ export default function ForYouPage() {
           <div>
             <div className="kicker">PERSONALIZOWANE</div>
             <h1>Dla Ciebie</h1>
-            <p>Tripownia dopasowuje aktualne oferty do Twojego budżetu, miejsca wylotu i stylu podróżowania.</p>
+            <p>Tripownia dopasowuje oferty do Twojego budżetu, miejsca wylotu i stylu podróżowania, ale obniża ranking propozycjom ze starą ceną lub słabym linkiem.</p>
           </div>
         </div>
 
@@ -72,9 +88,16 @@ export default function ForYouPage() {
           <Link href="/profil"><SlidersHorizontal size={16} /> Zmień profil</Link>
         </div>
 
-        <div className="cards-grid">
-          {matches.map(({ offer }) => <OfferCard key={offer.id} offer={offer} />)}
-        </div>
+        {matches.length > 0 ? (
+          <div className="cards-grid">
+            {matches.map(({ offer }) => <OfferCard key={offer.id} offer={offer} />)}
+          </div>
+        ) : !loading ? (
+          <div className="self-search-empty">
+            <strong>Nie mamy teraz potwierdzonych propozycji dla Ciebie.</strong>
+            <span>Odśwież dane albo zmień profil — nie podstawiamy statycznych ofert jako aktualnych.</span>
+          </div>
+        ) : null}
       </section>
       <SiteFooter />
     </main>
