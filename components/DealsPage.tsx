@@ -118,10 +118,10 @@ export default function DealsPage() {
   const poolHighlights = useMemo(() => buildPoolHighlights(rows), [rows]);
 
   useEffect(() => {
-    if (!rows.length) return;
+    if (source !== "live" || !rows.length) return;
     const changed = recordDealPriceHistory(rows);
     if (changed) setHistoryVersion((value) => value + 1);
-  }, [rows]);
+  }, [rows, source]);
 
   const priceHighlights = useMemo(() => {
     const result = new Map<number, PriceHighlight>();
