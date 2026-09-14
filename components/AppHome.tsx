@@ -10,6 +10,7 @@ import SearchHub from "@/components/SearchHub";
 import { offers } from "@/lib/offers";
 import { TRAVEL_PROFILE_KEY } from "@/lib/travelProfile";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
+import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type TripOffer = (typeof offers)[number];
 type TripState = { offerId?: number; offerSnapshot?: TripOffer; departureAt?: string };
@@ -18,7 +19,7 @@ type AlertState = { departure?: string; destinations?: string; maxPrice?: string
 function onePerDirection(rows: TripOffer[]) {
   const seen = new Set<string>();
   return rows.filter((offer) => {
-    const key = `${String(offer.city || "").toLowerCase()}|${String(offer.country || "").toLowerCase()}`;
+    const key = touristDestinationKey(offer);
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
