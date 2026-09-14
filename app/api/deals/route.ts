@@ -15,6 +15,14 @@ type SourcePayload = {
   error?: string;
 };
 
+type SourceResult = {
+  response: Response;
+  payload: SourcePayload;
+  label: string;
+};
+
+const DEAL_LIMIT = 20;
+
 function normalize(value: string | undefined | null) {
   return (value || "")
     .toLowerCase()
@@ -66,10 +74,20 @@ function monthDistance(offer: DealsOffer, month: string, year: string) {
   return Math.abs((offerYear * 12 + offerMonth) - (targetYear * 12 + targetMonth));
 }
 
+function isUsableDeal(offer: DealsOffer) {
+  return Boolean(
+    offer &&
+    Number.isFinite(Number(offer.price)) &&
+    Number(offer.price) > 0 &&
+    offer.affiliateUrl &&
+    offer.availabilityStatus !== "expired"
+  );
+}
+
 function cheapestPerDestination(offers: DealsOffer[]) {
   const best = new Map<string, DealsOffer>();
   for (const offer of offers) {
-    if (!offer || !Number.isFinite(Number(offer.price)) || Number(offer.price) <= 0) continue;
+    if (!isUsableDeal(offer)) continue;
     const key = touristDestinationKey(offer);
     const current = best.get(key);
     if (!current || Number(offer.price) < Number(current.price)) best.set(key, offer);
@@ -77,34 +95,30 @@ function cheapestPerDestination(offers: DealsOffer[]) {
   return Array.from(best.values()).sort((a, b) => Number(a.price) - Number(b.price));
 }
 
-function closestPerDestination(offers: DealsOffer[], month: string, year: string) {
-  const ranked = [...offers].sort((a, b) => {
+function lowestPriceDeals(offers: DealsOffer[], limit = DEAL_LIMIT) {
+  return cheapestPerDestination(offers).slice(0, limit);
+}
+
+function closestCheapDeals(offers: DealsOffer[], month: string, year: string, limit = DEAL_LIMIT) {
+  const ranked = cheapestPerDestination(offers).sort((a, b) => {
     const distance = monthDistance(a, month, year) - monthDistance(b, month, year);
     return distance || Number(a.price) - Number(b.price);
   });
-
-  const seen = new Set<string>();
-  const result: DealsOffer[] = [];
-  for (const offer of ranked) {
-    const key = touristDestinationKey(offer);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    result.push(offer);
-    if (result.length >= 20) break;
-  }
-  return result;
+  return ranked.slice(0, limit);
 }
 
-async function loadProvider(request: NextRequest, provider: "exim" | "tui") {
+async function loadSource(
+  request: NextRequest,
+  label: string,
+  params: Record<string, string>
+): Promise<SourceResult> {
   const sourceUrl = new URL("/api/today-offers", request.url);
-  sourceUrl.searchParams.set("mode", "search");
-  sourceUrl.searchParams.set("broad", "1");
-  sourceUrl.searchParams.set("provider", provider);
+  Object.entries(params).forEach(([key, value]) => sourceUrl.searchParams.set(key, value));
 
   const sourceRequest = new NextRequest(sourceUrl, { headers: request.headers });
   const response = await getTodayOffers(sourceRequest);
   const payload = await response.json() as SourcePayload;
-  return { response, payload };
+  return { response, payload, label };
 }
 
 export async function GET(request: NextRequest) {
@@ -114,14 +128,18 @@ export async function GET(request: NextRequest) {
   const month = /^(0[1-9]|1[0-2])$/.test(rawMonth) ? rawMonth : "";
   const year = /^20\d{2}$/.test(rawYear) ? rawYear : "";
 
-  const [eximResult, tuiResult] = await Promise.all([
-    loadProvider(request, "exim"),
-    loadProvider(request, "tui"),
+  // Okazje use a wider price pool than the homepage daily ranking. Packages
+  // from both providers are merged with short EXIM city breaks, then reduced
+  // to the cheapest live option for every tourist destination.
+  const results = await Promise.all([
+    loadSource(request, "exim-packages", { mode: "search", broad: "1", provider: "exim" }),
+    loadSource(request, "tui-packages", { mode: "search", broad: "1", provider: "tui" }),
+    loadSource(request, "exim-citybreaks", { mode: "citybreak", provider: "exim" }),
   ]);
 
-  const successful = [eximResult, tuiResult].filter((item) => item.response.ok);
+  const successful = results.filter((item) => item.response.ok);
   if (!successful.length) {
-    const error = eximResult.payload.error || tuiResult.payload.error || "Nie udało się pobrać okazji.";
+    const error = results.map((item) => item.payload.error).find(Boolean) || "Nie udało się pobrać okazji.";
     return NextResponse.json(
       { ok: false, offers: [], error },
       { status: 502, headers: { "Cache-Control": "no-store" } }
@@ -131,6 +149,7 @@ export async function GET(request: NextRequest) {
   const combined = successful.flatMap((item) => Array.isArray(item.payload.offers) ? item.payload.offers : []);
   const unique = new Map<number, DealsOffer>();
   for (const offer of combined) {
+    if (!isUsableDeal(offer)) continue;
     const current = unique.get(offer.id);
     if (!current || Number(offer.price) < Number(current.price)) unique.set(offer.id, offer);
   }
@@ -140,45 +159,45 @@ export async function GET(request: NextRequest) {
     .filter((offer) => airportMatches(offer, airport))
     .filter((offer) => dateMatches(offer, month, year));
 
-  let offers = cheapestPerDestination(exact).slice(0, 20);
+  let offers = lowestPriceDeals(exact);
   let matchMode = "exact";
   let notice = offers.length
-    ? "Dokładne dopasowanie do wybranych filtrów."
+    ? "Najtańsze znalezione ceny są na górze. Dla każdego kierunku zostawiamy tylko najtańszą aktualną ofertę."
     : "";
 
   if (!offers.length && (month || year)) {
     const sameDate = sourceOffers.filter((offer) => dateMatches(offer, month, year));
     if (sameDate.length) {
-      offers = cheapestPerDestination(sameDate).slice(0, 20);
+      offers = lowestPriceDeals(sameDate);
       matchMode = "same_date_other_airport";
       notice = airport
-        ? "Nie ma teraz dokładnego dopasowania z tego lotniska. Pokazujemy ten sam termin z innych dostępnych lotnisk."
-        : "Pokazujemy najlepsze okazje dla wybranego terminu.";
+        ? "Brak ceny z wybranego lotniska. Pokazujemy najtańsze oferty w tym samym terminie z innych lotnisk."
+        : "Pokazujemy najtańsze znalezione oferty dla wybranego terminu.";
     }
   }
 
   if (!offers.length && airport) {
     const sameAirport = sourceOffers.filter((offer) => airportMatches(offer, airport));
     if (sameAirport.length) {
-      offers = closestPerDestination(sameAirport, month, year);
+      offers = closestCheapDeals(sameAirport, month, year);
       matchMode = "same_airport_nearby_date";
-      notice = "Nie ma teraz dokładnego terminu. Pokazujemy najbliższe dostępne daty z wybranego lotniska.";
+      notice = "Brak dokładnego terminu. Pokazujemy najbliższe daty z tego lotniska, nadal od najniższej ceny w każdym kierunku.";
     }
   }
 
   if (!offers.length && year) {
     const sameYear = sourceOffers.filter((offer) => dateMatches(offer, "", year));
     if (sameYear.length) {
-      offers = closestPerDestination(sameYear, month, year);
+      offers = closestCheapDeals(sameYear, month, year);
       matchMode = "same_year";
-      notice = "Nie ma dokładnego dopasowania. Pokazujemy najbliższe dostępne okazje w wybranym roku.";
+      notice = "Brak dokładnego dopasowania. Pokazujemy najtańsze znalezione opcje w wybranym roku.";
     }
   }
 
   if (!offers.length && sourceOffers.length) {
-    offers = closestPerDestination(sourceOffers, month, year);
+    offers = lowestPriceDeals(sourceOffers);
     matchMode = "closest";
-    notice = "Nie znaleźliśmy dokładnej kombinacji. Pokazujemy najbliższe potwierdzone okazje, zamiast zostawiać pusty wynik.";
+    notice = "Brak dokładnej kombinacji filtrów. Pokazujemy najtańsze aktualne okazje z całej potwierdzonej puli.";
   }
 
   const checkedAt = successful
@@ -194,6 +213,9 @@ export async function GET(request: NextRequest) {
       sourceCount: sourceOffers.length,
       exactCount: exact.length,
       destinationCount: offers.length,
+      sort: "price_asc",
+      selection: "cheapest_per_destination",
+      sources: successful.map((item) => item.label),
       matchMode,
       filters: { airport: airport || null, month: month || null, year: year || null },
       notice,
