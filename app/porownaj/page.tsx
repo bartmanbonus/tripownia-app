@@ -9,6 +9,7 @@ import { offers, publishedOfferOverrides, type Offer } from "@/lib/offers";
 import { getDealScore } from "@/lib/dealScore";
 import { estimateTripCost } from "@/lib/tripCost";
 import { getOfferOverride } from "@/lib/clientOfferOverrides";
+import { isPriceStale } from "@/lib/offerQuality";
 import {
   COMPARE_OFFER_SNAPSHOTS_KEY,
   pruneOfferSnapshots,
@@ -76,8 +77,10 @@ export default function ComparePage() {
               const clientOverride = getOfferOverride(offer.id);
               const publishedOverride = publishedOfferOverrides[String(offer.id)] || {};
               const displayPrice = clientOverride.price ?? publishedOverride.price ?? offer.price;
+              const checkedAt = clientOverride.updatedAt || publishedOverride.updatedAt || offer.priceCheckedAt;
               const isExactLink = offer.linkMatch === "exact" && /^https?:\/\//.test(offer.affiliateUrl || "");
-              const deal = getDealScore(offer, displayPrice, false);
+              const isFreshLiveExact = offer.id >= 1_000_000 && isExactLink && Boolean(checkedAt) && !isPriceStale(checkedAt);
+              const deal = getDealScore({ ...offer, priceCheckedAt: checkedAt }, displayPrice, isFreshLiveExact);
               const cost = estimateTripCost(offer, displayPrice);
               return (
                 <article className="compare-card" key={offer.id}>
@@ -85,6 +88,7 @@ export default function ComparePage() {
                   <div className="eyebrow">{offer.flag} {offer.country}</div>
                   <h2>{offer.city}</h2>
                   <div className="compare-score"><BadgeCheck size={17} /><strong>{deal.score}/100</strong><span>{deal.verdict}</span></div>
+                  <small>Pewność oceny: {deal.confidence}</small>
                   <dl>
                     <div><dt>Cena oferty</dt><dd>{displayPrice.toLocaleString("pl-PL")} zł/os.</dd></div>
                     <div className="compare-total"><dt>Realny koszt Tripowni</dt><dd>ok. {cost.total.toLocaleString("pl-PL")} zł/os.</dd></div>
