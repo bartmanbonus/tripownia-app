@@ -88,6 +88,7 @@ export default function SelfSearchLegacy() {
   const [board, setBoard] = useState("any");
   const [weekendOnly, setWeekendOnly] = useState(false);
   const [results, setResults] = useState<SearchOffer[]>([]);
+  const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -126,6 +127,7 @@ export default function SelfSearchLegacy() {
   async function searchOrganized() {
     setLoading(true);
     setSubmitted(true);
+    setNotice("");
 
     try {
       const queryValues = Array.from(new Set([
@@ -149,9 +151,11 @@ export default function SelfSearchLegacy() {
       const response = await fetch(`/api/today-offers?${params.toString()}`, { cache: "no-store" });
       const data = response.ok ? await response.json() : null;
       const rows = Array.isArray(data?.offers) ? data.offers as SearchOffer[] : [];
+      setNotice(typeof data?.notice === "string" ? data.notice : "");
       setResults(cheapestPerDirection(rows.filter((offer) => offer?.price > 0 && offer?.affiliateUrl)).slice(0, 12));
     } catch {
       setResults([]);
+      setNotice("Nie udało się teraz pobrać aktualnych wyników. Spróbuj ponownie za chwilę.");
     } finally {
       setLoading(false);
     }
@@ -160,6 +164,7 @@ export default function SelfSearchLegacy() {
   function changeTab(next: Tab) {
     setTab(next);
     setResults([]);
+    setNotice("");
     setSubmitted(false);
   }
 
@@ -300,8 +305,10 @@ export default function SelfSearchLegacy() {
                 <button type="button" onClick={searchOrganized} disabled={loading}>{loading ? "Szukamy…" : "Pokaż oferty"}<ArrowRight size={17}/></button>
               </div>
 
+              {notice && results.length > 0 && <div className="self-search-empty"><strong>Wyniki zostały lekko poszerzone.</strong><span>{notice}</span></div>}
+
               {submitted && !loading && results.length === 0 && (
-                <div className="self-search-empty"><strong>Nie znaleźliśmy dziś dobrego dopasowania.</strong><span>Zmień kierunek, lotnisko lub poluzuj filtry. Nie pokazujemy przypadkowych wyników tylko po to, żeby zapełnić ekran.</span></div>
+                <div className="self-search-empty"><strong>Nie znaleźliśmy dziś dobrego dopasowania.</strong><span>{notice || "Zmień kierunek, lotnisko lub poluzuj filtry. Nie pokazujemy przypadkowych wyników tylko po to, żeby zapełnić ekran."}</span></div>
               )}
 
               {results.length > 0 && (
