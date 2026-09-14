@@ -11,6 +11,13 @@ import { isPriceStale } from "@/lib/offerQuality";
 import { isOfferExpired } from "@/lib/offers";
 import { getDealScore } from "@/lib/dealScore";
 import { ANALYTICS_CONSENT_EVENT, getAnalyticsConsent, trackEvent } from "@/lib/analytics";
+import {
+  COMPARE_OFFER_SNAPSHOTS_KEY,
+  FAVORITE_OFFER_SNAPSHOTS_KEY,
+  pruneOfferSnapshots,
+  removeOfferSnapshot,
+  saveOfferSnapshot,
+} from "@/lib/savedOfferSnapshots";
 
 const OFFER_VIEW_SESSION_KEY = "tripownia-viewed-offers-v1";
 const viewedOfferIds = new Set<number>();
@@ -112,6 +119,15 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const stalePrice = !isExpired && isPriceStale(effectiveCheckedAt);
   const deal = getDealScore(offer, displayPrice, isLiveExact);
 
+  const offerSnapshot: Offer = {
+    ...offer,
+    price: displayPrice,
+    image: displayImage || offer.image,
+    linkMatch,
+    priceCheckedAt: effectiveCheckedAt,
+    availabilityStatus,
+  };
+
   const eventBase = {
     offer_id: offer.id,
     destination: offer.city,
@@ -163,6 +179,9 @@ export default function OfferCard({ offer }: { offer: Offer }) {
     const adding = !ids.includes(offer.id);
     const next = adding ? [...ids, offer.id] : ids.filter((id) => id !== offer.id);
     localStorage.setItem("tripownia-favorites", JSON.stringify(next));
+    if (adding) saveOfferSnapshot(FAVORITE_OFFER_SNAPSHOTS_KEY, offerSnapshot);
+    else removeOfferSnapshot(FAVORITE_OFFER_SNAPSHOTS_KEY, offer.id);
+    pruneOfferSnapshots(FAVORITE_OFFER_SNAPSHOTS_KEY, next);
     setLiked(adding);
     trackEvent(adding ? "favorite_add" : "favorite_remove", eventBase);
     window.dispatchEvent(new Event("tripownia-favorites-updated"));
@@ -175,6 +194,9 @@ export default function OfferCard({ offer }: { offer: Offer }) {
     if (!adding) next = ids.filter((id) => id !== offer.id);
     else next = [...ids.filter((id) => id !== offer.id), offer.id].slice(-3);
     localStorage.setItem("tripownia-compare", JSON.stringify(next));
+    if (adding) saveOfferSnapshot(COMPARE_OFFER_SNAPSHOTS_KEY, offerSnapshot);
+    else removeOfferSnapshot(COMPARE_OFFER_SNAPSHOTS_KEY, offer.id);
+    pruneOfferSnapshots(COMPARE_OFFER_SNAPSHOTS_KEY, next);
     setCompared(next.includes(offer.id));
     trackEvent(adding ? "compare_add" : "compare_remove", eventBase);
     window.dispatchEvent(new Event("tripownia-compare-updated"));
@@ -184,14 +206,6 @@ export default function OfferCard({ offer }: { offer: Offer }) {
     const previous = readTrip();
     const sameTrip = previous?.offerId === offer.id;
     const tripId = typeof previous?.tripId === "string" && previous.tripId ? previous.tripId : createTripId(offer.id);
-    const offerSnapshot = {
-      ...offer,
-      price: displayPrice,
-      image: displayImage || offer.image,
-      linkMatch,
-      priceCheckedAt: effectiveCheckedAt,
-      availabilityStatus,
-    };
     const nextTrip = sameTrip
       ? { ...previous, offerId: offer.id, tripId, offerSnapshot }
       : { tripId: createTripId(offer.id), offerId: offer.id, offerSnapshot, checklist: {}, dayPlan: [] };
