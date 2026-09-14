@@ -10,9 +10,9 @@ import SearchHub from "@/components/SearchHub";
 import { offers } from "@/lib/offers";
 import { TRAVEL_PROFILE_KEY } from "@/lib/travelProfile";
 
-type TripState = { offerId?: number; departureAt?: string };
-type AlertState = { departure?: string; destinations?: string; maxPrice?: string | number };
 type TripOffer = (typeof offers)[number];
+type TripState = { offerId?: number; offerSnapshot?: TripOffer; departureAt?: string };
+type AlertState = { departure?: string; destinations?: string; maxPrice?: string | number };
 
 function onePerDirection(rows: TripOffer[]) {
   const seen = new Set<string>();
@@ -80,7 +80,10 @@ export default function AppHome() {
     return () => controller.abort();
   }, []);
 
-  const tripOffer = useMemo(() => offers.find((offer) => offer.id === trip.offerId), [trip.offerId]);
+  const tripOffer = useMemo(
+    () => trip.offerSnapshot || offers.find((offer) => offer.id === trip.offerId),
+    [trip.offerId, trip.offerSnapshot]
+  );
   const topOffers = useMemo(() => liveOffers.slice(0, 3), [liveOffers]);
   const alertsReady = Boolean(alerts.maxPrice || alerts.destinations || alerts.departure);
   const onboarding = [
