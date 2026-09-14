@@ -57,6 +57,7 @@ jobs:
           routes=(
             "/"
             "/app"
+            "/okazje"
             "/gdzie-leciec"
             "/dla-ciebie"
             "/moja-podroz"
@@ -64,6 +65,10 @@ jobs:
             "/alerty"
             "/profil"
             "/ulubione"
+            "/transfery"
+            "/wynajem-auta"
+            "/sitemap.xml"
+            "/robots.txt"
           )
 
           for route in "${routes[@]}"; do
