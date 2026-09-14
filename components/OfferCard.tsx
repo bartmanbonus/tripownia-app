@@ -112,11 +112,12 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const linkMatch = override.linkMatch || publishedOverride.linkMatch || getLinkMatch(offer);
   const isExactLink = linkMatch === "exact" && /^https?:\/\//.test(offer.affiliateUrl || "");
   const effectiveCheckedAt = override.updatedAt || publishedOverride.updatedAt || offer.priceCheckedAt;
-  const isLiveExact = offer.id >= 1_000_000 && isExactLink && Boolean(effectiveCheckedAt);
+  const priceStale = isPriceStale(effectiveCheckedAt);
+  const isLiveExact = offer.id >= 1_000_000 && isExactLink && Boolean(effectiveCheckedAt) && !priceStale;
   const checkedAt = formatPriceCheckedAt(effectiveCheckedAt);
   const availabilityStatus = override.availabilityStatus ?? publishedOverride.availabilityStatus ?? offer.availabilityStatus ?? "unknown";
   const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
-  const stalePrice = !isExpired && isPriceStale(effectiveCheckedAt);
+  const stalePrice = !isExpired && priceStale;
   const deal = getDealScore(offer, displayPrice, isLiveExact);
 
   const offerSnapshot: Offer = {
