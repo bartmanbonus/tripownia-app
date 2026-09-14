@@ -110,10 +110,13 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   const displayImage = override.imageUrl || publishedOverride.imageUrl;
   const isFeatured = override.featured ?? publishedOverride.featured ?? featuredOfferIds.has(offer.id);
   const linkMatch = override.linkMatch || publishedOverride.linkMatch || getLinkMatch(offer);
-  const isExactLink = linkMatch === "exact" && /^https?:\/\//.test(offer.affiliateUrl || "");
+  const hasExternalAffiliateUrl = /^https?:\/\//.test(offer.affiliateUrl || "");
+  const isLiveOffer = offer.id >= 1_000_000;
+  const isExactLink = linkMatch === "exact" && hasExternalAffiliateUrl;
+  const isLivePartnerLink = isLiveOffer && hasExternalAffiliateUrl;
   const effectiveCheckedAt = override.updatedAt || publishedOverride.updatedAt || offer.priceCheckedAt;
   const priceStale = isPriceStale(effectiveCheckedAt);
-  const isLiveExact = offer.id >= 1_000_000 && isExactLink && Boolean(effectiveCheckedAt) && !priceStale;
+  const isLiveExact = isLiveOffer && isExactLink && Boolean(effectiveCheckedAt) && !priceStale;
   const checkedAt = formatPriceCheckedAt(effectiveCheckedAt);
   const availabilityStatus = override.availabilityStatus ?? publishedOverride.availabilityStatus ?? offer.availabilityStatus ?? "unknown";
   const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
@@ -135,6 +138,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
     country: offer.country,
     partner: offer.partner,
     price: displayPrice,
+    live_offer: isLiveOffer,
     live_exact: isLiveExact,
     exact_link: isExactLink,
   };
@@ -173,7 +177,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
       observer?.disconnect();
       window.removeEventListener(ANALYTICS_CONSENT_EVENT, handleConsent as EventListener);
     };
-  }, [offer.id, offer.city, offer.country, offer.partner, displayPrice, isLiveExact, isExactLink]);
+  }, [offer.id, offer.city, offer.country, offer.partner, displayPrice, isLiveOffer, isLiveExact, isExactLink]);
 
   function toggleLike() {
     const ids = readNumberArray("tripownia-favorites");
@@ -217,13 +221,19 @@ export default function OfferCard({ offer }: { offer: Offer }) {
   }
 
   function trackOfferClick(placement: "image" | "card_cta") {
-    const outbound = !isExpired && (isExactLink || placement === "card_cta");
+    const outbound = !isExpired && (isExactLink || isLivePartnerLink || placement === "card_cta");
     trackEvent(outbound ? "outbound_partner_click" : "offer_open", { ...eventBase, placement });
   }
 
   if (override.hidden || publishedOverride.hidden) return null;
 
-  const buyHref = isExpired ? `/oferta/${offer.id}` : isExactLink ? offer.affiliateUrl : `/go/${offer.id}?source=offer_card`;
+  const externalCardLink = isExactLink || isLivePartnerLink;
+  const detailHref = isLivePartnerLink ? offer.affiliateUrl : `/oferta/${offer.id}`;
+  const buyHref = isExpired
+    ? isLiveOffer ? "/okazje" : `/oferta/${offer.id}`
+    : externalCardLink
+      ? offer.affiliateUrl
+      : `/go/${offer.id}?source=offer_card`;
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
     : isLiveExact
@@ -237,11 +247,13 @@ export default function OfferCard({ offer }: { offer: Offer }) {
       ? checkedAt ? `Cena z feedu · ${checkedAt}` : "Cena z aktualnego feedu"
       : isExactLink
         ? "Dokładny link do oferty · cena do potwierdzenia u partnera"
-        : "Cena orientacyjna · partner potwierdzi aktualną cenę";
+        : isLiveOffer
+          ? "Oferta z feedu · partner potwierdzi aktualną cenę"
+          : "Cena orientacyjna · partner potwierdzi aktualną cenę";
 
   return (
     <article ref={cardRef} className={`offer-card offer-card-clean ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}>
-      <Link href={isExactLink ? offer.affiliateUrl : `/oferta/${offer.id}`} target={isExactLink ? "_blank" : undefined} rel={isExactLink ? "sponsored noopener noreferrer" : undefined} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
+      <Link href={detailHref} target={externalCardLink ? "_blank" : undefined} rel={externalCardLink ? "sponsored noopener noreferrer" : undefined} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
         <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
         <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
         {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
@@ -284,7 +296,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           </div>
         )}
 
-        <a className="card-cta" href={buyHref} target={isExactLink ? "_blank" : undefined} rel={isExpired ? undefined : isExactLink ? "sponsored noopener noreferrer" : "sponsored"} onClick={() => trackOfferClick("card_cta")}>{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
+        <a className="card-cta" href={buyHref} target={!isExpired && externalCardLink ? "_blank" : undefined} rel={isExpired ? undefined : externalCardLink ? "sponsored noopener noreferrer" : "sponsored"} onClick={() => trackOfferClick("card_cta")}>{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
 
         {(compared || tripAdded) && (
           <div className="offer-after-actions">
