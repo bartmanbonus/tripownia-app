@@ -24,6 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url:`${BASE_URL}/dalekie-podroze`,lastModified:now,changeFrequency:"weekly",priority:.85 },
     { url:`${BASE_URL}/magazyn-podrozniczy`,lastModified:now,changeFrequency:"weekly",priority:.8 },
     { url:`${BASE_URL}/poradniki`,lastModified:now,changeFrequency:"weekly",priority:.75 },
+    { url:`${BASE_URL}/przed-wyjazdem`,lastModified:now,changeFrequency:"weekly",priority:.8 },
     { url:`${BASE_URL}/sylwester`,lastModified:now,changeFrequency:"daily",priority:.9 },
     { url:`${BASE_URL}/parkingi`,lastModified:now,changeFrequency:"weekly",priority:.7 },
     { url:`${BASE_URL}/atrakcje`,lastModified:now,changeFrequency:"weekly",priority:.7 },
