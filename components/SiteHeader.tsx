@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -51,7 +52,12 @@ const myTripowniaItems = [
   { href: "/moja-podroz", label: "Moja podróż", icon: MapPinned },
 ] as const;
 
+const APP_PATHS = ["/app", "/dla-ciebie", "/moja-podroz", "/porownaj", "/ulubione", "/alerty", "/profil"];
 const OPEN_MENU_SELECTOR = "details.trip-mobile-menu[open], details.trip-header-menu[open]";
+
+function isAppPath(pathname: string) {
+  return APP_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+}
 
 function closeOpenMenus(except?: HTMLDetailsElement | null) {
   document.querySelectorAll<HTMLDetailsElement>(OPEN_MENU_SELECTOR).forEach((details) => {
@@ -61,6 +67,9 @@ function closeOpenMenus(except?: HTMLDetailsElement | null) {
 
 export default function SiteHeader() {
   const pathname = usePathname();
+  const inApp = isAppPath(pathname);
+  const mobileHomeHref = inApp ? "/app" : "/";
+  const searchHref = inApp ? "/app#wyszukiwarka" : "/#wyszukiwarka";
   const showMarkets = Date.now() <= new Date("2027-01-07T22:59:59Z").getTime();
   const visiblePrimaryItems = primaryItems.filter((item) => !("seasonal" in item && item.seasonal) || showMarkets);
 
@@ -75,16 +84,13 @@ export default function SiteHeader() {
         return;
       }
 
-      // Only one header menu can stay open at a time.
       closeOpenMenus(clickedMenu);
     };
 
     const handleClick = (event: MouseEvent) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
-      if (target.closest("details.trip-mobile-menu a, details.trip-header-menu a")) {
-        closeOpenMenus();
-      }
+      if (target.closest("details.trip-mobile-menu a, details.trip-header-menu a")) closeOpenMenus();
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -125,8 +131,8 @@ export default function SiteHeader() {
     <header className="trip-header">
       <div className="trip-header-shell">
         <div className="trip-mobile-top">
-          <Link className="trip-mobile-brand" href="/app" aria-label="Tripownia — start aplikacji">
-            <img src="/tripownia-logo.webp" alt="Tripownia.pl" width="64" height="64" />
+          <Link className="trip-mobile-brand" href={mobileHomeHref} aria-label={inApp ? "Tripownia — start aplikacji" : "Tripownia.pl — strona główna"}>
+            <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={64} height={64} priority />
           </Link>
           <div className="trip-mobile-top-actions">
             <Link className="trip-mobile-account" href="/profil" aria-label="Konto">
@@ -162,11 +168,11 @@ export default function SiteHeader() {
         </div>
 
         <div className="trip-header-main">
-          <Link className="trip-header-brand" href="/" aria-label="Tripownia.pl — strona główna">
-            <img src="/tripownia-logo.webp" alt="Tripownia.pl" width="68" height="68" />
+          <Link className="trip-header-brand" href={inApp ? "/app" : "/"} aria-label={inApp ? "Tripownia — start aplikacji" : "Tripownia.pl — strona główna"}>
+            <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={68} height={68} priority />
           </Link>
 
-          <Link className="trip-header-search" href="/#wyszukiwarka" aria-label="Przejdź do wyszukiwarki wyjazdów">
+          <Link className="trip-header-search" href={searchHref} aria-label="Przejdź do wyszukiwarki wyjazdów">
             <Search size={20} strokeWidth={2.3} />
             <span className="trip-header-search-copy">
               <strong>Dokąd chcesz lecieć?</strong>
