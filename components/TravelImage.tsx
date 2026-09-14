@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 
 type Props = {
@@ -88,6 +89,26 @@ export default function TravelImage({ city, country, alt, className = "", overri
     );
   }
 
+  const isLocal = src.startsWith("/");
+
+  if (isLocal) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        className={className}
+        width={1600}
+        height={1000}
+        sizes="(max-width: 560px) 100vw, (max-width: 1100px) 50vw, 33vw"
+        quality={88}
+        loading="lazy"
+        onError={loadDynamicFallback}
+      />
+    );
+  }
+
+  // Live hotel/CDN images can come from multiple provider hosts. Keep them as
+  // direct images instead of opening Next Image's optimizer to arbitrary hosts.
   return (
     <img
       src={src}
