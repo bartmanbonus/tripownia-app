@@ -33,9 +33,9 @@ export async function generateMetadata({params}:{params:Promise<{id:string}>}):P
       images: o.image ? [{ url: o.image, alt: `${o.city}, ${o.country}` }] : undefined,
     },
     twitter: { card: "summary_large_image", title, description, images: o.image ? [o.image] : undefined },
-    robots: o.availabilityStatus === "expired"
-      ? { index: false, follow: true }
-      : { index: true, follow: true },
+    // Offer IDs are transient product views, not evergreen SEO landing pages.
+    // Keep links crawlable so bots can reach stable hubs, but never index a price snapshot.
+    robots: { index: false, follow: true },
   };
 }
 
@@ -71,6 +71,8 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
   const linkMatch = getLinkMatch(o);
   const isExact = linkMatch === "exact";
   const isParameterized = linkMatch === "parameters";
+  void isExact;
+  void isParameterized;
   const checkedAt = formatPriceCheckedAt(o.priceCheckedAt);
   const jsonLd = {
     "@context": "https://schema.org",
@@ -110,7 +112,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           <div className="eyebrow">{o.flag} {o.country}</div>
           <h1>{o.city}</h1>
           <div className="detail-topline">
-            <div className="detail-score">{o.partner === "exim" ? <><strong>{o.score}</strong><span>/10 Tripownia poleca</span></> : <><strong>{o.score}</strong><span>/10 Tripownia poleca</span></>}</div>
+            <div className="detail-score"><strong>{o.score}</strong><span>/10 Tripownia poleca</span></div>
             <FavoriteButton offerId={o.id}/>
           </div>
           <div className="detail-price-card">
@@ -125,7 +127,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               </>
             )}
           </div>
-          <p className="detail-lead">{o.partner === "exim" ? o.reason : o.reason}</p>
+          <p className="detail-lead">{o.reason}</p>
           <div className="detail-meta">
             <span><Plane/> <b>{o.departure}</b></span><span><Moon/> <b>{o.nights} nocy</b></span>
             <span><Sun/> <b>{o.weather}</b></span><span><Utensils/> <b>{o.board}</b></span>
