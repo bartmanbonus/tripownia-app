@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 function normalize(value: string) {
   return value
@@ -14,6 +15,12 @@ function normalize(value: string) {
 
 function setTextIfChanged(node: HTMLElement | null, text: string) {
   if (node && node.textContent !== text) node.textContent = text;
+}
+
+function cardDestination(card: ParentNode) {
+  const city = card.querySelector<HTMLElement>(".offer-card h3")?.textContent?.trim() || "";
+  const country = card.querySelector<HTMLElement>(".offer-card .eyebrow")?.textContent?.replace(/^[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+/, "").trim() || "";
+  return { city, country };
 }
 
 function homepageHasLivePool() {
@@ -80,9 +87,7 @@ function deduplicateRails() {
     const items = row.querySelectorAll<HTMLElement>(".offer-stream-item");
     items.forEach((item) => {
       item.hidden = false;
-      const city = item.querySelector<HTMLElement>(".offer-card h3")?.textContent || "";
-      const country = item.querySelector<HTMLElement>(".offer-card .eyebrow")?.textContent || "";
-      const key = normalize(`${city}|${country.replace(/^[^a-zA-ZąćęłńóśźżĄĆĘŁŃÓŚŹŻ]+/, "")}`);
+      const key = touristDestinationKey(cardDestination(item));
       if (!key) return;
 
       if (seen.has(key)) item.hidden = true;
@@ -99,16 +104,17 @@ function syncRadarLinks() {
   const daily = document.querySelector<HTMLElement>(".daily-carousel");
   if (!radar || !daily || !homepageHasLivePool()) return;
 
-  const ctaByCity = new Map<string, string>();
+  const ctaByDestination = new Map<string, string>();
   daily.querySelectorAll<HTMLElement>(".offer-card").forEach((card) => {
-    const city = normalize(card.querySelector<HTMLElement>("h3")?.textContent || "");
+    const destination = touristDestinationKey(cardDestination(card));
     const cta = card.querySelector<HTMLAnchorElement>(".card-cta")?.getAttribute("href") || "";
-    if (city && cta && !ctaByCity.has(city)) ctaByCity.set(city, cta);
+    if (destination && cta && !ctaByDestination.has(destination)) ctaByDestination.set(destination, cta);
   });
 
   radar.querySelectorAll<HTMLAnchorElement>(".hero-radar-offer").forEach((link) => {
-    const city = normalize(link.querySelector<HTMLElement>("strong")?.textContent || "");
-    const cardHref = ctaByCity.get(city);
+    const city = link.querySelector<HTMLElement>("strong")?.textContent?.trim() || "";
+    const destination = touristDestinationKey({ city, country: "" });
+    const cardHref = ctaByDestination.get(destination);
     if (!cardHref) return;
 
     if (cardHref.startsWith("/go/")) {
