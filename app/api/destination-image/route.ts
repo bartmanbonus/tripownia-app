@@ -16,7 +16,7 @@ type CommonsPage = {
  * - zapytanie z kierunki.csv,
  * - Wikimedia Commons,
  * - namespace plików,
- * - pierwsze trafienie JPEG z thumburl około 1600 px.
+ * - pierwsze trafienie JPEG z thumburl około 2200 px dla ekranów Retina.
  */
 async function searchWikimedia(query: string) {
   const endpoint = new URL("https://commons.wikimedia.org/w/api.php");
@@ -27,7 +27,7 @@ async function searchWikimedia(query: string) {
   endpoint.searchParams.set("gsrlimit", "8");
   endpoint.searchParams.set("prop", "imageinfo");
   endpoint.searchParams.set("iiprop", "url|mime");
-  endpoint.searchParams.set("iiurlwidth", "1600");
+  endpoint.searchParams.set("iiurlwidth", "2200");
   endpoint.searchParams.set("format", "json");
   endpoint.searchParams.set("origin", "*");
 
@@ -39,21 +39,14 @@ async function searchWikimedia(query: string) {
     cache: "no-store",
   });
 
-  if (!response.ok) {
-    return null;
-  }
+  if (!response.ok) return null;
 
   const data = await response.json();
   const pages = Object.values(data.query?.pages || {}) as CommonsPage[];
 
   for (const page of pages) {
     const info = page.imageinfo?.[0];
-
-    if (
-      info &&
-      info.mime === "image/jpeg" &&
-      info.thumburl
-    ) {
+    if (info && info.mime === "image/jpeg" && info.thumburl) {
       return {
         url: info.thumburl,
         source: "wikimedia" as const,
@@ -95,7 +88,6 @@ export async function GET(request: NextRequest) {
     },
     {
       headers: {
-        // krótki cache na czas testów; po potwierdzeniu zwiększymy
         "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
       },
     },
