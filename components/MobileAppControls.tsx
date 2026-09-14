@@ -1,18 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUp, RefreshCw } from "lucide-react";
+import { ArrowUp, Bell, Heart, Home, MapPinned, RefreshCw, Search } from "lucide-react";
+
+const APP_PATHS = ["/app", "/dla-ciebie", "/moja-podroz", "/porownaj", "/ulubione", "/alerty", "/profil"];
+
+function isAppPath(pathname: string) {
+  return APP_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+}
 
 export default function MobileAppControls() {
   const pathname = usePathname();
   const [showTop, setShowTop] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const visible = pathname === "/app" || pathname.startsWith("/moja-podroz");
+  const visible = isAppPath(pathname);
 
   useEffect(() => {
     if (!visible) return;
-    const onScroll = () => setShowTop(window.scrollY > 420);
+    const onScroll = () => setShowTop(window.scrollY > 520);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -25,11 +32,7 @@ export default function MobileAppControls() {
     try {
       if ("caches" in window) {
         const keys = await caches.keys();
-        await Promise.all(
-          keys
-            .filter((key) => key.startsWith("tripownia-"))
-            .map((key) => caches.delete(key))
-        );
+        await Promise.all(keys.filter((key) => key.startsWith("tripownia-")).map((key) => caches.delete(key)));
       }
 
       if ("serviceWorker" in navigator) {
@@ -37,7 +40,7 @@ export default function MobileAppControls() {
         await Promise.all(registrations.map((registration) => registration.update().catch(() => undefined)));
       }
     } catch {
-      // Cache cleanup is best-effort. The cache-busting navigation below still forces a fresh page URL.
+      // Cache cleanup is best-effort. Navigation below still forces a fresh page URL.
     }
 
     const url = new URL(window.location.href);
@@ -47,30 +50,48 @@ export default function MobileAppControls() {
 
   if (!visible) return null;
 
+  const nav = [
+    { href: "/app", label: "Start", icon: Home, active: pathname === "/app" },
+    { href: "/app#wyszukiwarka", label: "Szukaj", icon: Search, active: false },
+    { href: "/moja-podroz", label: "Podróż", icon: MapPinned, active: pathname.startsWith("/moja-podroz") },
+    { href: "/ulubione", label: "Ulubione", icon: Heart, active: pathname.startsWith("/ulubione") || pathname.startsWith("/porownaj") },
+    { href: "/alerty", label: "Alerty", icon: Bell, active: pathname.startsWith("/alerty") },
+  ];
+
   return (
-    <div className="mobile-app-controls" aria-label="Szybkie akcje aplikacji">
-      <button
-        type="button"
-        onClick={hardRefresh}
-        aria-label="Pobierz najnowszą wersję aplikacji"
-        title="Odśwież"
-        disabled={refreshing}
-      >
-        <RefreshCw className={refreshing ? "is-spinning" : undefined} size={18} strokeWidth={2.2} />
-        <span>{refreshing ? "Odświeżam…" : "Odśwież"}</span>
-      </button>
-      {showTop && (
+    <>
+      <div className="mobile-app-quick-actions" aria-label="Szybkie akcje aplikacji">
+        {showTop && (
+          <button
+            type="button"
+            className="mobile-app-top"
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            aria-label="Przewiń do góry"
+            title="Do góry"
+          >
+            <ArrowUp size={18} strokeWidth={2.3} />
+          </button>
+        )}
         <button
           type="button"
-          className="mobile-app-controls-top"
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          aria-label="Przewiń do góry"
-          title="Do góry"
+          className="mobile-app-refresh"
+          onClick={hardRefresh}
+          aria-label="Pobierz najnowsze dane aplikacji"
+          title="Odśwież"
+          disabled={refreshing}
         >
-          <ArrowUp size={19} strokeWidth={2.3} />
-          <span>Góra</span>
+          <RefreshCw className={refreshing ? "is-spinning" : undefined} size={18} strokeWidth={2.2} />
         </button>
-      )}
-    </div>
+      </div>
+
+      <nav className="mobile-app-controls" aria-label="Nawigacja aplikacji Tripownia">
+        {nav.map(({ href, label, icon: Icon, active }) => (
+          <Link key={label} href={href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}>
+            <Icon size={20} strokeWidth={active ? 2.5 : 2.1} />
+            <span>{label}</span>
+          </Link>
+        ))}
+      </nav>
+    </>
   );
 }
