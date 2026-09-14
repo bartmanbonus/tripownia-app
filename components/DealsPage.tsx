@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, RefreshCw, Search, Sparkles } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
@@ -11,6 +11,7 @@ import { isOfferExpired } from "@/lib/offerRuntime";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { useLiveOffers } from "@/lib/useLiveOffers";
+import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -62,7 +63,7 @@ function cheapestUnique(rows: DealsOffer[]) {
     .slice(0, 20);
 }
 
-function buildPriceHighlights(rows: DealsOffer[]) {
+function buildPoolHighlights(rows: DealsOffer[]) {
   const highlights = new Map<number, PriceHighlight>();
   if (rows.length < 5) return highlights;
 
@@ -101,6 +102,7 @@ export default function DealsPage() {
   const [airport, setAirport] = useState("any");
   const [month, setMonth] = useState("any");
   const [year, setYear] = useState("any");
+  const [historyVersion, setHistoryVersion] = useState(0);
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
@@ -113,7 +115,35 @@ export default function DealsPage() {
 
   const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
   const rows = useMemo(() => cheapestUnique(offers as DealsOffer[]), [offers]);
-  const priceHighlights = useMemo(() => buildPriceHighlights(rows), [rows]);
+  const poolHighlights = useMemo(() => buildPoolHighlights(rows), [rows]);
+
+  useEffect(() => {
+    if (!rows.length) return;
+    const changed = recordDealPriceHistory(rows);
+    if (changed) setHistoryVersion((value) => value + 1);
+  }, [rows]);
+
+  const priceHighlights = useMemo(() => {
+    const result = new Map<number, PriceHighlight>();
+    rows.forEach((offer) => {
+      const historical = getHistoricalPriceHighlight(offer);
+      if (historical) {
+        result.set(offer.id, { label: historical.label, detail: historical.detail });
+        return;
+      }
+      const pool = poolHighlights.get(offer.id);
+      if (pool) result.set(offer.id, pool);
+    });
+    return result;
+  }, [rows, poolHighlights, historyVersion]);
+
+  const historicalCount = useMemo(() => {
+    let count = 0;
+    rows.forEach((offer) => {
+      if (getHistoricalPriceHighlight(offer)) count += 1;
+    });
+    return count;
+  }, [rows, historyVersion]);
 
   const checkedLabel = checkedAt
     ? new Intl.DateTimeFormat("pl-PL", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Warsaw" }).format(new Date(checkedAt))
@@ -148,7 +178,7 @@ export default function DealsPage() {
         <div>
           <div className="kicker">OKAZJE TRIPOWNI</div>
           <h1>Najpierw cena. Potem kierunek.</h1>
-          <p className="hub-lead">Sortujemy aktualne oferty od najtańszych, zostawiamy najniższą cenę dla każdego kierunku i wyróżniamy tylko te ceny, które naprawdę odstają od bieżącej puli.</p>
+          <p className="hub-lead">Sortujemy aktualne oferty od najtańszych, zostawiamy najniższą cenę dla każdego kierunku i wyróżniamy tylko te ceny, które naprawdę odstają od bieżącej puli. Historię cen zbieramy od teraz na podstawie realnych obserwacji.</p>
         </div>
         <div className="deals-hub-actions">
           <Link className="primary-cta" href="/#wyszukiwarka"><Search size={17}/> Wyszukaj dokładniej</Link>
@@ -185,7 +215,7 @@ export default function DealsPage() {
 
       <div className="deals-trust-bar">
         <span><Sparkles size={15}/><strong>{rows.length} {rows.length === 1 ? "różny kierunek" : "różnych kierunków"}</strong></span>
-        <span>{priceHighlights.size ? `${priceHighlights.size} cen wyraźnie poniżej mediany puli` : "Oferty od najniższej ceny"}</span>
+        <span>{historicalCount ? `${historicalCount} historycznych minimów` : priceHighlights.size ? `${priceHighlights.size} cen wyraźnie poniżej mediany puli` : "Oferty od najniższej ceny"}</span>
         <span>{filtering ? `${airportLabel} · ${monthLabel} · ${yearLabel}` : "Wszystkie dostępne lotniska, miesiące i lata"}</span>
         <span>{sourceCopy}</span>
       </div>
