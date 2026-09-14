@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, MapPin, Plane, Search, SlidersHorizontal, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
-import { airportOptions, offers, isOfferExpired } from "@/lib/offers";
+import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination } from "@/lib/worldDestinations";
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
 
@@ -23,10 +23,6 @@ type SearchOverrides = {
   tab?: string;
 };
 
-function normalizeOffer(o: any) {
-  return normalizeDestination([o.city, o.country, o.hotel, o.destination, o.title].filter(Boolean).join(" "));
-}
-
 function onePerDirection(rows: any[]) {
   const seen = new Set<string>();
   return rows.filter((row) => {
@@ -35,18 +31,6 @@ function onePerDirection(rows: any[]) {
     seen.add(key);
     return true;
   });
-}
-
-function durationMatches(o: any, value: string) {
-  const nights = Number(o.nights || o.duration || 0);
-  if (value === "all" || !nights) return true;
-  if (value === "1-2") return nights >= 1 && nights <= 2;
-  if (value === "3-4") return nights >= 3 && nights <= 4;
-  if (value === "5-7") return nights >= 5 && nights <= 7;
-  if (value === "8-10") return nights >= 8 && nights <= 10;
-  if (value === "11-14") return nights >= 11 && nights <= 14;
-  if (value === "15+") return nights >= 15;
-  return true;
 }
 
 export default function SearchHub({
@@ -99,34 +83,6 @@ export default function SearchHub({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchRequest]);
 
-  function staticFallback(query: string, overrides: SearchOverrides = {}) {
-    const activeDuration = overrides.duration ?? duration;
-    const activeBudget = overrides.budget ?? budget;
-    const activeBoard = overrides.board ?? board;
-    const activeWeekend = overrides.weekendOnly ?? weekendOnly;
-    const normalizedQuery = normalizeDestination(query);
-    const maxPrice = activeBudget === "all" ? Infinity : Number(activeBudget);
-
-    const rows = (offers as any[])
-      .filter((o) => !isOfferExpired(o))
-      .filter((o) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
-      .filter((o) => ["exim", "tui", "wakacje"].includes(String(o.partner || "").toLowerCase()))
-      .filter((o) => !normalizedQuery || normalizeOffer(o).includes(normalizedQuery) || normalizedQuery.includes(normalizeDestination(String(o.city || o.country || ""))))
-      .filter((o) => !departure || String(o.departureCode || o.airportCode || o.departureAirportCode || "").toUpperCase() === departure || normalizeDestination(String(o.departure || "")).includes(normalizeDestination(airportOptions.find((a: any) => a.code === departure)?.label || departure)))
-      .filter((o) => durationMatches(o, activeDuration))
-      .filter((o) => Number(o.price || 0) <= maxPrice)
-      .filter((o) => activeBoard === "all" || normalizeDestination(String(o.board || "")).includes(normalizeDestination(activeBoard)))
-      .filter((o) => {
-        if (!activeWeekend) return true;
-        const nights = Number(o.nights || o.duration || 0);
-        const categories = (o.category || []).map((c: any) => normalizeDestination(String(c)));
-        return categories.some((c: string) => c.includes("weekend")) || (nights >= 2 && nights <= 4);
-      })
-      .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
-
-    return onePerDirection(rows).slice(0, 9);
-  }
-
   async function runSearch(destinationOverride?: string, overrides: SearchOverrides = {}) {
     const query = (destinationOverride ?? destination).trim();
     if (query && isTravelDestinationBlocked(query)) {
@@ -170,18 +126,15 @@ export default function SearchHub({
       rows = rows.filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()));
       rows = onePerDirection(rows.sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity))).slice(0, 9);
 
+      setResults(rows);
       if (!rows.length) {
-        const fallback = staticFallback(query, overrides);
-        setResults(fallback);
-        setNotice(fallback.length ? "Nie mamy teraz dokładnego wyniku z feedu. Pokazujemy najbliższe sensowne propozycje Tripowni." : "Nie znaleźliśmy teraz dobrego dopasowania. Zmień kierunek, budżet albo długość pobytu.");
+        setNotice("Nie znaleźliśmy teraz potwierdzonej oferty dla tych parametrów. Zmień kierunek, budżet, lotnisko albo długość pobytu.");
       } else {
-        setResults(rows);
         setNotice(String(data?.notice || ""));
       }
     } catch {
-      const fallback = staticFallback(query, overrides);
-      setResults(fallback);
-      setNotice(fallback.length ? "Feed chwilowo nie odpowiedział. Pokazujemy sprawdzone propozycje z bazy Tripowni." : "Nie udało się pobrać ofert. Spróbuj zmienić parametry wyszukiwania.");
+      setResults([]);
+      setNotice("Nie udało się teraz potwierdzić aktualnych ofert. Nie pokazujemy starych cen jako bieżących — spróbuj ponownie lub zmień parametry.");
     } finally {
       setLoading(false);
     }
@@ -365,12 +318,12 @@ export default function SearchHub({
         {searched && (
           <div className="search-v3-results">
             <div className="search-v3-results-head">
-              <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `${results.length} propozycji dla Ciebie` : "Brak dopasowania"}</h3></div>
+              <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `${results.length} propozycji dla Ciebie` : "Brak potwierdzonego dopasowania"}</h3></div>
               {notice && <p>{notice}</p>}
             </div>
 
             {!loading && results.length > 0 && <div className="search-v3-results-grid">{results.map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>}
-            {!loading && results.length === 0 && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Zmień kierunek, budżet albo długość pobytu — nie dokładamy przypadkowych ofert tylko po to, żeby zapełnić ekran.</span></div>}
+            {!loading && results.length === 0 && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Zmień kierunek, budżet, lotnisko albo długość pobytu — nie dokładamy starych ani przypadkowych ofert tylko po to, żeby zapełnić ekran.</span></div>}
           </div>
         )}
       </div>
