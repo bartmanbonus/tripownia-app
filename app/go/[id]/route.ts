@@ -28,12 +28,6 @@ export async function GET(
     return NextResponse.redirect(new URL(`/oferta/${offerId}`, request.url), 307);
   }
 
-  /*
-   * EXIM:
-   * Nie wysyłamy użytkownika na ogólną stronę kierunku.
-   * Korzystamy z istniejącego endpointu Tripowni, który wybiera najlepszą/
-   * najtańszą konkretną ofertę w obrębie wskazanego kierunku i lotniska.
-   */
   if (offer.partner === "exim") {
     const qs = new URLSearchParams({
       destination: offer.city,
@@ -41,6 +35,7 @@ export async function GET(
       from: offer.airportCode || "WAW",
       nights: String(offer.nights || ""),
       board: offer.board || "",
+      price: String(offer.price || ""),
       source: request.nextUrl.searchParams.get("source") || "offer_card",
     });
     if (offer.destinationUrl) {
@@ -60,12 +55,6 @@ export async function GET(
     return NextResponse.redirect(new URL(`/api/tui-go?${qs.toString()}`, request.url), 307);
   }
 
-  /*
-   * eSky / Kiwi / Wakacje / inni:
-   * offer.affiliateUrl ma zachować parametry oferty i tracking.
-   * eSky ma sortowanie ceny rosnąco ustawione w partners.ts.
-   * Kiwi przekazuje custom_url do Travelpayouts, więc nie wolno go tu przepisywać.
-   */
   const target = safeExternalUrl(offer.affiliateUrl);
 
   if (!target) {
