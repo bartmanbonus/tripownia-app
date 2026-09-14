@@ -12,6 +12,7 @@ type ActiveTrip = {
   tripId?: string;
   offerId?: number;
   offerSnapshot?: Offer;
+  departureAt?: string;
 };
 
 export default function TripOrganizerResolver() {
@@ -63,6 +64,7 @@ export default function TripOrganizerResolver() {
             nights={offer.nights}
             categories={offer.category || []}
             weather={offer.weather || ""}
+            departureAt={trip.departureAt}
           />
         ) : (
           <div className="favorites-empty">
