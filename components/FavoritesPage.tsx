@@ -6,17 +6,22 @@ import { Heart, ArrowLeft } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { offers } from "@/lib/offers";
+import { offers, type Offer } from "@/lib/offers";
+import { FAVORITE_OFFER_SNAPSHOTS_KEY, readSavedOfferSnapshots, type SavedOfferSnapshots } from "@/lib/savedOfferSnapshots";
 
 export default function FavoritesPage() {
   const [ids, setIds] = useState<number[]>([]);
+  const [snapshots, setSnapshots] = useState<SavedOfferSnapshots>({});
 
   useEffect(() => {
     const load = () => {
       try {
-        setIds(JSON.parse(localStorage.getItem("tripownia-favorites") || "[]") as number[]);
+        const parsed = JSON.parse(localStorage.getItem("tripownia-favorites") || "[]");
+        setIds(Array.isArray(parsed) ? parsed.filter((id): id is number => typeof id === "number") : []);
+        setSnapshots(readSavedOfferSnapshots(FAVORITE_OFFER_SNAPSHOTS_KEY));
       } catch {
         setIds([]);
+        setSnapshots({});
       }
     };
     load();
@@ -28,12 +33,17 @@ export default function FavoritesPage() {
     };
   }, []);
 
-  const favorites = useMemo(() => ids.map(id => offers.find(o => o.id === id)).filter(Boolean), [ids]);
-  const activeFavorites = favorites.filter(o => o?.availabilityStatus !== "expired");
-  const expiredFavorites = favorites.filter(o => o?.availabilityStatus === "expired");
-  const favoriteIds = new Set(favorites.map(o => o?.id).filter(Boolean));
+  const favorites = useMemo(
+    () => ids
+      .map((id) => snapshots[String(id)] || offers.find((offer) => offer.id === id))
+      .filter((offer): offer is Offer => Boolean(offer)),
+    [ids, snapshots]
+  );
+  const activeFavorites = favorites.filter((offer) => offer.availabilityStatus !== "expired");
+  const expiredFavorites = favorites.filter((offer) => offer.availabilityStatus === "expired");
+  const favoriteIds = new Set(favorites.map((offer) => offer.id));
   const alternatives = offers
-    .filter(o => o.availabilityStatus !== "expired" && !favoriteIds.has(o.id))
+    .filter((offer) => offer.availabilityStatus !== "expired" && !favoriteIds.has(offer.id))
     .sort((a, b) => b.score - a.score)
     .slice(0, 4);
 
@@ -42,21 +52,21 @@ export default function FavoritesPage() {
     <section className="shell hub-page favorites-page">
       <div className="kicker">TWOJA LISTA</div>
       <h1>Ulubione</h1>
-      <p className="hub-lead">Oferty zapisane na tym urządzeniu. Nie musisz zakładać konta ani się logować.</p>
+      <p className="hub-lead">Oferty zapisane na tym urządzeniu. Zachowujemy także dane ofert znalezionych na żywo, żeby nie znikały po odświeżeniu.</p>
 
       {favorites.length ? (
         <>
           {activeFavorites.length > 0 && <>
-            <div className="section-heading"><div><div className="kicker">AKTUALNE</div><h2>Zapisane oferty</h2></div></div>
-            <div className="cards-grid">{activeFavorites.map(o => o ? <OfferCard key={o.id} offer={o}/> : null)}</div>
+            <div className="section-heading"><div><div className="kicker">ZAPISANE</div><h2>Twoje oferty</h2><p>Przy starszej zapisanej ofercie zawsze potwierdź aktualną cenę u partnera.</p></div></div>
+            <div className="cards-grid">{activeFavorites.map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
           </>}
           {expiredFavorites.length > 0 && <>
             <div className="section-heading favorites-expired-heading"><div><div className="kicker">WYGASŁE</div><h2>Zapisane wcześniej</h2><p>Nie usuwamy ich automatycznie — możesz wrócić do oferty i zobaczyć podobne aktualne propozycje.</p></div></div>
-            <div className="cards-grid">{expiredFavorites.map(o => o ? <OfferCard key={o.id} offer={o}/> : null)}</div>
+            <div className="cards-grid">{expiredFavorites.map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
           </>}
           {expiredFavorites.length > 0 && alternatives.length > 0 && <>
-            <div className="section-heading favorites-alternatives"><div><div className="kicker">ZAMIAST WYGASŁYCH</div><h2>Aktualne propozycje</h2></div></div>
-            <div className="cards-grid">{alternatives.map(o => <OfferCard key={o.id} offer={o}/>)}</div>
+            <div className="section-heading favorites-alternatives"><div><div className="kicker">ZAMIAST WYGASŁYCH</div><h2>Inne propozycje Tripowni</h2></div></div>
+            <div className="cards-grid">{alternatives.map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
           </>}
         </>
       ) : (
