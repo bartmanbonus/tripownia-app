@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { Offer } from "@/lib/offers";
+import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type TdField = { name?: string; value?: string };
 type TdOffer = {
@@ -54,9 +55,6 @@ const EXOTIC_SEARCH_TERMS = [
 
 const SEARCH_TERMS = [...EUROPE_SEARCH_TERMS, ...EXOTIC_SEARCH_TERMS];
 
-// Szeroki start wyszukiwarki. Celowo używamy kierunków, które w feedach
-// zwracają dużo realnych produktów / regionów. Dzięki temu wejście na stronę
-// nie kończy się jedną kartą tylko dlatego, że dzienny los wybrał słabe hasła.
 const BROAD_SEARCH_TERMS = [
   "Grecja", "Hiszpania", "Cypr", "Turcja", "Tunezja", "Egipt",
   "Bułgaria", "Albania", "Portugalia", "Włochy", "Maroko", "Malta",
@@ -400,7 +398,6 @@ function fromTui(product: TdProduct): LiveCandidate | null {
   };
 }
 
-
 function departurePriority(offer: LiveCandidate) {
   const haystack = normalize(`${offer.departure} ${offer.airportCode}`);
   if (/\bwaw\b|warszawa|chopin/.test(haystack)) return 3;
@@ -414,7 +411,6 @@ function destinationKey(offer: LiveCandidate) {
 }
 
 function countryLimit(offer: LiveCandidate) {
-  // Małe kierunki wyspowe nie powinny zajmować dwóch miejsc w jednej dziennej selekcji.
   const country = normalize(offer.country);
   if (/^malta$/.test(country)) return 1;
   return 2;
@@ -429,8 +425,6 @@ function dealValue(offer: LiveCandidate) {
   if (offer.price <= 1300) value += 30;
   return value;
 }
-
-
 
 function continentFor(offer: LiveCandidate) {
   const text = normalize(`${offer.country} ${offer.city}`);
@@ -448,6 +442,19 @@ function tripLengthMatches(offer: LiveCandidate) {
   const continent = continentFor(offer);
   if (continent === "europe") return offer.nights >= 2 && offer.nights <= 8;
   return offer.nights >= 7 && offer.nights <= 14;
+}
+
+function candidateMatchesQuery(offer: LiveCandidate, query: string) {
+  const primary = normalize(query.split(",")[0] || query);
+  if (!primary) return true;
+
+  const haystack = normalize(`${offer.city} ${offer.country} ${offer.hotel}`);
+  if (haystack.includes(primary)) return true;
+
+  const queryGroup = touristDestinationKey({ city: primary, country: "" });
+  if (!queryGroup.includes("|") && queryGroup === touristDestinationKey(offer)) return true;
+
+  return normalize(offer.country) === primary;
 }
 
 function selectDailyDiversified(candidates: LiveCandidate[], key: string, limit = 20) {
@@ -498,8 +505,6 @@ function cheapestPerDestination(candidates: LiveCandidate[]) {
 }
 
 function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
-  // Najpierw bierzemy jakościowy shortlist, a dopiero potem rotujemy go dziennym seedem.
-  // Dzięki temu 08:00 faktycznie zmienia pulę, zamiast codziennie pokazywać te same najwyżej punktowane rekordy.
   const ranked = [...candidates].sort((a, b) => dealValue(b) - dealValue(a));
   const shortlist = ranked.slice(0, Math.min(48, ranked.length));
   const shuffled = shuffle(shortlist, `tripownia-live:${key}`);
@@ -532,7 +537,6 @@ function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
     if (selected.length >= limit) break;
   }
 
-  // Nie dopełniamy karuzeli duplikatami. Lepiej pokazać 9 dobrych, różnych propozycji niż 12 z powtórzeniami.
   return selected
     .sort((a, b) => dealValue(b) - dealValue(a))
     .slice(0, limit);
@@ -607,32 +611,17 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Jeśli bardzo konkretny query nie występuje w feedzie pod tą nazwą,
-    // nie kończymy pustą odpowiedzią. Pobieramy małą szeroką pulę z tych samych
-    // feedów. Front pokaże ją jako fallback zamiast pustego ekranu.
-    if (!candidates.length && query && (mode === "search" || mode === "citybreak")) {
-      const rescueTerms = BROAD_SEARCH_TERMS.slice(0, 10);
-      const rescueJobs: Promise<{ provider: Provider; products: TdProduct[] }>[] = [];
-      for (const term of rescueTerms) {
-        if (eximToken && providerOnly !== "tui") rescueJobs.push(fetchProducts("exim", term, eximToken).then((products) => ({ provider: "exim" as const, products })));
-        if (mode !== "citybreak" && tuiToken && providerOnly !== "exim") rescueJobs.push(fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
-      }
-      const rescueSettled = await Promise.allSettled(rescueJobs);
-      for (const item of rescueSettled) {
-        if (item.status !== "fulfilled") continue;
-        for (const product of item.value.products) {
-          const candidate = item.value.provider === "exim" ? fromExim(product) : fromTui(product);
-          if (candidate) candidates.push(candidate);
-        }
-      }
-    }
-
     const unique = new Map<string, LiveCandidate>();
     for (const candidate of candidates) {
       const keyValue = `${candidate.provider}:${candidate.sourceKey}`;
       const previous = unique.get(keyValue);
       if (!previous || candidate.price < previous.price) unique.set(keyValue, candidate);
     }
+
+    const rawCandidates = Array.from(unique.values());
+    const allCandidates = query && !rescueMode && (mode === "search" || mode === "citybreak")
+      ? rawCandidates.filter((offer) => candidateMatchesQuery(offer, query))
+      : rawCandidates;
 
     const departureMatches = (offer: LiveCandidate) => {
       if (!departureFilter) return true;
@@ -680,8 +669,6 @@ export async function GET(request: NextRequest) {
       const start = new Date(`${offer.startDateISO}T00:00:00Z`);
       if (Number.isNaN(start.getTime())) return false;
 
-      // Pobyt musi obejmować CAŁĄ sobotę i następującą po niej niedzielę.
-      // Dzień powrotu = start + liczba nocy.
       for (let offset = 0; offset < offer.nights; offset += 1) {
         const day = new Date(start);
         day.setUTCDate(start.getUTCDate() + offset);
@@ -689,8 +676,6 @@ export async function GET(request: NextRequest) {
       }
       return false;
     };
-
-    const allCandidates = Array.from(unique.values());
 
     const exactPool = rescueMode
       ? allCandidates
@@ -702,13 +687,12 @@ export async function GET(request: NextRequest) {
           (!maxPrice || offer.price <= maxPrice)
         );
 
-    // Wyszukiwarka nie może kończyć się pustym ekranem tylko dlatego,
-    // że użytkownik połączył kilka bardzo wąskich filtrów.
-    // Rozluźniamy je stopniowo, ale zachowujemy kierunek wynikający z feed query.
     let pool = exactPool;
     let notice = rescueMode
       ? "Pokazujemy najlepsze aktualne oferty dostępne teraz w naszych feedach."
-      : "";
+      : query && !allCandidates.length
+        ? `Nie znaleźliśmy teraz potwierdzonej oferty dla: ${query}.`
+        : "";
 
     if (mode === "search" || mode === "citybreak") {
       if (!pool.length && boardFilter !== "any") {
@@ -718,7 +702,7 @@ export async function GET(request: NextRequest) {
           weekendMatches(offer) &&
           (!maxPrice || offer.price <= maxPrice)
         );
-        if (pool.length) notice = "Brak ofert z wybranym wyżywieniem — pokazujemy najbliższe dostępne opcje.";
+        if (pool.length) notice = "Brak ofert z wybranym wyżywieniem — pokazujemy najbliższe dostępne opcje dla tego kierunku.";
       }
 
       if (!pool.length && maxPrice) {
@@ -727,7 +711,7 @@ export async function GET(request: NextRequest) {
           nightsMatches(offer) &&
           weekendMatches(offer)
         );
-        if (pool.length) notice = "Brak ofert w tym budżecie — pokazujemy najbliższe cenowo dostępne opcje.";
+        if (pool.length) notice = "Brak ofert w tym budżecie — pokazujemy najbliższe cenowo dostępne opcje dla tego kierunku.";
       }
 
       if (!pool.length && nightsFilter !== "any") {
@@ -735,7 +719,7 @@ export async function GET(request: NextRequest) {
           departureMatches(offer) &&
           weekendMatches(offer)
         );
-        if (pool.length) notice = "Brak ofert dla dokładnej długości pobytu — pokazujemy najbliższe dostępne terminy.";
+        if (pool.length) notice = "Brak ofert dla dokładnej długości pobytu — pokazujemy najbliższe dostępne terminy dla tego kierunku.";
       }
 
       if (!pool.length && weekendOnly) {
@@ -745,13 +729,10 @@ export async function GET(request: NextRequest) {
 
       if (!pool.length && departureFilter) {
         pool = allCandidates;
-        if (pool.length) notice = "Brak ofert z wybranych lotnisk — pokazujemy dostępne opcje dla tego kierunku.";
+        if (pool.length) notice = "Brak ofert z wybranych lotnisk — pokazujemy inne dostępne lotniska dla tego samego kierunku.";
       }
     }
 
-    // LIVE ENGINE:
-    // 1) najpierw wybieramy najtańszy aktualny PRODUKT dla każdego kierunku,
-    // 2) dopiero z tych reprezentantów budujemy dzienną selekcję.
     const cheapestDestinations = cheapestPerDestination(pool);
     const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && tripLengthMatches(offer));
 
@@ -789,9 +770,12 @@ export async function GET(request: NextRequest) {
               .sort((a,b) => (b.score * 100 + b.price / 20) - (a.score * 100 + a.price / 20))
               .slice(0, 12)
           : selectDailyDiversified(dailyLengthPool.length >= 12 ? dailyLengthPool : cheapestDestinations, key, 20);
+
+    const validEmptySearch = Boolean(query && !rescueMode && (mode === "search" || mode === "citybreak"));
+
     return NextResponse.json(
       {
-        ok: selected.length > 0,
+        ok: selected.length > 0 || validEmptySearch,
         key,
         mode,
         checkedAt: new Date().toISOString(),
