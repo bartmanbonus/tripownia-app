@@ -81,11 +81,19 @@ function hostMatches(url: URL, hosts: string[]) {
   return hosts.includes(url.hostname.toLowerCase());
 }
 
+function wrapperValue(wrapper: URL, key: "p" | "a") {
+  const queryValue = wrapper.searchParams.get(key);
+  if (queryValue && /^\d+$/.test(queryValue)) return queryValue;
+
+  const legacyMatch = wrapper.toString().match(new RegExp(`${key}\\((\\d+)\\)`));
+  return legacyMatch?.[1] || null;
+}
+
 function embeddedDestination(wrapper: URL) {
   const queryValue = wrapper.searchParams.get("url");
   if (queryValue) return queryValue;
 
-  const legacyMatch = wrapper.toString().match(/(?:[?&;])url\((.+)\)$/);
+  const legacyMatch = wrapper.toString().match(/url\((.+)\)$/);
   if (!legacyMatch?.[1]) return null;
   try {
     return decodeURIComponent(legacyMatch[1]);
@@ -108,8 +116,8 @@ function embeddedDestinationMatches(wrapper: URL, allowedHosts: string[]) {
 function validTradeDoublerWrapper(partner: PartnerKey, target: URL, allowedDestinationHosts: string[]) {
   const program = WRAPPER_PROGRAMS[partner];
   if (!program) return false;
-  return target.searchParams.get("p") === program
-    && target.searchParams.get("a") === SITE_ID
+  return wrapperValue(target, "p") === program
+    && wrapperValue(target, "a") === SITE_ID
     && embeddedDestinationMatches(target, allowedDestinationHosts);
 }
 
