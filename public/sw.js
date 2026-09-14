@@ -1,14 +1,7 @@
-const CACHE_NAME = "tripownia-v4";
+const CACHE_NAME = "tripownia-v5";
 const APP_SHELL = [
   "/app",
-  "/dla-ciebie",
-  "/moja-podroz",
-  "/gdzie-leciec",
-  "/porownaj",
-  "/ulubione",
-  "/alerty",
-  "/profil",
-  "/tripownia-app-icon.svg",
+  "/tripownia-app-icon-v2.png?v=20260913",
 ];
 
 self.addEventListener("install", (event) => {
@@ -42,7 +35,7 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/admin")) {
+  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/admin") || url.pathname.startsWith("/go/")) {
     return;
   }
 
@@ -74,8 +67,8 @@ self.addEventListener("push", (event) => {
   const title = data.title || "Tripownia";
   const options = {
     body: data.body || "Pojawiła się nowa informacja o Twojej podróży.",
-    icon: "/tripownia-app-icon.svg",
-    badge: "/tripownia-app-icon.svg",
+    icon: "/tripownia-app-icon-v2.png?v=20260913",
+    badge: "/tripownia-app-icon-v2.png?v=20260913",
     data: { url: data.url || "/app" },
   };
   event.waitUntil(self.registration.showNotification(title, options));
