@@ -34,6 +34,7 @@ const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/wroclaw": "/podroze/wakacje-z-wroclawia",
   "/katowice": "/podroze/wakacje-z-katowic",
   "/city-break-2": "/city-break",
+  "/aletry-todroznicze": "/alerty",
 };
 
 function unauthorized() {
