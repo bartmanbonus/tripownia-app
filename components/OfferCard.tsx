@@ -184,9 +184,17 @@ export default function OfferCard({ offer }: { offer: Offer }) {
     const previous = readTrip();
     const sameTrip = previous?.offerId === offer.id;
     const tripId = typeof previous?.tripId === "string" && previous.tripId ? previous.tripId : createTripId(offer.id);
+    const offerSnapshot = {
+      ...offer,
+      price: displayPrice,
+      image: displayImage || offer.image,
+      linkMatch,
+      priceCheckedAt: effectiveCheckedAt,
+      availabilityStatus,
+    };
     const nextTrip = sameTrip
-      ? { ...previous, offerId: offer.id, tripId }
-      : { tripId: createTripId(offer.id), offerId: offer.id, checklist: {}, dayPlan: [] };
+      ? { ...previous, offerId: offer.id, tripId, offerSnapshot }
+      : { tripId: createTripId(offer.id), offerId: offer.id, offerSnapshot, checklist: {}, dayPlan: [] };
     localStorage.setItem("tripownia-my-trip", JSON.stringify(nextTrip));
     setTripAdded(true);
     trackEvent("trip_add", { ...eventBase, trip_id: nextTrip.tripId });
