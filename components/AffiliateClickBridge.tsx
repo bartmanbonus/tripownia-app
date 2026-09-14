@@ -2,7 +2,20 @@
 
 import { useEffect } from "react";
 
-type Partner = "wakacje" | "exim" | "tui" | "getyourguide" | "seeplaces" | "holidaypark" | "fonia" | "parklot" | "kiwi" | "booking";
+type Partner =
+  | "wakacje"
+  | "exim"
+  | "tui"
+  | "getyourguide"
+  | "seeplaces"
+  | "holidaypark"
+  | "fonia"
+  | "parklot"
+  | "kiwi"
+  | "booking"
+  | "rentacar"
+  | "kiwitaxi"
+  | "gettransfer";
 
 function partnerFromUrl(value: string): Partner | null {
   try {
@@ -20,6 +33,9 @@ function partnerFromUrl(value: string): Partner | null {
     if (host === "visit.holidaypark.pl" || host === "holidaypark.pl" || host === "www.holidaypark.pl") return "holidaypark";
     if (host === "fonia.app" || host === "www.fonia.app") return "fonia";
     if (host === "parklot.pl" || host === "www.parklot.pl") return "parklot";
+    if (host === "getrentacar.tpk.lv") return "rentacar";
+    if (host === "kiwitaxi.tpk.lv") return "kiwitaxi";
+    if (host === "gettransfer.tpk.lv") return "gettransfer";
 
     if (host === "clk.tradedoubler.com") {
       const program = url.searchParams.get("p");
@@ -39,6 +55,7 @@ function sourceFor(anchor: HTMLAnchorElement) {
   if (anchor.closest(".surprise-result")) return "surprise";
   if (anchor.closest(".trip-header")) return "header";
   if (anchor.closest(".trip-attractions")) return "my_trip_attraction";
+  if (anchor.closest(".trip-search-extras")) return "search_extras";
   if (anchor.closest(".favorites-page")) return "favorites";
   if (anchor.closest(".compare-page")) return "compare";
   if (anchor.closest(".offer-card")) return "offer_image";
