@@ -25,6 +25,7 @@ import "./mobile-native-polish.css";
 import "./score-section-fix.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
+import OfferRailDeduper from "@/components/OfferRailDeduper";
 import AnalyticsClient from "@/components/AnalyticsClient";
 import AnalyticsConsentBanner from "@/components/AnalyticsConsent";
 import AnalyticsInteractions from "@/components/AnalyticsInteractions";
@@ -75,6 +76,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c") }} />
         <LegacyHomeAnchorBridge />
         {children}
+        <OfferRailDeduper />
         <MobileAppControls />
         <Suspense fallback={null}><AnalyticsClient /></Suspense>
         <AnalyticsInteractions />
