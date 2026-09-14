@@ -24,6 +24,16 @@ type SearchOverrides = {
   tab?: string;
 };
 
+function normalizeSearchTerm(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function onePerDirection(rows: any[]) {
   const seen = new Set<string>();
   return rows.filter((row) => {
@@ -31,6 +41,30 @@ function onePerDirection(rows: any[]) {
     if (!key || seen.has(key)) return false;
     seen.add(key);
     return true;
+  });
+}
+
+function offerMatchesRequestedDestination(row: any, query: string) {
+  const normalizedQuery = normalizeSearchTerm(query);
+  if (!normalizedQuery) return true;
+
+  const city = normalizeSearchTerm(String(row?.city || ""));
+  const country = normalizeSearchTerm(String(row?.country || ""));
+  const haystack = normalizeSearchTerm(`${row?.city || ""} ${row?.country || ""}`);
+
+  if (haystack.includes(normalizedQuery)) return true;
+  if (city && normalizedQuery.includes(city)) return true;
+  if (country && normalizedQuery === country) return true;
+
+  const knownMatches = WORLD_DESTINATIONS.filter((item) => destinationMatches(query, item)).slice(0, 12);
+  return knownMatches.some((item) => {
+    const label = normalizeSearchTerm(item.label);
+    const region = normalizeSearchTerm(item.region);
+    return Boolean(
+      (label && (haystack.includes(label) || label.includes(city))) ||
+      (region && country && region.includes(country)) ||
+      (region && country && country.includes(region))
+    );
   });
 }
 
@@ -124,12 +158,21 @@ export default function SearchHub({
       if (!response.ok || data?.ok === false) throw new Error(String(data?.error || `HTTP ${response.status}`));
 
       let rows = Array.isArray(data?.offers) ? data.offers : [];
-      rows = rows.filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()));
+      rows = rows
+        .filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()))
+        .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")));
+
+      if (query) {
+        rows = rows.filter((o: any) => offerMatchesRequestedDestination(o, query));
+      }
+
       rows = onePerDirection(rows.sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity))).slice(0, 9);
 
       setResults(rows);
       if (!rows.length) {
-        setNotice("Nie znaleźliśmy teraz potwierdzonej oferty dla tych parametrów. Zmień kierunek, budżet, lotnisko albo długość pobytu.");
+        setNotice(query
+          ? `Nie znaleźliśmy teraz potwierdzonej oferty dla „${query}”. Nie pokazujemy innych kierunków tylko po to, żeby zapełnić wyniki.`
+          : "Nie znaleźliśmy teraz potwierdzonej oferty dla tych parametrów. Zmień budżet, lotnisko albo długość pobytu.");
       } else {
         setNotice(String(data?.notice || ""));
       }
