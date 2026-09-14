@@ -24,15 +24,13 @@ export async function GET(request: NextRequest) {
       from: p.get("from") || "WAW",
       nights: Number(p.get("nights") || p.get("duration") || 0),
       board: p.get("board") || "",
+      targetPrice: Number(p.get("price") || 0),
     });
 
-    // productUrl from the TradeDoubler feed is already tracked, so preserve it 1:1.
     if (result.available && result.productUrl) {
       return NextResponse.redirect(result.productUrl, 307);
     }
 
-    // If the exact live combination is temporarily unavailable, keep the user
-    // on the relevant EXIM destination while preserving Tripownia affiliate tracking.
     return NextResponse.redirect(eximFallback(fallbackPath), 307);
   } catch (error) {
     console.error("[tripownia_exim_feed]", error);
