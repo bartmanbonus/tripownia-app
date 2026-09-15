@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Archive, ArrowRight, CalendarDays, MapPinned, RotateCcw, Trash2 } from "lucide-react";
+import { Archive, ArrowRight, CalendarDays, MapPinned, Plus, RotateCcw, Trash2 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import {
@@ -19,6 +19,7 @@ type OfferSnapshot = {
   country?: string;
   dates?: string;
   departure?: string;
+  manual?: boolean;
 };
 
 function tripLabel(trip: TripArchiveSnapshot) {
@@ -80,6 +81,11 @@ export default function MyTripsPage() {
           </div>
         </div>
 
+        <div className="my-trips-top-actions">
+          <Link className="primary-cta" href="/dodaj-podroz"><Plus size={17}/> Dodaj własną podróż</Link>
+          <Link href="/okazje">Znajdź nowy wyjazd <ArrowRight size={16}/></Link>
+        </div>
+
         {ordered.length ? (
           <div className="my-trips-list">
             {ordered.map((trip) => {
@@ -90,11 +96,11 @@ export default function MyTripsPage() {
                 <article key={trip.tripId} className={`my-trip-archive-card${active ? " active" : ""}`}>
                   <div>
                     <div className="my-trip-archive-topline">
-                      <span>{active ? "AKTYWNA PODRÓŻ" : "ZAPISANY PLAN"}</span>
+                      <span>{active ? "AKTYWNA PODRÓŻ" : offer?.manual ? "WŁASNY PLAN" : "ZAPISANY PLAN"}</span>
                       {offer?.dates && <small><CalendarDays size={13}/>{offer.dates}</small>}
                     </div>
                     <h2>{tripLabel(trip)}</h2>
-                    <p>{offer?.departure ? `Wylot: ${offer.departure}` : "Plan zapisany lokalnie"} · {completed} odhaczonych zadań</p>
+                    <p>{offer?.departure ? `Wylot / start: ${offer.departure}` : "Plan zapisany lokalnie"} · {completed} odhaczonych zadań</p>
                   </div>
                   <div className="my-trip-archive-actions">
                     {active ? (
@@ -112,8 +118,11 @@ export default function MyTripsPage() {
           <div className="favorites-empty">
             <Archive size={30}/>
             <h2>Nie masz jeszcze zapisanych podróży</h2>
-            <p>Dodaj ofertę do „Mojej podróży”, a Tripownia zachowa jej plan, checklistę i notatki na tym urządzeniu.</p>
-            <Link className="primary-cta" href="/okazje">Znajdź okazję <ArrowRight size={17}/></Link>
+            <p>Możesz dodać wyjazd znaleziony w Tripowni albo własny lot i hotel kupione gdziekolwiek indziej.</p>
+            <div className="my-trips-empty-actions">
+              <Link className="primary-cta" href="/dodaj-podroz"><Plus size={17}/> Dodaj własną podróż</Link>
+              <Link href="/okazje">Znajdź okazję <ArrowRight size={17}/></Link>
+            </div>
           </div>
         )}
       </section>
