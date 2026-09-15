@@ -51,21 +51,36 @@ export default function AddTripPage() {
       return;
     }
 
-    const tripId = `trip-custom-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const createdAt = Date.now();
+    const offerId = -createdAt;
+    const tripId = `trip-custom-${createdAt}-${Math.random().toString(36).slice(2, 8)}`;
     const snapshot = {
+      id: offerId,
+      flag: "🌍",
       city: city.trim(),
       country: country.trim(),
-      dates: dateLabel(startDate, endDate),
-      departure: departure.trim(),
+      price: 0,
+      departure: departure.trim() || "Własny transport",
+      airportCode: "",
       nights,
-      category: [],
       weather: "",
+      score: 0,
+      tag: "OKAZJA" as const,
+      reason: "Własna podróż dodana do organizera Tripowni.",
+      image: "/tripownia-app-icon-v2.png",
+      category: [],
+      hotel: hotel.trim() || "Nocleg do uzupełnienia",
+      board: "",
+      dates: dateLabel(startDate, endDate),
+      partner: "kiwi" as const,
+      affiliateUrl: "/organizer",
       manual: true,
     };
     const trip = {
       tripId,
+      offerId,
       offerSnapshot: snapshot,
-      departureAt: departureAt || (startDate ? `${startDate}T08:00` : undefined),
+      departureAt: departureAt || `${startDate}T08:00`,
       flight: flight.trim(),
       hotel: hotel.trim(),
       notes: notes.trim(),
