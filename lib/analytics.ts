@@ -29,8 +29,8 @@ function ensureGtag() {
   if (typeof window === "undefined") return;
   window.dataLayer = window.dataLayer || [];
   if (!window.gtag) {
-    window.gtag = (...args: unknown[]) => {
-      window.dataLayer?.push(args);
+    window.gtag = function gtag(..._args: unknown[]) {
+      window.dataLayer?.push(arguments);
     };
   }
 }
@@ -95,12 +95,16 @@ export function trackEvent(name: string, params: AnalyticsParams = {}) {
   const cleaned = Object.fromEntries(
     Object.entries(params).filter(([, value]) => value !== undefined && value !== null)
   );
-  window.gtag?.("event", name, cleaned);
+  window.gtag?.("event", name, {
+    ...cleaned,
+    send_to: GA_MEASUREMENT_ID,
+  });
 }
 
 export function trackPageView(path: string) {
   if (!bootstrapAnalytics()) return;
   window.gtag?.("event", "page_view", {
+    send_to: GA_MEASUREMENT_ID,
     page_path: path,
     page_location: window.location.href,
     page_title: document.title,
