@@ -4,13 +4,13 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, ClipboardCheck, MapPinned, Route, Sparkles, Van } from "lucide-react";
+import { ArrowRight, Car, ClipboardCheck, MapPinned, Route, Sparkles } from "lucide-react";
 
 const actions = [
   { href: "/dodaj-podroz", icon: Route, title: "Dodaj podróż", text: "Masz już lot lub hotel? Zacznij własny plan." },
   { href: "/organizer", icon: MapPinned, title: "Organizer", text: "Rezerwacje, pakowanie i plan dzień po dniu." },
   { href: "/przed-wyjazdem", icon: ClipboardCheck, title: "Przed wyjazdem", text: "Dokumenty, bagaż, odprawa i ostatnie przygotowania." },
-  { href: "/transfery", icon: Van, title: "Transfer", text: "Ogarnij dojazd z lotniska zanim wylądujesz." },
+  { href: "/transfery", icon: Car, title: "Transfer", text: "Ogarnij dojazd z lotniska zanim wylądujesz." },
   { href: "/atrakcje", icon: Sparkles, title: "Atrakcje", text: "Zapisz to, co naprawdę chcesz zrobić na miejscu." },
 ];
 
