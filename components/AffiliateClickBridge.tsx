@@ -68,16 +68,31 @@ function sourceFor(anchor: HTMLAnchorElement) {
   return "site_outbound";
 }
 
-function destinationFor(anchor: HTMLAnchorElement) {
+function cardContext(anchor: HTMLAnchorElement) {
   const card = anchor.closest<HTMLElement>(".offer-card");
-  if (card) {
-    const city = card.querySelector<HTMLElement>("h3")?.textContent?.trim() || "";
-    const country = card.querySelector<HTMLElement>(".eyebrow")?.textContent?.replace(/^[^\p{L}\p{N}]+/u, "").trim() || "";
-    return [city, country].filter(Boolean).join(", ");
-  }
+  if (!card) return { destination: "", offer: "", price: "" };
 
+  const city = card.querySelector<HTMLElement>("h3")?.textContent?.trim() || "";
+  const country = card.querySelector<HTMLElement>(".eyebrow")?.textContent?.replace(/^[^\p{L}\p{N}]+/u, "").trim() || "";
+  const offer = card.dataset.offerId || "";
+  const price = card.dataset.offerPrice || "";
+  return {
+    destination: [city, country].filter(Boolean).join(", "),
+    offer,
+    price,
+  };
+}
+
+function destinationFor(anchor: HTMLAnchorElement) {
+  const card = cardContext(anchor);
+  if (card.destination) return card.destination;
   const surprise = anchor.closest<HTMLElement>(".surprise-result");
   return surprise?.querySelector<HTMLElement>("strong")?.textContent?.trim() || "";
+}
+
+function createClickId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID().slice(0, 18);
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function trackedHref(anchor: HTMLAnchorElement) {
@@ -85,17 +100,23 @@ function trackedHref(anchor: HTMLAnchorElement) {
   const partner = partnerFromUrl(original);
   if (!partner) return null;
 
+  const card = cardContext(anchor);
   const params = new URLSearchParams({
     target: original,
     partner,
     source: sourceFor(anchor),
+    page: window.location.pathname,
+    clickId: createClickId(),
   });
   const destination = destinationFor(anchor);
   if (destination) params.set("destination", destination);
+  if (card.offer) params.set("offer", card.offer);
+  if (card.price) params.set("price", card.price);
   return `/go/live?${params.toString()}`;
 }
 
 function wrapAnchor(anchor: HTMLAnchorElement) {
+  if (anchor.dataset.tripowniaOutboundWrapped === "1") return;
   const href = trackedHref(anchor);
   if (!href) return;
   anchor.href = href;
