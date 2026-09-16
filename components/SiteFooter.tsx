@@ -13,6 +13,12 @@ export default function SiteFooter() {
         <div className="shell footer-v2-shell">
           <div className="footer-v2-content">
             <div className="footer-v2-top-grid">
+              <div className="footer-v2-brand-card">
+                <Link href="/" className="footer-v2-logo" aria-label="Tripownia.pl — strona główna">
+                  <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={220} height={220} />
+                </Link>
+              </div>
+
               <div className="footer-v2-column footer-v2-discover">
                 <h3>Odkrywaj</h3>
                 <Link href="/okazje">Dzisiejsze okazje</Link>
@@ -20,12 +26,6 @@ export default function SiteFooter() {
                 <Link href="/last-minute">Last minute</Link>
                 <Link href="/podroze-po-przezycia">Podróże po przeżycia</Link>
                 <Link href="/dalekie-podroze">Dalekie podróże</Link>
-              </div>
-
-              <div className="footer-v2-brand-card">
-                <Link href="/" className="footer-v2-logo" aria-label="Tripownia.pl — strona główna">
-                  <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={220} height={220} />
-                </Link>
               </div>
             </div>
 
