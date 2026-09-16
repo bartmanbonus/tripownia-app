@@ -11,15 +11,9 @@ export default function SiteFooter() {
       <OfferRailDeduper />
       <footer className="footer footer-v2">
         <div className="shell footer-v2-shell">
-          <div className="footer-v2-lead">
-            <div className="footer-v2-brand-card">
-              <Link href="/" className="footer-v2-logo" aria-label="Tripownia.pl — strona główna">
-                <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={220} height={220} />
-              </Link>
-            </div>
-
-            <div className="footer-v2-nav">
-              <div className="footer-v2-column">
+          <div className="footer-v2-content">
+            <div className="footer-v2-top-grid">
+              <div className="footer-v2-column footer-v2-discover">
                 <h3>Odkrywaj</h3>
                 <Link href="/okazje">Dzisiejsze okazje</Link>
                 <Link href="/city-break">City break</Link>
@@ -28,7 +22,30 @@ export default function SiteFooter() {
                 <Link href="/dalekie-podroze">Dalekie podróże</Link>
               </div>
 
+              <div className="footer-v2-brand-card">
+                <Link href="/" className="footer-v2-logo" aria-label="Tripownia.pl — strona główna">
+                  <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={220} height={220} />
+                </Link>
+              </div>
+            </div>
+
+            <div className="footer-v2-trending">
               <div className="footer-v2-column">
+                <h3>Na czasie</h3>
+                <div className="footer-v2-trending-links">
+                  <Link href="/lotniska-w-polsce-bez-limitu-100-ml-plynow">Lotniska bez limitu 100 ml</Link>
+                  <Link href="/podroze/city-break-listopad-2026">City break — listopad 2026</Link>
+                  <Link href="/podroze/cieple-wakacje-listopad-2026">Gdzie ciepło w listopadzie</Link>
+                  <Link href="/podroze/wyspy-kanaryjskie-grudzien-2026">Kanary — grudzień 2026</Link>
+                  <Link href="/podroze/wyspy-zielonego-przyladka-grudzien-2026">Cabo Verde — grudzień</Link>
+                  <Link href="/gdzie-na-sylwestra-2026-2027-15-kierunkow">Sylwester 2026/2027</Link>
+                  <Link href="/poradniki">Poradniki</Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="footer-v2-lower-grid">
+              <div className="footer-v2-column footer-v2-plan">
                 <h3>Planuj</h3>
                 <Link href="/kierunki">Kierunki</Link>
                 <Link href="/parkingi">Parkingi</Link>
@@ -36,17 +53,6 @@ export default function SiteFooter() {
                 <Link href="/atrakcje">Atrakcje</Link>
                 <Link href="/ubezpieczenia">Ubezpieczenia</Link>
                 <Link href="/wynajem-auta">Wynajem auta</Link>
-              </div>
-
-              <div className="footer-v2-column">
-                <h3>Na czasie</h3>
-                <Link href="/lotniska-w-polsce-bez-limitu-100-ml-plynow">Lotniska bez limitu 100 ml</Link>
-                <Link href="/podroze/city-break-listopad-2026">City break — listopad 2026</Link>
-                <Link href="/podroze/cieple-wakacje-listopad-2026">Gdzie ciepło w listopadzie</Link>
-                <Link href="/podroze/wyspy-kanaryjskie-grudzien-2026">Kanary — grudzień 2026</Link>
-                <Link href="/podroze/wyspy-zielonego-przyladka-grudzien-2026">Cabo Verde — grudzień</Link>
-                <Link href="/gdzie-na-sylwestra-2026-2027-15-kierunkow">Sylwester 2026/2027</Link>
-                <Link href="/poradniki">Poradniki</Link>
               </div>
 
               <div className="footer-v2-column footer-v2-company">
