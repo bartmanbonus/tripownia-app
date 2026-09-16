@@ -257,7 +257,13 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
           : "Cena orientacyjna · partner potwierdzi aktualną cenę";
 
   return (
-    <article ref={cardRef} className={`offer-card offer-card-clean ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}>
+    <article
+      ref={cardRef}
+      className={`offer-card offer-card-clean ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}
+      data-offer-id={offer.id}
+      data-offer-price={displayPrice}
+      data-offer-partner={offer.partner}
+    >
       <Link href={detailHref} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
         <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
         <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
