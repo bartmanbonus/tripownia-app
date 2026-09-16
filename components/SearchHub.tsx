@@ -147,9 +147,6 @@ export default function SearchHub({
         .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
         .sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
-      // When a user names a destination, show real hotel/term variants for that place.
-      // The API already resolves aliases and relevance; collapsing to one card per destination
-      // made searches like Djerba look as if only one offer existed.
       rows = query
         ? uniqueOfferVariants(rows).slice(0, 18)
         : onePerDirection(rows).slice(0, 12);
@@ -160,11 +157,8 @@ export default function SearchHub({
           ? `Nie znaleźliśmy teraz potwierdzonej oferty dla „${query}”. Spróbuj bez jednego filtra albo wybierz Inspiracje.`
           : "Nie znaleźliśmy teraz potwierdzonej oferty dla tych parametrów. Spróbuj bez jednego filtra.");
       } else {
-        const exactCount = Number(data?.exactSourceCount || 0);
         const apiNotice = String(data?.notice || "");
-        setNotice(apiNotice || (query && exactCount > 0 && rows.length > exactCount
-          ? `Najpierw pokazujemy ${exactCount} dokładnych dopasowań, a dalej najbliższe aktualne opcje dla tego kierunku.`
-          : ""));
+        setNotice(apiNotice);
       }
     } catch {
       setResults([]);
@@ -180,14 +174,24 @@ export default function SearchHub({
   }
 
   function chooseTab(tab: string) {
+    if (tab === "Atrakcje") {
+      window.location.href = "/atrakcje";
+      return;
+    }
+    if (tab === "Parkingi") {
+      window.location.href = "/parkingi";
+      return;
+    }
+    if (tab === "eSIM") {
+      window.location.href = "/esim";
+      return;
+    }
+
     setActiveTab(tab);
     setSearched(false);
     setResults([]);
     setVisibleCount(6);
     setNotice("");
-    // Typ podróży nie powinien sam zawężać długości pobytu.
-    // Użytkownik może doprecyzować ją świadomie albo skorzystać z quick picka.
-    setDuration("all");
   }
 
   function quickSearch(label: string, overrides: SearchOverrides) {
@@ -196,7 +200,6 @@ export default function SearchHub({
     if (overrides.budget) setBudget(overrides.budget);
     if (overrides.board) setBoard(overrides.board);
     if (typeof overrides.weekendOnly === "boolean") setWeekendOnly(overrides.weekendOnly);
-    if (overrides.board || overrides.weekendOnly) setAdvancedOpen(true);
     if (overrides.tab) setActiveTab(overrides.tab);
     void runSearch(label, overrides);
   }
@@ -216,9 +219,10 @@ export default function SearchHub({
   }
 
   const quickPicks: Array<[string, string, SearchOverrides]> = [
-    ["Djerba, Tunezja", "All Inclusive Tunezja", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Wakacje" }],
-    ["Rzym, Włochy", "City break Rzym", { duration: "3-4", budget: "1500", tab: "City break" }],
-    ["Teneryfa, Hiszpania", "Ciepło: Teneryfa", { duration: "5-7", budget: "3000", tab: "Wakacje" }],
+    ["Rzym, Włochy", "Rzym na city break", { duration: "3-4", budget: "1500", tab: "City break" }],
+    ["Teneryfa, Hiszpania", "Ciepło na Teneryfie", { duration: "5-7", budget: "3000", tab: "Wakacje" }],
+    ["Djerba, Tunezja", "All Inclusive na Djerbie", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Wakacje" }],
+    ["Bergamo, Włochy", "Tani weekend w Bergamo", { duration: "3-4", budget: "1000", weekendOnly: true, tab: "City break" }],
     ["Zanzibar, Tanzania", "Egzotyka: Zanzibar", { duration: "11-14", budget: "7500", tab: "Wakacje" }],
   ];
 
@@ -228,14 +232,14 @@ export default function SearchHub({
         <div className="search-v3-head">
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
-            <h2>Znajdź wyjazd</h2>
-            <p>Wybierz kierunek. Pozostałe opcje są tylko wtedy, gdy ich potrzebujesz.</p>
+            <h2>Gdzie chcesz lecieć?</h2>
+            <p>Najpierw kierunek. Resztę doprecyzujesz w kilku kliknięciach.</p>
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
 
         <div className="search-v3-tabs" role="tablist" aria-label="Rodzaj podróży">
-          {["Wakacje", "City break", "Lot + hotel", "Inspiracje"].map((tab) => (
+          {["Inspiracje", "City break", "Lot + hotel", "Wakacje", "Atrakcje", "Parkingi", "eSIM"].map((tab) => (
             <button key={tab} type="button" className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
@@ -249,7 +253,7 @@ export default function SearchHub({
                 value={destination}
                 onChange={(event) => { setDestination(event.target.value); setSuggestionsOpen(true); }}
                 onFocus={() => setSuggestionsOpen(true)}
-                placeholder={activeTab === "Inspiracje" ? "Może być dowolnie" : "Miasto, kraj albo wyspa"}
+                placeholder="Miasto, kraj albo wyspa"
                 autoComplete="off"
               />
               {destination && <button type="button" aria-label="Wyczyść kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
@@ -308,31 +312,29 @@ export default function SearchHub({
             <ChevronDown size={15} className="search-v3-chevron"/>
           </label>
 
-          <button type="submit" className="search-v3-submit" disabled={loading}><Search size={18}/>{loading ? "Szukamy…" : "Pokaż oferty"}</button>
+          <button type="submit" className="search-v3-submit" disabled={loading}><Search size={18}/>{loading ? "Szukamy…" : "Szukaj wyjazdu"}</button>
         </form>
 
         <div className="search-v3-options-row">
           <button type="button" className={`search-v3-more ${advancedOpen ? "active" : ""}`} onClick={() => setAdvancedOpen((value) => !value)}>
-            <SlidersHorizontal size={15}/> {advancedOpen ? "Mniej opcji" : "Więcej opcji"}
+            <SlidersHorizontal size={15}/> Więcej filtrów
+          </button>
+          <button type="button" className={`search-v3-weekend ${weekendOnly ? "active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
+            <span className="search-v3-check">{weekendOnly && <Check size={13}/>}</span> Pobyt obejmuje sobotę i niedzielę
           </button>
           {advancedOpen && (
-            <>
-              <button type="button" className={`search-v3-weekend ${weekendOnly ? "active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
-                <span className="search-v3-check">{weekendOnly && <Check size={13}/>}</span> Weekend w terminie
-              </button>
-              <label className="search-v3-board">
-                <span>Wyżywienie</span>
-                <select value={board} onChange={(event) => setBoard(event.target.value)}>
-                  <option value="all">Dowolne</option>
-                  <option value="bez wyżywienia">Bez wyżywienia</option>
-                  <option value="śniadanie">Śniadanie</option>
-                  <option value="half board">Half Board</option>
-                  <option value="full board">Full Board</option>
-                  <option value="all inclusive">All Inclusive</option>
-                  <option value="ultra all inclusive">Ultra All Inclusive</option>
-                </select>
-              </label>
-            </>
+            <label className="search-v3-board">
+              <span>Wyżywienie</span>
+              <select value={board} onChange={(event) => setBoard(event.target.value)}>
+                <option value="all">Dowolne</option>
+                <option value="bez wyżywienia">Bez wyżywienia</option>
+                <option value="śniadanie">Śniadanie</option>
+                <option value="half board">Half Board</option>
+                <option value="full board">Full Board</option>
+                <option value="all inclusive">All Inclusive</option>
+                <option value="ultra all inclusive">Ultra All Inclusive</option>
+              </select>
+            </label>
           )}
         </div>
 
@@ -354,7 +356,7 @@ export default function SearchHub({
                 {results.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(results.length, count + 6))}>Pokaż kolejne oferty ({results.length - visibleCount})</button>}
               </>
             )}
-            {!loading && results.length === 0 && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Usuń jeden filtr albo wybierz „Inspiracje” — Tripownia spróbuje znaleźć aktualne alternatywy zamiast zostawiać Ci pusty ekran.</span></div>}
+            {!loading && results.length === 0 && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji.</span></div>}
           </div>
         )}
       </div>
