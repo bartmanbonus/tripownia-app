@@ -33,7 +33,6 @@ const iataByDestination: Record<string,string> = {
   "rzym":"ROM","barcelona":"BCN","bergamo":"BGY","mediolan":"MIL","paryz":"PAR","londyn":"LON","lizbona":"LIS","porto":"OPO","madryt":"MAD","malaga":"AGP","alicante":"ALC","walencja":"VLC","sewilla":"SVQ","wieden":"VIE","praga":"PRG","budapeszt":"BUD","kopenhaga":"CPH","reykjavik":"KEF","oslo":"OSL","tromso":"TOS","malta":"MLA","pafos":"PFO","ateny":"ATH","kreta":"HER","rodos":"RHO","teneryfa":"TFS","majorka":"PMI","djerba":"DJE","marsa alam":"RMF","hurghada":"HRG","kair":"CAI","marrakesz":"RAK","dubaj":"DXB","abu dhabi":"AUH","doha":"DOH","stambul":"IST","antalya":"AYT","zanzibar":"ZNZ","nairobi":"NBO","hanoi":"HAN","ho chi minh":"SGN","bangkok":"BKK","phuket":"HKT","tokio":"TYO","pekin":"BJS","seul":"SEL","singapur":"SIN","bali":"DPS","nowy jork":"NYC","miami":"MIA","los angeles":"LAX","san francisco":"SFO","cancun":"CUN","toronto":"YTO","sydney":"SYD","melbourne":"MEL","auckland":"AKL"
 };
 
-
 const kiwiOriginByAirport: Record<string,string> = {
   WAW:"warszawa-polska", WMI:"warszawa-polska", KRK:"krakow-polska", KTW:"katowice-polska",
   GDN:"gdansk-polska", WRO:"wroclaw-polska", POZ:"poznan-polska"
@@ -69,7 +68,7 @@ const eximPathByDestination: Record<string,string> = {
 };
 
 const wakacjePathByDestination: Record<string,string> = {
-  "djerba":"/wczasy/djerba/","tunezja":"/wczasy/tunezja/","egipt":"/wczasy/egipt/","marsa alam":"/wczasy/marsa-alam/","hurghada":"/wczasy/hurghada/","kreta":"/wczasy/kreta/","rodos":"/wczasy/rodos/","grecja":"/wczasy/grecja/","teneryfa":"/wczasy/teneryfa/","majorka":"/wczasy/majorka/","hiszpania":"/wczasy/hiszpania/","turcja":"/wczasy/turcja/","albania":"/wczasy/albania/","zanzibar":"/wczasy/zanzibar/","malediwy":"/wczasy/malediwy/","dominikana":"/wczasy/dominikana/","meksyk":"/wczasy/meksyk/"
+  "djerba":"/wczasy/djerba/","tunezja":"/wczasy/tunezja/","zarzis":"/wczasy/zarzis/","monastir":"/wczasy/monastir/","hammamet":"/wczasy/hammamet/","sousse":"/wczasy/sousse/","egipt":"/wczasy/egipt/","marsa alam":"/wczasy/marsa-alam/","hurghada":"/wczasy/hurghada/","kreta":"/wczasy/kreta/","rodos":"/wczasy/rodos/","grecja":"/wczasy/grecja/","teneryfa":"/wczasy/teneryfa/","majorka":"/wczasy/majorka/","hiszpania":"/wczasy/hiszpania/","turcja":"/wczasy/turcja/","albania":"/wczasy/albania/","zanzibar":"/wczasy/zanzibar/","malediwy":"/wczasy/malediwy/","dominikana":"/wczasy/dominikana/","meksyk":"/wczasy/meksyk/"
 };
 
 function norm(value:string){ return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim(); }
@@ -106,10 +105,6 @@ function buildLinks(destination:string,fromCode:string,start:string,end:string,a
   const isLast=searchType==="lastminute";
   const eximPath=firstMatch(eximPathByDestination,destination)||(isLast?"/last-minute":"/wakacje");
   const wakacjePath=firstMatch(wakacjePathByDestination,destination)||(isLast?"/last-minute/":"/");
-  // EXIM: zamiast otwierać ogólną listę, przechodzimy przez serwer Tripowni.
-  // Route wybiera najtańszą konkretną ofertę/hotel z aktualnej strony kierunku
-  // (z preferencją wybranego miasta wylotu i najbliższego terminu) i dopiero wtedy
-  // przekierowuje przez afiliację EXIM.
   const eximParams=new URLSearchParams({path:eximPath,from:fromCode,start,end,adults:String(adults)});
   const exim=`/go/exim-best?${eximParams.toString()}`;
   const wakacje=partners.wakacje.buildUrl(`https://www.wakacje.pl${wakacjePath}`);
