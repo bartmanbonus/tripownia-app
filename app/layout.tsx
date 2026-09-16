@@ -42,6 +42,7 @@ import HomeTripHubPortal from "@/components/HomeTripHubPortal";
 
 const HOME_TITLE = "Tanie wakacje, city break i lot + hotel – okazje podróżnicze | Tripownia";
 const HOME_DESCRIPTION = "Codziennie wybieramy dobre okazje na wakacje, city breaki i lot + hotel. Sprawdź cenę, termin, hotel i aktualne propozycje z polskich lotnisk.";
+const FAVICON_URL = "/tripownia-app-icon-v2.png";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tripownia.pl"),
@@ -51,9 +52,9 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   applicationName: "Tripownia",
   icons: {
-    icon: [{ url: "/tripownia-app-icon-v2.png?v=20260913", type: "image/png", sizes: "256x256" }],
-    shortcut: ["/tripownia-app-icon-v2.png?v=20260913"],
-    apple: [{ url: "/tripownia-app-icon-v2.png?v=20260913", type: "image/png", sizes: "256x256" }],
+    icon: [{ url: FAVICON_URL, type: "image/png", sizes: "256x256" }],
+    shortcut: [FAVICON_URL],
+    apple: [{ url: FAVICON_URL, type: "image/png", sizes: "256x256" }],
   },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Tripownia" },
   openGraph: {
