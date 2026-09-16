@@ -61,6 +61,8 @@ function sourceFor(anchor: HTMLAnchorElement) {
   if (anchor.closest(".surprise-result")) return "surprise";
   if (anchor.closest(".trip-header")) return "header";
   if (anchor.closest(".trip-attractions")) return "my_trip_attraction";
+  if (anchor.closest(".trip-search-actions")) return "partner_search_results";
+  if (anchor.closest(".trip-partner-mini")) return "partner_search_browse";
   if (anchor.closest(".trip-search-extras")) return "search_extras";
   if (anchor.closest(".favorites-page")) return "favorites";
   if (anchor.closest(".compare-page")) return "compare";
@@ -86,8 +88,20 @@ function cardContext(anchor: HTMLAnchorElement) {
 function destinationFor(anchor: HTMLAnchorElement) {
   const card = cardContext(anchor);
   if (card.destination) return card.destination;
+
   const surprise = anchor.closest<HTMLElement>(".surprise-result");
-  return surprise?.querySelector<HTMLElement>("strong")?.textContent?.trim() || "";
+  const surpriseDestination = surprise?.querySelector<HTMLElement>("strong")?.textContent?.trim() || "";
+  if (surpriseDestination) return surpriseDestination;
+
+  const search = anchor.closest<HTMLElement>(".trip-search-engine");
+  if (search) {
+    const submittedDestination = search.querySelector<HTMLElement>(".trip-search-results strong")?.textContent?.trim() || "";
+    if (submittedDestination && submittedDestination !== "Dowolny kierunek") return submittedDestination;
+    const typedDestination = search.querySelector<HTMLInputElement>(".trip-destination input")?.value?.trim() || "";
+    if (typedDestination) return typedDestination;
+  }
+
+  return "";
 }
 
 function createClickId() {
@@ -115,8 +129,27 @@ function trackedHref(anchor: HTMLAnchorElement) {
   return `/go/live?${params.toString()}`;
 }
 
+function isTrackedLiveHref(anchor: HTMLAnchorElement) {
+  const href = anchor.getAttribute("href") || "";
+  if (href.startsWith("/go/live?")) return true;
+  try {
+    const url = new URL(href, window.location.origin);
+    return url.origin === window.location.origin && url.pathname === "/go/live";
+  } catch {
+    return false;
+  }
+}
+
 function wrapAnchor(anchor: HTMLAnchorElement) {
-  if (anchor.dataset.tripowniaOutboundWrapped === "1") return;
+  if (anchor.dataset.tripowniaOutboundWrapped === "1" && isTrackedLiveHref(anchor)) return;
+
+  // React can update href after a user changes search parameters while the DOM node
+  // (and our data marker) stays the same. Re-wrap that fresh partner URL instead of
+  // treating the anchor as permanently processed.
+  if (anchor.dataset.tripowniaOutboundWrapped === "1") {
+    delete anchor.dataset.tripowniaOutboundWrapped;
+  }
+
   const href = trackedHref(anchor);
   if (!href) return;
   anchor.href = href;
