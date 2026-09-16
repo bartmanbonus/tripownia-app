@@ -114,7 +114,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
   const displayPrice = override.price ?? publishedOverride.price ?? offer.price;
   const displayImage = override.imageUrl || publishedOverride.imageUrl;
   const isFeatured = override.featured ?? publishedOverride.featured ?? featuredOfferIds.has(offer.id);
-  const linkMatch = override.linkMatch || publishedOverride.linkMatch || getLinkMatch(offer);
+  const linkMatch = override.linkMatch || publishedOfferOverrides[String(offer.id)]?.linkMatch || getLinkMatch(offer);
   const hasExternalAffiliateUrl = /^https?:\/\//.test(offer.affiliateUrl || "");
   const isLiveOffer = offer.id >= 1_000_000;
   const isExactLink = linkMatch === "exact" && hasExternalAffiliateUrl;
@@ -242,24 +242,24 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
     : isLiveExact
-      ? "Sprawdź tę ofertę"
+      ? "Sprawdź dostępność i rezerwuj"
       : isExactLink
-        ? "Otwórz tę ofertę"
-        : "Sprawdź aktualne oferty";
+        ? "Sprawdź dostępność i rezerwuj"
+        : "Sprawdź aktualną cenę";
   const trustText = isExpired
     ? "Oferta wygasła"
     : isLiveExact
       ? checkedAt ? `Cena z feedu · ${checkedAt}` : "Cena z aktualnego feedu"
       : isExactLink
-        ? "Dokładny link do oferty · cena do potwierdzenia u partnera"
+        ? "Dokładny link do oferty · finalna cena u partnera"
         : isLiveOffer
-          ? "Oferta z feedu · partner potwierdzi aktualną cenę"
-          : "Cena orientacyjna · partner potwierdzi aktualną cenę";
+          ? "Oferta z feedu · finalna cena u partnera"
+          : "Cena orientacyjna · finalna cena u partnera";
 
   return (
     <article
       ref={cardRef}
-      className={`offer-card offer-card-clean ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}
+      className={`offer-card offer-card-clean offer-card-conversion ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}
       data-offer-id={offer.id}
       data-offer-price={displayPrice}
       data-offer-partner={offer.partner}
@@ -302,20 +302,19 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
         <div className="meta">
           <span><Plane size={15} /> {offer.departure}</span>
           <span><Moon size={15} /> {offer.nights} nocy</span>
-          <span><Sun size={15} /> {offer.weather}</span>
           <span><Utensils size={15} /> {offer.board}</span>
         </div>
 
         <div className="why-now"><span>DLACZEGO WARTO</span><strong>{override.note || publishedOverride.note || offer.reason}</strong></div>
 
+        <a className="card-cta" href={buyHref} rel={isExpired ? undefined : "sponsored"} onClick={() => trackOfferClick("card_cta")}>{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
+
         {!isExpired && (
-          <div className="offer-actions-row">
+          <div className="offer-actions-row offer-actions-secondary">
             <button className={`compare-toggle ${compared ? "active" : ""}`} onClick={toggleCompare}><Scale size={15} /> {compared ? "W porównaniu" : "Porównaj"}</button>
-            <button className={`trip-toggle ${tripAdded ? "active" : ""}`} onClick={addToTrip}><MapPinned size={15} /> {tripAdded ? "W podróży" : "Moja podróż"}</button>
+            <button className={`trip-toggle ${tripAdded ? "active" : ""}`} onClick={addToTrip}><MapPinned size={15} /> {tripAdded ? "W podróży" : "Zapisz do podróży"}</button>
           </div>
         )}
-
-        <a className="card-cta" href={buyHref} rel={isExpired ? undefined : externalCardLink ? "sponsored" : "sponsored"} onClick={() => trackOfferClick("card_cta")}>{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
 
         {(compared || tripAdded) && (
           <div className="offer-after-actions">
