@@ -6,6 +6,9 @@ export type ClickEvent = {
   source: string;
   offer?: string | null;
   destination?: string | null;
+  price?: string | null;
+  page?: string | null;
+  clickId?: string | null;
 };
 
 export type ClickStats = {
@@ -70,7 +73,16 @@ export function recordClick(
     };
   }
 
-  stats.recent.unshift({ ts, partner, source, offer: offer || null, destination: destination || null });
+  stats.recent.unshift({
+    ts,
+    partner,
+    source,
+    offer: offer || null,
+    destination: destination || null,
+    price: event.price || null,
+    page: event.page || null,
+    clickId: event.clickId || null,
+  });
   stats.recent = stats.recent.slice(0, 12);
   stats.updatedAt = ts;
 
