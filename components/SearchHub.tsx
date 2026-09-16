@@ -162,9 +162,7 @@ export default function SearchHub({
         .filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()))
         .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")));
 
-      if (query) {
-        rows = rows.filter((o: any) => offerMatchesRequestedDestination(o, query));
-      }
+      if (query) rows = rows.filter((o: any) => offerMatchesRequestedDestination(o, query));
 
       rows = onePerDirection(rows.sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity))).slice(0, 9);
 
@@ -190,19 +188,6 @@ export default function SearchHub({
   }
 
   function chooseTab(tab: string) {
-    if (tab === "Atrakcje") {
-      window.location.href = "/atrakcje";
-      return;
-    }
-    if (tab === "Parkingi") {
-      window.location.href = "/parkingi";
-      return;
-    }
-    if (tab === "eSIM") {
-      window.location.href = "/esim";
-      return;
-    }
-
     setActiveTab(tab);
     setSearched(false);
     setResults([]);
@@ -217,6 +202,7 @@ export default function SearchHub({
     if (overrides.budget) setBudget(overrides.budget);
     if (overrides.board) setBoard(overrides.board);
     if (typeof overrides.weekendOnly === "boolean") setWeekendOnly(overrides.weekendOnly);
+    if (overrides.board || overrides.weekendOnly) setAdvancedOpen(true);
     if (overrides.tab) setActiveTab(overrides.tab);
     void runSearch(label, overrides);
   }
@@ -235,10 +221,9 @@ export default function SearchHub({
   }
 
   const quickPicks: Array<[string, string, SearchOverrides]> = [
-    ["Rzym, Włochy", "Rzym na city break", { duration: "3-4", budget: "1500", tab: "City break" }],
-    ["Teneryfa, Hiszpania", "Ciepło na Teneryfie", { duration: "5-7", budget: "3000", tab: "Wakacje" }],
-    ["Djerba, Tunezja", "All Inclusive na Djerbie", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Wakacje" }],
-    ["Bergamo, Włochy", "Tani weekend w Bergamo", { duration: "3-4", budget: "1000", weekendOnly: true, tab: "City break" }],
+    ["Djerba, Tunezja", "All Inclusive Tunezja", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Wakacje" }],
+    ["Rzym, Włochy", "City break Rzym", { duration: "3-4", budget: "1500", tab: "City break" }],
+    ["Teneryfa, Hiszpania", "Ciepło: Teneryfa", { duration: "5-7", budget: "3000", tab: "Wakacje" }],
     ["Zanzibar, Tanzania", "Egzotyka: Zanzibar", { duration: "11-14", budget: "7500", tab: "Wakacje" }],
   ];
 
@@ -248,14 +233,14 @@ export default function SearchHub({
         <div className="search-v3-head">
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
-            <h2>Gdzie chcesz lecieć?</h2>
-            <p>Najpierw kierunek. Resztę doprecyzujesz w kilku kliknięciach.</p>
+            <h2>Znajdź wyjazd</h2>
+            <p>Wybierz kierunek. Pozostałe opcje są tylko wtedy, gdy ich potrzebujesz.</p>
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
 
         <div className="search-v3-tabs" role="tablist" aria-label="Rodzaj podróży">
-          {["Inspiracje", "City break", "Lot + hotel", "Wakacje", "Atrakcje", "Parkingi", "eSIM"].map((tab) => (
+          {["Wakacje", "City break", "Lot + hotel", "Inspiracje"].map((tab) => (
             <button key={tab} type="button" className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
@@ -269,7 +254,7 @@ export default function SearchHub({
                 value={destination}
                 onChange={(event) => { setDestination(event.target.value); setSuggestionsOpen(true); }}
                 onFocus={() => setSuggestionsOpen(true)}
-                placeholder="Miasto, kraj albo wyspa"
+                placeholder={activeTab === "Inspiracje" ? "Może być dowolnie" : "Miasto, kraj albo wyspa"}
                 autoComplete="off"
               />
               {destination && <button type="button" aria-label="Wyczyść kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
@@ -288,7 +273,7 @@ export default function SearchHub({
             )}
           </div>
 
-          <label className="search-v3-field">
+          <label className="search-v3-field search-v3-departure">
             <span><Plane size={15}/> Skąd?</span>
             <select value={departure} onChange={(event) => setDeparture(event.target.value)}>
               <option value="">Wszystkie lotniska</option>
@@ -297,7 +282,7 @@ export default function SearchHub({
             <ChevronDown size={15} className="search-v3-chevron"/>
           </label>
 
-          <label className="search-v3-field">
+          <label className="search-v3-field search-v3-duration">
             <span>Na ile?</span>
             <select value={duration} onChange={(event) => setDuration(event.target.value)}>
               <option value="all">Dowolnie</option>
@@ -311,7 +296,7 @@ export default function SearchHub({
             <ChevronDown size={15} className="search-v3-chevron"/>
           </label>
 
-          <label className="search-v3-field">
+          <label className="search-v3-field search-v3-budget">
             <span>Budżet / os.</span>
             <select value={budget} onChange={(event) => setBudget(event.target.value)}>
               <option value="all">Dowolny</option>
@@ -328,29 +313,31 @@ export default function SearchHub({
             <ChevronDown size={15} className="search-v3-chevron"/>
           </label>
 
-          <button type="submit" className="search-v3-submit" disabled={loading}><Search size={18}/>{loading ? "Szukamy…" : "Szukaj wyjazdu"}</button>
+          <button type="submit" className="search-v3-submit" disabled={loading}><Search size={18}/>{loading ? "Szukamy…" : "Pokaż oferty"}</button>
         </form>
 
         <div className="search-v3-options-row">
           <button type="button" className={`search-v3-more ${advancedOpen ? "active" : ""}`} onClick={() => setAdvancedOpen((value) => !value)}>
-            <SlidersHorizontal size={15}/> Więcej filtrów
-          </button>
-          <button type="button" className={`search-v3-weekend ${weekendOnly ? "active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
-            <span className="search-v3-check">{weekendOnly && <Check size={13}/>}</span> Pobyt obejmuje sobotę i niedzielę
+            <SlidersHorizontal size={15}/> {advancedOpen ? "Mniej opcji" : "Więcej opcji"}
           </button>
           {advancedOpen && (
-            <label className="search-v3-board">
-              <span>Wyżywienie</span>
-              <select value={board} onChange={(event) => setBoard(event.target.value)}>
-                <option value="all">Dowolne</option>
-                <option value="bez wyżywienia">Bez wyżywienia</option>
-                <option value="śniadanie">Śniadanie</option>
-                <option value="half board">Half Board</option>
-                <option value="full board">Full Board</option>
-                <option value="all inclusive">All Inclusive</option>
-                <option value="ultra all inclusive">Ultra All Inclusive</option>
-              </select>
-            </label>
+            <>
+              <button type="button" className={`search-v3-weekend ${weekendOnly ? "active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
+                <span className="search-v3-check">{weekendOnly && <Check size={13}/>}</span> Weekend w terminie
+              </button>
+              <label className="search-v3-board">
+                <span>Wyżywienie</span>
+                <select value={board} onChange={(event) => setBoard(event.target.value)}>
+                  <option value="all">Dowolne</option>
+                  <option value="bez wyżywienia">Bez wyżywienia</option>
+                  <option value="śniadanie">Śniadanie</option>
+                  <option value="half board">Half Board</option>
+                  <option value="full board">Full Board</option>
+                  <option value="all inclusive">All Inclusive</option>
+                  <option value="ultra all inclusive">Ultra All Inclusive</option>
+                </select>
+              </label>
+            </>
           )}
         </div>
 
