@@ -65,6 +65,12 @@ function safePartner(value: string | null): PartnerKey | null {
   return value as PartnerKey;
 }
 
+function safeText(value: string | null, max = 160) {
+  if (!value) return undefined;
+  const normalized = value.replace(/[\r\n\t]+/g, " ").trim().slice(0, max);
+  return normalized || undefined;
+}
+
 function safeTarget(value: string | null) {
   if (!value) return null;
   try {
@@ -245,9 +251,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/okazje", request.url), 307);
   }
 
-  const source = request.nextUrl.searchParams.get("source") || "live_offer";
-  const offer = request.nextUrl.searchParams.get("offer") || undefined;
-  const destination = request.nextUrl.searchParams.get("destination") || undefined;
+  const source = safeText(request.nextUrl.searchParams.get("source"), 80) || "live_offer";
+  const offer = safeText(request.nextUrl.searchParams.get("offer"), 80);
+  const destination = safeText(request.nextUrl.searchParams.get("destination"), 160);
+  const price = safeText(request.nextUrl.searchParams.get("price"), 40);
+  const page = safeText(request.nextUrl.searchParams.get("page"), 160);
+  const clickId = safeText(request.nextUrl.searchParams.get("clickId"), 80);
 
   console.info(
     "[tripownia_affiliate_click]",
@@ -258,6 +267,9 @@ export async function GET(request: NextRequest) {
       source,
       offer,
       destination,
+      price,
+      page,
+      clickId,
       originalHost: originalTarget.hostname,
       targetHost: target.hostname,
       live: true,
@@ -274,6 +286,9 @@ export async function GET(request: NextRequest) {
     source,
     offer,
     destination,
+    price,
+    page,
+    clickId,
   });
 
   return response;
