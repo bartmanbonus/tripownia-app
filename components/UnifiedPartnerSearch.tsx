@@ -4,6 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { BedDouble, CalendarDays, Check, MapPin, Package, Plane, Search, Sun, Users, Zap } from "lucide-react";
 import { partners } from "@/lib/partners";
 import { isTravelDestinationBlocked } from "@/lib/travelSafety";
+import { trackEvent } from "@/lib/analytics";
 
 type Mode = "all" | "city" | "holiday" | "lastminute";
 type SearchType = "package" | "city" | "holiday" | "lastminute" | "flights" | "hotels";
@@ -100,27 +101,12 @@ function defaultSearchType(mode:Mode):SearchType{
 }
 
 function buildLinks(destination:string,fromCode:string,start:string,end:string,adults:number,searchType:SearchType){
-  const nights=Math.max(1,Math.round((new Date(`${end}T12:00:00`).getTime()-new Date(`${start}T12:00:00`).getTime())/86400000));
-  const iata=firstMatch(iataByDestination,destination);
   const isLast=searchType==="lastminute";
   const eximPath=firstMatch(eximPathByDestination,destination)||(isLast?"/last-minute":"/wakacje");
   const wakacjePath=firstMatch(wakacjePathByDestination,destination)||(isLast?"/last-minute/":"/");
   const eximParams=new URLSearchParams({path:eximPath,from:fromCode,start,end,adults:String(adults)});
   const exim=`/go/exim-best?${eximParams.toString()}`;
   const wakacje=partners.wakacje.buildUrl(`https://www.wakacje.pl${wakacjePath}`);
-
-  const eskyBase=new URL("https://www2.esky.pl/lot+hotel/portfolio");
-  eskyBase.searchParams.set("rooms[0][adults]",String(adults));
-  eskyBase.searchParams.set("datesTab","flexDates");
-  eskyBase.searchParams.set("departureDate",start);
-  eskyBase.searchParams.set("returnDate",end);
-  eskyBase.searchParams.set("stayLength",`${nights}:${nights}`);
-  eskyBase.searchParams.set("departurePlaces",`ap-${fromCode}`);
-  eskyBase.searchParams.set("selectedDeparturePlaces",`ap-${fromCode}`);
-  if(iata) eskyBase.searchParams.set("arrivalPlaces",`ci-${iata}`);
-  eskyBase.searchParams.set("context","pl-packages");
-  eskyBase.searchParams.set("sort[TotalPrice]","asc");
-  const esky=partners.esky.buildUrl(eskyBase.toString());
 
   const kiwiDeep=new URL("https://www.kiwi.com/pl/");
   kiwiDeep.searchParams.set("origin",kiwiOriginByAirport[fromCode]||"warszawa-polska");
@@ -141,11 +127,8 @@ function buildLinks(destination:string,fromCode:string,start:string,end:string,a
   const booking=partners.booking.buildUrl(bookingBase.toString());
 
   return {
-    exim,wakacje,esky,kiwi,booking,nights,
+    exim,wakacje,kiwi,booking,
     tui:partners.tui.buildUrl(isLast?"https://www.tui.pl/last-minute":"https://www.tui.pl/wypoczynek"),
-    gyg:partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(destination.split(",")[0])}`),
-    esim:partners.fonia.buildUrl("https://fonia.app/"),
-    car:"https://getrentacar.tpk.lv/buzTQvPf",taxi:"https://kiwitaxi.tpk.lv/UuvtPHby",transfer:"https://gettransfer.tpk.lv/SqNqK9Q7"
   };
 }
 
@@ -170,19 +153,26 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
   const blockedDestination=isTravelDestinationBlocked(destination);
   const links=useMemo(()=>buildLinks(destination,from,start,end,adults,searchType),[destination,from,start,end,adults,searchType]);
 
+  const visibleTabs=useMemo(()=>{
+    if(mode==="holiday") return tabs.filter(tab=>tab.key==="holiday"||tab.key==="lastminute");
+    if(mode==="lastminute") return tabs.filter(tab=>tab.key==="lastminute"||tab.key==="holiday");
+    if(mode==="city") return tabs.filter(tab=>tab.key==="city"||tab.key==="package");
+    return tabs;
+  },[mode]);
+
   const primary=useMemo(()=>{
-    if(searchType==="flights") return {label:"Pokaż loty",url:links.kiwi,source:"Loty"};
-    if(searchType==="hotels") return {label:"Pokaż hotele",url:links.booking,source:"Hotele"};
-    if(searchType==="city") return {label:"Pokaż city break",url:links.exim,source:"City break"};
-    if(searchType==="holiday"||searchType==="lastminute") return {label:"Pokaż wyjazdy",url:links.exim,source:"Pakiety wakacyjne"};
-    return {label:"Pokaż pakiety",url:links.exim,source:"Pakiety"};
+    if(searchType==="flights") return {label:"Pokaż loty w Kiwi.com",url:links.kiwi,source:"Kiwi.com"};
+    if(searchType==="hotels") return {label:"Pokaż hotele w Booking.com",url:links.booking,source:"Booking.com"};
+    if(searchType==="city") return {label:"Sprawdź city break w EXIM Tours",url:links.exim,source:"EXIM Tours"};
+    if(searchType==="holiday"||searchType==="lastminute") return {label:"Sprawdź pakiety w EXIM Tours",url:links.exim,source:"EXIM Tours"};
+    return {label:"Sprawdź pakiety w EXIM Tours",url:links.exim,source:"EXIM Tours"};
   },[searchType,links]);
 
-  const alternatives=searchType==="holiday"||searchType==="lastminute"
-    ? [{label:"Porównaj wakacje",url:links.wakacje},{label:"Lot + hotel",url:links.esky}]
-    : searchType==="city"||searchType==="package"
-      ? [{label:"Porównaj drugą bazę",url:links.tui},{label:"Szukaj samodzielnie",url:links.esky}]
-      : [];
+  const alternative=useMemo(()=>{
+    if(searchType==="holiday"||searchType==="lastminute") return {label:"Porównaj w Wakacje.pl",url:links.wakacje,source:"Wakacje.pl"};
+    if(searchType==="city"||searchType==="package") return {label:"Porównaj w TUI",url:links.tui,source:"TUI"};
+    return null;
+  },[searchType,links]);
 
   function changeType(type:SearchType){
     setSearchType(type);
@@ -191,45 +181,56 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
     if((type==="holiday"||type==="lastminute") && start){ setEnd(plusDays(start,7)); }
   }
 
-  return <section className="trip-search-engine" id="pelna-wyszukiwarka">
-    <div className="trip-search-title"><span>WYSZUKIWARKA TRIPOWNI</span><h2>Znajdź wyjazd i przejdź prosto do rezerwacji</h2><p>Jedno wyszukiwanie. Tripownia dobiera właściwą ścieżkę i przekazuje kierunek, termin, lotnisko oraz liczbę osób.</p></div>
+  function submitSearch(){
+    setSubmitted(true);
+    trackEvent("partner_search_submit",{
+      search_type:searchType,
+      destination:destination||"dowolny",
+      departure:searchType==="hotels"?"hotel_only":from,
+      start_date:start,
+      end_date:end,
+      adults,
+      weekend_only:weekendOnly,
+    });
+  }
+
+  return <section className="trip-search-engine trip-search-conversion" id="pelna-wyszukiwarka">
+    <div className="trip-search-title"><span>WYSZUKIWARKA TRIPOWNI</span><h2>Znajdź wyjazd i przejdź prosto do rezerwacji</h2><p>Ustaw najważniejsze parametry. Potem dostajesz jedną główną ścieżkę i maksymalnie jedno porównanie.</p></div>
+
+    <div className="trip-search-steps" aria-label="Jak działa wyszukiwanie">
+      <span><b>1</b> Ustaw wyjazd</span>
+      <span><b>2</b> Sprawdź dopasowanie</span>
+      <span><b>3</b> Rezerwuj u partnera</span>
+    </div>
 
     <div className="trip-search-shell">
       <div className="trip-search-tabs" role="tablist" aria-label="Rodzaj wyjazdu">
-        {tabs.map(tab=><button key={tab.key} type="button" role="tab" aria-selected={searchType===tab.key} className={searchType===tab.key?"active":""} onClick={()=>changeType(tab.key)}>{tab.icon}<span>{tab.label}</span></button>)}
+        {visibleTabs.map(tab=><button key={tab.key} type="button" role="tab" aria-selected={searchType===tab.key} className={searchType===tab.key?"active":""} onClick={()=>changeType(tab.key)}>{tab.icon}<span>{tab.label}</span></button>)}
       </div>
 
-      <div className="trip-search-context"><strong>{tabs.find(t=>t.key===searchType)?.label}</strong><span>{searchType==="flights"?"Znajdź najtańsze połączenia z uwzględnieniem wszystkich lotnisk w mieście.":searchType==="hotels"?"Sprawdź noclegi dla wybranego miejsca i terminu.":searchType==="holiday"||searchType==="lastminute"?"Porównaj gotowe pakiety i aktualne warianty wakacyjne.":"Tripownia przeszukuje aktualne pakiety. City breaki dobieramy tylko z krótkich wyjazdów z transferem."}</span></div>
+      <div className="trip-search-context"><strong>{tabs.find(t=>t.key===searchType)?.label}</strong><span>{searchType==="flights"?"Znajdź połączenie i przejdź do aktualnych wyników lotów.":searchType==="hotels"?"Sprawdź noclegi dla wybranego miejsca i terminu.":searchType==="holiday"||searchType==="lastminute"?"Gotowe pakiety wakacyjne. Po wyszukaniu pokażemy najprostszą drogę do rezerwacji.":"Pakiety i krótkie wyjazdy dopasowane do wskazanego terminu."}</span></div>
 
       <div className="trip-search-form">
-        <label className="trip-field trip-destination"><span><MapPin size={15}/> Dokąd?</span><input value={destination} onChange={e=>setDestination(e.target.value)} placeholder="Dowolny kierunek"/></label>
-        {searchType!=="hotels"&&<label className="trip-field"><span><Plane size={15}/> Skąd?</span><select value={from} onChange={e=>setFrom(e.target.value)}>{airportChoices.map(a=><option key={a.code} value={a.code}>{a.label}</option>)}</select></label>}
-        <label className="trip-field"><span><CalendarDays size={15}/> Kiedy?</span><input type="date" value={start} onChange={e=>{setStart(e.target.value);if(e.target.value>=end)setEnd(plusDays(e.target.value,(searchType==="city"||searchType==="package")?3:7))}}/></label>
-        <label className="trip-field"><span><CalendarDays size={15}/> Do kiedy?</span><input type="date" min={start} value={end} onChange={e=>setEnd(e.target.value)}/></label>
-        <label className="trip-field trip-people"><span><Users size={15}/> Ile osób?</span><select value={adults} onChange={e=>setAdults(Number(e.target.value))}>{[1,2,3,4,5,6].map(n=><option value={n} key={n}>{n} {n===1?"osoba":"osoby"}</option>)}</select></label>
-        <button className="trip-search-submit" type="button" onClick={()=>setSubmitted(true)} disabled={blockedDestination}><Search size={19}/><span>Szukaj</span></button>
+        <label className="trip-field trip-destination"><span><MapPin size={15}/> Dokąd?</span><input value={destination} onChange={e=>{setDestination(e.target.value);setSubmitted(false)}} placeholder="Dowolny kierunek"/></label>
+        {searchType!=="hotels"&&<label className="trip-field"><span><Plane size={15}/> Skąd?</span><select value={from} onChange={e=>{setFrom(e.target.value);setSubmitted(false)}}>{airportChoices.map(a=><option key={a.code} value={a.code}>{a.label}</option>)}</select></label>}
+        <label className="trip-field"><span><CalendarDays size={15}/> Kiedy?</span><input type="date" value={start} onChange={e=>{setSubmitted(false);setStart(e.target.value);if(e.target.value>=end)setEnd(plusDays(e.target.value,(searchType==="city"||searchType==="package")?3:7))}}/></label>
+        <label className="trip-field"><span><CalendarDays size={15}/> Do kiedy?</span><input type="date" min={start} value={end} onChange={e=>{setEnd(e.target.value);setSubmitted(false)}}/></label>
+        <label className="trip-field trip-people"><span><Users size={15}/> Ile osób?</span><select value={adults} onChange={e=>{setAdults(Number(e.target.value));setSubmitted(false)}}>{[1,2,3,4,5,6].map(n=><option value={n} key={n}>{n} {n===1?"osoba":"osoby"}</option>)}</select></label>
+        <button className="trip-search-submit" type="button" onClick={submitSearch} disabled={blockedDestination}><Search size={19}/><span>Znajdź wyjazd</span></button>
       </div>
       <div className="trip-search-weekend-row">
-        <label className={`weekend-required ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>{const checked=e.target.checked;setWeekendOnly(checked);if(checked){const r=weekendRange(start,searchType);setStart(r.start);setEnd(r.end);}}}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Musi obejmować weekend</strong><small>Tripownia ustawi najbliższy sensowny termin z sobotą i niedzielą.</small></div></label>
+        <label className={`weekend-required ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>{const checked=e.target.checked;setWeekendOnly(checked);setSubmitted(false);if(checked){const r=weekendRange(start,searchType);setStart(r.start);setEnd(r.end);}}}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Musi obejmować weekend</strong><small>Tripownia ustawi najbliższy sensowny termin z sobotą i niedzielą.</small></div></label>
       </div>
       {blockedDestination&&<div role="alert" style={{marginTop:12,padding:"12px 14px",borderRadius:14,background:"#fff2ed",border:"1px solid #ffd0c2",fontWeight:750,color:"#8a2b12"}}>Ten kierunek nie jest obecnie promowany przez Tripownię ze względów bezpieczeństwa. Wybierz inny kierunek.</div>}
     </div>
 
-    {submitted&&!blockedDestination&&<div className="trip-search-results">
-      <div><small>GOTOWE WYSZUKIWANIE</small><strong>{destination||"Dowolny kierunek"}</strong><span>{searchType!=="hotels"?`${airportLabel(from)} · `:""}{start} – {end} · {adults} os.</span></div>
-      <div className="trip-search-actions"><a className="primary" href={primary.url} target="_blank" rel="sponsored noopener noreferrer">{primary.label} →</a>{alternatives.map(a=><a key={a.label} href={a.url} target="_blank" rel="sponsored noopener noreferrer">{a.label}</a>)}</div>
-    </div>}
-
-    <div className="trip-partner-mini">
-      <div className="trip-partner-mini-head"><div><small>SZUKAJ SZERZEJ</small><strong>Chcesz poszukać szerzej? Parametry są już gotowe do dalszego wyszukiwania.</strong></div><span>Jedno wyszukiwanie → więcej możliwości</span></div>
-      <div className="trip-partner-mini-grid">
-        <a href={links.exim} target="_blank" rel="sponsored noopener noreferrer"><span>☀️</span><div><strong>Wakacje i All Inclusive</strong><small>Pełna baza pakietów</small></div><b>Sprawdź →</b></a>
-        <a href={links.wakacje} target="_blank" rel="sponsored noopener noreferrer"><span>🏖️</span><div><strong>Porównaj więcej pakietów</strong><small>Więcej organizatorów i terminów</small></div><b>Porównaj →</b></a>
-        <a href={links.tui} target="_blank" rel="sponsored noopener noreferrer"><span>🌴</span><div><strong>Druga baza wakacji</strong><small>Gotowe wyjazdy i hotele</small></div><b>Zobacz →</b></a>
-        <a href={links.esky} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>Szukaj samodzielnie</strong><small>Dodatkowa wyszukiwarka poza rekomendacjami Tripowni</small></div><b>Szukaj →</b></a>
+    {submitted&&!blockedDestination&&<div className="trip-search-results trip-search-decision">
+      <div><small>KROK 2 Z 3 · GOTOWE</small><strong>{destination||"Dowolny kierunek"}</strong><span>{searchType!=="hotels"?`${airportLabel(from)} · `:""}{start} – {end} · {adults} os.</span></div>
+      <div className="trip-search-actions">
+        <a className="primary" href={primary.url} target="_blank" rel="sponsored noopener noreferrer">{primary.label} →</a>
+        {alternative&&<a className="secondary" href={alternative.url} target="_blank" rel="sponsored noopener noreferrer">{alternative.label}</a>}
       </div>
-    </div>
-
-    <div className="trip-search-extras"><span>Domknij podróż:</span><a href={links.car} target="_blank" rel="sponsored noopener noreferrer">🚗 Samochód</a><a href={links.taxi} target="_blank" rel="sponsored noopener noreferrer">🚕 Taxi</a><a href={links.transfer} target="_blank" rel="sponsored noopener noreferrer">🚐 Transfer</a><a href={links.gyg} target="_blank" rel="sponsored noopener noreferrer">🎟️ Atrakcje</a><a href={links.esim} target="_blank" rel="sponsored noopener noreferrer">📱 eSIM</a></div>
+      <p className="trip-search-booking-note">Tripownia przekazuje parametry wyszukiwania. Finalną cenę i rezerwację potwierdzasz bezpośrednio u partnera.</p>
+    </div>}
   </section>;
 }
