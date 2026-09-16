@@ -24,16 +24,6 @@ type SearchOverrides = {
   tab?: string;
 };
 
-function normalizeSearchTerm(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 function onePerDirection(rows: any[]) {
   const seen = new Set<string>();
   return rows.filter((row) => {
@@ -44,27 +34,19 @@ function onePerDirection(rows: any[]) {
   });
 }
 
-function offerMatchesRequestedDestination(row: any, query: string) {
-  const normalizedQuery = normalizeSearchTerm(query);
-  if (!normalizedQuery) return true;
-
-  const city = normalizeSearchTerm(String(row?.city || ""));
-  const country = normalizeSearchTerm(String(row?.country || ""));
-  const haystack = normalizeSearchTerm(`${row?.city || ""} ${row?.country || ""}`);
-
-  if (haystack.includes(normalizedQuery)) return true;
-  if (city && normalizedQuery.includes(city)) return true;
-  if (country && normalizedQuery === country) return true;
-
-  const knownMatches = WORLD_DESTINATIONS.filter((item) => destinationMatches(query, item)).slice(0, 12);
-  return knownMatches.some((item) => {
-    const label = normalizeSearchTerm(item.label);
-    const region = normalizeSearchTerm(item.region);
-    return Boolean(
-      (label && (haystack.includes(label) || label.includes(city))) ||
-      (region && country && region.includes(country)) ||
-      (region && country && country.includes(region))
-    );
+function uniqueOfferVariants(rows: any[]) {
+  const seen = new Set<string>();
+  return rows.filter((row) => {
+    const key = [
+      String(row?.partner || ""),
+      String(row?.hotel || row?.city || "").toLowerCase(),
+      String(row?.dates || ""),
+      String(row?.departure || "").toLowerCase(),
+      String(row?.price || ""),
+    ].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
 }
 
@@ -79,12 +61,13 @@ export default function SearchHub({
   const [destination, setDestination] = useState(initialDestinations[0] || "");
   const [departure, setDeparture] = useState(initialAirports[0] || "");
   const [duration, setDuration] = useState(initialDuration || "all");
-  const [budget, setBudget] = useState("5000");
+  const [budget, setBudget] = useState("all");
   const [board, setBoard] = useState("all");
   const [weekendOnly, setWeekendOnly] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [results, setResults] = useState<any[]>([]);
+  const [visibleCount, setVisibleCount] = useState(6);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [notice, setNotice] = useState("");
@@ -135,6 +118,7 @@ export default function SearchHub({
 
     setLoading(true);
     setSearched(true);
+    setVisibleCount(6);
     setSuggestionsOpen(false);
     setNotice("");
 
@@ -160,23 +144,31 @@ export default function SearchHub({
       let rows = Array.isArray(data?.offers) ? data.offers : [];
       rows = rows
         .filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()))
-        .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")));
+        .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
+        .sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
-      if (query) rows = rows.filter((o: any) => offerMatchesRequestedDestination(o, query));
-
-      rows = onePerDirection(rows.sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity))).slice(0, 9);
+      // When a user names a destination, show real hotel/term variants for that place.
+      // The API already resolves aliases and relevance; collapsing to one card per destination
+      // made searches like Djerba look as if only one offer existed.
+      rows = query
+        ? uniqueOfferVariants(rows).slice(0, 18)
+        : onePerDirection(rows).slice(0, 12);
 
       setResults(rows);
       if (!rows.length) {
         setNotice(query
-          ? `Nie znaleźliśmy teraz potwierdzonej oferty dla „${query}”. Nie pokazujemy innych kierunków tylko po to, żeby zapełnić wyniki.`
-          : "Nie znaleźliśmy teraz potwierdzonej oferty dla tych parametrów. Zmień budżet, lotnisko albo długość pobytu.");
+          ? `Nie znaleźliśmy teraz potwierdzonej oferty dla „${query}”. Spróbuj bez jednego filtra albo wybierz Inspiracje.`
+          : "Nie znaleźliśmy teraz potwierdzonej oferty dla tych parametrów. Spróbuj bez jednego filtra.");
       } else {
-        setNotice(String(data?.notice || ""));
+        const exactCount = Number(data?.exactSourceCount || 0);
+        const apiNotice = String(data?.notice || "");
+        setNotice(apiNotice || (query && exactCount > 0 && rows.length > exactCount
+          ? `Najpierw pokazujemy ${exactCount} dokładnych dopasowań, a dalej najbliższe aktualne opcje dla tego kierunku.`
+          : ""));
       }
     } catch {
       setResults([]);
-      setNotice("Nie udało się teraz potwierdzić aktualnych ofert. Nie pokazujemy starych cen jako bieżących — spróbuj ponownie lub zmień parametry.");
+      setNotice("Nie udało się teraz pobrać aktualnych ofert. Spróbuj ponownie za chwilę albo wybierz szersze parametry.");
     } finally {
       setLoading(false);
     }
@@ -191,9 +183,11 @@ export default function SearchHub({
     setActiveTab(tab);
     setSearched(false);
     setResults([]);
+    setVisibleCount(6);
     setNotice("");
-    if (tab === "City break" || tab === "Lot + hotel") setDuration("3-4");
-    if (tab === "Wakacje") setDuration("5-7");
+    // Typ podróży nie powinien sam zawężać długości pobytu.
+    // Użytkownik może doprecyzować ją świadomie albo skorzystać z quick picka.
+    setDuration("all");
   }
 
   function quickSearch(label: string, overrides: SearchOverrides) {
@@ -211,11 +205,12 @@ export default function SearchHub({
     setDestination("");
     setDeparture("");
     setDuration("all");
-    setBudget("5000");
+    setBudget("all");
     setBoard("all");
     setWeekendOnly(false);
     setAdvancedOpen(false);
     setResults([]);
+    setVisibleCount(6);
     setNotice("");
     setSearched(false);
   }
@@ -349,12 +344,17 @@ export default function SearchHub({
         {searched && (
           <div className="search-v3-results">
             <div className="search-v3-results-head">
-              <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `${results.length} propozycji dla Ciebie` : "Brak potwierdzonego dopasowania"}</h3></div>
+              <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `${results.length} aktualnych ofert` : "Brak potwierdzonego dopasowania"}</h3></div>
               {notice && <p>{notice}</p>}
             </div>
 
-            {!loading && results.length > 0 && <div className="search-v3-results-grid">{results.map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>}
-            {!loading && results.length === 0 && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Zmień kierunek, budżet, lotnisko albo długość pobytu — nie dokładamy starych ani przypadkowych ofert tylko po to, żeby zapełnić ekran.</span></div>}
+            {!loading && results.length > 0 && (
+              <>
+                <div className="search-v3-results-grid">{results.slice(0, visibleCount).map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
+                {results.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(results.length, count + 6))}>Pokaż kolejne oferty ({results.length - visibleCount})</button>}
+              </>
+            )}
+            {!loading && results.length === 0 && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Usuń jeden filtr albo wybierz „Inspiracje” — Tripownia spróbuje znaleźć aktualne alternatywy zamiast zostawiać Ci pusty ekran.</span></div>}
           </div>
         )}
       </div>
