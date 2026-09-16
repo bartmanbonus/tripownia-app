@@ -16,17 +16,17 @@ export const seoSeasonalLandings = [
   },
   {
     slug: "city-break-listopad-2026",
-    title: "City break listopad 2026 — gdzie polecieć na kilka dni",
+    title: "City break listopad 2026 — gdzie polecieć? Lot + hotel i krótkie wyjazdy",
     eyebrow: "CITY BREAK · LISTOPAD 2026",
-    lead: "Aktualne krótkie wyjazdy na listopad 2026. Tripownia filtruje oferty po realnym terminie wylotu i pokazuje tylko propozycje z listopada.",
+    lead: "City break w listopadzie 2026: sprawdź aktualne krótkie wyjazdy, lot + hotel i kierunki dobre na 2–5 dni. Tripownia pokazuje propozycje z realnym wylotem w listopadzie.",
     query: "City break",
     minNights: 2,
     maxNights: 5,
     startDate: "2026-11-01",
     endDate: "2026-11-30",
     paragraphs: [
-      "Listopadowy city break dobrze działa w dwóch wersjach: ciepłe południe Europy albo miasta, które zaczynają już sezon jarmarków i świątecznych iluminacji.",
-      "Jeśli termin jest elastyczny, porównaj kilka dni tygodnia — różnica w cenie lotu i hotelu może być większa niż różnica między samymi kierunkami."
+      "Listopadowy city break najlepiej planować pod realny czas na miejscu. Przy 2–5 dniach godziny lotów, dojazd z lotniska i położenie hotelu często mają większe znaczenie niż sama cena biletu.",
+      "Jeśli zależy Ci na cieple, porównaj Maltę, Cypr, południe Hiszpanii i Portugalię. Jeśli wolisz klimat miasta i jarmarków, sprawdź Pragę, Wiedeń, Budapeszt lub Kopenhagę. Przy elastycznym terminie porównaj kilka dni tygodnia — różnice w cenach lotu i hotelu potrafią być duże."
     ],
   },
   {
