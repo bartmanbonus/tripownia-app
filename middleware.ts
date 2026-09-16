@@ -39,6 +39,13 @@ const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/aletry-todroznicze": "/alerty",
 };
 
+const SEO_CANONICAL_PATHS = {
+  etna: "/etna-sparalizowala-loty-na-sycylie-co-zrobic-po-odwolaniu-lotu-do-katanii",
+  liquids: "/lotniska-w-polsce-bez-limitu-100-ml-plynow",
+  dogTravel: "/wakacje-z-psem-za-granica-gdzie-jechac-i-jak-sie-przygotowac",
+  weekend: "/gdzie-poleciec-na-weekend-z-polski-12-pomyslow-na-city-break",
+} as const;
+
 function unauthorized() {
   return new NextResponse("Dostęp do panelu administracyjnego wymaga autoryzacji.", {
     status: 401,
@@ -63,6 +70,49 @@ function permanentRedirect(request: NextRequest, pathname: string) {
   return NextResponse.redirect(target, 308);
 }
 
+function normalizedSeoPath(path: string) {
+  try {
+    return decodeURIComponent(path)
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase();
+  } catch {
+    return path.toLowerCase();
+  }
+}
+
+function seoDuplicateCanonical(path: string) {
+  const normalized = normalizedSeoPath(path);
+
+  if (
+    normalized !== SEO_CANONICAL_PATHS.etna &&
+    normalized.startsWith("/etna-") &&
+    normalized.includes("sycyli") &&
+    (normalized.includes("lot") || normalized.includes("katani"))
+  ) return SEO_CANONICAL_PATHS.etna;
+
+  if (
+    normalized !== SEO_CANONICAL_PATHS.liquids &&
+    normalized.startsWith("/lotniska") &&
+    normalized.includes("limit") &&
+    normalized.includes("plyn")
+  ) return SEO_CANONICAL_PATHS.liquids;
+
+  if (
+    normalized !== SEO_CANONICAL_PATHS.dogTravel &&
+    normalized.startsWith("/wakacje-z-psem-za-granica")
+  ) return SEO_CANONICAL_PATHS.dogTravel;
+
+  if (
+    normalized !== SEO_CANONICAL_PATHS.weekend &&
+    normalized.startsWith("/gdzie-poleciec") &&
+    normalized.includes("weekend") &&
+    normalized.includes("city-break")
+  ) return SEO_CANONICAL_PATHS.weekend;
+
+  return null;
+}
+
 function cleanLegacyWordPressUrl(request: NextRequest) {
   const url = request.nextUrl.clone();
   const path = url.pathname.replace(/\/$/, "") || "/";
@@ -73,6 +123,9 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
     const cleanPath = path.slice(0, -"/post_id".length) || "/";
     return permanentRedirect(request, cleanPath);
   }
+
+  const consolidatedPath = seoDuplicateCanonical(path);
+  if (consolidatedPath) return permanentRedirect(request, consolidatedPath);
 
   if (hasWpPostId) {
     return new NextResponse("Ta stara strona WordPress nie jest już dostępna.", {
