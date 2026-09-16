@@ -79,32 +79,35 @@
   font-size:10px!important;
   line-height:1.4!important;
 }
+.offer-card-clean .card-cta{
+  min-height:48px!important;
+  margin:2px 0 8px!important;
+  font-size:10.5px!important;
+  font-weight:950!important;
+}
 .offer-card-clean .offer-actions-row{
   display:grid!important;
   grid-template-columns:1fr 1fr!important;
   gap:6px!important;
-  margin:0 0 8px!important;
+  margin:0!important;
+}
+.offer-card-clean .offer-actions-secondary{
+  opacity:.78!important;
 }
 .offer-card-clean .offer-actions-row button{
-  min-height:36px!important;
+  min-height:34px!important;
   margin:0!important;
   border:1px solid #ebe3dd!important;
   border-radius:999px!important;
   background:#fff!important;
   color:#6c6059!important;
-  font-size:9px!important;
+  font-size:8.5px!important;
   font-weight:800!important;
 }
 .offer-card-clean .offer-actions-row button.active{
   border-color:#f5c6b5!important;
   background:#fff4ef!important;
   color:#cf4e28!important;
-}
-.offer-card-clean .card-cta{
-  min-height:44px!important;
-  margin-top:0!important;
-  font-size:10px!important;
-  font-weight:900!important;
 }
 .offer-card-clean .offer-after-actions{
   display:flex!important;
@@ -124,6 +127,56 @@
 .offer-card-clean .admin-preview-link{
   display:none!important;
 }
+
+.trip-search-steps{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin:0 0 14px;
+}
+.trip-search-steps span{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 12px;
+  border:1px solid #eee2da;
+  border-radius:14px;
+  background:#fff;
+  color:#6a5d55;
+  font-size:11px;
+  font-weight:800;
+}
+.trip-search-steps b{
+  display:grid;
+  place-items:center;
+  width:22px;
+  height:22px;
+  border-radius:999px;
+  background:#fff0e9;
+  color:#d64e27;
+  font-size:10px;
+}
+.trip-search-decision{
+  position:relative;
+}
+.trip-search-booking-note{
+  grid-column:1/-1;
+  margin:6px 0 0!important;
+  color:#9b8f88!important;
+  font-size:9px!important;
+  line-height:1.45!important;
+}
+.trip-search-actions a.secondary{
+  background:#fff!important;
+  color:#5f554f!important;
+  border:1px solid #e9ddd5!important;
+  box-shadow:none!important;
+}
+
 @media (max-width:600px){
-  .offer-card-clean .offer-actions-row{grid-template-columns:1fr!important}
+  .offer-card-clean .offer-actions-row{grid-template-columns:1fr 1fr!important}
+  .trip-search-steps{grid-template-columns:1fr!important;gap:6px}
+  .trip-search-steps span{padding:8px 10px}
+  .trip-search-decision .trip-search-actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important}
+  .trip-search-decision .trip-search-actions a{width:100%!important}
 }
