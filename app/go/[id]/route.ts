@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { offers } from "@/lib/offers";
 import { recordClick } from "@/lib/clickStats";
@@ -62,6 +63,8 @@ export async function GET(
   }
 
   const source = request.nextUrl.searchParams.get("source") || "offer_detail";
+  const clickId = randomUUID().slice(0, 18);
+  const page = request.headers.get("referer") || request.nextUrl.pathname;
 
   console.info(
     "[tripownia_affiliate_click]",
@@ -72,7 +75,11 @@ export async function GET(
       source,
       offer: offer.id,
       destination: `${offer.city}, ${offer.country}`,
+      price: offer.price,
+      page,
+      clickId,
       targetHost: target.hostname,
+      live: false,
       path: request.nextUrl.pathname,
     })
   );
@@ -86,6 +93,9 @@ export async function GET(
     source,
     offer: String(offer.id),
     destination: `${offer.city}, ${offer.country}`,
+    price: String(offer.price || ""),
+    page,
+    clickId,
   });
 
   const cookieName = `tripownia_click_${offerId}`;
