@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import LiveDealsPage from "@/components/LiveDealsPage";
+import DealsPage from "@/components/DealsPage";
 
 export const metadata: Metadata = {
   title: "Tanie wakacje i city break – najtańsze okazje podróżnicze",
@@ -37,6 +37,6 @@ export default function DealsRoute() {
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }} />
-    <LiveDealsPage />
+    <DealsPage />
   </>;
 }
