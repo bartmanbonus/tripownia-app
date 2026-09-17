@@ -28,6 +28,7 @@ import "./my-trips.css";
 import "./trip-organizer.css";
 import "./travel-guides.css";
 import "./home-trip-hub.css";
+import "./contrast-guard.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 import OfferRailDeduper from "@/components/OfferRailDeduper";
