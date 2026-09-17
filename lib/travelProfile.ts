@@ -17,6 +17,7 @@ export type TravelProfile = {
   durationPreference: TravelDurationPreference;
   valuePriority: TravelValuePriority;
   visitedCountries: string[];
+  excludedVisitedCountries: string[];
 };
 
 export const DEFAULT_TRAVEL_PROFILE: TravelProfile = {
@@ -33,17 +34,25 @@ export const DEFAULT_TRAVEL_PROFILE: TravelProfile = {
   durationPreference: "any",
   valuePriority: "balance",
   visitedCountries: [],
+  excludedVisitedCountries: [],
 };
 
 export const TRAVEL_PROFILE_KEY = "tripownia-travel-profile";
 
-function normalizeVisitedCountries(value: unknown) {
+function normalizeCountryList(value: unknown) {
   if (!Array.isArray(value)) return [];
+  const seen = new Set<string>();
   return value
     .filter((item): item is string => typeof item === "string")
     .map((item) => item.trim())
-    .filter(Boolean)
-    .slice(0, 120);
+    .filter((item) => {
+      if (!item) return false;
+      const key = item.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .slice(0, 200);
 }
 
 export function readTravelProfile(): TravelProfile {
@@ -51,11 +60,15 @@ export function readTravelProfile(): TravelProfile {
   try {
     const parsed = JSON.parse(localStorage.getItem(TRAVEL_PROFILE_KEY) || "null") as Partial<TravelProfile> | null;
     if (!parsed) return DEFAULT_TRAVEL_PROFILE;
+    const visitedCountries = normalizeCountryList(parsed.visitedCountries);
+    const visitedKeys = new Set(visitedCountries.map((item) => item.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()));
+    const excludedVisitedCountries = normalizeCountryList(parsed.excludedVisitedCountries).filter((item) => visitedKeys.has(item.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()));
     return {
       ...DEFAULT_TRAVEL_PROFILE,
       ...parsed,
       styles: Array.isArray(parsed.styles) ? parsed.styles.filter((item): item is string => typeof item === "string") : DEFAULT_TRAVEL_PROFILE.styles,
-      visitedCountries: normalizeVisitedCountries(parsed.visitedCountries),
+      visitedCountries,
+      excludedVisitedCountries,
     };
   } catch {
     return DEFAULT_TRAVEL_PROFILE;
@@ -63,9 +76,13 @@ export function readTravelProfile(): TravelProfile {
 }
 
 export function saveTravelProfile(profile: TravelProfile) {
+  const visitedCountries = normalizeCountryList(profile.visitedCountries);
+  const visitedKeys = new Set(visitedCountries.map((item) => item.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()));
+  const excludedVisitedCountries = normalizeCountryList(profile.excludedVisitedCountries).filter((item) => visitedKeys.has(item.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()));
   localStorage.setItem(TRAVEL_PROFILE_KEY, JSON.stringify({
     ...profile,
-    visitedCountries: normalizeVisitedCountries(profile.visitedCountries),
+    visitedCountries,
+    excludedVisitedCountries,
   }));
   window.dispatchEvent(new Event("tripownia-profile-updated"));
 }
