@@ -55,9 +55,10 @@ const myTripowniaItems = [
   { href: "/gdzie-leciec", label: "Gdzie lecieć?", icon: Compass },
   { href: "/dla-ciebie", label: "Dla Ciebie", icon: Sparkles },
   { href: "/moja-podroz", label: "Moja podróż", icon: MapPinned },
+  { href: "/konto", label: "Konto i logowanie", icon: UserRound },
 ] as const;
 
-const APP_PATHS = ["/app", "/dla-ciebie", "/moja-podroz", "/porownaj", "/ulubione", "/alerty", "/profil"];
+const APP_PATHS = ["/app", "/dla-ciebie", "/moja-podroz", "/porownaj", "/ulubione", "/alerty", "/profil", "/konto"];
 const OPEN_MENU_SELECTOR = "details.trip-mobile-menu[open], details.trip-header-menu[open]";
 
 function isAppPath(pathname: string) {
@@ -134,7 +135,7 @@ export default function SiteHeader() {
             <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={64} height={64} priority />
           </Link>
           <div className="trip-mobile-top-actions">
-            <Link className="trip-mobile-account" href="/profil" aria-label="Konto">
+            <Link className="trip-mobile-account" href="/konto" aria-label="Konto i logowanie">
               <UserRound size={19} strokeWidth={2.2} /><span>Konto</span>
             </Link>
             <details className="trip-mobile-menu">
@@ -147,7 +148,8 @@ export default function SiteHeader() {
                   <Link href="/ulubione"><Heart size={18} /><span>Ulubione</span></Link>
                   <Link href="/alerty"><Bell size={18} /><span>Alerty</span></Link>
                   <Link href="/dla-ciebie"><Sparkles size={18} /><span>Dla Ciebie</span></Link>
-                  <Link href="/profil"><UserRound size={18} /><span>Profil i prywatność</span></Link>
+                  <Link href="/konto"><UserRound size={18} /><span>Konto i logowanie</span></Link>
+                  <Link href="/profil"><UserRound size={18} /><span>Profil podróżnika</span></Link>
                 </div>
                 <div className="trip-mobile-menu-section">
                   <strong>Szukaj i planuj</strong>
@@ -177,7 +179,7 @@ export default function SiteHeader() {
           <nav className="trip-header-actions" aria-label="Twoje konto">
             <Link className="trip-header-action" href="/ulubione" aria-label="Ulubione"><Heart size={19} strokeWidth={2} /><span>Ulubione</span></Link>
             <Link className="trip-header-action" href="/moja-podroz" aria-label="Moja podróż"><MapPinned size={19} strokeWidth={2} /><span>Podróż</span></Link>
-            <Link className="trip-header-action" href="/profil" aria-label="Profil"><UserRound size={19} strokeWidth={2} /><span>Profil</span></Link>
+            <Link className="trip-header-action" href="/konto" aria-label="Konto i logowanie"><UserRound size={19} strokeWidth={2} /><span>Konto</span></Link>
           </nav>
         </div>
 
