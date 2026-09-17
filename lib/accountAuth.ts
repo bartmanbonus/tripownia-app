@@ -14,15 +14,29 @@ export type AccountSession = {
   user?: AccountUser;
 };
 
+export type TripowniaUserState = {
+  user_id: string;
+  travel_profile: Record<string, unknown>;
+  favorite_offer_ids: number[];
+  compare_offer_ids: number[];
+  current_trip: Record<string, unknown> | null;
+  visited_countries: string[];
+  excluded_visited_countries: string[];
+  created_at?: string;
+  updated_at?: string;
+};
+
 const AUTH_SESSION_KEY = "tripownia-auth-session-v1";
 const AUTH_EVENT = "tripownia-auth-changed";
+const DEFAULT_SUPABASE_URL = "https://wgbzccgcfhnouakswyvj.supabase.co";
+const DEFAULT_SUPABASE_KEY = "sb_publishable_5S3oW5eD0MTLArG0gZANIw_ORJiqQQl";
 
 function authBaseUrl() {
-  return (process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_SUPABASE_URL).replace(/\/$/, "");
 }
 
 function authApiKey() {
-  return process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+  return process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || DEFAULT_SUPABASE_KEY;
 }
 
 export function isAccountAuthConfigured() {
@@ -173,6 +187,37 @@ export async function updateAccountMetadata(session: AccountSession, data: Recor
   });
   if (!response.ok) throw new Error("Nie udało się zsynchronizować konta.");
   return await response.json() as AccountUser;
+}
+
+export async function saveTripowniaUserState(session: AccountSession, state: Omit<TripowniaUserState, "user_id">) {
+  const accountUser = session.user || await getAccountUser(session);
+  if (!accountUser?.id) throw new Error("Nie udało się rozpoznać użytkownika.");
+
+  const response = await fetch(`${authBaseUrl()}/rest/v1/tripownia_user_state?on_conflict=user_id`, {
+    method: "POST",
+    headers: {
+      ...sessionHeaders(session),
+      Prefer: "resolution=merge-duplicates,return=representation",
+    },
+    body: JSON.stringify({ user_id: accountUser.id, ...state }),
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(String(payload?.message || "Nie udało się zsynchronizować danych Tripowni."));
+  }
+  const rows = await response.json() as TripowniaUserState[];
+  return rows[0] || null;
+}
+
+export async function getTripowniaUserState(session: AccountSession) {
+  const response = await fetch(`${authBaseUrl()}/rest/v1/tripownia_user_state?select=*`, {
+    headers: sessionHeaders(session),
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error("Nie udało się pobrać zsynchronizowanych danych.");
+  const rows = await response.json() as TripowniaUserState[];
+  return rows[0] || null;
 }
 
 export async function signOutAccount(session = readAccountSession()) {
