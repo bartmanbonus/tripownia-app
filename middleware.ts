@@ -38,6 +38,8 @@ const LEGACY_TRIP_TYPE_REDIRECTS: Record<string, string> = {
 };
 
 const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
+  "/krakow": "/podroze/wakacje-z-krakowa",
+  "/wakacje-z-gdanska": "/podroze/wakacje-z-gdanska",
   "/wakacje-z-gdanska-2": "/podroze/wakacje-z-gdanska",
   "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-rzeszowa",
   "/wakacje-ze-szczecina-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-ze-szczecina",
@@ -48,6 +50,10 @@ const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/katowice": "/podroze/wakacje-z-katowic",
   "/city-break-2": "/city-break",
   "/last-minute-oferty": "/last-minute",
+  "/all-inclusive-2": "/wakacje",
+  "/budzet/do-1000-zl": "/podroze/wyjazdy-do-1000-zl",
+  "/dlugosc-wyjazdu/2-3-dni": "/city-break",
+  "/grecja-2": "/grecja",
   "/aletry-todroznicze": "/alerty",
 };
 
