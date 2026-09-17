@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { RefreshCw, Sparkles, SlidersHorizontal } from "lucide-react";
+import { ArrowRight, RefreshCw, Sparkles, SlidersHorizontal } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
@@ -26,6 +26,16 @@ function scoreOffer(offer: Offer, profile: TravelProfile) {
   return score;
 }
 
+function onePerDirection<T extends { offer: Offer }>(rows: T[]) {
+  const seen = new Set<string>();
+  return rows.filter(({ offer }) => {
+    const key = touristDestinationKey(offer);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export default function ForYouPage() {
   const [profile, setProfile] = useState<TravelProfile>(DEFAULT_TRAVEL_PROFILE);
   const { offers, source, loading, checkedAt, refresh } = useLiveOffers("/api/today-offers?mode=search&broad=1");
@@ -41,22 +51,43 @@ export default function ForYouPage() {
     };
   }, []);
 
-  const matches = useMemo(() => {
+  const recommendationGroups = useMemo(() => {
     const ranked = offers
       .filter((offer) => offer.availabilityStatus !== "expired")
       .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
-      .filter((offer) => Number(offer.price) > 0 && Number(offer.price) <= profile.budget)
-      .filter((offer) => !profile.warmOnly || offer.category.includes("cieplo"))
-      .map((offer) => ({ offer, match: scoreOffer(offer, profile) }))
-      .sort((a, b) => b.match - a.match || a.offer.price - b.offer.price);
+      .filter((offer) => Number(offer.price) > 0)
+      .map((offer) => ({ offer, match: scoreOffer(offer, profile) }));
 
-    const seen = new Set<string>();
-    return ranked.filter(({ offer }) => {
-      const key = touristDestinationKey(offer);
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    }).slice(0, 8);
+    const exact = onePerDirection(
+      ranked
+        .filter(({ offer }) => Number(offer.price) <= profile.budget)
+        .filter(({ offer }) => !profile.warmOnly || offer.category.includes("cieplo"))
+        .sort((a, b) => b.match - a.match || a.offer.price - b.offer.price),
+    ).slice(0, 6);
+
+    const exactIds = new Set(exact.map(({ offer }) => offer.id));
+    const flexibleBudget = Math.round(profile.budget * 1.25);
+    const alternatives = onePerDirection(
+      ranked
+        .filter(({ offer }) => !exactIds.has(offer.id))
+        .filter(({ offer }) => Number(offer.price) <= flexibleBudget)
+        .filter(({ offer }) => !profile.warmOnly || offer.category.includes("cieplo"))
+        .sort((a, b) => {
+          const overA = Math.max(0, Number(a.offer.price) - profile.budget);
+          const overB = Math.max(0, Number(b.offer.price) - profile.budget);
+          if (overA !== overB) return overA - overB;
+          return b.match - a.match || a.offer.price - b.offer.price;
+        }),
+    ).slice(0, Math.max(0, 6 - exact.length));
+
+    const used = new Set([...exact, ...alternatives].map(({ offer }) => offer.id));
+    const inspirations = onePerDirection(
+      ranked
+        .filter(({ offer }) => !used.has(offer.id))
+        .sort((a, b) => b.match - a.match || a.offer.price - b.offer.price),
+    ).slice(0, 4);
+
+    return { exact, alternatives, inspirations, flexibleBudget };
   }, [offers, profile]);
 
   const sourceLabel = source === "live"
@@ -65,20 +96,18 @@ export default function ForYouPage() {
       ? `Ostatnia poprawna pula${checkedAt ? ` · sprawdzona ${new Date(checkedAt).toLocaleString("pl-PL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}` : ""}`
       : "Brak potwierdzonej puli — odświeżamy dane";
 
-  const emptyCopy = profile.warmOnly
-    ? `Nie mamy teraz potwierdzonej ciepłej oferty do ${profile.budget.toLocaleString("pl-PL")} zł.`
-    : `Nie mamy teraz potwierdzonej oferty do ${profile.budget.toLocaleString("pl-PL")} zł.`;
+  const totalShown = recommendationGroups.exact.length + recommendationGroups.alternatives.length;
 
   return (
     <main>
       <SiteHeader />
-      <section className="shell hub-page favorites-page">
+      <section className="shell hub-page favorites-page for-you-guided">
         <div className="app-alerts-hero">
           <div className="app-alerts-icon"><Sparkles size={28} /></div>
           <div>
-            <div className="kicker">PERSONALIZOWANE</div>
-            <h1>Dla Ciebie</h1>
-            <p>Tripownia respektuje Twój budżet i ustawienie „tylko ciepło”, a potem układa wyniki według miejsca wylotu, stylu podróży i jakości danych oferty.</p>
+            <div className="kicker">TRIPOWNIA DOBIERA</div>
+            <h1>Wybrałam dla Ciebie.</h1>
+            <p>Najpierw pokazujemy oferty, które mieszczą się w Twoich warunkach. Jeśli ich jest mało, dokładamy najbliższe sensowne alternatywy i jasno mówimy, gdzie jest kompromis.</p>
           </div>
         </div>
 
@@ -89,19 +118,49 @@ export default function ForYouPage() {
           {profile.warmOnly && <span>Klimat: <strong>tylko ciepło</strong></span>}
           <span>{sourceLabel}</span>
           <button type="button" onClick={refresh} className="app-secondary-button"><RefreshCw size={16} /> {loading ? "Odświeżam…" : "Odśwież"}</button>
-          <Link href="/profil"><SlidersHorizontal size={16} /> Zmień profil</Link>
+          <Link href="/profil"><SlidersHorizontal size={16} /> Zmień preferencje</Link>
         </div>
 
-        {matches.length > 0 ? (
-          <div className="cards-grid">
-            {matches.map(({ offer }) => <OfferCard key={offer.id} offer={offer} />)}
+        {!loading && totalShown > 0 && (
+          <div className="for-you-guidance">
+            <div>
+              <small>JAK CZYTAĆ WYNIKI</small>
+              <strong>{recommendationGroups.exact.length ? `${recommendationGroups.exact.length} ofert spełnia Twój budżet` : "Brak idealnego trafienia w budżet"}</strong>
+              <span>{recommendationGroups.alternatives.length
+                ? `Dalej pokazujemy ${recommendationGroups.alternatives.length} najbliższe opcje do ${recommendationGroups.flexibleBudget.toLocaleString("pl-PL")} zł, żeby nie zostawiać Cię bez rozwiązania.`
+                : "Nie dokładamy przypadkowych kierunków — pokazujemy tylko sensowne dopasowania."}</span>
+            </div>
+            <a href="#dopasowane">Zobacz wybór <ArrowRight size={16}/></a>
           </div>
-        ) : !loading ? (
+        )}
+
+        {recommendationGroups.exact.length > 0 && (
+          <div id="dopasowane" className="for-you-section">
+            <div className="for-you-section-head"><small>NAJLEPSZE DOPASOWANIE</small><h2>Najpierw to, co spełnia Twoje warunki</h2></div>
+            <div className="cards-grid">{recommendationGroups.exact.map(({ offer }) => <OfferCard key={offer.id} offer={offer} />)}</div>
+          </div>
+        )}
+
+        {recommendationGroups.alternatives.length > 0 && (
+          <div className="for-you-section for-you-alternatives">
+            <div className="for-you-section-head"><small>WARTO ROZWAŻYĆ</small><h2>Najbliższe sensowne alternatywy</h2><p>Trochę większy budżet, ale nadal podobny styl i dobre dopasowanie. Pokazujemy je dopiero po ofertach spełniających Twoje warunki.</p></div>
+            <div className="cards-grid">{recommendationGroups.alternatives.map(({ offer }) => <OfferCard key={offer.id} offer={offer} />)}</div>
+          </div>
+        )}
+
+        {!loading && totalShown === 0 && recommendationGroups.inspirations.length > 0 && (
+          <div className="for-you-section">
+            <div className="for-you-section-head"><small>PLAN B</small><h2>Nie mamy dziś dobrego dopasowania. Oto najlepsze aktualne opcje.</h2><p>Nie udajemy, że spełniają wszystkie warunki — traktuj je jako inspirację do zmiany budżetu lub kierunku.</p></div>
+            <div className="cards-grid">{recommendationGroups.inspirations.map(({ offer }) => <OfferCard key={offer.id} offer={offer} />)}</div>
+          </div>
+        )}
+
+        {!loading && !offers.length && (
           <div className="self-search-empty">
-            <strong>{emptyCopy}</strong>
-            <span>Odśwież dane albo zmień profil — nie pokazujemy droższych lub niespełniających warunków ofert tylko po to, żeby zapełnić ekran.</span>
+            <strong>Nie mamy teraz potwierdzonej puli ofert.</strong>
+            <span>Odśwież dane lub wróć za chwilę — nie pokazujemy starych cen jako aktualnych.</span>
           </div>
-        ) : null}
+        )}
       </section>
       <SiteFooter />
     </main>
