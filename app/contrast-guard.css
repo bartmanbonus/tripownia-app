@@ -1,0 +1,139 @@
+/* Final contrast guard — keep text readable on intentionally light surfaces.
+   Imported last so older visual layers cannot leave white text after a background
+   is changed to white/cream. Dark and orange CTA components keep their own colors. */
+
+:root{
+  --contrast-ink:#211d1a;
+  --contrast-muted:#6f655f;
+}
+
+/* Light surfaces should inherit dark copy by default. */
+.search-v3,
+.search-v3-field,
+.search-v3-suggestions,
+.search-v3-quick,
+.search-v3-results,
+.search-v3-empty,
+.offer-card,
+.score-box,
+.favorites-empty,
+.compare-card,
+.advisor-controls,
+.app-alerts-card,
+.trip-mode-card,
+.my-trip-card,
+.trip-organizer-card,
+.guides-section-card,
+.before-trip-timeline-grid article,
+.add-trip-section,
+.my-trip-archive-card,
+.app-onboarding,
+.app-onboarding-steps a,
+.app-pretrip-grid a,
+.app-home-tile:not(.app-home-tile-primary),
+.already-booked-hub,
+.already-booked-actions>a:not(:first-child),
+.analytics-consent,
+.deals-filter-panel,
+.deals-trust-bar,
+.single-partner-search-wrap,
+.partner-search-shopping,
+.experience-expanded-card,
+.experience-idea,
+.directions-v188-card,
+.streaming-tile,
+.search-intro-state,
+.footer.footer-v2{
+  color:var(--contrast-ink)!important;
+}
+
+/* Explicitly light controls: never inherit white copy from a dark parent/legacy rule. */
+.secondary-cta,
+.premium-action-secondary,
+.section-premium-link,
+.shopping-hero .editorial-link,
+.service-cta a,
+.deals-end-cta a,
+.trip-search-actions a.secondary,
+.offer-card .compare-toggle:not(.active),
+.offer-card .trip-toggle:not(.active),
+.compare-toggle:not(.active),
+.trip-toggle:not(.active),
+.profile-chip:not(.active),
+.trip-day-tabs button:not(.active),
+.social-publish-actions button,
+.my-trip-checklist button,
+.search-v3-reset,
+.search-v3-more,
+.search-v3-weekend:not(.active),
+.search-v3-board,
+.search-v3-quick button,
+.mobile-app-quick-actions button,
+.trip-mobile-account,
+.trip-mobile-menu>summary{
+  color:var(--contrast-ink)!important;
+}
+
+/* Forms on light surfaces. */
+.search-v3-field input,
+.search-v3-field select,
+.search-v3-board select,
+.add-trip-grid input,
+.add-trip-section textarea,
+.trip-organizer-fields input,
+.trip-itinerary-add input,
+.app-alerts-card input,
+.app-alerts-card select,
+.my-trip-card input,
+.my-trip-card textarea,
+.deals-filter-panel select{
+  color:var(--contrast-ink)!important;
+  -webkit-text-fill-color:var(--contrast-ink);
+}
+
+/* Real legacy conflict: an old desktop rule made this link white, while a later
+   layer changed the background to near-white. Keep the premium orange version exempt. */
+.site-header-v98 .site-nav-secondary .nav-search-inline:not(.premium-search-cta-v2),
+.site-header-v98 .site-nav-secondary .nav-search-inline:not(.premium-search-cta-v2)>span{
+  color:#28211d!important;
+}
+.site-header-v98 .site-nav-secondary .nav-search-inline:not(.premium-search-cta-v2) svg{
+  color:#28211d!important;
+  stroke:#28211d!important;
+}
+
+/* Footer V2 is intentionally light; neutralise historical dark-footer child colors. */
+.footer.footer-v2 .footer-v2-column h3,
+.footer.footer-v2 .footer-v2-column a,
+.footer.footer-v2 .footer-v2-contact,
+.footer.footer-v2 .footer-v2-address,
+.footer.footer-v2 .footer-v2-bottom,
+.footer.footer-v2 .footer-v2-bottom p,
+.footer.footer-v2 .footer-v2-bottom span{
+  color:var(--contrast-ink)!important;
+}
+.footer.footer-v2 .footer-v2-address,
+.footer.footer-v2 .footer-v2-bottom p{
+  color:var(--contrast-muted)!important;
+}
+
+/* Intentional high-contrast exceptions. */
+.primary-cta,
+.card-cta,
+.search-v3-submit,
+.premium-action-main,
+.sports-cta-primary,
+.newyear-primary-cta,
+.hero-daily-cta,
+.experience-concrete-cta,
+.app-home-tile-primary,
+.trip-day-tabs button.active,
+.compare-toggle.active,
+.trip-toggle.active,
+.profile-chip.active,
+.mobile-app-top,
+.site-header-premium .premium-nav-primary .nav-sale-main,
+.site-header-shell.site-header-v98.site-header-premium .premium-search-cta-v2{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff;
+}
