@@ -50,6 +50,17 @@ function uniqueOfferVariants(rows: any[]) {
   });
 }
 
+function cleanRows(rows: any[], query: string) {
+  const cleaned = rows
+    .filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()))
+    .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
+    .sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity));
+
+  return query
+    ? uniqueOfferVariants(cleaned).slice(0, 18)
+    : onePerDirection(cleaned).slice(0, 12);
+}
+
 export default function SearchHub({
   initialAirports = [],
   initialDestinations = [],
@@ -69,9 +80,11 @@ export default function SearchHub({
   const [results, setResults] = useState<any[]>([]);
   const [visibleCount, setVisibleCount] = useState(6);
   const [loading, setLoading] = useState(false);
+  const [expanding, setExpanding] = useState(false);
   const [searched, setSearched] = useState(false);
   const [notice, setNotice] = useState("");
   const destinationRef = useRef<HTMLDivElement>(null);
+  const searchRunRef = useRef(0);
 
   const suggestions = useMemo(() => {
     const query = destination.trim();
@@ -102,6 +115,7 @@ export default function SearchHub({
   }, [searchRequest]);
 
   async function runSearch(destinationOverride?: string, overrides: SearchOverrides = {}) {
+    const runId = ++searchRunRef.current;
     const query = (destinationOverride ?? destination).trim();
     if (query && isTravelDestinationBlocked(query)) {
       setSearched(true);
@@ -117,13 +131,16 @@ export default function SearchHub({
     const activeMode = overrides.tab ?? activeTab;
 
     setLoading(true);
+    setExpanding(false);
     setSearched(true);
     setVisibleCount(6);
     setSuggestionsOpen(false);
     setNotice("");
 
     try {
-      const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });
+      // A named city/country should use normal search even on the City break tab.
+      // The dedicated citybreak endpoint deliberately collapses destinations and could leave one card.
+      const params = new URLSearchParams({ mode: activeMode === "City break" && !query ? "citybreak" : "search" });
       if (query) params.set("q", query);
       else params.set("broad", "1");
       if (departure) params.set("from", departure);
@@ -140,31 +157,59 @@ export default function SearchHub({
       const response = await fetch(`/api/today-offers?${params.toString()}`, { cache: "no-store" });
       const data = await response.json();
       if (!response.ok || data?.ok === false) throw new Error(String(data?.error || `HTTP ${response.status}`));
+      if (runId !== searchRunRef.current) return;
 
-      let rows = Array.isArray(data?.offers) ? data.offers : [];
-      rows = rows
-        .filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()))
-        .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
-        .sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity));
-
-      rows = query
-        ? uniqueOfferVariants(rows).slice(0, 18)
-        : onePerDirection(rows).slice(0, 12);
-
+      let rows = cleanRows(Array.isArray(data?.offers) ? data.offers : [], query);
       setResults(rows);
-      if (!rows.length) {
-        setNotice(query
-          ? `Nie znaleźliśmy teraz potwierdzonej oferty dla „${query}”. Spróbuj bez jednego filtra albo wybierz Inspiracje.`
-          : "Nie znaleźliśmy teraz potwierdzonej oferty dla tych parametrów. Spróbuj bez jednego filtra.");
-      } else {
-        const apiNotice = String(data?.notice || "");
+      setLoading(false);
+
+      const apiNotice = String(data?.notice || "");
+      if (rows.length >= 6) {
         setNotice(apiNotice);
+        return;
+      }
+
+      // Too few results: automatically broaden filters, but keep the requested direction.
+      // First results stay visible immediately; similar options are appended when ready.
+      setExpanding(true);
+      setNotice(rows.length
+        ? "Mamy dokładne dopasowania. Dobieramy jeszcze kilka najbliższych aktualnych opcji…"
+        : "Nie ma dokładnego dopasowania. Szukamy teraz najbliższych aktualnych opcji…");
+
+      const relaxedParams = new URLSearchParams({ mode: "search" });
+      if (query) relaxedParams.set("q", query);
+      else relaxedParams.set("broad", "1");
+
+      const relaxedResponse = await fetch(`/api/today-offers?${relaxedParams.toString()}`, { cache: "no-store" });
+      const relaxedData = await relaxedResponse.json();
+      if (runId !== searchRunRef.current) return;
+
+      if (relaxedResponse.ok && relaxedData?.ok !== false) {
+        const relaxedRows = cleanRows(Array.isArray(relaxedData?.offers) ? relaxedData.offers : [], query);
+        rows = query
+          ? uniqueOfferVariants([...rows, ...relaxedRows]).slice(0, 18)
+          : onePerDirection([...rows, ...relaxedRows]).slice(0, 12);
+        setResults(rows);
+      }
+
+      if (rows.length) {
+        setNotice(rows.length >= 6
+          ? "Najpierw pokazujemy najbliższe dopasowania, a dalej dodatkowe aktualne opcje dla tego samego kierunku."
+          : apiNotice || "Pokazujemy wszystkie aktualne dopasowania, które udało się teraz potwierdzić.");
+      } else {
+        setNotice(query
+          ? `Nie znaleźliśmy teraz potwierdzonej oferty dla „${query}”. Spróbuj zmienić kierunek albo wybierz Inspiracje.`
+          : "Nie znaleźliśmy teraz potwierdzonej oferty. Spróbuj ponownie lub wybierz jeden z szybkich kierunków.");
       }
     } catch {
+      if (runId !== searchRunRef.current) return;
       setResults([]);
       setNotice("Nie udało się teraz pobrać aktualnych ofert. Spróbuj ponownie za chwilę albo wybierz szersze parametry.");
     } finally {
-      setLoading(false);
+      if (runId === searchRunRef.current) {
+        setLoading(false);
+        setExpanding(false);
+      }
     }
   }
 
@@ -187,6 +232,7 @@ export default function SearchHub({
       return;
     }
 
+    searchRunRef.current += 1;
     setActiveTab(tab);
     setSearched(false);
     setResults([]);
@@ -205,6 +251,7 @@ export default function SearchHub({
   }
 
   function resetSearch() {
+    searchRunRef.current += 1;
     setDestination("");
     setDeparture("");
     setDuration("all");
@@ -216,6 +263,8 @@ export default function SearchHub({
     setVisibleCount(6);
     setNotice("");
     setSearched(false);
+    setLoading(false);
+    setExpanding(false);
   }
 
   const quickPicks: Array<[string, string, SearchOverrides]> = [
@@ -347,7 +396,7 @@ export default function SearchHub({
           <div className="search-v3-results">
             <div className="search-v3-results-head">
               <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `${results.length} aktualnych ofert` : "Brak potwierdzonego dopasowania"}</h3></div>
-              {notice && <p>{notice}</p>}
+              {notice && <p>{notice}{expanding ? "" : ""}</p>}
             </div>
 
             {!loading && results.length > 0 && (
@@ -356,7 +405,7 @@ export default function SearchHub({
                 {results.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(results.length, count + 6))}>Pokaż kolejne oferty ({results.length - visibleCount})</button>}
               </>
             )}
-            {!loading && results.length === 0 && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji.</span></div>}
+            {!loading && results.length === 0 && !expanding && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji.</span></div>}
           </div>
         )}
       </div>
