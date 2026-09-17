@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, MapPin, Plane, Search, SlidersHorizontal, X } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, MapPin, Plane, Search, SlidersHorizontal, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches } from "@/lib/worldDestinations";
@@ -17,6 +17,7 @@ type Props = {
 };
 
 type SearchOverrides = {
+  startDate?: string;
   duration?: string;
   budget?: string;
   board?: string;
@@ -61,6 +62,38 @@ function cleanRows(rows: any[], query: string) {
     : onePerDirection(cleaned).slice(0, 12);
 }
 
+function dayDistance(offer: any, selectedDate: string) {
+  if (!selectedDate || !offer?.startDateISO) return Number.POSITIVE_INFINITY;
+  const wanted = new Date(`${selectedDate}T00:00:00Z`).getTime();
+  const actual = new Date(`${offer.startDateISO}T00:00:00Z`).getTime();
+  if (!Number.isFinite(wanted) || !Number.isFinite(actual)) return Number.POSITIVE_INFINITY;
+  return Math.abs(Math.round((actual - wanted) / 86400000));
+}
+
+function prioritizeByDate(rows: any[], selectedDate: string) {
+  if (!selectedDate || !rows.length) return { rows, notice: "" };
+
+  const sorted = [...rows].sort((a, b) => {
+    const distance = dayDistance(a, selectedDate) - dayDistance(b, selectedDate);
+    if (distance !== 0) return distance;
+    return Number(a.price || Infinity) - Number(b.price || Infinity);
+  });
+
+  const within7 = sorted.filter((row) => dayDistance(row, selectedDate) <= 7);
+  if (within7.length >= 3) {
+    const rest = sorted.filter((row) => dayDistance(row, selectedDate) > 7);
+    return { rows: [...within7, ...rest], notice: "Najpierw pokazujemy terminy do 7 dni od wybranej daty." };
+  }
+
+  const within21 = sorted.filter((row) => dayDistance(row, selectedDate) <= 21);
+  if (within21.length) {
+    const rest = sorted.filter((row) => dayDistance(row, selectedDate) > 21);
+    return { rows: [...within21, ...rest], notice: "Mało ofert dokładnie w tym terminie — najpierw pokazujemy najbliższe daty do 3 tygodni." };
+  }
+
+  return { rows: sorted, notice: "Brak ofert blisko wybranej daty — pokazujemy najbliższe dostępne terminy zamiast pustego wyniku." };
+}
+
 export default function SearchHub({
   initialAirports = [],
   initialDestinations = [],
@@ -71,6 +104,7 @@ export default function SearchHub({
   const [activeTab, setActiveTab] = useState(initialTab);
   const [destination, setDestination] = useState(initialDestinations[0] || "");
   const [departure, setDeparture] = useState(initialAirports[0] || "");
+  const [startDate, setStartDate] = useState("");
   const [duration, setDuration] = useState(initialDuration || "all");
   const [budget, setBudget] = useState("all");
   const [board, setBoard] = useState("all");
@@ -124,6 +158,7 @@ export default function SearchHub({
       return;
     }
 
+    const activeStartDate = overrides.startDate ?? startDate;
     const activeDuration = overrides.duration ?? duration;
     const activeBudget = overrides.budget ?? budget;
     const activeBoard = overrides.board ?? board;
@@ -138,8 +173,6 @@ export default function SearchHub({
     setNotice("");
 
     try {
-      // A named city/country should use normal search even on the City break tab.
-      // The dedicated citybreak endpoint deliberately collapses destinations and could leave one card.
       const params = new URLSearchParams({ mode: activeMode === "City break" && !query ? "citybreak" : "search" });
       if (query) params.set("q", query);
       else params.set("broad", "1");
@@ -160,17 +193,17 @@ export default function SearchHub({
       if (runId !== searchRunRef.current) return;
 
       let rows = cleanRows(Array.isArray(data?.offers) ? data.offers : [], query);
+      const firstDatePass = prioritizeByDate(rows, activeStartDate);
+      rows = firstDatePass.rows;
       setResults(rows);
       setLoading(false);
 
       const apiNotice = String(data?.notice || "");
       if (rows.length >= 6) {
-        setNotice(apiNotice);
+        setNotice(firstDatePass.notice || apiNotice);
         return;
       }
 
-      // Too few results: automatically broaden filters, but keep the requested direction.
-      // First results stay visible immediately; similar options are appended when ready.
       setExpanding(true);
       setNotice(rows.length
         ? "Mamy dokładne dopasowania. Dobieramy jeszcze kilka najbliższych aktualnych opcji…"
@@ -184,18 +217,22 @@ export default function SearchHub({
       const relaxedData = await relaxedResponse.json();
       if (runId !== searchRunRef.current) return;
 
+      let finalDateNotice = firstDatePass.notice;
       if (relaxedResponse.ok && relaxedData?.ok !== false) {
         const relaxedRows = cleanRows(Array.isArray(relaxedData?.offers) ? relaxedData.offers : [], query);
         rows = query
           ? uniqueOfferVariants([...rows, ...relaxedRows]).slice(0, 18)
           : onePerDirection([...rows, ...relaxedRows]).slice(0, 12);
+        const relaxedDatePass = prioritizeByDate(rows, activeStartDate);
+        rows = relaxedDatePass.rows;
+        finalDateNotice = relaxedDatePass.notice || finalDateNotice;
         setResults(rows);
       }
 
       if (rows.length) {
-        setNotice(rows.length >= 6
+        setNotice(finalDateNotice || (rows.length >= 6
           ? "Najpierw pokazujemy najbliższe dopasowania, a dalej dodatkowe aktualne opcje dla tego samego kierunku."
-          : apiNotice || "Pokazujemy wszystkie aktualne dopasowania, które udało się teraz potwierdzić.");
+          : apiNotice || "Pokazujemy wszystkie aktualne dopasowania, które udało się teraz potwierdzić."));
       } else {
         setNotice(query
           ? `Nie znaleźliśmy teraz potwierdzonej oferty dla „${query}”. Spróbuj zmienić kierunek albo wybierz Inspiracje.`
@@ -242,6 +279,7 @@ export default function SearchHub({
 
   function quickSearch(label: string, overrides: SearchOverrides) {
     setDestination(label);
+    if (overrides.startDate) setStartDate(overrides.startDate);
     if (overrides.duration) setDuration(overrides.duration);
     if (overrides.budget) setBudget(overrides.budget);
     if (overrides.board) setBoard(overrides.board);
@@ -254,6 +292,7 @@ export default function SearchHub({
     searchRunRef.current += 1;
     setDestination("");
     setDeparture("");
+    setStartDate("");
     setDuration("all");
     setBudget("all");
     setBoard("all");
@@ -282,7 +321,7 @@ export default function SearchHub({
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
             <h2>Gdzie chcesz lecieć?</h2>
-            <p>Najpierw kierunek. Resztę doprecyzujesz w kilku kliknięciach.</p>
+            <p>Najpierw kierunek i termin. Resztę doprecyzujesz w kilku kliknięciach.</p>
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
@@ -328,6 +367,11 @@ export default function SearchHub({
               {airportOptions.map((airport: any) => <option key={airport.code} value={airport.code}>{airport.label}</option>)}
             </select>
             <ChevronDown size={15} className="search-v3-chevron"/>
+          </label>
+
+          <label className="search-v3-field search-v3-date">
+            <span><CalendarDays size={15}/> Kiedy?</span>
+            <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} aria-label="Preferowana data wylotu" />
           </label>
 
           <label className="search-v3-field search-v3-duration">
@@ -396,7 +440,7 @@ export default function SearchHub({
           <div className="search-v3-results">
             <div className="search-v3-results-head">
               <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `${results.length} aktualnych ofert` : "Brak potwierdzonego dopasowania"}</h3></div>
-              {notice && <p>{notice}{expanding ? "" : ""}</p>}
+              {notice && <p>{notice}</p>}
             </div>
 
             {!loading && results.length > 0 && (
