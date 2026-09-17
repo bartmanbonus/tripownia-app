@@ -19,6 +19,7 @@ import "./sitewide-deep-polish.css";
 import "./search-ux-v2.css";
 import "./search-v3.css";
 import "./search-v3-focus.css";
+import "./search-v4.css";
 import "./footer-v2.css";
 import "./article-depth.css";
 import "./mobile-native-polish.css";
