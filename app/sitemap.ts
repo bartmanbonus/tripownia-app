@@ -3,7 +3,7 @@ import { allSeoLandings } from "@/lib/allSeoLandings";
 import { legacyCanonicalPath, legacyPosts } from "@/lib/legacy";
 
 const BASE_URL = "https://tripownia.pl";
-const STATIC_UPDATED = new Date("2026-09-16T00:00:00Z");
+const STATIC_UPDATED = new Date("2026-09-17T00:00:00Z");
 const EVERGREEN_UPDATED = new Date("2026-09-14T00:00:00Z");
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -13,6 +13,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url:`${BASE_URL}/`,lastModified:STATIC_UPDATED,changeFrequency:"daily",priority:1 },
     { url:`${BASE_URL}/okazje`,lastModified:STATIC_UPDATED,changeFrequency:"daily",priority:.95 },
     { url:`${BASE_URL}/tanie-loty`,lastModified:STATIC_UPDATED,changeFrequency:"daily",priority:.95 },
+    { url:`${BASE_URL}/loty`,lastModified:STATIC_UPDATED,changeFrequency:"daily",priority:.9 },
+    { url:`${BASE_URL}/hotele`,lastModified:STATIC_UPDATED,changeFrequency:"daily",priority:.9 },
     { url:`${BASE_URL}/city-break`,lastModified:STATIC_UPDATED,changeFrequency:"daily",priority:.95 },
     { url:`${BASE_URL}/wakacje`,lastModified:STATIC_UPDATED,changeFrequency:"daily",priority:.95 },
     { url:`${BASE_URL}/last-minute`,lastModified:STATIC_UPDATED,changeFrequency:"daily",priority:.95 },
@@ -29,7 +31,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url:`${BASE_URL}/przed-wyjazdem`,lastModified:STATIC_UPDATED,changeFrequency:"weekly",priority:.8 },
     { url:`${BASE_URL}/sylwester`,lastModified:EVERGREEN_UPDATED,changeFrequency:"daily",priority:.9 },
     { url:`${BASE_URL}/parkingi`,lastModified:EVERGREEN_UPDATED,changeFrequency:"weekly",priority:.7 },
-    { url:`${BASE_URL}/atrakcje`,lastModified:EVERGREEN_UPDATED,changeFrequency:"weekly",priority:.7 },
+    { url:`${BASE_URL}/atrakcje`,lastModified:STATIC_UPDATED,changeFrequency:"weekly",priority:.8 },
     { url:`${BASE_URL}/esim`,lastModified:EVERGREEN_UPDATED,changeFrequency:"weekly",priority:.65 },
     { url:`${BASE_URL}/wynajem-auta`,lastModified:EVERGREEN_UPDATED,changeFrequency:"weekly",priority:.65 },
     { url:`${BASE_URL}/transfery`,lastModified:EVERGREEN_UPDATED,changeFrequency:"weekly",priority:.65 },
