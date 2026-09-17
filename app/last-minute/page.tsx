@@ -33,6 +33,20 @@ const airportLinks = [
   { href: "/podroze/last-minute-ze-szczecina", label: "Last Minute ze Szczecina" },
 ];
 
+const destinationLinks = [
+  { href: "/podroze/grecja-z-warszawy", label: "Grecja z Warszawy" },
+  { href: "/podroze/grecja-z-katowic", label: "Grecja z Katowic" },
+  { href: "/podroze/grecja-z-poznania", label: "Grecja z Poznania" },
+  { href: "/podroze/turcja-z-warszawy", label: "Turcja z Warszawy" },
+  { href: "/podroze/turcja-z-katowic", label: "Turcja z Katowic" },
+  { href: "/podroze/turcja-z-poznania", label: "Turcja z Poznania" },
+  { href: "/podroze/egipt-z-warszawy", label: "Egipt z Warszawy" },
+  { href: "/podroze/egipt-z-katowic", label: "Egipt z Katowic" },
+  { href: "/podroze/egipt-z-poznania", label: "Egipt z Poznania" },
+  { href: "/podroze/wyspy-kanaryjskie-z-warszawy", label: "Kanary z Warszawy" },
+  { href: "/podroze/wyspy-kanaryjskie-z-katowic", label: "Kanary z Katowic" },
+];
+
 export default function LastMinuteOffersPage() {
   const active = offers
     .filter(o => !isOfferExpired(o))
@@ -72,6 +86,13 @@ export default function LastMinuteOffersPage() {
       <div className="section-heading"><div><div className="kicker">LAST MINUTE Z TWOJEGO LOTNISKA</div><h2 id="last-minute-airports-title">Wybierz lotnisko i zobacz aktualne wakacje</h2><p>Najmocniej rozwijamy strony, które już zbierają wyświetlenia w Google i prowadzą użytkownika bezpośrednio do ofert.</p></div></div>
       <div className="seo-related-links">
         {airportLinks.map(item => <Link key={item.href} href={item.href}>{item.label} →</Link>)}
+      </div>
+    </section>
+
+    <section className="section shell" aria-labelledby="last-minute-destinations-title">
+      <div className="section-heading"><div><div className="kicker">POPULARNE KIERUNKI LAST MINUTE</div><h2 id="last-minute-destinations-title">Przejdź od razu do kraju i lotniska</h2><p>Grecja, Turcja, Egipt i Kanary mają osobne strony z konkretnym lotniskiem wylotu i aktualnymi ofertami do rezerwacji.</p></div></div>
+      <div className="seo-related-links">
+        {destinationLinks.map(item => <Link key={item.href} href={item.href}>{item.label} →</Link>)}
       </div>
     </section>
 
