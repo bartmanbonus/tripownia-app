@@ -16,13 +16,25 @@ type Props = {
   initialTab?: string;
 };
 
+type DateMode = "any" | "month" | "range";
+
 type SearchOverrides = {
-  startDate?: string;
   duration?: string;
   budget?: string;
   board?: string;
   weekendOnly?: boolean;
   tab?: string;
+  dateMode?: DateMode;
+  month?: string;
+  dateFrom?: string;
+  dateTo?: string;
+};
+
+type DatePreference = {
+  mode: DateMode;
+  month: string;
+  from: string;
+  to: string;
 };
 
 function onePerDirection(rows: any[]) {
@@ -62,36 +74,61 @@ function cleanRows(rows: any[], query: string) {
     : onePerDirection(cleaned).slice(0, 12);
 }
 
-function dayDistance(offer: any, selectedDate: string) {
-  if (!selectedDate || !offer?.startDateISO) return Number.POSITIVE_INFINITY;
-  const wanted = new Date(`${selectedDate}T00:00:00Z`).getTime();
-  const actual = new Date(`${offer.startDateISO}T00:00:00Z`).getTime();
-  if (!Number.isFinite(wanted) || !Number.isFinite(actual)) return Number.POSITIVE_INFINITY;
-  return Math.abs(Math.round((actual - wanted) / 86400000));
+function isoMs(value: string) {
+  if (!value) return Number.NaN;
+  const ms = new Date(`${value}T00:00:00Z`).getTime();
+  return Number.isFinite(ms) ? ms : Number.NaN;
 }
 
-function prioritizeByDate(rows: any[], selectedDate: string) {
-  if (!selectedDate || !rows.length) return { rows, notice: "" };
+function offerStartMs(offer: any) {
+  return isoMs(String(offer?.startDateISO || ""));
+}
+
+function preferenceWindow(preference: DatePreference) {
+  if (preference.mode === "month" && /^\d{4}-\d{2}$/.test(preference.month)) {
+    const [year, month] = preference.month.split("-").map(Number);
+    const start = Date.UTC(year, month - 1, 1);
+    const end = Date.UTC(year, month, 0, 23, 59, 59, 999);
+    return { start, end, label: "wybranym miesiącu" };
+  }
+
+  if (preference.mode === "range" && (preference.from || preference.to)) {
+    const from = isoMs(preference.from || preference.to);
+    const to = isoMs(preference.to || preference.from);
+    if (Number.isFinite(from) && Number.isFinite(to)) {
+      return { start: Math.min(from, to), end: Math.max(from, to), label: "wybranym zakresie dat" };
+    }
+  }
+
+  return null;
+}
+
+function distanceFromWindow(offer: any, window: { start: number; end: number }) {
+  const start = offerStartMs(offer);
+  if (!Number.isFinite(start)) return Number.POSITIVE_INFINITY;
+  if (start >= window.start && start <= window.end) return 0;
+  const distance = start < window.start ? window.start - start : start - window.end;
+  return Math.round(distance / 86400000);
+}
+
+function prioritizeByDate(rows: any[], preference: DatePreference) {
+  const window = preferenceWindow(preference);
+  if (!window || !rows.length) return { rows, notice: "" };
 
   const sorted = [...rows].sort((a, b) => {
-    const distance = dayDistance(a, selectedDate) - dayDistance(b, selectedDate);
+    const distance = distanceFromWindow(a, window) - distanceFromWindow(b, window);
     if (distance !== 0) return distance;
     return Number(a.price || Infinity) - Number(b.price || Infinity);
   });
 
-  const within7 = sorted.filter((row) => dayDistance(row, selectedDate) <= 7);
-  if (within7.length >= 3) {
-    const rest = sorted.filter((row) => dayDistance(row, selectedDate) > 7);
-    return { rows: [...within7, ...rest], notice: "Najpierw pokazujemy terminy do 7 dni od wybranej daty." };
+  const exact = sorted.filter((row) => distanceFromWindow(row, window) === 0);
+  if (exact.length >= 3) {
+    return { rows: sorted, notice: `Najpierw pokazujemy oferty w ${window.label}.` };
   }
-
-  const within21 = sorted.filter((row) => dayDistance(row, selectedDate) <= 21);
-  if (within21.length) {
-    const rest = sorted.filter((row) => dayDistance(row, selectedDate) > 21);
-    return { rows: [...within21, ...rest], notice: "Mało ofert dokładnie w tym terminie — najpierw pokazujemy najbliższe daty do 3 tygodni." };
+  if (exact.length > 0) {
+    return { rows: sorted, notice: `Mamy ${exact.length} ofert w ${window.label}; dalej pokazujemy najbliższe dostępne terminy.` };
   }
-
-  return { rows: sorted, notice: "Brak ofert blisko wybranej daty — pokazujemy najbliższe dostępne terminy zamiast pustego wyniku." };
+  return { rows: sorted, notice: `Brak ofert dokładnie w ${window.label} — pokazujemy najbliższe dostępne terminy zamiast pustego wyniku.` };
 }
 
 export default function SearchHub({
@@ -104,7 +141,10 @@ export default function SearchHub({
   const [activeTab, setActiveTab] = useState(initialTab);
   const [destination, setDestination] = useState(initialDestinations[0] || "");
   const [departure, setDeparture] = useState(initialAirports[0] || "");
-  const [startDate, setStartDate] = useState("");
+  const [dateMode, setDateMode] = useState<DateMode>("any");
+  const [month, setMonth] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [duration, setDuration] = useState(initialDuration || "all");
   const [budget, setBudget] = useState("all");
   const [board, setBoard] = useState("all");
@@ -158,12 +198,17 @@ export default function SearchHub({
       return;
     }
 
-    const activeStartDate = overrides.startDate ?? startDate;
     const activeDuration = overrides.duration ?? duration;
     const activeBudget = overrides.budget ?? budget;
     const activeBoard = overrides.board ?? board;
     const activeWeekend = overrides.weekendOnly ?? weekendOnly;
     const activeMode = overrides.tab ?? activeTab;
+    const datePreference: DatePreference = {
+      mode: overrides.dateMode ?? dateMode,
+      month: overrides.month ?? month,
+      from: overrides.dateFrom ?? dateFrom,
+      to: overrides.dateTo ?? dateTo,
+    };
 
     setLoading(true);
     setExpanding(false);
@@ -193,7 +238,7 @@ export default function SearchHub({
       if (runId !== searchRunRef.current) return;
 
       let rows = cleanRows(Array.isArray(data?.offers) ? data.offers : [], query);
-      const firstDatePass = prioritizeByDate(rows, activeStartDate);
+      const firstDatePass = prioritizeByDate(rows, datePreference);
       rows = firstDatePass.rows;
       setResults(rows);
       setLoading(false);
@@ -223,7 +268,7 @@ export default function SearchHub({
         rows = query
           ? uniqueOfferVariants([...rows, ...relaxedRows]).slice(0, 18)
           : onePerDirection([...rows, ...relaxedRows]).slice(0, 12);
-        const relaxedDatePass = prioritizeByDate(rows, activeStartDate);
+        const relaxedDatePass = prioritizeByDate(rows, datePreference);
         rows = relaxedDatePass.rows;
         finalDateNotice = relaxedDatePass.notice || finalDateNotice;
         setResults(rows);
@@ -271,6 +316,11 @@ export default function SearchHub({
 
     searchRunRef.current += 1;
     setActiveTab(tab);
+    setDuration("all");
+    setBudget("all");
+    setBoard("all");
+    setWeekendOnly(false);
+    setAdvancedOpen(false);
     setSearched(false);
     setResults([]);
     setVisibleCount(6);
@@ -278,21 +328,36 @@ export default function SearchHub({
   }
 
   function quickSearch(label: string, overrides: SearchOverrides) {
+    const nextDuration = overrides.duration ?? "all";
+    const nextBudget = overrides.budget ?? "all";
+    const nextBoard = overrides.board ?? "all";
+    const nextWeekend = overrides.weekendOnly ?? false;
+
     setDestination(label);
-    if (overrides.startDate) setStartDate(overrides.startDate);
-    if (overrides.duration) setDuration(overrides.duration);
-    if (overrides.budget) setBudget(overrides.budget);
-    if (overrides.board) setBoard(overrides.board);
-    if (typeof overrides.weekendOnly === "boolean") setWeekendOnly(overrides.weekendOnly);
+    setDuration(nextDuration);
+    setBudget(nextBudget);
+    setBoard(nextBoard);
+    setWeekendOnly(nextWeekend);
+    setAdvancedOpen(nextBoard !== "all");
     if (overrides.tab) setActiveTab(overrides.tab);
-    void runSearch(label, overrides);
+
+    void runSearch(label, {
+      ...overrides,
+      duration: nextDuration,
+      budget: nextBudget,
+      board: nextBoard,
+      weekendOnly: nextWeekend,
+    });
   }
 
   function resetSearch() {
     searchRunRef.current += 1;
     setDestination("");
     setDeparture("");
-    setStartDate("");
+    setDateMode("any");
+    setMonth("");
+    setDateFrom("");
+    setDateTo("");
     setDuration("all");
     setBudget("all");
     setBoard("all");
@@ -321,7 +386,7 @@ export default function SearchHub({
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
             <h2>Gdzie chcesz lecieć?</h2>
-            <p>Najpierw kierunek i termin. Resztę doprecyzujesz w kilku kliknięciach.</p>
+            <p>Wybierz kierunek i, jeśli chcesz, termin. Tripownia dobierze najbliższe aktualne oferty.</p>
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
@@ -371,7 +436,12 @@ export default function SearchHub({
 
           <label className="search-v3-field search-v3-date">
             <span><CalendarDays size={15}/> Kiedy?</span>
-            <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} aria-label="Preferowana data wylotu" />
+            <select value={dateMode} onChange={(event) => setDateMode(event.target.value as DateMode)}>
+              <option value="any">Dowolnie</option>
+              <option value="month">Wybierz miesiąc</option>
+              <option value="range">Zakres dat</option>
+            </select>
+            <ChevronDown size={15} className="search-v3-chevron"/>
           </label>
 
           <label className="search-v3-field search-v3-duration">
@@ -407,6 +477,20 @@ export default function SearchHub({
 
           <button type="submit" className="search-v3-submit" disabled={loading}><Search size={18}/>{loading ? "Szukamy…" : "Szukaj wyjazdu"}</button>
         </form>
+
+        {dateMode !== "any" && (
+          <div className="search-v3-date-details">
+            {dateMode === "month" ? (
+              <label><span>Miesiąc wyjazdu</span><input type="month" value={month} onChange={(event) => setMonth(event.target.value)} /></label>
+            ) : (
+              <>
+                <label><span>Najwcześniej</span><input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} /></label>
+                <label><span>Najpóźniej</span><input type="date" min={dateFrom || undefined} value={dateTo} onChange={(event) => setDateTo(event.target.value)} /></label>
+              </>
+            )}
+            <small>Nie blokujemy wyników na sztywno — jeśli ofert będzie mało, pokażemy najbliższe terminy.</small>
+          </div>
+        )}
 
         <div className="search-v3-options-row">
           <button type="button" className={`search-v3-more ${advancedOpen ? "active" : ""}`} onClick={() => setAdvancedOpen((value) => !value)}>
