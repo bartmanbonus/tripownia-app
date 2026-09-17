@@ -26,6 +26,16 @@ const LEGACY_CATEGORY_REDIRECTS: Record<string, string> = {
   "/kategoria-produktu/wylot-z-krakowa": "/podroze/wakacje-z-krakowa",
 };
 
+const LEGACY_TRIP_TYPE_REDIRECTS: Record<string, string> = {
+  "/typ-wyjazdu/city-break": "/city-break",
+  "/typ-wyjazdu/last-minute": "/last-minute",
+  "/typ-wyjazdu/all-inclusive": "/wakacje",
+  "/typ-wyjazdu/wakacje": "/wakacje",
+  "/typ-wyjazdu/tanie-loty": "/tanie-loty",
+  "/typ-wyjazdu/ze-zwiedzaniem": "/podroze-po-przezycia",
+  "/typ-wyjazdu/dalekie-podroze": "/dalekie-podroze",
+};
+
 const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/wakacje-z-gdanska-2": "/podroze/wakacje-z-gdanska",
   "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-rzeszowa",
@@ -140,14 +150,16 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
   }
 
   if (LEGACY_CATEGORY_REDIRECTS[path]) return permanentRedirect(request, LEGACY_CATEGORY_REDIRECTS[path]);
+  if (LEGACY_TRIP_TYPE_REDIRECTS[path]) return permanentRedirect(request, LEGACY_TRIP_TYPE_REDIRECTS[path]);
   if (LEGACY_PAGE_REDIRECTS[path]) return permanentRedirect(request, LEGACY_PAGE_REDIRECTS[path]);
 
   const isWooCategory = path.startsWith("/kategoria-produktu/");
   const isWooProduct = path.startsWith("/produkt/");
+  const isOldTripType = path.startsWith("/typ-wyjazdu/");
   const isOldShop = path === "/sklep" || path === "/tripownia-pl/sklep";
   const isOldDealsCatalog = path === "/tripownia-pl/okazje-tripownia";
 
-  if (isWooCategory || isWooProduct || isOldShop || isOldDealsCatalog) return permanentRedirect(request, "/okazje");
+  if (isWooCategory || isWooProduct || isOldTripType || isOldShop || isOldDealsCatalog) return permanentRedirect(request, "/okazje");
   return null;
 }
 
