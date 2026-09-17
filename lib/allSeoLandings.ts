@@ -10,6 +10,7 @@ import { seoAirportWave20 } from "@/lib/seoAirportWave20";
 import { seoAirportWave22 } from "@/lib/seoAirportWave22";
 import { seoAirportWave23 } from "@/lib/seoAirportWave23";
 import { seoCommercialOverrides } from "@/lib/seoCommercialOverrides";
+import { seoDestinationCommercialLandings } from "@/lib/seoDestinationCommercialLandings";
 
 type SeasonalSeoLanding = SeoLanding & {
   startDate?: string;
@@ -34,6 +35,7 @@ const overrideLandings = [
   ...seoAirportWave22,
   ...seoAirportWave23,
   ...seoCommercialOverrides,
+  ...seoDestinationCommercialLandings,
 ];
 const seoOverrides = new Map(overrideLandings.map((item) => [item.slug, item]));
 const baseSlugs = new Set(baseLandings.map((item) => item.slug));
