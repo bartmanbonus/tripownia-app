@@ -32,6 +32,21 @@ const airportLinks = [
   { href: "/podroze/wakacje-z-rzeszowa", label: "Wakacje z Rzeszowa" },
 ];
 
+const destinationLinks = [
+  { href: "/podroze/grecja-z-warszawy", label: "Grecja z Warszawy" },
+  { href: "/podroze/grecja-z-katowic", label: "Grecja z Katowic" },
+  { href: "/podroze/grecja-z-poznania", label: "Grecja z Poznania" },
+  { href: "/podroze/grecja-z-gdanska", label: "Grecja z Gdańska" },
+  { href: "/podroze/turcja-z-warszawy", label: "Turcja z Warszawy" },
+  { href: "/podroze/turcja-z-katowic", label: "Turcja z Katowic" },
+  { href: "/podroze/turcja-z-poznania", label: "Turcja z Poznania" },
+  { href: "/podroze/egipt-z-warszawy", label: "Egipt z Warszawy" },
+  { href: "/podroze/egipt-z-katowic", label: "Egipt z Katowic" },
+  { href: "/podroze/wyspy-kanaryjskie-z-warszawy", label: "Kanary z Warszawy" },
+  { href: "/podroze/wyspy-kanaryjskie-z-katowic", label: "Kanary z Katowic" },
+  { href: "/podroze/malta-z-warszawy", label: "Malta z Warszawy" },
+];
+
 export default function WakacjePage() {
   const holidayOffers = offers.filter(o => !isOfferExpired(o) && !o.category.includes("city")).slice(0, 12);
   const jsonLd = {
@@ -55,6 +70,13 @@ export default function WakacjePage() {
       <div className="section-heading"><div><div className="kicker">WAKACJE Z TWOJEGO LOTNISKA</div><h2 id="holiday-airports-title">Przejdź prosto do ofert z konkretnego miasta</h2><p>Wzmacniamy strony z intencją zakupową: konkretne lotnisko, aktualne pakiety i szybkie przejście do rezerwacji.</p></div></div>
       <div className="seo-related-links">
         {airportLinks.map(item => <Link key={item.href} href={item.href}>{item.label} →</Link>)}
+      </div>
+    </section>
+
+    <section className="section shell" aria-labelledby="holiday-destinations-title">
+      <div className="section-heading"><div><div className="kicker">NAJPOPULARNIEJSZE KIERUNKI Z POLSKICH LOTNISK</div><h2 id="holiday-destinations-title">Grecja, Turcja, Egipt, Kanary i Malta</h2><p>Zamiast ogólnej listy przejdź od razu do konkretnego kierunku i lotniska wylotu. Każda strona pokazuje aktualne oferty i prowadzi do rezerwacji.</p></div></div>
+      <div className="seo-related-links">
+        {destinationLinks.map(item => <Link key={item.href} href={item.href}>{item.label} →</Link>)}
       </div>
     </section>
 
