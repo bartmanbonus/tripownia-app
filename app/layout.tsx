@@ -29,6 +29,7 @@ import "./trip-organizer.css";
 import "./travel-guides.css";
 import "./home-trip-hub.css";
 import "./purchase-guide.css";
+import "./for-you-guided.css";
 import "./contrast-guard.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
