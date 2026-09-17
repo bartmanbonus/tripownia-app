@@ -301,6 +301,14 @@ export default function SearchHub({
   }
 
   function chooseTab(tab: string) {
+    if (tab === "Loty") {
+      window.location.href = "/loty";
+      return;
+    }
+    if (tab === "Hotele") {
+      window.location.href = "/hotele";
+      return;
+    }
     if (tab === "Atrakcje") {
       window.location.href = "/atrakcje";
       return;
@@ -392,7 +400,7 @@ export default function SearchHub({
         </div>
 
         <div className="search-v3-tabs" role="tablist" aria-label="Rodzaj podróży">
-          {["Inspiracje", "City break", "Lot + hotel", "Wakacje", "Atrakcje", "Parkingi", "eSIM"].map((tab) => (
+          {["Inspiracje", "City break", "Lot + hotel", "Wakacje", "Loty", "Hotele", "Atrakcje", "Parkingi", "eSIM"].map((tab) => (
             <button key={tab} type="button" className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
