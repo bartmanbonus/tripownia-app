@@ -1,0 +1,150 @@
+/* Tripownia contrast guard
+   Loaded last to prevent inherited/native white text on light UI surfaces,
+   especially Safari/iOS form controls. Intentional dark/accent surfaces are
+   explicitly preserved below. */
+
+:root{
+  color-scheme:light;
+}
+
+/* Known light surfaces should never inherit white copy from an older layer. */
+:where(
+  .search-v3,
+  .offer-card,
+  .score-box,
+  .single-partner-search-wrap,
+  .partner-search-shopping,
+  .streaming-tile,
+  .directions-v188-card,
+  .experience-expanded-card,
+  .analytics-consent,
+  .app-alerts-card,
+  .compare-card,
+  .advisor-controls,
+  .trip-mode-card,
+  .my-trip-card,
+  .trip-organizer-card,
+  .guides-section-card,
+  .before-trip-timeline-grid article,
+  .add-trip-section,
+  .my-trip-archive-card,
+  .app-onboarding,
+  .app-pretrip-grid a,
+  .app-home-tile:not(.app-home-tile-primary),
+  .footer.footer-v2
+){
+  color:#191613;
+}
+
+/* Safari/iOS can paint native controls with dark-mode text even inside a
+   light page. Force readable values, options and placeholders on our light forms. */
+:where(
+  .search-v3,
+  .app-alerts-card,
+  .advisor-controls,
+  .trip-mode-card,
+  .my-trip-card,
+  .trip-organizer-card,
+  .add-trip-section,
+  .single-partner-search-wrap,
+  .partner-search-shopping
+) :is(input,select,textarea){
+  color:#191613!important;
+  -webkit-text-fill-color:#191613!important;
+  color-scheme:light!important;
+}
+
+:where(
+  .search-v3,
+  .app-alerts-card,
+  .advisor-controls,
+  .trip-mode-card,
+  .my-trip-card,
+  .trip-organizer-card,
+  .add-trip-section,
+  .single-partner-search-wrap,
+  .partner-search-shopping
+) :is(input,select,textarea)::placeholder{
+  color:#8a817a!important;
+  -webkit-text-fill-color:#8a817a!important;
+  opacity:1!important;
+}
+
+:where(
+  .search-v3,
+  .app-alerts-card,
+  .advisor-controls,
+  .trip-mode-card,
+  .my-trip-card,
+  .trip-organizer-card,
+  .add-trip-section,
+  .single-partner-search-wrap,
+  .partner-search-shopping
+) option{
+  background:#fff!important;
+  color:#191613!important;
+  -webkit-text-fill-color:#191613!important;
+}
+
+/* Explicitly protect light buttons/chips that previously could inherit white. */
+.compare-toggle:not(.active),
+.trip-toggle:not(.active),
+.profile-chip:not(.active),
+.trip-day-tabs button:not(.active),
+.trip-packing-list button,
+.my-trip-checklist button,
+.directions-v188-filters button:not(.active),
+.search-v3-tabs button:not(.active),
+.search-v3-quick button,
+.search-v3-reset,
+.search-v3-more:not(.active),
+.search-v3-weekend:not(.active),
+.mobile-app-controls a:not(.active),
+.trip-mobile-account,
+.trip-mobile-menu>summary{
+  color:#2b2521!important;
+  -webkit-text-fill-color:#2b2521!important;
+}
+
+/* Light content inside the current light footer must override the old dark-footer layer. */
+.footer.footer-v2{
+  color:#211d1a!important;
+}
+.footer.footer-v2 .footer-v2-column h3,
+.footer.footer-v2 .footer-v2-contact{
+  color:#211d1a!important;
+  -webkit-text-fill-color:#211d1a!important;
+}
+.footer.footer-v2 .footer-v2-column a:not(.footer-v2-contact){
+  color:#5f5955!important;
+  -webkit-text-fill-color:#5f5955!important;
+}
+
+/* Intentional dark/accent surfaces: keep their light text. */
+.search-v3-submit,
+.offer-card .card-cta,
+.primary-cta,
+.compare-toggle.active,
+.trip-toggle.active,
+.profile-chip.active,
+.trip-day-tabs button.active,
+.trip-itinerary-add button,
+.my-trip-plan-add button,
+.trip-header-search-cta,
+.mobile-app-top,
+.app-home-tile-primary,
+.app-trip-now,
+.service-cta,
+.directions-v188-cta{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+
+/* Keep image-overlay copy light only where a dark overlay exists. */
+.city-break-idea-card>span,
+.city-break-idea-card>span strong,
+.city-break-idea-card>span b,
+.directions-v188-badges span{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
