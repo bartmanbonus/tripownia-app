@@ -2,10 +2,11 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Clock3, Globe2, Plane, UserRound, WalletCards } from "lucide-react";
+import { CheckCircle2, Clock3, Plane, UserRound, WalletCards } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import PrivacyDataControls from "@/components/PrivacyDataControls";
+import CountryChecklist from "@/components/CountryChecklist";
 import { DEFAULT_TRAVEL_PROFILE, readTravelProfile, saveTravelProfile, type TravelProfile } from "@/lib/travelProfile";
 
 const styleOptions = [
@@ -20,13 +21,8 @@ const styleOptions = [
 export default function ProfilePage() {
   const [profile, setProfile] = useState<TravelProfile>(DEFAULT_TRAVEL_PROFILE);
   const [saved, setSaved] = useState(false);
-  const [countriesText, setCountriesText] = useState("");
 
-  useEffect(() => {
-    const current = readTravelProfile();
-    setProfile(current);
-    setCountriesText(current.visitedCountries.join(", "));
-  }, []);
+  useEffect(() => setProfile(readTravelProfile()), []);
 
   function toggleStyle(style: string) {
     setProfile((current) => ({
@@ -37,10 +33,7 @@ export default function ProfilePage() {
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    const visitedCountries = countriesText.split(",").map((item) => item.trim()).filter(Boolean);
-    const next = { ...profile, visitedCountries };
-    setProfile(next);
-    saveTravelProfile(next);
+    saveTravelProfile(profile);
     setSaved(true);
     window.setTimeout(() => setSaved(false), 2200);
   }
@@ -131,11 +124,15 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <label>
-            <span><Globe2 size={17}/> Kraje już odwiedzone</span>
-            <input value={countriesText} onChange={(e) => setCountriesText(e.target.value)} placeholder="np. Włochy, Hiszpania, Grecja, Tajlandia" />
-            <small>Oddziel przecinkami. Gdy wybierzesz „Nowy kraj”, Tripownia będzie premiować miejsca spoza tej listy.</small>
-          </label>
+          <CountryChecklist
+            visited={profile.visitedCountries}
+            excluded={profile.excludedVisitedCountries}
+            onChange={({ visited, excluded }) => setProfile((current) => ({
+              ...current,
+              visitedCountries: visited,
+              excludedVisitedCountries: excluded,
+            }))}
+          />
 
           <div className="profile-field">
             <strong>Z kim najczęściej podróżujesz?</strong>
