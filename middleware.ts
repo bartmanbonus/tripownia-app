@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const PRIVATE_APP_PATHS = [
-  "/app", "/dla-ciebie", "/moja-podroz", "/porownaj", "/ulubione", "/alerty", "/profil",
+  "/app", "/dla-ciebie", "/moja-podroz", "/moje-podroze", "/dodaj-podroz", "/organizer",
+  "/porownaj", "/ulubione", "/alerty", "/profil", "/konto",
 ];
 
 const EXPERIENCE_IMAGE_FILES: Record<string, string> = {
@@ -46,6 +47,7 @@ const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/wroclaw": "/podroze/wakacje-z-wroclawia",
   "/katowice": "/podroze/wakacje-z-katowic",
   "/city-break-2": "/city-break",
+  "/last-minute-oferty": "/last-minute",
   "/aletry-todroznicze": "/alerty",
 };
 
