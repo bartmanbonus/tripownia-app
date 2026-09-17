@@ -152,9 +152,11 @@ export default function ForYouPage() {
   }, []);
 
   const recommendationGroups = useMemo(() => {
+    const excludedCountries = new Set(profile.excludedVisitedCountries.map(normalize));
     const ranked: RankedOffer[] = (offers as TimedOffer[])
       .filter((offer) => offer.availabilityStatus !== "expired")
       .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
+      .filter((offer) => !excludedCountries.has(normalize(offer.country)))
       .filter((offer) => Number(offer.price) > 0)
       .map((offer) => {
         const scored = scoreOffer(offer, profile);
@@ -165,7 +167,7 @@ export default function ForYouPage() {
       ranked
         .filter(({ offer }) => Number(offer.price) <= profile.budget)
         .filter(({ offer }) => !profile.warmOnly || offer.category.includes("cieplo"))
-        .filter(({ offer, workdays }) => {
+        .filter(({ workdays }) => {
           if (profile.scheduleMode === "weekend" && workdays !== null) return workdays <= 1;
           if ((profile.scheduleMode === "short_leave" || profile.scheduleMode === "leave") && workdays !== null) return workdays <= profile.maxLeaveDays;
           return true;
@@ -217,6 +219,7 @@ export default function ForYouPage() {
           <span>Budżet: <strong>do {profile.budget.toLocaleString("pl-PL")} zł</strong></span>
           <span>Dostępność: <strong>{scheduleLabel}</strong></span>
           <span>Cel: <strong>{profile.tripIntent}</strong></span>
+          {profile.excludedVisitedCountries.length > 0 && <span>Pomijamy: <strong>{profile.excludedVisitedCountries.length} krajów</strong></span>}
           <span>{sourceLabel}</span>
           <button type="button" onClick={refresh} className="app-secondary-button"><RefreshCw size={16} /> {loading ? "Odświeżam…" : "Odśwież"}</button>
           <Link href="/profil"><SlidersHorizontal size={16} /> Zmień preferencje</Link>
