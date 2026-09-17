@@ -122,13 +122,27 @@ function prioritizeByDate(rows: any[], preference: DatePreference) {
   });
 
   const exact = sorted.filter((row) => distanceFromWindow(row, window) === 0);
-  if (exact.length >= 3) {
-    return { rows: sorted, notice: `Najpierw pokazujemy oferty w ${window.label}.` };
-  }
-  if (exact.length > 0) {
-    return { rows: sorted, notice: `Mamy ${exact.length} ofert w ${window.label}; dalej pokazujemy najbliższe dostępne terminy.` };
-  }
+  if (exact.length >= 3) return { rows: sorted, notice: `Najpierw pokazujemy oferty w ${window.label}.` };
+  if (exact.length > 0) return { rows: sorted, notice: `Mamy ${exact.length} ofert w ${window.label}; dalej pokazujemy najbliższe dostępne terminy.` };
   return { rows: sorted, notice: `Brak ofert dokładnie w ${window.label} — pokazujemy najbliższe dostępne terminy zamiast pustego wyniku.` };
+}
+
+function monthLabel(value: string) {
+  if (!/^\d{4}-\d{2}$/.test(value)) return "Wybierz miesiąc";
+  const [year, month] = value.split("-").map(Number);
+  return new Intl.DateTimeFormat("pl-PL", { month: "long", year: "numeric", timeZone: "UTC" })
+    .format(new Date(Date.UTC(year, month - 1, 1)));
+}
+
+function shortDate(value: string) {
+  if (!value) return "";
+  const date = new Date(`${value}T12:00:00Z`);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "short", timeZone: "UTC" }).format(date);
+}
+
+function airportLabel(code: string) {
+  return airportOptions.find((airport: any) => airport.code === code)?.label || code;
 }
 
 export default function SearchHub({
@@ -139,8 +153,9 @@ export default function SearchHub({
   initialTab = "Inspiracje",
 }: Props) {
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [destination, setDestination] = useState(initialDestinations[0] || "");
-  const [departure, setDeparture] = useState(initialAirports[0] || "");
+  const [destinations, setDestinations] = useState<string[]>(initialDestinations.filter(Boolean));
+  const [destinationInput, setDestinationInput] = useState("");
+  const [departures, setDepartures] = useState<string[]>(initialAirports.filter(Boolean));
   const [dateMode, setDateMode] = useState<DateMode>("any");
   const [month, setMonth] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -151,6 +166,8 @@ export default function SearchHub({
   const [weekendOnly, setWeekendOnly] = useState(false);
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [airportsOpen, setAirportsOpen] = useState(false);
+  const [dateOpen, setDateOpen] = useState(false);
   const [results, setResults] = useState<any[]>([]);
   const [visibleCount, setVisibleCount] = useState(6);
   const [loading, setLoading] = useState(false);
@@ -158,26 +175,47 @@ export default function SearchHub({
   const [searched, setSearched] = useState(false);
   const [notice, setNotice] = useState("");
   const destinationRef = useRef<HTMLDivElement>(null);
+  const airportRef = useRef<HTMLDivElement>(null);
+  const dateRef = useRef<HTMLDivElement>(null);
   const searchRunRef = useRef(0);
 
   const suggestions = useMemo(() => {
-    const query = destination.trim();
-    if (!query) return WORLD_DESTINATIONS.filter((x) => isTravelDestinationAllowed(x.label, x.region)).slice(0, 8);
-    return WORLD_DESTINATIONS
-      .filter((x) => isTravelDestinationAllowed(x.label, x.region))
-      .filter((x) => destinationMatches(query, x))
-      .slice(0, 8);
-  }, [destination]);
+    const query = destinationInput.trim();
+    const selected = new Set(destinations.map((item) => item.toLowerCase()));
+    const pool = WORLD_DESTINATIONS
+      .filter((item) => isTravelDestinationAllowed(item.label, item.region))
+      .filter((item) => !selected.has(item.label.toLowerCase()));
+    if (!query) return pool.slice(0, 8);
+    return pool.filter((item) => destinationMatches(query, item)).slice(0, 8);
+  }, [destinationInput, destinations]);
+
+  const destinationSummary = destinations.length
+    ? `${destinations[0]}${destinations.length > 1 ? ` +${destinations.length - 1}` : ""}`
+    : "";
+  const departureSummary = departures.length
+    ? `${airportLabel(departures[0])}${departures.length > 1 ? ` +${departures.length - 1}` : ""}`
+    : "Wszystkie lotniska";
+  const dateSummary = dateMode === "month"
+    ? monthLabel(month)
+    : dateMode === "range"
+      ? dateFrom || dateTo
+        ? [shortDate(dateFrom), shortDate(dateTo)].filter(Boolean).join(" – ")
+        : "Wybierz daty"
+      : "Dowolnie";
 
   useEffect(() => {
-    setDestination(initialDestinations[0] || "");
-    setDeparture(initialAirports[0] || "");
+    setDestinations(initialDestinations.filter(Boolean));
+    setDestinationInput("");
+    setDepartures(initialAirports.filter(Boolean));
     setDuration(initialDuration || "all");
   }, [initialAirports.join("|"), initialDestinations.join("|"), initialDuration]);
 
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
-      if (destinationRef.current && !destinationRef.current.contains(event.target as Node)) setSuggestionsOpen(false);
+      const target = event.target as Node;
+      if (destinationRef.current && !destinationRef.current.contains(target)) setSuggestionsOpen(false);
+      if (airportRef.current && !airportRef.current.contains(target)) setAirportsOpen(false);
+      if (dateRef.current && !dateRef.current.contains(target)) setDateOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
@@ -188,13 +226,42 @@ export default function SearchHub({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchRequest]);
 
+  function addDestination(label: string) {
+    const clean = label.trim();
+    if (!clean || isTravelDestinationBlocked(clean)) return;
+    setDestinations((current) => {
+      if (current.some((item) => item.toLowerCase() === clean.toLowerCase())) return current;
+      return [...current, clean].slice(0, 6);
+    });
+    setDestinationInput("");
+    setSuggestionsOpen(true);
+  }
+
+  function removeDestination(label: string) {
+    setDestinations((current) => current.filter((item) => item !== label));
+  }
+
+  function toggleAirport(code: string) {
+    setDepartures((current) => current.includes(code)
+      ? current.filter((item) => item !== code)
+      : [...current, code]
+    );
+  }
+
   async function runSearch(destinationOverride?: string, overrides: SearchOverrides = {}) {
     const runId = ++searchRunRef.current;
-    const query = (destinationOverride ?? destination).trim();
-    if (query && isTravelDestinationBlocked(query)) {
+    const draftDestination = destinationInput.trim();
+    const requestedDestinations = destinationOverride
+      ? [destinationOverride]
+      : Array.from(new Set([...destinations, ...(draftDestination ? [draftDestination] : [])])).slice(0, 6);
+    const blockedDestination = requestedDestinations.find((item) => isTravelDestinationBlocked(item));
+    const query = requestedDestinations.join("|");
+    const queryLabel = requestedDestinations.join(", ");
+
+    if (blockedDestination) {
       setSearched(true);
       setResults([]);
-      setNotice("Tego kierunku Tripownia obecnie nie promuje ze względów bezpieczeństwa.");
+      setNotice(`Kierunku „${blockedDestination}” Tripownia obecnie nie promuje ze względów bezpieczeństwa.`);
       return;
     }
 
@@ -215,13 +282,15 @@ export default function SearchHub({
     setSearched(true);
     setVisibleCount(6);
     setSuggestionsOpen(false);
+    setAirportsOpen(false);
+    setDateOpen(false);
     setNotice("");
 
     try {
       const params = new URLSearchParams({ mode: activeMode === "City break" && !query ? "citybreak" : "search" });
       if (query) params.set("q", query);
       else params.set("broad", "1");
-      if (departure) params.set("from", departure);
+      if (departures.length) params.set("from", departures.join(","));
       if (activeDuration !== "all") params.set("nights", activeDuration);
       if (activeBudget !== "all") params.set("maxPrice", activeBudget);
       if (activeWeekend) params.set("weekend", "1");
@@ -276,11 +345,11 @@ export default function SearchHub({
 
       if (rows.length) {
         setNotice(finalDateNotice || (rows.length >= 6
-          ? "Najpierw pokazujemy najbliższe dopasowania, a dalej dodatkowe aktualne opcje dla tego samego kierunku."
+          ? "Najpierw pokazujemy najbliższe dopasowania, a dalej dodatkowe aktualne opcje."
           : apiNotice || "Pokazujemy wszystkie aktualne dopasowania, które udało się teraz potwierdzić."));
       } else {
-        setNotice(query
-          ? `Nie znaleźliśmy teraz potwierdzonej oferty dla „${query}”. Spróbuj zmienić kierunek albo wybierz Inspiracje.`
+        setNotice(queryLabel
+          ? `Nie znaleźliśmy teraz potwierdzonych ofert dla: ${queryLabel}. Usuń jeden kierunek albo wybierz Gdziekolwiek.`
           : "Nie znaleźliśmy teraz potwierdzonej oferty. Spróbuj ponownie lub wybierz jeden z szybkich kierunków.");
       }
     } catch {
@@ -301,26 +370,11 @@ export default function SearchHub({
   }
 
   function chooseTab(tab: string) {
-    if (tab === "Loty") {
-      window.location.href = "/loty";
-      return;
-    }
-    if (tab === "Hotele") {
-      window.location.href = "/hotele";
-      return;
-    }
-    if (tab === "Atrakcje") {
-      window.location.href = "/atrakcje";
-      return;
-    }
-    if (tab === "Parkingi") {
-      window.location.href = "/parkingi";
-      return;
-    }
-    if (tab === "eSIM") {
-      window.location.href = "/esim";
-      return;
-    }
+    if (tab === "Loty") { window.location.href = "/loty"; return; }
+    if (tab === "Hotele") { window.location.href = "/hotele"; return; }
+    if (tab === "Atrakcje") { window.location.href = "/atrakcje"; return; }
+    if (tab === "Parkingi") { window.location.href = "/parkingi"; return; }
+    if (tab === "eSIM") { window.location.href = "/esim"; return; }
 
     searchRunRef.current += 1;
     setActiveTab(tab);
@@ -341,7 +395,8 @@ export default function SearchHub({
     const nextBoard = overrides.board ?? "all";
     const nextWeekend = overrides.weekendOnly ?? false;
 
-    setDestination(label);
+    setDestinations([label]);
+    setDestinationInput("");
     setDuration(nextDuration);
     setBudget(nextBudget);
     setBoard(nextBoard);
@@ -360,8 +415,9 @@ export default function SearchHub({
 
   function resetSearch() {
     searchRunRef.current += 1;
-    setDestination("");
-    setDeparture("");
+    setDestinations([]);
+    setDestinationInput("");
+    setDepartures([]);
     setDateMode("any");
     setMonth("");
     setDateFrom("");
@@ -371,6 +427,9 @@ export default function SearchHub({
     setBoard("all");
     setWeekendOnly(false);
     setAdvancedOpen(false);
+    setSuggestionsOpen(false);
+    setAirportsOpen(false);
+    setDateOpen(false);
     setResults([]);
     setVisibleCount(6);
     setNotice("");
@@ -394,7 +453,7 @@ export default function SearchHub({
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
             <h2>Gdzie chcesz lecieć?</h2>
-            <p>Wybierz kierunek i, jeśli chcesz, termin. Tripownia dobierze najbliższe aktualne oferty.</p>
+            <p>Wybierz kilka kierunków i lotnisk albo zostaw Gdziekolwiek. Termin też jest opcjonalny.</p>
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
@@ -406,51 +465,95 @@ export default function SearchHub({
         </div>
 
         <form className="search-v3-form" onSubmit={submitSearch}>
-          <div className="search-v3-field search-v3-destination" ref={destinationRef}>
+          <div className={`search-v3-field search-v3-destination ${suggestionsOpen ? "search-v4-open" : ""}`} ref={destinationRef}>
             <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd?</label>
-            <div className="search-v3-input-wrap">
+            <div className="search-v3-input-wrap search-v4-destination-line">
+              {destinationSummary && <span className="search-v4-summary" title={destinations.join(", ")}>{destinationSummary}</span>}
               <input
                 id="tripownia-destination"
-                value={destination}
-                onChange={(event) => { setDestination(event.target.value); setSuggestionsOpen(true); }}
-                onFocus={() => setSuggestionsOpen(true)}
-                placeholder="Miasto, kraj albo wyspa"
+                value={destinationInput}
+                onChange={(event) => { setDestinationInput(event.target.value); setSuggestionsOpen(true); setAirportsOpen(false); setDateOpen(false); }}
+                onFocus={() => { setSuggestionsOpen(true); setAirportsOpen(false); setDateOpen(false); }}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && destinationInput.trim()) {
+                    event.preventDefault();
+                    addDestination(destinationInput);
+                  }
+                }}
+                placeholder={destinations.length ? "Dodaj kolejny…" : "Gdziekolwiek lub wpisz kierunek"}
                 autoComplete="off"
               />
-              {destination && <button type="button" aria-label="Wyczyść kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
+              {(destinationInput || destinations.length > 0) && <button type="button" aria-label="Wyczyść kierunki" onClick={() => { setDestinations([]); setDestinationInput(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
             </div>
 
             {suggestionsOpen && (
-              <div className="search-v3-suggestions">
+              <div className="search-v3-suggestions search-v4-destination-popover">
+                <button className={`search-v4-option ${destinations.length === 0 && !destinationInput ? "selected" : ""}`} type="button" onClick={() => { setDestinations([]); setDestinationInput(""); setSuggestionsOpen(false); }}>
+                  <span className="search-v4-checkbox">{destinations.length === 0 && !destinationInput && <Check size={14}/>}</span>
+                  <span><strong>Gdziekolwiek</strong><small>Pokaż najlepsze kierunki bez ograniczenia miejsca</small></span>
+                </button>
+
+                {destinations.length > 0 && <div className="search-v4-selected-list">
+                  {destinations.map((item) => <button type="button" key={item} className="search-v4-chip" onClick={() => removeDestination(item)}>{item}<X size={13}/></button>)}
+                </div>}
+
                 {suggestions.length > 0 ? suggestions.map((item) => (
-                  <button key={item.label} type="button" onClick={() => { setDestination(item.label); setSuggestionsOpen(false); }}>
-                    <MapPin size={15}/><span><strong>{item.label}</strong><small>{item.region}</small></span>
+                  <button key={item.label} type="button" onClick={() => addDestination(item.label)} disabled={destinations.length >= 6}>
+                    <MapPin size={15}/><span><strong>{item.label}</strong><small>{item.region} · dodaj kierunek</small></span>
                   </button>
-                )) : destination.trim() && !isTravelDestinationBlocked(destination) ? (
-                  <button type="button" onClick={() => setSuggestionsOpen(false)}><Search size={15}/><span><strong>Szukaj dokładnie „{destination.trim()}”</strong><small>Dowolny kierunek na świecie</small></span></button>
+                )) : destinationInput.trim() && !isTravelDestinationBlocked(destinationInput) ? (
+                  <button type="button" onClick={() => addDestination(destinationInput)} disabled={destinations.length >= 6}><Search size={15}/><span><strong>Dodaj „{destinationInput.trim()}”</strong><small>Własny kierunek</small></span></button>
                 ) : null}
+                <div className="search-v4-popover-note">Możesz wybrać maksymalnie 6 kierunków.</div>
               </div>
             )}
           </div>
 
-          <label className="search-v3-field search-v3-departure">
+          <div className={`search-v3-field search-v3-departure ${airportsOpen ? "search-v4-open" : ""}`} ref={airportRef}>
             <span><Plane size={15}/> Skąd?</span>
-            <select value={departure} onChange={(event) => setDeparture(event.target.value)}>
-              <option value="">Wszystkie lotniska</option>
-              {airportOptions.map((airport: any) => <option key={airport.code} value={airport.code}>{airport.label}</option>)}
-            </select>
-            <ChevronDown size={15} className="search-v3-chevron"/>
-          </label>
+            <button type="button" className="search-v4-field-button" onClick={() => { setAirportsOpen((value) => !value); setSuggestionsOpen(false); setDateOpen(false); }}>
+              <span title={departures.map(airportLabel).join(", ")}>{departureSummary}</span><ChevronDown size={15}/>
+            </button>
+            {airportsOpen && <div className="search-v4-popover search-v4-airports-popover">
+              <button type="button" className={`search-v4-option ${departures.length === 0 ? "selected" : ""}`} onClick={() => setDepartures([])}>
+                <span className="search-v4-checkbox">{departures.length === 0 && <Check size={14}/>}</span>
+                <span><strong>Wszystkie lotniska</strong><small>Nie ograniczaj miejsca wylotu</small></span>
+              </button>
+              <div className="search-v4-option-list">
+                {airportOptions.map((airport: any) => {
+                  const selected = departures.includes(airport.code);
+                  return <button type="button" key={airport.code} className={`search-v4-option ${selected ? "selected" : ""}`} onClick={() => toggleAirport(airport.code)}>
+                    <span className="search-v4-checkbox">{selected && <Check size={14}/>}</span>
+                    <span><strong>{airport.label}</strong><small>{airport.code}</small></span>
+                  </button>;
+                })}
+              </div>
+              <button type="button" className="search-v4-done" onClick={() => setAirportsOpen(false)}>Gotowe{departures.length ? ` · ${departures.length}` : ""}</button>
+            </div>}
+          </div>
 
-          <label className="search-v3-field search-v3-date">
+          <div className={`search-v3-field search-v3-date ${dateOpen ? "search-v4-open" : ""}`} ref={dateRef}>
             <span><CalendarDays size={15}/> Kiedy?</span>
-            <select value={dateMode} onChange={(event) => setDateMode(event.target.value as DateMode)}>
-              <option value="any">Dowolnie</option>
-              <option value="month">Wybierz miesiąc</option>
-              <option value="range">Zakres dat</option>
-            </select>
-            <ChevronDown size={15} className="search-v3-chevron"/>
-          </label>
+            <button type="button" className="search-v4-field-button" onClick={() => { setDateOpen((value) => !value); setSuggestionsOpen(false); setAirportsOpen(false); }}>
+              <span>{dateSummary}</span><ChevronDown size={15}/>
+            </button>
+            {dateOpen && <div className="search-v4-popover search-v4-date-popover">
+              <button type="button" className={`search-v4-option ${dateMode === "any" ? "selected" : ""}`} onClick={() => { setDateMode("any"); setMonth(""); setDateFrom(""); setDateTo(""); setDateOpen(false); }}>
+                <span className="search-v4-checkbox">{dateMode === "any" && <Check size={14}/>}</span>
+                <span><strong>Dowolnie</strong><small>Bez ograniczenia terminu</small></span>
+              </button>
+              <label className="search-v4-date-control">
+                <span>Miesiąc wyjazdu</span>
+                <input type="month" value={month} onChange={(event) => { setMonth(event.target.value); setDateMode("month"); setDateFrom(""); setDateTo(""); }} />
+              </label>
+              <div className="search-v4-date-range">
+                <label className="search-v4-date-control"><span>Najwcześniej</span><input type="date" value={dateFrom} onChange={(event) => { setDateFrom(event.target.value); setDateMode("range"); setMonth(""); }} /></label>
+                <label className="search-v4-date-control"><span>Najpóźniej</span><input type="date" min={dateFrom || undefined} value={dateTo} onChange={(event) => { setDateTo(event.target.value); setDateMode("range"); setMonth(""); }} /></label>
+              </div>
+              <small className="search-v4-date-hint">Jeśli ofert będzie mało, pokażemy również najbliższe dostępne terminy.</small>
+              <button type="button" className="search-v4-done" onClick={() => setDateOpen(false)}>Gotowe</button>
+            </div>}
+          </div>
 
           <label className="search-v3-field search-v3-duration">
             <span>Na ile?</span>
@@ -485,20 +588,6 @@ export default function SearchHub({
 
           <button type="submit" className="search-v3-submit" disabled={loading}><Search size={18}/>{loading ? "Szukamy…" : "Szukaj wyjazdu"}</button>
         </form>
-
-        {dateMode !== "any" && (
-          <div className="search-v3-date-details">
-            {dateMode === "month" ? (
-              <label><span>Miesiąc wyjazdu</span><input type="month" value={month} onChange={(event) => setMonth(event.target.value)} /></label>
-            ) : (
-              <>
-                <label><span>Najwcześniej</span><input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} /></label>
-                <label><span>Najpóźniej</span><input type="date" min={dateFrom || undefined} value={dateTo} onChange={(event) => setDateTo(event.target.value)} /></label>
-              </>
-            )}
-            <small>Nie blokujemy wyników na sztywno — jeśli ofert będzie mało, pokażemy najbliższe terminy.</small>
-          </div>
-        )}
 
         <div className="search-v3-options-row">
           <button type="button" className={`search-v3-more ${advancedOpen ? "active" : ""}`} onClick={() => setAdvancedOpen((value) => !value)}>
@@ -541,7 +630,7 @@ export default function SearchHub({
                 {results.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(results.length, count + 6))}>Pokaż kolejne oferty ({results.length - visibleCount})</button>}
               </>
             )}
-            {!loading && results.length === 0 && !expanding && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji.</span></div>}
+            {!loading && results.length === 0 && !expanding && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Usuń jeden filtr albo wybierz Gdziekolwiek — Tripownia spróbuje znaleźć więcej aktualnych opcji.</span></div>}
           </div>
         )}
       </div>
