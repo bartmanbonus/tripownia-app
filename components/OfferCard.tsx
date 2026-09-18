@@ -11,6 +11,7 @@ import { isPriceStale } from "@/lib/offerQuality";
 import { isOfferExpired } from "@/lib/offers";
 import { getDealScore } from "@/lib/dealScore";
 import { ANALYTICS_CONSENT_EVENT, getAnalyticsConsent, trackEvent } from "@/lib/analytics";
+import { partners } from "@/lib/partners";
 import {
   COMPARE_OFFER_SNAPSHOTS_KEY,
   FAVORITE_OFFER_SNAPSHOTS_KEY,
@@ -127,6 +128,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
   const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
   const stalePrice = !isExpired && priceStale;
   const deal = getDealScore(offer, displayPrice, isLiveExact);
+  const partnerName = partners[offer.partner]?.name || "partnera";
 
   const offerSnapshot: Offer = {
     ...offer,
@@ -241,11 +243,9 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       : `/go/${offer.id}?source=offer_card`;
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
-    : isLiveExact
-      ? "Sprawdź dostępność i rezerwuj"
-      : isExactLink
-        ? "Sprawdź dostępność i rezerwuj"
-        : "Sprawdź aktualną cenę";
+    : isLiveExact || isExactLink || isLivePartnerLink
+      ? `Sprawdź ofertę w ${partnerName}`
+      : `Sprawdź cenę u ${partnerName}`;
   const trustText = isExpired
     ? "Oferta wygasła"
     : isLiveExact
@@ -307,7 +307,8 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
 
         <div className="why-now"><span>DLACZEGO WARTO</span><strong>{override.note || publishedOverride.note || offer.reason}</strong></div>
 
-        <a className="card-cta" href={buyHref} rel={isExpired ? undefined : "sponsored"} onClick={() => trackOfferClick("card_cta")}>{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
+        <a className="card-cta" href={buyHref} rel={isExpired ? undefined : "sponsored noopener"} onClick={() => trackOfferClick("card_cta")}>{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
+        {!isExpired && <div className="offer-partner-note">Finalna cena i dostępność są potwierdzane na stronie {partnerName}.</div>}
 
         {!isExpired && (
           <div className="offer-actions-row offer-actions-secondary">
