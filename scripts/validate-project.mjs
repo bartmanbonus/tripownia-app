@@ -138,6 +138,11 @@ forbidText(
   "offers.push",
   "resolver Mojej podróży znów mutuje globalny katalog ofert"
 );
+requireText(
+  "components/MyTripResolver.tsx",
+  "const tripId = saved.tripId || \"legacy\"",
+  "resolver Mojej podróży nie rozróżnia zapisanych wyjazdów po tripId"
+);
 forbidText(
   "components/TripToolkit.tsx",
   "partners.getyourguide",
