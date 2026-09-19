@@ -60,7 +60,6 @@ export const metadata: Metadata = {
   applicationName: "Tripownia",
   icons: {
     icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
       { url: FAVICON_PNG, type: "image/png", sizes: "256x256" },
     ],
     shortcut: [FAVICON_PNG],
