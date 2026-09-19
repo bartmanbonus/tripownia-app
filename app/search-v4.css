@@ -276,3 +276,32 @@
     -webkit-overflow-scrolling:touch!important;
   }
 }
+
+.search-v3-result-wrap{min-width:0}
+.search-v3-alternative-divider{
+  grid-column:1/-1;
+  margin:8px 0 2px;
+  padding:12px 14px;
+  border:1px dashed #dfd2ca;
+  border-radius:14px;
+  background:#fbf8f6;
+}
+.search-v3-alternative-divider small{
+  display:block;
+  margin-bottom:3px;
+  color:#a05a43;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.search-v3-alternative-divider strong{
+  color:#655952;
+  font-size:10px;
+  line-height:1.35;
+}
+@media (max-width:600px){
+  .search-v3-alternative-divider{
+    margin:7px 0 1px;
+    padding:10px 12px;
+  }
+}
