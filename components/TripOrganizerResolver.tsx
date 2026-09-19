@@ -44,6 +44,27 @@ export default function TripOrganizerResolver() {
     return trip.offerSnapshot || offers.find((item) => item.id === trip.offerId);
   }, [trip]);
 
+  useEffect(() => {
+    if (!ready || !trip?.tripId || !offer) return;
+    const hash = window.location.hash.replace(/^#/, "");
+    if (!hash) return;
+
+    let cancelled = false;
+    const scroll = () => {
+      if (cancelled) return;
+      const target = document.getElementById(hash);
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    const frame = window.requestAnimationFrame(scroll);
+    const timer = window.setTimeout(scroll, 180);
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [ready, trip?.tripId, offer]);
+
   return (
     <main>
       <SiteHeader />
