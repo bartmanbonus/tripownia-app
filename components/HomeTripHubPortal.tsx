@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Car, ClipboardCheck, MapPinned, Route, Sparkles, Plane } from "lucide-react";
 import { readActiveTrip } from "@/lib/tripArchive";
+import { offers } from "@/lib/offers";
 
 const actions = [
   { href: "/dodaj-podroz", icon: Route, title: "Dodaj podróż", text: "Masz już lot lub hotel? Zacznij własny plan." },
@@ -18,11 +19,26 @@ const actions = [
 export default function HomeTripHubPortal() {
   const pathname = usePathname();
   const [host, setHost] = useState<HTMLElement | null>(null);
-  const [hasActiveTrip, setHasActiveTrip] = useState(false);
+  const [activeTripLabel, setActiveTripLabel] = useState<{ title: string; meta: string } | null>(null);
   const visible = pathname === "/" || pathname === "/app";
 
   useEffect(() => {
-    const refreshTrip = () => setHasActiveTrip(Boolean(readActiveTrip()));
+    const refreshTrip = () => {
+      const trip = readActiveTrip();
+      if (!trip) {
+        setActiveTripLabel(null);
+        return;
+      }
+
+      const snapshot = trip.offerSnapshot as { city?: string; country?: string; dates?: string } | undefined;
+      const staticOffer = typeof trip.offerId === "number" ? offers.find((offer) => offer.id === trip.offerId) : undefined;
+      const city = snapshot?.city || staticOffer?.city || "";
+      const country = snapshot?.country || staticOffer?.country || "";
+      const dates = snapshot?.dates || staticOffer?.dates || "";
+      const title = city ? `${city}${country ? `, ${country}` : ""}` : "Wróć do swojej podróży";
+      const meta = dates || "Plan, przygotowania i rezerwacje są już zapisane.";
+      setActiveTripLabel({ title, meta });
+    };
     refreshTrip();
     window.addEventListener("tripownia-my-trip-updated", refreshTrip as EventListener);
     window.addEventListener("storage", refreshTrip as EventListener);
@@ -56,10 +72,10 @@ export default function HomeTripHubPortal() {
 
   return createPortal(
     <section className="shell already-booked-hub" aria-labelledby="already-booked-title">
-      {hasActiveTrip && (
+      {activeTripLabel && (
         <Link href="/moja-podroz" className="already-booked-active-trip">
           <span className="already-booked-action-icon"><Plane size={20}/></span>
-          <span><small>MASZ AKTYWNĄ PODRÓŻ</small><strong>Wróć do swojej podróży</strong><em>Plan, rezerwacje, przygotowania i rzeczy do zrobienia są już zapisane.</em></span>
+          <span><small>AKTYWNA PODRÓŻ</small><strong>{activeTripLabel.title}</strong><em>{activeTripLabel.meta}</em></span>
           <ArrowRight size={18}/>
         </Link>
       )}
