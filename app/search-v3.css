@@ -388,3 +388,54 @@
   .service-page .search-v3 .account-message{margin-left:14px;margin-right:14px}
   .service-page .search-v3 .account-message{margin-bottom:20px}
 }
+
+
+/* Search fallback: keep the user moving when package feeds have no exact match. */
+.search-v3-self-service{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:22px;
+  margin-top:18px;
+  padding:18px 20px;
+  border:1px solid #e6dbd3;
+  border-radius:18px;
+  background:#fffaf7;
+}
+.search-v3-self-service>div:first-child{max-width:720px}
+.search-v3-self-service small{
+  display:block;
+  margin-bottom:5px;
+  color:#d94f2c;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.1em;
+}
+.search-v3-self-service strong{display:block;color:#27221f;font-size:15px}
+.search-v3-self-service span{display:block;margin-top:5px;color:#746a63;font-size:11.5px;line-height:1.5}
+.search-v3-self-service-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.search-v3-self-service-actions a{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:0 14px;
+  border:1px solid #dfd4cc;
+  border-radius:12px;
+  background:#fff;
+  color:#302a26;
+  text-decoration:none;
+  font-size:11px;
+  font-weight:850;
+}
+.search-v3-self-service-actions a:hover{border-color:#e9ad95;background:#fff4ee;color:#c84d2c}
+
+@media(max-width:700px){
+  .search-v3-self-service{align-items:stretch;flex-direction:column;padding:16px}
+  .search-v3-self-service-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%}
+  .search-v3-self-service-actions a{padding:0 8px;font-size:10.5px}
+}
+@media(max-width:420px){
+  .search-v3-self-service-actions{grid-template-columns:1fr}
+}
