@@ -6,6 +6,7 @@ import { ArrowRight, MapPinned } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TripOrganizer from "@/components/TripOrganizer";
+import TripToolkit from "@/components/TripToolkit";
 import TripPhasePanel from "@/components/TripPhasePanel";
 import { offers, type Offer } from "@/lib/offers";
 
@@ -68,6 +69,7 @@ export default function TripOrganizerResolver() {
               categories={offer.category || []}
               weather={offer.weather || ""}
             />
+            <TripToolkit city={offer.city} country={offer.country} tripId={trip.tripId} />
           </>
         ) : (
           <div className="favorites-empty">
