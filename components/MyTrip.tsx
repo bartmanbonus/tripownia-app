@@ -9,6 +9,7 @@ import TripToolkit from "@/components/TripToolkit";
 import { offers, publishedOfferOverrides, type Offer } from "@/lib/offers";
 import { estimateTripCost } from "@/lib/tripCost";
 import { getOfferOverride } from "@/lib/clientOfferOverrides";
+import { upsertTripArchive } from "@/lib/tripArchive";
 
 type DayPlanItem = { id: string; time: string; title: string; note?: string };
 type WeatherState = { temperature: number; apparent: number; code: number; wind: number; loading?: boolean; error?: string } | null;
@@ -179,6 +180,7 @@ export default function MyTrip() {
     const normalized: TripState = { ...next, tripId: next.tripId || trip.tripId || createTripId(next.offerId) };
     setTrip(normalized);
     localStorage.setItem("tripownia-my-trip", JSON.stringify(normalized));
+    upsertTripArchive(normalized);
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
