@@ -31,4 +31,16 @@ if (!/android:windowSoftInputMode=/.test(manifest)) {
 }
 
 fs.writeFileSync(manifestPath, manifest, "utf8");
-console.log("Applied Tripownia Android branding and keyboard behavior.");
+
+const verified = fs.readFileSync(manifestPath, "utf8");
+if (!verified.includes('android:icon="@drawable/tripownia_launcher"')) {
+  throw new Error("Tripownia launcher icon was not applied to AndroidManifest.xml");
+}
+if (!verified.includes('android:windowSoftInputMode="adjustResize"')) {
+  throw new Error("Android keyboard resize behavior was not applied to AndroidManifest.xml");
+}
+if (!fs.existsSync(targetIcon) || fs.statSync(targetIcon).size < 1000) {
+  throw new Error("Tripownia launcher asset is missing or unexpectedly small.");
+}
+
+console.log("Verified Tripownia Android branding and keyboard behavior.");
