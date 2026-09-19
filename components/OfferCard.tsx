@@ -77,7 +77,7 @@ function readTrip() {
   }
 }
 
-export default function OfferCard({ offer, priceHighlight }: { offer: Offer; priceHighlight?: PriceHighlight }) {
+export default function OfferCard({ offer, priceHighlight, searchRank }: { offer: Offer; priceHighlight?: PriceHighlight; searchRank?: number }) {
   const [liked, setLiked] = useState(false);
   const [compared, setCompared] = useState(false);
   const [tripAdded, setTripAdded] = useState(false);
@@ -267,7 +267,8 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       <Link href={detailHref} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
         <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
         <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
-        {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
+        {searchRank && <span className="search-rank-badge"><Star size={12} fill="currentColor" /> TOP {searchRank}</span>}
+        {!searchRank && isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
       </Link>
 
       <button className="heart" aria-label={liked ? "Usuń z ulubionych" : "Dodaj do ulubionych"} onClick={toggleLike}><Heart size={20} fill={liked ? "currentColor" : "none"} /></button>
