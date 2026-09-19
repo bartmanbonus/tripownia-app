@@ -130,8 +130,13 @@ forbidText(
 );
 requireText(
   "components/MyTrip.tsx",
-  "catalogOffer || trip.offerSnapshot",
+  "manualTrip ? trip.offerSnapshot : catalogOffer || trip.offerSnapshot",
   "Moja podróż znów ignoruje ręcznie dodany snapshot wyjazdu"
+);
+forbidText(
+  "components/MyTripResolver.tsx",
+  "offers.push",
+  "resolver Mojej podróży znów mutuje globalny katalog ofert"
 );
 forbidText(
   "components/TripToolkit.tsx",
