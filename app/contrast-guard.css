@@ -356,3 +356,46 @@
     font-size: 8.7px !important;
   }
 }
+
+
+/* ==========================================================
+   KIERUNKI MOBILE CTA — 2026-09-19
+   Make the next step obvious without turning the whole card
+   into a heavy button wall.
+========================================================== */
+@media (max-width: 560px) {
+  .directions-v188-body {
+    padding-bottom: 14px !important;
+  }
+
+  .directions-v188-link {
+    min-height: 48px !important;
+    margin-top: 10px !important;
+    padding: 0 9px 0 14px !important;
+    border: 0 !important;
+    border-radius: 14px !important;
+    background: #1d1916 !important;
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    letter-spacing: -.01em !important;
+    box-shadow: 0 10px 22px rgba(35, 25, 19, .14) !important;
+  }
+
+  .directions-v188-link b {
+    width: 32px !important;
+    height: 32px !important;
+    flex: 0 0 32px !important;
+    border-radius: 11px !important;
+    background: #ff6a32 !important;
+    color: #fff !important;
+    font-size: 15px !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+  }
+
+  .directions-v188-card:active .directions-v188-link {
+    transform: scale(.985) !important;
+  }
+}
