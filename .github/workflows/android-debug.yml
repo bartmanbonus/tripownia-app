@@ -40,7 +40,7 @@ jobs:
         run: npm ci
 
       - name: Install Capacitor build tooling
-        run: npm install --no-save @capacitor/core@7.4.3 @capacitor/cli@7.4.3 @capacitor/android@7.4.3
+        run: npm install --no-save @capacitor/core@7.4.3 @capacitor/cli@7.4.3 @capacitor/android@7.4.3 @capacitor/app@7 @capacitor/browser@7
 
       - name: Create Android project
         run: npx cap add android
