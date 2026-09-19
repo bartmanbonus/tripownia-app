@@ -37,6 +37,16 @@ type DatePreference = {
   to: string;
 };
 
+type LastSearchSummary = {
+  destinations: string[];
+  departures: string[];
+  dateLabel: string;
+  duration: string;
+  budget: string;
+  board: string;
+  weekendOnly: boolean;
+};
+
 function onePerDirection(rows: any[]) {
   const seen = new Set<string>();
   return rows.filter((row) => {
@@ -231,6 +241,7 @@ export default function SearchHub({
   const [searched, setSearched] = useState(false);
   const [notice, setNotice] = useState("");
   const [alternativeStart, setAlternativeStart] = useState<number | null>(null);
+  const [lastSearch, setLastSearch] = useState<LastSearchSummary | null>(null);
   const destinationRef = useRef<HTMLDivElement>(null);
   const airportRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLDivElement>(null);
@@ -333,7 +344,21 @@ export default function SearchHub({
       from: overrides.dateFrom ?? dateFrom,
       to: overrides.dateTo ?? dateTo,
     };
+    const activeDateLabel = datePreference.mode === "month"
+      ? monthLabel(datePreference.month)
+      : datePreference.mode === "range"
+        ? [shortDate(datePreference.from), shortDate(datePreference.to)].filter(Boolean).join(" – ") || "Dowolnie"
+        : "Dowolnie";
 
+    setLastSearch({
+      destinations: requestedDestinations,
+      departures: [...departures],
+      dateLabel: activeDateLabel,
+      duration: activeDuration,
+      budget: activeBudget,
+      board: activeBoard,
+      weekendOnly: activeWeekend,
+    });
     setLoading(true);
     setExpanding(false);
     setSearched(true);
@@ -366,7 +391,7 @@ export default function SearchHub({
 
       let rows = cleanRows(Array.isArray(data?.offers) ? data.offers : [], query);
       const firstDatePass = prioritizeByDate(rows, datePreference);
-      rows = balanceSelectedDestinations(firstDatePass.rows, destinations);
+      rows = balanceSelectedDestinations(firstDatePass.rows, requestedDestinations);
       setResults(rows);
       setLoading(false);
 
@@ -396,7 +421,7 @@ export default function SearchHub({
           ? uniqueOfferVariants([...rows, ...relaxedRows]).slice(0, 18)
           : onePerDirection([...rows, ...relaxedRows]).slice(0, 12);
         const relaxedDatePass = prioritizeByDate(rows, datePreference);
-        rows = balanceSelectedDestinations(relaxedDatePass.rows, destinations);
+        rows = balanceSelectedDestinations(relaxedDatePass.rows, requestedDestinations);
         finalDateNotice = relaxedDatePass.notice || finalDateNotice;
         setResults(rows);
       }
@@ -515,10 +540,42 @@ export default function SearchHub({
     setResults([]);
     setVisibleCount(6);
     setNotice("");
+    setLastSearch(null);
     setSearched(false);
     setLoading(false);
     setExpanding(false);
   }
+
+  function editSearchPart(part: "destination" | "airport" | "date") {
+    if (part === "destination") {
+      setSuggestionsOpen(true);
+      setAirportsOpen(false);
+      setDateOpen(false);
+      window.setTimeout(() => document.querySelector<HTMLInputElement>("#tripownia-destination")?.focus(), 50);
+      destinationRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (part === "airport") {
+      setAirportsOpen(true);
+      setSuggestionsOpen(false);
+      setDateOpen(false);
+      airportRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    setDateOpen(true);
+    setSuggestionsOpen(false);
+    setAirportsOpen(false);
+    dateRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+
+  const exactResultCount = alternativeStart !== null ? Math.min(alternativeStart, results.length) : results.length;
+  const alternativeResultCount = alternativeStart !== null ? Math.max(0, results.length - alternativeStart) : 0;
+  const lastDestinationLabel = lastSearch?.destinations.length
+    ? lastSearch.destinations.join(" + ")
+    : "Gdziekolwiek";
+  const lastDepartureLabel = lastSearch?.departures.length
+    ? lastSearch.departures.map(airportLabel).join(" + ")
+    : "wszystkie lotniska";
 
   const quickPicks: Array<[string, string, SearchOverrides]> = [
     ["Rzym, Włochy", "Rzym na city break", { duration: "3-4", budget: "1500", tab: "City break" }],
@@ -702,7 +759,32 @@ export default function SearchHub({
         {searched && (
           <div className="search-v3-results">
             <div className="search-v3-results-head">
-              <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `${results.length} aktualnych ofert` : "Brak potwierdzonego dopasowania"}</h3></div>
+              <div>
+                <small>WYNIKI</small>
+                <h3>{loading
+                  ? "Sprawdzamy aktualne oferty…"
+                  : results.length
+                    ? alternativeResultCount
+                      ? `${exactResultCount} dopasowań + ${alternativeResultCount} alternatyw`
+                      : `${results.length} aktualnych ofert`
+                    : "Brak potwierdzonego dopasowania"}</h3>
+                {lastSearch && (
+                  <div className="search-v4-results-summary">
+                    <strong>{lastDestinationLabel}</strong>
+                    <span>·</span>
+                    <span>{lastDepartureLabel}</span>
+                    <span>·</span>
+                    <span>{lastSearch.dateLabel}</span>
+                  </div>
+                )}
+              </div>
+              {lastSearch && (
+                <div className="search-v4-results-edit" aria-label="Szybka edycja wyszukiwania">
+                  <button type="button" onClick={() => editSearchPart("destination")}>Kierunek</button>
+                  <button type="button" onClick={() => editSearchPart("airport")}>Lotniska</button>
+                  <button type="button" onClick={() => editSearchPart("date")}>Termin</button>
+                </div>
+              )}
               {notice && <p>{notice}</p>}
             </div>
 
