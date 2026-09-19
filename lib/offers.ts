@@ -25,6 +25,9 @@ export type Offer = {
   hotel: string;
   board: string;
   dates: string;
+  startDateISO?: string;
+  endDateISO?: string;
+  manual?: boolean;
   partner: PartnerKey;
   destinationUrl?: string;
   affiliateUrl: string;
