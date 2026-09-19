@@ -2,36 +2,34 @@
 
 import { useEffect, useState } from "react";
 import MyTrip from "@/components/MyTrip";
-import { offers, type Offer } from "@/lib/offers";
+import type { Offer } from "@/lib/offers";
 
 type StoredTrip = {
+  tripId?: string;
   offerId?: number;
-  offerSnapshot?: Offer;
+  offerSnapshot?: Offer & { manual?: boolean };
 };
 
-function hydrateStoredOffer() {
+function storedTripKey() {
   try {
     const saved = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null") as StoredTrip | null;
     const snapshot = saved?.offerSnapshot;
-    if (!snapshot?.id || !snapshot.city || !snapshot.country) return "static";
-
-    const index = offers.findIndex((offer) => offer.id === snapshot.id);
-    if (index >= 0) offers[index] = { ...offers[index], ...snapshot };
-    else offers.push(snapshot);
-
-    return `live-${snapshot.id}-${snapshot.priceCheckedAt || snapshot.price || "saved"}`;
+    if (!saved) return "empty";
+    const tripId = saved.tripId || "legacy";
+    if (snapshot?.id) return `${tripId}-snapshot-${snapshot.id}-${snapshot.priceCheckedAt || snapshot.price || "saved"}`;
+    return `${tripId}-offer-${saved.offerId || "unknown"}`;
   } catch {
-    return "static";
+    return "empty";
   }
 }
 
 export default function MyTripResolver() {
   const [ready, setReady] = useState(false);
-  const [tripKey, setTripKey] = useState("static");
+  const [tripKey, setTripKey] = useState("empty");
 
   useEffect(() => {
     const load = () => {
-      setTripKey(hydrateStoredOffer());
+      setTripKey(storedTripKey());
       setReady(true);
     };
 

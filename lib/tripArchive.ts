@@ -1,3 +1,5 @@
+import type { Offer } from "@/lib/offers";
+
 export type TripArchiveSnapshot = {
   tripId: string;
   offerId?: number;
@@ -73,8 +75,9 @@ export function upsertTripArchive(value: unknown, emit = true) {
   const trip = normalizeTrip(value);
   if (!trip) return null;
 
-  const nextTrip: TripArchiveSnapshot = { ...trip, updatedAt: new Date().toISOString() };
   const current = readTripArchive();
+  const existing = current.find((item) => item.tripId === trip.tripId);
+  const nextTrip: TripArchiveSnapshot = { ...existing, ...trip, updatedAt: new Date().toISOString() };
   const next = [nextTrip, ...current.filter((item) => item.tripId !== nextTrip.tripId)].slice(0, 30);
   localStorage.setItem(TRIP_ARCHIVE_KEY, JSON.stringify(next));
   if (emit) window.dispatchEvent(new Event(TRIP_ARCHIVE_EVENT));
@@ -93,9 +96,32 @@ export function activateArchivedTrip(tripId: string) {
   return true;
 }
 
+export function setActiveOfferTrip(offer: Offer) {
+  if (typeof window === "undefined") return null;
+
+  const previous = readActiveTrip();
+  const sameTrip = previous?.offerId === offer.id;
+  const tripId = sameTrip && previous?.tripId
+    ? previous.tripId
+    : `trip-${offer.id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+  if (!sameTrip && previous?.tripId) upsertTripArchive(previous, false);
+
+  const nextTrip = sameTrip
+    ? { ...previous, offerId: offer.id, tripId, offerSnapshot: offer }
+    : { tripId, offerId: offer.id, offerSnapshot: offer, checklist: {}, dayPlan: [] };
+
+  localStorage.setItem(ACTIVE_TRIP_KEY, JSON.stringify(nextTrip));
+  upsertTripArchive(nextTrip);
+  window.dispatchEvent(new Event("tripownia-my-trip-updated"));
+  return nextTrip;
+}
+
 export function removeArchivedTrip(tripId: string) {
   if (typeof window === "undefined") return;
   const next = readTripArchive().filter((item) => item.tripId !== tripId);
   localStorage.setItem(TRIP_ARCHIVE_KEY, JSON.stringify(next));
+  localStorage.removeItem(`tripownia-organizer:${tripId}`);
+  localStorage.removeItem(`tripownia-trip-toolkit:${tripId}`);
   window.dispatchEvent(new Event(TRIP_ARCHIVE_EVENT));
 }

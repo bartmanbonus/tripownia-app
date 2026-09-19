@@ -7,6 +7,18 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { readTravelProfile, saveTravelProfile, type TravelProfile } from "@/lib/travelProfile";
 import {
+  COMPARE_OFFER_SNAPSHOTS_KEY,
+  FAVORITE_OFFER_SNAPSHOTS_KEY,
+  readSavedOfferSnapshots,
+} from "@/lib/savedOfferSnapshots";
+import {
+  readActiveTrip,
+  readTripArchive,
+  TRIP_ARCHIVE_EVENT,
+  TRIP_ARCHIVE_KEY,
+  upsertTripArchive,
+} from "@/lib/tripArchive";
+import {
   accountAuthEventName,
   consumeAccountSessionFromUrl,
   ensureFreshAccountSession,
@@ -33,22 +45,56 @@ function readNumberList(key: string) {
   }
 }
 
-function readCurrentTrip() {
+function readObject(key: string) {
   try {
-    const parsed = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null");
-    return parsed && typeof parsed === "object" ? parsed as Record<string, unknown> : null;
+    const parsed = JSON.parse(localStorage.getItem(key) || "{}");
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown>
+      : {};
   } catch {
-    return null;
+    return {};
   }
+}
+
+function cloudTripArchive() {
+  return readTripArchive().map((trip) => ({
+    ...trip,
+    organizer_state: readObject(`tripownia-organizer:${trip.tripId}`),
+    toolkit_state: readObject(`tripownia-trip-toolkit:${trip.tripId}`),
+  }));
+}
+
+function restorePerTripState(archive: Array<Record<string, unknown>>) {
+  archive.forEach((trip) => {
+    const tripId = typeof trip.tripId === "string" ? trip.tripId : "";
+    if (!tripId) return;
+
+    const organizer = trip.organizer_state;
+    if (organizer && typeof organizer === "object" && !Array.isArray(organizer)) {
+      localStorage.setItem(`tripownia-organizer:${tripId}`, JSON.stringify(organizer));
+    }
+
+    const toolkit = trip.toolkit_state;
+    if (toolkit && typeof toolkit === "object" && !Array.isArray(toolkit)) {
+      localStorage.setItem(`tripownia-trip-toolkit:${tripId}`, JSON.stringify(toolkit));
+    }
+  });
 }
 
 function localAccountSnapshot() {
   const travelProfile = readTravelProfile();
+  const currentTrip = readActiveTrip();
+  if (currentTrip?.tripId) upsertTripArchive(currentTrip, false);
+
   return {
     travel_profile: travelProfile as unknown as Record<string, unknown>,
     favorite_offer_ids: readNumberList("tripownia-favorites"),
     compare_offer_ids: readNumberList("tripownia-compare"),
-    current_trip: readCurrentTrip(),
+    current_trip: currentTrip as unknown as Record<string, unknown> | null,
+    favorite_offer_snapshots: readSavedOfferSnapshots(FAVORITE_OFFER_SNAPSHOTS_KEY) as unknown as Record<string, unknown>,
+    compare_offer_snapshots: readSavedOfferSnapshots(COMPARE_OFFER_SNAPSHOTS_KEY) as unknown as Record<string, unknown>,
+    trip_archive: cloudTripArchive() as unknown as Array<Record<string, unknown>>,
+    alert_settings: readObject("tripownia-alert-settings"),
     visited_countries: travelProfile.visitedCountries,
     excluded_visited_countries: travelProfile.excludedVisitedCountries,
   };
@@ -61,11 +107,23 @@ function applyCloudState(state: TripowniaUserState) {
   }
   localStorage.setItem("tripownia-favorites", JSON.stringify(state.favorite_offer_ids || []));
   localStorage.setItem("tripownia-compare", JSON.stringify(state.compare_offer_ids || []));
-  if (state.current_trip) localStorage.setItem("tripownia-my-trip", JSON.stringify(state.current_trip));
-  else localStorage.removeItem("tripownia-my-trip");
+  localStorage.setItem(FAVORITE_OFFER_SNAPSHOTS_KEY, JSON.stringify(state.favorite_offer_snapshots || {}));
+  localStorage.setItem(COMPARE_OFFER_SNAPSHOTS_KEY, JSON.stringify(state.compare_offer_snapshots || {}));
+  const cloudArchive = state.trip_archive || [];
+  localStorage.setItem(TRIP_ARCHIVE_KEY, JSON.stringify(cloudArchive));
+  restorePerTripState(cloudArchive);
+  localStorage.setItem("tripownia-alert-settings", JSON.stringify(state.alert_settings || {}));
+  if (state.current_trip) {
+    localStorage.setItem("tripownia-my-trip", JSON.stringify(state.current_trip));
+    upsertTripArchive(state.current_trip, false);
+  } else {
+    localStorage.removeItem("tripownia-my-trip");
+  }
   window.dispatchEvent(new Event("tripownia-favorites-updated"));
   window.dispatchEvent(new Event("tripownia-compare-updated"));
   window.dispatchEvent(new Event("tripownia-my-trip-updated"));
+  window.dispatchEvent(new Event("tripownia-alerts-updated"));
+  window.dispatchEvent(new Event(TRIP_ARCHIVE_EVENT));
 }
 
 export default function AccountPage() {
@@ -76,20 +134,27 @@ export default function AccountPage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [synced, setSynced] = useState(0);
+  const [accountRedirect, setAccountRedirect] = useState("");
   const configured = isAccountAuthConfigured();
 
   const localStats = useMemo(() => {
-    if (typeof window === "undefined") return { visited: 0, favorites: 0, compare: 0, trip: false };
+    if (typeof window === "undefined") return { visited: 0, favorites: 0, compare: 0, trip: false, trips: 0 };
     const profile = readTravelProfile();
+    const activeTrip = readActiveTrip();
+    const archivedTrips = readTripArchive();
+    const tripIds = new Set(archivedTrips.map((trip) => trip.tripId));
+    if (activeTrip?.tripId) tripIds.add(activeTrip.tripId);
     return {
       visited: profile.visitedCountries.length,
       favorites: readNumberList("tripownia-favorites").length,
       compare: readNumberList("tripownia-compare").length,
-      trip: Boolean(localStorage.getItem("tripownia-my-trip")),
+      trip: Boolean(activeTrip),
+      trips: tripIds.size,
     };
   }, [session, synced]);
 
   useEffect(() => {
+    setAccountRedirect(`${window.location.origin}/konto`);
     let cancelled = false;
 
     const load = async () => {
@@ -151,7 +216,7 @@ export default function AccountPage() {
       const saved = await saveTripowniaUserState(session, localAccountSnapshot());
       setCloudState(saved);
       setSynced((value) => value + 1);
-      setMessage("Zapisano w chmurze. Profil, kraje, ulubione, porównanie i bieżąca podróż są przypisane do konta.");
+      setMessage("Zapisano w chmurze. Profil, alerty, ulubione, porównanie oraz aktywne i zapisane podróże są przypisane do konta.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Nie udało się zsynchronizować danych.");
     } finally {
@@ -188,7 +253,7 @@ export default function AccountPage() {
           <div>
             <div className="kicker">TWOJA TRIPOWNIA</div>
             <h1>Konto, które pamięta jak podróżujesz.</h1>
-            <p>Profil, odwiedzone kraje, ulubione oferty i bieżąca podróż mogą być zapisane w chmurze i przenoszone między urządzeniami.</p>
+            <p>Profil, alerty, ulubione oferty oraz Twoje podróże mogą być zapisane w chmurze i przenoszone między urządzeniami.</p>
           </div>
         </div>
 
@@ -213,9 +278,9 @@ export default function AccountPage() {
                 <span><b>{localStats.visited}</b> odwiedzonych krajów</span>
                 <span><b>{localStats.favorites}</b> ulubionych</span>
                 <span><b>{localStats.compare}</b> porównywanych</span>
-                <span><b>{localStats.trip ? "Tak" : "Nie"}</b> moja podróż</span>
+                <span><b>{localStats.trips}</b> zapisanych podróży</span>
               </div>
-              <small className="account-footnote">Dane kont są odseparowane regułami dostępu — zalogowany użytkownik widzi i zmienia wyłącznie swój zapis.</small>
+              <small className="account-footnote">Dane kont są odseparowane regułami dostępu — zalogowany użytkownik widzi i zmienia wyłącznie swój zapis. Synchronizacja może obejmować dane organizera, np. numery rezerwacji i kontakt awaryjny, wyłącznie po kliknięciu „Zapisz to urządzenie w chmurze”.</small>
             </div>
           </div>
         ) : (
@@ -229,8 +294,8 @@ export default function AccountPage() {
               </form>
 
               {(googleEnabled || appleEnabled) && <div className="account-divider"><span>lub</span></div>}
-              {googleEnabled && <a className="account-social-button" href={socialLoginUrl("google", `${window.location.origin}/konto`)}>Kontynuuj z Google</a>}
-              {appleEnabled && <a className="account-social-button" href={socialLoginUrl("apple", `${window.location.origin}/konto`)}>Kontynuuj z Apple</a>}
+              {googleEnabled && accountRedirect && <a className="account-social-button" href={socialLoginUrl("google", accountRedirect)}>Kontynuuj z Google</a>}
+              {appleEnabled && accountRedirect && <a className="account-social-button" href={socialLoginUrl("apple", accountRedirect)}>Kontynuuj z Apple</a>}
             </div>
 
             <div className="account-card account-benefits-card">
@@ -239,7 +304,8 @@ export default function AccountPage() {
                 <li>profil i ograniczenia podróżowania</li>
                 <li>checklista odwiedzonych krajów i wykluczenia</li>
                 <li>ulubione i porównywane oferty</li>
-                <li>bieżąca podróż</li>
+                <li>bieżąca i zapisane podróże</li>
+                <li>alerty podróżnicze</li>
                 <li>personalizowane rekomendacje</li>
               </ul>
               <small className="account-footnote">Nie potrzebujesz konta, żeby przeglądać Tripownię. Konto służy do synchronizacji i personalizacji.</small>

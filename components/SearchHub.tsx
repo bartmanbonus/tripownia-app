@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { CalendarDays, Check, ChevronDown, MapPin, Plane, Search, SlidersHorizontal, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import { airportOptions } from "@/lib/offers";
@@ -301,8 +302,18 @@ export default function SearchHub({
   }
 
   function chooseTab(tab: string) {
+    const query = destination.trim();
+    const suffix = query ? `?q=${encodeURIComponent(query)}` : "";
+    if (tab === "Loty") {
+      window.location.href = `/loty${suffix}`;
+      return;
+    }
+    if (tab === "Hotele") {
+      window.location.href = `/hotele${suffix}`;
+      return;
+    }
     if (tab === "Atrakcje") {
-      window.location.href = "/atrakcje";
+      window.location.href = `/atrakcje${suffix}`;
       return;
     }
     if (tab === "Parkingi") {
@@ -371,6 +382,9 @@ export default function SearchHub({
     setExpanding(false);
   }
 
+  const selfServiceQuery = destination.trim();
+  const selfServiceSuffix = selfServiceQuery ? `?q=${encodeURIComponent(selfServiceQuery)}` : "";
+
   const quickPicks: Array<[string, string, SearchOverrides]> = [
     ["Rzym, Włochy", "Rzym na city break", { duration: "3-4", budget: "1500", tab: "City break" }],
     ["Teneryfa, Hiszpania", "Ciepło na Teneryfie", { duration: "5-7", budget: "3000", tab: "Wakacje" }],
@@ -392,7 +406,7 @@ export default function SearchHub({
         </div>
 
         <div className="search-v3-tabs" role="tablist" aria-label="Rodzaj podróży">
-          {["Inspiracje", "City break", "Lot + hotel", "Wakacje", "Atrakcje", "Parkingi", "eSIM"].map((tab) => (
+          {["Inspiracje", "City break", "Lot + hotel", "Wakacje", "Loty", "Hotele", "Atrakcje", "Parkingi", "eSIM"].map((tab) => (
             <button key={tab} type="button" className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
@@ -533,7 +547,22 @@ export default function SearchHub({
                 {results.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(results.length, count + 6))}>Pokaż kolejne oferty ({results.length - visibleCount})</button>}
               </>
             )}
-            {!loading && results.length === 0 && !expanding && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji.</span></div>}
+            {!loading && results.length === 0 && !expanding && <div className="search-v3-empty"><strong>Feed pakietowy nie potwierdził teraz dopasowania.</strong><span>Możesz zmienić filtr albo sprawdzić osobno lot i hotel dla tego samego kierunku.</span></div>}
+
+            {!loading && selfServiceQuery && (
+              <div className="search-v3-self-service">
+                <div>
+                  <small>SZERSZE WYSZUKIWANIE</small>
+                  <strong>Sprawdź ten sam kierunek poza pulą pakietów</strong>
+                  <span>Pakiety pochodzą z aktualnych feedów touroperatorów. Loty, hotele i atrakcje możesz sprawdzić niezależnie, bez ograniczania do tej puli.</span>
+                </div>
+                <div className="search-v3-self-service-actions">
+                  <Link href={`/loty${selfServiceSuffix}`}><Plane size={16}/> Loty</Link>
+                  <Link href={`/hotele${selfServiceSuffix}`}><MapPin size={16}/> Hotele</Link>
+                  <Link href={`/atrakcje${selfServiceSuffix}`}><Search size={16}/> Atrakcje</Link>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
