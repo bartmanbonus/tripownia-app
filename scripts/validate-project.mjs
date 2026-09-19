@@ -108,6 +108,11 @@ forbidText(
   "www2.esky.pl",
   "stary URL eSky wrócił do katalogu ofert"
 );
+forbidText(
+  "lib/offers.ts",
+  'partner:"esky"',
+  "stare oferty znów raportują partnera jako eSky zamiast Kiwi"
+);
 requireText(
   "lib/partners.ts",
   "buildKiwiFlightSearchUrl",
