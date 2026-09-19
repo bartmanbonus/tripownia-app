@@ -114,7 +114,7 @@ export default function AppHome() {
             <h1>{tripOffer ? `Twój wyjazd do ${tripOffer.city} jest tutaj.` : "Od pomysłu do gotowego wyjazdu."}</h1>
             <p>{tripOffer
               ? `${tripOffer.dates} · sprawdź, co masz już ogarnięte i co warto zrobić teraz.`
-              : "Znajdź ofertę, zapisz podróż, dopnij checklistę, atrakcje, transfer, internet i plan dnia — wszystko w jednym miejscu."}</p>
+              : "Znajdź wyjazd, zapisz go i ogarnij najważniejsze rzeczy po kolei — w jednym miejscu."}</p>
           </div>
           <div className="app-home-hero-actions">
             {tripOffer ? (
