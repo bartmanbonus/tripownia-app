@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves, Route } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import TripPhasePanel from "@/components/TripPhasePanel";
 import { offers, publishedOfferOverrides } from "@/lib/offers";
 import { estimateTripCost } from "@/lib/tripCost";
 import { partners } from "@/lib/partners";
@@ -208,6 +209,7 @@ export default function MyTrip() {
           <div className="favorites-empty"><MapPinned size={30} /><h2>Nie masz jeszcze zapisanej podróży</h2><p>Przy wybranej ofercie kliknij „Dodaj do Mojej podróży”.</p><Link className="primary-cta" href="/dla-ciebie">Znajdź wyjazd <ArrowRight size={17}/></Link></div>
         ) : (
           <>
+            <TripPhasePanel departureAt={trip.departureAt} nights={offer.nights} />
             <section className="trip-mode-grid">
               <div className="trip-mode-card trip-mode-reminder">
                 <div className="trip-mode-title"><BellRing size={20}/><strong>Co teraz?</strong></div>
