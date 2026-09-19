@@ -86,8 +86,12 @@ function applyCloudState(state: TripowniaUserState) {
   localStorage.setItem(COMPARE_OFFER_SNAPSHOTS_KEY, JSON.stringify(state.compare_offer_snapshots || {}));
   localStorage.setItem(TRIP_ARCHIVE_KEY, JSON.stringify(state.trip_archive || []));
   localStorage.setItem("tripownia-alert-settings", JSON.stringify(state.alert_settings || {}));
-  if (state.current_trip) localStorage.setItem("tripownia-my-trip", JSON.stringify(state.current_trip));
-  else localStorage.removeItem("tripownia-my-trip");
+  if (state.current_trip) {
+    localStorage.setItem("tripownia-my-trip", JSON.stringify(state.current_trip));
+    upsertTripArchive(state.current_trip, false);
+  } else {
+    localStorage.removeItem("tripownia-my-trip");
+  }
   window.dispatchEvent(new Event("tripownia-favorites-updated"));
   window.dispatchEvent(new Event("tripownia-compare-updated"));
   window.dispatchEvent(new Event("tripownia-my-trip-updated"));
@@ -108,12 +112,16 @@ export default function AccountPage() {
   const localStats = useMemo(() => {
     if (typeof window === "undefined") return { visited: 0, favorites: 0, compare: 0, trip: false, trips: 0 };
     const profile = readTravelProfile();
+    const activeTrip = readActiveTrip();
+    const archivedTrips = readTripArchive();
+    const tripIds = new Set(archivedTrips.map((trip) => trip.tripId));
+    if (activeTrip?.tripId) tripIds.add(activeTrip.tripId);
     return {
       visited: profile.visitedCountries.length,
       favorites: readNumberList("tripownia-favorites").length,
       compare: readNumberList("tripownia-compare").length,
-      trip: Boolean(localStorage.getItem("tripownia-my-trip")),
-      trips: readTripArchive().length,
+      trip: Boolean(activeTrip),
+      trips: tripIds.size,
     };
   }, [session, synced]);
 
