@@ -358,3 +358,33 @@
   .search-v3-tabs button{font-size:10px}
   .search-v3-field,.search-v3-submit{height:60px}
 }
+
+
+/* Partner search pages use direct inputs inside the shared search field. */
+.search-v3-field>input{
+  width:100%;
+  min-width:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#211d1a;
+  font-size:15px;
+  font-weight:850;
+  line-height:1.2;
+}
+.search-v3-field>input::placeholder{color:#958a83;font-weight:700}
+.search-v3-field>input[type="date"]{font-variant-numeric:tabular-nums}
+.service-page .search-v3{margin-top:28px}
+.service-page .search-v3 .account-grid,
+.service-page .search-v3 .account-card,
+.service-page .search-v3 .account-message{margin-left:34px;margin-right:34px}
+.service-page .search-v3 .account-message{margin-bottom:30px}
+
+@media(max-width:640px){
+  .search-v3-field>input{font-size:16px}
+  .service-page .search-v3{margin-top:20px}
+  .service-page .search-v3 .account-grid,
+  .service-page .search-v3 .account-card,
+  .service-page .search-v3 .account-message{margin-left:14px;margin-right:14px}
+  .service-page .search-v3 .account-message{margin-bottom:20px}
+}
