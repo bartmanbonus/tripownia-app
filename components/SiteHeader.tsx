@@ -127,13 +127,16 @@ export default function SiteHeader() {
 
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema).replace(/</g, "\\u003c") }} />
-    <header className="trip-header">
+    <header className={`trip-header${inApp ? " trip-header-app" : ""}`}>
       <div className="trip-header-shell">
         <div className="trip-mobile-top">
           <Link className="trip-mobile-brand" href={mobileHomeHref} aria-label={inApp ? "Tripownia — start aplikacji" : "Tripownia.pl — strona główna"}>
             <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={64} height={64} priority />
           </Link>
           <div className="trip-mobile-top-actions">
+            <Link className="trip-mobile-search-shortcut" href={searchHref} aria-label="Przejdź do wyszukiwarki wyjazdów">
+              <Search size={19} strokeWidth={2.2} /><span>Szukaj</span>
+            </Link>
             <Link className="trip-mobile-account" href="/konto" aria-label="Konto i logowanie">
               <UserRound size={19} strokeWidth={2.2} /><span>Konto</span>
             </Link>
@@ -173,7 +176,7 @@ export default function SiteHeader() {
           </Link>
           <Link className="trip-header-search" href={searchHref} aria-label="Przejdź do wyszukiwarki wyjazdów">
             <Search size={20} strokeWidth={2.3} />
-            <span className="trip-header-search-copy"><strong>Dokąd chcesz lecieć?</strong><small>Loty, hotele, wakacje i gotowe okazje w jednym miejscu</small></span>
+            <span className="trip-header-search-copy"><strong>{inApp ? "Szukaj wyjazdu" : "Dokąd chcesz lecieć?"}</strong><small>{inApp ? "Przejdź do wyszukiwarki Tripowni" : "Loty, hotele, wakacje i gotowe okazje w jednym miejscu"}</small></span>
             <span className="trip-header-search-cta" aria-hidden="true"><Search size={24} strokeWidth={2.8} /></span>
           </Link>
           <nav className="trip-header-actions" aria-label="Twoje konto">
