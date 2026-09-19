@@ -677,7 +677,17 @@ export default function SearchHub({
               <>
                 <div className="search-v3-results-grid">{results.slice(0, visibleCount).map((offer, index) => {
                   const isAlternative = alternativeStart !== null && index >= alternativeStart;
-                  return <OfferCard key={offer.id} offer={offer} searchRank={!isAlternative && index < 3 ? index + 1 : undefined} alternative={isAlternative}/>;
+                  return (
+                    <div className={isAlternative ? "search-v3-result-wrap is-alternative" : "search-v3-result-wrap"} key={offer.id}>
+                      {alternativeStart !== null && index === alternativeStart && (
+                        <div className="search-v3-alternative-divider">
+                          <small>ALTERNATYWY TRIPOWNI</small>
+                          <strong>Jeśli możesz poluzować jeden warunek, sprawdź też te opcje</strong>
+                        </div>
+                      )}
+                      <OfferCard offer={offer} searchRank={!isAlternative && index < 3 ? index + 1 : undefined} alternative={isAlternative}/>
+                    </div>
+                  );
                 })}</div>
                 {results.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(results.length, count + 6))}>Pokaż kolejne oferty ({results.length - visibleCount})</button>}
               </>
