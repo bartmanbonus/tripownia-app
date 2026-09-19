@@ -15,7 +15,7 @@ import { getOfferOverride } from "@/lib/clientOfferOverrides";
 type WeatherState = { temperature: number; apparent: number; code: number; wind: number; loading?: boolean; error?: string } | null;
 type AttractionPick = { title: string; subtitle: string; query: string; icon: "landmark" | "food" | "water" | "sparkles" };
 
-type TripState = {
+export type TripState = {
   tripId?: string;
   offerId?: number;
   flight?: string;
@@ -25,6 +25,7 @@ type TripState = {
   checklist?: Record<string, boolean>;
   dayPlan?: Array<Record<string, unknown>>;
   remindersEnabled?: boolean;
+  offerSnapshot?: Offer;
 };
 
 const LEGACY_TOOLKIT_KEY = "tripownia-trip-toolkit";
@@ -85,8 +86,8 @@ function attractionPicks(city: string, categories: string[]): AttractionPick[] {
   return picks;
 }
 
-export default function MyTrip() {
-  const [trip, setTrip] = useState<TripState>({ checklist: {}, dayPlan: [] });
+export default function MyTrip({ initialTrip }: { initialTrip?: TripState }) {
+  const [trip, setTrip] = useState<TripState>({ checklist: {}, dayPlan: [], ...(initialTrip || {}) });
   const [weather, setWeather] = useState<WeatherState>(null);
   const [notificationStatus, setNotificationStatus] = useState("");
   const [shareStatus, setShareStatus] = useState("");
@@ -118,7 +119,10 @@ export default function MyTrip() {
     return () => window.removeEventListener("tripownia-offer-overrides-updated", refresh);
   }, []);
 
-  const offer = useMemo(() => offers.find((item) => item.id === trip.offerId), [trip.offerId]);
+  const offer = useMemo(
+    () => trip.offerSnapshot || offers.find((item) => item.id === trip.offerId),
+    [trip.offerId, trip.offerSnapshot],
+  );
   const displayPrice = useMemo(() => {
     if (!offer) return 0;
     const client = getOfferOverride(offer.id);
