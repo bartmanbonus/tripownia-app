@@ -83,7 +83,7 @@ jobs:
                   buckets[actual_provider].append(offer)
 
           total_valid = sum(len(items) for items in buckets.values())
-          if total_valid < 5:
+          if total_valid < 30:
               raise SystemExit(f"Refusing snapshot: only {total_valid} valid offers across feeds")
 
           provider_order = [name for name in ("exim", "tui") if buckets.get(name)]
@@ -107,6 +107,19 @@ jobs:
               for offer in selected
               if offer.get("city") or offer.get("country")
           }
+          if len(destinations) < 12:
+              raise SystemExit(f"Refusing snapshot: only {len(destinations)} unique destinations")
+
+          destination_counts = {}
+          for offer in selected:
+              key = (
+                  str(offer.get("city") or "").strip().lower(),
+                  str(offer.get("country") or "").strip().lower(),
+              )
+              destination_counts[key] = destination_counts.get(key, 0) + 1
+          max_destination_share = max(destination_counts.values(), default=0) / max(1, len(selected))
+          if len(selected) >= 40 and max_destination_share > 0.30:
+              raise SystemExit(f"Refusing snapshot: one destination is {max_destination_share:.0%} of the pool")
 
           snapshot = {
               "ok": True,
@@ -114,6 +127,10 @@ jobs:
               "snapshotAt": datetime.now(timezone.utc).isoformat(),
               "sourceCount": sum(int(data.get("sourceCount") or 0) for data in datasets),
               "destinationCount": len(destinations),
+              "quality": {
+                  "uniqueDestinations": len(destinations),
+                  "maxDestinationShare": round(max_destination_share, 4),
+              },
               "providerCounts": {
                   name: sum(1 for offer in selected if str(offer.get("partner") or "").lower() == name)
                   for name in provider_order
