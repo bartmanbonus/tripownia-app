@@ -149,14 +149,19 @@ requireText(
   "zmiany w Mojej podróży nie synchronizują się z archiwum wyjazdów"
 );
 requireText(
-  "components/OfferCard.tsx",
-  "upsertTripArchive(nextTrip)",
-  "dodanie oferty do Mojej podróży nie zapisuje jej w archiwum"
+  "lib/tripArchive.ts",
+  "setActiveOfferTrip",
+  "brakuje wspólnego mechanizmu ustawiania aktywnej podróży z oferty"
 );
 requireText(
   "components/OfferCard.tsx",
-  "upsertTripArchive(previous, false)",
-  "zmiana aktywnej oferty nie zabezpiecza poprzedniego wyjazdu w archiwum"
+  "setActiveOfferTrip(offerSnapshot)",
+  "karta oferty omija wspólny mechanizm aktywnej podróży"
+);
+requireText(
+  "app/oferta/[id]/page.tsx",
+  "<AddToTripButton offer={o} />",
+  "szczegóły oferty nie pozwalają dodać jej do Mojej podróży"
 );
 forbidText(
   "components/TripToolkit.tsx",
