@@ -3,7 +3,7 @@
   "appName": "Tripownia",
   "webDir": "public",
   "server": {
-    "url": "https://tripownia.pl",
+    "url": "https://tripownia.pl/app",
     "cleartext": false,
     "androidScheme": "https",
     "allowNavigation": [
