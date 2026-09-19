@@ -121,6 +121,30 @@ const ORIGIN_SLUGS: Record<string, string> = {
   IEG: "zielona-gora-poland",
 };
 
+function resolveOriginCode(value: string) {
+  const raw = value.trim().toUpperCase();
+  if (airportOptions.some((airport) => airport.code === raw)) return raw;
+
+  const normalized = normalize(value);
+  const aliases: Array<[string, string[]]> = [
+    ["WMI", ["modlin"]],
+    ["WAW", ["warszawa", "warsaw", "chopin"]],
+    ["KRK", ["krakow", "kraków"]],
+    ["KTW", ["katowice"]],
+    ["GDN", ["gdansk", "gdańsk"]],
+    ["WRO", ["wroclaw", "wrocław"]],
+    ["POZ", ["poznan", "poznań"]],
+    ["RZE", ["rzeszow", "rzeszów"]],
+    ["LCJ", ["lodz", "łódź"]],
+    ["LUZ", ["lublin"]],
+    ["SZZ", ["szczecin"]],
+    ["BZG", ["bydgoszcz"]],
+    ["IEG", ["zielona gora", "zielona góra"]],
+  ];
+
+  return aliases.find(([, patterns]) => patterns.some((pattern) => normalized.includes(normalize(pattern))))?.[0] || "";
+}
+
 function buildHotelUrl(destination: string, checkin: string, checkout: string, adults: number) {
   const url = new URL("https://www.booking.com/searchresults.pl.html");
   if (destination.trim()) url.searchParams.set("ss", destination.trim());
@@ -134,7 +158,7 @@ function buildHotelUrl(destination: string, checkin: string, checkout: string, a
 
 export default function PartnerSearchPage({ mode }: { mode: "flights" | "hotels" }) {
   const isFlights = mode === "flights";
-  const [originCode, setOriginCode] = useState("WAW");
+  const [originCode, setOriginCode] = useState("");
   const [destination, setDestination] = useState("");
   const [departureDate, setDepartureDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
@@ -159,8 +183,11 @@ export default function PartnerSearchPage({ mode }: { mode: "flights" | "hotels"
       if (!snapshot) return;
 
       const airportCode = String(snapshot.airportCode || "").toUpperCase();
-      if (isFlights && airportOptions.some((airport) => airport.code === airportCode)) {
-        setOriginCode(airportCode);
+      if (isFlights) {
+        const inferredOrigin = airportOptions.some((airport) => airport.code === airportCode)
+          ? airportCode
+          : resolveOriginCode(String(snapshot.departure || ""));
+        if (inferredOrigin) setOriginCode(inferredOrigin);
       }
 
       const start = String(trip?.departureAt || "").slice(0, 10);
@@ -190,9 +217,9 @@ export default function PartnerSearchPage({ mode }: { mode: "flights" | "hotels"
 
   const targetUrl = useMemo(() => {
     if (isFlights) {
-      if (!destinationPlace) return "";
+      if (!destinationPlace || !originCode || !ORIGIN_SLUGS[originCode]) return "";
       return buildKiwiFlightSearchUrl({
-        from: ORIGIN_SLUGS[originCode] || "warsaw-poland",
+        from: ORIGIN_SLUGS[originCode],
         to: destinationPlace.slug,
         departure: departureDate || undefined,
         returnDate: returnDate || undefined,
@@ -202,12 +229,14 @@ export default function PartnerSearchPage({ mode }: { mode: "flights" | "hotels"
   }, [isFlights, originCode, destinationPlace, departureDate, returnDate, destination, checkin, checkout, adults]);
 
   const ready = isFlights
-    ? Boolean(destinationPlace && flightDatesValid)
+    ? Boolean(originCode && destinationPlace && flightDatesValid)
     : Boolean(destination.trim().length >= 2 && hotelDatesValid);
 
   const validationCopy = isFlights
-    ? !destination.trim()
-      ? "Wybierz kierunek z listy albo wpisz 3-literowy kod lotniska/miasta."
+    ? !originCode
+      ? "Wybierz lotnisko wylotu."
+      : !destination.trim()
+        ? "Wybierz kierunek z listy albo wpisz 3-literowy kod lotniska/miasta."
       : !destinationPlace
         ? "Nie rozpoznaliśmy tego kierunku. Wybierz podpowiedź z listy albo wpisz kod IATA, np. ROM."
         : !flightDatesValid
@@ -242,6 +271,7 @@ export default function PartnerSearchPage({ mode }: { mode: "flights" | "hotels"
               <label className="search-v3-field">
                 <span><Plane size={15}/> Skąd?</span>
                 <select value={originCode} onChange={(event) => setOriginCode(event.target.value)}>
+                  <option value="">Wybierz lotnisko</option>
                   {airportOptions.map((airport) => <option key={airport.code} value={airport.code}>{airport.label}</option>)}
                 </select>
               </label>
