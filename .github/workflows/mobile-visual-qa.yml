@@ -26,10 +26,12 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+          npm install --no-save playwright@1.55.0
 
-      - name: Install mobile browsers
-        run: npx --yes playwright@1.55.0 install --with-deps chromium webkit
+      - name: Install mobile browser
+        run: npx playwright install --with-deps webkit
 
       - name: Start Tripownia
         shell: bash
@@ -45,15 +47,62 @@ jobs:
           cat /tmp/tripownia-visual.log
           exit 1
 
-      - name: Capture iPhone view
+      - name: Capture iPhone view and layout metrics
+        shell: bash
         run: |
           mkdir -p visual-qa
-          npx --yes playwright@1.55.0 screenshot \
-            --device="iPhone 14" \
-            --full-page \
-            --wait-for-timeout=2500 \
-            http://127.0.0.1:3000/kierunki \
-            visual-qa/kierunki-iphone14.png
+          node <<'NODE'
+          const { webkit, devices } = require("playwright");
+
+          (async () => {
+            const browser = await webkit.launch();
+            const context = await browser.newContext({ ...devices["iPhone 14"] });
+            await context.addInitScript(() => {
+              localStorage.setItem("tripownia-consent-v1", "necessary");
+            });
+            const page = await context.newPage();
+            await page.goto("http://127.0.0.1:3000/kierunki", { waitUntil: "networkidle" });
+            await page.waitForTimeout(1800);
+
+            const metrics = await page.evaluate(() => {
+              const rect = (selector) => {
+                const el = document.querySelector(selector);
+                if (!el) return null;
+                const r = el.getBoundingClientRect();
+                const s = getComputedStyle(el);
+                return {
+                  selector,
+                  top: Math.round(r.top + window.scrollY),
+                  bottom: Math.round(r.bottom + window.scrollY),
+                  height: Math.round(r.height),
+                  width: Math.round(r.width),
+                  marginTop: s.marginTop,
+                  marginBottom: s.marginBottom,
+                  paddingTop: s.paddingTop,
+                  paddingBottom: s.paddingBottom,
+                  minHeight: s.minHeight,
+                  display: s.display,
+                };
+              };
+              return {
+                viewport: { width: innerWidth, height: innerHeight },
+                bodyHeight: document.body.scrollHeight,
+                shell: rect(".directions-v188-shell"),
+                heading: rect(".directions-v188-heading"),
+                grid: rect(".directions-v188-grid"),
+                card: rect(".directions-v188-card"),
+                footer: rect(".footer-v2"),
+              };
+            });
+
+            console.log("LAYOUT_METRICS=" + JSON.stringify(metrics));
+            await page.screenshot({ path: "visual-qa/kierunki-iphone14.png", fullPage: true });
+            await browser.close();
+          })().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
 
       - name: Upload screenshot
         uses: actions/upload-artifact@v4
