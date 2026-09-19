@@ -19,6 +19,17 @@ function readSearchContext(root: HTMLElement) {
 
 export default function AnalyticsInteractions() {
   useEffect(() => {
+    const userAgent = navigator.userAgent || "";
+    const isAndroidApp = userAgent.includes("TripowniaAndroid/");
+    const isStandalone = window.matchMedia?.("(display-mode: standalone)")?.matches
+      || Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
+
+    if (isAndroidApp) {
+      trackEvent("app_session", { platform: "android", shell: "capacitor" });
+    } else if (isStandalone) {
+      trackEvent("app_session", { platform: "pwa", shell: "standalone" });
+    }
+
     const onSubmit = (event: SubmitEvent) => {
       const form = event.target;
       if (!(form instanceof HTMLFormElement) || !form.matches(".search-v3-form")) return;
