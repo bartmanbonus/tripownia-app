@@ -18,6 +18,7 @@ import {
   removeOfferSnapshot,
   saveOfferSnapshot,
 } from "@/lib/savedOfferSnapshots";
+import { upsertTripArchive } from "@/lib/tripArchive";
 
 const OFFER_VIEW_SESSION_KEY = "tripownia-viewed-offers-v1";
 const viewedOfferIds = new Set<number>();
@@ -219,7 +220,10 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
     const nextTrip = sameTrip
       ? { ...previous, offerId: offer.id, tripId, offerSnapshot }
       : { tripId: createTripId(offer.id), offerId: offer.id, offerSnapshot, checklist: {}, dayPlan: [] };
+
+    if (!sameTrip && previous?.tripId) upsertTripArchive(previous, false);
     localStorage.setItem("tripownia-my-trip", JSON.stringify(nextTrip));
+    upsertTripArchive(nextTrip);
     setTripAdded(true);
     trackEvent("trip_add", { ...eventBase, trip_id: nextTrip.tripId });
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
