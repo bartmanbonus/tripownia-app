@@ -1,0 +1,63 @@
+name: Mobile visual QA
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/kierunki/**"
+      - "app/globals.css"
+      - "app/sitewide-deep-polish.css"
+      - "app/contrast-guard.css"
+      - ".github/workflows/mobile-visual-qa.yml"
+  workflow_dispatch:
+
+jobs:
+  screenshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx --yes playwright@1.55.0 install --with-deps chromium
+
+      - name: Start Tripownia
+        shell: bash
+        run: |
+          npm run dev -- --hostname 127.0.0.1 > /tmp/tripownia-visual.log 2>&1 &
+          echo $! > /tmp/tripownia-visual.pid
+          for attempt in {1..45}; do
+            if curl --fail --silent http://127.0.0.1:3000/kierunki > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/tripownia-visual.log
+          exit 1
+
+      - name: Capture iPhone view
+        run: |
+          mkdir -p visual-qa
+          npx --yes playwright@1.55.0 screenshot \
+            --device="iPhone 14" \
+            --full-page \
+            --wait-for-timeout=2500 \
+            http://127.0.0.1:3000/kierunki \
+            visual-qa/kierunki-iphone14.png
+
+      - name: Upload screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: kierunki-mobile-visual
+          path: visual-qa/kierunki-iphone14.png
+          retention-days: 7
