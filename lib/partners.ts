@@ -68,12 +68,22 @@ export function buildKiwiFlightSearchUrl({
   departure?: string;
   returnDate?: string;
 }) {
-  const url = new URL("https://www.kiwi.com/deep");
-  url.searchParams.set("from", from.trim().toUpperCase());
-  url.searchParams.set("to", to.trim().toUpperCase());
-  if (departure) url.searchParams.set("departure", departure);
-  if (returnDate) url.searchParams.set("return", returnDate);
-  return buildKiwiAffiliateUrl(url.toString());
+  const cleanSegment = (value: string) => value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  const fromSegment = cleanSegment(from);
+  const toSegment = cleanSegment(to);
+  if (!fromSegment || !toSegment) return buildKiwiAffiliateUrl();
+
+  let target = `https://www.kiwi.com/en/search/results/${fromSegment}/${toSegment}`;
+  if (departure) target += `/${departure}`;
+  if (departure && returnDate) target += `/${returnDate}`;
+  target += "/";
+
+  return buildKiwiAffiliateUrl(target);
 }
 
 function buildLegacyEskyAlias(destinationUrl?: string) {
