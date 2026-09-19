@@ -134,6 +134,7 @@ export default function AccountPage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [synced, setSynced] = useState(0);
+  const [accountRedirect, setAccountRedirect] = useState("");
   const configured = isAccountAuthConfigured();
 
   const localStats = useMemo(() => {
@@ -153,6 +154,7 @@ export default function AccountPage() {
   }, [session, synced]);
 
   useEffect(() => {
+    setAccountRedirect(`${window.location.origin}/konto`);
     let cancelled = false;
 
     const load = async () => {
@@ -292,8 +294,8 @@ export default function AccountPage() {
               </form>
 
               {(googleEnabled || appleEnabled) && <div className="account-divider"><span>lub</span></div>}
-              {googleEnabled && <a className="account-social-button" href={socialLoginUrl("google", `${window.location.origin}/konto`)}>Kontynuuj z Google</a>}
-              {appleEnabled && <a className="account-social-button" href={socialLoginUrl("apple", `${window.location.origin}/konto`)}>Kontynuuj z Apple</a>}
+              {googleEnabled && accountRedirect && <a className="account-social-button" href={socialLoginUrl("google", accountRedirect)}>Kontynuuj z Google</a>}
+              {appleEnabled && accountRedirect && <a className="account-social-button" href={socialLoginUrl("apple", accountRedirect)}>Kontynuuj z Apple</a>}
             </div>
 
             <div className="account-card account-benefits-card">
