@@ -5,7 +5,6 @@ import Link from "next/link";
 import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves, Route } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import TripToolkit from "@/components/TripToolkit";
 import { offers, publishedOfferOverrides } from "@/lib/offers";
 import { estimateTripCost } from "@/lib/tripCost";
 import { partners } from "@/lib/partners";
@@ -249,8 +248,6 @@ export default function MyTrip() {
               <div className="my-trip-card-head"><Sparkles size={20}/><h2>Co warto zrobić w {offer.city}</h2></div>
               <div className="trip-attraction-grid">{attractions.map((pick) => { const Icon = pick.icon === "landmark" ? Landmark : pick.icon === "food" ? UtensilsCrossed : pick.icon === "water" ? Waves : Sparkles; const partnerHref = partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(pick.query)}`); return <a key={pick.title} href={partnerHref} target="_blank" rel="sponsored noopener noreferrer"><Icon size={20}/><div><strong>{pick.title}</strong><span>{pick.subtitle}</span></div><ArrowRight size={16}/></a>; })}</div>
             </section>
-
-            <TripToolkit city={offer.city} country={offer.country} tripId={trip.tripId || `trip-${offer.id}`} />
 
             <section className="my-trip-card my-trip-notes"><div className="my-trip-card-head"><NotebookPen size={20}/><h2>Notatki</h2></div><textarea value={trip.notes || ""} onChange={(e) => save({ ...trip, notes: e.target.value })} placeholder="Restauracje, atrakcje, adresy, pomysły..." rows={5} /></section>
           </>
