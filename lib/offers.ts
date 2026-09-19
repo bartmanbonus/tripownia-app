@@ -1,5 +1,5 @@
 import type { PartnerKey } from "./partners";
-import { partners } from "./partners";
+import { buildKiwiFlightSearchUrl, partners } from "./partners";
 import publishedOverridesRaw from "@/data/offer-overrides.json";
 
 export type AvailabilityStatus = "available" | "unknown" | "expired";
@@ -45,27 +45,29 @@ type EskySearchOptions = {
   adults?: number;
 };
 
+const LEGACY_FLIGHT_DESTINATION_CODES: Record<string, string> = {
+  "CI-29266": "BGY",
+  "CO-MT": "MLA",
+};
+
 const esky = ({
   arrivalPlaces,
-  stayLength,
   airportCode,
   departureDate,
   returnDate,
-  adults = 2,
 }: EskySearchOptions) => {
-  const departurePlace = departurePlaceFor(airportCode);
-  const url = new URL("https://www2.esky.pl/lot+hotel/portfolio");
-  url.searchParams.set("rooms[0][adults]", String(adults));
-  url.searchParams.set("datesTab", "flexDates");
-  url.searchParams.set("stayLength", stayLength);
-  url.searchParams.set("arrivalPlaces", arrivalPlaces);
-  url.searchParams.set("departurePlaces", departurePlace);
-  url.searchParams.set("selectedDeparturePlaces", departurePlace);
-  url.searchParams.set("context", "pl-packages");
-  url.searchParams.set("sort[TotalPrice]", "asc");
-  if (departureDate) url.searchParams.set("departureDate", departureDate);
-  if (returnDate) url.searchParams.set("returnDate", returnDate);
-  return partners.esky.buildUrl(url.toString());
+  const normalizedArrival = arrivalPlaces.trim().toUpperCase();
+  const directCityCode = normalizedArrival.match(/^CI-([A-Z]{3})$/)?.[1];
+  const destinationCode = directCityCode || LEGACY_FLIGHT_DESTINATION_CODES[normalizedArrival];
+
+  if (!destinationCode) return partners.kiwi.buildUrl();
+
+  return buildKiwiFlightSearchUrl({
+    from: airportCode,
+    to: destinationCode,
+    departure: departureDate,
+    returnDate,
+  });
 };
 
 const eximDestination = (path: string) => {
