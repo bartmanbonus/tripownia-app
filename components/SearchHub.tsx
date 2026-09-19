@@ -76,16 +76,20 @@ function onePerDirection(rows: any[]) {
   });
 }
 
+function offerVariantKey(row: any) {
+  return [
+    String(row?.partner || ""),
+    String(row?.hotel || row?.city || "").toLowerCase(),
+    String(row?.dates || ""),
+    String(row?.departure || "").toLowerCase(),
+    String(row?.price || ""),
+  ].join("|");
+}
+
 function uniqueOfferVariants(rows: any[]) {
   const seen = new Set<string>();
   return rows.filter((row) => {
-    const key = [
-      String(row?.partner || ""),
-      String(row?.hotel || row?.city || "").toLowerCase(),
-      String(row?.dates || ""),
-      String(row?.departure || "").toLowerCase(),
-      String(row?.price || ""),
-    ].join("|");
+    const key = offerVariantKey(row);
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -444,6 +448,9 @@ export default function SearchHub({
       let rows = cleanRows(Array.isArray(data?.offers) ? data.offers : [], query);
       const firstDatePass = prioritizeByDate(rows, datePreference);
       rows = balanceSelectedDestinations(firstDatePass.rows, requestedDestinations);
+      const initialWasRelaxed = Number(data?.exactSourceCount || 0) === 0 && rows.length > 0;
+      const exactMatchCount = initialWasRelaxed ? 0 : rows.length;
+      if (initialWasRelaxed) setAlternativeStart(0);
       setResults(rows);
       setLoading(false);
 
@@ -469,12 +476,21 @@ export default function SearchHub({
       let finalDateNotice = firstDatePass.notice;
       if (relaxedResponse.ok && relaxedData?.ok !== false) {
         const relaxedRows = cleanRows(Array.isArray(relaxedData?.offers) ? relaxedData.offers : [], query);
-        rows = query
-          ? uniqueOfferVariants([...rows, ...relaxedRows]).slice(0, 18)
-          : onePerDirection([...rows, ...relaxedRows]).slice(0, 12);
-        const relaxedDatePass = prioritizeByDate(rows, datePreference);
-        rows = balanceSelectedDestinations(relaxedDatePass.rows, requestedDestinations);
-        finalDateNotice = relaxedDatePass.notice || finalDateNotice;
+        const relaxedDatePass = prioritizeByDate(relaxedRows, datePreference);
+        const relaxedBalanced = balanceSelectedDestinations(relaxedDatePass.rows, requestedDestinations);
+        const existingKeys = new Set(rows.map(offerVariantKey));
+        const additions = relaxedBalanced.filter((row) => !existingKeys.has(offerVariantKey(row)));
+        const targetLimit = query ? 18 : 12;
+        rows = [...rows, ...additions].slice(0, targetLimit);
+
+        if (additions.length && alternativeStart === null) {
+          setAlternativeStart(exactMatchCount);
+        }
+        finalDateNotice = additions.length
+          ? exactMatchCount > 0
+            ? "Najpierw pokazujemy dokładne dopasowania. Niżej są najbliższe opcje po poluzowaniu części filtrów."
+            : "Nie ma teraz dokładnego dopasowania — pokazujemy najbliższe aktualne opcje."
+          : relaxedDatePass.notice || finalDateNotice;
         setResults(rows);
       }
 
@@ -487,11 +503,11 @@ export default function SearchHub({
 
         if (rescueResponse.ok && rescueData?.ok !== false) {
           const rescueRows = cleanRows(Array.isArray(rescueData?.offers) ? rescueData.offers : [], "");
-          const existingIds = new Set(rows.map((row) => row.id));
-          const alternatives = rescueRows.filter((row) => !existingIds.has(row.id));
-          const exactCount = rows.length;
+          const existingKeys = new Set(rows.map(offerVariantKey));
+          const alternatives = rescueRows.filter((row) => !existingKeys.has(offerVariantKey(row)));
+          const alternativeBoundary = alternativeStart ?? exactMatchCount;
           rows = [...rows, ...alternatives].slice(0, 12);
-          setAlternativeStart(alternatives.length ? exactCount : null);
+          if (alternatives.length) setAlternativeStart(alternativeBoundary);
           setResults(rows);
 
           if (rows.length) {
