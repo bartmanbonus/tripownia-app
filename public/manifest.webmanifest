@@ -9,8 +9,17 @@
   "orientation": "portrait-primary",
   "background_color": "#ffffff",
   "theme_color": "#0f172a",
-  "categories": ["travel", "lifestyle"],
+  "categories": [
+    "travel",
+    "lifestyle"
+  ],
   "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "/tripownia-app-icon-v2.png",
       "sizes": "256x256",
