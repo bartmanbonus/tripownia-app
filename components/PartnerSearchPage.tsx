@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BedDouble, CalendarDays, MapPin, Plane, Search } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
@@ -141,6 +141,42 @@ export default function PartnerSearchPage({ mode }: { mode: "flights" | "hotels"
   const [checkin, setCheckin] = useState("");
   const [checkout, setCheckout] = useState("");
   const [adults, setAdults] = useState(2);
+
+  useEffect(() => {
+    try {
+      const trip = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null");
+      const snapshot = trip?.offerSnapshot;
+      if (!snapshot?.city) return;
+
+      setDestination(isFlights
+        ? String(snapshot.city)
+        : `${snapshot.city}${snapshot.country ? `, ${snapshot.country}` : ""}`);
+
+      const airportCode = String(snapshot.airportCode || "").toUpperCase();
+      if (isFlights && airportOptions.some((airport) => airport.code === airportCode)) {
+        setOriginCode(airportCode);
+      }
+
+      const start = String(trip?.departureAt || "").slice(0, 10);
+      const nights = Number(snapshot.nights || 0);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(start)) return;
+
+      const startDate = new Date(`${start}T12:00:00Z`);
+      if (!Number.isFinite(startDate.getTime())) return;
+      const endDate = new Date(startDate.getTime() + Math.max(1, nights) * 86400000);
+      const end = endDate.toISOString().slice(0, 10);
+
+      if (isFlights) {
+        setDepartureDate(start);
+        setReturnDate(end);
+      } else {
+        setCheckin(start);
+        setCheckout(end);
+      }
+    } catch {
+      // Active trip prefill is optional.
+    }
+  }, [isFlights]);
 
   const destinationPlace = useMemo(() => isFlights ? resolveFlightPlace(destination) : null, [destination, isFlights]);
   const hotelDatesValid = !checkin || !checkout || new Date(checkout).getTime() > new Date(checkin).getTime();
