@@ -75,8 +75,9 @@ export function upsertTripArchive(value: unknown, emit = true) {
   const trip = normalizeTrip(value);
   if (!trip) return null;
 
-  const nextTrip: TripArchiveSnapshot = { ...trip, updatedAt: new Date().toISOString() };
   const current = readTripArchive();
+  const existing = current.find((item) => item.tripId === trip.tripId);
+  const nextTrip: TripArchiveSnapshot = { ...existing, ...trip, updatedAt: new Date().toISOString() };
   const next = [nextTrip, ...current.filter((item) => item.tripId !== nextTrip.tripId)].slice(0, 30);
   localStorage.setItem(TRIP_ARCHIVE_KEY, JSON.stringify(next));
   if (emit) window.dispatchEvent(new Event(TRIP_ARCHIVE_EVENT));
@@ -120,5 +121,7 @@ export function removeArchivedTrip(tripId: string) {
   if (typeof window === "undefined") return;
   const next = readTripArchive().filter((item) => item.tripId !== tripId);
   localStorage.setItem(TRIP_ARCHIVE_KEY, JSON.stringify(next));
+  localStorage.removeItem(`tripownia-organizer:${tripId}`);
+  localStorage.removeItem(`tripownia-trip-toolkit:${tripId}`);
   window.dispatchEvent(new Event(TRIP_ARCHIVE_EVENT));
 }
