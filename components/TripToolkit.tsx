@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   ArrowRight,
   BadgeEuro,
@@ -25,7 +26,6 @@ import {
   Users,
   WalletCards,
 } from "lucide-react";
-import { partners } from "@/lib/partners";
 
 type Reservation = {
   id: string;
@@ -169,11 +169,9 @@ export default function TripToolkit({ city, country, tripId }: { city: string; c
   }, [state.expenses, state.travelers]);
 
   const totalExpenses = state.expenses.reduce((sum, item) => sum + item.amount, 0);
-  const gyGuide = partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(city)}`);
-  const booking = partners.booking.buildUrl(`https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(city)}`);
-  const esim = partners.fonia.buildUrl();
-  const parking = partners.parklot.buildUrl();
-  const kiwi = partners.kiwi.buildUrl(`https://www.kiwi.com/pl/search/results/${encodeURIComponent(city.toLowerCase().replaceAll(" ", "-"))}`);
+  const attractionsHref = `/atrakcje?q=${encodeURIComponent(city)}`;
+  const hotelsHref = `/hotele?q=${encodeURIComponent(`${city}, ${country}`)}`;
+  const flightsHref = `/loty?q=${encodeURIComponent(city)}`;
   const photoSearch = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`best photo spots ${city}`)}`;
   const taxiSearch = `https://www.google.com/search?q=${encodeURIComponent(`${city} taxi app Bolt Uber local taxi`)}`;
   const carSearch = `https://www.google.com/search?q=${encodeURIComponent(`${city} car rental airport`)}`;
@@ -275,14 +273,14 @@ export default function TripToolkit({ city, country, tripId }: { city: string; c
       <section id="uslugi" className="trip-toolkit-section">
         <div className="trip-section-heading"><div><h2>Do Twojej podróży</h2><p>Usługi pojawiają się tam, gdzie realnie mogą ułatwić wyjazd.</p></div></div>
         <div className="trip-market-grid">
-          <a className="trip-market-link" href={gyGuide} target="_blank" rel="sponsored noopener noreferrer"><TicketCheck size={21}/><div><strong>Atrakcje i bilety</strong><span>GetYourGuide dla {city}</span></div><ArrowRight size={16}/></a>
-          <a className="trip-market-link" href={booking} target="_blank" rel="sponsored noopener noreferrer"><MapPin size={21}/><div><strong>Noclegi</strong><span>Booking.com w {city}</span></div><ArrowRight size={16}/></a>
-          <a className="trip-market-link" href={esim} target="_blank" rel="sponsored noopener noreferrer"><Smartphone size={21}/><div><strong>Internet / eSIM</strong><span>Internet na wyjazd bez szukania lokalnej karty SIM</span></div><ArrowRight size={16}/></a>
-          <a className="trip-market-link" href={parking} target="_blank" rel="sponsored noopener noreferrer"><Car size={21}/><div><strong>Parking przy lotnisku</strong><span>Zarezerwuj przed wyjazdem</span></div><ArrowRight size={16}/></a>
-          <a className="trip-market-link" href={kiwi} target="_blank" rel="sponsored noopener noreferrer"><Plane size={21}/><div><strong>Loty</strong><span>Porównaj połączenia i alternatywne terminy</span></div><ArrowRight size={16}/></a>
+          <Link className="trip-market-link" href={attractionsHref}><TicketCheck size={21}/><div><strong>Atrakcje i bilety</strong><span>Wyszukiwanie atrakcji dla {city}</span></div><ArrowRight size={16}/></Link>
+          <Link className="trip-market-link" href={hotelsHref}><MapPin size={21}/><div><strong>Noclegi</strong><span>Wyszukiwanie hoteli w {city}</span></div><ArrowRight size={16}/></Link>
+          <Link className="trip-market-link" href="/esim"><Smartphone size={21}/><div><strong>Internet / eSIM</strong><span>Internet na wyjazd bez szukania lokalnej karty SIM</span></div><ArrowRight size={16}/></Link>
+          <Link className="trip-market-link" href="/parkingi"><Car size={21}/><div><strong>Parking przy lotnisku</strong><span>Zarezerwuj przed wyjazdem</span></div><ArrowRight size={16}/></Link>
+          <Link className="trip-market-link" href={flightsHref}><Plane size={21}/><div><strong>Loty</strong><span>Porównaj połączenia i alternatywne terminy</span></div><ArrowRight size={16}/></Link>
           <a className="trip-market-link" href={`https://www.google.com/search?q=${encodeURIComponent(`${city} travel insurance ${country}`)}`} target="_blank" rel="noopener noreferrer"><ShieldCheck size={21}/><div><strong>Ubezpieczenie</strong><span>Porównaj zakres ochrony pod konkretny wyjazd</span></div><ArrowRight size={16}/></a>
         </div>
-        <div className="trip-service-disclosure">Linki do GetYourGuide, Booking.com, Fonia, Parklot i Kiwi mogą być linkami afiliacyjnymi Tripowni. Cena dla użytkownika nie powinna się przez to zwiększać.</div>
+        <div className="trip-service-disclosure">Na ekranach Atrakcje, Hotele, eSIM, Parkingi i Loty Tripownia może prowadzić dalej linkami afiliacyjnymi. Cena dla użytkownika nie powinna się przez to zwiększać.</div>
       </section>
     </>
   );
