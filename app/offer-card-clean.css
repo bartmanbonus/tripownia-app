@@ -188,3 +188,21 @@
   .trip-search-decision .trip-search-actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important}
   .trip-search-decision .trip-search-actions a{width:100%!important}
 }
+
+.offer-card-clean .search-rank-badge{
+  position:absolute!important;
+  left:12px!important;
+  top:12px!important;
+  z-index:4!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  padding:7px 10px!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.94)!important;
+  color:#c34a27!important;
+  box-shadow:0 5px 18px rgba(40,25,15,.13)!important;
+  font-size:9px!important;
+  font-weight:950!important;
+  letter-spacing:.04em!important;
+}
