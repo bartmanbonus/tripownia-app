@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Building2, MapPin, Search, Sparkles } from "lucide-react";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
@@ -20,6 +20,17 @@ function seePlacesSearchUrl(destination: string) {
 
 export default function AttractionSearchPage() {
   const [destination, setDestination] = useState("");
+
+  useEffect(() => {
+    try {
+      const trip = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null");
+      const snapshot = trip?.offerSnapshot;
+      if (!snapshot?.city) return;
+      setDestination(`${snapshot.city}${snapshot.country ? `, ${snapshot.country}` : ""}`);
+    } catch {
+      // Active trip prefill is optional.
+    }
+  }, []);
   const ready = destination.trim().length >= 2;
 
   const getYourGuideUrl = useMemo(() => getYourGuideSearchUrl(destination), [destination]);
