@@ -379,3 +379,21 @@
     display: none;
   }
 }
+
+  .mobile-app-nav-icon{
+    position:relative;
+    display:grid;
+    place-items:center;
+  }
+
+  .mobile-app-trip-dot{
+    position:absolute;
+    width:7px;
+    height:7px;
+    right:-4px;
+    top:-2px;
+    border:2px solid #fff;
+    border-radius:999px;
+    background:#e84f2c;
+    box-sizing:content-box;
+  }
