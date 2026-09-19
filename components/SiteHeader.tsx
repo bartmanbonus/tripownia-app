@@ -44,10 +44,10 @@ const planningItems = [
   { href: "/dalekie-podroze", label: "Dalekie podróże", icon: Palmtree },
   { href: "/sylwester", label: "Sylwester", icon: Zap },
   { href: "/inspiracje", label: "Inspiracje", icon: Lightbulb },
-  { href: partners.booking.buildUrl(), label: "Hotele", icon: BedDouble, external: true },
-  { href: partners.kiwi.buildUrl(), label: "Loty", icon: Plane, external: true },
+  { href: "/hotele", label: "Hotele", icon: BedDouble },
+  { href: "/loty", label: "Loty", icon: Plane },
   { href: "/wynajem-auta", label: "Wynajem auta", icon: Car },
-  { href: partners.getyourguide.buildUrl("https://www.getyourguide.pl/"), label: "Atrakcje", icon: Building2, external: true },
+  { href: "/atrakcje", label: "Atrakcje", icon: Building2 },
 ] as const;
 
 const myTripowniaItems = [
@@ -162,8 +162,8 @@ export default function SiteHeader() {
                   <Link href="/last-minute"><Zap size={18} /><span>Last minute</span></Link>
                   <Link href="/kierunki"><Compass size={18} /><span>Kierunki</span></Link>
                   <Link href="/poradniki"><BookOpen size={18} /><span>Poradniki</span></Link>
-                  <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><Plane size={18} /><span>Loty</span></a>
-                  <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><BedDouble size={18} /><span>Hotele</span></a>
+                  <Link href="/loty"><Plane size={18} /><span>Loty</span></Link>
+                  <Link href="/hotele"><BedDouble size={18} /><span>Hotele</span></Link>
                 </div>
               </div>
             </details>
