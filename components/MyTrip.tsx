@@ -242,8 +242,18 @@ export default function MyTrip() {
             {reminders.length > 0 && <section className="trip-reminders-strip">{reminders.map((item) => <div key={item.label} className={item.active ? "active" : ""}><span>{item.due}</span><strong>{item.label}</strong>{item.active && <em>TERAZ</em>}</div>)}</section>}
 
             <div className="my-trip-grid">
-              <section className="my-trip-card"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p><strong>{offer.departure}</strong> → {offer.city}</p><input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="Dodaj numer lotu / godzinę" /></section>
-              <section className="my-trip-card"><div className="my-trip-card-head"><BedDouble size={20}/><h2>Hotel</h2></div><p><strong>{offer.hotel}</strong> · {offer.board}</p><input value={trip.hotel || ""} onChange={(e) => save({ ...trip, hotel: e.target.value })} placeholder="Dodaj numer rezerwacji / adres" /></section>
+              <section className="my-trip-card">
+                <div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div>
+                <p><strong>{offer.departure}</strong> → {offer.city}</p>
+                {trip.flight?.trim() ? <small>Numer rejsu: <strong>{trip.flight}</strong></small> : <small>Numer lotu możesz dodać wyżej w sekcji „Status lotu”.</small>}
+                <Link href="/organizer#rezerwacje">Pełne rezerwacje transportu →</Link>
+              </section>
+              <section className="my-trip-card">
+                <div className="my-trip-card-head"><BedDouble size={20}/><h2>Hotel</h2></div>
+                <p><strong>{offer.hotel}</strong>{offer.board ? ` · ${offer.board}` : ""}</p>
+                {trip.hotel?.trim() && <small>Zapisane wcześniej: {trip.hotel}</small>}
+                <Link href="/organizer#rezerwacje">Hotel, adres i potwierdzenie →</Link>
+              </section>
               <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet</h2></div>{offer.manual ? <><p>To własny plan — dodawaj rzeczywiste wydatki w organizerze zamiast sztucznej ceny oferty.</p><Link href="/organizer">Otwórz wydatki i rozliczenia →</Link></> : <><div className="my-trip-budget"><span>Oferta</span><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong></div>{cost && <div className="my-trip-budget total"><span>Szacowany pełny koszt</span><strong>{cost.total.toLocaleString("pl-PL")} zł / os.</strong></div>}<Link href="/porownaj">Porównaj z innymi ofertami →</Link></>}</section>
               <section className="my-trip-card">
                 <div className="my-trip-card-head"><Ticket size={20}/><h2>Co ogarnąć</h2></div>
