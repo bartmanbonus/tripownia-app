@@ -63,11 +63,36 @@ function uniqueOfferVariants(rows: any[]) {
   });
 }
 
+function commercialRank(row: any) {
+  const price = Number(row?.price || 99999);
+  const score = Number(row?.score || 0);
+  const exactLink = String(row?.linkMatch || row?.linkType || "").toLowerCase() === "exact";
+  const concreteDates = Boolean(row?.startDateISO) || (row?.dates && !/najbliższy dostępny termin/i.test(String(row.dates)));
+  const board = String(row?.board || "").toLowerCase();
+  const hotel = String(row?.hotel || "").toLowerCase();
+
+  let value = score * 100;
+  value += Math.max(0, 3200 - price) / 18;
+  if (exactLink) value += 65;
+  if (concreteDates) value += 35;
+  if (/all inclusive/.test(board)) value += 18;
+  if (hotel && !/hotel|resort\s*\d|wg oferty/.test(hotel)) value += 12;
+  if (price <= 1800) value += 25;
+  if (price <= 1200) value += 18;
+  return value;
+}
+
 function cleanRows(rows: any[], query: string) {
   const cleaned = rows
     .filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()))
     .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
-    .sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity));
+    .sort((a: any, b: any) => {
+      const rank = commercialRank(b) - commercialRank(a);
+      if (rank !== 0) return rank;
+      const quality = commercialRank(b) - commercialRank(a);
+    if (quality !== 0) return quality;
+    return Number(a.price || Infinity) - Number(b.price || Infinity);
+    });
 
   return query
     ? uniqueOfferVariants(cleaned).slice(0, 18)
@@ -626,7 +651,7 @@ export default function SearchHub({
 
             {!loading && results.length > 0 && (
               <>
-                <div className="search-v3-results-grid">{results.slice(0, visibleCount).map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
+                <div className="search-v3-results-grid">{results.slice(0, visibleCount).map((offer, index) => <OfferCard key={offer.id} offer={offer} searchRank={index < 3 ? index + 1 : undefined}/>)}</div>
                 {results.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(results.length, count + 6))}>Pokaż kolejne oferty ({results.length - visibleCount})</button>}
               </>
             )}
