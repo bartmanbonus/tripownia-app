@@ -19,6 +19,8 @@ type Props = {
 type DateMode = "any" | "month" | "range";
 
 type SearchOverrides = {
+  destinations?: string[];
+  departures?: string[];
   duration?: string;
   budget?: string;
   board?: string;
@@ -46,6 +48,23 @@ type LastSearchSummary = {
   board: string;
   weekendOnly: boolean;
 };
+
+type SearchMemory = {
+  destinations: string[];
+  departures: string[];
+  dateMode: DateMode;
+  month: string;
+  dateFrom: string;
+  dateTo: string;
+  duration: string;
+  budget: string;
+  board: string;
+  weekendOnly: boolean;
+  tab: string;
+  savedAt: number;
+};
+
+const SEARCH_MEMORY_KEY = "tripownia-search-memory-v1";
 
 function onePerDirection(rows: any[]) {
   const seen = new Set<string>();
@@ -242,6 +261,7 @@ export default function SearchHub({
   const [notice, setNotice] = useState("");
   const [alternativeStart, setAlternativeStart] = useState<number | null>(null);
   const [lastSearch, setLastSearch] = useState<LastSearchSummary | null>(null);
+  const [recentSearch, setRecentSearch] = useState<SearchMemory | null>(null);
   const destinationRef = useRef<HTMLDivElement>(null);
   const airportRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLDivElement>(null);
@@ -277,6 +297,16 @@ export default function SearchHub({
     setDepartures(initialAirports.filter(Boolean));
     setDuration(initialDuration || "all");
   }, [initialAirports.join("|"), initialDestinations.join("|"), initialDuration]);
+
+  useEffect(() => {
+    try {
+      const parsed = JSON.parse(sessionStorage.getItem(SEARCH_MEMORY_KEY) || "null") as SearchMemory | null;
+      if (!parsed || !Array.isArray(parsed.destinations) || !Array.isArray(parsed.departures)) return;
+      setRecentSearch(parsed);
+    } catch {
+      sessionStorage.removeItem(SEARCH_MEMORY_KEY);
+    }
+  }, []);
 
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
@@ -319,9 +349,12 @@ export default function SearchHub({
   async function runSearch(destinationOverride?: string, overrides: SearchOverrides = {}) {
     const runId = ++searchRunRef.current;
     const draftDestination = destinationInput.trim();
-    const requestedDestinations = destinationOverride
-      ? [destinationOverride]
-      : Array.from(new Set([...destinations, ...(draftDestination ? [draftDestination] : [])])).slice(0, 6);
+    const requestedDestinations = overrides.destinations
+      ? overrides.destinations.slice(0, 6)
+      : destinationOverride
+        ? [destinationOverride]
+        : Array.from(new Set([...destinations, ...(draftDestination ? [draftDestination] : [])])).slice(0, 6);
+    const activeDepartures = overrides.departures ?? departures;
     const blockedDestination = requestedDestinations.find((item) => isTravelDestinationBlocked(item));
     const query = requestedDestinations.join("|");
     const queryLabel = requestedDestinations.join(", ");
@@ -352,13 +385,32 @@ export default function SearchHub({
 
     setLastSearch({
       destinations: requestedDestinations,
-      departures: [...departures],
+      departures: [...activeDepartures],
       dateLabel: activeDateLabel,
       duration: activeDuration,
       budget: activeBudget,
       board: activeBoard,
       weekendOnly: activeWeekend,
     });
+    const memory: SearchMemory = {
+      destinations: requestedDestinations,
+      departures: [...activeDepartures],
+      dateMode: datePreference.mode,
+      month: datePreference.month,
+      dateFrom: datePreference.from,
+      dateTo: datePreference.to,
+      duration: activeDuration,
+      budget: activeBudget,
+      board: activeBoard,
+      weekendOnly: activeWeekend,
+      tab: activeMode,
+      savedAt: Date.now(),
+    };
+    setRecentSearch(memory);
+    try {
+      sessionStorage.setItem(SEARCH_MEMORY_KEY, JSON.stringify(memory));
+    } catch {}
+
     setLoading(true);
     setExpanding(false);
     setSearched(true);
@@ -373,7 +425,7 @@ export default function SearchHub({
       const params = new URLSearchParams({ mode: activeMode === "City break" && !query ? "citybreak" : "search" });
       if (query) params.set("q", query);
       else params.set("broad", "1");
-      if (departures.length) params.set("from", departures.join(","));
+      if (activeDepartures.length) params.set("from", activeDepartures.join(","));
       if (activeDuration !== "all") params.set("nights", activeDuration);
       if (activeBudget !== "all") params.set("maxPrice", activeBudget);
       if (activeWeekend) params.set("weekend", "1");
@@ -428,7 +480,7 @@ export default function SearchHub({
 
       if (rows.length < 3) {
         const rescueParams = new URLSearchParams({ mode: "search", broad: "1" });
-        if (departures.length) rescueParams.set("from", departures.join(","));
+        if (activeDepartures.length) rescueParams.set("from", activeDepartures.join(","));
         const rescueResponse = await fetch(`/api/today-offers?${rescueParams.toString()}`, { cache: "no-store" });
         const rescueData = await rescueResponse.json();
         if (runId !== searchRunRef.current) return;
@@ -496,6 +548,36 @@ export default function SearchHub({
     setNotice("");
   }
 
+  function repeatRecentSearch() {
+    if (!recentSearch) return;
+    setDestinations(recentSearch.destinations);
+    setDestinationInput("");
+    setDepartures(recentSearch.departures);
+    setDateMode(recentSearch.dateMode);
+    setMonth(recentSearch.month);
+    setDateFrom(recentSearch.dateFrom);
+    setDateTo(recentSearch.dateTo);
+    setDuration(recentSearch.duration);
+    setBudget(recentSearch.budget);
+    setBoard(recentSearch.board);
+    setWeekendOnly(recentSearch.weekendOnly);
+    setActiveTab(recentSearch.tab);
+    setAdvancedOpen(recentSearch.board !== "all");
+    void runSearch(undefined, {
+      destinations: recentSearch.destinations,
+      departures: recentSearch.departures,
+      duration: recentSearch.duration,
+      budget: recentSearch.budget,
+      board: recentSearch.board,
+      weekendOnly: recentSearch.weekendOnly,
+      tab: recentSearch.tab,
+      dateMode: recentSearch.dateMode,
+      month: recentSearch.month,
+      dateFrom: recentSearch.dateFrom,
+      dateTo: recentSearch.dateTo,
+    });
+  }
+
   function quickSearch(label: string, overrides: SearchOverrides) {
     const nextDuration = overrides.duration ?? "all";
     const nextBudget = overrides.budget ?? "all";
@@ -541,6 +623,8 @@ export default function SearchHub({
     setVisibleCount(6);
     setNotice("");
     setLastSearch(null);
+    setRecentSearch(null);
+    try { sessionStorage.removeItem(SEARCH_MEMORY_KEY); } catch {}
     setSearched(false);
     setLoading(false);
     setExpanding(false);
@@ -756,6 +840,17 @@ export default function SearchHub({
             </label>
           )}
         </div>
+
+        {recentSearch && !searched && (
+          <div className="search-v4-recent">
+            <div>
+              <small>OSTATNIE WYSZUKIWANIE</small>
+              <strong>{recentSearch.destinations.length ? recentSearch.destinations.join(" + ") : "Gdziekolwiek"}</strong>
+              <span>{recentSearch.departures.length ? recentSearch.departures.map(airportLabel).join(" + ") : "wszystkie lotniska"} · {recentSearch.dateMode === "month" ? monthLabel(recentSearch.month) : recentSearch.dateMode === "range" ? [shortDate(recentSearch.dateFrom), shortDate(recentSearch.dateTo)].filter(Boolean).join(" – ") || "Dowolnie" : "Dowolnie"}</span>
+            </div>
+            <button type="button" onClick={repeatRecentSearch}><Search size={15}/> Powtórz ze świeżymi cenami</button>
+          </div>
+        )}
 
         <div className="search-v3-quick">
           <span>Szybki start</span>
