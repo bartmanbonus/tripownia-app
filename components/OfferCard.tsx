@@ -19,6 +19,7 @@ import {
   removeOfferSnapshot,
   saveOfferSnapshot,
 } from "@/lib/savedOfferSnapshots";
+import { upsertTripArchive } from "@/lib/tripArchive";
 
 const OFFER_VIEW_SESSION_KEY = "tripownia-viewed-offers-v1";
 const viewedOfferIds = new Set<number>();
@@ -223,7 +224,10 @@ export default function OfferCard({ offer, priceHighlight, searchRank, alternati
     const nextTrip = sameTrip
       ? { ...previous, offerId: offer.id, tripId, offerSnapshot, departureAt: previous?.departureAt || defaultDepartureAt }
       : { tripId: createTripId(offer.id), offerId: offer.id, offerSnapshot, departureAt: defaultDepartureAt, checklist: {}, dayPlan: [] };
+
+    if (!sameTrip && previous?.tripId) upsertTripArchive(previous, false);
     localStorage.setItem("tripownia-my-trip", JSON.stringify(nextTrip));
+    upsertTripArchive(nextTrip);
     setTripAdded(true);
     trackEvent("trip_add", { ...eventBase, trip_id: nextTrip.tripId });
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
@@ -274,7 +278,7 @@ export default function OfferCard({ offer, priceHighlight, searchRank, alternati
         {!searchRank && isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
       </Link>
 
-      <button className="heart" aria-label={liked ? "Usuń z ulubionych" : "Dodaj do ulubionych"} onClick={toggleLike}><Heart size={20} fill={liked ? "currentColor" : "none"} /></button>
+      <button className="heart" aria-pressed={liked} aria-label={liked ? "Usuń z ulubionych" : "Dodaj do ulubionych"} title={liked ? "W ulubionych" : "Dodaj do ulubionych"} onClick={toggleLike}><Heart size={20} fill={liked ? "currentColor" : "none"} /></button>
 
       <div className="offer-body">
         <div className="offer-topline">
@@ -316,15 +320,16 @@ export default function OfferCard({ offer, priceHighlight, searchRank, alternati
 
         {!isExpired && (
           <div className="offer-actions-row offer-actions-secondary">
-            <button className={`compare-toggle ${compared ? "active" : ""}`} onClick={toggleCompare}><Scale size={15} /> {compared ? "W porównaniu" : "Porównaj"}</button>
-            <button className={`trip-toggle ${tripAdded ? "active" : ""}`} onClick={addToTrip}><MapPinned size={15} /> {tripAdded ? "W podróży" : "Zapisz do podróży"}</button>
+            <button aria-pressed={compared} className={`compare-toggle ${compared ? "active" : ""}`} onClick={toggleCompare}><Scale size={15} /> {compared ? "W porównaniu" : "Porównaj"}</button>
+            {tripAdded
+              ? <Link className="trip-toggle active" href="/moja-podroz"><MapPinned size={15} /> Otwórz podróż</Link>
+              : <button aria-pressed={false} className="trip-toggle" onClick={addToTrip}><MapPinned size={15} /> Zapisz do podróży</button>}
           </div>
         )}
 
-        {(compared || tripAdded) && (
+        {compared && (
           <div className="offer-after-actions">
-            {compared && <Link href="/porownaj">Otwórz porównanie</Link>}
-            {tripAdded && <Link href="/moja-podroz">Otwórz Moją podróż</Link>}
+            <Link href="/porownaj">Otwórz porównanie</Link>
           </div>
         )}
       </div>
