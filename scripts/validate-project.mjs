@@ -7,7 +7,7 @@ const read = (file) => fs.readFileSync(path.join(root, file), "utf8");
 const legacy = JSON.parse(read("data/legacy-content.json"));
 const aliasSource = read("lib/internalAliases.ts");
 const aliasMatches = [...aliasSource.matchAll(/'([^']+)'/g)].map(m=>m[1]);
-const routes = new Set(["/","/okazje","/poradniki","/parkingi","/atrakcje","/esim","/ubezpieczenia","/transfery","/wynajem-auta","/planowanie-podrozy","/admin",...legacy.map(x=>(x.path||"/").replace(/\/$/,"")||"/"),...aliasMatches]);
+const routes = new Set(["/","/okazje","/poradniki","/parkingi","/atrakcje","/loty","/hotele","/esim","/ubezpieczenia","/transfery","/wynajem-auta","/planowanie-podrozy","/admin",...legacy.map(x=>(x.path||"/").replace(/\/$/,"")||"/"),...aliasMatches]);
 const broken = new Map();
 
 for (const item of legacy) {
@@ -101,6 +101,64 @@ requireText(
   "strony transient ofert mogą znów trafić do indeksu"
 );
 
+// Loty, hotele i atrakcje: użytkownik ma zostać w Tripowni do ostatniego
+// kroku, a wszystkie wyszukiwania lotów mają używać jednego buildera Kiwi.
+forbidText(
+  "lib/offers.ts",
+  "www2.esky.pl",
+  "stary URL eSky wrócił do katalogu ofert"
+);
+requireText(
+  "lib/partners.ts",
+  "buildKiwiFlightSearchUrl",
+  "brakuje centralnego buildera wyszukiwania Kiwi"
+);
+requireText(
+  "lib/partners.ts",
+  "https://www.kiwi.com/en/search/results/",
+  "builder Kiwi nie używa aktualnego formatu strony wyników"
+);
+forbidText(
+  "components/MyTrip.tsx",
+  "partners.getyourguide",
+  "Moja podróż znów omija wewnętrzny ekran Atrakcje"
+);
+forbidText(
+  "components/TripToolkit.tsx",
+  "partners.getyourguide",
+  "Toolkit znów omija wewnętrzny ekran Atrakcje"
+);
+forbidText(
+  "components/TripToolkit.tsx",
+  "partners.booking",
+  "Toolkit znów omija wewnętrzny ekran Hotele"
+);
+forbidText(
+  "components/TripToolkit.tsx",
+  "partners.kiwi",
+  "Toolkit znów omija wewnętrzny ekran Loty"
+);
+requireText(
+  "components/SearchHub.tsx",
+  "SZERSZE WYSZUKIWANIE",
+  "brakuje fallbacku Loty/Hotele/Atrakcje poza feedem pakietowym"
+);
+requireText(
+  "components/SiteHeader.tsx",
+  '{ href: "/loty", label: "Loty"',
+  "Loty w headerze znów omijają Tripownię"
+);
+requireText(
+  "components/SiteHeader.tsx",
+  '{ href: "/hotele", label: "Hotele"',
+  "Hotele w headerze znów omijają Tripownię"
+);
+requireText(
+  "components/SiteHeader.tsx",
+  '{ href: "/atrakcje", label: "Atrakcje"',
+  "Atrakcje w headerze znów omijają Tripownię"
+);
+
 // Homepage ma być strukturalnie live-first już w SSR/HTML, a nie dopiero po
 // schowaniu starej treści przez JavaScript.
 forbidText(
@@ -130,4 +188,4 @@ requireText(
 );
 
 console.log(`✅ Audyt OK: ${legacy.length} zmigrowanych stron + ${aliasMatches.length} naprawionych starych adresów. Brak znanych wewnętrznych linków prowadzących do 404.`);
-console.log("✅ Krytyczne guardy OK: search scope, live-first homepage, EXIM/TUI exact flow, affiliate validation i SEO transient ofert.");
+console.log("✅ Krytyczne guardy OK: search scope, live-first homepage, EXIM/TUI exact flow, Kiwi/Booking/Atrakcje inside-first, affiliate validation i SEO transient ofert.");
