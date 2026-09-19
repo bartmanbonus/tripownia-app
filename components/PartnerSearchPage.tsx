@@ -144,13 +144,19 @@ export default function PartnerSearchPage({ mode }: { mode: "flights" | "hotels"
 
   useEffect(() => {
     try {
+      const query = new URLSearchParams(window.location.search).get("q")?.trim();
       const trip = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null");
       const snapshot = trip?.offerSnapshot;
-      if (!snapshot?.city) return;
 
-      setDestination(isFlights
-        ? String(snapshot.city)
-        : `${snapshot.city}${snapshot.country ? `, ${snapshot.country}` : ""}`);
+      if (query) {
+        setDestination(query);
+      } else if (snapshot?.city) {
+        setDestination(isFlights
+          ? String(snapshot.city)
+          : `${snapshot.city}${snapshot.country ? `, ${snapshot.country}` : ""}`);
+      }
+
+      if (!snapshot) return;
 
       const airportCode = String(snapshot.airportCode || "").toUpperCase();
       if (isFlights && airportOptions.some((airport) => airport.code === airportCode)) {
@@ -174,7 +180,7 @@ export default function PartnerSearchPage({ mode }: { mode: "flights" | "hotels"
         setCheckout(end);
       }
     } catch {
-      // Active trip prefill is optional.
+      // Query and active trip prefill are optional.
     }
   }, [isFlights]);
 
