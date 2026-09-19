@@ -47,6 +47,7 @@ import OrganizerQuickLink from "@/components/OrganizerQuickLink";
 import HomeTripHubPortal from "@/components/HomeTripHubPortal";
 import PurchaseGuidePortal from "@/components/PurchaseGuidePortal";
 import NativeAppBridge from "@/components/NativeAppBridge";
+import OfflineStatusBanner from "@/components/OfflineStatusBanner";
 
 const HOME_TITLE = "Tanie wakacje, city break i lot + hotel – okazje podróżnicze | Tripownia";
 const HOME_DESCRIPTION = "Codziennie wybieramy dobre okazje na wakacje, city breaki i lot + hotel. Sprawdź cenę, termin, hotel i aktualne propozycje z polskich lotnisk.";
@@ -107,6 +108,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Suspense fallback={null}><AnalyticsClient /></Suspense>
         <AnalyticsInteractions />
         <AnalyticsConsentBanner />
+        <OfflineStatusBanner />
         <NativeAppBridge />
         <PWARegister />
       </body>
