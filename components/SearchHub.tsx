@@ -197,6 +197,7 @@ export default function SearchHub({
   const [expanding, setExpanding] = useState(false);
   const [searched, setSearched] = useState(false);
   const [notice, setNotice] = useState("");
+  const [alternativeStart, setAlternativeStart] = useState<number | null>(null);
   const destinationRef = useRef<HTMLDivElement>(null);
   const airportRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLDivElement>(null);
@@ -308,6 +309,7 @@ export default function SearchHub({
     setAirportsOpen(false);
     setDateOpen(false);
     setNotice("");
+    setAlternativeStart(null);
 
     try {
       const params = new URLSearchParams({ mode: activeMode === "City break" && !query ? "citybreak" : "search" });
@@ -377,7 +379,9 @@ export default function SearchHub({
           const rescueRows = cleanRows(Array.isArray(rescueData?.offers) ? rescueData.offers : [], "");
           const existingIds = new Set(rows.map((row) => row.id));
           const alternatives = rescueRows.filter((row) => !existingIds.has(row.id));
+          const exactCount = rows.length;
           rows = [...rows, ...alternatives].slice(0, 12);
+          setAlternativeStart(alternatives.length ? exactCount : null);
           setResults(rows);
 
           if (rows.length) {
@@ -671,7 +675,10 @@ export default function SearchHub({
 
             {!loading && results.length > 0 && (
               <>
-                <div className="search-v3-results-grid">{results.slice(0, visibleCount).map((offer, index) => <OfferCard key={offer.id} offer={offer} searchRank={index < 3 ? index + 1 : undefined}/>)}</div>
+                <div className="search-v3-results-grid">{results.slice(0, visibleCount).map((offer, index) => {
+                  const isAlternative = alternativeStart !== null && index >= alternativeStart;
+                  return <OfferCard key={offer.id} offer={offer} searchRank={!isAlternative && index < 3 ? index + 1 : undefined} alternative={isAlternative}/>;
+                })}</div>
                 {results.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(results.length, count + 6))}>Pokaż kolejne oferty ({results.length - visibleCount})</button>}
               </>
             )}
