@@ -63,6 +63,33 @@ function uniqueOfferVariants(rows: any[]) {
   });
 }
 
+function balanceSelectedDestinations(rows: any[], destinations: string[]) {
+  if (destinations.length < 2 || rows.length < 2) return rows;
+
+  const buckets = destinations.map((destination) => ({
+    destination,
+    rows: rows.filter((row) => destinationMatches(destination, `${row?.city || ""} ${row?.country || ""} ${row?.hotel || ""}`)),
+  }));
+  const used = new Set<any>();
+  const balanced: any[] = [];
+  const maxDepth = Math.max(0, ...buckets.map((bucket) => bucket.rows.length));
+
+  for (let depth = 0; depth < maxDepth; depth += 1) {
+    for (const bucket of buckets) {
+      const row = bucket.rows[depth];
+      if (row && !used.has(row)) {
+        balanced.push(row);
+        used.add(row);
+      }
+    }
+  }
+
+  rows.forEach((row) => {
+    if (!used.has(row)) balanced.push(row);
+  });
+  return balanced;
+}
+
 function commercialRank(row: any) {
   const price = Number(row?.price || 99999);
   const score = Number(row?.score || 0);
@@ -333,7 +360,7 @@ export default function SearchHub({
 
       let rows = cleanRows(Array.isArray(data?.offers) ? data.offers : [], query);
       const firstDatePass = prioritizeByDate(rows, datePreference);
-      rows = firstDatePass.rows;
+      rows = balanceSelectedDestinations(firstDatePass.rows, destinations);
       setResults(rows);
       setLoading(false);
 
@@ -363,7 +390,7 @@ export default function SearchHub({
           ? uniqueOfferVariants([...rows, ...relaxedRows]).slice(0, 18)
           : onePerDirection([...rows, ...relaxedRows]).slice(0, 12);
         const relaxedDatePass = prioritizeByDate(rows, datePreference);
-        rows = relaxedDatePass.rows;
+        rows = balanceSelectedDestinations(relaxedDatePass.rows, destinations);
         finalDateNotice = relaxedDatePass.notice || finalDateNotice;
         setResults(rows);
       }
