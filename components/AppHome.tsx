@@ -111,8 +111,8 @@ export default function AppHome() {
         <div className="app-home-hero">
           <div>
             <div className="kicker">MOJA TRIPOWNIA</div>
-            <h1>Od pomysłu do gotowego wyjazdu.</h1>
-            <p>Znajdź ofertę, zapisz podróż, dopnij checklistę, atrakcje, transfer, internet i plan dnia — wszystko w jednym miejscu.</p>
+            <h1>Zaplanuj wyjazd w jednym miejscu.</h1>
+            <p>Znajdź wyjazd, zapisz go i ogarnij najważniejsze rzeczy po kolei — w jednym miejscu.</p>
           </div>
           <div className="app-home-hero-actions">
             <Link className="primary-cta" href="#wyszukiwarka"><Compass size={18}/> Znajdź wyjazd</Link>
