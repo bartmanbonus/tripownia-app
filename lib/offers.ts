@@ -45,9 +45,45 @@ type EskySearchOptions = {
   adults?: number;
 };
 
-const LEGACY_FLIGHT_DESTINATION_CODES: Record<string, string> = {
-  "CI-29266": "BGY",
-  "CO-MT": "MLA",
+const LEGACY_FLIGHT_ORIGINS: Record<string, string> = {
+  WAW: "warsaw-poland",
+  WMI: "warsaw-poland",
+  KRK: "krakow-poland",
+  KTW: "katowice-poland",
+  GDN: "gdansk-poland",
+  WRO: "wroclaw-poland",
+  POZ: "poznan-poland",
+  RZE: "rzeszow-poland",
+  LCJ: "lodz-poland",
+  LUZ: "lublin-poland",
+  SZZ: "szczecin-poland",
+  BZG: "bydgoszcz-poland",
+  IEG: "zielona-gora-poland",
+};
+
+const LEGACY_FLIGHT_DESTINATIONS: Record<string, string> = {
+  "CO-MT": "malta-malta",
+  "CI-BCN": "barcelona-spain",
+  "CI-29266": "bergamo-italy",
+  "CI-OPO": "porto-portugal",
+  "CI-ROM": "rome-italy",
+  "CI-ALC": "alicante-spain",
+  "CI-PFO": "paphos-cyprus",
+  "CI-LON": "london-united-kingdom",
+  "CI-PRG": "prague-czechia",
+  "CI-VIE": "vienna-austria",
+  "CI-BUD": "budapest-hungary",
+  "CI-PAR": "paris-france",
+  "CI-LIS": "lisbon-portugal",
+  "CO-ES": "fuerteventura-spain",
+  "CI-SPU": "split-croatia",
+  "CI-NAP": "naples-italy",
+  "CI-SVQ": "seville-spain",
+  "CI-AMS": "amsterdam-netherlands",
+  "CI-CPH": "copenhagen-denmark",
+  "CO-IT": "sicily-italy",
+  "CO-PT": "madeira-portugal",
+  "CI-AGP": "malaga-spain",
 };
 
 const esky = ({
@@ -56,15 +92,13 @@ const esky = ({
   departureDate,
   returnDate,
 }: EskySearchOptions) => {
-  const normalizedArrival = arrivalPlaces.trim().toUpperCase();
-  const directCityCode = normalizedArrival.match(/^CI-([A-Z]{3})$/)?.[1];
-  const destinationCode = directCityCode || LEGACY_FLIGHT_DESTINATION_CODES[normalizedArrival];
-
-  if (!destinationCode) return partners.kiwi.buildUrl();
+  const origin = LEGACY_FLIGHT_ORIGINS[airportCode.trim().toUpperCase()];
+  const destination = LEGACY_FLIGHT_DESTINATIONS[arrivalPlaces.trim().toUpperCase()];
+  if (!origin || !destination) return partners.kiwi.buildUrl();
 
   return buildKiwiFlightSearchUrl({
-    from: airportCode,
-    to: destinationCode,
+    from: origin,
+    to: destination,
     departure: departureDate,
     returnDate,
   });
