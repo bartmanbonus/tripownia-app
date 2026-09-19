@@ -23,12 +23,18 @@ export default function AttractionSearchPage() {
 
   useEffect(() => {
     try {
+      const query = new URLSearchParams(window.location.search).get("q")?.trim();
+      if (query) {
+        setDestination(query);
+        return;
+      }
+
       const trip = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null");
       const snapshot = trip?.offerSnapshot;
       if (!snapshot?.city) return;
       setDestination(`${snapshot.city}${snapshot.country ? `, ${snapshot.country}` : ""}`);
     } catch {
-      // Active trip prefill is optional.
+      // Query and active trip prefill are optional.
     }
   }, []);
   const ready = destination.trim().length >= 2;
