@@ -22,6 +22,12 @@ type OfferSnapshot = {
   manual?: boolean;
 };
 
+type TripProgress = {
+  reservations: number;
+  itinerary: number;
+  packed: number;
+};
+
 function tripLabel(trip: TripArchiveSnapshot) {
   const offer = trip.offerSnapshot as OfferSnapshot | undefined;
   if (offer?.city) return `${offer.city}${offer.country ? `, ${offer.country}` : ""}`;
@@ -31,11 +37,30 @@ function tripLabel(trip: TripArchiveSnapshot) {
 export default function MyTripsPage() {
   const [trips, setTrips] = useState<TripArchiveSnapshot[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [progress, setProgress] = useState<Record<string, TripProgress>>({});
 
   const load = () => {
     const active = readActiveTrip();
+    const archive = readTripArchive();
+    const nextProgress: Record<string, TripProgress> = {};
+
+    archive.forEach((trip) => {
+      try {
+        const organizer = JSON.parse(localStorage.getItem(`tripownia-organizer:${trip.tripId}`) || "null") as { packing?: Record<string, boolean>; itinerary?: unknown[] } | null;
+        const toolkit = JSON.parse(localStorage.getItem(`tripownia-trip-toolkit:${trip.tripId}`) || "null") as { reservations?: unknown[] } | null;
+        nextProgress[trip.tripId] = {
+          reservations: Array.isArray(toolkit?.reservations) ? toolkit.reservations.length : 0,
+          itinerary: Array.isArray(organizer?.itinerary) ? organizer.itinerary.length : 0,
+          packed: organizer?.packing ? Object.values(organizer.packing).filter(Boolean).length : 0,
+        };
+      } catch {
+        nextProgress[trip.tripId] = { reservations: 0, itinerary: 0, packed: 0 };
+      }
+    });
+
     setActiveId(active?.tripId || null);
-    setTrips(readTripArchive());
+    setTrips(archive);
+    setProgress(nextProgress);
   };
 
   useEffect(() => {
@@ -101,6 +126,11 @@ export default function MyTripsPage() {
                     </div>
                     <h2>{tripLabel(trip)}</h2>
                     <p>{offer?.departure ? `Wylot / start: ${offer.departure}` : "Plan zapisany lokalnie"} · {completed} odhaczonych zadań</p>
+                    <div className="my-trip-archive-progress">
+                      <span>Rezerwacje <strong>{progress[trip.tripId]?.reservations || 0}</strong></span>
+                      <span>Plan <strong>{progress[trip.tripId]?.itinerary || 0}</strong></span>
+                      <span>Spakowane <strong>{progress[trip.tripId]?.packed || 0}</strong></span>
+                    </div>
                   </div>
                   <div className="my-trip-archive-actions">
                     {active ? (
