@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves } from "lucide-react";
+import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves, Share2 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TripPhasePanel from "@/components/TripPhasePanel";
@@ -89,6 +89,7 @@ export default function MyTrip() {
   const [trip, setTrip] = useState<TripState>({ checklist: {}, dayPlan: [] });
   const [weather, setWeather] = useState<WeatherState>(null);
   const [notificationStatus, setNotificationStatus] = useState("");
+  const [shareStatus, setShareStatus] = useState("");
   const [offerRevision, setOfferRevision] = useState(0);
 
   useEffect(() => {
@@ -187,6 +188,28 @@ export default function MyTrip() {
     } catch {}
   }
 
+  async function shareTrip() {
+    if (!offer) return;
+    const text = [
+      `${offer.city}, ${offer.country}`,
+      offer.dates,
+      offer.departure ? `Start / wylot: ${offer.departure}` : "",
+      "Plan przygotowany w Tripowni",
+    ].filter(Boolean).join("\n");
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `Tripownia · ${offer.city}`, text, url: window.location.href });
+        setShareStatus("Udostępniono plan.");
+        return;
+      }
+      await navigator.clipboard.writeText(`${text}\n${window.location.href}`);
+      setShareStatus("Skopiowano podsumowanie planu.");
+    } catch {
+      setShareStatus("");
+    }
+  }
+
   function toggleChecklist(item: string) {
     save({ ...trip, checklist: { ...(trip.checklist || {}), [item]: !trip.checklist?.[item] } });
   }
@@ -197,7 +220,12 @@ export default function MyTrip() {
       <section className="shell my-trip-page">
         <div className="my-trip-hero">
           <div className="my-trip-icon"><MapPinned size={30} /></div>
-          <div><div className="kicker">MOJA PODRÓŻ</div><h1>{offer ? `${offer.city}, ${offer.country}` : "Zaplanuj wyjazd z Tripownią"}</h1><p>{offer ? `${offer.dates} · ${offer.nights} noce · wylot: ${offer.departure}` : "Dodaj wybraną ofertę, a Tripownia pomoże Ci ogarnąć cały wyjazd w jednym miejscu."}</p></div>
+          <div className="my-trip-hero-copy">
+            <div className="kicker">MOJA PODRÓŻ</div>
+            <h1>{offer ? `${offer.city}, ${offer.country}` : "Zaplanuj wyjazd z Tripownią"}</h1>
+            <p>{offer ? `${offer.dates} · ${offer.nights} noce · wylot: ${offer.departure}` : "Dodaj wybraną ofertę, a Tripownia pomoże Ci ogarnąć cały wyjazd w jednym miejscu."}</p>
+            {offer && <div className="my-trip-hero-actions"><button type="button" onClick={shareTrip}><Share2 size={15}/> Udostępnij plan</button>{shareStatus && <small>{shareStatus}</small>}</div>}
+          </div>
         </div>
 
         {!offer ? (
