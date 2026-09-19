@@ -27,7 +27,6 @@ import {
   Building2,
   Zap,
 } from "lucide-react";
-import { partners } from "@/lib/partners";
 
 const primaryItems = [
   { href: "/okazje", label: "Okazje" },
@@ -44,10 +43,10 @@ const planningItems = [
   { href: "/dalekie-podroze", label: "Dalekie podróże", icon: Palmtree },
   { href: "/sylwester", label: "Sylwester", icon: Zap },
   { href: "/inspiracje", label: "Inspiracje", icon: Lightbulb },
-  { href: partners.booking.buildUrl(), label: "Hotele", icon: BedDouble, external: true },
-  { href: partners.kiwi.buildUrl(), label: "Loty", icon: Plane, external: true },
+  { href: "/hotele", label: "Hotele", icon: BedDouble },
+  { href: "/loty", label: "Loty", icon: Plane },
   { href: "/wynajem-auta", label: "Wynajem auta", icon: Car },
-  { href: partners.getyourguide.buildUrl("https://www.getyourguide.pl/"), label: "Atrakcje", icon: Building2, external: true },
+  { href: "/atrakcje", label: "Atrakcje", icon: Building2 },
 ] as const;
 
 const myTripowniaItems = [
@@ -128,13 +127,16 @@ export default function SiteHeader() {
 
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema).replace(/</g, "\\u003c") }} />
-    <header className="trip-header">
+    <header className={`trip-header${inApp ? " trip-header-app" : ""}`}>
       <div className="trip-header-shell">
         <div className="trip-mobile-top">
           <Link className="trip-mobile-brand" href={mobileHomeHref} aria-label={inApp ? "Tripownia — start aplikacji" : "Tripownia.pl — strona główna"}>
             <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={64} height={64} priority />
           </Link>
           <div className="trip-mobile-top-actions">
+            <Link className="trip-mobile-search-shortcut" href={searchHref} aria-label="Przejdź do wyszukiwarki wyjazdów">
+              <Search size={19} strokeWidth={2.2} /><span>Szukaj</span>
+            </Link>
             <Link className="trip-mobile-account" href="/konto" aria-label="Konto i logowanie">
               <UserRound size={19} strokeWidth={2.2} /><span>Konto</span>
             </Link>
@@ -159,8 +161,9 @@ export default function SiteHeader() {
                   <Link href="/last-minute"><Zap size={18} /><span>Last minute</span></Link>
                   <Link href="/kierunki"><Compass size={18} /><span>Kierunki</span></Link>
                   <Link href="/poradniki"><BookOpen size={18} /><span>Poradniki</span></Link>
-                  <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><Plane size={18} /><span>Loty</span></a>
-                  <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><BedDouble size={18} /><span>Hotele</span></a>
+                  <Link href="/loty"><Plane size={18} /><span>Loty</span></Link>
+                  <Link href="/hotele"><BedDouble size={18} /><span>Hotele</span></Link>
+                  <Link href="/atrakcje"><Building2 size={18} /><span>Atrakcje</span></Link>
                 </div>
               </div>
             </details>
@@ -173,7 +176,7 @@ export default function SiteHeader() {
           </Link>
           <Link className="trip-header-search" href={searchHref} aria-label="Przejdź do wyszukiwarki wyjazdów">
             <Search size={20} strokeWidth={2.3} />
-            <span className="trip-header-search-copy"><strong>Dokąd chcesz lecieć?</strong><small>Loty, hotele, wakacje i gotowe okazje w jednym miejscu</small></span>
+            <span className="trip-header-search-copy"><strong>{inApp ? "Szukaj wyjazdu" : "Dokąd chcesz lecieć?"}</strong><small>{inApp ? "Przejdź do wyszukiwarki Tripowni" : "Loty, hotele, wakacje i gotowe okazje w jednym miejscu"}</small></span>
             <span className="trip-header-search-cta" aria-hidden="true"><Search size={24} strokeWidth={2.8} /></span>
           </Link>
           <nav className="trip-header-actions" aria-label="Twoje konto">
@@ -196,7 +199,6 @@ export default function SiteHeader() {
               <div className="trip-header-popover">
                 {planningItems.map((item) => {
                   const Icon = item.icon;
-                  if ("external" in item && item.external) return <a key={item.label} href={item.href} target="_blank" rel="sponsored noopener noreferrer"><Icon size={18} strokeWidth={2}/><span>{item.label}</span></a>;
                   return <Link key={item.label} href={item.href}><Icon size={18} strokeWidth={2}/><span>{item.label}</span></Link>;
                 })}
               </div>

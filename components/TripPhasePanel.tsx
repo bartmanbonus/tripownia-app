@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, Circle, Clock3, MapPinned, Plane, Sparkles } from "lucide-react";
+import { Circle, Clock3, MapPinned, Plane, Sparkles } from "lucide-react";
 
 type PhaseTask = { label: string; href?: string };
 
@@ -28,8 +28,8 @@ function phaseFor(departureAt: string | undefined, nights: number): Phase {
       description: "Gdy wpiszesz termin w Mojej podróży, ten ekran będzie zmieniał się automatycznie przed wyjazdem i na miejscu.",
       tasks: [
         { label: "Dodaj datę i godzinę wylotu", href: "/moja-podroz" },
-        { label: "Uzupełnij rezerwacje w organizerze" },
-        { label: "Zacznij listę pakowania" },
+        { label: "Uzupełnij rezerwacje w organizerze", href: "/organizer#rezerwacje" },
+        { label: "Zacznij listę pakowania", href: "/organizer#pakowanie" },
       ],
     };
   }
@@ -54,7 +54,7 @@ function phaseFor(departureAt: string | undefined, nights: number): Phase {
       title: "Tryb na miejscu",
       description: "Teraz najważniejsze są rzeczy potrzebne tu i teraz: dojazd, plan dnia, internet i atrakcje w pobliżu.",
       tasks: [
-        { label: "Otwórz plan dnia poniżej" },
+        { label: "Otwórz plan dnia", href: "/organizer#plan-dnia" },
         { label: "Sprawdź transfer i dojazd", href: "/transfery" },
         { label: "Znajdź atrakcje", href: "/atrakcje" },
         { label: "Sprawdź internet / eSIM", href: "/esim" },
@@ -68,9 +68,9 @@ function phaseFor(departureAt: string | undefined, nights: number): Phase {
       title: "Dziś liczą się odprawa, dokumenty i dojazd na lotnisko",
       description: "Nie dokładaj już nowych planów. Domknij rzeczy, które mogą zablokować wyjazd.",
       tasks: [
-        { label: "Odprawa i karta pokładowa" },
-        { label: "Dokumenty + rezerwacje offline" },
-        { label: "Bagaż i limity linii lotniczej" },
+        { label: "Odprawa i karta pokładowa", href: "/organizer#rezerwacje" },
+        { label: "Dokumenty + rezerwacje offline", href: "/organizer#rezerwacje" },
+        { label: "Bagaż i limity linii lotniczej", href: "/organizer#pakowanie" },
         { label: "Dojazd / parking przy lotnisku", href: "/parkingi" },
       ],
     };
@@ -84,7 +84,7 @@ function phaseFor(departureAt: string | undefined, nights: number): Phase {
       tasks: [
         { label: "Sprawdź prognozę pogody" },
         { label: "Potwierdź transfer", href: "/transfery" },
-        { label: "Dokończ pakowanie poniżej" },
+        { label: "Dokończ pakowanie", href: "/organizer#pakowanie" },
         { label: "Przygotuj internet / eSIM", href: "/esim" },
       ],
     };
@@ -97,9 +97,9 @@ function phaseFor(departureAt: string | undefined, nights: number): Phase {
       description: "Najpierw rzeczy ograniczone dostępnością, dopiero później szczegółowy plan dnia.",
       tasks: [
         { label: "Sprawdź atrakcje i bilety", href: "/atrakcje" },
-        { label: "Potwierdź ubezpieczenie" },
+        { label: "Potwierdź ubezpieczenie", href: "/organizer#rezerwacje" },
         { label: "Sprawdź wymagania wjazdowe", href: "/poradniki" },
-        { label: "Uzupełnij plan dzień po dniu" },
+        { label: "Uzupełnij plan dzień po dniu", href: "/organizer#plan-dnia" },
       ],
     };
   }
@@ -110,7 +110,7 @@ function phaseFor(departureAt: string | undefined, nights: number): Phase {
     description: "Zacznij od dokumentów, rezerwacji i najważniejszych punktów wyjazdu. Szczegóły możesz dopiąć później.",
     tasks: [
       { label: "Sprawdź dokumenty i wymagania", href: "/poradniki" },
-      { label: "Uzupełnij numery rezerwacji" },
+      { label: "Uzupełnij numery rezerwacji", href: "/organizer#rezerwacje" },
       { label: "Dodaj 2–3 najważniejsze atrakcje", href: "/atrakcje" },
       { label: "Zacznij listę pakowania" },
     ],
@@ -133,7 +133,7 @@ export default function TripPhasePanel({ departureAt, nights }: { departureAt?: 
           {phase.tasks.map((task, index) => task.href ? (
             <Link href={task.href} key={task.label}><Circle size={17}/><span>{task.label}</span></Link>
           ) : (
-            <div key={task.label}>{index === 0 && hours !== null && hours <= 0 ? <Sparkles size={17}/> : <CheckCircle2 size={17}/>}<span>{task.label}</span></div>
+            <div key={task.label}>{index === 0 && hours !== null && hours <= 0 ? <Sparkles size={17}/> : <Circle size={17}/>}<span>{task.label}</span></div>
           ))}
         </div>
       </div>

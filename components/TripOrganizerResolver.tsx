@@ -6,7 +6,7 @@ import { ArrowRight, MapPinned } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TripOrganizer from "@/components/TripOrganizer";
-import TripPhasePanel from "@/components/TripPhasePanel";
+import TripToolkit from "@/components/TripToolkit";
 import { offers, type Offer } from "@/lib/offers";
 
 type ActiveTrip = {
@@ -44,6 +44,27 @@ export default function TripOrganizerResolver() {
     return trip.offerSnapshot || offers.find((item) => item.id === trip.offerId);
   }, [trip]);
 
+  useEffect(() => {
+    if (!ready || !trip?.tripId || !offer) return;
+    const hash = window.location.hash.replace(/^#/, "");
+    if (!hash) return;
+
+    let cancelled = false;
+    const scroll = () => {
+      if (cancelled) return;
+      const target = document.getElementById(hash);
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    };
+
+    const frame = window.requestAnimationFrame(scroll);
+    const timer = window.setTimeout(scroll, 180);
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [ready, trip?.tripId, offer]);
+
   return (
     <main>
       <SiteHeader />
@@ -59,7 +80,6 @@ export default function TripOrganizerResolver() {
 
         {!ready ? null : offer && trip?.tripId ? (
           <>
-            <TripPhasePanel departureAt={trip.departureAt} nights={offer.nights} />
             <TripOrganizer
               tripId={trip.tripId}
               city={offer.city}
@@ -68,6 +88,7 @@ export default function TripOrganizerResolver() {
               categories={offer.category || []}
               weather={offer.weather || ""}
             />
+            <TripToolkit city={offer.city} country={offer.country} tripId={trip.tripId} />
           </>
         ) : (
           <div className="favorites-empty">

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, BadgeCheck, Scale, MapPinned, BadgePercent } from "lucide-react";
+import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, BadgeCheck, Scale, MapPinned, BadgePercent, X } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import TravelImage from "@/components/TravelImage";
@@ -11,6 +11,7 @@ import { isPriceStale } from "@/lib/offerQuality";
 import { isOfferExpired } from "@/lib/offers";
 import { getDealScore } from "@/lib/dealScore";
 import { ANALYTICS_CONSENT_EVENT, getAnalyticsConsent, trackEvent } from "@/lib/analytics";
+import { partners } from "@/lib/partners";
 import {
   COMPARE_OFFER_SNAPSHOTS_KEY,
   FAVORITE_OFFER_SNAPSHOTS_KEY,
@@ -18,6 +19,7 @@ import {
   removeOfferSnapshot,
   saveOfferSnapshot,
 } from "@/lib/savedOfferSnapshots";
+import { upsertTripArchive } from "@/lib/tripArchive";
 
 const OFFER_VIEW_SESSION_KEY = "tripownia-viewed-offers-v1";
 const viewedOfferIds = new Set<number>();
@@ -76,12 +78,22 @@ function readTrip() {
   }
 }
 
-export default function OfferCard({ offer, priceHighlight }: { offer: Offer; priceHighlight?: PriceHighlight }) {
+export default function OfferCard({ offer, priceHighlight, searchRank, alternative = false }: { offer: Offer; priceHighlight?: PriceHighlight; searchRank?: number; alternative?: boolean }) {
   const [liked, setLiked] = useState(false);
   const [compared, setCompared] = useState(false);
   const [tripAdded, setTripAdded] = useState(false);
+  const [quickViewOpen, setQuickViewOpen] = useState(false);
   const [override, setOverride] = useState<OfferOverride>({});
   const cardRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!quickViewOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setQuickViewOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [quickViewOpen]);
 
   useEffect(() => {
     const load = () => {
@@ -127,6 +139,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
   const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
   const stalePrice = !isExpired && priceStale;
   const deal = getDealScore(offer, displayPrice, isLiveExact);
+  const partnerName = partners[offer.partner]?.name || "partnera";
 
   const offerSnapshot: Offer = {
     ...offer,
@@ -216,24 +229,29 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
     const previous = readTrip();
     const sameTrip = previous?.offerId === offer.id;
     const tripId = typeof previous?.tripId === "string" && previous.tripId ? previous.tripId : createTripId(offer.id);
+    const offerStartDate = String((offerSnapshot as Offer & { startDateISO?: string }).startDateISO || "");
+    const defaultDepartureAt = /^\d{4}-\d{2}-\d{2}$/.test(offerStartDate) ? `${offerStartDate}T08:00` : undefined;
     const nextTrip = sameTrip
-      ? { ...previous, offerId: offer.id, tripId, offerSnapshot }
-      : { tripId: createTripId(offer.id), offerId: offer.id, offerSnapshot, checklist: {}, dayPlan: [] };
+      ? { ...previous, offerId: offer.id, tripId, offerSnapshot, departureAt: previous?.departureAt || defaultDepartureAt }
+      : { tripId: createTripId(offer.id), offerId: offer.id, offerSnapshot, departureAt: defaultDepartureAt, checklist: {}, dayPlan: [] };
+
+    if (!sameTrip && previous?.tripId) upsertTripArchive(previous, false);
     localStorage.setItem("tripownia-my-trip", JSON.stringify(nextTrip));
+    upsertTripArchive(nextTrip);
     setTripAdded(true);
     trackEvent("trip_add", { ...eventBase, trip_id: nextTrip.tripId });
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
-  function trackOfferClick(placement: "image" | "card_cta") {
-    const outbound = !isExpired && (isExactLink || isLivePartnerLink || placement === "card_cta");
+  function trackOfferClick(placement: "image" | "card_cta" | "quick_view_cta") {
+    const outbound = !isExpired && placement !== "image" && (isExactLink || isLivePartnerLink || placement === "card_cta" || placement === "quick_view_cta");
     trackEvent(outbound ? "outbound_partner_click" : "offer_open", { ...eventBase, placement });
   }
 
   if (override.hidden || publishedOverride.hidden) return null;
 
   const externalCardLink = isExactLink || isLivePartnerLink;
-  const detailHref = isLivePartnerLink ? offer.affiliateUrl : `/oferta/${offer.id}`;
+  const detailHref = `/oferta/${offer.id}`;
   const buyHref = isExpired
     ? isLiveOffer ? "/okazje" : `/oferta/${offer.id}`
     : externalCardLink
@@ -241,11 +259,9 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       : `/go/${offer.id}?source=offer_card`;
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
-    : isLiveExact
-      ? "Sprawdź dostępność i rezerwuj"
-      : isExactLink
-        ? "Sprawdź dostępność i rezerwuj"
-        : "Sprawdź aktualną cenę";
+    : isLiveExact || isExactLink || isLivePartnerLink
+      ? `Sprawdź ofertę w ${partnerName}`
+      : `Sprawdź cenę u ${partnerName}`;
   const trustText = isExpired
     ? "Oferta wygasła"
     : isLiveExact
@@ -257,6 +273,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
           : "Cena orientacyjna · finalna cena u partnera";
 
   return (
+    <>
     <article
       ref={cardRef}
       className={`offer-card offer-card-clean offer-card-conversion ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}
@@ -264,13 +281,30 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       data-offer-price={displayPrice}
       data-offer-partner={offer.partner}
     >
-      <Link href={detailHref} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
-        <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
-        <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
-        {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
-      </Link>
+      {isLiveOffer ? (
+        <button
+          type="button"
+          className="offer-image offer-image-button"
+          aria-label={`Podejrzyj ofertę ${offer.city} w Tripowni`}
+          onClick={() => { setQuickViewOpen(true); trackOfferClick("image"); }}
+        >
+          <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
+          <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
+          {searchRank && <span className="search-rank-badge"><Star size={12} fill="currentColor" /> TOP {searchRank}</span>}
+          {alternative && <span className="search-alternative-badge">ALTERNATYWA</span>}
+          {!searchRank && isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
+        </button>
+      ) : (
+        <Link href={detailHref} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
+          <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
+          <span className={`badge ${offer.partner !== "exim" && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
+          {searchRank && <span className="search-rank-badge"><Star size={12} fill="currentColor" /> TOP {searchRank}</span>}
+          {alternative && <span className="search-alternative-badge">ALTERNATYWA</span>}
+          {!searchRank && isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
+        </Link>
+      )}
 
-      <button className="heart" aria-label={liked ? "Usuń z ulubionych" : "Dodaj do ulubionych"} onClick={toggleLike}><Heart size={20} fill={liked ? "currentColor" : "none"} /></button>
+      <button className="heart" aria-pressed={liked} aria-label={liked ? "Usuń z ulubionych" : "Dodaj do ulubionych"} title={liked ? "W ulubionych" : "Dodaj do ulubionych"} onClick={toggleLike}><Heart size={20} fill={liked ? "currentColor" : "none"} /></button>
 
       <div className="offer-body">
         <div className="offer-topline">
@@ -307,22 +341,52 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
 
         <div className="why-now"><span>DLACZEGO WARTO</span><strong>{override.note || publishedOverride.note || offer.reason}</strong></div>
 
-        <a className="card-cta" href={buyHref} rel={isExpired ? undefined : "sponsored"} onClick={() => trackOfferClick("card_cta")}>{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
+        <a className="card-cta" href={buyHref} rel={isExpired ? undefined : "sponsored noopener"} onClick={() => trackOfferClick("card_cta")}>{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
+        {!isExpired && <div className="offer-partner-note">Finalna cena i dostępność są potwierdzane na stronie {partnerName}.</div>}
 
         {!isExpired && (
           <div className="offer-actions-row offer-actions-secondary">
-            <button className={`compare-toggle ${compared ? "active" : ""}`} onClick={toggleCompare}><Scale size={15} /> {compared ? "W porównaniu" : "Porównaj"}</button>
-            <button className={`trip-toggle ${tripAdded ? "active" : ""}`} onClick={addToTrip}><MapPinned size={15} /> {tripAdded ? "W podróży" : "Zapisz do podróży"}</button>
+            <button aria-pressed={compared} className={`compare-toggle ${compared ? "active" : ""}`} onClick={toggleCompare}><Scale size={15} /> {compared ? "W porównaniu" : "Porównaj"}</button>
+            {tripAdded
+              ? <Link className="trip-toggle active" href="/moja-podroz"><MapPinned size={15} /> Otwórz podróż</Link>
+              : <button aria-pressed={false} className="trip-toggle" onClick={addToTrip}><MapPinned size={15} /> Zapisz do podróży</button>}
           </div>
         )}
 
-        {(compared || tripAdded) && (
+        {compared && (
           <div className="offer-after-actions">
-            {compared && <Link href="/porownaj">Otwórz porównanie</Link>}
-            {tripAdded && <Link href="/moja-podroz">Otwórz Moją podróż</Link>}
+            <Link href="/porownaj">Otwórz porównanie</Link>
           </div>
         )}
       </div>
     </article>
+      {quickViewOpen && (
+        <div className="offer-quick-view-backdrop" role="presentation" onMouseDown={() => setQuickViewOpen(false)}>
+          <section className="offer-quick-view" role="dialog" aria-modal="true" aria-label={`Podgląd oferty ${offer.city}`} onMouseDown={(event) => event.stopPropagation()}>
+            <button type="button" className="offer-quick-view-close" aria-label="Zamknij podgląd" onClick={() => setQuickViewOpen(false)}><X size={19}/></button>
+            <div className="offer-quick-view-image">
+              <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
+            </div>
+            <div className="offer-quick-view-body">
+              <div className="eyebrow">{offer.flag} {offer.country}</div>
+              <h3>{offer.city}</h3>
+              <div className="offer-quick-view-price"><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong><span>/ os.</span></div>
+              <div className="offer-date-line"><CalendarDays size={15}/><strong>{offer.dates}</strong></div>
+              <div className="meta">
+                <span><Plane size={15}/> {offer.departure}</span>
+                <span><Moon size={15}/> {offer.nights} nocy</span>
+                <span><Utensils size={15}/> {offer.board}</span>
+              </div>
+              <div className="offer-quick-view-hotel"><strong>{offer.hotel}</strong><span>{override.note || publishedOverride.note || offer.reason}</span></div>
+              <div className="offer-quick-view-score"><BadgeCheck size={16}/><span>Deal Score</span><strong>{deal.score}/100 · {deal.verdict}</strong></div>
+              <a className="card-cta" href={buyHref} rel={isExpired ? undefined : "sponsored noopener"} onClick={() => trackOfferClick("quick_view_cta")}>
+                {!isExpired && <Zap size={16}/>} {ctaText} <ArrowRight size={17}/>
+              </a>
+              {!isExpired && <small>Finalna cena i dostępność są potwierdzane na stronie {partnerName}.</small>}
+            </div>
+          </section>
+        </div>
+      )}
+    </>
   );
 }

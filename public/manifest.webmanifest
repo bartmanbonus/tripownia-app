@@ -1,0 +1,47 @@
+{
+  "name": "Tripownia",
+  "short_name": "Tripownia",
+  "description": "Wyszukuj podróże, zapisuj wyjazdy i planuj całą podróż w jednym miejscu.",
+  "lang": "pl-PL",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#0f172a",
+  "categories": [
+    "travel",
+    "lifestyle"
+  ],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/tripownia-app-icon-v2.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Szukaj podróży",
+      "short_name": "Szukaj",
+      "url": "/app#wyszukiwarka"
+    },
+    {
+      "name": "Moja podróż",
+      "short_name": "Podróż",
+      "url": "/moja-podroz"
+    },
+    {
+      "name": "Ulubione",
+      "short_name": "Ulubione",
+      "url": "/ulubione"
+    }
+  ]
+}

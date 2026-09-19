@@ -19,6 +19,7 @@ import "./sitewide-deep-polish.css";
 import "./search-ux-v2.css";
 import "./search-v3.css";
 import "./search-v3-focus.css";
+import "./search-v4.css";
 import "./footer-v2.css";
 import "./article-depth.css";
 import "./mobile-native-polish.css";
@@ -45,10 +46,12 @@ import TripArchiveSync from "@/components/TripArchiveSync";
 import OrganizerQuickLink from "@/components/OrganizerQuickLink";
 import HomeTripHubPortal from "@/components/HomeTripHubPortal";
 import PurchaseGuidePortal from "@/components/PurchaseGuidePortal";
+import NativeAppBridge from "@/components/NativeAppBridge";
+import OfflineStatusBanner from "@/components/OfflineStatusBanner";
 
 const HOME_TITLE = "Tanie wakacje, city break i lot + hotel – okazje podróżnicze | Tripownia";
 const HOME_DESCRIPTION = "Codziennie wybieramy dobre okazje na wakacje, city breaki i lot + hotel. Sprawdź cenę, termin, hotel i aktualne propozycje z polskich lotnisk.";
-const FAVICON_URL = "/tripownia-app-icon-v2.png";
+const FAVICON_PNG = "/tripownia-app-icon-v2.png";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tripownia.pl"),
@@ -58,9 +61,12 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   applicationName: "Tripownia",
   icons: {
-    icon: [{ url: FAVICON_URL, type: "image/png", sizes: "256x256" }],
-    shortcut: [FAVICON_URL],
-    apple: [{ url: FAVICON_URL, type: "image/png", sizes: "256x256" }],
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml", sizes: "any" },
+      { url: FAVICON_PNG, type: "image/png", sizes: "256x256" },
+    ],
+    shortcut: [FAVICON_PNG],
+    apple: [{ url: FAVICON_PNG, type: "image/png", sizes: "256x256" }],
   },
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Tripownia" },
   openGraph: {
@@ -102,6 +108,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Suspense fallback={null}><AnalyticsClient /></Suspense>
         <AnalyticsInteractions />
         <AnalyticsConsentBanner />
+        <OfflineStatusBanner />
+        <NativeAppBridge />
         <PWARegister />
       </body>
     </html>

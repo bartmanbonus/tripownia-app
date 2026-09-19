@@ -9,10 +9,8 @@ import {
   CheckCircle2,
   ChevronRight,
   Circle,
-  FileText,
   HeartPulse,
   Landmark,
-  ListChecks,
   Luggage,
   MapPinned,
   Plus,
@@ -22,14 +20,6 @@ import {
   WalletCards,
 } from "lucide-react";
 
-type ReservationState = {
-  flightRef: string;
-  hotelRef: string;
-  insuranceRef: string;
-  transferRef: string;
-  emergencyContact: string;
-};
-
 type ItineraryItem = {
   id: string;
   day: number;
@@ -38,17 +28,8 @@ type ItineraryItem = {
 };
 
 type OrganizerState = {
-  reservations: ReservationState;
   packing: Record<string, boolean>;
   itinerary: ItineraryItem[];
-};
-
-const EMPTY_RESERVATIONS: ReservationState = {
-  flightRef: "",
-  hotelRef: "",
-  insuranceRef: "",
-  transferRef: "",
-  emergencyContact: "",
 };
 
 function storageKey(tripId: string) {
@@ -82,16 +63,15 @@ function defaultPacking(country: string, categories: string[], weather: string) 
 }
 
 function readOrganizer(tripId: string): OrganizerState {
-  if (typeof window === "undefined") return { reservations: EMPTY_RESERVATIONS, packing: {}, itinerary: [] };
+  if (typeof window === "undefined") return { packing: {}, itinerary: [] };
   try {
     const parsed = JSON.parse(localStorage.getItem(storageKey(tripId)) || "null") as Partial<OrganizerState> | null;
     return {
-      reservations: { ...EMPTY_RESERVATIONS, ...(parsed?.reservations || {}) },
       packing: parsed?.packing && typeof parsed.packing === "object" ? parsed.packing : {},
       itinerary: Array.isArray(parsed?.itinerary) ? parsed.itinerary : [],
     };
   } catch {
-    return { reservations: EMPTY_RESERVATIONS, packing: {}, itinerary: [] };
+    return { packing: {}, itinerary: [] };
   }
 }
 
@@ -110,7 +90,7 @@ export default function TripOrganizer({
   categories: string[];
   weather: string;
 }) {
-  const [state, setState] = useState<OrganizerState>({ reservations: EMPTY_RESERVATIONS, packing: {}, itinerary: [] });
+  const [state, setState] = useState<OrganizerState>({ packing: {}, itinerary: [] });
   const [day, setDay] = useState(1);
   const [time, setTime] = useState("10:00");
   const [title, setTitle] = useState("");
@@ -126,9 +106,6 @@ export default function TripOrganizer({
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
-  function setReservation(field: keyof ReservationState, value: string) {
-    save({ ...state, reservations: { ...state.reservations, [field]: value } });
-  }
 
   const packingItems = useMemo(() => defaultPacking(country, categories, weather), [country, categories, weather]);
   const packedCount = packingItems.filter((item) => state.packing[item]).length;
@@ -161,37 +138,24 @@ export default function TripOrganizer({
       <div className="trip-organizer-head">
         <div>
           <div className="kicker">ORGANIZER WYJAZDU</div>
-          <h2>Wszystko, co chcesz mieć pod ręką przed i w trakcie podróży</h2>
-          <p>Dane zapisują się tylko na tym urządzeniu i są przypisane do tej konkretnej podróży.</p>
+          <h2>Jeden organizer na cały wyjazd</h2>
+          <p>Najpierw pakowanie i plan dzień po dniu, a niżej rezerwacje, wydatki i rzeczy na miejscu. Wszystko jest przypisane do tej konkretnej podróży.</p>
         </div>
         <Link href="/moje-podroze">Moje podróże <ChevronRight size={16}/></Link>
       </div>
 
-      <div className="trip-organizer-grid">
-        <article className="trip-organizer-card trip-organizer-reservations">
-          <div className="trip-organizer-title"><FileText size={20}/><div><strong>Rezerwacje i ważne numery</strong><span>Wpisuj skróty lub numery rezerwacji — nie zapisuj tu haseł ani pełnych danych dokumentów.</span></div></div>
-          <div className="trip-organizer-fields">
-            <label><span>Lot / kod rezerwacji</span><input value={state.reservations.flightRef} onChange={(e) => setReservation("flightRef", e.target.value)} placeholder="np. ABC123" /></label>
-            <label><span>Hotel / kod rezerwacji</span><input value={state.reservations.hotelRef} onChange={(e) => setReservation("hotelRef", e.target.value)} placeholder="np. numer Booking" /></label>
-            <label><span>Ubezpieczenie / polisa</span><input value={state.reservations.insuranceRef} onChange={(e) => setReservation("insuranceRef", e.target.value)} placeholder="np. numer polisy" /></label>
-            <label><span>Transfer / parking</span><input value={state.reservations.transferRef} onChange={(e) => setReservation("transferRef", e.target.value)} placeholder="np. numer rezerwacji" /></label>
-            <label className="wide"><span>Kontakt awaryjny</span><input value={state.reservations.emergencyContact} onChange={(e) => setReservation("emergencyContact", e.target.value)} placeholder="np. imię + telefon" /></label>
-          </div>
-        </article>
+      <article id="pakowanie" className="trip-organizer-card trip-organizer-packing">
+        <div className="trip-organizer-title"><Luggage size={20}/><div><strong>Pakowanie</strong><span>{packedCount}/{packingItems.length} gotowe · lista dopasowana do kierunku i charakteru wyjazdu</span></div></div>
+        <div className="trip-packing-progress"><span style={{ width: `${packingItems.length ? Math.round((packedCount / packingItems.length) * 100) : 0}%` }} /></div>
+        <div className="trip-packing-list">
+          {packingItems.map((item) => {
+            const checked = Boolean(state.packing[item]);
+            return <button key={item} type="button" className={checked ? "done" : ""} onClick={() => togglePacking(item)}>{checked ? <CheckCircle2 size={18}/> : <Circle size={18}/>}<span>{item}</span></button>;
+          })}
+        </div>
+      </article>
 
-        <article className="trip-organizer-card trip-organizer-packing">
-          <div className="trip-organizer-title"><Luggage size={20}/><div><strong>Pakowanie</strong><span>{packedCount}/{packingItems.length} gotowe · lista dopasowana do kierunku i charakteru wyjazdu</span></div></div>
-          <div className="trip-packing-progress"><span style={{ width: `${packingItems.length ? Math.round((packedCount / packingItems.length) * 100) : 0}%` }} /></div>
-          <div className="trip-packing-list">
-            {packingItems.map((item) => {
-              const checked = Boolean(state.packing[item]);
-              return <button key={item} type="button" className={checked ? "done" : ""} onClick={() => togglePacking(item)}>{checked ? <CheckCircle2 size={18}/> : <Circle size={18}/>}<span>{item}</span></button>;
-            })}
-          </div>
-        </article>
-      </div>
-
-      <article className="trip-organizer-card trip-itinerary-card">
+      <article id="plan-dnia" className="trip-organizer-card trip-itinerary-card">
         <div className="trip-organizer-title"><MapPinned size={20}/><div><strong>Plan dzień po dniu</strong><span>{city} · do {dayCount} dni planu</span></div></div>
         <div className="trip-day-tabs" role="tablist" aria-label="Dni podróży">
           {Array.from({ length: dayCount }, (_, index) => index + 1).map((value) => (

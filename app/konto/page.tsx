@@ -56,9 +56,7 @@ function localAccountSnapshot() {
 
 function applyCloudState(state: TripowniaUserState) {
   const profile = state.travel_profile as unknown as Partial<TravelProfile>;
-  if (profile && typeof profile === "object") {
-    saveTravelProfile({ ...readTravelProfile(), ...profile });
-  }
+  if (profile && typeof profile === "object") saveTravelProfile({ ...readTravelProfile(), ...profile });
   localStorage.setItem("tripownia-favorites", JSON.stringify(state.favorite_offer_ids || []));
   localStorage.setItem("tripownia-compare", JSON.stringify(state.compare_offer_ids || []));
   if (state.current_trip) localStorage.setItem("tripownia-my-trip", JSON.stringify(state.current_trip));
@@ -76,6 +74,7 @@ export default function AccountPage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [synced, setSynced] = useState(0);
+  const [accountRedirectUrl, setAccountRedirectUrl] = useState("/konto");
   const configured = isAccountAuthConfigured();
 
   const localStats = useMemo(() => {
@@ -88,6 +87,10 @@ export default function AccountPage() {
       trip: Boolean(localStorage.getItem("tripownia-my-trip")),
     };
   }, [session, synced]);
+
+  useEffect(() => {
+    setAccountRedirectUrl(`${window.location.origin}/konto`);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -134,7 +137,7 @@ export default function AccountPage() {
     setBusy(true);
     setMessage("");
     try {
-      await requestMagicLink(email.trim(), `${window.location.origin}/konto`);
+      await requestMagicLink(email.trim(), accountRedirectUrl);
       setMessage("Link do logowania wysłany. Sprawdź skrzynkę e-mail.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Nie udało się wysłać linku logowania.");
@@ -229,8 +232,8 @@ export default function AccountPage() {
               </form>
 
               {(googleEnabled || appleEnabled) && <div className="account-divider"><span>lub</span></div>}
-              {googleEnabled && <a className="account-social-button" href={socialLoginUrl("google", `${window.location.origin}/konto`)}>Kontynuuj z Google</a>}
-              {appleEnabled && <a className="account-social-button" href={socialLoginUrl("apple", `${window.location.origin}/konto`)}>Kontynuuj z Apple</a>}
+              {googleEnabled && <a className="account-social-button" href={socialLoginUrl("google", accountRedirectUrl)}>Kontynuuj z Google</a>}
+              {appleEnabled && <a className="account-social-button" href={socialLoginUrl("apple", accountRedirectUrl)}>Kontynuuj z Apple</a>}
             </div>
 
             <div className="account-card account-benefits-card">

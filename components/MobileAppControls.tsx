@@ -45,7 +45,26 @@ export default function MobileAppControls() {
   const pathname = usePathname();
   const [showTop, setShowTop] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [hasActiveTrip, setHasActiveTrip] = useState(false);
   const visible = isAppPath(pathname);
+
+  useEffect(() => {
+    const loadTrip = () => {
+      try {
+        const trip = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null");
+        setHasActiveTrip(Boolean(trip?.tripId || trip?.offerId || trip?.offerSnapshot));
+      } catch {
+        setHasActiveTrip(false);
+      }
+    };
+    loadTrip();
+    window.addEventListener("tripownia-my-trip-updated", loadTrip as EventListener);
+    window.addEventListener("storage", loadTrip);
+    return () => {
+      window.removeEventListener("tripownia-my-trip-updated", loadTrip as EventListener);
+      window.removeEventListener("storage", loadTrip);
+    };
+  }, []);
 
   useEffect(() => {
     if (!visible) return;
@@ -117,7 +136,10 @@ export default function MobileAppControls() {
       <nav className="mobile-app-controls" aria-label="Nawigacja aplikacji Tripownia">
         {nav.map(({ href, label, icon: Icon, active }) => (
           <Link key={label} href={href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}>
-            <Icon size={20} strokeWidth={active ? 2.5 : 2.1} />
+            <span className="mobile-app-nav-icon">
+              <Icon size={20} strokeWidth={active ? 2.5 : 2.1} />
+              {label === "Podróż" && hasActiveTrip && <i className="mobile-app-trip-dot" aria-hidden="true" />}
+            </span>
             <span>{label}</span>
           </Link>
         ))}
