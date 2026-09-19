@@ -154,6 +154,26 @@ requireText(
   "lista Moje podróże nie migruje starszej aktywnej podróży do archiwum"
 );
 requireText(
+  "app/konto/page.tsx",
+  "favorite_offer_snapshots:",
+  "konto nie zapisuje snapshotów ulubionych w chmurze"
+);
+requireText(
+  "app/konto/page.tsx",
+  "trip_archive:",
+  "konto nie zapisuje archiwum podróży w chmurze"
+);
+requireText(
+  "app/konto/page.tsx",
+  "alert_settings:",
+  "konto nie zapisuje ustawień alertów w chmurze"
+);
+requireText(
+  "app/konto/page.tsx",
+  "window.dispatchEvent(new Event(TRIP_ARCHIVE_EVENT))",
+  "wczytanie chmury nie odświeża listy Moje podróże"
+);
+requireText(
   "lib/tripArchive.ts",
   "setActiveOfferTrip",
   "brakuje wspólnego mechanizmu ustawiania aktywnej podróży z oferty"
