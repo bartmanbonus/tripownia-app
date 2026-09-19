@@ -48,6 +48,16 @@ jobs:
             sleep 1
           done
 
+          curl --fail --silent --show-error http://127.0.0.1:3000/manifest.webmanifest > /tmp/tripownia-manifest.json
+          node -e '
+            const fs = require("fs");
+            const m = JSON.parse(fs.readFileSync("/tmp/tripownia-manifest.json", "utf8"));
+            if (m.name !== "Tripownia") throw new Error("Unexpected manifest name");
+            if (m.start_url !== "/app") throw new Error("Unexpected manifest start_url");
+            if (m.display !== "standalone") throw new Error("Tripownia manifest must be standalone");
+            if (!Array.isArray(m.icons) || !m.icons.length) throw new Error("Manifest has no icons");
+          '
+
           if [ "$ready" -ne 1 ]; then
             echo "Next.js server did not become ready"
             cat /tmp/tripownia-next.log
@@ -78,6 +88,8 @@ jobs:
             "/polityka-prywatnosci"
             "/sitemap.xml"
             "/robots.txt"
+            "/manifest.webmanifest"
+            "/sw.js"
           )
 
           for route in "${routes[@]}"; do
