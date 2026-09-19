@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
@@ -48,6 +48,12 @@ jobs:
             sleep 1
           done
 
+          if [ "$ready" -ne 1 ]; then
+            echo "Next.js server did not become ready"
+            cat /tmp/tripownia-next.log
+            exit 1
+          fi
+
           curl --fail --silent --show-error http://127.0.0.1:3000/manifest.webmanifest > /tmp/tripownia-manifest.json
           node -e '
             const fs = require("fs");
@@ -57,12 +63,6 @@ jobs:
             if (m.display !== "standalone") throw new Error("Tripownia manifest must be standalone");
             if (!Array.isArray(m.icons) || !m.icons.length) throw new Error("Manifest has no icons");
           '
-
-          if [ "$ready" -ne 1 ]; then
-            echo "Next.js server did not become ready"
-            cat /tmp/tripownia-next.log
-            exit 1
-          fi
 
           routes=(
             "/"
