@@ -27,7 +27,6 @@ import {
   Building2,
   Zap,
 } from "lucide-react";
-import { partners } from "@/lib/partners";
 
 const primaryItems = [
   { href: "/okazje", label: "Okazje" },
