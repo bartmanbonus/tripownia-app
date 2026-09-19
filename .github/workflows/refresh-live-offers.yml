@@ -18,7 +18,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
 
@@ -26,46 +26,113 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          url="https://tripownia.pl/api/today-offers?mode=search&broad=1&rescue=full"
-          curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 90 \
-            -H 'Accept: application/json' \
-            "$url" > /tmp/live-offers.json
+          base="https://tripownia.pl/api/today-offers?mode=search&broad=1&rescue=full"
+
+          fetch_provider() {
+            provider="$1"
+            output="$2"
+            if ! curl --fail --silent --show-error --retry 3 --retry-delay 5 --max-time 90               -H 'Accept: application/json'               "$base&provider=$provider" > "$output"; then
+              echo "Provider $provider unavailable; keeping other healthy feeds."
+              printf '%s\n' '{"ok":false,"offers":[]}' > "$output"
+            fi
+          }
+
+          fetch_provider exim /tmp/live-offers-exim.json
+          fetch_provider tui /tmp/live-offers-tui.json
 
           python3 - <<'PY'
           import json
+          from collections import defaultdict, deque
           from datetime import datetime, timezone
 
-          src = "/tmp/live-offers.json"
+          sources = [
+              ("exim", "/tmp/live-offers-exim.json"),
+              ("tui", "/tmp/live-offers-tui.json"),
+          ]
           dst = "data/live-offers-snapshot.json"
-          with open(src, encoding="utf-8") as f:
-              data = json.load(f)
 
-          offers = data.get("offers") or []
-          if not data.get("ok") or len(offers) < 5:
-              raise SystemExit(f"Refusing snapshot: ok={data.get('ok')} offers={len(offers)}")
+          datasets = []
+          buckets = defaultdict(deque)
+          seen = set()
 
-          valid = []
-          for offer in offers:
-              price = offer.get("price")
-              link = offer.get("affiliateUrl") or offer.get("url")
-              if isinstance(price, (int, float)) and price > 0 and link:
-                  valid.append(offer)
+          for provider, path in sources:
+              try:
+                  with open(path, encoding="utf-8") as f:
+                      data = json.load(f)
+              except Exception:
+                  data = {"ok": False, "offers": []}
 
-          if len(valid) < 5:
-              raise SystemExit(f"Refusing snapshot: only {len(valid)} valid offers")
+              datasets.append(data)
+              for offer in data.get("offers") or []:
+                  price = offer.get("price")
+                  link = offer.get("affiliateUrl") or offer.get("url")
+                  if not isinstance(price, (int, float)) or price <= 0 or not link:
+                      continue
+
+                  actual_provider = str(offer.get("partner") or provider).lower()
+                  dedupe_key = (
+                      actual_provider,
+                      str(offer.get("id") or ""),
+                      str(offer.get("hotel") or ""),
+                      str(offer.get("dates") or ""),
+                      str(link),
+                  )
+                  if dedupe_key in seen:
+                      continue
+                  seen.add(dedupe_key)
+                  buckets[actual_provider].append(offer)
+
+          total_valid = sum(len(items) for items in buckets.values())
+          if total_valid < 5:
+              raise SystemExit(f"Refusing snapshot: only {total_valid} valid offers across feeds")
+
+          provider_order = [name for name in ("exim", "tui") if buckets.get(name)]
+          provider_order += sorted(name for name in buckets if name not in provider_order)
+
+          selected = []
+          while len(selected) < 200 and any(buckets[name] for name in provider_order):
+              for name in provider_order:
+                  if buckets[name]:
+                      selected.append(buckets[name].popleft())
+                      if len(selected) >= 200:
+                          break
+
+          checked_values = [
+              str(data.get("checkedAt"))
+              for data in datasets
+              if data.get("checkedAt")
+          ]
+          destinations = {
+              (str(offer.get("city") or "").strip().lower(), str(offer.get("country") or "").strip().lower())
+              for offer in selected
+              if offer.get("city") or offer.get("country")
+          }
 
           snapshot = {
               "ok": True,
-              "checkedAt": data.get("checkedAt"),
+              "checkedAt": max(checked_values) if checked_values else None,
               "snapshotAt": datetime.now(timezone.utc).isoformat(),
-              "sourceCount": data.get("sourceCount", 0),
-              "destinationCount": data.get("destinationCount", 0),
-              "offers": valid[:200],
+              "sourceCount": sum(int(data.get("sourceCount") or 0) for data in datasets),
+              "destinationCount": len(destinations),
+              "providerCounts": {
+                  name: sum(1 for offer in selected if str(offer.get("partner") or "").lower() == name)
+                  for name in provider_order
+              },
+              "offers": selected,
           }
+
           with open(dst, "w", encoding="utf-8") as f:
               json.dump(snapshot, f, ensure_ascii=False, indent=2)
               f.write("\n")
-          print(f"Validated {len(valid)} live offers")
+
+          print(
+              "Validated",
+              total_valid,
+              "offers; snapshot:",
+              len(selected),
+              "providers:",
+              snapshot["providerCounts"],
+          )
           PY
 
       - name: Commit snapshot only when it changed
