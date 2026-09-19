@@ -1,0 +1,17 @@
+{
+  "appId": "pl.tripownia.app",
+  "appName": "Tripownia",
+  "webDir": "public",
+  "server": {
+    "url": "https://tripownia.pl",
+    "cleartext": false,
+    "androidScheme": "https",
+    "allowNavigation": [
+      "tripownia.pl",
+      "*.tripownia.pl"
+    ]
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
