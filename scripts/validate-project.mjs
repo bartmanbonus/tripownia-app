@@ -143,6 +143,11 @@ requireText(
   "const tripId = saved.tripId || \"legacy\"",
   "resolver Mojej podróży nie rozróżnia zapisanych wyjazdów po tripId"
 );
+requireText(
+  "components/MyTrip.tsx",
+  "upsertTripArchive(normalized)",
+  "zmiany w Mojej podróży nie synchronizują się z archiwum wyjazdów"
+);
 forbidText(
   "components/TripToolkit.tsx",
   "partners.getyourguide",
