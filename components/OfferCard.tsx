@@ -218,9 +218,11 @@ export default function OfferCard({ offer, priceHighlight, searchRank, alternati
     const previous = readTrip();
     const sameTrip = previous?.offerId === offer.id;
     const tripId = typeof previous?.tripId === "string" && previous.tripId ? previous.tripId : createTripId(offer.id);
+    const offerStartDate = String((offerSnapshot as Offer & { startDateISO?: string }).startDateISO || "");
+    const defaultDepartureAt = /^\d{4}-\d{2}-\d{2}$/.test(offerStartDate) ? `${offerStartDate}T08:00` : undefined;
     const nextTrip = sameTrip
-      ? { ...previous, offerId: offer.id, tripId, offerSnapshot }
-      : { tripId: createTripId(offer.id), offerId: offer.id, offerSnapshot, checklist: {}, dayPlan: [] };
+      ? { ...previous, offerId: offer.id, tripId, offerSnapshot, departureAt: previous?.departureAt || defaultDepartureAt }
+      : { tripId: createTripId(offer.id), offerId: offer.id, offerSnapshot, departureAt: defaultDepartureAt, checklist: {}, dayPlan: [] };
     localStorage.setItem("tripownia-my-trip", JSON.stringify(nextTrip));
     setTripAdded(true);
     trackEvent("trip_add", { ...eventBase, trip_id: nextTrip.tripId });
