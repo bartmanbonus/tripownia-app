@@ -144,7 +144,7 @@ export default function TripOrganizer({
         <Link href="/moje-podroze">Moje podróże <ChevronRight size={16}/></Link>
       </div>
 
-      <article className="trip-organizer-card trip-organizer-packing">
+      <article id="pakowanie" className="trip-organizer-card trip-organizer-packing">
         <div className="trip-organizer-title"><Luggage size={20}/><div><strong>Pakowanie</strong><span>{packedCount}/{packingItems.length} gotowe · lista dopasowana do kierunku i charakteru wyjazdu</span></div></div>
         <div className="trip-packing-progress"><span style={{ width: `${packingItems.length ? Math.round((packedCount / packingItems.length) * 100) : 0}%` }} /></div>
         <div className="trip-packing-list">
@@ -155,7 +155,7 @@ export default function TripOrganizer({
         </div>
       </article>
 
-      <article className="trip-organizer-card trip-itinerary-card">
+      <article id="plan-dnia" className="trip-organizer-card trip-itinerary-card">
         <div className="trip-organizer-title"><MapPinned size={20}/><div><strong>Plan dzień po dniu</strong><span>{city} · do {dayCount} dni planu</span></div></div>
         <div className="trip-day-tabs" role="tablist" aria-label="Dni podróży">
           {Array.from({ length: dayCount }, (_, index) => index + 1).map((value) => (
