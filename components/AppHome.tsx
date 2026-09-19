@@ -111,16 +111,27 @@ export default function AppHome() {
         <div className="app-home-hero">
           <div>
             <div className="kicker">MOJA TRIPOWNIA</div>
-            <h1>Od pomysłu do gotowego wyjazdu.</h1>
-            <p>Znajdź ofertę, zapisz podróż, dopnij checklistę, atrakcje, transfer, internet i plan dnia — wszystko w jednym miejscu.</p>
+            <h1>{tripOffer ? `Twój wyjazd do ${tripOffer.city} jest tutaj.` : "Od pomysłu do gotowego wyjazdu."}</h1>
+            <p>{tripOffer
+              ? `${tripOffer.dates} · sprawdź, co masz już ogarnięte i co warto zrobić teraz.`
+              : "Znajdź ofertę, zapisz podróż, dopnij checklistę, atrakcje, transfer, internet i plan dnia — wszystko w jednym miejscu."}</p>
           </div>
           <div className="app-home-hero-actions">
-            <Link className="primary-cta" href="#wyszukiwarka"><Compass size={18}/> Znajdź wyjazd</Link>
-            <Link className="secondary-cta" href="/moja-podroz"><MapPinned size={18}/> Otwórz moją podróż</Link>
+            {tripOffer ? (
+              <>
+                <Link className="primary-cta" href="/moja-podroz"><MapPinned size={18}/> Kontynuuj podróż</Link>
+                <Link className="secondary-cta" href="#wyszukiwarka"><Compass size={18}/> Szukaj następnej</Link>
+              </>
+            ) : (
+              <>
+                <Link className="primary-cta" href="#wyszukiwarka"><Compass size={18}/> Znajdź wyjazd</Link>
+                <Link className="secondary-cta" href="/dodaj-podroz"><MapPinned size={18}/> Dodaj własną podróż</Link>
+              </>
+            )}
           </div>
         </div>
 
-        <SearchHub initialTab="Inspiracje" />
+        {!tripOffer && <SearchHub initialTab="Inspiracje" />}
 
         {tripOffer && (
           <section className="app-trip-now">
@@ -135,6 +146,8 @@ export default function AppHome() {
             </div>
           </section>
         )}
+
+        {tripOffer && <SearchHub initialTab="Inspiracje" />}
 
         {completedSteps < onboarding.length && (
           <section className="app-onboarding">
