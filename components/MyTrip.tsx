@@ -11,7 +11,6 @@ import { estimateTripCost } from "@/lib/tripCost";
 import { partners } from "@/lib/partners";
 import { getOfferOverride } from "@/lib/clientOfferOverrides";
 
-type DayPlanItem = { id: string; time: string; title: string; note?: string };
 type WeatherState = { temperature: number; apparent: number; code: number; wind: number; loading?: boolean; error?: string } | null;
 type ReminderItem = { label: string; due: string; active: boolean };
 type AttractionPick = { title: string; subtitle: string; query: string; icon: "landmark" | "food" | "water" | "sparkles" };
@@ -24,7 +23,7 @@ type TripState = {
   hotel?: string;
   notes?: string;
   checklist?: Record<string, boolean>;
-  dayPlan?: DayPlanItem[];
+  dayPlan?: Array<Record<string, unknown>>;
   remindersEnabled?: boolean;
 };
 
