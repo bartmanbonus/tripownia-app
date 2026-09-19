@@ -48,6 +48,25 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+
+      - name: Set Android app version
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path("android/app/build.gradle")
+          text = path.read_text(encoding="utf-8")
+          code = int(os.environ["VERSION_CODE"])
+          text = re.sub(r"versionCode\s+\d+", f"versionCode {code}", text)
+          text = re.sub(r'versionName\s+"[^"]+"', f'versionName "0.1.{code}"', text)
+          path.write_text(text, encoding="utf-8")
+          print(f"Tripownia Android versionCode={code}, versionName=0.1.{code}")
+          PY
+
       - name: Build debug APK
         working-directory: android
         run: ./gradlew assembleDebug
