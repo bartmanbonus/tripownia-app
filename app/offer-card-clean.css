@@ -206,3 +206,20 @@
   font-weight:950!important;
   letter-spacing:.04em!important;
 }
+
+.offer-card-clean .search-alternative-badge{
+  position:absolute!important;
+  left:12px!important;
+  top:12px!important;
+  z-index:4!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  padding:7px 10px!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.94)!important;
+  color:#6f625b!important;
+  box-shadow:0 5px 18px rgba(40,25,15,.10)!important;
+  font-size:8.5px!important;
+  font-weight:900!important;
+  letter-spacing:.05em!important;
+}
