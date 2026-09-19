@@ -302,16 +302,18 @@ export default function SearchHub({
   }
 
   function chooseTab(tab: string) {
+    const query = destination.trim();
+    const suffix = query ? `?q=${encodeURIComponent(query)}` : "";
     if (tab === "Loty") {
-      window.location.href = "/loty";
+      window.location.href = `/loty${suffix}`;
       return;
     }
     if (tab === "Hotele") {
-      window.location.href = "/hotele";
+      window.location.href = `/hotele${suffix}`;
       return;
     }
     if (tab === "Atrakcje") {
-      window.location.href = "/atrakcje";
+      window.location.href = `/atrakcje${suffix}`;
       return;
     }
     if (tab === "Parkingi") {
