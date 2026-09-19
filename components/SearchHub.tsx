@@ -603,7 +603,13 @@ export default function SearchHub({
           ))}
         </div>
 
-        <form className="search-v3-form" onSubmit={submitSearch}>
+        <form
+          className="search-v3-form"
+          onSubmit={submitSearch}
+          data-search-destinations={destinations.join("|")}
+          data-search-departures={departures.join(",")}
+          data-search-date={dateSummary}
+        >
           <div className={`search-v3-field search-v3-destination ${suggestionsOpen ? "search-v4-open" : ""}`} ref={destinationRef}>
             <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd?</label>
             <div className="search-v3-input-wrap search-v4-destination-line">
