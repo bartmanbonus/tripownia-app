@@ -18,7 +18,7 @@ import {
   removeOfferSnapshot,
   saveOfferSnapshot,
 } from "@/lib/savedOfferSnapshots";
-import { upsertTripArchive } from "@/lib/tripArchive";
+import { readActiveTrip, setActiveOfferTrip } from "@/lib/tripArchive";
 
 const OFFER_VIEW_SESSION_KEY = "tripownia-viewed-offers-v1";
 const viewedOfferIds = new Set<number>();
@@ -28,10 +28,6 @@ type PriceHighlight = {
   label: string;
   detail?: string;
 };
-
-function createTripId(offerId: number) {
-  return `trip-${offerId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
 
 function hydrateViewedOfferIds() {
   if (hydratedViewedOfferIds || typeof window === "undefined") return;
@@ -67,16 +63,6 @@ function readNumberArray(key: string) {
   }
 }
 
-function readTrip() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null");
-    return parsed && typeof parsed === "object" ? parsed as Record<string, unknown> : null;
-  } catch {
-    localStorage.removeItem("tripownia-my-trip");
-    return null;
-  }
-}
-
 export default function OfferCard({ offer, priceHighlight }: { offer: Offer; priceHighlight?: PriceHighlight }) {
   const [liked, setLiked] = useState(false);
   const [compared, setCompared] = useState(false);
@@ -91,7 +77,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       setLiked(ids.includes(offer.id));
       const compareIds = readNumberArray("tripownia-compare");
       setCompared(compareIds.includes(offer.id));
-      const trip = readTrip();
+      const trip = readActiveTrip();
       setTripAdded(trip?.offerId === offer.id);
     };
 
@@ -214,19 +200,10 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
   }
 
   function addToTrip() {
-    const previous = readTrip();
-    const sameTrip = previous?.offerId === offer.id;
-    const tripId = typeof previous?.tripId === "string" && previous.tripId ? previous.tripId : createTripId(offer.id);
-    const nextTrip = sameTrip
-      ? { ...previous, offerId: offer.id, tripId, offerSnapshot }
-      : { tripId: createTripId(offer.id), offerId: offer.id, offerSnapshot, checklist: {}, dayPlan: [] };
-
-    if (!sameTrip && previous?.tripId) upsertTripArchive(previous, false);
-    localStorage.setItem("tripownia-my-trip", JSON.stringify(nextTrip));
-    upsertTripArchive(nextTrip);
+    const nextTrip = setActiveOfferTrip(offerSnapshot);
+    if (!nextTrip) return;
     setTripAdded(true);
     trackEvent("trip_add", { ...eventBase, trip_id: nextTrip.tripId });
-    window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
   function trackOfferClick(placement: "image" | "card_cta") {
