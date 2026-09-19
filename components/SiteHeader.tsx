@@ -58,6 +58,7 @@ const myTripowniaItems = [
 ] as const;
 
 const APP_PATHS = ["/app", "/dla-ciebie", "/moja-podroz", "/porownaj", "/ulubione", "/alerty", "/profil", "/konto"];
+const MOBILE_COMPACT_PATHS = ["/loty", "/hotele", "/atrakcje", "/parkingi", "/esim", "/transfery", "/wynajem-auta"];
 const OPEN_MENU_SELECTOR = "details.trip-mobile-menu[open], details.trip-header-menu[open]";
 
 function isAppPath(pathname: string) {
@@ -73,6 +74,7 @@ function closeOpenMenus(except?: HTMLDetailsElement | null) {
 export default function SiteHeader() {
   const pathname = usePathname();
   const inApp = isAppPath(pathname);
+  const compactMobileHeader = inApp || MOBILE_COMPACT_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
   const mobileHomeHref = inApp ? "/app" : "/";
   const searchHref = inApp ? "/app#wyszukiwarka" : "/#wyszukiwarka";
 
@@ -127,7 +129,7 @@ export default function SiteHeader() {
 
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema).replace(/</g, "\\u003c") }} />
-    <header className={`trip-header${inApp ? " trip-header-app" : ""}`}>
+    <header className={`trip-header${compactMobileHeader ? " trip-header-app" : ""}`}>
       <div className="trip-header-shell">
         <div className="trip-mobile-top">
           <Link className="trip-mobile-brand" href={mobileHomeHref} aria-label={inApp ? "Tripownia — start aplikacji" : "Tripownia.pl — strona główna"}>
