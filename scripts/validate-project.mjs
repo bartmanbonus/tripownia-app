@@ -128,6 +128,11 @@ forbidText(
   "partners.getyourguide",
   "Moja podróż znów omija wewnętrzny ekran Atrakcje"
 );
+requireText(
+  "components/MyTrip.tsx",
+  "catalogOffer || trip.offerSnapshot",
+  "Moja podróż znów ignoruje ręcznie dodany snapshot wyjazdu"
+);
 forbidText(
   "components/TripToolkit.tsx",
   "partners.getyourguide",
