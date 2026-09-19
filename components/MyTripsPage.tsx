@@ -19,6 +19,8 @@ type OfferSnapshot = {
   country?: string;
   dates?: string;
   departure?: string;
+  startDateISO?: string;
+  nights?: number;
   manual?: boolean;
 };
 
@@ -27,6 +29,26 @@ type TripProgress = {
   itinerary: number;
   packed: number;
 };
+
+function tripPhase(trip: TripArchiveSnapshot) {
+  const offer = trip.offerSnapshot as OfferSnapshot | undefined;
+  const rawStart = trip.departureAt || (offer?.startDateISO ? `${offer.startDateISO}T08:00` : "");
+  if (!rawStart) return { key: "undated", label: "BEZ TERMINU", order: 3 };
+
+  const start = new Date(rawStart);
+  if (Number.isNaN(start.getTime())) return { key: "undated", label: "BEZ TERMINU", order: 3 };
+
+  const nights = Math.max(1, Number(offer?.nights || 1));
+  const end = new Date(start.getTime() + nights * 86400000);
+  const now = Date.now();
+
+  if (now < start.getTime()) {
+    const days = Math.max(1, Math.ceil((start.getTime() - now) / 86400000));
+    return { key: "upcoming", label: days === 1 ? "JUTRO" : `ZA ${days} DNI`, order: 1 };
+  }
+  if (now <= end.getTime()) return { key: "ongoing", label: "W TRAKCIE", order: 0 };
+  return { key: "past", label: "ZAKOŃCZONA", order: 2 };
+}
 
 function tripLabel(trip: TripArchiveSnapshot) {
   const offer = trip.offerSnapshot as OfferSnapshot | undefined;
@@ -79,6 +101,8 @@ export default function MyTripsPage() {
     return [...trips].sort((a, b) => {
       if (a.tripId === activeId) return -1;
       if (b.tripId === activeId) return 1;
+      const phaseDiff = tripPhase(a).order - tripPhase(b).order;
+      if (phaseDiff !== 0) return phaseDiff;
       return b.updatedAt.localeCompare(a.updatedAt);
     });
   }, [trips, activeId]);
@@ -117,11 +141,13 @@ export default function MyTripsPage() {
               const offer = trip.offerSnapshot as OfferSnapshot | undefined;
               const active = trip.tripId === activeId;
               const completed = Object.values(trip.checklist || {}).filter(Boolean).length;
+              const phase = tripPhase(trip);
               return (
                 <article key={trip.tripId} className={`my-trip-archive-card${active ? " active" : ""}`}>
                   <div>
                     <div className="my-trip-archive-topline">
                       <span>{active ? "AKTYWNA PODRÓŻ" : offer?.manual ? "WŁASNY PLAN" : "ZAPISANY PLAN"}</span>
+                      <em className={`trip-phase-chip ${phase.key}`}>{phase.label}</em>
                       {offer?.dates && <small><CalendarDays size={13}/>{offer.dates}</small>}
                     </div>
                     <h2>{tripLabel(trip)}</h2>
