@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, Clock3, Map, Plus, Trash2, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves } from "lucide-react";
+import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves, Route } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TripToolkit from "@/components/TripToolkit";
@@ -99,8 +99,6 @@ function attractionPicks(city: string, categories: string[]): AttractionPick[] {
 
 export default function MyTrip() {
   const [trip, setTrip] = useState<TripState>({ checklist: {}, dayPlan: [] });
-  const [newTime, setNewTime] = useState("10:00");
-  const [newTitle, setNewTitle] = useState("");
   const [weather, setWeather] = useState<WeatherState>(null);
   const [notificationStatus, setNotificationStatus] = useState("");
   const [offerRevision, setOfferRevision] = useState(0);
@@ -139,7 +137,6 @@ export default function MyTrip() {
     return client.price ?? published.price ?? offer.price;
   }, [offer, offerRevision]);
   const cost = offer ? estimateTripCost(offer, displayPrice) : null;
-  const dayPlan = useMemo(() => [...(trip.dayPlan || [])].sort((a, b) => a.time.localeCompare(b.time)), [trip.dayPlan]);
   const reminder = reminderText(trip.departureAt);
   const reminders = useMemo(() => buildReminders(trip.departureAt), [trip.departureAt]);
   const attractions = useMemo(() => offer ? attractionPicks(offer.city, offer.category) : [], [offer]);
@@ -200,18 +197,6 @@ export default function MyTrip() {
     save({ ...trip, checklist: { ...(trip.checklist || {}), [item]: !trip.checklist?.[item] } });
   }
 
-  function addPlanItem() {
-    const title = newTitle.trim();
-    if (!title) return;
-    const item: DayPlanItem = { id: `${Date.now()}`, time: newTime, title };
-    save({ ...trip, dayPlan: [...(trip.dayPlan || []), item] });
-    setNewTitle("");
-  }
-
-  function removePlanItem(id: string) {
-    save({ ...trip, dayPlan: (trip.dayPlan || []).filter((item) => item.id !== id) });
-  }
-
   return (
     <main>
       <SiteHeader />
@@ -256,11 +241,9 @@ export default function MyTrip() {
             </div>
 
             <section className="my-trip-card my-trip-today">
-              <div className="my-trip-card-head"><Clock3 size={20}/><h2>Co robić dziś</h2></div>
-              <p className="my-trip-subcopy">Ułóż prosty plan dnia i miej go pod ręką w telefonie.</p>
-              <div className="my-trip-plan-add"><input type="time" value={newTime} onChange={(e) => setNewTime(e.target.value)} aria-label="Godzina" /><input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addPlanItem(); }} placeholder="np. Koloseum, plaża, kolacja w centrum" /><button onClick={addPlanItem}><Plus size={17}/> Dodaj</button></div>
-              {dayPlan.length ? <div className="my-trip-timeline">{dayPlan.map((item) => <div className="my-trip-timeline-item" key={item.id}><span className="my-trip-time">{item.time}</span><div><strong>{item.title}</strong>{item.note ? <small>{item.note}</small> : null}</div><button onClick={() => removePlanItem(item.id)} aria-label={`Usuń ${item.title}`}><Trash2 size={16}/></button></div>)}</div> : <div className="my-trip-empty-line">Dodaj pierwszy punkt dnia.</div>}
-              <div className="my-trip-quick-links"><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${offer.city} attractions`)}`} target="_blank" rel="noopener noreferrer"><Map size={17}/> Atrakcje na mapie</a><Link href="/inspiracje"><Ticket size={17}/> Inspiracje Tripowni</Link></div>
+              <div className="my-trip-card-head"><Route size={20}/><h2>Plan całej podróży</h2></div>
+              <p className="my-trip-subcopy">Rezerwacje, pakowanie i plan dzień po dniu są w jednym organizerze. Dzięki temu nie musisz pamiętać, w którym miejscu coś zapisałaś/eś.</p>
+              <Link className="primary-cta" href="/organizer">Otwórz organizer <ArrowRight size={17}/></Link>
             </section>
 
             <section className="my-trip-card trip-attractions">
