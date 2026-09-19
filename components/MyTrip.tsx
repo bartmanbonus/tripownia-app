@@ -7,7 +7,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TripPhasePanel from "@/components/TripPhasePanel";
 import TripPlanningSummary from "@/components/TripPlanningSummary";
-import { offers, publishedOfferOverrides } from "@/lib/offers";
+import { offers, publishedOfferOverrides, type Offer } from "@/lib/offers";
 import { estimateTripCost } from "@/lib/tripCost";
 import { partners } from "@/lib/partners";
 import { getOfferOverride } from "@/lib/clientOfferOverrides";
