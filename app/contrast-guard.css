@@ -319,3 +319,40 @@
     font-size: 9px !important;
   }
 }
+
+
+/* ==========================================================
+   KIERUNKI MOBILE QA PASS — 2026-09-19
+   Tighten the section after real iPhone-size visual QA.
+========================================================== */
+@media (max-width: 560px) {
+  .directions-page-v188 .directions-v188-shell {
+    padding-bottom: 32px !important;
+  }
+
+  .directions-page-v188 .footer.footer-v2 {
+    margin-top: 20px !important;
+  }
+
+  .directions-v188-search input {
+    font-size: 11.5px !important;
+    letter-spacing: -.01em !important;
+  }
+
+  .directions-v188-filters {
+    gap: 3px !important;
+  }
+
+  .directions-v188-filters button {
+    min-height: 36px !important;
+    padding-inline: 8px !important;
+    font-size: 9px !important;
+  }
+}
+
+@media (max-width: 390px) {
+  .directions-v188-filters button {
+    padding-inline: 7px !important;
+    font-size: 8.7px !important;
+  }
+}
