@@ -182,6 +182,12 @@ export default function PartnerSearchPage({ mode }: { mode: "flights" | "hotels"
 
       if (!snapshot) return;
 
+      const queryMatchesActiveTrip = !query || (
+        snapshot?.city &&
+        normalize(query).includes(normalize(String(snapshot.city)))
+      );
+      if (!queryMatchesActiveTrip) return;
+
       const airportCode = String(snapshot.airportCode || "").toUpperCase();
       if (isFlights) {
         const inferredOrigin = airportOptions.some((airport) => airport.code === airportCode)
