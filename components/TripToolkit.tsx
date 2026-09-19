@@ -124,6 +124,7 @@ export default function TripToolkit({ city, country, tripId }: { city: string; c
   function save(next: ToolkitState) {
     setState(next);
     localStorage.setItem(storageKey(tripId), JSON.stringify(next));
+    window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
   function addTraveler() {
