@@ -12,6 +12,7 @@
     ]
   },
   "android": {
-    "allowMixedContent": false
+    "allowMixedContent": false,
+    "appendUserAgent": " TripowniaAndroid/0.1"
   }
 }
