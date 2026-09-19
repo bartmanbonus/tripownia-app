@@ -9,8 +9,7 @@ on:
     branches:
       - main
     paths:
-      - "package.json"
-      - "capacitor.config.ts"
+      - "capacitor.config.json"
       - "app/**"
       - "components/**"
       - "lib/**"
@@ -28,7 +27,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Setup Java
@@ -37,14 +36,14 @@ jobs:
           distribution: temurin
           java-version: "17"
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install web dependencies
+        run: npm ci
+
+      - name: Install Capacitor build tooling
+        run: npm install --no-save @capacitor/core@7.4.3 @capacitor/cli@7.4.3 @capacitor/android@7.4.3
 
       - name: Create Android project
-        run: |
-          if [ ! -d android ]; then
-            npx cap add android
-          fi
+        run: npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
