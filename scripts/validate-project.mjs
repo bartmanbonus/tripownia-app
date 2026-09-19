@@ -165,6 +165,26 @@ requireText(
 );
 requireText(
   "app/konto/page.tsx",
+  "organizer_state:",
+  "konto nie zapisuje danych Organizera razem z podróżą"
+);
+requireText(
+  "app/konto/page.tsx",
+  "toolkit_state:",
+  "konto nie zapisuje danych Toolkit razem z podróżą"
+);
+requireText(
+  "app/konto/page.tsx",
+  "restorePerTripState(cloudArchive)",
+  "wczytanie chmury nie odtwarza danych per podróż"
+);
+requireText(
+  "lib/tripArchive.ts",
+  "...existing, ...trip",
+  "aktualizacja archiwum może zgubić dodatkowe dane podróży"
+);
+requireText(
+  "app/konto/page.tsx",
   "alert_settings:",
   "konto nie zapisuje ustawień alertów w chmurze"
 );
