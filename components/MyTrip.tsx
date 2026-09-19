@@ -6,6 +6,7 @@ import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards,
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TripPhasePanel from "@/components/TripPhasePanel";
+import TripPlanningSummary from "@/components/TripPlanningSummary";
 import { offers, publishedOfferOverrides } from "@/lib/offers";
 import { estimateTripCost } from "@/lib/tripCost";
 import { partners } from "@/lib/partners";
@@ -255,11 +256,7 @@ export default function MyTrip() {
               </section>
             </div>
 
-            <section className="my-trip-card my-trip-today">
-              <div className="my-trip-card-head"><Route size={20}/><h2>Plan całej podróży</h2></div>
-              <p className="my-trip-subcopy">Rezerwacje, pakowanie i plan dzień po dniu są w jednym organizerze. Dzięki temu nie musisz pamiętać, w którym miejscu coś zapisałaś/eś.</p>
-              <Link className="primary-cta" href="/organizer">Otwórz organizer <ArrowRight size={17}/></Link>
-            </section>
+            {trip.tripId && <TripPlanningSummary tripId={trip.tripId} />}
 
             <section className="my-trip-card trip-attractions">
               <div className="my-trip-card-head"><Sparkles size={20}/><h2>Co warto zrobić w {offer.city}</h2></div>
