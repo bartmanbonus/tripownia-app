@@ -3,12 +3,12 @@ import DealsPage from "@/components/DealsPage";
 
 export const metadata: Metadata = {
   title: "Tanie wakacje i city break – najtańsze okazje podróżnicze",
-  description: "Sprawdź najtańsze aktualne wakacje i city breaki z polskich lotnisk. Tripownia wybiera najniższą cenę dla kierunku i pozwala filtrować po lotnisku, miesiącu i roku.",
+  description: "Sprawdź najtańsze aktualne wakacje i city breaki z polskich lotnisk. Tripownia wybiera najniższą cenę dla kierunku i pokazuje czas sprawdzenia danych.",
   alternates: { canonical: "/okazje" },
   openGraph: {
     type: "website",
     title: "Najtańsze okazje podróżnicze | Tripownia.pl",
-    description: "Aktualne wakacje i city breaki sortowane od najniższej ceny, bez ściany droższych duplikatów.",
+    description: "Aktualne wakacje i city breaki bez ściany droższych duplikatów kierunku.",
     url: "https://tripownia.pl/okazje",
   },
   robots: { index: true, follow: true },
@@ -19,7 +19,7 @@ const collectionSchema = {
   "@type": "CollectionPage",
   name: "Okazje Tripowni",
   url: "https://tripownia.pl/okazje",
-  description: "Aktualne okazje na wakacje i city breaki sortowane od najniższej ceny.",
+  description: "Aktualne okazje na wakacje i city breaki — do 20 różnych kierunków.",
   isPartOf: { "@type": "WebSite", name: "Tripownia.pl", url: "https://tripownia.pl" },
   about: ["tanie wakacje", "city break", "last minute", "okazje podróżnicze"],
 };
@@ -33,10 +33,10 @@ const breadcrumbSchema = {
   ],
 };
 
-export default function DealsRoute(){
+export default function DealsRoute() {
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }} />
-    <DealsPage/>
+    <DealsPage />
   </>;
 }

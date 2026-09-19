@@ -21,7 +21,7 @@
 .footer-v2-content{display:flex;flex-direction:column;gap:30px}
 .footer-v2-top-grid,.footer-v2-lower-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,.85fr);gap:48px;align-items:start}
 .footer-v2-brand-card{display:flex;align-items:flex-start;justify-content:flex-start}
-.footer-v2-logo{display:block;width:180px;height:150px;overflow:hidden;margin:0}
+.footer-v2-logo{display:block;width:210px;height:178px;overflow:hidden;margin:0}
 .footer-v2-logo img{width:100%;height:100%;object-fit:contain;object-position:left top;filter:none!important}
 .footer-v2-column h3{margin:2px 0 17px;color:#211d1a;font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
 .footer-v2-column a{display:block;margin:0 0 11px;color:#5f5955;font-size:13px;line-height:1.45;text-decoration:none;transition:.15s ease}
@@ -48,7 +48,7 @@
   /* Keep the footer intentionally in two columns on phones. */
   .footer-v2-top-grid{
     display:grid!important;
-    grid-template-columns:minmax(0,1fr) 116px!important;
+    grid-template-columns:minmax(0,1fr) 132px!important;
     gap:18px!important;
     align-items:start!important;
   }
@@ -59,7 +59,7 @@
     min-width:0!important;
   }
   .footer-v2-brand-card{display:flex!important;justify-content:flex-start!important;align-items:flex-start!important}
-  .footer-v2-logo{width:108px;height:94px}
+  .footer-v2-logo{width:126px;height:112px}
 
   .footer-v2-column h3{font-size:11px;margin:0 0 10px}
   .footer-v2-column a{font-size:12px;margin-bottom:7px;line-height:1.35}
@@ -104,8 +104,8 @@
   .footer-v2-bottom span{font-size:10px}
 }
 @media(max-width:380px){
-  .footer-v2-top-grid{grid-template-columns:minmax(0,1fr) 96px!important;gap:14px!important}
-  .footer-v2-logo{width:92px;height:82px}
+  .footer-v2-top-grid{grid-template-columns:minmax(0,1fr) 112px!important;gap:14px!important}
+  .footer-v2-logo{width:108px;height:98px}
   .footer-v2-trending-links{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;column-gap:12px!important}
   .footer-v2-lower-grid{grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr)!important;gap:12px!important}
   .footer-v2-company .footer-v2-contact{font-size:10px!important}

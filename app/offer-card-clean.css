@@ -85,6 +85,14 @@
   font-size:10.5px!important;
   font-weight:950!important;
 }
+.offer-card-clean .offer-partner-note{
+  margin:-1px 2px 9px!important;
+  color:#938780!important;
+  font-size:8.5px!important;
+  line-height:1.35!important;
+  text-align:center!important;
+}
+
 .offer-card-clean .offer-actions-row{
   display:grid!important;
   grid-template-columns:1fr 1fr!important;
@@ -179,4 +187,147 @@
   .trip-search-steps span{padding:8px 10px}
   .trip-search-decision .trip-search-actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important}
   .trip-search-decision .trip-search-actions a{width:100%!important}
+}
+
+.offer-card-clean .search-rank-badge{
+  position:absolute!important;
+  left:12px!important;
+  top:12px!important;
+  z-index:4!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  padding:7px 10px!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.94)!important;
+  color:#c34a27!important;
+  box-shadow:0 5px 18px rgba(40,25,15,.13)!important;
+  font-size:9px!important;
+  font-weight:950!important;
+  letter-spacing:.04em!important;
+}
+
+.offer-card-clean .search-alternative-badge{
+  position:absolute!important;
+  left:12px!important;
+  top:12px!important;
+  z-index:4!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  padding:7px 10px!important;
+  border-radius:999px!important;
+  background:rgba(255,255,255,.94)!important;
+  color:#6f625b!important;
+  box-shadow:0 5px 18px rgba(40,25,15,.10)!important;
+  font-size:8.5px!important;
+  font-weight:900!important;
+  letter-spacing:.05em!important;
+}
+
+/* Mobile conversion pass */
+@media (max-width:600px){
+  .offer-card-clean{
+    border-radius:20px!important;
+    overflow:hidden!important;
+  }
+  .offer-card-clean .offer-image{
+    min-height:190px!important;
+    max-height:210px!important;
+  }
+  .offer-card-clean .offer-body{
+    padding:15px 14px 14px!important;
+  }
+  .offer-card-clean .offer-topline{
+    align-items:flex-start!important;
+    margin-bottom:4px!important;
+  }
+  .offer-card-clean .offer-topline h3{
+    margin-top:2px!important;
+    font-size:24px!important;
+    line-height:1.02!important;
+    letter-spacing:-.03em!important;
+  }
+  .offer-card-clean .offer-topline .eyebrow{
+    font-size:9px!important;
+    line-height:1.2!important;
+  }
+  .offer-card-clean .score{
+    transform:scale(.88)!important;
+    transform-origin:top right!important;
+  }
+  .offer-card-clean .deal-score-compact{
+    min-height:30px!important;
+    margin:7px 0 9px!important;
+    padding:5px 8px!important;
+    gap:5px!important;
+  }
+  .offer-card-clean .deal-score-compact span{font-size:8px!important}
+  .offer-card-clean .deal-score-compact strong{font-size:11px!important}
+  .offer-card-clean .deal-score-compact em{font-size:7.5px!important;padding:3px 6px!important}
+  .offer-card-clean .price{
+    margin:2px 0!important;
+  }
+  .offer-card-clean .price strong{
+    font-size:30px!important;
+    line-height:1!important;
+  }
+  .offer-card-clean .price small,
+  .offer-card-clean .price span{
+    font-size:10px!important;
+  }
+  .offer-card-clean .offer-trust-line{
+    margin:3px 0 8px!important;
+    font-size:8px!important;
+  }
+  .offer-card-clean .offer-date-line{
+    order:0!important;
+    margin:7px 0 7px!important;
+    font-size:11px!important;
+  }
+  .offer-card-clean .meta{
+    gap:4px!important;
+    margin-bottom:6px!important;
+  }
+  .offer-card-clean .meta span{
+    min-height:26px!important;
+    padding:0 7px!important;
+    font-size:8.5px!important;
+  }
+  .offer-card-clean .why-now{
+    margin:8px 0 9px!important;
+    padding:9px 10px!important;
+  }
+  .offer-card-clean .why-now strong{
+    display:-webkit-box!important;
+    -webkit-line-clamp:2!important;
+    -webkit-box-orient:vertical!important;
+    overflow:hidden!important;
+    font-size:9.5px!important;
+    line-height:1.35!important;
+  }
+  .offer-card-clean .card-cta{
+    min-height:54px!important;
+    margin:4px 0 5px!important;
+    border-radius:14px!important;
+    font-size:12px!important;
+    letter-spacing:-.01em!important;
+  }
+  .offer-card-clean .offer-partner-note{
+    margin:0 4px 8px!important;
+    font-size:8px!important;
+  }
+  .offer-card-clean .offer-actions-row{
+    gap:5px!important;
+  }
+  .offer-card-clean .offer-actions-row button{
+    min-height:30px!important;
+    font-size:7.8px!important;
+  }
+  .offer-card-clean .search-rank-badge,
+  .offer-card-clean .search-alternative-badge{
+    top:10px!important;
+    left:10px!important;
+    padding:6px 9px!important;
+    font-size:8px!important;
+  }
 }
