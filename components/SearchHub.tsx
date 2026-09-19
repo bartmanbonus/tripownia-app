@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarDays, Check, ChevronDown, MapPin, Plane, Search, SlidersHorizontal, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import { airportOptions } from "@/lib/offers";
-import { WORLD_DESTINATIONS, destinationMatches } from "@/lib/worldDestinations";
+import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination } from "@/lib/worldDestinations";
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
@@ -66,10 +66,16 @@ function uniqueOfferVariants(rows: any[]) {
 function balanceSelectedDestinations(rows: any[], destinations: string[]) {
   if (destinations.length < 2 || rows.length < 2) return rows;
 
-  const buckets = destinations.map((destination) => ({
-    destination,
-    rows: rows.filter((row) => destinationMatches(destination, `${row?.city || ""} ${row?.country || ""} ${row?.hotel || ""}`)),
-  }));
+  const buckets = destinations.map((destination) => {
+    const wanted = normalizeDestination(destination.split(",")[0] || destination);
+    return {
+      destination,
+      rows: rows.filter((row) => {
+        const haystack = normalizeDestination(`${row?.city || ""} ${row?.country || ""} ${row?.hotel || ""}`);
+        return Boolean(wanted) && (haystack.includes(wanted) || wanted.includes(normalizeDestination(row?.city || "")) || wanted.includes(normalizeDestination(row?.country || "")));
+      }),
+    };
+  });
   const used = new Set<any>();
   const balanced: any[] = [];
   const maxDepth = Math.max(0, ...buckets.map((bucket) => bucket.rows.length));
