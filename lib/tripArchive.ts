@@ -1,3 +1,5 @@
+import type { Offer } from "@/lib/offers";
+
 export type TripArchiveSnapshot = {
   tripId: string;
   offerId?: number;
@@ -91,6 +93,27 @@ export function activateArchivedTrip(tripId: string) {
   window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   window.dispatchEvent(new Event(TRIP_ARCHIVE_EVENT));
   return true;
+}
+
+export function setActiveOfferTrip(offer: Offer) {
+  if (typeof window === "undefined") return null;
+
+  const previous = readActiveTrip();
+  const sameTrip = previous?.offerId === offer.id;
+  const tripId = sameTrip && previous?.tripId
+    ? previous.tripId
+    : `trip-${offer.id}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+  if (!sameTrip && previous?.tripId) upsertTripArchive(previous, false);
+
+  const nextTrip = sameTrip
+    ? { ...previous, offerId: offer.id, tripId, offerSnapshot: offer }
+    : { tripId, offerId: offer.id, offerSnapshot: offer, checklist: {}, dayPlan: [] };
+
+  localStorage.setItem(ACTIVE_TRIP_KEY, JSON.stringify(nextTrip));
+  upsertTripArchive(nextTrip);
+  window.dispatchEvent(new Event("tripownia-my-trip-updated"));
+  return nextTrip;
 }
 
 export function removeArchivedTrip(tripId: string) {
