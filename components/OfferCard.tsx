@@ -273,6 +273,7 @@ export default function OfferCard({ offer, priceHighlight, searchRank, alternati
           : "Cena orientacyjna · finalna cena u partnera";
 
   return (
+    <>
     <article
       ref={cardRef}
       className={`offer-card offer-card-clean offer-card-conversion ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}
@@ -358,6 +359,7 @@ export default function OfferCard({ offer, priceHighlight, searchRank, alternati
           </div>
         )}
       </div>
+    </article>
       {quickViewOpen && (
         <div className="offer-quick-view-backdrop" role="presentation" onMouseDown={() => setQuickViewOpen(false)}>
           <section className="offer-quick-view" role="dialog" aria-modal="true" aria-label={`Podgląd oferty ${offer.city}`} onMouseDown={(event) => event.stopPropagation()}>
@@ -385,6 +387,6 @@ export default function OfferCard({ offer, priceHighlight, searchRank, alternati
           </section>
         </div>
       )}
-    </article>
+    </>
   );
 }
