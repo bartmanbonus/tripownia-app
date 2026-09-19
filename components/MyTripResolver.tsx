@@ -5,6 +5,7 @@ import MyTrip from "@/components/MyTrip";
 import type { Offer } from "@/lib/offers";
 
 type StoredTrip = {
+  tripId?: string;
   offerId?: number;
   offerSnapshot?: Offer & { manual?: boolean };
 };
@@ -14,8 +15,9 @@ function storedTripKey() {
     const saved = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null") as StoredTrip | null;
     const snapshot = saved?.offerSnapshot;
     if (!saved) return "empty";
-    if (snapshot?.id) return `snapshot-${snapshot.id}-${snapshot.priceCheckedAt || snapshot.price || "saved"}`;
-    return `offer-${saved.offerId || "unknown"}`;
+    const tripId = saved.tripId || "legacy";
+    if (snapshot?.id) return `${tripId}-snapshot-${snapshot.id}-${snapshot.priceCheckedAt || snapshot.price || "saved"}`;
+    return `${tripId}-offer-${saved.offerId || "unknown"}`;
   } catch {
     return "empty";
   }
