@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowRight, Car, ClipboardCheck, MapPinned, Route, Sparkles } from "lucide-react";
+import { ArrowRight, Car, ClipboardCheck, MapPinned, Route, Sparkles, Plane } from "lucide-react";
+import { readActiveTrip } from "@/lib/tripArchive";
 
 const actions = [
   { href: "/dodaj-podroz", icon: Route, title: "Dodaj podróż", text: "Masz już lot lub hotel? Zacznij własny plan." },
@@ -17,7 +18,19 @@ const actions = [
 export default function HomeTripHubPortal() {
   const pathname = usePathname();
   const [host, setHost] = useState<HTMLElement | null>(null);
+  const [hasActiveTrip, setHasActiveTrip] = useState(false);
   const visible = pathname === "/" || pathname === "/app";
+
+  useEffect(() => {
+    const refreshTrip = () => setHasActiveTrip(Boolean(readActiveTrip()));
+    refreshTrip();
+    window.addEventListener("tripownia-my-trip-updated", refreshTrip as EventListener);
+    window.addEventListener("storage", refreshTrip as EventListener);
+    return () => {
+      window.removeEventListener("tripownia-my-trip-updated", refreshTrip as EventListener);
+      window.removeEventListener("storage", refreshTrip as EventListener);
+    };
+  }, []);
 
   useEffect(() => {
     if (!visible) {
@@ -43,6 +56,13 @@ export default function HomeTripHubPortal() {
 
   return createPortal(
     <section className="shell already-booked-hub" aria-labelledby="already-booked-title">
+      {hasActiveTrip && (
+        <Link href="/moja-podroz" className="already-booked-active-trip">
+          <span className="already-booked-action-icon"><Plane size={20}/></span>
+          <span><small>MASZ AKTYWNĄ PODRÓŻ</small><strong>Wróć do swojej podróży</strong><em>Plan, rezerwacje, przygotowania i rzeczy do zrobienia są już zapisane.</em></span>
+          <ArrowRight size={18}/>
+        </Link>
+      )}
       <div className="already-booked-copy">
         <div className="kicker">MASZ JUŻ WYJAZD?</div>
         <h2 id="already-booked-title">Nie musisz niczego kupować w Tripowni, żeby z niej korzystać.</h2>
