@@ -48,6 +48,9 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Apply Tripownia Android branding
+        run: node scripts/prepare-android-branding.mjs
+
 
       - name: Set Android app version
         env:
