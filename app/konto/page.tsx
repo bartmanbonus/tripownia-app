@@ -56,6 +56,31 @@ function readObject(key: string) {
   }
 }
 
+function cloudTripArchive() {
+  return readTripArchive().map((trip) => ({
+    ...trip,
+    organizer_state: readObject(`tripownia-organizer:${trip.tripId}`),
+    toolkit_state: readObject(`tripownia-trip-toolkit:${trip.tripId}`),
+  }));
+}
+
+function restorePerTripState(archive: Array<Record<string, unknown>>) {
+  archive.forEach((trip) => {
+    const tripId = typeof trip.tripId === "string" ? trip.tripId : "";
+    if (!tripId) return;
+
+    const organizer = trip.organizer_state;
+    if (organizer && typeof organizer === "object" && !Array.isArray(organizer)) {
+      localStorage.setItem(`tripownia-organizer:${tripId}`, JSON.stringify(organizer));
+    }
+
+    const toolkit = trip.toolkit_state;
+    if (toolkit && typeof toolkit === "object" && !Array.isArray(toolkit)) {
+      localStorage.setItem(`tripownia-trip-toolkit:${tripId}`, JSON.stringify(toolkit));
+    }
+  });
+}
+
 function localAccountSnapshot() {
   const travelProfile = readTravelProfile();
   const currentTrip = readActiveTrip();
@@ -68,7 +93,7 @@ function localAccountSnapshot() {
     current_trip: currentTrip as unknown as Record<string, unknown> | null,
     favorite_offer_snapshots: readSavedOfferSnapshots(FAVORITE_OFFER_SNAPSHOTS_KEY) as unknown as Record<string, unknown>,
     compare_offer_snapshots: readSavedOfferSnapshots(COMPARE_OFFER_SNAPSHOTS_KEY) as unknown as Record<string, unknown>,
-    trip_archive: readTripArchive() as unknown as Array<Record<string, unknown>>,
+    trip_archive: cloudTripArchive() as unknown as Array<Record<string, unknown>>,
     alert_settings: readObject("tripownia-alert-settings"),
     visited_countries: travelProfile.visitedCountries,
     excluded_visited_countries: travelProfile.excludedVisitedCountries,
@@ -84,7 +109,9 @@ function applyCloudState(state: TripowniaUserState) {
   localStorage.setItem("tripownia-compare", JSON.stringify(state.compare_offer_ids || []));
   localStorage.setItem(FAVORITE_OFFER_SNAPSHOTS_KEY, JSON.stringify(state.favorite_offer_snapshots || {}));
   localStorage.setItem(COMPARE_OFFER_SNAPSHOTS_KEY, JSON.stringify(state.compare_offer_snapshots || {}));
-  localStorage.setItem(TRIP_ARCHIVE_KEY, JSON.stringify(state.trip_archive || []));
+  const cloudArchive = state.trip_archive || [];
+  localStorage.setItem(TRIP_ARCHIVE_KEY, JSON.stringify(cloudArchive));
+  restorePerTripState(cloudArchive);
   localStorage.setItem("tripownia-alert-settings", JSON.stringify(state.alert_settings || {}));
   if (state.current_trip) {
     localStorage.setItem("tripownia-my-trip", JSON.stringify(state.current_trip));
@@ -251,7 +278,7 @@ export default function AccountPage() {
                 <span><b>{localStats.compare}</b> porównywanych</span>
                 <span><b>{localStats.trips}</b> zapisanych podróży</span>
               </div>
-              <small className="account-footnote">Dane kont są odseparowane regułami dostępu — zalogowany użytkownik widzi i zmienia wyłącznie swój zapis.</small>
+              <small className="account-footnote">Dane kont są odseparowane regułami dostępu — zalogowany użytkownik widzi i zmienia wyłącznie swój zapis. Synchronizacja może obejmować dane organizera, np. numery rezerwacji i kontakt awaryjny, wyłącznie po kliknięciu „Zapisz to urządzenie w chmurze”.</small>
             </div>
           </div>
         ) : (
