@@ -190,6 +190,11 @@ requireText(
 );
 requireText(
   "app/konto/page.tsx",
+  "const [accountRedirect, setAccountRedirect]",
+  "linki social login nie mają bezpiecznego redirectu po hydratacji"
+);
+requireText(
+  "app/konto/page.tsx",
   "window.dispatchEvent(new Event(TRIP_ARCHIVE_EVENT))",
   "wczytanie chmury nie odświeża listy Moje podróże"
 );
