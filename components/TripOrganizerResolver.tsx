@@ -7,7 +7,6 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TripOrganizer from "@/components/TripOrganizer";
 import TripToolkit from "@/components/TripToolkit";
-import TripPhasePanel from "@/components/TripPhasePanel";
 import { offers, type Offer } from "@/lib/offers";
 
 type ActiveTrip = {
@@ -60,7 +59,6 @@ export default function TripOrganizerResolver() {
 
         {!ready ? null : offer && trip?.tripId ? (
           <>
-            <TripPhasePanel departureAt={trip.departureAt} nights={offer.nights} />
             <TripOrganizer
               tripId={trip.tripId}
               city={offer.city}
