@@ -2,6 +2,12 @@ name: Android debug APK
 
 on:
   workflow_dispatch:
+    inputs:
+      web_url:
+        description: "Tripownia URL to open in the debug app"
+        required: false
+        default: "https://tripownia.pl/app"
+        type: string
   push:
     branches:
       - tripownia-android-app
@@ -35,6 +41,21 @@ jobs:
         with:
           distribution: temurin
           java-version: "21"
+
+      - name: Configure debug web URL
+        env:
+          TRIPOWNIA_ANDROID_WEB_URL: ${{ inputs.web_url || 'https://tripownia.pl/app' }}
+        run: |
+          node - <<'NODE'
+          const fs = require("fs");
+          const path = "capacitor.config.json";
+          const config = JSON.parse(fs.readFileSync(path, "utf8"));
+          const url = process.env.TRIPOWNIA_ANDROID_WEB_URL;
+          if (!/^https:\/\//.test(url || "")) throw new Error("Android debug URL must use HTTPS");
+          config.server = { ...(config.server || {}), url };
+          fs.writeFileSync(path, JSON.stringify(config, null, 2) + "\n");
+          console.log("Android debug web URL:", url);
+          NODE
 
       - name: Install web dependencies
         run: npm ci
