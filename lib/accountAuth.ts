@@ -20,6 +20,10 @@ export type TripowniaUserState = {
   favorite_offer_ids: number[];
   compare_offer_ids: number[];
   current_trip: Record<string, unknown> | null;
+  favorite_offer_snapshots: Record<string, unknown>;
+  compare_offer_snapshots: Record<string, unknown>;
+  trip_archive: Array<Record<string, unknown>>;
+  alert_settings: Record<string, unknown>;
   visited_countries: string[];
   excluded_visited_countries: string[];
   created_at?: string;
