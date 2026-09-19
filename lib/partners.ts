@@ -57,6 +57,25 @@ function buildKiwiAffiliateUrl(destinationUrl?: string) {
   return "https://kiwi.tpk.lv/7PnrR4dn";
 }
 
+export function buildKiwiFlightSearchUrl({
+  from,
+  to,
+  departure,
+  returnDate,
+}: {
+  from: string;
+  to: string;
+  departure?: string;
+  returnDate?: string;
+}) {
+  const url = new URL("https://www.kiwi.com/deep");
+  url.searchParams.set("from", from.trim().toUpperCase());
+  url.searchParams.set("to", to.trim().toUpperCase());
+  if (departure) url.searchParams.set("departure", departure);
+  if (returnDate) url.searchParams.set("return", returnDate);
+  return buildKiwiAffiliateUrl(url.toString());
+}
+
 function buildLegacyEskyAlias(destinationUrl?: string) {
   if (!destinationUrl) return buildKiwiAffiliateUrl();
 
