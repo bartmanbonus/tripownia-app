@@ -25,3 +25,14 @@ Tripownia pages remain in the app shell. External affiliate/partner destinations
 - Create signed release AAB.
 - Upload to Google Play Console internal testing first.
 - Complete store listing, privacy/data-safety declarations and content rating before production rollout.
+
+## GitHub release workflow
+The manual `Android release AAB` workflow creates the Google Play bundle. Every run gets a monotonically increasing `versionCode` based on the GitHub Actions run number and a `versionName` in the form `0.1.<run>`.
+
+Required repository secrets:
+- `ANDROID_KEYSTORE_BASE64`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEY_PASSWORD`
+
+Never commit the upload keystore or its passwords to the repository.
