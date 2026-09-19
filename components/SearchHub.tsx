@@ -89,9 +89,7 @@ function cleanRows(rows: any[], query: string) {
     .sort((a: any, b: any) => {
       const rank = commercialRank(b) - commercialRank(a);
       if (rank !== 0) return rank;
-      const quality = commercialRank(b) - commercialRank(a);
-    if (quality !== 0) return quality;
-    return Number(a.price || Infinity) - Number(b.price || Infinity);
+      return Number(a.price || Infinity) - Number(b.price || Infinity);
     });
 
   return query
@@ -368,13 +366,35 @@ export default function SearchHub({
         setResults(rows);
       }
 
+      if (rows.length < 3) {
+        const rescueParams = new URLSearchParams({ mode: "search", broad: "1" });
+        if (departures.length) rescueParams.set("from", departures.join(","));
+        const rescueResponse = await fetch(`/api/today-offers?${rescueParams.toString()}`, { cache: "no-store" });
+        const rescueData = await rescueResponse.json();
+        if (runId !== searchRunRef.current) return;
+
+        if (rescueResponse.ok && rescueData?.ok !== false) {
+          const rescueRows = cleanRows(Array.isArray(rescueData?.offers) ? rescueData.offers : [], "");
+          const existingIds = new Set(rows.map((row) => row.id));
+          const alternatives = rescueRows.filter((row) => !existingIds.has(row.id));
+          rows = [...rows, ...alternatives].slice(0, 12);
+          setResults(rows);
+
+          if (rows.length) {
+            finalDateNotice = queryLabel
+              ? "Najpierw pokazujemy najbliższe dopasowania do Twojego wyboru, a niżej najlepsze alternatywy z dostępnych wylotów."
+              : "Pokazujemy najlepsze aktualne oferty z dostępnych wylotów.";
+          }
+        }
+      }
+
       if (rows.length) {
         setNotice(finalDateNotice || (rows.length >= 6
-          ? "Najpierw pokazujemy najbliższe dopasowania, a dalej dodatkowe aktualne opcje."
+          ? "Najpierw pokazujemy najlepsze dopasowania, a dalej dodatkowe aktualne opcje."
           : apiNotice || "Pokazujemy wszystkie aktualne dopasowania, które udało się teraz potwierdzić."));
       } else {
         setNotice(queryLabel
-          ? `Nie znaleźliśmy teraz potwierdzonych ofert dla: ${queryLabel}. Usuń jeden kierunek albo wybierz Gdziekolwiek.`
+          ? `Nie znaleźliśmy teraz potwierdzonych ofert dla: ${queryLabel}. Spróbuj usunąć jedno ograniczenie albo wybierz Gdziekolwiek.`
           : "Nie znaleźliśmy teraz potwierdzonej oferty. Spróbuj ponownie lub wybierz jeden z szybkich kierunków.");
       }
     } catch {
