@@ -149,6 +149,11 @@ requireText(
   "zmiany w Mojej podróży nie synchronizują się z archiwum wyjazdów"
 );
 requireText(
+  "components/MyTripsPage.tsx",
+  "upsertTripArchive(active, false)",
+  "lista Moje podróże nie migruje starszej aktywnej podróży do archiwum"
+);
+requireText(
   "lib/tripArchive.ts",
   "setActiveOfferTrip",
   "brakuje wspólnego mechanizmu ustawiania aktywnej podróży z oferty"
