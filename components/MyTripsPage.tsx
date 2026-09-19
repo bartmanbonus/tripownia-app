@@ -10,6 +10,7 @@ import {
   activateArchivedTrip,
   readActiveTrip,
   readTripArchive,
+  upsertTripArchive,
   removeArchivedTrip,
   type TripArchiveSnapshot,
 } from "@/lib/tripArchive";
@@ -34,6 +35,7 @@ export default function MyTripsPage() {
 
   const load = () => {
     const active = readActiveTrip();
+    if (active?.tripId) upsertTripArchive(active, false);
     setActiveId(active?.tripId || null);
     setTrips(readTripArchive());
   };
