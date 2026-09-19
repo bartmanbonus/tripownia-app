@@ -7,81 +7,81 @@ import SiteHeader from "@/components/SiteHeader";
 import { airportOptions } from "@/lib/offers";
 import { buildKiwiFlightSearchUrl, partners } from "@/lib/partners";
 
-type FlightPlace = { label: string; code: string };
+type FlightPlace = { label: string; code: string; slug: string };
 
 const FLIGHT_DESTINATIONS: FlightPlace[] = [
-  { label: "Amsterdam, Holandia", code: "AMS" },
-  { label: "Ateny, Grecja", code: "ATH" },
-  { label: "Barcelona, Hiszpania", code: "BCN" },
-  { label: "Bergamo, Włochy", code: "BGY" },
-  { label: "Berlin, Niemcy", code: "BER" },
-  { label: "Budapeszt, Węgry", code: "BUD" },
-  { label: "Dublin, Irlandia", code: "DUB" },
-  { label: "Dubrownik, Chorwacja", code: "DBV" },
-  { label: "Edynburg, Wielka Brytania", code: "EDI" },
-  { label: "Florencja, Włochy", code: "FLR" },
-  { label: "Fuerteventura, Hiszpania", code: "FUE" },
-  { label: "Helsinki, Finlandia", code: "HEL" },
-  { label: "Kopenhaga, Dania", code: "CPH" },
-  { label: "Lizbona, Portugalia", code: "LIS" },
-  { label: "Londyn, Wielka Brytania", code: "LON" },
-  { label: "Madera, Portugalia", code: "FNC" },
-  { label: "Madryt, Hiszpania", code: "MAD" },
-  { label: "Majorka, Hiszpania", code: "PMI" },
-  { label: "Malaga, Hiszpania", code: "AGP" },
-  { label: "Malta", code: "MLA" },
-  { label: "Mediolan, Włochy", code: "MIL" },
-  { label: "Neapol, Włochy", code: "NAP" },
-  { label: "Nicea, Francja", code: "NCE" },
-  { label: "Pafos, Cypr", code: "PFO" },
-  { label: "Paryż, Francja", code: "PAR" },
-  { label: "Porto, Portugalia", code: "OPO" },
-  { label: "Praga, Czechy", code: "PRG" },
-  { label: "Reykjavik, Islandia", code: "KEF" },
-  { label: "Rodos, Grecja", code: "RHO" },
-  { label: "Rzym, Włochy", code: "ROM" },
-  { label: "Santorini, Grecja", code: "JTR" },
-  { label: "Sewilla, Hiszpania", code: "SVQ" },
-  { label: "Teneryfa, Hiszpania", code: "TFS" },
-  { label: "Wenecja, Włochy", code: "VCE" },
-  { label: "Wiedeń, Austria", code: "VIE" },
-  { label: "Zadar, Chorwacja", code: "ZAD" },
-  { label: "Zurych, Szwajcaria", code: "ZRH" },
-  { label: "Djerba, Tunezja", code: "DJE" },
-  { label: "Kair, Egipt", code: "CAI" },
-  { label: "Kapsztad, RPA", code: "CPT" },
-  { label: "Marrakesz, Maroko", code: "RAK" },
-  { label: "Marsa Alam, Egipt", code: "RMF" },
-  { label: "Mauritius", code: "MRU" },
-  { label: "Seszele", code: "SEZ" },
-  { label: "Zanzibar, Tanzania", code: "ZNZ" },
-  { label: "Abu Dhabi, ZEA", code: "AUH" },
-  { label: "Doha, Katar", code: "DOH" },
-  { label: "Dubaj, ZEA", code: "DXB" },
-  { label: "Stambuł, Turcja", code: "IST" },
-  { label: "Bali, Indonezja", code: "DPS" },
-  { label: "Bangkok, Tajlandia", code: "BKK" },
-  { label: "Hanoi, Wietnam", code: "HAN" },
-  { label: "Ho Chi Minh, Wietnam", code: "SGN" },
-  { label: "Hoi An / Da Nang, Wietnam", code: "DAD" },
-  { label: "Kuala Lumpur, Malezja", code: "KUL" },
-  { label: "Malediwy", code: "MLE" },
-  { label: "Pekin, Chiny", code: "PEK" },
-  { label: "Phuket, Tajlandia", code: "HKT" },
-  { label: "Singapur", code: "SIN" },
-  { label: "Tokio, Japonia", code: "TYO" },
-  { label: "Cancún, Meksyk", code: "CUN" },
-  { label: "Los Angeles, USA", code: "LAX" },
-  { label: "Miami, USA", code: "MIA" },
-  { label: "Nowy Jork, USA", code: "NYC" },
-  { label: "San Francisco, USA", code: "SFO" },
-  { label: "Toronto, Kanada", code: "YTO" },
-  { label: "Buenos Aires, Argentyna", code: "BUE" },
-  { label: "Rio de Janeiro, Brazylia", code: "RIO" },
-  { label: "Auckland, Nowa Zelandia", code: "AKL" },
-  { label: "Melbourne, Australia", code: "MEL" },
-  { label: "Sydney, Australia", code: "SYD" },
-  { label: "Tahiti, Polinezja Francuska", code: "PPT" },
+  { label: "Amsterdam, Holandia", code: "AMS", slug: "amsterdam-netherlands" },
+  { label: "Ateny, Grecja", code: "ATH", slug: "athens-greece" },
+  { label: "Barcelona, Hiszpania", code: "BCN", slug: "barcelona-spain" },
+  { label: "Bergamo, Włochy", code: "BGY", slug: "bergamo-italy" },
+  { label: "Berlin, Niemcy", code: "BER", slug: "berlin-germany" },
+  { label: "Budapeszt, Węgry", code: "BUD", slug: "budapest-hungary" },
+  { label: "Dublin, Irlandia", code: "DUB", slug: "dublin-ireland" },
+  { label: "Dubrownik, Chorwacja", code: "DBV", slug: "dubrovnik-croatia" },
+  { label: "Edynburg, Wielka Brytania", code: "EDI", slug: "edinburgh-united-kingdom" },
+  { label: "Florencja, Włochy", code: "FLR", slug: "florence-italy" },
+  { label: "Fuerteventura, Hiszpania", code: "FUE", slug: "fuerteventura-spain" },
+  { label: "Helsinki, Finlandia", code: "HEL", slug: "helsinki-finland" },
+  { label: "Kopenhaga, Dania", code: "CPH", slug: "copenhagen-denmark" },
+  { label: "Lizbona, Portugalia", code: "LIS", slug: "lisbon-portugal" },
+  { label: "Londyn, Wielka Brytania", code: "LON", slug: "london-united-kingdom" },
+  { label: "Madera, Portugalia", code: "FNC", slug: "madeira-portugal" },
+  { label: "Madryt, Hiszpania", code: "MAD", slug: "madrid-spain" },
+  { label: "Majorka, Hiszpania", code: "PMI", slug: "palma-mallorca-spain" },
+  { label: "Malaga, Hiszpania", code: "AGP", slug: "malaga-spain" },
+  { label: "Malta", code: "MLA", slug: "malta-malta" },
+  { label: "Mediolan, Włochy", code: "MIL", slug: "milan-italy" },
+  { label: "Neapol, Włochy", code: "NAP", slug: "naples-italy" },
+  { label: "Nicea, Francja", code: "NCE", slug: "nice-france" },
+  { label: "Pafos, Cypr", code: "PFO", slug: "paphos-cyprus" },
+  { label: "Paryż, Francja", code: "PAR", slug: "paris-france" },
+  { label: "Porto, Portugalia", code: "OPO", slug: "porto-portugal" },
+  { label: "Praga, Czechy", code: "PRG", slug: "prague-czechia" },
+  { label: "Reykjavik, Islandia", code: "KEF", slug: "reykjavik-iceland" },
+  { label: "Rodos, Grecja", code: "RHO", slug: "rhodes-greece" },
+  { label: "Rzym, Włochy", code: "ROM", slug: "rome-italy" },
+  { label: "Santorini, Grecja", code: "JTR", slug: "santorini-greece" },
+  { label: "Sewilla, Hiszpania", code: "SVQ", slug: "seville-spain" },
+  { label: "Teneryfa, Hiszpania", code: "TFS", slug: "tenerife-spain" },
+  { label: "Wenecja, Włochy", code: "VCE", slug: "venice-italy" },
+  { label: "Wiedeń, Austria", code: "VIE", slug: "vienna-austria" },
+  { label: "Zadar, Chorwacja", code: "ZAD", slug: "zadar-croatia" },
+  { label: "Zurych, Szwajcaria", code: "ZRH", slug: "zurich-switzerland" },
+  { label: "Djerba, Tunezja", code: "DJE", slug: "djerba-tunisia" },
+  { label: "Kair, Egipt", code: "CAI", slug: "cairo-egypt" },
+  { label: "Kapsztad, RPA", code: "CPT", slug: "cape-town-south-africa" },
+  { label: "Marrakesz, Maroko", code: "RAK", slug: "marrakesh-morocco" },
+  { label: "Marsa Alam, Egipt", code: "RMF", slug: "marsa-alam-egypt" },
+  { label: "Mauritius", code: "MRU", slug: "mauritius-mauritius" },
+  { label: "Seszele", code: "SEZ", slug: "seychelles-seychelles" },
+  { label: "Zanzibar, Tanzania", code: "ZNZ", slug: "zanzibar-tanzania" },
+  { label: "Abu Dhabi, ZEA", code: "AUH", slug: "abu-dhabi-united-arab-emirates" },
+  { label: "Doha, Katar", code: "DOH", slug: "doha-qatar" },
+  { label: "Dubaj, ZEA", code: "DXB", slug: "dubai-united-arab-emirates" },
+  { label: "Stambuł, Turcja", code: "IST", slug: "istanbul-turkey" },
+  { label: "Bali, Indonezja", code: "DPS", slug: "bali-indonesia" },
+  { label: "Bangkok, Tajlandia", code: "BKK", slug: "bangkok-thailand" },
+  { label: "Hanoi, Wietnam", code: "HAN", slug: "hanoi-vietnam" },
+  { label: "Ho Chi Minh, Wietnam", code: "SGN", slug: "ho-chi-minh-city-vietnam" },
+  { label: "Hoi An / Da Nang, Wietnam", code: "DAD", slug: "da-nang-vietnam" },
+  { label: "Kuala Lumpur, Malezja", code: "KUL", slug: "kuala-lumpur-malaysia" },
+  { label: "Malediwy", code: "MLE", slug: "male-maldives" },
+  { label: "Pekin, Chiny", code: "PEK", slug: "beijing-china" },
+  { label: "Phuket, Tajlandia", code: "HKT", slug: "phuket-thailand" },
+  { label: "Singapur", code: "SIN", slug: "singapore-singapore" },
+  { label: "Tokio, Japonia", code: "TYO", slug: "tokyo-japan" },
+  { label: "Cancún, Meksyk", code: "CUN", slug: "cancun-mexico" },
+  { label: "Los Angeles, USA", code: "LAX", slug: "los-angeles-united-states" },
+  { label: "Miami, USA", code: "MIA", slug: "miami-united-states" },
+  { label: "Nowy Jork, USA", code: "NYC", slug: "new-york-city-united-states" },
+  { label: "San Francisco, USA", code: "SFO", slug: "san-francisco-united-states" },
+  { label: "Toronto, Kanada", code: "YTO", slug: "toronto-canada" },
+  { label: "Buenos Aires, Argentyna", code: "BUE", slug: "buenos-aires-argentina" },
+  { label: "Rio de Janeiro, Brazylia", code: "RIO", slug: "rio-de-janeiro-brazil" },
+  { label: "Auckland, Nowa Zelandia", code: "AKL", slug: "auckland-new-zealand" },
+  { label: "Melbourne, Australia", code: "MEL", slug: "melbourne-australia" },
+  { label: "Sydney, Australia", code: "SYD", slug: "sydney-australia" },
+  { label: "Tahiti, Polinezja Francuska", code: "PPT", slug: "papeete-french-polynesia" },
 ];
 
 function normalize(value: string) {
@@ -92,16 +92,34 @@ function normalize(value: string) {
     .trim();
 }
 
-function resolveFlightCode(value: string) {
+function resolveFlightPlace(value: string) {
   const raw = value.trim();
-  if (/^[a-zA-Z]{3}$/.test(raw)) return raw.toUpperCase();
+  if (/^[a-zA-Z]{3}$/.test(raw)) {
+    const code = raw.toUpperCase();
+    return FLIGHT_DESTINATIONS.find((item) => item.code === code) || null;
+  }
   const normalized = normalize(raw);
-  const match = FLIGHT_DESTINATIONS.find((item) => {
+  return FLIGHT_DESTINATIONS.find((item) => {
     const city = item.label.split(",")[0];
     return normalize(item.label) === normalized || normalize(city) === normalized;
-  });
-  return match?.code || "";
+  }) || null;
 }
+
+const ORIGIN_SLUGS: Record<string, string> = {
+  WAW: "warsaw-poland",
+  WMI: "warsaw-poland",
+  KRK: "krakow-poland",
+  KTW: "katowice-poland",
+  GDN: "gdansk-poland",
+  WRO: "wroclaw-poland",
+  POZ: "poznan-poland",
+  RZE: "rzeszow-poland",
+  LCJ: "lodz-poland",
+  LUZ: "lublin-poland",
+  SZZ: "szczecin-poland",
+  BZG: "bydgoszcz-poland",
+  IEG: "zielona-gora-poland",
+};
 
 function buildHotelUrl(destination: string, checkin: string, checkout: string, adults: number) {
   const url = new URL("https://www.booking.com/searchresults.pl.html");
@@ -124,31 +142,31 @@ export default function PartnerSearchPage({ mode }: { mode: "flights" | "hotels"
   const [checkout, setCheckout] = useState("");
   const [adults, setAdults] = useState(2);
 
-  const destinationCode = useMemo(() => isFlights ? resolveFlightCode(destination) : "", [destination, isFlights]);
+  const destinationPlace = useMemo(() => isFlights ? resolveFlightPlace(destination) : null, [destination, isFlights]);
   const hotelDatesValid = !checkin || !checkout || new Date(checkout).getTime() > new Date(checkin).getTime();
   const flightDatesValid = !departureDate || !returnDate || new Date(returnDate).getTime() >= new Date(departureDate).getTime();
 
   const targetUrl = useMemo(() => {
     if (isFlights) {
-      if (!destinationCode) return "";
+      if (!destinationPlace) return "";
       return buildKiwiFlightSearchUrl({
-        from: originCode,
-        to: destinationCode,
+        from: ORIGIN_SLUGS[originCode] || "warsaw-poland",
+        to: destinationPlace.slug,
         departure: departureDate || undefined,
         returnDate: returnDate || undefined,
       });
     }
     return buildHotelUrl(destination, checkin, checkout, adults);
-  }, [isFlights, originCode, destinationCode, departureDate, returnDate, destination, checkin, checkout, adults]);
+  }, [isFlights, originCode, destinationPlace, departureDate, returnDate, destination, checkin, checkout, adults]);
 
   const ready = isFlights
-    ? Boolean(destinationCode && flightDatesValid)
+    ? Boolean(destinationPlace && flightDatesValid)
     : Boolean(destination.trim().length >= 2 && hotelDatesValid);
 
   const validationCopy = isFlights
     ? !destination.trim()
       ? "Wybierz kierunek z listy albo wpisz 3-literowy kod lotniska/miasta."
-      : !destinationCode
+      : !destinationPlace
         ? "Nie rozpoznaliśmy tego kierunku. Wybierz podpowiedź z listy albo wpisz kod IATA, np. ROM."
         : !flightDatesValid
           ? "Data powrotu nie może być wcześniejsza niż data wylotu."
