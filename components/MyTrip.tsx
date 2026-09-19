@@ -13,7 +13,6 @@ import { partners } from "@/lib/partners";
 import { getOfferOverride } from "@/lib/clientOfferOverrides";
 
 type WeatherState = { temperature: number; apparent: number; code: number; wind: number; loading?: boolean; error?: string } | null;
-type ReminderItem = { label: string; due: string; active: boolean };
 type AttractionPick = { title: string; subtitle: string; query: string; icon: "landmark" | "food" | "water" | "sparkles" };
 
 type TripState = {
@@ -76,17 +75,6 @@ function reminderText(departureAt?: string) {
   return `Do wyjazdu około ${days} dni. Możesz spokojnie domknąć plan i rezerwacje.`;
 }
 
-function buildReminders(departureAt?: string): ReminderItem[] {
-  const hours = hoursUntil(departureAt);
-  if (hours === null) return [];
-  return [
-    { label: "Ubezpieczenie, eSIM i atrakcje", due: "7 dni przed", active: hours <= 24 * 7 && hours > 24 * 3 },
-    { label: "Transfer i prognoza pogody", due: "3 dni przed", active: hours <= 24 * 3 && hours > 24 },
-    { label: "Odprawa online i bagaż", due: "24 h przed", active: hours <= 24 && hours > 4 },
-    { label: "Dokumenty i dojazd na lotnisko", due: "4 h przed", active: hours <= 4 && hours >= 0 },
-  ];
-}
-
 function attractionPicks(city: string, categories: string[]): AttractionPick[] {
   const picks: AttractionPick[] = [
     { title: `Najważniejsze miejsca w ${city}`, subtitle: "Top atrakcje i bilety bez szukania po wielu stronach", query: `${city} top attractions`, icon: "landmark" },
@@ -138,7 +126,6 @@ export default function MyTrip() {
   }, [offer, offerRevision]);
   const cost = offer ? estimateTripCost(offer, displayPrice) : null;
   const reminder = reminderText(trip.departureAt);
-  const reminders = useMemo(() => buildReminders(trip.departureAt), [trip.departureAt]);
   const attractions = useMemo(() => offer ? attractionPicks(offer.city, offer.category) : [], [offer]);
   const checklistDone = checklistItems.filter((item) => Boolean(trip.checklist?.[item])).length;
   const readinessDone = checklistDone
@@ -220,7 +207,7 @@ export default function MyTrip() {
             <TripPhasePanel departureAt={trip.departureAt} nights={offer.nights} />
             <section className="trip-mode-grid">
               <div className="trip-mode-card trip-mode-reminder">
-                <div className="trip-mode-title"><BellRing size={20}/><strong>Co teraz?</strong></div>
+                <div className="trip-mode-title"><BellRing size={20}/><strong>Termin i przypomnienia</strong></div>
                 <p>{reminder}</p>
                 <label><span>Data i godzina wylotu</span><input type="datetime-local" value={trip.departureAt || ""} onChange={(e) => save({ ...trip, departureAt: e.target.value })} /></label>
                 <button className="trip-reminder-button" onClick={enableReminders}><BellRing size={16}/>{trip.remindersEnabled ? "Przypomnienia włączone" : "Włącz przypomnienia"}</button>
@@ -238,8 +225,6 @@ export default function MyTrip() {
                 {trip.flight?.trim() ? <a href={`https://www.google.com/search?q=${encodeURIComponent(`${trip.flight} flight status`)}`} target="_blank" rel="noopener noreferrer">Sprawdź status lotu <ExternalLink size={15}/></a> : <small>Dodaj numer rejsu, aby szybko sprawdzić aktualny status.</small>}
               </div>
             </section>
-
-            {reminders.length > 0 && <section className="trip-reminders-strip">{reminders.map((item) => <div key={item.label} className={item.active ? "active" : ""}><span>{item.due}</span><strong>{item.label}</strong>{item.active && <em>TERAZ</em>}</div>)}</section>}
 
             <div className="my-trip-grid">
               <section className="my-trip-card">
