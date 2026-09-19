@@ -161,6 +161,7 @@ export default function SiteHeader() {
                   <Link href="/last-minute"><Zap size={18} /><span>Last minute</span></Link>
                   <Link href="/kierunki"><Compass size={18} /><span>Kierunki</span></Link>
                   <Link href="/poradniki"><BookOpen size={18} /><span>Poradniki</span></Link>
+                  <Link href="/atrakcje"><Building2 size={18} /><span>Atrakcje</span></Link>
                   <Link href="/loty"><Plane size={18} /><span>Loty</span></Link>
                   <Link href="/hotele"><BedDouble size={18} /><span>Hotele</span></Link>
                 </div>
