@@ -134,8 +134,8 @@ export default function MyTrip() {
   }, []);
 
   const catalogOffer = useMemo(() => offers.find((item) => item.id === trip.offerId), [trip.offerId]);
-  const offer = catalogOffer || trip.offerSnapshot;
-  const manualTrip = Boolean(trip.offerSnapshot?.manual && !catalogOffer);
+  const manualTrip = Boolean(trip.offerSnapshot?.manual);
+  const offer = manualTrip ? trip.offerSnapshot : catalogOffer || trip.offerSnapshot;
   const displayPrice = useMemo(() => {
     if (!offer || manualTrip) return Number(offer?.price || 0);
     const client = getOfferOverride(offer.id);
