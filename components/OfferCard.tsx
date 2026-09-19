@@ -77,7 +77,7 @@ function readTrip() {
   }
 }
 
-export default function OfferCard({ offer, priceHighlight, searchRank }: { offer: Offer; priceHighlight?: PriceHighlight; searchRank?: number }) {
+export default function OfferCard({ offer, priceHighlight, searchRank, alternative = false }: { offer: Offer; priceHighlight?: PriceHighlight; searchRank?: number; alternative?: boolean }) {
   const [liked, setLiked] = useState(false);
   const [compared, setCompared] = useState(false);
   const [tripAdded, setTripAdded] = useState(false);
@@ -268,6 +268,7 @@ export default function OfferCard({ offer, priceHighlight, searchRank }: { offer
         <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
         <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
         {searchRank && <span className="search-rank-badge"><Star size={12} fill="currentColor" /> TOP {searchRank}</span>}
+        {alternative && <span className="search-alternative-badge">ALTERNATYWA</span>}
         {!searchRank && isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
       </Link>
 
