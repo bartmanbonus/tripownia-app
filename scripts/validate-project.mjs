@@ -148,6 +148,16 @@ requireText(
   "upsertTripArchive(normalized)",
   "zmiany w Mojej podróży nie synchronizują się z archiwum wyjazdów"
 );
+requireText(
+  "components/OfferCard.tsx",
+  "upsertTripArchive(nextTrip)",
+  "dodanie oferty do Mojej podróży nie zapisuje jej w archiwum"
+);
+requireText(
+  "components/OfferCard.tsx",
+  "upsertTripArchive(previous, false)",
+  "zmiana aktywnej oferty nie zabezpiecza poprzedniego wyjazdu w archiwum"
+);
 forbidText(
   "components/TripToolkit.tsx",
   "partners.getyourguide",
