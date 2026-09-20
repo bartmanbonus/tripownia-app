@@ -6,19 +6,22 @@ import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards,
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TripToolkit from "@/components/TripToolkit";
-import { offers, publishedOfferOverrides } from "@/lib/offers";
+import { offers, publishedOfferOverrides, type Offer } from "@/lib/offers";
 import { estimateTripCost } from "@/lib/tripCost";
-import { partners } from "@/lib/partners";
 import { getOfferOverride } from "@/lib/clientOfferOverrides";
+import { upsertTripArchive } from "@/lib/tripArchive";
 
 type DayPlanItem = { id: string; time: string; title: string; note?: string };
 type WeatherState = { temperature: number; apparent: number; code: number; wind: number; loading?: boolean; error?: string } | null;
 type ReminderItem = { label: string; due: string; active: boolean };
 type AttractionPick = { title: string; subtitle: string; query: string; icon: "landmark" | "food" | "water" | "sparkles" };
 
+type TripOfferSnapshot = Offer & { manual?: boolean };
+
 type TripState = {
   tripId?: string;
   offerId?: number;
+  offerSnapshot?: TripOfferSnapshot;
   flight?: string;
   departureAt?: string;
   hotel?: string;
@@ -131,14 +134,16 @@ export default function MyTrip() {
     return () => window.removeEventListener("tripownia-offer-overrides-updated", refresh);
   }, []);
 
-  const offer = useMemo(() => offers.find((item) => item.id === trip.offerId), [trip.offerId]);
+  const catalogOffer = useMemo(() => offers.find((item) => item.id === trip.offerId), [trip.offerId]);
+  const manualTrip = Boolean(trip.offerSnapshot?.manual);
+  const offer = manualTrip ? trip.offerSnapshot : catalogOffer || trip.offerSnapshot;
   const displayPrice = useMemo(() => {
-    if (!offer) return 0;
+    if (!offer || manualTrip) return Number(offer?.price || 0);
     const client = getOfferOverride(offer.id);
     const published = publishedOfferOverrides[String(offer.id)] || {};
     return client.price ?? published.price ?? offer.price;
-  }, [offer, offerRevision]);
-  const cost = offer ? estimateTripCost(offer, displayPrice) : null;
+  }, [offer, manualTrip, offerRevision]);
+  const cost = offer && !manualTrip && displayPrice > 0 ? estimateTripCost(offer, displayPrice) : null;
   const dayPlan = useMemo(() => [...(trip.dayPlan || [])].sort((a, b) => a.time.localeCompare(b.time)), [trip.dayPlan]);
   const reminder = reminderText(trip.departureAt);
   const reminders = useMemo(() => buildReminders(trip.departureAt), [trip.departureAt]);
@@ -175,6 +180,7 @@ export default function MyTrip() {
     const normalized: TripState = { ...next, tripId: next.tripId || trip.tripId || createTripId(next.offerId) };
     setTrip(normalized);
     localStorage.setItem("tripownia-my-trip", JSON.stringify(normalized));
+    upsertTripArchive(normalized);
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
@@ -251,7 +257,7 @@ export default function MyTrip() {
             <div className="my-trip-grid">
               <section className="my-trip-card"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p><strong>{offer.departure}</strong> → {offer.city}</p><input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="Dodaj numer lotu / godzinę" /></section>
               <section className="my-trip-card"><div className="my-trip-card-head"><BedDouble size={20}/><h2>Hotel</h2></div><p><strong>{offer.hotel}</strong> · {offer.board}</p><input value={trip.hotel || ""} onChange={(e) => save({ ...trip, hotel: e.target.value })} placeholder="Dodaj numer rezerwacji / adres" /></section>
-              <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet</h2></div><div className="my-trip-budget"><span>Oferta</span><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong></div>{cost && <div className="my-trip-budget total"><span>Szacowany pełny koszt</span><strong>{cost.total.toLocaleString("pl-PL")} zł / os.</strong></div>}<Link href="/porownaj">Porównaj z innymi ofertami →</Link></section>
+              <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet</h2></div>{manualTrip ? <><div className="my-trip-budget"><span>Plan</span><strong>Własna podróż</strong></div><small>Dodawaj rzeczywiste wydatki i rozliczenia w organizerze poniżej.</small></> : <><div className="my-trip-budget"><span>Oferta</span><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong></div>{cost && <div className="my-trip-budget total"><span>Szacowany pełny koszt</span><strong>{cost.total.toLocaleString("pl-PL")} zł / os.</strong></div>}<Link href="/porownaj">Porównaj z innymi ofertami →</Link></>}</section>
               <section className="my-trip-card"><div className="my-trip-card-head"><Ticket size={20}/><h2>Co ogarnąć</h2></div><div className="my-trip-checklist">{checklistItems.map((item) => { const checked = Boolean(trip.checklist?.[item]); return <button key={item} onClick={() => toggleChecklist(item)}>{checked ? <CheckCircle2 size={18}/> : <Circle size={18}/>}<span>{item}</span></button>; })}</div></section>
             </div>
 
@@ -265,7 +271,7 @@ export default function MyTrip() {
 
             <section className="my-trip-card trip-attractions">
               <div className="my-trip-card-head"><Sparkles size={20}/><h2>Co warto zrobić w {offer.city}</h2></div>
-              <div className="trip-attraction-grid">{attractions.map((pick) => { const Icon = pick.icon === "landmark" ? Landmark : pick.icon === "food" ? UtensilsCrossed : pick.icon === "water" ? Waves : Sparkles; const partnerHref = partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(pick.query)}`); return <a key={pick.title} href={partnerHref} target="_blank" rel="sponsored noopener noreferrer"><Icon size={20}/><div><strong>{pick.title}</strong><span>{pick.subtitle}</span></div><ArrowRight size={16}/></a>; })}</div>
+              <div className="trip-attraction-grid">{attractions.map((pick) => { const Icon = pick.icon === "landmark" ? Landmark : pick.icon === "food" ? UtensilsCrossed : pick.icon === "water" ? Waves : Sparkles; const attractionHref = `/atrakcje?q=${encodeURIComponent(pick.query)}`; return <Link key={pick.title} href={attractionHref}><Icon size={20}/><div><strong>{pick.title}</strong><span>{pick.subtitle}</span></div><ArrowRight size={16}/></Link>; })}</div>
             </section>
 
             <TripToolkit city={offer.city} country={offer.country} tripId={trip.tripId || `trip-${offer.id}`} />

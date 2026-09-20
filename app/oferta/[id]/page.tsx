@@ -12,6 +12,7 @@ import OfferCard from "@/components/OfferCard";
 import SocialShare from "@/components/SocialShare";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import EximLivePrice from "@/components/EximLivePrice";
+import AddToTripButton from "@/components/AddToTripButton";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
@@ -144,6 +145,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Cena i dostępność mogą się zmieniać. Finalne warunki zobaczysz przed rezerwacją." : "Cena i dostępność są potwierdzane po kliknięciu."}</small>
             </div>
           )}
+          {o.availabilityStatus !== "expired" && <AddToTripButton offer={o} />}
           <SocialShare
             url={`https://tripownia.pl/oferta/${o.id}`}
             title={`${o.city} — okazja Tripownia.pl`}

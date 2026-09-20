@@ -6,6 +6,8 @@ import { usePathname } from "next/navigation";
 import { ArrowUp, Bell, Heart, Home, MapPinned, RefreshCw, Search } from "lucide-react";
 
 const SERVICE_PATHS = [
+  "/loty",
+  "/hotele",
   "/wynajem-auta",
   "/transfery",
   "/atrakcje",

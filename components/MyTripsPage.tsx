@@ -10,6 +10,7 @@ import {
   activateArchivedTrip,
   readActiveTrip,
   readTripArchive,
+  upsertTripArchive,
   removeArchivedTrip,
   type TripArchiveSnapshot,
 } from "@/lib/tripArchive";
@@ -34,6 +35,7 @@ export default function MyTripsPage() {
 
   const load = () => {
     const active = readActiveTrip();
+    if (active?.tripId) upsertTripArchive(active, false);
     setActiveId(active?.tripId || null);
     setTrips(readTripArchive());
   };
@@ -77,7 +79,7 @@ export default function MyTripsPage() {
           <div>
             <div className="kicker">TWOJA TRIPOWNIA</div>
             <h1>Moje podróże</h1>
-            <p>Aktywny wyjazd i poprzednie plany w jednym miejscu. Archiwum zapisuje się lokalnie na tym urządzeniu.</p>
+            <p>Aktywny wyjazd i poprzednie plany w jednym miejscu. Działa lokalnie bez konta, a po ręcznej synchronizacji może zostać przeniesione na inne urządzenie.</p>
           </div>
         </div>
 

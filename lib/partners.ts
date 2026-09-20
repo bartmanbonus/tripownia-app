@@ -57,6 +57,35 @@ function buildKiwiAffiliateUrl(destinationUrl?: string) {
   return "https://kiwi.tpk.lv/7PnrR4dn";
 }
 
+export function buildKiwiFlightSearchUrl({
+  from,
+  to,
+  departure,
+  returnDate,
+}: {
+  from: string;
+  to: string;
+  departure?: string;
+  returnDate?: string;
+}) {
+  const cleanSegment = (value: string) => value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  const fromSegment = cleanSegment(from);
+  const toSegment = cleanSegment(to);
+  if (!fromSegment || !toSegment) return buildKiwiAffiliateUrl();
+
+  let target = `https://www.kiwi.com/en/search/results/${fromSegment}/${toSegment}`;
+  if (departure) target += `/${departure}`;
+  if (departure && returnDate) target += `/${returnDate}`;
+  target += "/";
+
+  return buildKiwiAffiliateUrl(target);
+}
+
 function buildLegacyEskyAlias(destinationUrl?: string) {
   if (!destinationUrl) return buildKiwiAffiliateUrl();
 

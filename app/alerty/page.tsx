@@ -270,7 +270,7 @@ export default function AlertsPage() {
               {saved ? <><CheckCircle2 size={18} /> Zapisano</> : settings.enabled ? "Aktualizuj alert" : "Zapisz alert"}
             </button>
             {settings.enabled && <button className="app-secondary-button" type="button" onClick={disableAlert}>Wyłącz alert</button>}
-            <small>Alert jest zapisany na tym urządzeniu — bez konta i logowania.</small>
+            <small>Alert działa na tym urządzeniu bez konta. Po ręcznej synchronizacji konta jego ustawienia mogą zostać przeniesione na inne urządzenie.</small>
           </form>
 
           <aside className="app-alerts-card app-alerts-notification-card">

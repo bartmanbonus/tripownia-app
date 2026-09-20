@@ -1,0 +1,31 @@
+.button {
+  width: 100%;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 0 16px;
+  border: 1px solid #e3d8d1;
+  border-radius: 14px;
+  background: #fff;
+  color: #2b2521;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  border-color: #efb39d;
+  background: #fff8f4;
+}
+
+.added {
+  border-color: #b9dfca;
+  background: #eefaf3;
+  color: #17613a;
+}
