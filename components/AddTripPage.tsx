@@ -66,14 +66,14 @@ export default function AddTripPage() {
       weather: "",
       score: 0,
       tag: "OKAZJA" as const,
-      reason: "Własna podróż dodana do organizera Tripowni.",
+      reason: "Własna podróż dodana do darmowego planera Tripowni.",
       image: "/tripownia-app-icon-v2.png",
       category: [],
       hotel: hotel.trim() || "Nocleg do uzupełnienia",
       board: "",
       dates: dateLabel(startDate, endDate),
       partner: "kiwi" as const,
-      affiliateUrl: "/organizer",
+      affiliateUrl: "/moja-podroz",
       manual: true,
     };
     const trip = {
