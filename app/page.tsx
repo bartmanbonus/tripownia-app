@@ -662,6 +662,95 @@ export default function Home() {
 
       <SearchHub />
 
+      <section className="section shell dream-marketplace" id="marketplace">
+        <div className="dream-marketplace-head">
+          <div>
+            <div className="kicker">MARKETPLACE PODRÓŻY</div>
+            <h2>Kupujesz to, czego potrzebujesz.<br/><span>Resztę trzymasz w jednym miejscu.</span></h2>
+            <p>Od samego lotu po gotowe wakacje. Tripownia prowadzi Cię dalej także po zakupie — do atrakcji, transferu, internetu i planu wyjazdu.</p>
+          </div>
+          <Link className="dream-marketplace-all" href="#wyszukiwarka">Zacznij od wyszukania wyjazdu <ArrowRight size={17}/></Link>
+        </div>
+
+        <div className="dream-marketplace-grid">
+          <Link className="dream-service-card dream-service-main" href="/wakacje">
+            <div className="dream-service-icon">🌴</div>
+            <small>GOTOWY WYJAZD</small>
+            <strong>Wakacje</strong>
+            <span>Hotel, termin i pakiet w jednym zakupie.</span>
+            <em>Znajdź wakacje →</em>
+          </Link>
+          <a className="dream-service-card" href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">
+            <div className="dream-service-icon">✈️</div><small>TRANSPORT</small><strong>Loty</strong><span>Porównaj połączenia i wybierz najlepszy wariant.</span><em>Sprawdź loty →</em>
+          </a>
+          <a className="dream-service-card" href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">
+            <div className="dream-service-icon">🏨</div><small>NOCLEG</small><strong>Hotele</strong><span>Dobierz nocleg do kierunku, terminu i stylu wyjazdu.</span><em>Sprawdź hotele →</em>
+          </a>
+          <Link className="dream-service-card" href="/atrakcje">
+            <div className="dream-service-icon">🎟️</div><small>NA MIEJSCU</small><strong>Atrakcje</strong><span>Bilety, wycieczki i rzeczy, które warto zrobić.</span><em>Znajdź atrakcje →</em>
+          </Link>
+          <Link className="dream-service-card" href="/wynajem-auta">
+            <div className="dream-service-icon">🚗</div><small>MOBILNOŚĆ</small><strong>Auto</strong><span>Dobierz samochód do prawdziwego planu podróży.</span><em>Porównaj auta →</em>
+          </Link>
+          <Link className="dream-service-card" href="/transfery">
+            <div className="dream-service-icon">🚕</div><small>DOJAZD</small><strong>Transfer</strong><span>Z lotniska do hotelu bez szukania po lądowaniu.</span><em>Sprawdź transfer →</em>
+          </Link>
+          <Link className="dream-service-card" href="/ubezpieczenia">
+            <div className="dream-service-icon">🛡️</div><small>BEZPIECZEŃSTWO</small><strong>Ubezpieczenie</strong><span>Domknij ochronę przed wyjazdem.</span><em>Sprawdź opcje →</em>
+          </Link>
+          <Link className="dream-service-card" href="/esim">
+            <div className="dream-service-icon">📱</div><small>INTERNET</small><strong>eSIM</strong><span>Internet na miejscu od chwili lądowania.</span><em>Wybierz eSIM →</em>
+          </Link>
+        </div>
+      </section>
+
+      <section className="dream-planner-wrap">
+        <div className="shell dream-planner-grid">
+          <div className="dream-planner-copy">
+            <div className="kicker light">TWÓJ PERSONALNY PLANNER</div>
+            <h2>Kupiłaś wyjazd?<br/>Tripownia dopiero się zaczyna.</h2>
+            <p>Dodaj podróż — nawet kupioną gdzie indziej. W jednym miejscu trzymaj termin, lot, nocleg, plan dnia, checklistę i rzeczy do dokupienia.</p>
+            <div className="dream-planner-actions">
+              <Link href="/moja-podroz">+ Dodaj podróż <ArrowRight size={17}/></Link>
+              <Link href="/moje-podroze">Moje podróże</Link>
+            </div>
+            <div className="dream-planner-note">Tripownia może dopasowywać rekomendacje do Twojego budżetu, lotniska, długości urlopu i stylu podróżowania.</div>
+          </div>
+
+          <div className="dream-planner-screen" aria-label="Podgląd personalnego planera Tripowni">
+            <div className="dream-planner-top">
+              <div><small>MOJA PODRÓŻ</small><strong>Wietnam 🇻🇳</strong><span>12 dni · wrzesień</span></div>
+              <Link href="/moja-podroz">Otwórz planner →</Link>
+            </div>
+            <div className="dream-planner-progress"><span style={{width:"68%"}} /></div>
+            <div className="dream-planner-list">
+              <Link href="/moja-podroz"><span>✈️</span><div><strong>Lot</strong><small>Dodaj rezerwację i godziny</small></div><b>›</b></Link>
+              <Link href="/moja-podroz"><span>🏨</span><div><strong>Nocleg</strong><small>Hotel i adres zawsze pod ręką</small></div><b>›</b></Link>
+              <Link href="/moja-podroz"><span>📍</span><div><strong>Plan dnia</strong><small>Ułóż miejsca i atrakcje</small></div><b>›</b></Link>
+              <Link href="/przed-wyjazdem"><span>✅</span><div><strong>Checklista</strong><small>Dokumenty, bagaż, transfer, eSIM</small></div><b>›</b></Link>
+            </div>
+            <div className="dream-planner-bottom">
+              <Link href="/dla-ciebie">✨ Dla Ciebie</Link>
+              <Link href="/profil">⚙️ Mój profil podróżnika</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="section shell dream-personalization">
+        <div>
+          <small>TRIPOWNIA UCZY SIĘ CIEBIE</small>
+          <h2>Nie dostajesz „popularnych ofert”.<br/>Dostajesz podróże pasujące do Ciebie.</h2>
+        </div>
+        <div className="dream-personalization-chips">
+          <span>✈️ Warszawa</span><span>💰 Twój budżet</span><span>🌡️ Ciepło</span><span>🗓️ Twój urlop</span><span>🏨 Twój standard</span><span>❤️ Twój styl</span>
+        </div>
+        <div className="dream-personalization-actions">
+          <Link href="/dla-ciebie">Zobacz „Dla Ciebie” <ArrowRight size={17}/></Link>
+          <Link href="/profil">Ustaw profil podróżnika</Link>
+        </div>
+      </section>
+
       <section className="section shell visual-chapter chapter-daily" id="okazje">
         <div className="section-heading">
           <div>
