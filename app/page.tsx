@@ -653,6 +653,12 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="shell dream-mobile-start" aria-label="Szybki start">
+        <Link href="/dodaj-podroz"><span>✨</span><div><strong>Zaplanuj za darmo</strong><small>Podaj kierunek i termin</small></div><ArrowRight size={17}/></Link>
+        <Link href="/moja-podroz"><span>🧳</span><div><strong>Mam już wyjazd</strong><small>Otwórz lub dodaj podróż</small></div><ArrowRight size={17}/></Link>
+        <Link href="#wyszukiwarka"><span>🔎</span><div><strong>Szukam wyjazdu</strong><small>Wakacje, loty i hotele</small></div><ArrowRight size={17}/></Link>
+      </section>
+
       <section className="shell dream-value-strip" aria-label="Tripownia w skrócie">
         <div><strong>1.</strong><span><b>Znajdź lub dodaj wyjazd</b><small>nawet kupiony poza Tripownią</small></span></div>
         <div><strong>2.</strong><span><b>Dostajesz plan</b><small>krok po kroku, bez opłat</small></span></div>
