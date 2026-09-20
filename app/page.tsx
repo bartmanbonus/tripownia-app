@@ -625,40 +625,39 @@ export default function Home() {
     <main>
       <SiteHeader />
 
-      <section className="hero hero-clean hero-travel-visual">
-        <div className="shell hero-inner hero-inner-clean hero-inner-restored">
-          <div className="hero-copy hero-copy-clean">
-            <div className="pill"><Flame size={16}/> Codziennie wybrane okazje</div>
-            <h1>Gdzie dziś lecimy?<br/><span>Znajdź coś naprawdę dobrego.</span></h1>
-            <p>Nie wiesz gdzie? Pokażemy najlepsze znalezione dziś. Wiesz czego chcesz? Wyszukaj po swojemu — bez wychodzenia z Tripowni.</p>
-            <div className="hero-mode-actions">
-              <Link href="#okazje">🔥 Pokaż mi okazje</Link>
-              <Link href="#wyszukiwarka">🔎 Wyszukaj samodzielnie</Link>
+      <section className="dream-hero">
+        <div className="shell dream-hero-shell">
+          <div className="dream-hero-copy">
+            <div className="dream-eyebrow"><Sparkles size={16}/> Tripownia — wszystko do podróży</div>
+            <h1>Cała podróż.<br/><span>Jedno miejsce.</span></h1>
+            <p>Znajdź wyjazd, porównaj opcje, dobierz atrakcje i dodatki. A gdy już jedziesz — trzymaj plan całej podróży w Tripowni.</p>
+            <div className="dream-hero-actions">
+              <Link className="dream-primary" href="#wyszukiwarka">Znajdź wyjazd <ArrowRight size={18}/></Link>
+              <Link className="dream-secondary" href="/moja-podroz">Mam już wyjazd</Link>
+            </div>
+            <div className="dream-category-row" aria-label="Co znajdziesz w Tripowni">
+              <Link href="/wakacje">🌴 Wakacje</Link>
+              <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">✈️ Loty</a>
+              <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">🏨 Hotele</a>
+              <Link href="/atrakcje">🎟️ Atrakcje</Link>
+              <Link href="/wynajem-auta">🚗 Auto</Link>
             </div>
           </div>
 
-          <aside className="hero-daily-panel hero-radar-panel" aria-label="Na radarze Tripowni dzisiaj">
-            <div className="hero-daily-icon">✦</div>
-            <div className="kicker">NA RADARZE DZISIAJ</div>
-            <h2>Co warto kliknąć teraz?</h2>
-            <p>{liveOffersStatus === "loading" ? "Sprawdzamy dzisiejszą selekcję." : liveOffersStatus === "live" ? "Trzy propozycje z aktualnej dzisiejszej puli." : hasOffers ? "Trzy propozycje z ostatniej potwierdzonej puli." : "Aktualizujemy selekcję — bez zastępowania jej archiwalnymi cenami."}</p>
-            <div className="hero-daily-stats">
-              <div className="hero-daily-stat"><strong>{liveOffersStatus === "loading" ? "…" : hasOffers ? newOffersCount : "—"}</strong><span>{liveOffersStatus === "live" ? "aktualnych propozycji w dzisiejszej puli" : hasOffers ? "propozycji z ostatniej potwierdzonej puli" : "czekamy na potwierdzoną pulę ofert"}</span></div>
-              <div className="hero-daily-stat"><Clock3 size={17}/><div><strong>Ostatnia aktualizacja: {refreshStatus.last}</strong><span>{refreshStatus.next}</span></div></div>
-            </div>
-            {hasOffers && <div className="hero-radar-list">
-              {todaysOffers.slice(0,3).map((offer, index) => (
-                <a href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer" className="hero-radar-offer" key={offer.id}>
-                  <span>{offer.flag}</span>
-                  <div><small>{index === 0 ? "🔥 NAJLEPSZY STRZAŁ" : index === 1 ? "✨ WARTO SPRAWDZIĆ" : "🌍 COŚ INNEGO"}</small><strong>{offer.city}</strong><em>{offer.dates} · {offer.nights} nocy</em></div>
-                  <b>od {offer.price.toLocaleString("pl-PL")} zł →</b>
-                </a>
-              ))}
-            </div>}
-            <Link className="hero-daily-cta" href="#okazje"><span>Zobacz dzisiejsze okazje</span><ArrowRight size={16}/></Link>
-          </aside>
-          <a className="hero-photo-credit" href="https://commons.wikimedia.org/wiki/File:Bora_Bora_(16542797633).jpg" target="_blank" rel="noopener noreferrer">Bora Bora · The TerraMar Project · CC BY 2.0</a>
+          <div className="dream-hero-card">
+            <div className="dream-card-kicker">ZACZNIJ TAK, JAK CI WYGODNIE</div>
+            <Link href="#wyszukiwarka"><span>🔎</span><div><strong>Wiem, gdzie chcę lecieć</strong><small>Wyszukaj po swojemu</small></div><ArrowRight size={18}/></Link>
+            <Link href="/gdzie-leciec"><span>✨</span><div><strong>Nie wiem gdzie</strong><small>Dobierz kierunek do mnie</small></div><ArrowRight size={18}/></Link>
+            <Link href="/moja-podroz"><span>🧳</span><div><strong>Mam już wyjazd</strong><small>Dodaj go i ogarnij resztę</small></div><ArrowRight size={18}/></Link>
+          </div>
         </div>
+      </section>
+
+      <section className="shell dream-value-strip" aria-label="Tripownia w skrócie">
+        <div><strong>1.</strong><span><b>Znajdź</b><small>lot, hotel lub gotowy wyjazd</small></span></div>
+        <div><strong>2.</strong><span><b>Porównaj</b><small>cenę, pogodę, hotel i lot</small></span></div>
+        <div><strong>3.</strong><span><b>Dodaj resztę</b><small>atrakcje, auto, transfer i eSIM</small></span></div>
+        <div><strong>4.</strong><span><b>Podróżuj</b><small>z planem i checklistą w jednym miejscu</small></span></div>
       </section>
 
       <SearchHub />
