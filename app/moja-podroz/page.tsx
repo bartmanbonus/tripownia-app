@@ -3,8 +3,8 @@ import Link from "next/link";
 import MyTripResolver from "@/components/MyTripResolver";
 
 export const metadata: Metadata = {
-  title: "Moja podróż | Tripownia.pl",
-  description: "Twój wyjazd w jednym miejscu: oferta, hotel, lot, plan, checklista i notatki.",
+  title: "Darmowy planner podróży | Tripownia.pl",
+  description: "Twój darmowy personalizowany planner podróży: plan dnia, lot, hotel, dokumenty, pogoda, atrakcje, checklista i przygotowanie wyjazdu w jednym miejscu.",
   robots: { index: false, follow: false, noarchive: true },
 };
 
