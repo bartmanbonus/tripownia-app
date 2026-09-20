@@ -47,8 +47,8 @@ import OrganizerQuickLink from "@/components/OrganizerQuickLink";
 import HomeTripHubPortal from "@/components/HomeTripHubPortal";
 import PurchaseGuidePortal from "@/components/PurchaseGuidePortal";
 
-const HOME_TITLE = "Tripownia – cała podróż w jednym miejscu | Wakacje, loty, hotele i atrakcje";
-const HOME_DESCRIPTION = "Znajdź i porównaj wakacje, loty, hotele i atrakcje. Dodaj własną podróż, plan, checklistę i dodatki — wszystko w jednym miejscu.";
+const HOME_TITLE = "Tripownia – darmowy planer podróży i okazje na wyjazdy";
+const HOME_DESCRIPTION = "Zaplanuj podróż za darmo: zbierz lot, nocleg, atrakcje, plan dnia i checklistę. Odkrywaj też wakacje, city breaki i okazje Tripowni.";
 const FAVICON_URL = "/tripownia-app-icon-v2.png";
 
 export const metadata: Metadata = {
@@ -70,7 +70,6 @@ export const metadata: Metadata = {
     siteName: "Tripownia",
     title: HOME_TITLE,
     description: HOME_DESCRIPTION,
-    url: "https://tripownia.pl/",
     images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Tripownia.pl — My szukamy. Ty lecisz." }],
   },
   twitter: {
@@ -108,3 +107,4 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     </html>
   );
 }
+

@@ -5,21 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: [
-        "/admin/",
-        "/api/",
-        "/go/",
-        "/out/",
-        "/app/",
-        "/profil/",
-        "/alerty/",
-        "/ulubione/",
-        "/porownaj/",
-        "/dla-ciebie/",
-        "/moja-podroz/",
-        "/moje-podroze/",
-        "/organizer/",
-      ],
+      // Account and planner pages must be crawlable so Google can read noindex.
+      disallow: ["/admin$", "/admin/", "/api/", "/go/", "/out/"],
     },
     sitemap: "https://tripownia.pl/sitemap.xml",
     host: "https://tripownia.pl",

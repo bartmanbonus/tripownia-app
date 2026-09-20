@@ -101,6 +101,22 @@ function humanize(path: string) {
 function withCanonical(path: string, metadata: Metadata): Metadata {
   return {
     ...metadata,
+    title: typeof metadata.title === "string"
+      ? metadata.title.replace(/\s*\|\s*Tripownia(?:\.pl)?$/i, "")
+      : metadata.title,
+    openGraph: {
+      type: "website", locale: "pl_PL", siteName: "Tripownia",
+      title: typeof metadata.title === "string" ? metadata.title : "Tripownia",
+      description: metadata.description || undefined,
+      url: path,
+      images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: typeof metadata.title === "string" ? metadata.title : "Tripownia",
+      description: metadata.description || undefined,
+      images: ["/opengraph-image"],
+    },
     alternates: { ...(metadata.alternates || {}), canonical: path },
   };
 }
