@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, Clock3, Map, Plus, Trash2, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves } from "lucide-react";
+import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, Clock3, Map, Plus, Trash2, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves, ShieldCheck, Wifi, Car, Camera, FileCheck2 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TripToolkit from "@/components/TripToolkit";
@@ -147,6 +147,33 @@ export default function MyTrip() {
   const reminder = reminderText(trip.departureAt);
   const reminders = useMemo(() => buildReminders(trip.departureAt), [trip.departureAt]);
   const attractions = useMemo(() => offer ? attractionPicks(offer.city, offer.category) : [], [offer]);
+  const readiness = useMemo(() => {
+    const checks = [
+      Boolean(trip.flight?.trim()),
+      Boolean(trip.hotel?.trim()),
+      Boolean(trip.departureAt),
+      Boolean((trip.dayPlan || []).length),
+      Boolean(trip.checklist?.["Sprawdź dokumenty i wymagania wjazdowe"]),
+      Boolean(trip.checklist?.["Dodaj ubezpieczenie"]),
+      Boolean(trip.checklist?.["Sprawdź transfer z lotniska i taxi na miejscu"]),
+      Boolean(trip.checklist?.["Zarezerwuj najważniejsze atrakcje"]),
+      Boolean(trip.checklist?.["Sprawdź internet / eSIM"]),
+      Boolean(trip.checklist?.["Przygotuj checklistę bagażu"]),
+    ];
+    const done = checks.filter(Boolean).length;
+    return { done, total: checks.length, percent: Math.round((done / checks.length) * 100) };
+  }, [trip.flight, trip.hotel, trip.departureAt, trip.dayPlan, trip.checklist]);
+  const nextSteps = useMemo(() => {
+    const steps = [
+      { done: Boolean(trip.checklist?.["Sprawdź dokumenty i wymagania wjazdowe"]), label: "Sprawdź dokumenty i wymagania wjazdowe", href: "/przed-wyjazdem", icon: FileCheck2 },
+      { done: Boolean(trip.checklist?.["Dodaj ubezpieczenie"]), label: "Domknij ubezpieczenie", href: "/ubezpieczenia", icon: ShieldCheck },
+      { done: Boolean(trip.checklist?.["Sprawdź transfer z lotniska i taxi na miejscu"]), label: "Sprawdź transfer i taxi", href: "/transfery", icon: Car },
+      { done: Boolean(trip.checklist?.["Sprawdź internet / eSIM"]), label: "Przygotuj internet / eSIM", href: "/esim", icon: Wifi },
+      { done: Boolean(trip.checklist?.["Zarezerwuj najważniejsze atrakcje"]), label: "Dodaj najważniejsze atrakcje", href: "/atrakcje", icon: Ticket },
+      { done: Boolean((trip.dayPlan || []).length), label: "Dodaj pierwszy punkt planu dnia", href: "#plan-dnia", icon: MapPinned },
+    ];
+    return steps.filter((step) => !step.done).slice(0, 4);
+  }, [trip.checklist, trip.dayPlan]);
 
   useEffect(() => {
     if (!offer?.city) {
@@ -225,6 +252,24 @@ export default function MyTrip() {
           <div><div className="kicker">MOJA PODRÓŻ</div><h1>{offer ? `${offer.city}, ${offer.country}` : "Twój darmowy plan podróży"}</h1><p>{offer ? `${offer.dates} · ${offer.nights} noce · wylot: ${offer.departure}` : "Dodaj własny wyjazd albo wybierz ofertę z Tripowni. Planner pomoże Ci krok po kroku zebrać wszystko w jednym miejscu — bez opłat."}</p></div>
         </div>
 
+        {offer && (
+          <section className="trip-readiness">
+            <div className="trip-readiness-main">
+              <div className="trip-readiness-score"><strong>{readiness.percent}%</strong><span>gotowe</span></div>
+              <div className="trip-readiness-copy">
+                <small>TWÓJ WYJAZD</small>
+                <h2>{readiness.percent >= 90 ? "Prawie wszystko gotowe." : readiness.percent >= 60 ? "Jesteś na dobrej drodze." : "Zaczynamy od najważniejszych rzeczy."}</h2>
+                <p>{readiness.done} z {readiness.total} kluczowych elementów masz już ogarniętych.</p>
+              </div>
+            </div>
+            <div className="trip-readiness-bar"><span style={{width:`${readiness.percent}%`}} /></div>
+            {nextSteps.length > 0 && <div className="trip-next-steps">
+              <div className="trip-next-steps-head"><Sparkles size={17}/><strong>Co teraz?</strong></div>
+              {nextSteps.map(({label,href,icon:Icon}) => <Link key={label} href={href}><Icon size={17}/><span>{label}</span><ArrowRight size={15}/></Link>)}
+            </div>}
+          </section>
+        )}
+
         {!offer ? (
           <div className="favorites-empty"><MapPinned size={30} /><h2>Zacznij od wyjazdu, który już masz — albo znajdź nowy.</h2><p>Nie musisz kupować przez Tripownię. Dodaj kierunek i termin, a potem ogarniaj dokumenty, pogodę, transport, atrakcje, jedzenie, checklistę i plan dnia w jednym miejscu.</p><div className="my-trip-empty-actions"><Link className="primary-cta" href="/dodaj-podroz">+ Dodaj własny wyjazd</Link><Link className="secondary-cta" href="/gdzie-leciec">Znajdź wyjazd <ArrowRight size={17}/></Link></div></div>
         ) : (
@@ -259,7 +304,7 @@ export default function MyTrip() {
               <section className="my-trip-card"><div className="my-trip-card-head"><Ticket size={20}/><h2>Co ogarnąć</h2></div><div className="my-trip-checklist">{checklistItems.map((item) => { const checked = Boolean(trip.checklist?.[item]); return <button key={item} onClick={() => toggleChecklist(item)}>{checked ? <CheckCircle2 size={18}/> : <Circle size={18}/>}<span>{item}</span></button>; })}</div></section>
             </div>
 
-            <section className="my-trip-card my-trip-today">
+            <section className="my-trip-card my-trip-today" id="plan-dnia">
               <div className="my-trip-card-head"><Clock3 size={20}/><h2>Co robić dziś</h2></div>
               <p className="my-trip-subcopy">Ułóż prosty plan dnia i miej go pod ręką w telefonie.</p>
               <div className="my-trip-plan-add"><input type="time" value={newTime} onChange={(e) => setNewTime(e.target.value)} aria-label="Godzina" /><input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addPlanItem(); }} placeholder="np. Koloseum, plaża, kolacja w centrum" /><button onClick={addPlanItem}><Plus size={17}/> Dodaj</button></div>
