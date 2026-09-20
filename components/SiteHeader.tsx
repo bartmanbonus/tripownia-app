@@ -30,11 +30,11 @@ import {
 import { partners } from "@/lib/partners";
 
 const primaryItems = [
-  { href: "/#marketplace", label: "Marketplace" },
-  { href: "/#wyszukiwarka", label: "Szukaj" },
-  { href: "/okazje", label: "Okazje" },
-  { href: "/kierunki", label: "Odkrywaj" },
-  { href: "/moja-podroz", label: "Planner" },
+  { href: "/moja-podroz", label: "Mój planner" },
+  { href: "/#wyszukiwarka", label: "Znajdź wyjazd" },
+  { href: "/#marketplace", label: "Usługi" },
+  { href: "/okazje", label: "Okazje Tripowni" },
+  { href: "/kierunki", label: "Inspiracje" },
 ] as const;
 
 const planningItems = [
@@ -53,7 +53,7 @@ const myTripowniaItems = [
   { href: "/app", label: "Panel główny", icon: LayoutDashboard },
   { href: "/gdzie-leciec", label: "Gdzie lecieć?", icon: Compass },
   { href: "/dla-ciebie", label: "Dla Ciebie", icon: Sparkles },
-  { href: "/moja-podroz", label: "Moja podróż", icon: MapPinned },
+  { href: "/moja-podroz", label: "Mój planner", icon: MapPinned },
   { href: "/konto", label: "Konto i logowanie", icon: UserRound },
 ] as const;
 
@@ -173,11 +173,11 @@ export default function SiteHeader() {
           </Link>
           <Link className="trip-header-search" href={searchHref} aria-label="Przejdź do wyszukiwarki wyjazdów">
             <Search size={20} strokeWidth={2.3} />
-            <span className="trip-header-search-copy"><strong>Dokąd chcesz lecieć?</strong><small>Wakacje, loty, hotele i atrakcje w jednym miejscu</small></span>
+            <span className="trip-header-search-copy"><strong>Znajdź wyjazd albo zacznij od kierunku</strong><small>Wakacje, loty, hotele i atrakcje — planner ogarnie resztę</small></span>
             <span className="trip-header-search-cta" aria-hidden="true"><Search size={24} strokeWidth={2.8} /></span>
           </Link>
           <nav className="trip-header-actions" aria-label="Twoje konto">
-            <Link className="trip-header-action" href="/ulubione" aria-label="Ulubione"><Heart size={19} strokeWidth={2} /><span>Ulubione</span></Link>
+            <Link className="trip-header-action trip-header-action-primary" href="/dodaj-podroz" aria-label="Ułóż darmowy plan podróży"><Sparkles size={19} strokeWidth={2} /><span>Plan za 0 zł</span></Link>
             <Link className="trip-header-action" href="/moja-podroz" aria-label="Planner podróży"><MapPinned size={19} strokeWidth={2} /><span>Planner</span></Link>
             <Link className="trip-header-action" href="/konto" aria-label="Konto i logowanie"><UserRound size={19} strokeWidth={2} /><span>Konto</span></Link>
           </nav>
