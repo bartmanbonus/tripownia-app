@@ -32,6 +32,11 @@ const relatedDestinationAliases: Record<string, string[]> = {
   wietnam: ["wietnam", "hanoi", "da nang", "phu quoc", "ho chi minh"],
   cypr: ["cypr", "pafos", "larnaka", "larnaca"],
   hiszpania: ["hiszpania", "majorka", "teneryfa", "alicante", "malaga", "barcelona"],
+  grecja: ["grecja", "kreta", "rodos", "kos", "korfu", "zakynthos"],
+  turcja: ["turcja", "antalya", "alanya", "side", "bodrum", "marmaris"],
+  egipt: ["egipt", "hurghada", "marsa alam", "sharm"],
+  malta: ["malta", "valletta", "sliema", "mellieha"],
+  "wyspy kanaryjskie": ["teneryfa", "gran canaria", "fuerteventura", "lanzarote", "kanary"],
 };
 
 function relatedOffers(context: ArticleContext, destinationOverride?: string) {
@@ -60,6 +65,47 @@ function relatedOffers(context: ArticleContext, destinationOverride?: string) {
 
 function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
   const hay = `${item.title} ${item.path}`.toLowerCase();
+
+  if (hay.includes("grecj")) return [
+    { href: "/podroze/grecja-z-warszawy", label: "Grecja z Warszawy" },
+    { href: "/podroze/grecja-z-katowic", label: "Grecja z Katowic" },
+    { href: "/podroze/grecja-z-poznania", label: "Grecja z Poznania" },
+    { href: "/podroze/grecja-z-krakowa", label: "Grecja z Krakowa" },
+    { href: "/wakacje", label: "Wszystkie aktualne wakacje" },
+  ];
+  if (hay.includes("turcj") || hay.includes("riwiera turecka") || hay.includes("egejska")) return [
+    { href: "/podroze/turcja-z-warszawy", label: "Turcja z Warszawy" },
+    { href: "/podroze/turcja-z-katowic", label: "Turcja z Katowic" },
+    { href: "/podroze/turcja-z-poznania", label: "Turcja z Poznania" },
+    { href: "/podroze/turcja-z-gdanska", label: "Turcja z Gdańska" },
+    { href: "/last-minute", label: "Aktualne Last Minute" },
+  ];
+  if (hay.includes("egipt")) return [
+    { href: "/podroze/egipt-z-warszawy", label: "Egipt z Warszawy" },
+    { href: "/podroze/egipt-z-katowic", label: "Egipt z Katowic" },
+    { href: "/podroze/egipt-z-poznania", label: "Egipt z Poznania" },
+    { href: "/podroze/egipt-z-wroclawia", label: "Egipt z Wrocławia" },
+    { href: "/last-minute", label: "Aktualne Last Minute" },
+  ];
+  if (hay.includes("kanar") || hay.includes("teneryf")) return [
+    { href: "/podroze/wyspy-kanaryjskie-z-warszawy", label: "Kanary z Warszawy" },
+    { href: "/podroze/wyspy-kanaryjskie-z-katowic", label: "Kanary z Katowic" },
+    { href: "/podroze/wyspy-kanaryjskie-listopad-2026", label: "Kanary — listopad 2026" },
+    { href: "/podroze/wyspy-kanaryjskie-grudzien-2026", label: "Kanary — grudzień 2026" },
+    { href: "/wakacje", label: "Aktualne wakacje" },
+  ];
+  if (hay.includes("malta")) return [
+    { href: "/podroze/malta-z-warszawy", label: "Malta z Warszawy" },
+    { href: "/podroze/malta-z-krakowa", label: "Malta z Krakowa" },
+    { href: "/podroze/malta-listopad-2026", label: "Malta — listopad 2026" },
+    { href: "/city-break", label: "Aktualne city breaki" },
+  ];
+  if (hay.includes("hiszpan")) return [
+    { href: "/podroze/wyspy-kanaryjskie-z-warszawy", label: "Kanary z Warszawy" },
+    { href: "/podroze/wyspy-kanaryjskie-z-katowic", label: "Kanary z Katowic" },
+    { href: "/city-break", label: "City break w Hiszpanii" },
+    { href: "/wakacje", label: "Aktualne wakacje" },
+  ];
   if (hay.includes("limit") && hay.includes("płyn")) return [
     { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
     { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa" },
@@ -68,26 +114,17 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
     { href: "/podroze/city-break-z-wroclawia", label: "City break z Wrocławia" },
     { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
   ];
-  if (hay.includes("listopad") && (hay.includes("ciepło") || hay.includes("gdzie"))) return [
+  if (hay.includes("listopad") && (hay.includes("ciepło") || hay.includes("cieplo") || hay.includes("gdzie"))) return [
     { href: "/podroze/cieple-wakacje-listopad-2026", label: "Ciepłe wakacje — listopad 2026" },
-    { href: "/podroze/wyspy-kanaryjskie-listopad-2026", label: "Wyspy Kanaryjskie — listopad" },
-    { href: "/podroze/egipt-listopad-2026", label: "Egipt — listopad 2026" },
-    { href: "/podroze/malta-listopad-2026", label: "Malta — listopad 2026" },
+    { href: "/podroze/wyspy-kanaryjskie-z-warszawy", label: "Kanary z Warszawy" },
+    { href: "/podroze/egipt-z-warszawy", label: "Egipt z Warszawy" },
+    { href: "/podroze/malta-z-warszawy", label: "Malta z Warszawy" },
   ];
   if (hay.includes("październik") || hay.includes("pazdziernik")) return [
     { href: "/podroze/city-break-pazdziernik-2026", label: "City break — październik 2026" },
-    { href: "/podroze/teneryfa-z-warszawy", label: "Teneryfa z Warszawy" },
+    { href: "/podroze/wyspy-kanaryjskie-z-warszawy", label: "Kanary z Warszawy" },
+    { href: "/podroze/grecja-z-warszawy", label: "Grecja z Warszawy" },
     { href: "/podroze/wakacje-do-2500-zl", label: "Wakacje do 2500 zł" },
-  ];
-  if (hay.includes("grecj")) return [
-    { href: "/podroze/wakacje-do-2500-zl", label: "Wakacje do 2500 zł" },
-    { href: "/podroze/cieple-wakacje-listopad-2026", label: "Ciepłe kierunki po sezonie" },
-    { href: "/wakacje", label: "Aktualne wakacje" },
-  ];
-  if (hay.includes("hiszpan")) return [
-    { href: "/podroze/wyspy-kanaryjskie-listopad-2026", label: "Kanary — listopad" },
-    { href: "/podroze/wyspy-kanaryjskie-grudzien-2026", label: "Kanary — grudzień" },
-    { href: "/city-break", label: "City break w Hiszpanii" },
   ];
   if (hay.includes("wietnam") || hay.includes("hanoi")) return [
     { href: "/dalekie-podroze", label: "Dalekie podróże" },
@@ -97,27 +134,12 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
   if (hay.includes("cypr")) return [
     { href: "/podroze/cieple-wakacje-listopad-2026", label: "Ciepłe kierunki — listopad" },
     { href: "/wakacje", label: "Aktualne wakacje" },
-    { href: "/last-minute", label: "Last minute" },
+    { href: "/last-minute", label: "Last Minute" },
   ];
   if (hay.includes("alban")) return [
     { href: "/wakacje", label: "Aktualne wakacje" },
-    { href: "/last-minute", label: "Last minute" },
+    { href: "/last-minute", label: "Last Minute" },
     { href: "/wynajem-auta", label: "Wynajem auta" },
-  ];
-  if (hay.includes("malta")) return [
-    { href: "/podroze/malta-listopad-2026", label: "Malta — listopad 2026" },
-    { href: "/city-break", label: "City break" },
-    { href: "/tanie-loty", label: "Tanie loty" },
-  ];
-  if (hay.includes("kanar")) return [
-    { href: "/podroze/wyspy-kanaryjskie-listopad-2026", label: "Kanary — listopad 2026" },
-    { href: "/podroze/wyspy-kanaryjskie-grudzien-2026", label: "Kanary — grudzień 2026" },
-    { href: "/podroze/teneryfa-z-warszawy", label: "Teneryfa z Warszawy" },
-  ];
-  if (hay.includes("riwiera turecka") || hay.includes("egejska")) return [
-    { href: "/last-minute", label: "Last minute do Turcji" },
-    { href: "/wakacje", label: "Wakacje All Inclusive" },
-    { href: "/okazje", label: "Dzisiejsze okazje" },
   ];
   if (hay.includes("weekend") || hay.includes("city break")) return [
     { href: "/city-break", label: "Aktualne city breaki" },
@@ -126,9 +148,10 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
     { href: "/podroze/city-break-z-wroclawia", label: "City break z Wrocławia" },
   ];
   if (hay.includes("ciepło") || hay.includes("cieplo")) return [
-    { href: "/podroze/cieple-wakacje-listopad-2026", label: "Gdzie ciepło w listopadzie" },
-    { href: "/podroze/cieple-wakacje-grudzien-2026", label: "Gdzie ciepło w grudniu" },
-    { href: "/podroze/wyspy-kanaryjskie-grudzien-2026", label: "Kanary — grudzień 2026" },
+    { href: "/podroze/egipt-z-warszawy", label: "Egipt z Warszawy" },
+    { href: "/podroze/wyspy-kanaryjskie-z-warszawy", label: "Kanary z Warszawy" },
+    { href: "/podroze/malta-z-warszawy", label: "Malta z Warszawy" },
+    { href: "/podroze/cieple-wakacje-grudzien-2026", label: "Ciepłe wakacje — grudzień" },
   ];
   if (hay.includes("sylwestr")) return [
     { href: "/sylwester", label: "Aktualne pomysły na Sylwestra" },
@@ -143,8 +166,8 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
   ];
   if (hay.includes("etna") || hay.includes("sycyli") || hay.includes("katanii")) return [
     { href: "/tanie-loty", label: "Sprawdź aktualne loty" },
+    { href: "/city-break", label: "City break we Włoszech" },
     { href: "/ubezpieczenia", label: "Ubezpieczenie podróżne" },
-    { href: "/alerty", label: "Ustaw alert podróżniczy" },
   ];
   if (hay.includes("dojechac") || hay.includes("dojechać") || hay.includes("dostać się z lotniska")) return [
     { href: "/transfery", label: "Transfery lotniskowe" },
@@ -157,9 +180,10 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
     { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa" },
   ];
   return [
+    { href: "/wakacje", label: "Aktualne wakacje" },
+    { href: "/last-minute", label: "Last Minute" },
+    { href: "/city-break", label: "City break" },
     { href: "/okazje", label: "Dzisiejsze okazje" },
-    { href: "/podroze", label: "Podróże według potrzeb" },
-    { href: "/alerty", label: "Ustaw alert podróżniczy" },
   ];
 }
 
@@ -180,6 +204,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const shouldRenderSearch = item.type === "post"
     && !deepDive?.hideSearch
     && (context.hasUsefulSearchContext || Boolean(deepDive?.searchPresets?.length));
+  const showCommercialLinks = !archived && growthLinks.length > 0;
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -218,6 +243,13 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
       </article>
 
+      {showCommercialLinks && <section className="legacy-internal-links" aria-label="Aktualne oferty związane z tematem">
+        <div className="kicker">AKTUALNE OFERTY</div>
+        <h2>Sprawdź wyjazdy związane z tym tematem</h2>
+        <p>Poradnik pomaga wybrać kierunek. Tutaj przejdziesz do aktualnych stron z ofertami, cenami i wylotami z konkretnych lotnisk.</p>
+        <div>{growthLinks.map((link, index)=><Link key={link.href} className={index === 0 ? "primary-cta" : undefined} href={link.href}>{link.label} →</Link>)}</div>
+      </section>}
+
       {deepDive && <ArticleDeepDiveBlock deepDive={deepDive} />}
 
       {shouldRenderSearch && <>
@@ -241,10 +273,8 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         </section>
       </>}
 
-      {item.type === "post" && <section className="legacy-internal-links"><h2>Sprawdź dalej w tym temacie</h2><div>{growthLinks.map(link=><Link key={link.href} href={link.href}>{link.label} →</Link>)}</div></section>}
-
       {related.length > 0 && <section className="legacy-offers"><div className="section-heading"><div><div className="kicker">DOPASOWANE WYNIKI TRIPOWNI</div><h2>{effectiveDestination ? `Aktualne propozycje: ${effectiveDestination}` : "Aktualne propozycje pasujące do artykułu"}</h2></div><Link href="/okazje">Wszystkie okazje →</Link></div><div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>}
 
-      <section className="legacy-internal-links"><h2>Zostań na Tripowni</h2><div><Link href="/kierunki">Kierunki</Link><Link href="/city-break">City break</Link><Link href="/last-minute">Last minute</Link><Link href="/poradniki">Poradniki</Link><Link href="/alerty">Alerty</Link></div></section>
+      <section className="legacy-internal-links"><h2>Zostań na Tripowni</h2><div><Link href="/kierunki">Kierunki</Link><Link href="/wakacje">Wakacje</Link><Link href="/city-break">City break</Link><Link href="/last-minute">Last Minute</Link><Link href="/poradniki">Poradniki</Link></div></section>
     </div><SiteFooter/></main>;
 }

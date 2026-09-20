@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPinned, Plane, BedDouble, NotebookPen, Route } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { ACTIVE_TRIP_KEY, upsertTripArchive } from "@/lib/tripArchive";
+import { ACTIVE_TRIP_KEY, readActiveTrip, upsertTripArchive } from "@/lib/tripArchive";
 
 function dateLabel(start: string, end: string) {
   if (!start) return "Termin do uzupełnienia";
@@ -72,6 +72,8 @@ export default function AddTripPage() {
       hotel: hotel.trim() || "Nocleg do uzupełnienia",
       board: "",
       dates: dateLabel(startDate, endDate),
+      startDateISO: startDate,
+      endDateISO: endDate,
       partner: "kiwi" as const,
       affiliateUrl: "/organizer",
       manual: true,
@@ -88,6 +90,8 @@ export default function AddTripPage() {
       dayPlan: [],
     };
 
+    const previous = readActiveTrip();
+    if (previous?.tripId && previous.tripId !== tripId) upsertTripArchive(previous, false);
     localStorage.setItem(ACTIVE_TRIP_KEY, JSON.stringify(trip));
     upsertTripArchive(trip);
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));

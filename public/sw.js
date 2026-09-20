@@ -1,6 +1,9 @@
-const CACHE_NAME = "tripownia-v5";
+const CACHE_NAME = "tripownia-v6";
 const APP_SHELL = [
   "/app",
+  "/moja-podroz",
+  "/organizer",
+  "/manifest.webmanifest",
   "/tripownia-app-icon-v2.png?v=20260913",
 ];
 

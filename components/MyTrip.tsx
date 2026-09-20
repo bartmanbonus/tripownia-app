@@ -2,21 +2,20 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, Clock3, Map, Plus, Trash2, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves } from "lucide-react";
+import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves, Share2 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import TripToolkit from "@/components/TripToolkit";
-import { offers, publishedOfferOverrides } from "@/lib/offers";
+import TripPhasePanel from "@/components/TripPhasePanel";
+import TripPlanningSummary from "@/components/TripPlanningSummary";
+import { offers, publishedOfferOverrides, type Offer } from "@/lib/offers";
 import { estimateTripCost } from "@/lib/tripCost";
 import { partners } from "@/lib/partners";
 import { getOfferOverride } from "@/lib/clientOfferOverrides";
 
-type DayPlanItem = { id: string; time: string; title: string; note?: string };
 type WeatherState = { temperature: number; apparent: number; code: number; wind: number; loading?: boolean; error?: string } | null;
-type ReminderItem = { label: string; due: string; active: boolean };
 type AttractionPick = { title: string; subtitle: string; query: string; icon: "landmark" | "food" | "water" | "sparkles" };
 
-type TripState = {
+export type TripState = {
   tripId?: string;
   offerId?: number;
   flight?: string;
@@ -24,8 +23,9 @@ type TripState = {
   hotel?: string;
   notes?: string;
   checklist?: Record<string, boolean>;
-  dayPlan?: DayPlanItem[];
+  dayPlan?: Array<Record<string, unknown>>;
   remindersEnabled?: boolean;
+  offerSnapshot?: Offer;
 };
 
 const LEGACY_TOOLKIT_KEY = "tripownia-trip-toolkit";
@@ -76,17 +76,6 @@ function reminderText(departureAt?: string) {
   return `Do wyjazdu około ${days} dni. Możesz spokojnie domknąć plan i rezerwacje.`;
 }
 
-function buildReminders(departureAt?: string): ReminderItem[] {
-  const hours = hoursUntil(departureAt);
-  if (hours === null) return [];
-  return [
-    { label: "Ubezpieczenie, eSIM i atrakcje", due: "7 dni przed", active: hours <= 24 * 7 && hours > 24 * 3 },
-    { label: "Transfer i prognoza pogody", due: "3 dni przed", active: hours <= 24 * 3 && hours > 24 },
-    { label: "Odprawa online i bagaż", due: "24 h przed", active: hours <= 24 && hours > 4 },
-    { label: "Dokumenty i dojazd na lotnisko", due: "4 h przed", active: hours <= 4 && hours >= 0 },
-  ];
-}
-
 function attractionPicks(city: string, categories: string[]): AttractionPick[] {
   const picks: AttractionPick[] = [
     { title: `Najważniejsze miejsca w ${city}`, subtitle: "Top atrakcje i bilety bez szukania po wielu stronach", query: `${city} top attractions`, icon: "landmark" },
@@ -97,12 +86,11 @@ function attractionPicks(city: string, categories: string[]): AttractionPick[] {
   return picks;
 }
 
-export default function MyTrip() {
-  const [trip, setTrip] = useState<TripState>({ checklist: {}, dayPlan: [] });
-  const [newTime, setNewTime] = useState("10:00");
-  const [newTitle, setNewTitle] = useState("");
+export default function MyTrip({ initialTrip }: { initialTrip?: TripState }) {
+  const [trip, setTrip] = useState<TripState>({ checklist: {}, dayPlan: [], ...(initialTrip || {}) });
   const [weather, setWeather] = useState<WeatherState>(null);
   const [notificationStatus, setNotificationStatus] = useState("");
+  const [shareStatus, setShareStatus] = useState("");
   const [offerRevision, setOfferRevision] = useState(0);
 
   useEffect(() => {
@@ -131,7 +119,10 @@ export default function MyTrip() {
     return () => window.removeEventListener("tripownia-offer-overrides-updated", refresh);
   }, []);
 
-  const offer = useMemo(() => offers.find((item) => item.id === trip.offerId), [trip.offerId]);
+  const offer = useMemo(
+    () => trip.offerSnapshot || offers.find((item) => item.id === trip.offerId),
+    [trip.offerId, trip.offerSnapshot],
+  );
   const displayPrice = useMemo(() => {
     if (!offer) return 0;
     const client = getOfferOverride(offer.id);
@@ -139,10 +130,15 @@ export default function MyTrip() {
     return client.price ?? published.price ?? offer.price;
   }, [offer, offerRevision]);
   const cost = offer ? estimateTripCost(offer, displayPrice) : null;
-  const dayPlan = useMemo(() => [...(trip.dayPlan || [])].sort((a, b) => a.time.localeCompare(b.time)), [trip.dayPlan]);
   const reminder = reminderText(trip.departureAt);
-  const reminders = useMemo(() => buildReminders(trip.departureAt), [trip.departureAt]);
   const attractions = useMemo(() => offer ? attractionPicks(offer.city, offer.category) : [], [offer]);
+  const checklistDone = checklistItems.filter((item) => Boolean(trip.checklist?.[item])).length;
+  const readinessDone = checklistDone
+    + (trip.departureAt ? 1 : 0)
+    + (trip.flight?.trim() ? 1 : 0)
+    + (trip.hotel?.trim() ? 1 : 0);
+  const readinessTotal = checklistItems.length + 3;
+  const readinessPercent = Math.round((readinessDone / readinessTotal) * 100);
 
   useEffect(() => {
     if (!offer?.city) {
@@ -196,20 +192,30 @@ export default function MyTrip() {
     } catch {}
   }
 
+  async function shareTrip() {
+    if (!offer) return;
+    const text = [
+      `${offer.city}, ${offer.country}`,
+      offer.dates,
+      offer.departure ? `Start / wylot: ${offer.departure}` : "",
+      "Plan przygotowany w Tripowni",
+    ].filter(Boolean).join("\n");
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `Tripownia · ${offer.city}`, text, url: window.location.href });
+        setShareStatus("Udostępniono plan.");
+        return;
+      }
+      await navigator.clipboard.writeText(`${text}\n${window.location.href}`);
+      setShareStatus("Skopiowano podsumowanie planu.");
+    } catch {
+      setShareStatus("");
+    }
+  }
+
   function toggleChecklist(item: string) {
     save({ ...trip, checklist: { ...(trip.checklist || {}), [item]: !trip.checklist?.[item] } });
-  }
-
-  function addPlanItem() {
-    const title = newTitle.trim();
-    if (!title) return;
-    const item: DayPlanItem = { id: `${Date.now()}`, time: newTime, title };
-    save({ ...trip, dayPlan: [...(trip.dayPlan || []), item] });
-    setNewTitle("");
-  }
-
-  function removePlanItem(id: string) {
-    save({ ...trip, dayPlan: (trip.dayPlan || []).filter((item) => item.id !== id) });
   }
 
   return (
@@ -218,16 +224,22 @@ export default function MyTrip() {
       <section className="shell my-trip-page">
         <div className="my-trip-hero">
           <div className="my-trip-icon"><MapPinned size={30} /></div>
-          <div><div className="kicker">MOJA PODRÓŻ</div><h1>{offer ? `${offer.city}, ${offer.country}` : "Zaplanuj wyjazd z Tripownią"}</h1><p>{offer ? `${offer.dates} · ${offer.nights} noce · wylot: ${offer.departure}` : "Dodaj wybraną ofertę, a Tripownia pomoże Ci ogarnąć cały wyjazd w jednym miejscu."}</p></div>
+          <div className="my-trip-hero-copy">
+            <div className="kicker">MOJA PODRÓŻ</div>
+            <h1>{offer ? `${offer.city}, ${offer.country}` : "Zaplanuj wyjazd z Tripownią"}</h1>
+            <p>{offer ? `${offer.dates} · ${offer.nights} noce · wylot: ${offer.departure}` : "Dodaj wybraną ofertę, a Tripownia pomoże Ci ogarnąć cały wyjazd w jednym miejscu."}</p>
+            {offer && <div className="my-trip-hero-actions"><button type="button" onClick={shareTrip}><Share2 size={15}/> Udostępnij plan</button>{shareStatus && <small>{shareStatus}</small>}</div>}
+          </div>
         </div>
 
         {!offer ? (
           <div className="favorites-empty"><MapPinned size={30} /><h2>Nie masz jeszcze zapisanej podróży</h2><p>Przy wybranej ofercie kliknij „Dodaj do Mojej podróży”.</p><Link className="primary-cta" href="/dla-ciebie">Znajdź wyjazd <ArrowRight size={17}/></Link></div>
         ) : (
           <>
+            <TripPhasePanel departureAt={trip.departureAt} nights={offer.nights} />
             <section className="trip-mode-grid">
               <div className="trip-mode-card trip-mode-reminder">
-                <div className="trip-mode-title"><BellRing size={20}/><strong>Co teraz?</strong></div>
+                <div className="trip-mode-title"><BellRing size={20}/><strong>Termin i przypomnienia</strong></div>
                 <p>{reminder}</p>
                 <label><span>Data i godzina wylotu</span><input type="datetime-local" value={trip.departureAt || ""} onChange={(e) => save({ ...trip, departureAt: e.target.value })} /></label>
                 <button className="trip-reminder-button" onClick={enableReminders}><BellRing size={16}/>{trip.remindersEnabled ? "Przypomnienia włączone" : "Włącz przypomnienia"}</button>
@@ -246,29 +258,37 @@ export default function MyTrip() {
               </div>
             </section>
 
-            {reminders.length > 0 && <section className="trip-reminders-strip">{reminders.map((item) => <div key={item.label} className={item.active ? "active" : ""}><span>{item.due}</span><strong>{item.label}</strong>{item.active && <em>TERAZ</em>}</div>)}</section>}
-
             <div className="my-trip-grid">
-              <section className="my-trip-card"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p><strong>{offer.departure}</strong> → {offer.city}</p><input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="Dodaj numer lotu / godzinę" /></section>
-              <section className="my-trip-card"><div className="my-trip-card-head"><BedDouble size={20}/><h2>Hotel</h2></div><p><strong>{offer.hotel}</strong> · {offer.board}</p><input value={trip.hotel || ""} onChange={(e) => save({ ...trip, hotel: e.target.value })} placeholder="Dodaj numer rezerwacji / adres" /></section>
-              <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet</h2></div><div className="my-trip-budget"><span>Oferta</span><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong></div>{cost && <div className="my-trip-budget total"><span>Szacowany pełny koszt</span><strong>{cost.total.toLocaleString("pl-PL")} zł / os.</strong></div>}<Link href="/porownaj">Porównaj z innymi ofertami →</Link></section>
-              <section className="my-trip-card"><div className="my-trip-card-head"><Ticket size={20}/><h2>Co ogarnąć</h2></div><div className="my-trip-checklist">{checklistItems.map((item) => { const checked = Boolean(trip.checklist?.[item]); return <button key={item} onClick={() => toggleChecklist(item)}>{checked ? <CheckCircle2 size={18}/> : <Circle size={18}/>}<span>{item}</span></button>; })}</div></section>
+              <section className="my-trip-card">
+                <div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div>
+                <p><strong>{offer.departure}</strong> → {offer.city}</p>
+                {trip.flight?.trim() ? <small>Numer rejsu: <strong>{trip.flight}</strong></small> : <small>Numer lotu możesz dodać wyżej w sekcji „Status lotu”.</small>}
+                <Link href="/organizer#rezerwacje">Pełne rezerwacje transportu →</Link>
+              </section>
+              <section className="my-trip-card">
+                <div className="my-trip-card-head"><BedDouble size={20}/><h2>Hotel</h2></div>
+                <p><strong>{offer.hotel}</strong>{offer.board ? ` · ${offer.board}` : ""}</p>
+                {trip.hotel?.trim() && <small>Zapisane wcześniej: {trip.hotel}</small>}
+                <Link href="/organizer#rezerwacje">Hotel, adres i potwierdzenie →</Link>
+              </section>
+              <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet</h2></div>{offer.manual ? <><p>To własny plan — dodawaj rzeczywiste wydatki w organizerze zamiast sztucznej ceny oferty.</p><Link href="/organizer">Otwórz wydatki i rozliczenia →</Link></> : <><div className="my-trip-budget"><span>Oferta</span><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong></div>{cost && <div className="my-trip-budget total"><span>Szacowany pełny koszt</span><strong>{cost.total.toLocaleString("pl-PL")} zł / os.</strong></div>}<Link href="/porownaj">Porównaj z innymi ofertami →</Link></>}</section>
+              <section className="my-trip-card">
+                <div className="my-trip-card-head"><Ticket size={20}/><h2>Co ogarnąć</h2></div>
+                <div className="my-trip-readiness">
+                  <div><span>Przygotowanie wyjazdu</span><strong>{readinessPercent}%</strong></div>
+                  <div className="my-trip-readiness-bar" aria-label={`Przygotowanie wyjazdu ${readinessPercent}%`}><span style={{ width: `${readinessPercent}%` }} /></div>
+                  <small>{readinessDone}/{readinessTotal} kluczowych rzeczy uzupełnionych</small>
+                </div>
+                <div className="my-trip-checklist">{checklistItems.map((item) => { const checked = Boolean(trip.checklist?.[item]); return <button key={item} onClick={() => toggleChecklist(item)}>{checked ? <CheckCircle2 size={18}/> : <Circle size={18}/>}<span>{item}</span></button>; })}</div>
+              </section>
             </div>
 
-            <section className="my-trip-card my-trip-today">
-              <div className="my-trip-card-head"><Clock3 size={20}/><h2>Co robić dziś</h2></div>
-              <p className="my-trip-subcopy">Ułóż prosty plan dnia i miej go pod ręką w telefonie.</p>
-              <div className="my-trip-plan-add"><input type="time" value={newTime} onChange={(e) => setNewTime(e.target.value)} aria-label="Godzina" /><input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addPlanItem(); }} placeholder="np. Koloseum, plaża, kolacja w centrum" /><button onClick={addPlanItem}><Plus size={17}/> Dodaj</button></div>
-              {dayPlan.length ? <div className="my-trip-timeline">{dayPlan.map((item) => <div className="my-trip-timeline-item" key={item.id}><span className="my-trip-time">{item.time}</span><div><strong>{item.title}</strong>{item.note ? <small>{item.note}</small> : null}</div><button onClick={() => removePlanItem(item.id)} aria-label={`Usuń ${item.title}`}><Trash2 size={16}/></button></div>)}</div> : <div className="my-trip-empty-line">Dodaj pierwszy punkt dnia.</div>}
-              <div className="my-trip-quick-links"><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${offer.city} attractions`)}`} target="_blank" rel="noopener noreferrer"><Map size={17}/> Atrakcje na mapie</a><Link href="/inspiracje"><Ticket size={17}/> Inspiracje Tripowni</Link></div>
-            </section>
+            {trip.tripId && <TripPlanningSummary tripId={trip.tripId} />}
 
             <section className="my-trip-card trip-attractions">
               <div className="my-trip-card-head"><Sparkles size={20}/><h2>Co warto zrobić w {offer.city}</h2></div>
               <div className="trip-attraction-grid">{attractions.map((pick) => { const Icon = pick.icon === "landmark" ? Landmark : pick.icon === "food" ? UtensilsCrossed : pick.icon === "water" ? Waves : Sparkles; const partnerHref = partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(pick.query)}`); return <a key={pick.title} href={partnerHref} target="_blank" rel="sponsored noopener noreferrer"><Icon size={20}/><div><strong>{pick.title}</strong><span>{pick.subtitle}</span></div><ArrowRight size={16}/></a>; })}</div>
             </section>
-
-            <TripToolkit city={offer.city} country={offer.country} tripId={trip.tripId || `trip-${offer.id}`} />
 
             <section className="my-trip-card my-trip-notes"><div className="my-trip-card-head"><NotebookPen size={20}/><h2>Notatki</h2></div><textarea value={trip.notes || ""} onChange={(e) => save({ ...trip, notes: e.target.value })} placeholder="Restauracje, atrakcje, adresy, pomysły..." rows={5} /></section>
           </>
