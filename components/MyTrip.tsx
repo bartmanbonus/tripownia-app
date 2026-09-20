@@ -39,12 +39,16 @@ function toolkitStorageKey(tripId: string) {
 }
 
 const checklistItems = [
-  "Sprawdź dokumenty",
+  "Sprawdź dokumenty i wymagania wjazdowe",
   "Zrób odprawę online",
   "Dodaj ubezpieczenie",
-  "Sprawdź transfer z lotniska",
-  "Zarezerwuj atrakcje",
+  "Sprawdź transfer z lotniska i taxi na miejscu",
+  "Zarezerwuj najważniejsze atrakcje",
   "Sprawdź internet / eSIM",
+  "Sprawdź prognozę pogody",
+  "Zapisz najważniejsze adresy i numery rezerwacji",
+  "Dodaj miejsca na jedzenie i zakupy",
+  "Przygotuj checklistę bagażu",
 ];
 
 function weatherLabel(code: number) {
@@ -218,11 +222,11 @@ export default function MyTrip() {
       <section className="shell my-trip-page">
         <div className="my-trip-hero">
           <div className="my-trip-icon"><MapPinned size={30} /></div>
-          <div><div className="kicker">MOJA PODRÓŻ</div><h1>{offer ? `${offer.city}, ${offer.country}` : "Zaplanuj wyjazd z Tripownią"}</h1><p>{offer ? `${offer.dates} · ${offer.nights} noce · wylot: ${offer.departure}` : "Dodaj wybraną ofertę, a Tripownia pomoże Ci ogarnąć cały wyjazd w jednym miejscu."}</p></div>
+          <div><div className="kicker">MOJA PODRÓŻ</div><h1>{offer ? `${offer.city}, ${offer.country}` : "Twój darmowy plan podróży"}</h1><p>{offer ? `${offer.dates} · ${offer.nights} noce · wylot: ${offer.departure}` : "Dodaj własny wyjazd albo wybierz ofertę z Tripowni. Planner pomoże Ci krok po kroku zebrać wszystko w jednym miejscu — bez opłat."}</p></div>
         </div>
 
         {!offer ? (
-          <div className="favorites-empty"><MapPinned size={30} /><h2>Nie masz jeszcze zapisanej podróży</h2><p>Przy wybranej ofercie kliknij „Dodaj do Mojej podróży”.</p><Link className="primary-cta" href="/dla-ciebie">Znajdź wyjazd <ArrowRight size={17}/></Link></div>
+          <div className="favorites-empty"><MapPinned size={30} /><h2>Zacznij od wyjazdu, który już masz — albo znajdź nowy.</h2><p>Nie musisz kupować przez Tripownię. Dodaj kierunek i termin, a potem ogarniaj dokumenty, pogodę, transport, atrakcje, jedzenie, checklistę i plan dnia w jednym miejscu.</p><div className="my-trip-empty-actions"><Link className="primary-cta" href="/dodaj-podroz">+ Dodaj własny wyjazd</Link><Link className="secondary-cta" href="/gdzie-leciec">Znajdź wyjazd <ArrowRight size={17}/></Link></div></div>
         ) : (
           <>
             <section className="trip-mode-grid">
