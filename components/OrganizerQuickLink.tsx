@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ListChecks } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 export default function OrganizerQuickLink() {
   const pathname = usePathname();
@@ -10,8 +10,8 @@ export default function OrganizerQuickLink() {
 
   return (
     <Link
-      href="/organizer"
-      aria-label="Otwórz organizer podróży"
+      href="/moja-podroz"
+      aria-label="Otwórz mój planner podróży"
       style={{
         position: "fixed",
         right: 14,
@@ -30,8 +30,8 @@ export default function OrganizerQuickLink() {
         boxShadow: "0 12px 30px rgba(17,24,39,.18)",
       }}
     >
-      <ListChecks size={17}/>
-      Organizer
+      <Sparkles size={17}/>
+      Mój planner
     </Link>
   );
 }
