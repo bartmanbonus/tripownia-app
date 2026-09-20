@@ -28,3 +28,44 @@
 .dream-value-strip small{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.35}
 @media(max-width:900px){.dream-hero{padding-top:22px}.dream-hero-shell{grid-template-columns:1fr;gap:24px;min-height:0}.dream-hero h1{font-size:clamp(48px,12vw,70px);letter-spacing:-3px}.dream-hero-copy>p{font-size:18px}.dream-value-strip{grid-template-columns:1fr 1fr}}
 @media(max-width:620px){.dream-hero{padding:16px 0 14px}.dream-hero h1{font-size:49px;line-height:.95;letter-spacing:-2.6px;margin:16px 0}.dream-hero-copy>p{font-size:16px}.dream-hero-actions{display:grid;grid-template-columns:1fr 1fr;margin-top:20px}.dream-hero-actions a{padding:14px 10px}.dream-category-row{overflow-x:auto;flex-wrap:nowrap;padding-bottom:4px}.dream-category-row a{white-space:nowrap}.dream-hero-card{padding:10px;border-radius:20px}.dream-value-strip{grid-template-columns:1fr;margin-top:6px}.dream-value-strip>div{padding:14px 16px}}
+
+/* Marketplace + personal planner */
+.dream-marketplace{padding-top:72px;padding-bottom:86px}
+.dream-marketplace-head{display:flex;align-items:end;justify-content:space-between;gap:34px;margin-bottom:28px}
+.dream-marketplace-head>div{max-width:760px}
+.dream-marketplace-head h2{font-size:clamp(42px,5vw,68px);line-height:.96;letter-spacing:-.055em;margin:7px 0 14px}
+.dream-marketplace-head h2 span{color:#77716d}
+.dream-marketplace-head p{max-width:680px;color:var(--muted);font-size:16px;line-height:1.65}
+.dream-marketplace-all{flex:0 0 auto;color:#171717;text-decoration:none;font-size:13px;font-weight:850;display:flex;align-items:center;gap:7px}
+.dream-marketplace-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px}
+.dream-service-card{min-height:230px;display:flex;flex-direction:column;padding:22px;border:1px solid #e9e3de;border-radius:22px;background:#fff;color:#171717;text-decoration:none;box-shadow:0 8px 28px rgba(45,32,23,.035);transition:.18s ease}
+.dream-service-card:hover{transform:translateY(-4px);box-shadow:0 18px 44px rgba(45,32,23,.10);border-color:#ddd1c9}
+.dream-service-main{background:linear-gradient(145deg,#ff5b32,#ff744f);color:#fff;border-color:transparent}
+.dream-service-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:14px;background:#f7f3f0;font-size:22px;margin-bottom:22px}
+.dream-service-main .dream-service-icon{background:rgba(255,255,255,.18)}
+.dream-service-card small{font-size:9px;font-weight:900;letter-spacing:.12em;color:#9a8f87}
+.dream-service-main small{color:rgba(255,255,255,.72)}
+.dream-service-card strong{font-size:25px;letter-spacing:-.035em;margin:5px 0 7px}
+.dream-service-card span{font-size:12px;line-height:1.5;color:#77706a}
+.dream-service-main span{color:rgba(255,255,255,.82)}
+.dream-service-card em{font-style:normal;font-size:11px;font-weight:900;margin-top:auto;padding-top:18px}
+.dream-planner-wrap{padding:96px 0;background:radial-gradient(circle at 78% 18%,rgba(255,99,54,.18),transparent 28%),linear-gradient(135deg,#141210,#211a16);color:#fff}
+.dream-planner-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:84px;align-items:center}
+.dream-planner-copy h2{font-size:clamp(46px,5vw,68px);line-height:.96;letter-spacing:-.055em;margin:10px 0 18px}
+.dream-planner-copy>p{max-width:570px;color:#c6beb8;font-size:16px;line-height:1.7}
+.dream-planner-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:27px}
+.dream-planner-actions a{display:inline-flex;align-items:center;gap:7px;min-height:48px;padding:0 18px;border-radius:999px;text-decoration:none;font-size:12px;font-weight:900}
+.dream-planner-actions a:first-child{background:#ff6038;color:#fff}.dream-planner-actions a+a{border:1px solid #4a413c;color:#fff}
+.dream-planner-note{margin-top:22px;max-width:540px;padding-top:18px;border-top:1px solid #39322e;color:#9f9690;font-size:11px;line-height:1.55}
+.dream-planner-screen{padding:20px;border:1px solid rgba(255,255,255,.13);border-radius:28px;background:rgba(255,255,255,.075);box-shadow:0 28px 80px rgba(0,0,0,.28);backdrop-filter:blur(16px)}
+.dream-planner-top{display:flex;align-items:start;justify-content:space-between;gap:20px;padding:8px 8px 18px}
+.dream-planner-top small,.dream-planner-top strong,.dream-planner-top span{display:block}.dream-planner-top small{color:#ff8e72;font-size:8px;font-weight:900;letter-spacing:.13em}.dream-planner-top strong{font-size:25px;margin:4px 0}.dream-planner-top span{color:#9f9690;font-size:11px}.dream-planner-top>a{color:#fff;font-size:10px;font-weight:850;text-decoration:none}
+.dream-planner-progress{height:5px;background:#38312d;border-radius:99px;overflow:hidden;margin:0 8px 17px}.dream-planner-progress span{display:block;height:100%;background:#ff6038;border-radius:inherit}
+.dream-planner-list{display:grid;gap:7px}.dream-planner-list>a{display:grid;grid-template-columns:40px 1fr auto;gap:11px;align-items:center;padding:12px;border-radius:14px;background:rgba(255,255,255,.06);color:#fff;text-decoration:none}.dream-planner-list>a>span{width:40px;height:40px;display:grid;place-items:center;border-radius:11px;background:rgba(255,255,255,.07)}.dream-planner-list strong,.dream-planner-list small{display:block}.dream-planner-list strong{font-size:12px}.dream-planner-list small{color:#9f9690;font-size:9px;margin-top:2px}.dream-planner-list b{font-size:20px;color:#756d68}
+.dream-planner-bottom{display:flex;gap:8px;flex-wrap:wrap;padding:15px 7px 3px}.dream-planner-bottom a{padding:8px 10px;border-radius:999px;background:#2c2724;color:#ddd6d1;text-decoration:none;font-size:9px;font-weight:800}
+.dream-personalization{display:grid;grid-template-columns:1.1fr .9fr;gap:30px 60px;align-items:center;padding-top:90px;padding-bottom:90px}
+.dream-personalization>div:first-child small{font-size:10px;color:#e95530;font-weight:900;letter-spacing:.12em}.dream-personalization h2{font-size:clamp(38px,4.2vw,58px);line-height:.98;letter-spacing:-.05em;margin:9px 0}
+.dream-personalization-chips{display:flex;flex-wrap:wrap;gap:9px}.dream-personalization-chips span{padding:12px 14px;border:1px solid #e7dfda;background:#fff;border-radius:999px;font-size:11px;font-weight:800}
+.dream-personalization-actions{grid-column:1/-1;display:flex;gap:10px}.dream-personalization-actions a{display:inline-flex;align-items:center;gap:7px;padding:13px 16px;border-radius:999px;text-decoration:none;font-size:11px;font-weight:900}.dream-personalization-actions a:first-child{background:#171717;color:#fff}.dream-personalization-actions a+a{color:#171717;border:1px solid #ddd5cf}
+@media(max-width:900px){.dream-marketplace-grid{grid-template-columns:repeat(2,1fr)}.dream-planner-grid{grid-template-columns:1fr;gap:42px}.dream-personalization{grid-template-columns:1fr;gap:22px}.dream-personalization-actions{grid-column:auto}}
+@media(max-width:620px){.dream-marketplace{padding-top:50px;padding-bottom:58px}.dream-marketplace-head{display:block}.dream-marketplace-head h2{font-size:40px}.dream-marketplace-all{margin-top:18px}.dream-marketplace-grid{display:flex;overflow-x:auto;gap:10px;margin-right:-12px;padding:0 12px 10px 0;scroll-snap-type:x mandatory;scrollbar-width:none}.dream-marketplace-grid::-webkit-scrollbar{display:none}.dream-service-card{flex:0 0 74vw;min-height:218px;scroll-snap-align:start}.dream-planner-wrap{padding:66px 0}.dream-planner-copy h2{font-size:42px}.dream-planner-screen{padding:13px;border-radius:21px}.dream-planner-top{display:block}.dream-planner-top>a{display:inline-block;margin-top:12px}.dream-personalization{padding-top:62px;padding-bottom:62px}.dream-personalization h2{font-size:38px}.dream-personalization-actions{display:grid}.dream-personalization-actions a{justify-content:center}}
