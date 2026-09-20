@@ -20,12 +20,12 @@ export default function SiteFooter() {
               </div>
 
               <div className="footer-v2-column footer-v2-discover">
-                <h3>Odkrywaj</h3>
-                <Link href="/okazje">Dzisiejsze okazje</Link>
-                <Link href="/city-break">City break</Link>
-                <Link href="/last-minute">Last minute</Link>
-                <Link href="/podroze-po-przezycia">Podróże po przeżycia</Link>
-                <Link href="/dalekie-podroze">Dalekie podróże</Link>
+                <h3>Twoja podróż</h3>
+                <Link href="/moja-podroz">Darmowy planner</Link>
+                <Link href="/dodaj-podroz">Dodaj własny wyjazd</Link>
+                <Link href="/dla-ciebie">Dla Ciebie</Link>
+                <Link href="/profil">Profil podróżnika</Link>
+                <Link href="/przed-wyjazdem">Checklista przed wyjazdem</Link>
               </div>
             </div>
 
@@ -46,11 +46,12 @@ export default function SiteFooter() {
 
             <div className="footer-v2-lower-grid">
               <div className="footer-v2-column footer-v2-plan">
-                <h3>Planuj</h3>
-                <Link href="/kierunki">Kierunki</Link>
+                <h3>Marketplace</h3>
+                <Link href="/wakacje">Wakacje</Link>
+                <Link href="/atrakcje">Atrakcje</Link>
+                <Link href="/transfery">Transfery</Link>
                 <Link href="/parkingi">Parkingi</Link>
                 <Link href="/esim">eSIM</Link>
-                <Link href="/atrakcje">Atrakcje</Link>
                 <Link href="/ubezpieczenia">Ubezpieczenia</Link>
                 <Link href="/wynajem-auta">Wynajem auta</Link>
               </div>
