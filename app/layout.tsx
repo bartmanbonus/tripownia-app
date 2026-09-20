@@ -47,15 +47,15 @@ import OrganizerQuickLink from "@/components/OrganizerQuickLink";
 import HomeTripHubPortal from "@/components/HomeTripHubPortal";
 import PurchaseGuidePortal from "@/components/PurchaseGuidePortal";
 
-const HOME_TITLE = "Tripownia – darmowy planer podróży i okazje na wyjazdy";
-const HOME_DESCRIPTION = "Zaplanuj podróż za darmo: zbierz lot, nocleg, atrakcje, plan dnia i checklistę. Odkrywaj też wakacje, city breaki i okazje Tripowni.";
+const HOME_TITLE = "Tripownia – darmowy personalizowany planer podróży";
+const HOME_DESCRIPTION = "Darmowy personalizowany planer podróży: dokumenty, pogoda, transport, atrakcje, jedzenie, checklista i plan dnia. Znajdź wyjazd lub dodaj ten, który już masz.";
 const FAVICON_URL = "/tripownia-app-icon-v2.png";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tripownia.pl"),
   title: { default: HOME_TITLE, template: "%s | Tripownia.pl" },
   description: HOME_DESCRIPTION,
-  keywords: ["tanie wakacje", "city break", "wakacje", "last minute", "lot hotel", "tanie loty", "okazje podróżnicze", "Tripownia"],
+  keywords: ["planer podróży", "plan podróży", "darmowy planer podróży", "checklista podróżna", "wakacje", "loty", "hotele", "atrakcje", "Tripownia"],
   manifest: "/manifest.webmanifest",
   applicationName: "Tripownia",
   icons: {
@@ -82,7 +82,7 @@ export const metadata: Metadata = {
 };
 
 const websiteJsonLd = { "@context": "https://schema.org", "@type": "WebSite", name: "Tripownia", alternateName: "Tripownia.pl", url: "https://tripownia.pl", inLanguage: "pl-PL" };
-const organizationJsonLd = { "@context": "https://schema.org", "@type": "Organization", name: "Tripownia", url: "https://tripownia.pl", logo: "https://tripownia.pl/tripownia-logo.webp", description: "Platforma do znalezienia, porównania i zaplanowania całej podróży — od wyjazdu i noclegu po atrakcje, dodatki i organizer." };
+const organizationJsonLd = { "@context": "https://schema.org", "@type": "Organization", name: "Tripownia", url: "https://tripownia.pl", logo: "https://tripownia.pl/tripownia-logo.webp", description: "Darmowy personalizowany planer podróży i platforma do znalezienia oraz zorganizowania całego wyjazdu — od dokumentów i pogody po transport, atrakcje i rezerwacje." };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
