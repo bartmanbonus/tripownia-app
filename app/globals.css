@@ -12015,3 +12015,11 @@ img{
 .free-plan-wow-grid svg{color:#ef5a32;margin-bottom:20px}.free-plan-wow-grid strong{font-size:14px}.free-plan-wow-grid span{margin-top:6px;color:#81766f;font-size:10px;line-height:1.45}
 @media(max-width:900px){.free-plan-wow-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:620px){.free-plan-wow{margin:20px -2px 32px;padding:19px 14px;border-radius:22px}.free-plan-wow-head{display:block}.free-plan-wow-head h2{font-size:34px}.free-plan-wow-head>a{margin-top:17px;justify-content:center}.free-plan-wow-grid{display:flex;overflow-x:auto;gap:9px;padding-bottom:5px;scroll-snap-type:x mandatory;scrollbar-width:none}.free-plan-wow-grid::-webkit-scrollbar{display:none}.free-plan-wow-grid>a{flex:0 0 68vw;min-height:155px;scroll-snap-align:start}}
+
+/* Value-first trip creation */
+.add-trip-promise{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:0 0 18px}
+.add-trip-promise>div{display:flex;gap:9px;align-items:flex-start;padding:13px;border:1px solid #e8dfda;border-radius:14px;background:#fff}
+.add-trip-promise svg{flex:0 0 auto;color:#ef5b33}.add-trip-promise strong,.add-trip-promise small{display:block}.add-trip-promise strong{font-size:10px}.add-trip-promise small{margin-top:3px;color:#887e77;font-size:8px;line-height:1.4}
+.my-trip-empty-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:17px}.my-trip-empty-actions .secondary-cta{display:inline-flex;align-items:center;gap:6px}
+@media(max-width:900px){.add-trip-promise{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.add-trip-promise{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:5px}.add-trip-promise::-webkit-scrollbar{display:none}.add-trip-promise>div{flex:0 0 66vw;scroll-snap-align:start}.my-trip-empty-actions{display:grid}.my-trip-empty-actions a{justify-content:center}}
