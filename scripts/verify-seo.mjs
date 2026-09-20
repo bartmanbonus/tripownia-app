@@ -30,6 +30,11 @@ for (const path of privateRoutes) {
   assert.ok(response.headers.get("cache-control")?.includes("no-store"), path);
 }
 
+const organizer = await get("/organizer");
+assert.equal(organizer.status, 307, "organizer redirect");
+assert.equal(new URL(organizer.headers.get("location"), base).pathname, "/moja-podroz");
+assert.ok(organizer.headers.get("x-robots-tag")?.includes("noindex"));
+
 const redirects = [
   ["/city-break-2", "/city-break"],
   ["/wakacje-z-gdanska-2", "/podroze/wakacje-z-gdanska"],
