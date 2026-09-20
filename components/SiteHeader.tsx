@@ -30,12 +30,10 @@ import {
 import { partners } from "@/lib/partners";
 
 const primaryItems = [
+  { href: "/#wyszukiwarka", label: "Szukaj" },
   { href: "/okazje", label: "Okazje" },
-  { href: "/wakacje", label: "Wakacje" },
-  { href: "/city-break", label: "City break" },
-  { href: "/last-minute", label: "Last minute" },
-  { href: "/kierunki", label: "Kierunki" },
-  { href: "/poradniki", label: "Poradniki" },
+  { href: "/kierunki", label: "Odkrywaj" },
+  { href: "/moja-podroz", label: "Moja podróż" },
 ] as const;
 
 const planningItems = [
@@ -173,7 +171,7 @@ export default function SiteHeader() {
           </Link>
           <Link className="trip-header-search" href={searchHref} aria-label="Przejdź do wyszukiwarki wyjazdów">
             <Search size={20} strokeWidth={2.3} />
-            <span className="trip-header-search-copy"><strong>Dokąd chcesz lecieć?</strong><small>Loty, hotele, wakacje i gotowe okazje w jednym miejscu</small></span>
+            <span className="trip-header-search-copy"><strong>Dokąd chcesz lecieć?</strong><small>Wakacje, loty, hotele i atrakcje w jednym miejscu</small></span>
             <span className="trip-header-search-cta" aria-hidden="true"><Search size={24} strokeWidth={2.8} /></span>
           </Link>
           <nav className="trip-header-actions" aria-label="Twoje konto">
