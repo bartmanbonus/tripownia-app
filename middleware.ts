@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const PRIVATE_APP_PATHS = [
-  "/app", "/dla-ciebie", "/moja-podroz", "/porownaj", "/ulubione", "/alerty", "/profil",
+  "/app", "/dla-ciebie", "/moja-podroz", "/moje-podroze", "/dodaj-podroz", "/organizer",
+  "/porownaj", "/ulubione", "/alerty", "/profil", "/konto",
 ];
 
 const EXPERIENCE_IMAGE_FILES: Record<string, string> = {
@@ -26,7 +27,19 @@ const LEGACY_CATEGORY_REDIRECTS: Record<string, string> = {
   "/kategoria-produktu/wylot-z-krakowa": "/podroze/wakacje-z-krakowa",
 };
 
+const LEGACY_TRIP_TYPE_REDIRECTS: Record<string, string> = {
+  "/typ-wyjazdu/city-break": "/city-break",
+  "/typ-wyjazdu/last-minute": "/last-minute",
+  "/typ-wyjazdu/all-inclusive": "/wakacje",
+  "/typ-wyjazdu/wakacje": "/wakacje",
+  "/typ-wyjazdu/tanie-loty": "/tanie-loty",
+  "/typ-wyjazdu/ze-zwiedzaniem": "/podroze-po-przezycia",
+  "/typ-wyjazdu/dalekie-podroze": "/dalekie-podroze",
+};
+
 const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
+  "/krakow": "/podroze/wakacje-z-krakowa",
+  "/wakacje-z-gdanska": "/podroze/wakacje-z-gdanska",
   "/wakacje-z-gdanska-2": "/podroze/wakacje-z-gdanska",
   "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-rzeszowa",
   "/wakacje-ze-szczecina-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-ze-szczecina",
@@ -36,6 +49,11 @@ const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/wroclaw": "/podroze/wakacje-z-wroclawia",
   "/katowice": "/podroze/wakacje-z-katowic",
   "/city-break-2": "/city-break",
+  "/last-minute-oferty": "/last-minute",
+  "/all-inclusive-2": "/wakacje",
+  "/budzet/do-1000-zl": "/podroze/wyjazdy-do-1000-zl",
+  "/dlugosc-wyjazdu/2-3-dni": "/city-break",
+  "/grecja-2": "/grecja",
   "/aletry-todroznicze": "/alerty",
 };
 
@@ -140,14 +158,16 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
   }
 
   if (LEGACY_CATEGORY_REDIRECTS[path]) return permanentRedirect(request, LEGACY_CATEGORY_REDIRECTS[path]);
+  if (LEGACY_TRIP_TYPE_REDIRECTS[path]) return permanentRedirect(request, LEGACY_TRIP_TYPE_REDIRECTS[path]);
   if (LEGACY_PAGE_REDIRECTS[path]) return permanentRedirect(request, LEGACY_PAGE_REDIRECTS[path]);
 
   const isWooCategory = path.startsWith("/kategoria-produktu/");
   const isWooProduct = path.startsWith("/produkt/");
+  const isOldTripType = path.startsWith("/typ-wyjazdu/");
   const isOldShop = path === "/sklep" || path === "/tripownia-pl/sklep";
   const isOldDealsCatalog = path === "/tripownia-pl/okazje-tripownia";
 
-  if (isWooCategory || isWooProduct || isOldShop || isOldDealsCatalog) return permanentRedirect(request, "/okazje");
+  if (isWooCategory || isWooProduct || isOldTripType || isOldShop || isOldDealsCatalog) return permanentRedirect(request, "/okazje");
   return null;
 }
 

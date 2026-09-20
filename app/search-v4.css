@@ -1,0 +1,307 @@
+/* Search V4 — multi-select destination/airport/date pickers */
+
+#wyszukiwarka .search-v4-open{
+  z-index:180!important;
+  border-color:#e89c7f!important;
+  box-shadow:0 0 0 4px rgba(232,93,49,.09),0 12px 30px rgba(46,31,22,.11)!important;
+}
+
+#wyszukiwarka .search-v4-field-button{
+  width:100%;
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:#211d1a;
+  font:inherit;
+  font-size:16px;
+  font-weight:850;
+  text-align:left;
+  cursor:pointer;
+}
+
+#wyszukiwarka .search-v4-field-button>span{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+#wyszukiwarka .search-v4-field-button svg{
+  flex:0 0 auto;
+  color:#776c66;
+}
+
+#wyszukiwarka .search-v4-destination-line{
+  min-height:30px;
+}
+
+#wyszukiwarka .search-v4-summary{
+  flex:0 1 auto;
+  min-width:0;
+  max-width:58%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#1f1b18;
+  font-size:15px;
+  font-weight:900;
+}
+
+#wyszukiwarka .search-v4-summary + input{
+  min-width:92px;
+}
+
+#wyszukiwarka .search-v4-popover,
+#wyszukiwarka .search-v4-destination-popover{
+  position:absolute;
+  z-index:300;
+  top:calc(100% + 9px);
+  left:0;
+  width:min(440px,calc(100vw - 34px));
+  max-height:430px;
+  overflow:auto;
+  padding:10px;
+  border:1px solid #d8ccc4;
+  border-radius:19px;
+  background:#fff;
+  box-shadow:0 26px 70px rgba(42,28,20,.24);
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+
+#wyszukiwarka .search-v4-airports-popover{width:min(390px,calc(100vw - 34px))}
+#wyszukiwarka .search-v4-date-popover{width:min(460px,calc(100vw - 34px))}
+
+#wyszukiwarka .search-v4-option,
+#wyszukiwarka .search-v4-popover .search-v4-option{
+  width:100%;
+  min-height:54px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:9px 10px;
+  border:0;
+  border-radius:12px;
+  background:#fff;
+  color:#2b2521;
+  text-align:left;
+  cursor:pointer;
+}
+
+#wyszukiwarka .search-v4-option:hover,
+#wyszukiwarka .search-v4-option.selected{
+  background:#fff3ed;
+}
+
+#wyszukiwarka .search-v4-option>span:last-child{
+  min-width:0;
+}
+
+#wyszukiwarka .search-v4-option strong{
+  display:block;
+  color:#2c2724;
+  font-size:13px;
+  font-weight:850;
+}
+
+#wyszukiwarka .search-v4-option small{
+  display:block;
+  margin-top:3px;
+  color:#887d76;
+  font-size:10px;
+  line-height:1.3;
+}
+
+#wyszukiwarka .search-v4-checkbox{
+  width:22px;
+  height:22px;
+  flex:0 0 22px;
+  display:grid;
+  place-items:center;
+  border:1px solid #cbbfb7;
+  border-radius:7px;
+  background:#fff;
+  color:#fff;
+}
+
+#wyszukiwarka .search-v4-option.selected .search-v4-checkbox{
+  border-color:#ef5b35;
+  background:#ef5b35;
+}
+
+#wyszukiwarka .search-v4-selected-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  padding:6px 2px 9px;
+  border-bottom:1px solid #eee4de;
+  margin-bottom:5px;
+}
+
+#wyszukiwarka .search-v4-chip{
+  min-height:32px!important;
+  width:auto!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  padding:0 10px!important;
+  border:1px solid #f0b39c!important;
+  border-radius:999px!important;
+  background:#fff2ec!important;
+  color:#bd4528!important;
+  font-size:10px!important;
+  font-weight:850!important;
+}
+
+#wyszukiwarka .search-v4-popover-note{
+  padding:9px 10px 4px;
+  color:#8b8079;
+  font-size:9px;
+  line-height:1.4;
+}
+
+#wyszukiwarka .search-v4-option-list{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:3px;
+  margin-top:4px;
+}
+
+#wyszukiwarka .search-v4-done{
+  position:sticky;
+  bottom:0;
+  width:100%;
+  min-height:44px;
+  margin-top:8px;
+  border:0;
+  border-radius:12px;
+  background:linear-gradient(135deg,#f4512c,#ff7547);
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  box-shadow:0 10px 22px rgba(244,81,44,.22);
+  cursor:pointer;
+}
+
+#wyszukiwarka .search-v4-date-control{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:8px 4px;
+}
+
+#wyszukiwarka .search-v4-date-control>span{
+  color:#6b615b;
+  font-size:10px;
+  font-weight:850;
+}
+
+#wyszukiwarka .search-v4-date-control input{
+  width:100%;
+  min-height:44px;
+  padding:0 11px;
+  border:1px solid #d9cec6;
+  border-radius:11px;
+  background:#fff;
+  color:#211d1a;
+  font-size:13px;
+  font-weight:800;
+}
+
+#wyszukiwarka .search-v4-date-range{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+
+#wyszukiwarka .search-v4-date-hint{
+  display:block;
+  padding:4px 5px 2px;
+  color:#7b7069;
+  font-size:10px;
+  line-height:1.45;
+}
+
+@media(max-width:640px){
+  #wyszukiwarka .search-v4-field-button{font-size:15px}
+  #wyszukiwarka .search-v4-summary{max-width:52%;font-size:14px}
+
+  #wyszukiwarka .search-v4-destination-popover,
+  #wyszukiwarka .search-v4-popover{
+    position:fixed!important;
+    z-index:9999!important;
+    top:max(76px,calc(env(safe-area-inset-top) + 58px))!important;
+    left:10px!important;
+    right:10px!important;
+    bottom:max(10px,env(safe-area-inset-bottom))!important;
+    width:auto!important;
+    max-height:none!important;
+    padding:12px!important;
+    border-radius:22px!important;
+    box-shadow:0 30px 90px rgba(30,20,15,.34)!important;
+  }
+
+  #wyszukiwarka .search-v4-destination-popover:before,
+  #wyszukiwarka .search-v4-popover:before{
+    content:"Wybierz w Tripowni";
+    position:sticky;
+    z-index:2;
+    top:-12px;
+    display:block;
+    margin:-12px -12px 8px;
+    padding:14px 14px 10px;
+    border-bottom:1px solid #eee4de;
+    background:#fff;
+    color:#2a2420;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+
+  #wyszukiwarka .search-v4-option-list{grid-template-columns:1fr}
+  #wyszukiwarka .search-v4-option{min-height:56px!important}
+  #wyszukiwarka .search-v4-option strong{font-size:14px}
+  #wyszukiwarka .search-v4-option small{font-size:11px}
+  #wyszukiwarka .search-v4-date-range{grid-template-columns:1fr}
+
+  #wyszukiwarka .search-v3-suggestions.search-v4-destination-popover{
+    overflow-y:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+}
+
+.search-v3-result-wrap{min-width:0}
+.search-v3-alternative-divider{
+  grid-column:1/-1;
+  margin:8px 0 2px;
+  padding:12px 14px;
+  border:1px dashed #dfd2ca;
+  border-radius:14px;
+  background:#fbf8f6;
+}
+.search-v3-alternative-divider small{
+  display:block;
+  margin-bottom:3px;
+  color:#a05a43;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.search-v3-alternative-divider strong{
+  color:#655952;
+  font-size:10px;
+  line-height:1.35;
+}
+@media (max-width:600px){
+  .search-v3-alternative-divider{
+    margin:7px 0 1px;
+    padding:10px 12px;
+  }
+}

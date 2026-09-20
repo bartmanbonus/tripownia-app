@@ -444,7 +444,7 @@ function tripLengthMatches(offer: LiveCandidate) {
   return offer.nights >= 7 && offer.nights <= 14;
 }
 
-function candidateMatchesQuery(offer: LiveCandidate, query: string) {
+function candidateMatchesSingleQuery(offer: LiveCandidate, query: string) {
   const primary = normalize(query.split(",")[0] || query);
   if (!primary) return true;
 
@@ -455,6 +455,16 @@ function candidateMatchesQuery(offer: LiveCandidate, query: string) {
   if (!queryGroup.includes("|") && queryGroup === touristDestinationKey(offer)) return true;
 
   return normalize(offer.country) === primary;
+}
+
+function candidateMatchesQuery(offer: LiveCandidate, query: string) {
+  const queries = query
+    .split("|")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  if (!queries.length) return true;
+  return queries.some((item) => candidateMatchesSingleQuery(offer, item));
 }
 
 function selectDailyDiversified(candidates: LiveCandidate[], key: string, limit = 20) {
@@ -568,10 +578,11 @@ export async function GET(request: NextRequest) {
     const searchTerms = query
       ? expandSearchTerms(
           query
-            .split(",")
+            .split("|")
+            .flatMap((item) => item.split(","))
             .map((item) => item.trim())
             .filter(Boolean)
-            .slice(0, 6)
+            .slice(0, 12)
         )
       : [];
     const terms = rescueMode === "full"
@@ -633,11 +644,19 @@ export async function GET(request: NextRequest) {
 
       return codes.some((code) => {
         if (code === "WAWA") return /warszawa|chopin|modlin|\bwaw\b|\bwmi\b/.test(haystack);
+        if (code === "WAW") return /warszawa.*chopin|chopin|\bwaw\b/.test(haystack) && !/modlin|\bwmi\b/.test(haystack);
+        if (code === "WMI") return /modlin|\bwmi\b/.test(haystack);
         if (code === "KRK") return /krakow|balice|\bkrk\b/.test(haystack);
         if (code === "KTW") return /katowice|pyrzowice|\bktw\b/.test(haystack);
         if (code === "GDN") return /gdansk|rebiechowo|\bgdn\b/.test(haystack);
         if (code === "WRO") return /wroclaw|strachowice|\bwro\b/.test(haystack);
         if (code === "POZ") return /poznan|lawica|\bpoz\b/.test(haystack);
+        if (code === "RZE") return /rzeszow|jasionka|\brze\b/.test(haystack);
+        if (code === "LCJ") return /lodz|lublinek|\blcj\b/.test(haystack);
+        if (code === "LUZ") return /lublin|swidnik|\bluz\b/.test(haystack);
+        if (code === "SZZ") return /szczecin|goleniow|\bszz\b/.test(haystack);
+        if (code === "BZG") return /bydgoszcz|\bbzg\b/.test(haystack);
+        if (code === "IEG") return /zielona gora|babimost|\bieg\b/.test(haystack);
         return false;
       });
     };

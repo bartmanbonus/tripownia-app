@@ -1,0 +1,107 @@
+name: Android debug APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      web_url:
+        description: "Tripownia URL to open in the debug app"
+        required: false
+        default: "https://tripownia.pl/app"
+        type: string
+  push:
+    branches:
+      - tripownia-android-app
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "capacitor.config.json"
+      - "app/**"
+      - "components/**"
+      - "lib/**"
+      - ".github/workflows/android-debug.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Configure debug web URL
+        env:
+          TRIPOWNIA_ANDROID_WEB_URL: ${{ inputs.web_url || 'https://tripownia.pl/app' }}
+        run: |
+          node - <<'NODE'
+          const fs = require("fs");
+          const path = "capacitor.config.json";
+          const config = JSON.parse(fs.readFileSync(path, "utf8"));
+          const url = process.env.TRIPOWNIA_ANDROID_WEB_URL;
+          if (!/^https:\/\//.test(url || "")) throw new Error("Android debug URL must use HTTPS");
+          config.server = { ...(config.server || {}), url };
+          fs.writeFileSync(path, JSON.stringify(config, null, 2) + "\n");
+          console.log("Android debug web URL:", url);
+          NODE
+
+      - name: Install web dependencies
+        run: npm ci
+
+      - name: Install Capacitor build tooling
+        run: npm install --no-save @capacitor/core@7.4.3 @capacitor/cli@7.4.3 @capacitor/android@7.4.3 @capacitor/app@7 @capacitor/browser@7
+
+      - name: Create Android project
+        run: npx cap add android
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Apply Tripownia Android branding
+        run: node scripts/prepare-android-branding.mjs
+
+
+      - name: Set Android app version
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          path = Path("android/app/build.gradle")
+          text = path.read_text(encoding="utf-8")
+          code = int(os.environ["VERSION_CODE"])
+          text = re.sub(r"versionCode\s+\d+", f"versionCode {code}", text)
+          text = re.sub(r'versionName\s+"[^"]+"', f'versionName "0.1.{code}"', text)
+          path.write_text(text, encoding="utf-8")
+          print(f"Tripownia Android versionCode={code}, versionName=0.1.{code}")
+          PY
+
+      - name: Validate Android project
+        working-directory: android
+        run: ./gradlew lintDebug testDebugUnitTest
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: tripownia-android-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error

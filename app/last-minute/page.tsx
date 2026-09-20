@@ -7,17 +7,45 @@ import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
 import { offers, isOfferExpired } from "@/lib/offers";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
+const TITLE = "Last Minute 2026 — aktualne wakacje i All Inclusive";
+const DESCRIPTION = "Last Minute 2026: aktualne wakacje, All Inclusive i pakiety z polskich lotnisk. Porównaj ceny, terminy i kierunki, a potem przejdź do rezerwacji u partnera.";
+
 export const metadata: Metadata = {
-  title: "Last Minute 2026 — aktualne wakacje i All Inclusive | Tripownia.pl",
-  description: "Sprawdź aktualne Last Minute 2026: wakacje, All Inclusive i pakiety z polskich lotnisk. Porównaj kierunki, terminy i przejdź do rezerwacji u partnera.",
+  title: TITLE,
+  description: DESCRIPTION,
   alternates: { canonical: "/last-minute" },
   openGraph: {
     type: "website",
-    title: "Last Minute 2026 — aktualne wakacje | Tripownia.pl",
-    description: "Aktualne Last Minute, All Inclusive i wakacyjne pakiety z konkretną ceną, terminem i kierunkiem.",
-    url: "https://tripownia.pl/last-minute",
+    title: `${TITLE} | Tripownia.pl`,
+    description: DESCRIPTION,
+    url: "/last-minute",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Last Minute — Tripownia.pl" }],
   },
 };
+
+const airportLinks = [
+  { href: "/podroze/last-minute-z-katowic", label: "Last Minute z Katowic" },
+  { href: "/podroze/last-minute-z-poznania", label: "Last Minute z Poznania" },
+  { href: "/podroze/last-minute-z-gdanska", label: "Last Minute z Gdańska" },
+  { href: "/podroze/last-minute-z-wroclawia", label: "Last Minute z Wrocławia" },
+  { href: "/podroze/last-minute-z-warszawy", label: "Last Minute z Warszawy" },
+  { href: "/podroze/last-minute-z-rzeszowa", label: "Last Minute z Rzeszowa" },
+  { href: "/podroze/last-minute-ze-szczecina", label: "Last Minute ze Szczecina" },
+];
+
+const destinationLinks = [
+  { href: "/podroze/grecja-z-warszawy", label: "Grecja z Warszawy" },
+  { href: "/podroze/grecja-z-katowic", label: "Grecja z Katowic" },
+  { href: "/podroze/grecja-z-poznania", label: "Grecja z Poznania" },
+  { href: "/podroze/turcja-z-warszawy", label: "Turcja z Warszawy" },
+  { href: "/podroze/turcja-z-katowic", label: "Turcja z Katowic" },
+  { href: "/podroze/turcja-z-poznania", label: "Turcja z Poznania" },
+  { href: "/podroze/egipt-z-warszawy", label: "Egipt z Warszawy" },
+  { href: "/podroze/egipt-z-katowic", label: "Egipt z Katowic" },
+  { href: "/podroze/egipt-z-poznania", label: "Egipt z Poznania" },
+  { href: "/podroze/wyspy-kanaryjskie-z-warszawy", label: "Kanary z Warszawy" },
+  { href: "/podroze/wyspy-kanaryjskie-z-katowic", label: "Kanary z Katowic" },
+];
 
 export default function LastMinuteOffersPage() {
   const active = offers
@@ -33,8 +61,18 @@ export default function LastMinuteOffersPage() {
   const featuredIds = new Set(featured.map(o=>o.id));
   const more = vacationPool.filter(o=>!featuredIds.has(o.id)).slice(0,12);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: TITLE,
+    description: DESCRIPTION,
+    url: "https://tripownia.pl/last-minute",
+    isPartOf: { "@type": "WebSite", name: "Tripownia", url: "https://tripownia.pl" },
+  };
+
   return <main>
     <SiteHeader/>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
     <section className="shopping-hero shell last-minute-shopping-hero">
       <div>
         <div className="kicker">⚡ LAST MINUTE 2026</div>
@@ -42,6 +80,20 @@ export default function LastMinuteOffersPage() {
         <p>Porównaj konkretne pakiety z ceną, terminem i kierunkiem. Tripownia pokazuje najtańsze sensowne opcje na początku i pozwala przeszukać szerszą bazę bez zamykania się na jednego partnera.</p>
       </div>
       <Link className="editorial-link" href="/magazyn-podrozniczy/last-minute-2026">📚 Jak kupować last minute — poradnik →</Link>
+    </section>
+
+    <section className="section shell" aria-labelledby="last-minute-airports-title">
+      <div className="section-heading"><div><div className="kicker">LAST MINUTE Z TWOJEGO LOTNISKA</div><h2 id="last-minute-airports-title">Wybierz lotnisko i zobacz aktualne wakacje</h2><p>Najmocniej rozwijamy strony, które już zbierają wyświetlenia w Google i prowadzą użytkownika bezpośrednio do ofert.</p></div></div>
+      <div className="seo-related-links">
+        {airportLinks.map(item => <Link key={item.href} href={item.href}>{item.label} →</Link>)}
+      </div>
+    </section>
+
+    <section className="section shell" aria-labelledby="last-minute-destinations-title">
+      <div className="section-heading"><div><div className="kicker">POPULARNE KIERUNKI LAST MINUTE</div><h2 id="last-minute-destinations-title">Przejdź od razu do kraju i lotniska</h2><p>Grecja, Turcja, Egipt i Kanary mają osobne strony z konkretnym lotniskiem wylotu i aktualnymi ofertami do rezerwacji.</p></div></div>
+      <div className="seo-related-links">
+        {destinationLinks.map(item => <Link key={item.href} href={item.href}>{item.label} →</Link>)}
+      </div>
     </section>
 
     <section className="section shell last-minute-live-section">
