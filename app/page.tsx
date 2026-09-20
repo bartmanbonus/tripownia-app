@@ -628,12 +628,12 @@ export default function Home() {
       <section className="dream-hero">
         <div className="shell dream-hero-shell">
           <div className="dream-hero-copy">
-            <div className="dream-eyebrow"><Sparkles size={16}/> Tripownia — wszystko do podróży</div>
-            <h1>Cała podróż.<br/><span>Jedno miejsce.</span></h1>
-            <p>Znajdź wyjazd, porównaj opcje, dobierz atrakcje i dodatki. A gdy już jedziesz — trzymaj plan całej podróży w Tripowni.</p>
+            <div className="dream-eyebrow"><Sparkles size={16}/> Twój osobisty asystent podróży — za darmo</div>
+            <h1>Cała podróż.<br/><span>Podpowiedziana.</span></h1>
+            <p>Znajdź wyjazd albo dodaj ten, który już masz. Tripownia za darmo pomoże Ci krok po kroku ogarnąć plan, dokumenty, pogodę, atrakcje, transport, jedzenie, zakupy i checklistę.</p>
             <div className="dream-hero-actions">
-              <Link className="dream-primary" href="#wyszukiwarka">Znajdź wyjazd <ArrowRight size={18}/></Link>
-              <Link className="dream-secondary" href="/moja-podroz">Mam już wyjazd</Link>
+              <Link className="dream-primary" href="/moja-podroz">Ułóż mi plan za darmo <ArrowRight size={18}/></Link>
+              <Link className="dream-secondary" href="#marketplace">Chcę coś kupić</Link>
             </div>
             <div className="dream-category-row" aria-label="Co znajdziesz w Tripowni">
               <Link href="/wakacje">🌴 Wakacje</Link>
@@ -648,7 +648,7 @@ export default function Home() {
             <div className="dream-card-kicker">ZACZNIJ TAK, JAK CI WYGODNIE</div>
             <Link href="#wyszukiwarka"><span>🔎</span><div><strong>Wiem, gdzie chcę lecieć</strong><small>Wyszukaj po swojemu</small></div><ArrowRight size={18}/></Link>
             <Link href="/gdzie-leciec"><span>✨</span><div><strong>Nie wiem gdzie</strong><small>Dobierz kierunek do mnie</small></div><ArrowRight size={18}/></Link>
-            <Link href="/moja-podroz"><span>🧳</span><div><strong>Mam już wyjazd</strong><small>Dodaj go i ogarnij resztę</small></div><ArrowRight size={18}/></Link>
+            <Link href="/moja-podroz"><span>🧳</span><div><strong>Mam już wyjazd</strong><small>Dostanę darmowy plan krok po kroku</small></div><ArrowRight size={18}/></Link>
           </div>
         </div>
       </section>
