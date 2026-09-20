@@ -14,6 +14,7 @@ import "./deals-premium.css";
 import "./homepage-dream.css";
 import "./offer-card-clean.css";
 import "./homepage-polish.css";
+import "./dream-home.css";
 import "./sitewide-polish.css";
 import "./sitewide-deep-polish.css";
 import "./search-ux-v2.css";
@@ -46,8 +47,8 @@ import OrganizerQuickLink from "@/components/OrganizerQuickLink";
 import HomeTripHubPortal from "@/components/HomeTripHubPortal";
 import PurchaseGuidePortal from "@/components/PurchaseGuidePortal";
 
-const HOME_TITLE = "Tanie wakacje, city break i lot + hotel – okazje podróżnicze | Tripownia";
-const HOME_DESCRIPTION = "Codziennie wybieramy dobre okazje na wakacje, city breaki i lot + hotel. Sprawdź cenę, termin, hotel i aktualne propozycje z polskich lotnisk.";
+const HOME_TITLE = "Tripownia – cała podróż w jednym miejscu | Wakacje, loty, hotele i atrakcje";
+const HOME_DESCRIPTION = "Znajdź i porównaj wakacje, loty, hotele i atrakcje. Dodaj własną podróż, plan, checklistę i dodatki — wszystko w jednym miejscu.";
 const FAVICON_URL = "/tripownia-app-icon-v2.png";
 
 export const metadata: Metadata = {
@@ -82,7 +83,7 @@ export const metadata: Metadata = {
 };
 
 const websiteJsonLd = { "@context": "https://schema.org", "@type": "WebSite", name: "Tripownia", alternateName: "Tripownia.pl", url: "https://tripownia.pl", inLanguage: "pl-PL" };
-const organizationJsonLd = { "@context": "https://schema.org", "@type": "Organization", name: "Tripownia", url: "https://tripownia.pl", logo: "https://tripownia.pl/tripownia-logo.webp", description: "Serwis z codziennie wybieranymi okazjami podróżniczymi, tanimi lotami, city breakami i wakacjami." };
+const organizationJsonLd = { "@context": "https://schema.org", "@type": "Organization", name: "Tripownia", url: "https://tripownia.pl", logo: "https://tripownia.pl/tripownia-logo.webp", description: "Platforma do znalezienia, porównania i zaplanowania całej podróży — od wyjazdu i noclegu po atrakcje, dodatki i organizer." };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
