@@ -189,6 +189,7 @@ export default function AppHome() {
           </div>
         </section>
 
+        <div className="app-home-journey-head"><div className="kicker">TWOJA TRIPOWNIA</div><h2>Co chcesz zrobić teraz?</h2><p>Nie musisz znać wszystkich funkcji. Wybierz kolejny krok.</p></div>
         <div className="app-home-grid">
           <Link href="/dla-ciebie" className="app-home-tile app-home-tile-primary"><Sparkles size={22}/><div><strong>Dla Ciebie</strong><span>{profileReady ? "Oferty dopasowane do Twojego profilu" : "Uzupełnij profil, żeby lepiej dopasować oferty"}</span></div><ArrowRight size={18}/></Link>
           <Link href="/moja-podroz" className="app-home-tile"><MapPinned size={22}/><div><strong>Moja podróż</strong><span>{tripCopy}</span></div><ArrowRight size={18}/></Link>
