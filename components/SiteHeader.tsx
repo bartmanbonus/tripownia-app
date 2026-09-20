@@ -134,16 +134,17 @@ export default function SiteHeader() {
             <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={64} height={64} priority />
           </Link>
           <div className="trip-mobile-top-actions">
-            <Link className="trip-mobile-account" href="/konto" aria-label="Konto i logowanie">
-              <UserRound size={19} strokeWidth={2.2} /><span>Konto</span>
+            <Link className="trip-mobile-account trip-mobile-plan" href="/dodaj-podroz" aria-label="Ułóż darmowy plan podróży">
+              <Sparkles size={19} strokeWidth={2.2} /><span>Plan za 0 zł</span>
             </Link>
             <details className="trip-mobile-menu">
               <summary aria-label="Otwórz menu"><Menu size={20} strokeWidth={2.2} /><span>Menu</span></summary>
               <div className="trip-mobile-menu-panel">
                 <div className="trip-mobile-menu-section">
                   <strong>Twoja Tripownia</strong>
+                  <Link href="/dodaj-podroz"><Sparkles size={18} /><span>Ułóż plan za darmo</span></Link>
+                  <Link href="/moja-podroz"><MapPinned size={18} /><span>Mój planner</span></Link>
                   <Link href="/app"><LayoutDashboard size={18} /><span>Start</span></Link>
-                  <Link href="/moja-podroz"><MapPinned size={18} /><span>Moja podróż</span></Link>
                   <Link href="/ulubione"><Heart size={18} /><span>Ulubione</span></Link>
                   <Link href="/alerty"><Bell size={18} /><span>Alerty</span></Link>
                   <Link href="/dla-ciebie"><Sparkles size={18} /><span>Dla Ciebie</span></Link>
