@@ -30,10 +30,11 @@ import {
 import { partners } from "@/lib/partners";
 
 const primaryItems = [
+  { href: "/#marketplace", label: "Marketplace" },
   { href: "/#wyszukiwarka", label: "Szukaj" },
   { href: "/okazje", label: "Okazje" },
   { href: "/kierunki", label: "Odkrywaj" },
-  { href: "/moja-podroz", label: "Moja podróż" },
+  { href: "/moja-podroz", label: "Planner" },
 ] as const;
 
 const planningItems = [
@@ -176,7 +177,7 @@ export default function SiteHeader() {
           </Link>
           <nav className="trip-header-actions" aria-label="Twoje konto">
             <Link className="trip-header-action" href="/ulubione" aria-label="Ulubione"><Heart size={19} strokeWidth={2} /><span>Ulubione</span></Link>
-            <Link className="trip-header-action" href="/moja-podroz" aria-label="Moja podróż"><MapPinned size={19} strokeWidth={2} /><span>Podróż</span></Link>
+            <Link className="trip-header-action" href="/moja-podroz" aria-label="Planner podróży"><MapPinned size={19} strokeWidth={2} /><span>Planner</span></Link>
             <Link className="trip-header-action" href="/konto" aria-label="Konto i logowanie"><UserRound size={19} strokeWidth={2} /><span>Konto</span></Link>
           </nav>
         </div>
