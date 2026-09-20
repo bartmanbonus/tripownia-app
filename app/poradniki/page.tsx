@@ -18,6 +18,16 @@ export const metadata: Metadata = {
 
 const sections = [
   {
+    icon: BookOpen,
+    title: "Planowanie podróży",
+    description: "Od pomysłu na wyjazd do planu dnia i gotowej checklisty.",
+    links: [
+      ["Darmowy planer podróży – jak zacząć", "/planer-podrozy"],
+      ["Checklista przed wyjazdem", "/przed-wyjazdem"],
+      ["Kierunki i pomysły na podróż", "/kierunki"],
+    ],
+  },
+  {
     icon: Luggage,
     title: "Bagaż i lotnisko",
     description: "Zasady, które najczęściej sprawdzasz tuż przed wylotem.",
@@ -130,3 +140,4 @@ export default function GuidesPage() {
     </main>
   );
 }
+

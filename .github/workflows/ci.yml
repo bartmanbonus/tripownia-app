@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: [main]
+    branches: [main, 'ux/dream-home-20260920']
   push:
     branches:
       - main
@@ -63,7 +63,6 @@ jobs:
             "/moja-podroz"
             "/moje-podroze"
             "/dodaj-podroz"
-            "/organizer"
             "/porownaj"
             "/alerty"
             "/profil"
@@ -73,6 +72,7 @@ jobs:
             "/atrakcje"
             "/parkingi"
             "/esim"
+            "/planer-podrozy"
             "/poradniki"
             "/przed-wyjazdem"
             "/polityka-prywatnosci"
@@ -90,3 +90,5 @@ jobs:
               exit 1
             fi
           done
+
+          node scripts/verify-seo.mjs

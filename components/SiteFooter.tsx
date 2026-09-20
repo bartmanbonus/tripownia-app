@@ -21,7 +21,7 @@ export default function SiteFooter() {
 
               <div className="footer-v2-column footer-v2-discover">
                 <h3>Twoja podróż</h3>
-                <Link href="/moja-podroz">Darmowy planner</Link>
+                <Link href="/planer-podrozy">Darmowy planer podróży</Link>
                 <Link href="/dodaj-podroz">Dodaj własny wyjazd</Link>
                 <Link href="/dla-ciebie">Dla Ciebie</Link>
                 <Link href="/profil">Profil podróżnika</Link>
@@ -76,3 +76,4 @@ export default function SiteFooter() {
     </>
   );
 }
+

@@ -1,8 +1,5 @@
+import { isPrivateAppPath, seoDuplicateCanonical, LEGACY_CATEGORY_REDIRECTS, LEGACY_PAGE_REDIRECTS } from "@/lib/seoRouting";
 import { NextRequest, NextResponse } from "next/server";
-
-const PRIVATE_APP_PATHS = [
-  "/app", "/dla-ciebie", "/moja-podroz", "/porownaj", "/ulubione", "/alerty", "/profil",
-];
 
 const EXPERIENCE_IMAGE_FILES: Record<string, string> = {
   "/images/experiences/islandia-zorza.png": "Aurora Borealis activity on top of the Kirkjufell mountain in September 2018.jpg",
@@ -14,37 +11,6 @@ const EXPERIENCE_IMAGE_FILES: Record<string, string> = {
   "/images/experiences/jarmarki.png": "Rathaus Wien Christkindlmarkt Front Panorama.jpg",
   "/images/experiences/egzotyka.png": "Anse Source d'Argent - La Digue - Seychelles - 03.jpg",
 };
-
-const LEGACY_CATEGORY_REDIRECTS: Record<string, string> = {
-  "/kategoria-produktu/all-inclusive": "/wakacje",
-  "/kategoria-produktu/wakacje": "/wakacje",
-  "/kategoria-produktu/last-minute": "/last-minute",
-  "/kategoria-produktu/city-break": "/city-break",
-  "/kategoria-produktu/tanie-loty": "/tanie-loty",
-  "/kategoria-produktu/ze-zwiedzaniem": "/podroze-po-przezycia",
-  "/kategoria-produktu/do-1000-zl": "/podroze/wyjazdy-do-1000-zl",
-  "/kategoria-produktu/wylot-z-krakowa": "/podroze/wakacje-z-krakowa",
-};
-
-const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
-  "/wakacje-z-gdanska-2": "/podroze/wakacje-z-gdanska",
-  "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-rzeszowa",
-  "/wakacje-ze-szczecina-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-ze-szczecina",
-  "/lublin-wakacje-city-break": "/podroze/city-break-z-lublina",
-  "/wakacje-z-poznania": "/podroze/wakacje-z-poznania",
-  "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-olsztyna-mazur",
-  "/wroclaw": "/podroze/wakacje-z-wroclawia",
-  "/katowice": "/podroze/wakacje-z-katowic",
-  "/city-break-2": "/city-break",
-  "/aletry-todroznicze": "/alerty",
-};
-
-const SEO_CANONICAL_PATHS = {
-  etna: "/etna-sparalizowala-loty-na-sycylie-co-zrobic-po-odwolaniu-lotu-do-katanii",
-  liquids: "/lotniska-w-polsce-bez-limitu-100-ml-plynow",
-  dogTravel: "/wakacje-z-psem-za-granica-gdzie-jechac-i-jak-sie-przygotowac",
-  weekend: "/gdzie-poleciec-na-weekend-z-polski-12-pomyslow-na-city-break",
-} as const;
 
 function unauthorized() {
   return new NextResponse("Dostęp do panelu administracyjnego wymaga autoryzacji.", {
@@ -68,49 +34,6 @@ function permanentRedirect(request: NextRequest, pathname: string) {
   target.pathname = pathname;
   target.search = "";
   return NextResponse.redirect(target, 308);
-}
-
-function normalizedSeoPath(path: string) {
-  try {
-    return decodeURIComponent(path)
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
-  } catch {
-    return path.toLowerCase();
-  }
-}
-
-function seoDuplicateCanonical(path: string) {
-  const normalized = normalizedSeoPath(path);
-
-  if (
-    normalized !== SEO_CANONICAL_PATHS.etna &&
-    normalized.startsWith("/etna-") &&
-    normalized.includes("sycyli") &&
-    (normalized.includes("lot") || normalized.includes("katani"))
-  ) return SEO_CANONICAL_PATHS.etna;
-
-  if (
-    normalized !== SEO_CANONICAL_PATHS.liquids &&
-    normalized.startsWith("/lotniska") &&
-    normalized.includes("limit") &&
-    normalized.includes("plyn")
-  ) return SEO_CANONICAL_PATHS.liquids;
-
-  if (
-    normalized !== SEO_CANONICAL_PATHS.dogTravel &&
-    normalized.startsWith("/wakacje-z-psem-za-granica")
-  ) return SEO_CANONICAL_PATHS.dogTravel;
-
-  if (
-    normalized !== SEO_CANONICAL_PATHS.weekend &&
-    normalized.startsWith("/gdzie-poleciec") &&
-    normalized.includes("weekend") &&
-    normalized.includes("city-break")
-  ) return SEO_CANONICAL_PATHS.weekend;
-
-  return null;
 }
 
 function cleanLegacyWordPressUrl(request: NextRequest) {
@@ -149,10 +72,6 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
 
   if (isWooCategory || isWooProduct || isOldShop || isOldDealsCatalog) return permanentRedirect(request, "/okazje");
   return null;
-}
-
-function isPrivateAppPath(pathname: string) {
-  return PRIVATE_APP_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
 }
 
 export function middleware(request: NextRequest) {
