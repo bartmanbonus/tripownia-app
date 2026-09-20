@@ -654,13 +654,46 @@ export default function Home() {
       </section>
 
       <section className="shell dream-value-strip" aria-label="Tripownia w skrócie">
-        <div><strong>1.</strong><span><b>Znajdź</b><small>lot, hotel lub gotowy wyjazd</small></span></div>
-        <div><strong>2.</strong><span><b>Porównaj</b><small>cenę, pogodę, hotel i lot</small></span></div>
-        <div><strong>3.</strong><span><b>Dodaj resztę</b><small>atrakcje, auto, transfer i eSIM</small></span></div>
-        <div><strong>4.</strong><span><b>Podróżuj</b><small>z planem i checklistą w jednym miejscu</small></span></div>
+        <div><strong>1.</strong><span><b>Znajdź lub dodaj wyjazd</b><small>nawet kupiony poza Tripownią</small></span></div>
+        <div><strong>2.</strong><span><b>Dostajesz plan</b><small>krok po kroku, bez opłat</small></span></div>
+        <div><strong>3.</strong><span><b>Odhaczasz wszystko</b><small>dokumenty, pogodę, transport i atrakcje</small></span></div>
+        <div><strong>4.</strong><span><b>Kupujesz tylko to, czego brakuje</b><small>z marketplace'u usług</small></span></div>
       </section>
 
       <SearchHub />
+
+      <section className="section shell dream-free-plan">
+        <div className="dream-free-plan-copy">
+          <div className="kicker">DARMOWY PERSONALIZOWANY PLAN PODRÓŻY</div>
+          <h2>Powiedz nam tylko <span>dokąd i kiedy jedziesz.</span><br/>Resztę pomożemy Ci ogarnąć.</h2>
+          <p>Tripownia zbiera w jednym miejscu rzeczy, które zwykle masz w notatkach, mailach, mapach i dziesięciu zakładkach. Nie musisz wiedzieć od czego zacząć — dostajesz kolejne kroki.</p>
+          <div className="dream-free-plan-actions">
+            <Link href="/moja-podroz">Stwórz mój plan — 0 zł <ArrowRight size={18}/></Link>
+            <Link href="/app">Zobacz moją Tripownię</Link>
+          </div>
+          <div className="dream-free-plan-trust">Bez abonamentu za planner · Możesz dodać wyjazd kupiony gdzie indziej · Wszystko możesz odhaczać i wracać później</div>
+        </div>
+
+        <div className="dream-free-plan-board">
+          <div className="dream-free-plan-top">
+            <div><small>TWÓJ WYJAZD</small><strong>12 dni · 68% gotowe</strong></div>
+            <span>Za darmo</span>
+          </div>
+          <div className="dream-free-plan-progress"><span /></div>
+          <div className="dream-free-plan-items">
+            <div className="done"><b>✓</b><span><strong>Lot</strong><small>Dodany</small></span></div>
+            <div className="done"><b>✓</b><span><strong>Hotel</strong><small>Dodany</small></span></div>
+            <div><b>!</b><span><strong>Dokumenty i wymagania</strong><small>Sprawdź przed wyjazdem</small></span></div>
+            <div><b>☀</b><span><strong>Pogoda</strong><small>Prognoza pod Twój termin</small></span></div>
+            <div><b>🚕</b><span><strong>Transport i taxi</strong><small>Jak poruszać się na miejscu</small></span></div>
+            <div><b>🎟</b><span><strong>Atrakcje</strong><small>Co warto zarezerwować wcześniej</small></span></div>
+            <div><b>🍜</b><span><strong>Jedzenie</strong><small>Co i gdzie warto spróbować</small></span></div>
+            <div><b>📸</b><span><strong>Miejsca na zdjęcia</strong><small>Kadry warte dodania do planu</small></span></div>
+            <div><b>🧳</b><span><strong>Checklista</strong><small>14 z 21 rzeczy gotowych</small></span></div>
+          </div>
+          <Link className="dream-free-plan-board-cta" href="/moja-podroz">Otwórz swój planner <ArrowRight size={16}/></Link>
+        </div>
+      </section>
 
       <section className="section shell dream-marketplace" id="marketplace">
         <div className="dream-marketplace-head">
