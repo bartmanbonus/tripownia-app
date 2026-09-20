@@ -17,6 +17,8 @@ export default function SiteFooter() {
                 <Link href="/" className="footer-v2-logo" aria-label="Tripownia.pl — strona główna">
                   <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={220} height={220} />
                 </Link>
+                <p>Znajdź wyjazd albo dodaj ten, który już masz. Tripownia pomoże Ci za darmo ogarnąć całą podróż krok po kroku.</p>
+                <Link className="footer-v2-plan-cta" href="/dodaj-podroz">Ułóż plan za 0 zł →</Link>
               </div>
 
               <div className="footer-v2-column footer-v2-discover">
@@ -31,7 +33,7 @@ export default function SiteFooter() {
 
             <div className="footer-v2-trending">
               <div className="footer-v2-column">
-                <h3>Na czasie</h3>
+                <h3>Inspiracje i poradniki</h3>
                 <div className="footer-v2-trending-links">
                   <Link href="/lotniska-w-polsce-bez-limitu-100-ml-plynow">Lotniska bez limitu 100 ml</Link>
                   <Link href="/podroze/city-break-listopad-2026">City break — listopad 2026</Link>
