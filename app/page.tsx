@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import HomePageClient from "./HomePageClient";
 
 export const metadata: Metadata = {
-  title: { absolute: "Tripownia – darmowy planer podróży i okazje na wyjazdy" },
-  description: "Zaplanuj podróż za darmo: zbierz lot, nocleg, atrakcje, plan dnia i checklistę. Odkrywaj też wakacje, city breaki i okazje Tripowni.",
+  title: { absolute: "Tripownia – darmowy personalizowany planer podróży" },
+  description: "Darmowy personalizowany planer podróży: dokumenty, pogoda, transport, atrakcje, jedzenie, checklista i plan dnia. Znajdź wyjazd lub dodaj ten, który już masz.",
   alternates: { canonical: "/" },
 };
 
