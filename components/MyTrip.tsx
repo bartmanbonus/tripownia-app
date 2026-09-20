@@ -295,6 +295,21 @@ export default function MyTrip() {
               </div>
             </section>
 
+            <section className="trip-essentials">
+              <div className="trip-essentials-head">
+                <div><small>WSZYSTKO DO TEGO WYJAZDU</small><h2>Brakuje czegoś? Załatw to bez wychodzenia z planu.</h2></div>
+                <span>Twój plan zostaje w Tripowni</span>
+              </div>
+              <div className="trip-essentials-grid">
+                <Link href="/ubezpieczenia"><ShieldCheck size={20}/><span><strong>Ubezpieczenie</strong><small>Sprawdź przed wyjazdem</small></span><ArrowRight size={15}/></Link>
+                <Link href="/esim"><Wifi size={20}/><span><strong>eSIM</strong><small>Internet na miejscu</small></span><ArrowRight size={15}/></Link>
+                <Link href="/transfery"><Car size={20}/><span><strong>Transfer</strong><small>Lotnisko → hotel</small></span><ArrowRight size={15}/></Link>
+                <Link href="/atrakcje"><Ticket size={20}/><span><strong>Atrakcje</strong><small>Bilety i rezerwacje</small></span><ArrowRight size={15}/></Link>
+                <Link href="/wynajem-auta"><Car size={20}/><span><strong>Auto</strong><small>Wynajem na miejscu</small></span><ArrowRight size={15}/></Link>
+                <Link href="/przed-wyjazdem"><FileCheck2 size={20}/><span><strong>Dokumenty</strong><small>Co sprawdzić</small></span><ArrowRight size={15}/></Link>
+              </div>
+            </section>
+
             {reminders.length > 0 && <section className="trip-reminders-strip">{reminders.map((item) => <div key={item.label} className={item.active ? "active" : ""}><span>{item.due}</span><strong>{item.label}</strong>{item.active && <em>TERAZ</em>}</div>)}</section>}
 
             <div className="my-trip-grid">
