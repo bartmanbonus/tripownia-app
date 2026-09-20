@@ -115,7 +115,7 @@ export default function AppHome() {
             <p>Powiedz nam dokąd jedziesz. Tripownia pomoże krok po kroku ułożyć cały wyjazd — co kupić, co przygotować, co zobaczyć, gdzie zjeść i na co uważać. Za darmo, w jednym miejscu.</p>
           </div>
           <div className="app-home-hero-actions">
-            <Link className="primary-cta" href="/moja-podroz"><Sparkles size={18}/> Ułóż mi plan za darmo</Link>
+            <Link className="primary-cta" href="/dodaj-podroz"><Sparkles size={18}/> Ułóż mi plan za darmo</Link>
             <Link className="secondary-cta" href="#wyszukiwarka"><Compass size={18}/> Najpierw znajdź wyjazd</Link>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function AppHome() {
         <section className="free-plan-wow">
           <div className="free-plan-wow-head">
             <div><div className="kicker">TRIPOWNIA OGARNIA Z TOBĄ CAŁOŚĆ</div><h2>Nie dostajesz PDF-a. Dostajesz żywy plan, który prowadzi Cię krok po kroku.</h2><p>Plan zmienia się razem z Twoją podróżą. Odhaczasz to, co już masz, a Tripownia pokazuje następne rzeczy do zrobienia i przydatne informacje na miejscu.</p></div>
-            <Link href="/moja-podroz">Stwórz mój plan — 0 zł <ArrowRight size={17}/></Link>
+            <Link href="/dodaj-podroz">Stwórz mój plan — 0 zł <ArrowRight size={17}/></Link>
           </div>
           <div className="free-plan-wow-grid">
             <Link href="/moja-podroz"><MapPinned/><strong>Plan dzień po dniu</strong><span>Trasa, miejsca, rezerwacje i własne notatki.</span></Link>
