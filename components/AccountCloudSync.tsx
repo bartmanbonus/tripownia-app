@@ -26,8 +26,11 @@ export default function AccountCloudSync() {
       try {
         const remote = await getTripowniaUserState(session);
         if (cancelled) return;
-        if (remote && !hasMeaningfulLocalAccountState()) applyCloudAccountState(remote);
-        else if (!remote && hasMeaningfulLocalAccountState()) await saveTripowniaUserState(session, collectLocalAccountState());
+        if (remote && !hasMeaningfulLocalAccountState()) {
+          applyCloudAccountState(remote);
+        } else if (hasMeaningfulLocalAccountState()) {
+          await saveTripowniaUserState(session, collectLocalAccountState());
+        }
         ready = true;
       } catch {
         ready = true;
@@ -47,14 +50,16 @@ export default function AccountCloudSync() {
       timer = window.setTimeout(() => void push(), 900);
     };
 
+    const handleAuthChange = () => void bootstrap();
     void bootstrap();
     EVENTS.forEach((name) => window.addEventListener(name, schedule));
-    window.addEventListener(accountAuthEventName(), () => void bootstrap());
+    window.addEventListener(accountAuthEventName(), handleAuthChange);
 
     return () => {
       cancelled = true;
       if (timer) window.clearTimeout(timer);
       EVENTS.forEach((name) => window.removeEventListener(name, schedule));
+      window.removeEventListener(accountAuthEventName(), handleAuthChange);
     };
   }, []);
 
