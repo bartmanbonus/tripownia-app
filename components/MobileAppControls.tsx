@@ -42,7 +42,7 @@ function isPlanningPath(pathname: string) {
 
 export default function MobileAppControls() {
   const pathname = usePathname();
-  if (!isAppPath(pathname)) return null;
+  if (!isAppPath(pathname) || pathname.startsWith("/dodaj-podroz")) return null;
 
   const nav = [
     { href: "/app", label: "Start", icon: Home, active: pathname === "/app" },
