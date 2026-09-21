@@ -35,6 +35,9 @@ export default function WakacjePage() {
       <div className="kicker">SZUKAJ DOKŁADNIEJ</div>
       <h2>Wakacje według lotniska i terminu</h2>
       <div className="seo-related-links">
+        <Link href="/wakacje-2027">Wakacje 2027 →</Link>
+        <Link href="/ferie-2027">Ferie zimowe 2027 →</Link>
+        <Link href="/majowka-2027">Majówka 2027 →</Link>
         <Link href="/podroze/wakacje-z-warszawy">Wakacje z Warszawy →</Link>
         <Link href="/podroze/wakacje-z-krakowa">Wakacje z Krakowa →</Link>
         <Link href="/podroze/all-inclusive-z-warszawy">All Inclusive z Warszawy →</Link>
