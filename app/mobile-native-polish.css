@@ -535,3 +535,54 @@
   .add-trip-section,
   .add-trip-form{min-width:0!important;max-width:100%!important}
 }
+
+
+/* Footer correction after live mobile QA: show the full logo and keep footer content above the fixed app nav. */
+@media (max-width:560px){
+  .footer-v2-top-grid{
+    grid-template-columns:minmax(0,1.12fr) minmax(150px,.88fr)!important;
+    gap:16px!important;
+    align-items:stretch!important;
+  }
+
+  .footer-v2-brand-card{
+    min-height:210px!important;
+    overflow:visible!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  .footer-v2-logo{
+    width:100%!important;
+    height:210px!important;
+    min-height:210px!important;
+    overflow:visible!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+
+  .footer-v2-logo img{
+    width:100%!important;
+    height:100%!important;
+    max-width:100%!important;
+    max-height:210px!important;
+    object-fit:contain!important;
+    object-position:center!important;
+    transform:none!important;
+  }
+
+  .footer-v2-discover{
+    align-self:start!important;
+    padding-top:4px!important;
+  }
+
+  .footer-v2-bottom{
+    margin-bottom:calc(118px + env(safe-area-inset-bottom))!important;
+    padding-bottom:0!important;
+  }
+
+  .footer.footer-v2{
+    padding-bottom:18px!important;
+  }
+}
