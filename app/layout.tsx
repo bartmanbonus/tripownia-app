@@ -48,15 +48,15 @@ import HomeTripHubPortal from "@/components/HomeTripHubPortal";
 import PurchaseGuidePortal from "@/components/PurchaseGuidePortal";
 import AccountCloudSync from "@/components/AccountCloudSync";
 
-const HOME_TITLE = "Tripownia – darmowy personalizowany planer podróży";
-const HOME_DESCRIPTION = "Darmowy personalizowany planer podróży: dokumenty, pogoda, transport, atrakcje, jedzenie, checklista i plan dnia. Znajdź wyjazd lub dodaj ten, który już masz.";
+const HOME_TITLE = "Tanie wakacje, city break i planer podróży | Tripownia.pl";
+const HOME_DESCRIPTION = "Znajdź tanie wakacje, city break, lot + hotel i aktualne okazje z polskich lotnisk. Potem zaplanuj wyjazd za darmo: lot, nocleg, atrakcje i checklistę.";
 const FAVICON_URL = "/tripownia-app-icon-v2.png";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://tripownia.pl"),
   title: { default: HOME_TITLE, template: "%s | Tripownia.pl" },
   description: HOME_DESCRIPTION,
-  keywords: ["planer podróży", "plan podróży", "darmowy planer podróży", "checklista podróżna", "wakacje", "loty", "hotele", "atrakcje", "Tripownia"],
+  keywords: ["tanie wakacje", "city break", "last minute", "tanie loty", "lot + hotel", "planer podróży", "darmowy planer podróży", "checklista podróżna", "atrakcje", "Tripownia"],
   manifest: "/manifest.webmanifest",
   applicationName: "Tripownia",
   icons: {
