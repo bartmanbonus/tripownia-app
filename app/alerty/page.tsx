@@ -232,8 +232,8 @@ export default function AlertsPage() {
       : "Brak potwierdzonej puli";
 
   const matchesCopy = source === "live"
-    ? "Pokazujemy najlepsze aktualne wyniki według zapisanych warunków i jakości danych."
-    : "Pokazujemy trafienia z ostatniej poprawnej puli. Nowe powiadomienie wyślemy dopiero po świeżym sprawdzeniu feedu.";
+    ? "To aktualne propozycje pasujące do Twoich ustawień."
+    : "To ostatnie potwierdzone propozycje pasujące do Twoich ustawień.";
 
   return (
     <main>
@@ -243,8 +243,8 @@ export default function AlertsPage() {
           <div className="app-alerts-icon"><Bell size={28} /></div>
           <div>
             <div className="kicker">TWOJA TRIPOWNIA</div>
-            <h1>Alerty podróżnicze</h1>
-            <p>Powiedz, czego szukasz. Tripownia porównuje alert z aktualnym feedem i wybiera różne kierunki z najlepszą jakością danych.</p>
+            <h1>Powiedz, czego szukasz. Tripownia będzie tego pilnować.</h1>
+            <p>Ustaw kierunek, miejsce wylotu i budżet. Gdy znajdziemy pasującą aktualną propozycję, zobaczysz ją tutaj.</p>
           </div>
         </div>
 
@@ -274,9 +274,9 @@ export default function AlertsPage() {
           </form>
 
           <aside className="app-alerts-card app-alerts-notification-card">
-            <div className="kicker">POWIADOMIENIA</div>
-            <h2>Daj znać od razu</h2>
-            <p>Włącz zgodę na powiadomienia. Gdy używasz Tripowni, aplikacja regularnie odświeża feed i poinformuje Cię dopiero po świeżym dopasowaniu.</p>
+            <div className="kicker">NIE MUSISZ SPRAWDZAĆ CO CHWILĘ</div>
+            <h2>Tripownia przypomni Ci o dobrym trafieniu.</h2>
+            <p>Włącz powiadomienia, żeby łatwiej wrócić do ofert pasujących do Twoich ustawień.</p>
             {permission === "granted" ? (
               <div className="app-alerts-status success"><CheckCircle2 size={18} /> Powiadomienia są włączone</div>
             ) : permission === "denied" ? (
@@ -286,7 +286,7 @@ export default function AlertsPage() {
             ) : (
               <button className="app-secondary-button" onClick={enableNotifications}><Bell size={18} /> Włącz powiadomienia</button>
             )}
-            <p className="app-alerts-note">Pełny push działający również przy całkowicie zamkniętej aplikacji wymaga backendu subskrypcji push i bezpiecznego magazynu urządzeń. Live dopasowanie alertów podczas działania aplikacji jest już podłączone.</p>
+            <p className="app-alerts-note">Alert zapisujemy na tym urządzeniu. Możesz go w każdej chwili zmienić albo wyłączyć.</p>
           </aside>
         </div>
 

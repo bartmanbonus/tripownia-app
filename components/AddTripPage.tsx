@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, MapPinned, Plane, BedDouble, NotebookPen, Route } from "lucide-react";
+import { ArrowRight, CalendarDays, MapPinned, Plane, BedDouble, NotebookPen, Route, Sparkles, ListChecks, CloudSun, Ticket, ShieldCheck } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { ACTIVE_TRIP_KEY, upsertTripArchive } from "@/lib/tripArchive";
@@ -66,14 +66,14 @@ export default function AddTripPage() {
       weather: "",
       score: 0,
       tag: "OKAZJA" as const,
-      reason: "Własna podróż dodana do organizera Tripowni.",
+      reason: "Własna podróż dodana do darmowego planera Tripowni.",
       image: "/tripownia-app-icon-v2.png",
       category: [],
       hotel: hotel.trim() || "Nocleg do uzupełnienia",
       board: "",
       dates: dateLabel(startDate, endDate),
       partner: "kiwi" as const,
-      affiliateUrl: "/organizer",
+      affiliateUrl: "/moja-podroz",
       manual: true,
     };
     const trip = {
@@ -91,7 +91,7 @@ export default function AddTripPage() {
     localStorage.setItem(ACTIVE_TRIP_KEY, JSON.stringify(trip));
     upsertTripArchive(trip);
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
-    window.location.href = "/organizer";
+    window.location.href = "/moja-podroz";
   }
 
   return (
@@ -101,11 +101,19 @@ export default function AddTripPage() {
         <header className="add-trip-hero">
           <div className="add-trip-icon"><Route size={28}/></div>
           <div>
-            <div className="kicker">MASZ JUŻ WYJAZD?</div>
-            <h1>Dodaj własną podróż</h1>
-            <p>Lot i hotel możesz mieć kupione gdziekolwiek. Tripownia uporządkuje termin, rezerwacje, pakowanie, plan dnia i rzeczy do zrobienia przed wylotem.</p>
+            <div className="kicker">TWÓJ PLAN — 0 ZŁ</div>
+            <h1>Dokąd jedziesz?</h1>
+            <p>Podaj tylko kierunek i termin. Tripownia utworzy Ci darmowy plan krok po kroku. Lot, hotel i wszystkie pozostałe informacje możesz dodać później.</p>
           </div>
         </header>
+
+        <div className="add-trip-promise">
+          <div><Sparkles size={18}/><span><strong>Od razu dostaniesz plan</strong><small>z kolejnymi rzeczami do ogarnięcia</small></span></div>
+          <div><ListChecks size={18}/><span><strong>Checklistę</strong><small>którą odhaczasz na telefonie</small></span></div>
+          <div><CloudSun size={18}/><span><strong>Pogodę i przygotowanie</strong><small>pod Twój kierunek i termin</small></span></div>
+          <div><Ticket size={18}/><span><strong>Atrakcje i dodatki</strong><small>dokładasz tylko, jeśli ich potrzebujesz</small></span></div>
+          <div><ShieldCheck size={18}/><span><strong>Ważne informacje</strong><small>dokumenty i rzeczy, na które uważać</small></span></div>
+        </div>
 
         <form className="add-trip-form" onSubmit={submit}>
           <section className="add-trip-section">
@@ -127,7 +135,7 @@ export default function AddTripPage() {
           </section>
 
           <section className="add-trip-section">
-            <div className="add-trip-section-title"><Plane size={20}/><div><strong>Transport i nocleg</strong><span>Opcjonalnie — przydadzą się potem w trybie podróży.</span></div></div>
+            <div className="add-trip-section-title"><Plane size={20}/><div><strong>Masz już rezerwacje?</strong><span>Opcjonalnie. Jeśli nie — pomiń. Planner i tak utworzymy od razu.</span></div></div>
             <div className="add-trip-grid two">
               <label><span>Skąd wyruszasz?</span><input value={departure} onChange={(event) => setDeparture(event.target.value)} placeholder="np. Warszawa Chopina" /></label>
               <label><span>Numer lotu</span><input value={flight} onChange={(event) => setFlight(event.target.value)} placeholder="np. QR 260" /></label>
@@ -136,14 +144,14 @@ export default function AddTripPage() {
           </section>
 
           <section className="add-trip-section">
-            <div className="add-trip-section-title"><NotebookPen size={20}/><div><strong>Notatka</strong><span>Bez haseł i pełnych danych dokumentów — te informacje zostają na tym urządzeniu.</span></div></div>
+            <div className="add-trip-section-title"><NotebookPen size={20}/><div><strong>Co jeszcze warto zapamiętać?</strong><span>Opcjonalna notatka. Nie wpisuj haseł ani pełnych danych dokumentów.</span></div></div>
             <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="np. odbiór z lotniska, numer terminala, ważna informacja dla współpodróżnych" rows={4} />
           </section>
 
           {error && <div className="add-trip-error" role="alert">{error}</div>}
           <div className="add-trip-actions">
-            <button type="submit" className="primary-cta">Utwórz podróż <ArrowRight size={17}/></button>
-            <Link href="/okazje">Jeszcze szukam wyjazdu</Link>
+            <button type="submit" className="primary-cta">Stwórz mój darmowy plan <ArrowRight size={17}/></button>
+            <Link href="/#wyszukiwarka">Najpierw chcę znaleźć wyjazd</Link>
           </div>
         </form>
       </section>

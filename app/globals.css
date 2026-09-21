@@ -12003,3 +12003,46 @@ img{
   .experience-expanded-card-image{height:190px}
   .experience-expanded-card-top,.experience-expanded-lead,.experience-ideas{margin-left:17px!important;margin-right:17px!important}
 }
+
+/* Free personalized planner — app home */
+.free-plan-wow{margin:30px 0 46px;padding:30px;border:1px solid #eadfd8;border-radius:28px;background:linear-gradient(145deg,#fff8f4,#fff);box-shadow:0 16px 48px rgba(54,36,25,.06)}
+.free-plan-wow-head{display:flex;align-items:end;justify-content:space-between;gap:30px;margin-bottom:24px}
+.free-plan-wow-head>div{max-width:760px}.free-plan-wow-head h2{margin:6px 0 10px;font-size:clamp(30px,3.7vw,48px);line-height:1;letter-spacing:-.045em}.free-plan-wow-head p{max-width:700px;color:#756b65;line-height:1.6}
+.free-plan-wow-head>a{flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;padding:14px 17px;border-radius:999px;background:#171513;color:#fff;text-decoration:none;font-size:11px;font-weight:900}
+.free-plan-wow-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.free-plan-wow-grid>a{min-height:150px;display:flex;flex-direction:column;padding:17px;border:1px solid #ece4df;border-radius:17px;background:#fff;color:#1d1916;text-decoration:none;transition:.16s ease}
+.free-plan-wow-grid>a:hover{transform:translateY(-3px);border-color:#e4cfc4;box-shadow:0 12px 28px rgba(47,31,22,.07)}
+.free-plan-wow-grid svg{color:#ef5a32;margin-bottom:20px}.free-plan-wow-grid strong{font-size:14px}.free-plan-wow-grid span{margin-top:6px;color:#81766f;font-size:10px;line-height:1.45}
+@media(max-width:900px){.free-plan-wow-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:620px){.free-plan-wow{margin:20px -2px 32px;padding:19px 14px;border-radius:22px}.free-plan-wow-head{display:block}.free-plan-wow-head h2{font-size:34px}.free-plan-wow-head>a{margin-top:17px;justify-content:center}.free-plan-wow-grid{display:flex;overflow-x:auto;gap:9px;padding-bottom:5px;scroll-snap-type:x mandatory;scrollbar-width:none}.free-plan-wow-grid::-webkit-scrollbar{display:none}.free-plan-wow-grid>a{flex:0 0 68vw;min-height:155px;scroll-snap-align:start}}
+
+/* Value-first trip creation */
+.add-trip-promise{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:0 0 18px}
+.add-trip-promise>div{display:flex;gap:9px;align-items:flex-start;padding:13px;border:1px solid #e8dfda;border-radius:14px;background:#fff}
+.add-trip-promise svg{flex:0 0 auto;color:#ef5b33}.add-trip-promise strong,.add-trip-promise small{display:block}.add-trip-promise strong{font-size:10px}.add-trip-promise small{margin-top:3px;color:#887e77;font-size:8px;line-height:1.4}
+.my-trip-empty-actions{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:17px}.my-trip-empty-actions .secondary-cta{display:inline-flex;align-items:center;gap:6px}
+@media(max-width:900px){.add-trip-promise{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.add-trip-promise{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding-bottom:5px}.add-trip-promise::-webkit-scrollbar{display:none}.add-trip-promise>div{flex:0 0 66vw;scroll-snap-align:start}.my-trip-empty-actions{display:grid}.my-trip-empty-actions a{justify-content:center}}
+.for-you-next-step{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:18px 0;padding:15px 17px;border-radius:16px;background:#171513;color:#fff}.for-you-next-step>div{display:flex;align-items:center;gap:10px}.for-you-next-step strong,.for-you-next-step small{display:block}.for-you-next-step strong{font-size:12px}.for-you-next-step small{margin-top:3px;color:#bbb2ac;font-size:9px}.for-you-next-step>a{flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;color:#fff;text-decoration:none;font-size:10px;font-weight:900}@media(max-width:620px){.for-you-next-step{align-items:flex-start;flex-direction:column}.for-you-next-step>a{width:100%;justify-content:center;padding:10px;border-radius:10px;background:#2b2724}}
+/* Trip readiness dashboard */
+.trip-readiness{margin:18px 0 20px;padding:20px;border-radius:22px;background:#171513;color:#fff;box-shadow:0 20px 50px rgba(34,25,20,.12)}
+.trip-readiness-main{display:flex;align-items:center;gap:16px}.trip-readiness-score{display:grid;place-items:center;align-content:center;width:82px;height:82px;flex:0 0 82px;border-radius:50%;background:#fff;color:#171513}.trip-readiness-score strong{font-size:24px;line-height:1}.trip-readiness-score span{margin-top:3px;font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#7c716a}.trip-readiness-copy small{font-size:8px;font-weight:950;letter-spacing:.12em;color:#f48b6d}.trip-readiness-copy h2{margin:4px 0;font-size:25px;letter-spacing:-.035em}.trip-readiness-copy p{margin:0;color:#c7bfba;font-size:10px}
+.trip-readiness-bar{height:6px;margin:17px 0;background:#37312d;border-radius:99px;overflow:hidden}.trip-readiness-bar span{display:block;height:100%;border-radius:inherit;background:#ef5b33;transition:width .25s ease}
+.trip-next-steps{display:grid;grid-template-columns:auto repeat(4,minmax(0,1fr));gap:7px;align-items:stretch}.trip-next-steps-head{display:flex;align-items:center;gap:6px;padding:0 10px 0 2px;font-size:10px;white-space:nowrap}.trip-next-steps>a{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:7px;padding:10px;border-radius:11px;background:#28231f;color:#fff;text-decoration:none;font-size:9px;font-weight:800}.trip-next-steps>a svg:first-child{color:#f48b6d}
+@media(max-width:900px){.trip-next-steps{grid-template-columns:1fr 1fr}.trip-next-steps-head{grid-column:1/-1;padding:0 0 4px}}
+@media(max-width:620px){.trip-readiness{padding:16px;margin-top:12px;border-radius:18px}.trip-readiness-main{align-items:flex-start}.trip-readiness-score{width:66px;height:66px;flex-basis:66px}.trip-readiness-score strong{font-size:20px}.trip-readiness-copy h2{font-size:20px}.trip-next-steps{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}.trip-next-steps::-webkit-scrollbar{display:none}.trip-next-steps-head{display:none}.trip-next-steps>a{flex:0 0 72%;scroll-snap-align:start;min-height:48px}}
+
+/* Contextual marketplace inside planner */
+.trip-essentials{margin:0 0 20px;padding:18px;border:1px solid #eadfd9;border-radius:20px;background:#fff}
+.trip-essentials-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:12px}.trip-essentials-head small{color:#ef5b33;font-size:8px;font-weight:950;letter-spacing:.12em}.trip-essentials-head h2{margin:4px 0 0;font-size:20px;letter-spacing:-.03em}.trip-essentials-head>span{color:#81766f;font-size:9px}
+.trip-essentials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.trip-essentials-grid>a{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:9px;padding:12px;border-radius:13px;background:#faf7f5;color:#1d1916;text-decoration:none}.trip-essentials-grid>a>svg:first-child{color:#ef5b33}.trip-essentials-grid strong,.trip-essentials-grid small{display:block}.trip-essentials-grid strong{font-size:10px}.trip-essentials-grid small{margin-top:2px;color:#887e77;font-size:8px}
+@media(max-width:700px){.trip-essentials-head{align-items:flex-start;flex-direction:column}.trip-essentials-head>span{display:none}.trip-essentials-grid{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}.trip-essentials-grid::-webkit-scrollbar{display:none}.trip-essentials-grid>a{flex:0 0 68%;scroll-snap-align:start}}
+
+/* Make the free planner visible as the primary desktop action */
+.trip-header-action-primary{background:#171513!important;color:#fff!important;border-radius:999px;padding-left:12px!important;padding-right:12px!important}
+.trip-header-action-primary svg{color:#f48b6d}
+
+/* Footer planner positioning */
+.footer-v2-brand-card>p{max-width:310px;margin:10px 0 12px;color:#766c65;font-size:10px;line-height:1.55}
+.footer-v2-plan-cta{display:inline-flex!important;width:max-content;padding:9px 12px;border-radius:999px;background:#171513;color:#fff!important;font-size:9px;font-weight:900;text-decoration:none}
+@media(max-width:700px){.footer-v2-brand-card>p{max-width:none}.footer-v2-plan-cta{margin-bottom:6px}}

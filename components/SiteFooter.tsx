@@ -17,21 +17,23 @@ export default function SiteFooter() {
                 <Link href="/" className="footer-v2-logo" aria-label="Tripownia.pl — strona główna">
                   <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={220} height={220} />
                 </Link>
+                <p>Znajdź wyjazd albo dodaj ten, który już masz. Tripownia pomoże Ci za darmo ogarnąć całą podróż krok po kroku.</p>
+                <Link className="footer-v2-plan-cta" href="/dodaj-podroz">Ułóż plan za 0 zł →</Link>
               </div>
 
               <div className="footer-v2-column footer-v2-discover">
-                <h3>Odkrywaj</h3>
-                <Link href="/okazje">Dzisiejsze okazje</Link>
-                <Link href="/city-break">City break</Link>
-                <Link href="/last-minute">Last minute</Link>
-                <Link href="/podroze-po-przezycia">Podróże po przeżycia</Link>
-                <Link href="/dalekie-podroze">Dalekie podróże</Link>
+                <h3>Twoja podróż</h3>
+                <Link href="/planer-podrozy">Darmowy planer podróży</Link>
+                <Link href="/dodaj-podroz">Dodaj własny wyjazd</Link>
+                <Link href="/dla-ciebie">Dla Ciebie</Link>
+                <Link href="/profil">Profil podróżnika</Link>
+                <Link href="/przed-wyjazdem">Checklista przed wyjazdem</Link>
               </div>
             </div>
 
             <div className="footer-v2-trending">
               <div className="footer-v2-column">
-                <h3>Na czasie</h3>
+                <h3>Inspiracje i poradniki</h3>
                 <div className="footer-v2-trending-links">
                   <Link href="/lotniska-w-polsce-bez-limitu-100-ml-plynow">Lotniska bez limitu 100 ml</Link>
                   <Link href="/podroze/city-break-listopad-2026">City break — listopad 2026</Link>
@@ -46,11 +48,12 @@ export default function SiteFooter() {
 
             <div className="footer-v2-lower-grid">
               <div className="footer-v2-column footer-v2-plan">
-                <h3>Planuj</h3>
-                <Link href="/kierunki">Kierunki</Link>
+                <h3>Marketplace</h3>
+                <Link href="/wakacje">Wakacje</Link>
+                <Link href="/atrakcje">Atrakcje</Link>
+                <Link href="/transfery">Transfery</Link>
                 <Link href="/parkingi">Parkingi</Link>
                 <Link href="/esim">eSIM</Link>
-                <Link href="/atrakcje">Atrakcje</Link>
                 <Link href="/ubezpieczenia">Ubezpieczenia</Link>
                 <Link href="/wynajem-auta">Wynajem auta</Link>
               </div>
@@ -75,3 +78,4 @@ export default function SiteFooter() {
     </>
   );
 }
+

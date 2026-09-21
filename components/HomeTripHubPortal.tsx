@@ -8,7 +8,7 @@ import { ArrowRight, Car, ClipboardCheck, MapPinned, Route, Sparkles } from "luc
 
 const actions = [
   { href: "/dodaj-podroz", icon: Route, title: "Dodaj podróż", text: "Masz już lot lub hotel? Zacznij własny plan." },
-  { href: "/organizer", icon: MapPinned, title: "Organizer", text: "Rezerwacje, pakowanie i plan dzień po dniu." },
+  { href: "/moja-podroz", icon: MapPinned, title: "Mój planner", text: "Rezerwacje, checklista i plan dzień po dniu." },
   { href: "/przed-wyjazdem", icon: ClipboardCheck, title: "Przed wyjazdem", text: "Dokumenty, bagaż, odprawa i ostatnie przygotowania." },
   { href: "/transfery", icon: Car, title: "Transfer", text: "Ogarnij dojazd z lotniska zanim wylądujesz." },
   { href: "/atrakcje", icon: Sparkles, title: "Atrakcje", text: "Zapisz to, co naprawdę chcesz zrobić na miejscu." },
@@ -47,7 +47,7 @@ export default function HomeTripHubPortal() {
         <div className="kicker">MASZ JUŻ WYJAZD?</div>
         <h2 id="already-booked-title">Nie musisz niczego kupować w Tripowni, żeby z niej korzystać.</h2>
         <p>Dodaj swój lot, hotel i termin, a Tripownia pomoże Ci ogarnąć wszystko od przygotowania do planu na miejscu.</p>
-        <Link href="/dodaj-podroz" className="already-booked-primary">Dodaj własną podróż <ArrowRight size={17}/></Link>
+        <Link href="/dodaj-podroz" className="already-booked-primary">Ułóż mój plan za darmo <ArrowRight size={17}/></Link>
       </div>
 
       <div className="already-booked-actions">

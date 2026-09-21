@@ -208,10 +208,15 @@ export default function ForYouPage() {
         <div className="app-alerts-hero">
           <div className="app-alerts-icon"><Sparkles size={28} /></div>
           <div>
-            <div className="kicker">TRIPOWNIA DOBIERA</div>
-            <h1>Wyjazdy, które pasują do Twojego życia.</h1>
-            <p>Nie sortujemy tylko po cenie. Liczymy budżet, długość, dni robocze, cel wyjazdu i to, czy wolisz oszczędzić pieniądze czy czas.</p>
+            <div className="kicker">TWOJA TRIPOWNIA</div>
+            <h1>Podpowiedzi dopasowane do Ciebie.</h1>
+            <p>Tripownia pamięta Twoje lotnisko, budżet, dostępność i styl podróżowania. Tutaj pokazujemy wyjazdy, które pasują do Twoich ustawień — bez przewijania przypadkowych ofert.</p>
           </div>
+        </div>
+
+        <div className="for-you-next-step">
+          <div><Sparkles size={20}/><span><strong>Masz już wyjazd?</strong><small>Nie szukaj kolejnego. Otwórz planner i ogarnij to, czego jeszcze brakuje.</small></span></div>
+          <Link href="/moja-podroz">Przejdź do planera <ArrowRight size={16}/></Link>
         </div>
 
         <div className="for-you-summary">

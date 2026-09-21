@@ -51,15 +51,15 @@ export default function BeforeTripPage() {
         <header className="guides-hero">
           <div className="guides-hero-icon"><Backpack size={28}/></div>
           <div>
-            <div className="kicker">PRZED WYJAZDEM</div>
-            <h1>Masz już wyjazd? Teraz ogarnij resztę.</h1>
-            <p>Jedna checklista do rzeczy, o których najłatwiej zapomnieć: dokumenty, bagaż, odprawa, transfer, internet, płatności i plan na miejscu.</p>
+            <div className="kicker">KROK PO KROKU</div>
+            <h1>Tripownia pilnuje, co jeszcze zostało przed wyjazdem.</h1>
+            <p>Dokumenty, bagaż, odprawa, transfer, internet, płatności i atrakcje — zamiast pamiętać o wszystkim, przechodzisz po kolei przez swoją listę.</p>
           </div>
         </header>
 
         <nav className="guides-quick-links" aria-label="Skróty przed wyjazdem">
-          <Link href="/organizer"><BookOpenCheck size={18}/><span>Organizer</span></Link>
-          <Link href="/moja-podroz"><CircleCheckBig size={18}/><span>Moja podróż</span></Link>
+          <Link href="/moja-podroz"><BookOpenCheck size={18}/><span>Mój planner</span></Link>
+          <Link href="/dodaj-podroz"><CircleCheckBig size={18}/><span>Dodaj podróż</span></Link>
           <Link href="/poradniki"><Luggage size={18}/><span>Poradniki</span></Link>
           <Link href="/atrakcje"><Landmark size={18}/><span>Atrakcje</span></Link>
         </nav>
@@ -84,11 +84,11 @@ export default function BeforeTripPage() {
         <section className="guides-checklist before-trip-cta">
           <div>
             <div className="kicker">TWOJA PODRÓŻ</div>
-            <h2>Jeśli masz już konkretny wyjazd, przenieś checklistę do organizera.</h2>
-            <p>Organizer Tripowni trzyma rezerwacje, listę pakowania, plan dzień po dniu i priorytety zależne od czasu do wylotu.</p>
+            <h2>Przenieś tę checklistę do swojego darmowego planera.</h2>
+            <p>Twój planner trzyma rezerwacje, pakowanie, plan dzień po dniu i kolejne rzeczy do zrobienia. Możesz wracać do niego przez cały wyjazd.</p>
           </div>
           <div className="guides-checklist-actions">
-            <Link className="primary-cta" href="/organizer">Otwórz organizer <ArrowRight size={17}/></Link>
+            <Link className="primary-cta" href="/moja-podroz">Otwórz mój planner <ArrowRight size={17}/></Link>
             <Link href="/moje-podroze">Moje podróże</Link>
           </div>
         </section>
