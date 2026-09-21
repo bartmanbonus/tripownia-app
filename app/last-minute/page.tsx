@@ -8,7 +8,7 @@ import { offers, isOfferExpired } from "@/lib/offers";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
 export const metadata: Metadata = {
-  title: "Last Minute 2026 — aktualne wakacje i All Inclusive | Tripownia.pl",
+  title: "Last Minute 2026 — aktualne wakacje i All Inclusive",
   description: "Sprawdź aktualne Last Minute 2026: wakacje, All Inclusive i pakiety z polskich lotnisk. Porównaj kierunki, terminy i przejdź do rezerwacji u partnera.",
   alternates: { canonical: "/last-minute" },
   openGraph: {
