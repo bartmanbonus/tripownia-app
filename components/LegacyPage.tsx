@@ -1,4 +1,6 @@
 import Link from "next/link";
+import RelatedTravelGuides from "@/components/RelatedTravelGuides";
+import { destinationGuidePaths } from "@/lib/destinationGuides";
 import OfferCard from "@/components/OfferCard";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -168,6 +170,10 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const growthLinks = contextualGrowthLinks(item);
   const archived = item.type === "product";
   const canonicalPath = legacyCanonicalPath(item.path);
+  const isDestination = destinationGuidePaths.includes(canonicalPath);
+  const parent = isDestination ? { name: "Kierunki", href: "/kierunki" }
+    : item.type === "post" ? { name: "Poradniki", href: "/poradniki" }
+    : { name: archived ? "Archiwum ofert" : "Okazje", href: "/okazje" };
   const canonicalUrl = `https://tripownia.pl${canonicalPath}`;
   const deepDiveLookupPath = canonicalPath.startsWith("/gdzie-jest-cieplo-w-pazdzierniku")
     ? "/gdzie-jest-cieplo-w-pazdzierniku"
@@ -185,7 +191,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Tripownia", item: "https://tripownia.pl/" },
-      { "@type": "ListItem", position: 2, name: item.type === "post" ? "Poradniki" : archived ? "Archiwum ofert" : "Tripownia", item: item.type === "post" ? "https://tripownia.pl/poradniki" : "https://tripownia.pl/okazje" },
+      { "@type": "ListItem", position: 2, name: parent.name, item: `https://tripownia.pl${parent.href}` },
       { "@type": "ListItem", position: 3, name: item.title, item: canonicalUrl },
     ],
   };
@@ -211,7 +217,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(breadcrumbJsonLd).replace(/</g,"\\u003c")}}/>
     {articleJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(articleJsonLd).replace(/</g,"\\u003c")}}/>}
     <div className="legacy-shell shell">
-      <div className="legacy-breadcrumb"><Link href="/">Tripownia</Link><span>›</span><span>{item.type === "post" ? "Poradnik" : archived ? "Oferta" : "Strona"}</span></div>
+      <div className="legacy-breadcrumb"><Link href="/">Tripownia</Link><span>›</span><Link href={parent.href}>{parent.name}</Link><span>›</span><span aria-current="page">{item.title}</span></div>
       {archived && <div className="archive-banner"><strong>Oferta archiwalna</strong><span>Cena i dostępność mogły się zmienić. Na dole znajdziesz aktualne propozycje.</span></div>}
       <article className="legacy-article">
         <header><div className="kicker">{archived ? "ARCHIWUM OFERT" : item.type === "post" ? "MAGAZYN TRIPOWNI" : "TRIPOWNIA"}</div><h1>{item.title}</h1></header>
@@ -219,6 +225,8 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
       </article>
 
       {deepDive && <ArticleDeepDiveBlock deepDive={deepDive} />}
+
+      {(item.type === "post" || isDestination) && <RelatedTravelGuides path={canonicalPath} title={item.title} isDestination={isDestination} />}
 
       {shouldRenderSearch && <>
         <section className="legacy-internal-links">
@@ -241,7 +249,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         </section>
       </>}
 
-      {item.type === "post" && <section className="legacy-internal-links"><h2>Sprawdź dalej w tym temacie</h2><div>{growthLinks.map(link=><Link key={link.href} href={link.href}>{link.label} →</Link>)}</div></section>}
+      {(item.type === "post" || isDestination) && <section className="legacy-internal-links"><h2>Sprawdź dalej w tym temacie</h2><div>{growthLinks.map(link=><Link key={link.href} href={link.href}>{link.label} →</Link>)}</div></section>}
 
       {related.length > 0 && <section className="legacy-offers"><div className="section-heading"><div><div className="kicker">DOPASOWANE WYNIKI TRIPOWNI</div><h2>{effectiveDestination ? `Aktualne propozycje: ${effectiveDestination}` : "Aktualne propozycje pasujące do artykułu"}</h2></div><Link href="/okazje">Wszystkie okazje →</Link></div><div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>}
 

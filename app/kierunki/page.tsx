@@ -4,9 +4,10 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "Kierunki podróży | Tripownia.pl",
+  title: "Kierunki podróży – gdzie pojechać na wakacje i city break?",
   description: "Wybierz kierunek na city break, wakacje, All Inclusive albo dalszą podróż. Sprawdź inspiracje Tripowni i przejdź do aktualnych ofert.",
   alternates: { canonical: "/kierunki" },
+  openGraph: { title: "Kierunki podróży – Tripownia", description: "Porównaj kierunki na wakacje, city break i daleką podróż. Wybierz miejsce i zaplanuj wyjazd.", url: "/kierunki" },
 };
 
 const directions = [

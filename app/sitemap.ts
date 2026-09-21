@@ -1,4 +1,5 @@
 import { canonicalPublicPath, isPrivateAppPath } from "@/lib/seoRouting";
+import { destinationGuidePaths } from "@/lib/destinationGuides";
 import type { MetadataRoute } from "next";
 import { allSeoLandings } from "@/lib/allSeoLandings";
 import { legacyCanonicalPath, legacyPosts } from "@/lib/legacy";
@@ -49,6 +50,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: .72,
   }));
 
+  const destinationPages: MetadataRoute.Sitemap = destinationGuidePaths.map(path => ({
+    url: `${BASE_URL}${path}`, changeFrequency: "monthly", priority: .8,
+  }));
+
   const landingPages: MetadataRoute.Sitemap = allSeoLandings.map(page => ({
     url: `${BASE_URL}/podroze/${page.slug}`,
     changeFrequency: "weekly" as const,
@@ -60,7 +65,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // SEO landings remain stable entry points for search engines.
   // Only canonical, public URLs. Omit lastmod when no reliable content date exists.
   const unique = new Map<string, MetadataRoute.Sitemap[number]>();
-  for (const entry of [...staticPages, ...legacyArticlePages, ...landingPages]) {
+  for (const entry of [...staticPages, ...destinationPages, ...legacyArticlePages, ...landingPages]) {
     const pathname = new URL(entry.url).pathname;
     const canonical = canonicalPublicPath(pathname);
     if (canonical !== pathname || isPrivateAppPath(canonical)) continue;
