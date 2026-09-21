@@ -254,7 +254,7 @@ export default function SearchHub({
         ? "Mamy dokładne dopasowania. Dobieramy jeszcze kilka najbliższych aktualnych opcji…"
         : "Nie ma dokładnego dopasowania. Szukamy teraz najbliższych aktualnych opcji…");
 
-      const relaxedParams = new URLSearchParams({ mode: "search" });
+      const relaxedParams = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });
       if (query) relaxedParams.set("q", query);
       else relaxedParams.set("broad", "1");
 
@@ -272,6 +272,31 @@ export default function SearchHub({
         rows = relaxedDatePass.rows;
         finalDateNotice = relaxedDatePass.notice || finalDateNotice;
         setResults(rows);
+      }
+
+      // City-break searches should never dead-end on an exact city.
+      // If the requested city is not in the current live pool, widen first to its country
+      // and finally to currently available city-breaks. We label this clearly as alternatives.
+      if (!rows.length && activeMode === "City break") {
+        const countryFallback = query.includes(",") ? query.split(",").slice(-1)[0].trim() : "";
+        const fallbackParams = new URLSearchParams({ mode: "citybreak" });
+        if (countryFallback) fallbackParams.set("q", countryFallback);
+        else fallbackParams.set("broad", "1");
+
+        const fallbackResponse = await fetch(`/api/today-offers?${fallbackParams.toString()}`, { cache: "no-store" });
+        const fallbackData = await fallbackResponse.json();
+        if (runId !== searchRunRef.current) return;
+
+        if (fallbackResponse.ok && fallbackData?.ok !== false) {
+          const fallbackRows = cleanRows(Array.isArray(fallbackData?.offers) ? fallbackData.offers : [], "");
+          rows = onePerDirection(fallbackRows).slice(0, 12);
+          const fallbackDatePass = prioritizeByDate(rows, datePreference);
+          rows = fallbackDatePass.rows;
+          finalDateNotice = rows.length
+            ? `Brak potwierdzonej oferty dokładnie dla „${query}”. Pokazujemy najbliższe aktualne city breaki${countryFallback ? ` w kraju: ${countryFallback}` : ""}.`
+            : finalDateNotice;
+          setResults(rows);
+        }
       }
 
       if (rows.length) {
@@ -437,9 +462,9 @@ export default function SearchHub({
           <label className="search-v3-field search-v3-date">
             <span><CalendarDays size={15}/> Kiedy?</span>
             <select value={dateMode} onChange={(event) => setDateMode(event.target.value as DateMode)}>
-              <option value="any">Dowolnie</option>
-              <option value="month">Wybierz miesiąc</option>
-              <option value="range">Zakres dat</option>
+              <option value="any">Elastycznie / dowolny termin</option>
+              <option value="month">Miesiąc — elastycznie</option>
+              <option value="range">Zakres dat — pokaż też bliskie terminy</option>
             </select>
             <ChevronDown size={15} className="search-v3-chevron"/>
           </label>
@@ -488,7 +513,7 @@ export default function SearchHub({
                 <label><span>Najpóźniej</span><input type="date" min={dateFrom || undefined} value={dateTo} onChange={(event) => setDateTo(event.target.value)} /></label>
               </>
             )}
-            <small>Nie blokujemy wyników na sztywno — jeśli ofert będzie mało, pokażemy najbliższe terminy.</small>
+            <small>Daty są elastyczne — najpierw pokazujemy Twój termin, a jeśli ofert jest mało, najbliższe dostępne daty.</small>
           </div>
         )}
 
