@@ -22,6 +22,11 @@ export type TripowniaUserState = {
   current_trip: Record<string, unknown> | null;
   visited_countries: string[];
   excluded_visited_countries: string[];
+  favorite_offer_snapshots?: Record<string, unknown>;
+  compare_offer_snapshots?: Record<string, unknown>;
+  trip_archive?: unknown[];
+  alert_settings?: Record<string, unknown>;
+  toolkit_by_trip?: Record<string, unknown>;
   created_at?: string;
   updated_at?: string;
 };
