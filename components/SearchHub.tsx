@@ -7,6 +7,7 @@ import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches } from "@/lib/worldDestinations";
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
+import { partners } from "@/lib/partners";
 
 type Props = {
   initialAirports?: string[];
@@ -61,6 +62,20 @@ function uniqueOfferVariants(rows: any[]) {
     seen.add(key);
     return true;
   });
+}
+
+function cityBreakFallbackLinks(destination: string) {
+  const query = destination.trim();
+  if (!query) return null;
+  const bookingBase = new URL("https://www.booking.com/searchresults.pl.html");
+  bookingBase.searchParams.set("ss", query);
+  const kiwiBase = new URL("https://www.kiwi.com/pl/");
+  kiwiBase.searchParams.set("destination", query);
+  kiwiBase.searchParams.set("currency", "PLN");
+  return {
+    booking: partners.booking.buildUrl(bookingBase.toString()),
+    kiwi: partners.kiwi.buildUrl(kiwiBase.toString()),
+  };
 }
 
 function cleanRows(rows: any[], query: string) {
@@ -575,7 +590,17 @@ export default function SearchHub({
                 {results.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(results.length, count + 6))}>Pokaż kolejne oferty ({results.length - visibleCount})</button>}
               </>
             )}
-            {!loading && results.length === 0 && !expanding && <div className="search-v3-empty"><strong>Spróbuj trochę szerzej.</strong><span>Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji.</span></div>}
+            {!loading && results.length === 0 && !expanding && (() => {
+              const fallback = activeTab === "City break" ? cityBreakFallbackLinks(destination) : null;
+              return <div className="search-v3-empty">
+                <strong>{fallback ? "Nie ma teraz gotowego pakietu — ale nadal możesz złożyć city break." : "Spróbuj trochę szerzej."}</strong>
+                <span>{fallback ? "Sprawdź lot i nocleg osobno u partnerów Tripowni albo zmień filtry pakietu." : "Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji."}</span>
+                {fallback && <div className="search-v3-empty-actions">
+                  <a href={fallback.kiwi} target="_blank" rel="sponsored noopener noreferrer">Sprawdź loty w Kiwi.com</a>
+                  <a href={fallback.booking} target="_blank" rel="sponsored noopener noreferrer">Sprawdź noclegi w Booking.com</a>
+                </div>}
+              </div>;
+            })()}
           </div>
         )}
       </div>
