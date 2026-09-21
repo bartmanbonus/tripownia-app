@@ -32,6 +32,7 @@ export type Offer = {
   linkMatch?: "exact" | "parameters" | "destination" | "unsafe";
   transferIncluded?: boolean;
   baggageIncluded?: boolean;
+  manual?: boolean;
 };
 
 const departurePlaceFor = (airportCode: string) => `ap-${airportCode}`;

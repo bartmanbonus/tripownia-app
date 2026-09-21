@@ -124,6 +124,7 @@ export default function TripToolkit({ city, country, tripId }: { city: string; c
   function save(next: ToolkitState) {
     setState(next);
     localStorage.setItem(storageKey(tripId), JSON.stringify(next));
+    window.dispatchEvent(new Event("tripownia-toolkit-updated"));
   }
 
   function addTraveler() {
@@ -176,7 +177,7 @@ export default function TripToolkit({ city, country, tripId }: { city: string; c
   const kiwi = partners.kiwi.buildUrl(`https://www.kiwi.com/pl/search/results/${encodeURIComponent(city.toLowerCase().replaceAll(" ", "-"))}`);
   const photoSearch = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`best photo spots ${city}`)}`;
   const taxiSearch = `https://www.google.com/search?q=${encodeURIComponent(`${city} taxi app Bolt Uber local taxi`)}`;
-  const carSearch = `https://www.google.com/search?q=${encodeURIComponent(`${city} car rental airport`)}`;
+  const carSearch = partners.rentacar.buildUrl();
   const borderSearch = `https://www.gov.pl/web/dyplomacja/${encodeURIComponent(country.toLowerCase().replaceAll(" ", "-"))}`;
   const baggageSearch = `https://www.google.com/search?q=${encodeURIComponent(`baggage allowance airline cabin baggage dimensions`)}`;
 
@@ -249,7 +250,7 @@ export default function TripToolkit({ city, country, tripId }: { city: string; c
         <div className="trip-section-heading"><div><h2>Jak poruszać się na miejscu</h2><p>Najpierw sprawdź, czy wygodniejsza będzie komunikacja, taxi czy auto.</p></div></div>
         <div className="trip-toolkit-grid">
           <div className="trip-toolkit-card"><div className="trip-toolkit-card-head"><BusFront size={21}/><div><h3>Taxi i transport lokalny</h3><p>Sprawdź lokalne aplikacje taxi i dojazd z lotniska, zanim wsiądziesz do pierwszej taksówki.</p></div></div><div className="trip-toolkit-actions"><a href={taxiSearch} target="_blank" rel="noopener noreferrer">Sprawdź taxi w {city} <ExternalLink size={14}/></a><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${city} public transport`)}`} target="_blank" rel="noopener noreferrer"><Map size={14}/> Komunikacja</a></div></div>
-          <div className="trip-toolkit-card"><div className="trip-toolkit-card-head"><Car size={21}/><div><h3>Czy warto wynająć auto?</h3><p>Porównaj odległości i parkingi. Jeśli auto ma sens, szukaj odbioru na lotnisku lub blisko hotelu.</p></div></div><div className="trip-toolkit-actions"><a href={carSearch} target="_blank" rel="noopener noreferrer">Porównaj wynajem auta <ExternalLink size={14}/></a></div><div className="trip-service-disclosure">Nie mamy jeszcze skonfigurowanego partnera afiliacyjnego dla wynajmu aut, więc ten link nie jest afiliacyjny.</div></div>
+          <div className="trip-toolkit-card"><div className="trip-toolkit-card-head"><Car size={21}/><div><h3>Czy warto wynająć auto?</h3><p>Porównaj odległości i parkingi. Jeśli auto ma sens, szukaj odbioru na lotnisku lub blisko hotelu.</p></div></div><div className="trip-toolkit-actions"><a href={carSearch} target="_blank" rel="sponsored noopener noreferrer">Porównaj wynajem auta <ExternalLink size={14}/></a></div><div className="trip-service-disclosure">Link do wynajmu auta może być linkiem afiliacyjnym Tripowni. Finalną cenę i warunki potwierdzasz u partnera.</div></div>
           <div className="trip-toolkit-card"><div className="trip-toolkit-card-head"><MapPin size={21}/><div><h3>Mapa wyjazdu</h3><p>Otwórz atrakcje, restauracje i zapisane miejsca w jednej okolicy.</p></div></div><div className="trip-toolkit-actions"><a className="primary" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${city} attractions restaurants`)}`} target="_blank" rel="noopener noreferrer"><Map size={14}/> Otwórz mapę</a></div></div>
         </div>
         <label className="trip-toolkit-label" style={{ marginTop: 12 }}>Twoje notatki o transporcie<textarea value={state.localTransportNotes || ""} onChange={(e) => save({ ...state, localTransportNotes: e.target.value })} placeholder="np. z lotniska najlepszy autobus X, Bolt działa do 23:00, auto odbieramy w terminalu..." /></label>
