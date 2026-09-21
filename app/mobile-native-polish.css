@@ -379,3 +379,103 @@
     display: none;
   }
 }
+
+
+/* 2026-09-21 mobile correctness pass */
+@media (max-width: 560px) {
+  html, body { max-width:100%; overflow-x:hidden; }
+
+  /* Keep all five primary items readable without pushing the page sideways. */
+  .trip-header-nav{gap:0!important;padding:0!important;overflow-x:auto!important}
+  .trip-header-nav-link{padding:0 6px!important;font-size:9.5px!important}
+
+  /* Hero CTAs were forcing a wider-than-screen min-content width. */
+  .dream-hero-shell,
+  .dream-hero-copy,
+  .dream-hero-actions,
+  .dream-hero-card{min-width:0!important;max-width:100%!important}
+  .dream-hero-actions{grid-template-columns:1fr!important}
+  .dream-hero-actions a{width:100%!important;min-width:0!important;white-space:normal!important}
+  .dream-hero-copy>p{max-width:100%!important;overflow-wrap:anywhere}
+
+  /* Clean black decision card: no separator "sticks" or color leaking at the sides. */
+  .dream-hero-card{overflow:hidden!important;padding:10px!important}
+  .dream-hero-card>a{
+    border-top:0!important;
+    border-radius:14px!important;
+    background:rgba(255,255,255,.035)!important;
+    margin:0 0 6px!important;
+  }
+  .dream-hero-card>a:last-child{margin-bottom:0!important}
+
+  /* Search container should close cleanly inside the dark stage. */
+  #wyszukiwarka.search-v3-section{
+    overflow:hidden!important;
+    padding-left:0!important;
+    padding-right:0!important;
+    padding-bottom:22px!important;
+    border-radius:24px!important;
+  }
+  #wyszukiwarka .search-v3{
+    width:100%!important;
+    max-width:100%!important;
+    border-radius:22px!important;
+  }
+  #wyszukiwarka .search-v3-quick>div{
+    padding:1px 14px 2px 1px!important;
+    scroll-padding-left:1px;
+  }
+  #wyszukiwarka .search-v3-quick button{scroll-snap-align:start}
+
+  /* Fixed app nav must never cover form fields or footer content. */
+  .add-trip-page,
+  .before-trip-page,
+  .service-page,
+  .app-home-page,
+  .app-alerts-page,
+  .my-trip-page,
+  .compare-page,
+  .favorites-page,
+  .advisor-page{
+    padding-bottom:calc(132px + env(safe-area-inset-bottom))!important;
+  }
+  .footer.footer-v2{
+    padding-bottom:calc(92px + env(safe-area-inset-bottom))!important;
+  }
+
+  /* Footer: logo fills the height of the first block; text columns start evenly. */
+  .footer-v2-top-grid{
+    grid-template-columns:minmax(0,1fr) minmax(132px,.72fr)!important;
+    gap:18px!important;
+    align-items:stretch!important;
+  }
+  .footer-v2-brand-card{
+    min-height:190px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    overflow:hidden!important;
+  }
+  .footer-v2-brand-card>p,
+  .footer-v2-brand-card>.footer-v2-plan-cta{display:none!important}
+  .footer-v2-logo{
+    width:100%!important;
+    height:100%!important;
+    min-height:190px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+  }
+  .footer-v2-logo img{
+    width:100%!important;
+    height:100%!important;
+    object-fit:contain!important;
+    object-position:center!important;
+  }
+  .footer-v2-discover{padding-top:2px!important}
+  .footer-v2-column h3{line-height:1.2!important}
+  .footer-v2-column a{overflow-wrap:anywhere}
+  .footer-v2-trending-links,
+  .footer-v2-lower-grid{align-items:start!important}
+  .footer-v2-bottom{padding-bottom:4px!important}
+}
