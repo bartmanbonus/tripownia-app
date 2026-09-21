@@ -6,8 +6,8 @@ import SiteFooter from "@/components/SiteFooter";
 import { allSeoLandings } from "@/lib/allSeoLandings";
 
 export const metadata: Metadata = {
-  title: "Pomysły na podróże i tanie wyjazdy",
-  description: "City breaki, wakacje, All Inclusive, tanie loty, last minute i wyjazdy z polskich lotnisk. Wybierz temat i przejdź do aktualnych ofert.",
+  title: "Tanie podróże z Polski — city break, wakacje i loty",
+  description: "Pomysły na tanie podróże z Polski: city break, wakacje, All Inclusive, last minute i tanie loty. Wybierz kierunek, budżet lub lotnisko i sprawdź aktualne opcje.",
   alternates: { canonical: "/podroze" },
 };
 
