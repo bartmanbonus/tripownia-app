@@ -479,3 +479,42 @@
   .footer-v2-lower-grid{align-items:start!important}
   .footer-v2-bottom{padding-bottom:4px!important}
 }
+
+
+/* Final mobile simplification: remove duplicated/clipped navigation and the exposed dark search frame. */
+@media (max-width:560px){
+  .trip-header-nav-wrap{display:none!important}
+
+  .trip-mobile-brand{width:58px!important;height:48px!important;overflow:hidden!important}
+  .trip-mobile-brand img{
+    width:58px!important;
+    height:48px!important;
+    transform:scale(1.28);
+    transform-origin:center;
+  }
+
+  #wyszukiwarka.search-v3-section{
+    background:transparent!important;
+    box-shadow:none!important;
+    padding:0 4px 20px!important;
+    overflow:visible!important;
+  }
+  #wyszukiwarka .search-v3{
+    overflow:hidden!important;
+    border:1px solid #ded2ca!important;
+    box-shadow:0 18px 44px rgba(54,35,23,.13)!important;
+  }
+  #wyszukiwarka .search-v3-results{border-radius:0 0 22px 22px!important}
+
+  .footer-v2-logo{overflow:hidden!important}
+  .footer-v2-logo img{
+    transform:scale(1.55);
+    transform-origin:center;
+  }
+
+  .mobile-app-controls{
+    left:12px!important;
+    right:12px!important;
+    bottom:max(10px,env(safe-area-inset-bottom))!important;
+  }
+}
