@@ -54,10 +54,21 @@ const questions = [
   ["Czy planer zastępuje bilety i potwierdzenia rezerwacji?", "Nie. Organizer pomaga uporządkować podróż. Zachowaj oryginalne bilety, potwierdzenia i dokumenty od dostawców, również w formie dostępnej bez internetu."],
 ];
 
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: questions.map(([question, answer]) => ({
+    "@type": "Question",
+    name: question,
+    acceptedAnswer: { "@type": "Answer", text: answer },
+  })),
+};
+
 export default function TravelPlannerGuide() {
   return (
     <main>
       <SiteHeader />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
       <BreadcrumbSchema items={[
         { name: "Tripownia", url: "https://tripownia.pl/" },
         { name: "Darmowy planer podróży", url: "https://tripownia.pl/planer-podrozy" },
