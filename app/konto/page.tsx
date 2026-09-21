@@ -145,7 +145,7 @@ export default function AccountPage() {
           <div>
             <div className="kicker">TWOJA TRIPOWNIA</div>
             <h1>Konto, które pamięta jak podróżujesz.</h1>
-            <p>Profil, odwiedzone kraje, ulubione oferty i bieżąca podróż mogą być zapisane w chmurze i przenoszone między urządzeniami.</p>
+            <p>Po zalogowaniu Tripownia synchronizuje profil, podróże, checklisty, rezerwacje, wydatki, alerty i zapisane oferty między urządzeniami.</p>
           </div>
         </div>
 
@@ -158,7 +158,7 @@ export default function AccountPage() {
           <div className="account-grid">
             <div className="account-card">
               <div className="account-card-title"><CheckCircle2 size={21}/><div><small>ZALOGOWANO</small><strong>{user.email || "Konto Tripowni"}</strong></div></div>
-              <p>Wybierz kierunek synchronizacji. Niczego nie nadpisujemy automatycznie bez Twojej decyzji.</p>
+              <p>Synchronizacja działa automatycznie. Poniższe przyciski pozwalają też ręcznie wymusić zapis lub wczytanie danych.</p>
               <button type="button" className="account-primary-button" onClick={syncLocalData} disabled={busy}><Cloud size={17}/>{busy ? "Synchronizuję…" : "Zapisz to urządzenie w chmurze"}</button>
               {cloudState && <button type="button" className="account-social-button" onClick={restoreCloudData} disabled={busy}><Download size={16}/> Wczytaj dane z chmury na to urządzenie</button>}
               <button type="button" className="account-logout" onClick={logout} disabled={busy}><LogOut size={16}/> Wyloguj</button>
