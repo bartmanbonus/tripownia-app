@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+
+const destinationPaths = JSON.parse(readFileSync(new URL("../data/destination-guides.json", import.meta.url), "utf8"));
 
 const base = process.env.SEO_TEST_ORIGIN || "http://127.0.0.1:3000";
 const get = path => fetch(new URL(path, base), { redirect: "manual" });
-const publicRoutes = ["/", "/planer-podrozy", "/poradniki", "/przed-wyjazdem", "/wietnam"];
+const publicRoutes = ["/", "/planer-podrozy", "/poradniki", "/przed-wyjazdem", "/kierunki", ...destinationPaths];
 for (const path of publicRoutes) {
   const response = await get(path);
   assert.equal(response.status, 200, path);
@@ -14,6 +17,13 @@ for (const path of publicRoutes) {
   assert.equal(new URL(canonical).pathname, path);
   const title = html.match(/<title>(.*?)<\/title>/)?.[1] || "";
   assert.equal((title.match(/Tripownia/g) || []).length, 1, `brand once: ${path}`);
+  if (destinationPaths.includes(path)) {
+    assert.ok(html.includes("Przygotuj podróż krok po kroku"), `preparation links: ${path}`);
+    assert.ok(html.includes('href="/planer-podrozy"'), `planner link: ${path}`);
+    const schemas = [...html.matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/gs)].map(match => JSON.parse(match[1]));
+    const breadcrumb = schemas.find(schema => schema["@type"] === "BreadcrumbList");
+    assert.equal(breadcrumb?.itemListElement[1]?.item, "https://tripownia.pl/kierunki", `destination breadcrumb: ${path}`);
+  }
   if (path === "/planer-podrozy") {
     assert.ok(html.includes("Darmowy planer podróży"));
     assert.ok(html.includes('href="/dodaj-podroz"'));
@@ -54,6 +64,7 @@ const xml = await (await get("/sitemap.xml")).text();
 const urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]);
 assert.equal(urls.length, new Set(urls).size, "unique sitemap URLs");
 assert.ok(urls.includes("https://tripownia.pl/planer-podrozy"));
+for (const path of destinationPaths) assert.ok(urls.includes(`https://tripownia.pl${path}`), `destination in sitemap: ${path}`);
 for (const path of [...privateRoutes, ...redirects.map(([from]) => from)]) {
   assert.ok(!urls.includes(`https://tripownia.pl${path}`), `excluded from sitemap: ${path}`);
 }
