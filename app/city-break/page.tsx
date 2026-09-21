@@ -7,7 +7,7 @@ import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
 import { offers, isOfferExpired } from "@/lib/offers";
 
 export const metadata: Metadata = {
-  title: "City break 2026 — lot + hotel, weekend i krótkie wyjazdy | Tripownia.pl",
+  title: "City break 2026 — lot + hotel, weekend i krótkie wyjazdy",
   description: "City break 2026: krótkie wyjazdy, lot + hotel i weekendowe propozycje. Sprawdź aktualne oferty oraz city breaki na październik, listopad i grudzień.",
   alternates: { canonical: "/city-break" },
 };
