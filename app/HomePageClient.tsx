@@ -629,8 +629,8 @@ export default function Home() {
         <div className="shell dream-hero-shell">
           <div className="dream-hero-copy">
             <div className="dream-eyebrow"><Sparkles size={16}/> Twój osobisty asystent podróży — za darmo</div>
-            <h1>Cała podróż.<br/><span>Podpowiedziana.</span></h1>
-            <p>Znajdź wyjazd albo dodaj ten, który już masz. Tripownia za darmo pomoże Ci krok po kroku ogarnąć plan, dokumenty, pogodę, atrakcje, transport, jedzenie, zakupy i checklistę.</p>
+            <h1>Tanie wakacje, city break i loty.<br/><span>Zaplanuj całą podróż.</span></h1>
+            <p>Znajdź aktualne wakacje, city break, lot lub nocleg albo dodaj wyjazd, który już masz. Tripownia za darmo pomoże Ci krok po kroku ogarnąć plan, dokumenty, pogodę, atrakcje, transport, jedzenie i checklistę.</p>
             <div className="dream-hero-actions">
               <Link className="dream-primary" href="/moja-podroz">Ułóż mi plan za darmo <ArrowRight size={18}/></Link>
               <Link className="dream-secondary" href="#marketplace">Chcę coś kupić</Link>
