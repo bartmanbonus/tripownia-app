@@ -218,7 +218,7 @@ export default function SearchHub({
     setNotice("");
 
     try {
-      const params = new URLSearchParams({ mode: activeMode === "City break" && !query ? "citybreak" : "search" });
+      const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });
       if (query) params.set("q", query);
       else params.set("broad", "1");
       if (departure) params.set("from", departure);
@@ -296,6 +296,23 @@ export default function SearchHub({
             ? `Brak potwierdzonej oferty dokładnie dla „${query}”. Pokazujemy najbliższe aktualne city breaki${countryFallback ? ` w kraju: ${countryFallback}` : ""}.`
             : finalDateNotice;
           setResults(rows);
+        }
+
+        if (!rows.length && countryFallback) {
+          const broadCityBreakParams = new URLSearchParams({ mode: "citybreak", broad: "1" });
+          const broadResponse = await fetch(`/api/today-offers?${broadCityBreakParams.toString()}`, { cache: "no-store" });
+          const broadData = await broadResponse.json();
+          if (runId !== searchRunRef.current) return;
+          if (broadResponse.ok && broadData?.ok !== false) {
+            const broadRows = cleanRows(Array.isArray(broadData?.offers) ? broadData.offers : [], "");
+            rows = onePerDirection(broadRows).slice(0, 12);
+            const broadDatePass = prioritizeByDate(rows, datePreference);
+            rows = broadDatePass.rows;
+            if (rows.length) {
+              finalDateNotice = `Nie ma teraz potwierdzonego „${query}”. Pokazujemy aktualne city breaki w najbliższych terminach, żeby nie zostawić Cię z pustym wynikiem.`;
+              setResults(rows);
+            }
+          }
         }
       }
 
@@ -462,9 +479,9 @@ export default function SearchHub({
           <label className="search-v3-field search-v3-date">
             <span><CalendarDays size={15}/> Kiedy?</span>
             <select value={dateMode} onChange={(event) => setDateMode(event.target.value as DateMode)}>
-              <option value="any">Elastycznie / dowolny termin</option>
-              <option value="month">Miesiąc — elastycznie</option>
-              <option value="range">Zakres dat — pokaż też bliskie terminy</option>
+              <option value="any">Elastycznie</option>
+              <option value="month">Cały miesiąc</option>
+              <option value="range">Zakres ± kilka dni</option>
             </select>
             <ChevronDown size={15} className="search-v3-chevron"/>
           </label>
