@@ -46,6 +46,7 @@ import TripArchiveSync from "@/components/TripArchiveSync";
 import OrganizerQuickLink from "@/components/OrganizerQuickLink";
 import HomeTripHubPortal from "@/components/HomeTripHubPortal";
 import PurchaseGuidePortal from "@/components/PurchaseGuidePortal";
+import AccountCloudSync from "@/components/AccountCloudSync";
 
 const HOME_TITLE = "Tripownia – darmowy personalizowany planer podróży";
 const HOME_DESCRIPTION = "Darmowy personalizowany planer podróży: dokumenty, pogoda, transport, atrakcje, jedzenie, checklista i plan dnia. Znajdź wyjazd lub dodaj ten, który już masz.";
@@ -97,6 +98,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <OfferRailDeduper />
         <AffiliateClickBridge />
         <TripArchiveSync />
+        <AccountCloudSync />
         <OrganizerQuickLink />
         <MobileAppControls />
         <Suspense fallback={null}><AnalyticsClient /></Suspense>
