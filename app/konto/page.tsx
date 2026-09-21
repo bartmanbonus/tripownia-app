@@ -5,7 +5,8 @@ import Link from "next/link";
 import { CheckCircle2, Cloud, Download, LogOut, Mail, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { readTravelProfile, saveTravelProfile, type TravelProfile } from "@/lib/travelProfile";
+import { readTravelProfile } from "@/lib/travelProfile";
+import { applyCloudAccountState, collectLocalAccountState } from "@/lib/accountState";
 import {
   accountAuthEventName,
   consumeAccountSessionFromUrl,
@@ -24,50 +25,6 @@ import {
   type TripowniaUserState,
 } from "@/lib/accountAuth";
 
-function readNumberList(key: string) {
-  try {
-    const parsed = JSON.parse(localStorage.getItem(key) || "[]");
-    return Array.isArray(parsed) ? parsed.filter((item): item is number => typeof item === "number") : [];
-  } catch {
-    return [];
-  }
-}
-
-function readCurrentTrip() {
-  try {
-    const parsed = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null");
-    return parsed && typeof parsed === "object" ? parsed as Record<string, unknown> : null;
-  } catch {
-    return null;
-  }
-}
-
-function localAccountSnapshot() {
-  const travelProfile = readTravelProfile();
-  return {
-    travel_profile: travelProfile as unknown as Record<string, unknown>,
-    favorite_offer_ids: readNumberList("tripownia-favorites"),
-    compare_offer_ids: readNumberList("tripownia-compare"),
-    current_trip: readCurrentTrip(),
-    visited_countries: travelProfile.visitedCountries,
-    excluded_visited_countries: travelProfile.excludedVisitedCountries,
-  };
-}
-
-function applyCloudState(state: TripowniaUserState) {
-  const profile = state.travel_profile as unknown as Partial<TravelProfile>;
-  if (profile && typeof profile === "object") {
-    saveTravelProfile({ ...readTravelProfile(), ...profile });
-  }
-  localStorage.setItem("tripownia-favorites", JSON.stringify(state.favorite_offer_ids || []));
-  localStorage.setItem("tripownia-compare", JSON.stringify(state.compare_offer_ids || []));
-  if (state.current_trip) localStorage.setItem("tripownia-my-trip", JSON.stringify(state.current_trip));
-  else localStorage.removeItem("tripownia-my-trip");
-  window.dispatchEvent(new Event("tripownia-favorites-updated"));
-  window.dispatchEvent(new Event("tripownia-compare-updated"));
-  window.dispatchEvent(new Event("tripownia-my-trip-updated"));
-}
-
 export default function AccountPage() {
   const [session, setSession] = useState<AccountSession | null>(null);
   const [user, setUser] = useState<AccountUser | null>(null);
@@ -83,9 +40,9 @@ export default function AccountPage() {
     const profile = readTravelProfile();
     return {
       visited: profile.visitedCountries.length,
-      favorites: readNumberList("tripownia-favorites").length,
-      compare: readNumberList("tripownia-compare").length,
-      trip: Boolean(localStorage.getItem("tripownia-my-trip")),
+      favorites: collectLocalAccountState().favorite_offer_ids.length,
+      compare: collectLocalAccountState().compare_offer_ids.length,
+      trip: Boolean(collectLocalAccountState().current_trip),
     };
   }, [session, synced]);
 
@@ -148,10 +105,10 @@ export default function AccountPage() {
     setBusy(true);
     setMessage("");
     try {
-      const saved = await saveTripowniaUserState(session, localAccountSnapshot());
+      const saved = await saveTripowniaUserState(session, collectLocalAccountState());
       setCloudState(saved);
       setSynced((value) => value + 1);
-      setMessage("Zapisano w chmurze. Profil, kraje, ulubione, porównanie i bieżąca podróż są przypisane do konta.");
+      setMessage("Zapisano w chmurze. Profil, ulubione, porównania, podróże, alerty i planner są przypisane do konta.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Nie udało się zsynchronizować danych.");
     } finally {
@@ -161,7 +118,7 @@ export default function AccountPage() {
 
   function restoreCloudData() {
     if (!cloudState) return;
-    applyCloudState(cloudState);
+    applyCloudAccountState(cloudState);
     setSynced((value) => value + 1);
     setMessage("Dane z konta zostały wczytane na tym urządzeniu.");
   }
@@ -239,7 +196,9 @@ export default function AccountPage() {
                 <li>profil i ograniczenia podróżowania</li>
                 <li>checklista odwiedzonych krajów i wykluczenia</li>
                 <li>ulubione i porównywane oferty</li>
-                <li>bieżąca podróż</li>
+                <li>bieżąca i wcześniejsze podróże</li>
+                <li>checklisty, rezerwacje, wydatki i zapisane miejsca</li>
+                <li>alerty podróżnicze</li>
                 <li>personalizowane rekomendacje</li>
               </ul>
               <small className="account-footnote">Nie potrzebujesz konta, żeby przeglądać Tripownię. Konto służy do synchronizacji i personalizacji.</small>
