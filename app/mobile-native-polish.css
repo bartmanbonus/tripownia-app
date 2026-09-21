@@ -518,3 +518,20 @@
     bottom:max(10px,env(safe-area-inset-bottom))!important;
   }
 }
+
+
+@media (max-width:560px){
+  .add-trip-page input,
+  .add-trip-page select,
+  .add-trip-page textarea,
+  #wyszukiwarka input,
+  #wyszukiwarka select{
+    max-width:100%!important;
+    min-width:0!important;
+    font-size:16px!important;
+    scroll-margin-bottom:120px;
+  }
+  .add-trip-grid,
+  .add-trip-section,
+  .add-trip-form{min-width:0!important;max-width:100%!important}
+}
