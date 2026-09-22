@@ -126,6 +126,13 @@ export default function AddTripPage() {
   const [endDate, setEndDate] = useState("");
   const [departureAt, setDepartureAt] = useState("");
   const [departure, setDeparture] = useState("");
+  const [destinationMode, setDestinationMode] = useState<"open" | "known">("open");
+  const [dateMode, setDateMode] = useState<"flexible" | "range" | "month">("flexible");
+  const [travelMonth, setTravelMonth] = useState("");
+  const [flexNights, setFlexNights] = useState("3-7");
+  const [weekendRequired, setWeekendRequired] = useState(false);
+  const [departureMode, setDepartureMode] = useState<"any" | "selected">("any");
+  const [departureOptions, setDepartureOptions] = useState<string[]>([]);
   const [flight, setFlight] = useState("");
   const [hotel, setHotel] = useState("");
   const [notes, setNotes] = useState("");
@@ -141,7 +148,9 @@ export default function AddTripPage() {
     () => buildSuggestions(city, country, startDate, endDate, departure),
     [city, country, startDate, endDate, departure],
   );
-  const basicsReady = Boolean(city.trim() && country.trim() && startDate && endDate);
+  const hasDestination = destinationMode === "open" || Boolean(city.trim() || country.trim());
+  const hasDates = dateMode === "flexible" || (dateMode === "month" ? Boolean(travelMonth) : Boolean(startDate && endDate));
+  const basicsReady = hasDestination && hasDates;
   const missingCount = Object.values(pieces).filter((value) => !value).length;
 
   useEffect(() => {
@@ -196,13 +205,18 @@ export default function AddTripPage() {
     event.preventDefault();
     setError("");
 
-    if (!signedIn) {
-      window.location.href = "/konto?next=/dodaj-podroz";
+    if (destinationMode === "known" && !city.trim() && !country.trim()) {
+      setError("Wpisz miasto, region albo kraj — albo wybierz opcję „Gdziekolwiek”.");
       return;
     }
 
-    if (!city.trim() || !country.trim() || !startDate || !endDate) {
-      setError("Uzupełnij kierunek oraz daty podróży.");
+    if (dateMode === "range" && (!startDate || !endDate)) {
+      setError("Wybierz zakres dat albo przełącz termin na elastyczny.");
+      return;
+    }
+
+    if (dateMode === "month" && !travelMonth) {
+      setError("Wybierz miesiąc albo przełącz termin na elastyczny.");
       return;
     }
 
@@ -217,10 +231,10 @@ export default function AddTripPage() {
     const snapshot = {
       id: offerId,
       flag: "🌍",
-      city: city.trim(),
-      country: country.trim(),
+      city: city.trim() || (destinationMode === "open" ? "Gdziekolwiek" : "Do wyboru"),
+      country: country.trim() || (destinationMode === "open" ? "Dowolny kierunek" : "Do wyboru"),
       price: 0,
-      departure: departure.trim() || "Do ustalenia",
+      departure: departureMode === "any" ? "Polska — dowolne lotnisko" : (departureOptions.join(", ") || departure.trim() || "Do ustalenia"),
       airportCode: "",
       nights,
       weather: "",
@@ -231,7 +245,7 @@ export default function AddTripPage() {
       category: [],
       hotel: hotel.trim() || (pieces.hotel ? "Nocleg użytkownika" : "Nocleg do wyboru"),
       board: "",
-      dates: dateLabel(startDate, endDate),
+      dates: dateMode === "range" ? dateLabel(startDate, endDate) : dateMode === "month" ? `${travelMonth} · ${flexNights} nocy${weekendRequired ? " · z weekendem" : ""}` : `Elastycznie · ${flexNights} nocy${weekendRequired ? " · z weekendem" : ""}`,
       partner: "kiwi" as const,
       affiliateUrl: "/moja-podroz",
       manual: true,
@@ -260,8 +274,9 @@ export default function AddTripPage() {
       suggestedLinks: suggestions,
     };
 
-    localStorage.setItem(ACTIVE_TRIP_KEY, JSON.stringify(trip));
-    upsertTripArchive(trip);
+    const tripWithPreferences = { ...trip, searchPreferences: { destinationMode, dateMode, travelMonth, flexNights, weekendRequired, departureMode, departureOptions } };
+    localStorage.setItem(ACTIVE_TRIP_KEY, JSON.stringify(tripWithPreferences));
+    upsertTripArchive(tripWithPreferences);
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
 
     if (session) {
@@ -282,8 +297,8 @@ export default function AddTripPage() {
       <section className="shell add-trip-page">
         {authReady && !signedIn && (
           <div className="account-message" role="status">
-            Plan jest prywatny i przypisany do konta. Możesz przejść cały kreator, ale zapis wymaga logowania.{" "}
-            <Link href="/konto?next=/dodaj-podroz">Zaloguj się →</Link>
+            <strong>Plan możesz ułożyć bez konta.</strong> Zostanie na tym urządzeniu. Konto jest opcjonalne — przydaje się, jeśli chcesz wracać do planów, checklist i preferencji na innych urządzeniach.{" "}
+            <Link href="/konto?next=/dodaj-podroz">Utwórz konto / zaloguj się →</Link>
           </div>
         )}
 
@@ -305,19 +320,42 @@ export default function AddTripPage() {
 
         <form className="add-trip-form" onSubmit={submit}>
           <section className="add-trip-section">
-            <div className="add-trip-section-title"><MapPinned size={20}/><div><strong>1. Dokąd i kiedy?</strong><span>To wystarczy, żeby Tripownia zaczęła układać wyjazd.</span></div></div>
-            <div className="add-trip-grid two">
-              <label><span>Miasto / region *</span><input value={city} onChange={(event) => setCity(event.target.value)} placeholder="np. Hanoi" autoComplete="address-level2" /></label>
-              <label><span>Kraj *</span><input value={country} onChange={(event) => setCountry(event.target.value)} placeholder="np. Wietnam" autoComplete="country-name" /></label>
-            </div>
-            <div className="add-trip-grid three">
-              <label><span>Wyjazd *</span><input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label>
-              <label><span>Powrót *</span><input type="date" min={startDate || undefined} value={endDate} onChange={(event) => setEndDate(event.target.value)} /></label>
-              <label><span>Skąd ruszasz?</span><input value={departure} onChange={(event) => setDeparture(event.target.value)} placeholder="np. Warszawa" /></label>
-            </div>
-            {startDate && endDate && <div className="add-trip-summary"><CalendarDays size={16}/><span>{dateLabel(startDate, endDate)} · {nights} {nights === 1 ? "noc" : "nocy"}</span></div>}
-          </section>
+            <div className="add-trip-section-title"><MapPinned size={20}/><div><strong>1. Co już wiesz o wyjeździe?</strong><span>Nie musisz znać kierunku ani dokładnych dat. Cena może zdecydować za Ciebie.</span></div></div>
 
+            <div className="planner-mode-row">
+              <button type="button" className={destinationMode === "open" ? "active" : ""} onClick={() => setDestinationMode("open")}>🌍 Gdziekolwiek</button>
+              <button type="button" className={destinationMode === "known" ? "active" : ""} onClick={() => setDestinationMode("known")}>📍 Wiem dokąd chcę</button>
+            </div>
+            {destinationMode === "known" && <div className="add-trip-grid two">
+              <label><span>Miasto / region</span><input value={city} onChange={(event) => setCity(event.target.value)} placeholder="np. Hanoi, Kreta, Mediolan" autoComplete="address-level2" /></label>
+              <label><span>Kraj — opcjonalnie</span><input value={country} onChange={(event) => setCountry(event.target.value)} placeholder="np. Wietnam" autoComplete="country-name" /></label>
+            </div>}
+
+            <div className="planner-subtitle"><CalendarDays size={17}/><strong>Kiedy?</strong></div>
+            <div className="planner-mode-row">
+              <button type="button" className={dateMode === "flexible" ? "active" : ""} onClick={() => setDateMode("flexible")}>Elastycznie</button>
+              <button type="button" className={dateMode === "month" ? "active" : ""} onClick={() => setDateMode("month")}>Cały miesiąc</button>
+              <button type="button" className={dateMode === "range" ? "active" : ""} onClick={() => setDateMode("range")}>Od–do</button>
+            </div>
+            {dateMode === "month" && <div className="add-trip-grid two"><label><span>Miesiąc</span><input type="month" value={travelMonth} onChange={(event) => setTravelMonth(event.target.value)} /></label></div>}
+            {dateMode === "range" && <div className="add-trip-grid two">
+              <label><span>Najwcześniej</span><input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label>
+              <label><span>Najpóźniej</span><input type="date" min={startDate || undefined} value={endDate} onChange={(event) => setEndDate(event.target.value)} /></label>
+            </div>}
+            <div className="add-trip-grid two planner-flex-options">
+              <label><span>Na ile?</span><select value={flexNights} onChange={(event) => setFlexNights(event.target.value)}><option value="1-3">1–3 noce</option><option value="3-7">3–7 nocy</option><option value="5-10">5–10 nocy</option><option value="7-14">7–14 nocy</option><option value="14+">14+ nocy</option></select></label>
+              <label className="planner-weekend-check"><input type="checkbox" checked={weekendRequired} onChange={(event) => setWeekendRequired(event.target.checked)} /><span>Pobyt ma zawierać weekend</span></label>
+            </div>
+
+            <div className="planner-subtitle"><Plane size={17}/><strong>Skąd ruszasz?</strong></div>
+            <div className="planner-mode-row">
+              <button type="button" className={departureMode === "any" ? "active" : ""} onClick={() => setDepartureMode("any")}>🇵🇱 Obojętnie skąd w Polsce</button>
+              <button type="button" className={departureMode === "selected" ? "active" : ""} onClick={() => setDepartureMode("selected")}>Wybiorę lotniska</button>
+            </div>
+            {departureMode === "selected" && <div className="planner-airports">
+              {["Warszawa","Kraków","Katowice","Gdańsk","Wrocław","Poznań"].map((airport) => <button type="button" key={airport} className={departureOptions.includes(airport) ? "active" : ""} onClick={() => setDepartureOptions((current) => current.includes(airport) ? current.filter((x) => x !== airport) : [...current, airport])}>{airport}</button>)}
+            </div>}
+          </section>
           <section className="add-trip-section">
             <div className="add-trip-section-title"><CheckCircle2 size={20}/><div><strong>2. Co już masz?</strong><span>Zaznacz gotowe elementy. Tripownia nie będzie ich proponować ponownie.</span></div></div>
             <div className="trip-piece-grid">
@@ -402,7 +440,7 @@ export default function AddTripPage() {
 
           {error && <div className="add-trip-error" role="alert">{error}</div>}
           <div className="add-trip-actions">
-            <button type="submit" className="primary-cta">{signedIn ? "Zapisz mój darmowy plan" : "Zaloguj się i zapisz plan"} <ArrowRight size={17}/></button>
+            <button type="submit" className="primary-cta">{signedIn ? "Zapisz mój darmowy plan" : "Utwórz darmowy plan"} <ArrowRight size={17}/></button>
             <Link href="/#wyszukiwarka">Najpierw chcę znaleźć cały wyjazd</Link>
           </div>
         </form>
