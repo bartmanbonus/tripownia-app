@@ -36,6 +36,8 @@ export default function WakacjePage() {
       <h2>Wakacje według lotniska i terminu</h2>
       <div className="seo-related-links">
         <Link href="/wakacje-2027">Wakacje 2027 →</Link>
+        <Link href="/wakacje-z-dziecmi">Wakacje z dziećmi →</Link>
+        <Link href="/gdzie-jest-cieplo-zima-bez-dalekiego-lotu">Gdzie jest ciepło zimą →</Link>
         <Link href="/ferie-2027">Ferie zimowe 2027 →</Link>
         <Link href="/majowka-2027">Majówka 2027 →</Link>
         <Link href="/podroze/wakacje-z-warszawy">Wakacje z Warszawy →</Link>
