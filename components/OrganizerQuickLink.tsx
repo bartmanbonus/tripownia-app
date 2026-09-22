@@ -6,11 +6,12 @@ import { Sparkles } from "lucide-react";
 
 export default function OrganizerQuickLink() {
   const pathname = usePathname();
-  if (pathname !== "/app" && !pathname.startsWith("/moja-podroz")) return null;
+  if (pathname !== "/app") return null;
 
   return (
     <Link
       href="/moja-podroz"
+      className="organizer-quick-link"
       aria-label="Otwórz mój planner podróży"
       style={{
         position: "fixed",
