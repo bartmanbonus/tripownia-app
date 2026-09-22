@@ -33,6 +33,7 @@ import "./purchase-guide.css";
 import "./for-you-guided.css";
 import "./country-checklist.css";
 import "./account.css";
+import "./planner-builder.css";
 import "./contrast-guard.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
