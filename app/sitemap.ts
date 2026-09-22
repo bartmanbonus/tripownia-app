@@ -41,6 +41,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url:`${BASE_URL}/faq`,changeFrequency:"monthly",priority:.65 },
     { url:`${BASE_URL}/o-tripowni`,changeFrequency:"monthly",priority:.72 },
     { url:`${BASE_URL}/kontakt`,changeFrequency:"monthly",priority:.6 },
+    { url:`${BASE_URL}/dla-mediow`,changeFrequency:"monthly",priority:.58 },
+    { url:`${BASE_URL}/wspolpraca`,changeFrequency:"monthly",priority:.58 },
     { url:`${BASE_URL}/jak-dziala-tripownia`,changeFrequency:"monthly",priority:.72 },
     { url:`${BASE_URL}/standardy-redakcyjne`,changeFrequency:"monthly",priority:.62 },
     { url:`${BASE_URL}/przed-wyjazdem`,changeFrequency:"weekly",priority:.8 },
