@@ -36,3 +36,8 @@
   .trip-plan-option-actions{display:grid;grid-template-columns:1fr}
   .trip-plan-option-actions button,.trip-plan-option-actions a{width:100%}
 }
+
+.trip-essential-done{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:13px;border:1px solid #bfe5ca;border-radius:15px;background:#f3fbf5;color:#285d3a}
+.trip-essential-done>span{display:grid;gap:2px}
+.trip-essential-done strong{font-size:14px}
+.trip-essential-done small{font-size:11px;color:#4f7c5e}
