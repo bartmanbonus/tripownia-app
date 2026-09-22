@@ -648,14 +648,14 @@ export default function Home() {
             <div className="dream-card-kicker">ZACZNIJ TAK, JAK CI WYGODNIE</div>
             <Link href="#wyszukiwarka"><span>🔎</span><div><strong>Wiem, gdzie chcę lecieć</strong><small>Wyszukaj po swojemu</small></div><ArrowRight size={18}/></Link>
             <Link href="/gdzie-leciec"><span>✨</span><div><strong>Nie wiem gdzie</strong><small>Dobierz kierunek do mnie</small></div><ArrowRight size={18}/></Link>
-            <Link href="/moja-podroz"><span>🧳</span><div><strong>Mam już wyjazd</strong><small>Dostanę darmowy plan krok po kroku</small></div><ArrowRight size={18}/></Link>
+            <Link href="/dodaj-podroz"><span>🧳</span><div><strong>Mam już wyjazd</strong><small>Dostanę darmowy plan krok po kroku</small></div><ArrowRight size={18}/></Link>
           </div>
         </div>
       </section>
 
       <section className="shell dream-mobile-start" aria-label="Szybki start">
         <Link href="/dodaj-podroz"><span>✨</span><div><strong>Zaplanuj za darmo</strong><small>Podaj kierunek i termin</small></div><ArrowRight size={17}/></Link>
-        <Link href="/moja-podroz"><span>🧳</span><div><strong>Mam już wyjazd</strong><small>Otwórz lub dodaj podróż</small></div><ArrowRight size={17}/></Link>
+        <Link href="/dodaj-podroz"><span>🧳</span><div><strong>Mam już wyjazd</strong><small>Otwórz lub dodaj podróż</small></div><ArrowRight size={17}/></Link>
         <Link href="#wyszukiwarka"><span>🔎</span><div><strong>Szukam wyjazdu</strong><small>Wakacje, loty i hotele</small></div><ArrowRight size={17}/></Link>
       </section>
 
@@ -771,15 +771,15 @@ export default function Home() {
             <h2>Kupiłaś wyjazd?<br/>Tripownia dopiero się zaczyna.</h2>
             <p>Dodaj podróż — nawet kupioną gdzie indziej. W jednym miejscu trzymaj termin, lot, nocleg, plan dnia, checklistę i rzeczy do dokupienia.</p>
             <div className="dream-planner-actions">
-              <Link href="/moja-podroz">+ Dodaj podróż <ArrowRight size={17}/></Link>
+              <Link href="/dodaj-podroz">+ Dodaj podróż <ArrowRight size={17}/></Link>
               <Link href="/moje-podroze">Moje podróże</Link>
             </div>
             <div className="dream-planner-note">Tripownia może dopasowywać rekomendacje do Twojego budżetu, lotniska, długości urlopu i stylu podróżowania.</div>
           </div>
 
-          <div className="dream-planner-screen" aria-label="Podgląd personalnego planera Tripowni">
+          <div className="dream-planner-screen" aria-label="Przykładowy podgląd personalnego planera Tripowni">
             <div className="dream-planner-top">
-              <div><small>MOJA PODRÓŻ</small><strong>Wietnam 🇻🇳</strong><span>12 dni · wrzesień</span></div>
+              <div><small>PRZYKŁADOWY PLAN</small><strong>Wietnam 🇻🇳</strong><span>12 dni · przykład możliwości</span></div>
               <Link href="/moja-podroz">Otwórz planner →</Link>
             </div>
             <div className="dream-planner-progress"><span style={{width:"68%"}} /></div>
