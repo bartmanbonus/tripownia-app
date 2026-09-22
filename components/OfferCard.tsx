@@ -11,6 +11,7 @@ import { isPriceStale } from "@/lib/offerQuality";
 import { isOfferExpired } from "@/lib/offers";
 import { getDealScore } from "@/lib/dealScore";
 import { ANALYTICS_CONSENT_EVENT, getAnalyticsConsent, trackEvent } from "@/lib/analytics";
+import { readAccountSession } from "@/lib/accountAuth";
 import {
   COMPARE_OFFER_SNAPSHOTS_KEY,
   FAVORITE_OFFER_SNAPSHOTS_KEY,
@@ -213,6 +214,11 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
   }
 
   function addToTrip() {
+    if (!readAccountSession()) {
+      try { sessionStorage.setItem("tripownia-pending-offer-v1", JSON.stringify(offerSnapshot)); } catch {}
+      window.location.href = "/konto?next=/dodaj-podroz";
+      return;
+    }
     const previous = readTrip();
     const sameTrip = previous?.offerId === offer.id;
     const tripId = typeof previous?.tripId === "string" && previous.tripId ? previous.tripId : createTripId(offer.id);
