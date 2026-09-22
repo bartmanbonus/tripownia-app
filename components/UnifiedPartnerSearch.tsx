@@ -21,6 +21,7 @@ type Props = {
 };
 
 const airportChoices = [
+  { code: "ANY", label: "Dowolne lotnisko w Polsce" },
   { code: "WAW", label: "Warszawa Chopina" },
   { code: "WMI", label: "Warszawa Modlin" },
   { code: "KRK", label: "Kraków" },
@@ -153,14 +154,15 @@ const tabs:{key:SearchType;label:string;icon:ReactNode}[]=[
 export default function UnifiedPartnerSearch({mode="all",initialDestination="",initialDeparture="Warszawa Chopina",initialDepartureCode,initialStartDate,initialEndDate,initialAdults=2,initialWeekendOnly=false}:Props){
   const [searchType,setSearchType]=useState<SearchType>(defaultSearchType(mode));
   const [destination,setDestination]=useState(initialDestination);
-  const [from,setFrom]=useState(airportCode(initialDeparture,initialDepartureCode));
+  const [from,setFrom]=useState<string[]>([airportCode(initialDeparture,initialDepartureCode)]);
   const [start,setStart]=useState(initialStartDate||isoAfter(45));
   const [end,setEnd]=useState(initialEndDate||plusDays(initialStartDate||isoAfter(45),mode==="city"?3:7));
   const [adults,setAdults]=useState(initialAdults);
   const [weekendOnly,setWeekendOnly]=useState(initialWeekendOnly);
   const [submitted,setSubmitted]=useState(false);
   const blockedDestination=isTravelDestinationBlocked(destination);
-  const links=useMemo(()=>buildLinks(destination,from,start,end,adults,searchType),[destination,from,start,end,adults,searchType]);
+  const selectedFrom = from.includes("ANY") ? "WAW" : (from[0] || "WAW");
+  const links=useMemo(()=>buildLinks(destination,selectedFrom,start,end,adults,searchType),[destination,selectedFrom,start,end,adults,searchType]);
 
   const visibleTabs=useMemo(()=>{
     if(mode==="holiday") return tabs.filter(tab=>tab.key==="holiday"||tab.key==="lastminute");
@@ -195,7 +197,7 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
     trackEvent("partner_search_submit",{
       search_type:searchType,
       destination:canonicalDestination(destination)||"dowolny",
-      departure:searchType==="hotels"?"hotel_only":from,
+      departure:searchType==="hotels"?"hotel_only":from.join(","),
       start_date:start,
       end_date:end,
       adults,
@@ -220,8 +222,8 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
       <div className="trip-search-context"><strong>{tabs.find(t=>t.key===searchType)?.label}</strong><span>{searchType==="flights"?"Znajdź połączenie i przejdź do aktualnych wyników lotów.":searchType==="hotels"?"Sprawdź noclegi dla wybranego miejsca i terminu.":searchType==="holiday"||searchType==="lastminute"?"Gotowe pakiety wakacyjne. Po wyszukaniu pokażemy najprostszą drogę do rezerwacji.":"Pakiety i krótkie wyjazdy dopasowane do wskazanego terminu."}</span></div>
 
       <div className="trip-search-form">
-        <label className="trip-field trip-destination"><span><MapPin size={15}/> Dokąd?</span><input value={destination} onChange={e=>{setDestination(e.target.value);setSubmitted(false)}} placeholder="Dowolny kierunek"/></label>
-        {searchType!=="hotels"&&<label className="trip-field"><span><Plane size={15}/> Skąd?</span><select value={from} onChange={e=>{setFrom(e.target.value);setSubmitted(false)}}>{airportChoices.map(a=><option key={a.code} value={a.code}>{a.label}</option>)}</select></label>}
+        <label className="trip-field trip-destination"><span><MapPin size={15}/> Dokąd?</span><input value={destination} onChange={e=>{setDestination(e.target.value);setSubmitted(false)}} placeholder="Gdziekolwiek albo np. Mediolan, Rzym, Malta"/><small>Możesz wpisać kilka miejsc po przecinku albo zostawić puste — wtedy szukasz „gdziekolwiek”.</small></label>
+        {searchType!=="hotels"&&<div className="trip-field trip-flex-field"><span><Plane size={15}/> Skąd?</span><div className="trip-flex-options">{airportChoices.map(a=>{const checked=from.includes(a.code);return <button key={a.code} type="button" className={checked?"active":""} onClick={()=>{setSubmitted(false);if(a.code==="ANY"){setFrom(["ANY"]);return;}setFrom(current=>{const base=current.filter(code=>code!=="ANY");return checked?(base.length>1?base.filter(code=>code!==a.code):base):[...base,a.code];});}}>{checked?"✓ ":""}{a.label}</button>})}</div><small>Możesz zaznaczyć kilka lotnisk. „Dowolne” oznacza pełną elastyczność.</small></div>}
         <label className="trip-field"><span><CalendarDays size={15}/> Kiedy?</span><input type="date" value={start} onChange={e=>{setSubmitted(false);setStart(e.target.value);if(e.target.value>=end)setEnd(plusDays(e.target.value,(searchType==="city"||searchType==="package")?3:7))}}/></label>
         <label className="trip-field"><span><CalendarDays size={15}/> Do kiedy?</span><input type="date" min={start} value={end} onChange={e=>{setEnd(e.target.value);setSubmitted(false)}}/></label>
         <label className="trip-field trip-people"><span><Users size={15}/> Ile osób?</span><select value={adults} onChange={e=>{setAdults(Number(e.target.value));setSubmitted(false)}}>{[1,2,3,4,5,6].map(n=><option value={n} key={n}>{n} {n===1?"osoba":"osoby"}</option>)}</select></label>
@@ -234,7 +236,7 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
     </div>
 
     {submitted&&!blockedDestination&&<div className="trip-search-results trip-search-decision">
-      <div><small>KROK 2 Z 3 · GOTOWE</small><strong>{canonicalDestination(destination)||"Dowolny kierunek"}</strong><span>{searchType!=="hotels"?`${airportLabel(from)} · `:""}{start} – {end} · {adults} os.</span></div>
+      <div><small>KROK 2 Z 3 · GOTOWE</small><strong>{canonicalDestination(destination)||"Gdziekolwiek"}</strong><span>{searchType!=="hotels"?`${from.includes("ANY")?"Dowolne lotnisko":from.map(airportLabel).join(" + ")} · `:""}{start} – {end} · {adults} os.</span></div>
       <div className="trip-search-actions">
         <a className="primary" href={primary.url} target="_blank" rel="sponsored noopener noreferrer">{primary.label} →</a>
         {alternative&&<a className="secondary" href={alternative.url} target="_blank" rel="sponsored noopener noreferrer">{alternative.label}</a>}
