@@ -1,11 +1,12 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPinned, Plane, BedDouble, NotebookPen, Route, Sparkles, ListChecks, CloudSun, Ticket, ShieldCheck } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { ACTIVE_TRIP_KEY, upsertTripArchive } from "@/lib/tripArchive";
+import { ensureFreshAccountSession, readAccountSession } from "@/lib/accountAuth";
 
 function dateLabel(start: string, end: string) {
   if (!start) return "Termin do uzupełnienia";
@@ -34,12 +35,29 @@ export default function AddTripPage() {
   const [hotel, setHotel] = useState("");
   const [notes, setNotes] = useState("");
   const [error, setError] = useState("");
+  const [authReady, setAuthReady] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void ensureFreshAccountSession(readAccountSession()).then((session) => {
+      if (cancelled) return;
+      setSignedIn(Boolean(session));
+      setAuthReady(true);
+    });
+    return () => { cancelled = true; };
+  }, []);
 
   function submit(event: FormEvent) {
     event.preventDefault();
     setError("");
+
+    if (!signedIn) {
+      window.location.href = "/konto?next=/dodaj-podroz";
+      return;
+    }
 
     if (!city.trim() || !country.trim() || !startDate || !endDate) {
       setError("Uzupełnij kierunek oraz daty podróży.");
@@ -98,6 +116,7 @@ export default function AddTripPage() {
     <main>
       <SiteHeader />
       <section className="shell add-trip-page">
+        {authReady && !signedIn && <div className="account-message" role="status">Twój prawdziwy plan jest prywatny i przypisany do konta. Możesz obejrzeć możliwości bez logowania, ale zapis podróży wymaga konta. <Link href="/konto?next=/dodaj-podroz">Zaloguj się →</Link></div>}
         <header className="add-trip-hero">
           <div className="add-trip-icon"><Route size={28}/></div>
           <div>
@@ -150,7 +169,7 @@ export default function AddTripPage() {
 
           {error && <div className="add-trip-error" role="alert">{error}</div>}
           <div className="add-trip-actions">
-            <button type="submit" className="primary-cta">Stwórz mój darmowy plan <ArrowRight size={17}/></button>
+            <button type="submit" className="primary-cta">{signedIn ? "Stwórz mój darmowy plan" : "Zaloguj się i zapisz plan"} <ArrowRight size={17}/></button>
             <Link href="/#wyszukiwarka">Najpierw chcę znaleźć wyjazd</Link>
           </div>
         </form>
