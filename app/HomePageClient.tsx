@@ -705,41 +705,62 @@ export default function Home() {
         <div className="dream-marketplace-head">
           <div>
             <div className="kicker">MARKETPLACE PODRÓŻY</div>
-            <h2>Kupujesz to, czego potrzebujesz.<br/><span>Resztę trzymasz w jednym miejscu.</span></h2>
-            <p>Od samego lotu po gotowe wakacje. Tripownia prowadzi Cię dalej także po zakupie — do atrakcji, transferu, internetu i planu wyjazdu.</p>
+            <h2>Wszystko do podróży.<br/><span>W kolejności, w której naprawdę tego potrzebujesz.</span></h2>
+            <p>Nie szukasz po dziesięciu stronach. Wybierasz etap podróży i od razu przechodzisz do właściwej usługi.</p>
           </div>
-          <Link className="dream-marketplace-all" href="#wyszukiwarka">Zacznij od wyszukania wyjazdu <ArrowRight size={17}/></Link>
+          <Link className="dream-marketplace-all" href="/moja-podroz">Mam już wyjazd — otwórz planner <ArrowRight size={17}/></Link>
         </div>
 
-        <div className="dream-marketplace-grid">
-          <Link className="dream-service-card dream-service-main" href="/wakacje">
-            <div className="dream-service-icon">🌴</div>
-            <small>GOTOWY WYJAZD</small>
-            <strong>Wakacje</strong>
-            <span>Hotel, termin i pakiet w jednym zakupie.</span>
-            <em>Znajdź wakacje →</em>
-          </Link>
-          <a className="dream-service-card" href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">
-            <div className="dream-service-icon">✈️</div><small>TRANSPORT</small><strong>Loty</strong><span>Porównaj połączenia i wybierz najlepszy wariant.</span><em>Sprawdź loty →</em>
-          </a>
-          <a className="dream-service-card" href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">
-            <div className="dream-service-icon">🏨</div><small>NOCLEG</small><strong>Hotele</strong><span>Dobierz nocleg do kierunku, terminu i stylu wyjazdu.</span><em>Sprawdź hotele →</em>
-          </a>
-          <Link className="dream-service-card" href="/atrakcje">
-            <div className="dream-service-icon">🎟️</div><small>NA MIEJSCU</small><strong>Atrakcje</strong><span>Bilety, wycieczki i rzeczy, które warto zrobić.</span><em>Znajdź atrakcje →</em>
-          </Link>
-          <Link className="dream-service-card" href="/wynajem-auta">
-            <div className="dream-service-icon">🚗</div><small>MOBILNOŚĆ</small><strong>Auto</strong><span>Dobierz samochód do prawdziwego planu podróży.</span><em>Porównaj auta →</em>
-          </Link>
-          <Link className="dream-service-card" href="/transfery">
-            <div className="dream-service-icon">🚕</div><small>DOJAZD</small><strong>Transfer</strong><span>Z lotniska do hotelu bez szukania po lądowaniu.</span><em>Sprawdź transfer →</em>
-          </Link>
-          <Link className="dream-service-card" href="/ubezpieczenia">
-            <div className="dream-service-icon">🛡️</div><small>BEZPIECZEŃSTWO</small><strong>Ubezpieczenie</strong><span>Domknij ochronę przed wyjazdem.</span><em>Sprawdź opcje →</em>
-          </Link>
-          <Link className="dream-service-card" href="/esim">
-            <div className="dream-service-icon">📱</div><small>INTERNET</small><strong>eSIM</strong><span>Internet na miejscu od chwili lądowania.</span><em>Wybierz eSIM →</em>
-          </Link>
+        <div className="dream-marketplace-groups">
+          <div className="dream-marketplace-group">
+            <div className="dream-marketplace-group-head"><small>1. REZERWUJĘ WYJAZD</small><strong>Zacznij od podstaw</strong></div>
+            <div className="dream-marketplace-grid">
+              <Link className="dream-service-card dream-service-main" href="/wakacje">
+                <div className="dream-service-icon">🌴</div><strong>Wakacje</strong><span>Gotowy pakiet: hotel, termin i wyjazd.</span><em>Znajdź wakacje →</em>
+              </Link>
+              <a className="dream-service-card" href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">
+                <div className="dream-service-icon">✈️</div><strong>Loty</strong><span>Porównaj połączenia i wybierz najlepszy wariant.</span><em>Sprawdź loty →</em>
+              </a>
+              <a className="dream-service-card" href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">
+                <div className="dream-service-icon">🏨</div><strong>Hotele</strong><span>Znajdź nocleg dopasowany do planu wyjazdu.</span><em>Sprawdź noclegi →</em>
+              </a>
+            </div>
+          </div>
+
+          <div className="dream-marketplace-group">
+            <div className="dream-marketplace-group-head"><small>2. PRZYGOTOWUJĘ WYJAZD</small><strong>Domknij rzeczy przed wylotem</strong></div>
+            <div className="dream-marketplace-grid">
+              <Link className="dream-service-card" href="/ubezpieczenia">
+                <div className="dream-service-icon">🛡️</div><strong>Ubezpieczenie</strong><span>Sprawdź ochronę przed wyjazdem.</span><em>Sprawdź opcje →</em>
+              </Link>
+              <Link className="dream-service-card" href="/esim">
+                <div className="dream-service-icon">📱</div><strong>eSIM</strong><span>Internet gotowy od chwili lądowania.</span><em>Wybierz eSIM →</em>
+              </Link>
+              <Link className="dream-service-card" href="/parkingi">
+                <div className="dream-service-icon">🅿️</div><strong>Parking</strong><span>Zostaw auto przy lotnisku bez stresu.</span><em>Znajdź parking →</em>
+              </Link>
+            </div>
+          </div>
+
+          <div className="dream-marketplace-group">
+            <div className="dream-marketplace-group-head"><small>3. JESTEM NA MIEJSCU</small><strong>Poruszaj się i korzystaj z wyjazdu</strong></div>
+            <div className="dream-marketplace-grid">
+              <Link className="dream-service-card" href="/transfery">
+                <div className="dream-service-icon">🚕</div><strong>Transfer</strong><span>Lotnisko → hotel bez szukania po lądowaniu.</span><em>Sprawdź transfer →</em>
+              </Link>
+              <Link className="dream-service-card" href="/wynajem-auta">
+                <div className="dream-service-icon">🚗</div><strong>Auto</strong><span>Wynajem dopasowany do Twojej trasy.</span><em>Porównaj auta →</em>
+              </Link>
+              <Link className="dream-service-card" href="/atrakcje">
+                <div className="dream-service-icon">🎟️</div><strong>Atrakcje</strong><span>Bilety, wycieczki i rezerwacje na miejscu.</span><em>Znajdź atrakcje →</em>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="dream-marketplace-footer">
+          <span>Masz już kupiony wyjazd?</span>
+          <Link href="/dodaj-podroz">Dodaj go do Tripowni — planner podpowie, czego jeszcze brakuje <ArrowRight size={16}/></Link>
         </div>
       </section>
 
