@@ -83,7 +83,7 @@ export const metadata: Metadata = {
 };
 
 const websiteJsonLd = { "@context": "https://schema.org", "@type": "WebSite", name: "Tripownia", alternateName: "Tripownia.pl", url: "https://tripownia.pl", inLanguage: "pl-PL" };
-const organizationJsonLd = { "@context": "https://schema.org", "@type": "Organization", name: "Tripownia", url: "https://tripownia.pl", logo: "https://tripownia.pl/tripownia-logo.webp", description: "Darmowy personalizowany planer podróży i platforma do znalezienia oraz zorganizowania całego wyjazdu — od dokumentów i pogody po transport, atrakcje i rezerwacje." };
+const organizationJsonLd = { "@context": "https://schema.org", "@type": "Organization", "@id": "https://tripownia.pl/#organization", name: "Tripownia", alternateName: "Tripownia.pl", url: "https://tripownia.pl", logo: "https://tripownia.pl/tripownia-logo.webp", email: "kontakt@tripownia.pl", description: "Polski serwis podróżniczy do wyszukiwania wyjazdów, porównywania opcji i darmowego planowania całej podróży.", publishingPrinciples: "https://tripownia.pl/standardy-redakcyjne" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
