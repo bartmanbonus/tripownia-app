@@ -34,6 +34,7 @@ const primaryItems = [
   { href: "/#wyszukiwarka", label: "Znajdź wyjazd" },
   { href: "/#marketplace", label: "Usługi" },
   { href: "/okazje", label: "Okazje Tripowni" },
+  { href: "/radar-tripowni", label: "Radar Tripowni" },
   { href: "/kierunki", label: "Inspiracje" },
 ] as const;
 
@@ -154,6 +155,7 @@ export default function SiteHeader() {
                 <div className="trip-mobile-menu-section">
                   <strong>Szukaj i planuj</strong>
                   <Link href="/okazje"><Sparkles size={18} /><span>Okazje</span></Link>
+                  <Link href="/radar-tripowni"><Compass size={18} /><span>Radar Tripowni</span></Link>
                   <Link href="/wakacje"><Palmtree size={18} /><span>Wakacje</span></Link>
                   <Link href="/city-break"><Building2 size={18} /><span>City break</span></Link>
                   <Link href="/last-minute"><Zap size={18} /><span>Last minute</span></Link>
