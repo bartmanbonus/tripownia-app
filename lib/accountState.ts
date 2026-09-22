@@ -96,3 +96,32 @@ export function applyCloudAccountState(state: TripowniaUserState) {
   ["tripownia-profile-updated","tripownia-favorites-updated","tripownia-compare-updated","tripownia-my-trip-updated","tripownia-trips-updated","tripownia-alerts-updated","tripownia-toolkit-updated"]
     .forEach((name) => window.dispatchEvent(new Event(name)));
 }
+
+
+export function clearLocalAccountState() {
+  if (typeof window === "undefined") return;
+
+  [
+    TRAVEL_PROFILE_KEY,
+    FAVORITES_KEY,
+    COMPARE_KEY,
+    ACTIVE_TRIP_KEY,
+    TRIP_ARCHIVE_KEY,
+    ALERTS_KEY,
+    FAVORITE_OFFER_SNAPSHOTS_KEY,
+    COMPARE_OFFER_SNAPSHOTS_KEY,
+    "tripownia-local-owner-v1",
+    "tripownia-local-dirty-v1",
+    "tripownia-alert-last-notified",
+  ].forEach((key) => localStorage.removeItem(key));
+
+  const toolkitKeys: string[] = [];
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const key = localStorage.key(index);
+    if (key?.startsWith(TOOLKIT_PREFIX)) toolkitKeys.push(key);
+  }
+  toolkitKeys.forEach((key) => localStorage.removeItem(key));
+
+  ["tripownia-profile-updated","tripownia-favorites-updated","tripownia-compare-updated","tripownia-my-trip-updated","tripownia-trips-updated","tripownia-alerts-updated","tripownia-toolkit-updated"]
+    .forEach((name) => window.dispatchEvent(new Event(name)));
+}
