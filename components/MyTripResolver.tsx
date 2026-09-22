@@ -37,9 +37,13 @@ function PlannerPreview() {
       <div className="my-trip-hero">
         <div className="my-trip-icon"><MapPinned size={30}/></div>
         <div>
-          <div className="kicker">TWÓJ PRYWATNY PLANER</div>
-          <h1>Cała podróż w jednym miejscu — nawet jeśli kupiłeś ją gdzie indziej.</h1>
-          <p>To podgląd możliwości. Po zalogowaniu tworzysz własny prywatny plan przypisany do konta. Nie pokazujemy tu planu żadnego użytkownika.</p>
+          <div className="kicker">DARMOWY PLANER · PRYWATNY PO ZALOGOWANIU</div>
+          <h1>Zaplanuj całą podróż w jednym miejscu.</h1>
+          <p>Masz już lot, hotel albo cały wyjazd? Dodaj to, co masz, a Tripownia podpowie tylko brakujące rzeczy. Jeśli dopiero szukasz wyjazdu — zacznij od wyszukiwarki.</p>
+          <div className="planner-preview-actions">
+            <Link className="primary-cta" href="/konto?next=/dodaj-podroz">Mam już wyjazd — dodaję</Link>
+            <Link className="secondary-cta" href="/#wyszukiwarka">Szukam wyjazdu</Link>
+          </div>
         </div>
       </div>
 
@@ -49,7 +53,7 @@ function PlannerPreview() {
           <div className="trip-readiness-copy">
             <small>JEDEN WYJAZD · JEDNO MIEJSCE</small>
             <h2>Zbierasz to, czego normalnie szukasz w kilku aplikacjach.</h2>
-            <p>Lot, hotel, dokumenty, pogoda, transfer, atrakcje, plan dnia, wydatki, notatki i checklista zostają przy konkretnej podróży.</p>
+            <p>Lot, hotel, transfer, atrakcje, dokumenty, plan dnia i checklista zostają przy jednym wyjeździe. Nie musisz kupować wszystkiego przez Tripownię.</p>
           </div>
         </div>
       </section>
