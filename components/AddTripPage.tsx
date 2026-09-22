@@ -151,6 +151,30 @@ export default function AddTripPage() {
       setSession(currentSession);
       setSignedIn(Boolean(currentSession));
       setAuthReady(true);
+
+      if (currentSession) {
+        try {
+          const raw = sessionStorage.getItem("tripownia-pending-offer-v1");
+          const pending = raw ? JSON.parse(raw) as Record<string, unknown> : null;
+          if (pending) {
+            if (typeof pending.city === "string") setCity(pending.city);
+            if (typeof pending.country === "string") setCountry(pending.country);
+            if (typeof pending.departure === "string") setDeparture(pending.departure);
+            if (typeof pending.hotel === "string") setHotel(pending.hotel);
+            if (typeof pending.startDateISO === "string") setStartDate(pending.startDateISO);
+            if (typeof pending.endDateISO === "string") setEndDate(pending.endDateISO);
+            setPieces({
+              flight: true,
+              hotel: true,
+              transfer: Boolean(pending.transferIncluded),
+              attractions: false,
+            });
+            sessionStorage.removeItem("tripownia-pending-offer-v1");
+          }
+        } catch {
+          sessionStorage.removeItem("tripownia-pending-offer-v1");
+        }
+      }
     });
     return () => { cancelled = true; };
   }, []);
