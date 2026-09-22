@@ -444,8 +444,8 @@ export default function SearchHub({
         <div className="search-v3-head">
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
-            <h2>Gdzie chcesz lecieć?</h2>
-            <p>Wybierz kierunek i, jeśli chcesz, termin. Tripownia dobierze najbliższe aktualne oferty.</p>
+            <h2>Znajdź wyjazd po swojemu.</h2>
+            <p>Możesz wskazać kilka miejsc i lotnisk albo zostawić „Gdziekolwiek” i „Wszystkie lotniska”. Termin i budżet też mogą być elastyczne.</p>
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
@@ -470,7 +470,7 @@ export default function SearchHub({
                 value={destination}
                 onChange={(event) => { setDestination(event.target.value); setSuggestionsOpen(true); }}
                 onFocus={() => setSuggestionsOpen(true)}
-                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Gdziekolwiek albo wybierz kilka miejsc"}
+                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Gdziekolwiek — albo wybierz kilka miejsc"}
                 autoComplete="off"
               />
               {destination && <button type="button" aria-label="Wyczyść wpisany kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
