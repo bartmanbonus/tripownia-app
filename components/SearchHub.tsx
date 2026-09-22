@@ -67,6 +67,8 @@ function uniqueOfferVariants(rows: any[]) {
 function canonicalSearchDestination(value: string) {
   const normalized = value.trim();
   if (/\bbergamo\b/i.test(normalized)) return "Mediolan, Włochy";
+  if (/\bmilan\b/i.test(normalized)) return "Mediolan, Włochy";
+  if (/\bsajgon\b/i.test(normalized)) return "Ho Chi Minh, Wietnam";
   return normalized;
 }
 
@@ -218,9 +220,12 @@ export default function SearchHub({
   async function runSearch(destinationOverride?: string, overrides: SearchOverrides = {}) {
     const runId = ++searchRunRef.current;
     const typed = (destinationOverride ?? destination).trim();
+    const typedDestinations = typed
+      ? typed.split(/[,;\n]+/).map((item) => item.trim()).filter(Boolean)
+      : [];
     const requestedRaw = destinationOverride
       ? [destinationOverride]
-      : Array.from(new Set([...selectedDestinations, ...(typed ? [typed] : [])]));
+      : Array.from(new Set([...selectedDestinations, ...typedDestinations]));
     const requested = requestedRaw
       .filter((item) => !isTravelDestinationBlocked(item))
       .map(canonicalSearchDestination);
@@ -445,7 +450,7 @@ export default function SearchHub({
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
             <h2>Gdzie chcesz lecieć?</h2>
-            <p>Wybierz kierunek i, jeśli chcesz, termin. Tripownia dobierze najbliższe aktualne oferty.</p>
+            <p>Możesz wybrać kilka kierunków i kilka lotnisk albo zostawić je puste. Tripownia ma szukać szeroko, kiedy jesteś elastyczna/y.</p>
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
@@ -470,7 +475,7 @@ export default function SearchHub({
                 value={destination}
                 onChange={(event) => { setDestination(event.target.value); setSuggestionsOpen(true); }}
                 onFocus={() => setSuggestionsOpen(true)}
-                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Gdziekolwiek albo wybierz kilka miejsc"}
+                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Gdziekolwiek albo np. Rzym, Malta, Mediolan"}
                 autoComplete="off"
               />
               {destination && <button type="button" aria-label="Wyczyść wpisany kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
