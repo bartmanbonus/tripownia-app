@@ -27,6 +27,8 @@ type TripState = {
   checklist?: Record<string, boolean>;
   dayPlan?: DayPlanItem[];
   remindersEnabled?: boolean;
+  journeyPieces?: Partial<Record<"flight" | "hotel" | "transfer" | "attractions", { status?: "owned" | "selected" | "missing"; provider?: string }>>;
+  suggestedLinks?: Partial<Record<"flight" | "hotel" | "transfer" | "transferAlt" | "attractions", string>>;
 };
 
 const LEGACY_TOOLKIT_KEY = "tripownia-trip-toolkit";
@@ -152,6 +154,16 @@ export default function MyTrip() {
   const reminder = reminderText(trip.departureAt);
   const reminders = useMemo(() => buildReminders(trip.departureAt), [trip.departureAt]);
   const attractions = useMemo(() => offer ? attractionPicks(offer.city, offer.category) : [], [offer]);
+  const transferReady = useMemo(() => {
+    const status = trip.journeyPieces?.transfer?.status;
+    return Boolean(offer?.transferIncluded || status === "owned" || status === "selected" || trip.checklist?.["Sprawdź transfer z lotniska i taxi na miejscu"]);
+  }, [offer?.transferIncluded, trip.journeyPieces, trip.checklist]);
+
+  const attractionsReady = useMemo(() => {
+    const status = trip.journeyPieces?.attractions?.status;
+    return Boolean(status === "owned" || status === "selected" || trip.checklist?.["Zarezerwuj najważniejsze atrakcje"]);
+  }, [trip.journeyPieces, trip.checklist]);
+
   const readiness = useMemo(() => {
     const checks = [
       Boolean(trip.flight?.trim()),
@@ -160,25 +172,25 @@ export default function MyTrip() {
       Boolean((trip.dayPlan || []).length),
       Boolean(trip.checklist?.["Sprawdź dokumenty i wymagania wjazdowe"]),
       Boolean(trip.checklist?.["Dodaj ubezpieczenie"]),
-      Boolean(trip.checklist?.["Sprawdź transfer z lotniska i taxi na miejscu"]),
-      Boolean(trip.checklist?.["Zarezerwuj najważniejsze atrakcje"]),
+      transferReady,
+      attractionsReady,
       Boolean(trip.checklist?.["Sprawdź internet / eSIM"]),
       Boolean(trip.checklist?.["Przygotuj checklistę bagażu"]),
     ];
     const done = checks.filter(Boolean).length;
     return { done, total: checks.length, percent: Math.round((done / checks.length) * 100) };
-  }, [trip.flight, trip.hotel, trip.departureAt, trip.dayPlan, trip.checklist]);
+  }, [trip.flight, trip.hotel, trip.departureAt, trip.dayPlan, trip.checklist, transferReady, attractionsReady]);
   const nextSteps = useMemo(() => {
     const steps = [
       { done: Boolean(trip.checklist?.["Sprawdź dokumenty i wymagania wjazdowe"]), label: "Sprawdź dokumenty i wymagania wjazdowe", href: "/przed-wyjazdem", icon: FileCheck2 },
       { done: Boolean(trip.checklist?.["Dodaj ubezpieczenie"]), label: "Domknij ubezpieczenie", href: "/ubezpieczenia", icon: ShieldCheck },
-      { done: Boolean(trip.checklist?.["Sprawdź transfer z lotniska i taxi na miejscu"]), label: "Sprawdź transfer i taxi", href: "/transfery", icon: Car },
+      { done: transferReady, label: "Sprawdź transfer i taxi", href: "/transfery", icon: Car },
       { done: Boolean(trip.checklist?.["Sprawdź internet / eSIM"]), label: "Przygotuj internet / eSIM", href: "/esim", icon: Wifi },
-      { done: Boolean(trip.checklist?.["Zarezerwuj najważniejsze atrakcje"]), label: "Dodaj najważniejsze atrakcje", href: "/atrakcje", icon: Ticket },
+      { done: attractionsReady, label: "Dodaj najważniejsze atrakcje", href: "/atrakcje", icon: Ticket },
       { done: Boolean((trip.dayPlan || []).length), label: "Dodaj pierwszy punkt planu dnia", href: "#plan-dnia", icon: MapPinned },
     ];
     return steps.filter((step) => !step.done).slice(0, 4);
-  }, [trip.checklist, trip.dayPlan]);
+  }, [trip.checklist, trip.dayPlan, transferReady, attractionsReady]);
 
   useEffect(() => {
     if (!offer?.city) {
@@ -302,14 +314,18 @@ export default function MyTrip() {
 
             <section className="trip-essentials">
               <div className="trip-essentials-head">
-                <div><small>WSZYSTKO DO TEGO WYJAZDU</small><h2>Brakuje czegoś? Załatw to bez wychodzenia z planu.</h2></div>
+                <div><small>WSZYSTKO DO TEGO WYJAZDU</small><h2>{offer.manual ? "Uzupełnij tylko to, czego jeszcze nie masz." : "Pakiet jest bazą. Tripownia uzupełnia tylko braki."}</h2></div>
                 <span>Twój plan zostaje w Tripowni</span>
               </div>
               <div className="trip-essentials-grid">
                 <Link href="/ubezpieczenia"><ShieldCheck size={20}/><span><strong>Ubezpieczenie</strong><small>Sprawdź przed wyjazdem</small></span><ArrowRight size={15}/></Link>
                 <Link href="/esim"><Wifi size={20}/><span><strong>eSIM</strong><small>Internet na miejscu</small></span><ArrowRight size={15}/></Link>
-                <Link href="/transfery"><Car size={20}/><span><strong>Transfer</strong><small>Lotnisko → hotel</small></span><ArrowRight size={15}/></Link>
-                <Link href="/atrakcje"><Ticket size={20}/><span><strong>Atrakcje</strong><small>Bilety i rezerwacje</small></span><ArrowRight size={15}/></Link>
+                {transferReady
+                  ? <div className="trip-essential-done"><Car size={20}/><span><strong>Transfer</strong><small>{offer.transferIncluded ? "W cenie pakietu ✓" : "Już ogarnięty ✓"}</small></span><CheckCircle2 size={15}/></div>
+                  : <Link href="/transfery"><Car size={20}/><span><strong>Transfer</strong><small>Lotnisko → hotel</small></span><ArrowRight size={15}/></Link>}
+                {attractionsReady
+                  ? <div className="trip-essential-done"><Ticket size={20}/><span><strong>Atrakcje</strong><small>Wybrane / już masz ✓</small></span><CheckCircle2 size={15}/></div>
+                  : <Link href="/atrakcje"><Ticket size={20}/><span><strong>Atrakcje</strong><small>Bilety i rezerwacje</small></span><ArrowRight size={15}/></Link>}
                 <Link href="/wynajem-auta"><Car size={20}/><span><strong>Auto</strong><small>Wynajem na miejscu</small></span><ArrowRight size={15}/></Link>
                 <Link href="/przed-wyjazdem"><FileCheck2 size={20}/><span><strong>Dokumenty</strong><small>Co sprawdzić</small></span><ArrowRight size={15}/></Link>
               </div>
