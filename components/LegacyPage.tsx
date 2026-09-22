@@ -6,6 +6,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ArticlePartnerSearch from "@/components/ArticlePartnerSearch";
 import ArticleDeepDiveBlock from "@/components/ArticleDeepDiveBlock";
+import ArticleShare from "@/components/ArticleShare";
 import type { LegacyItem } from "@/lib/legacy";
 import { legacyCanonicalPath } from "@/lib/legacy";
 import { offers } from "@/lib/offers";
@@ -235,6 +236,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
             <span>Redakcja Tripowni</span>
             {dateModified && <span>Zweryfikowano: {dateModified}</span>}
             <Link href="/standardy-redakcyjne">Jak tworzymy i aktualizujemy treści →</Link>
+            <ArticleShare title={item.title} />
           </div>}
         </header>
         <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
