@@ -3,7 +3,7 @@ import TravelAdvisor from "@/components/TravelAdvisor";
 
 export const metadata: Metadata = {
   title: "Nie wiem gdzie jechać | Tripownia.pl",
-  description: "Podaj budżet, długość wyjazdu i klimat, a Tripownia wybierze 3 najlepiej dopasowane kierunki.",
+  description: "Podaj budżet, długość wyjazdu i klimat, a Tripownia pokaże najlepiej dopasowane aktualne kierunki i oferty.",
 };
 
 export default function Page() {

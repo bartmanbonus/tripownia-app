@@ -12046,3 +12046,24 @@ img{
 .footer-v2-brand-card>p{max-width:310px;margin:10px 0 12px;color:#766c65;font-size:10px;line-height:1.55}
 .footer-v2-plan-cta{display:inline-flex!important;width:max-content;padding:9px 12px;border-radius:999px;background:#171513;color:#fff!important;font-size:9px;font-weight:900;text-decoration:none}
 @media(max-width:700px){.footer-v2-brand-card>p{max-width:none}.footer-v2-plan-cta{margin-bottom:6px}}
+
+
+/* V202 — advisor mobile containment */
+.advisor-page,.advisor-controls,.advisor-controls>*{box-sizing:border-box;min-width:0;max-width:100%}
+.advisor-controls{overflow:hidden}
+.advisor-range-row{min-width:0}
+.advisor-range-row input[type="range"]{min-width:0;max-width:100%}
+.advisor-choice .profile-chips{max-width:100%}
+.advisor-next{min-width:0}
+@media(max-width:620px){
+  .advisor-page{padding-left:16px!important;padding-right:16px!important}
+  .advisor-hero h1{font-size:clamp(35px,11vw,48px)!important;line-height:.98!important;overflow-wrap:anywhere}
+  .advisor-controls{padding:20px 16px!important;border-radius:22px!important}
+  .advisor-range-row{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:9px!important}
+  .advisor-range-row input[type="range"]{width:100%!important}
+  .advisor-choice .profile-chips{display:flex!important;flex-wrap:wrap!important;gap:8px!important;overflow:visible!important}
+  .advisor-choice .profile-chip{flex:0 1 auto!important;max-width:100%!important;white-space:normal!important;text-align:center}
+  .advisor-next{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
+  .advisor-next .app-secondary-button{width:100%!important;justify-content:center!important}
+  .advisor-submit{width:100%!important;white-space:normal!important}
+}
