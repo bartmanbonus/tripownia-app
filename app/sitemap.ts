@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/planer-podrozy`, lastModified: new Date("2026-09-20T00:00:00Z"), changeFrequency: "monthly", priority: .9 },
     { url:`${BASE_URL}/`,changeFrequency:"daily",priority:1 },
     { url:`${BASE_URL}/okazje`,changeFrequency:"daily",priority:.95 },
+    { url:`${BASE_URL}/radar-tripowni`,changeFrequency:"daily",priority:.94 },
     { url:`${BASE_URL}/tanie-loty`,changeFrequency:"daily",priority:.95 },
     { url:`${BASE_URL}/city-break`,changeFrequency:"daily",priority:.95 },
     { url:`${BASE_URL}/wakacje`,changeFrequency:"daily",priority:.95 },
