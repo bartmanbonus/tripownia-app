@@ -6,7 +6,8 @@ import { ArrowRight, CalendarDays, MapPinned, Plane, BedDouble, NotebookPen, Rou
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { ACTIVE_TRIP_KEY, upsertTripArchive } from "@/lib/tripArchive";
-import { ensureFreshAccountSession, readAccountSession } from "@/lib/accountAuth";
+import { ensureFreshAccountSession, readAccountSession, saveTripowniaUserState, type AccountSession } from "@/lib/accountAuth";
+import { collectLocalAccountState } from "@/lib/accountState";
 
 function dateLabel(start: string, end: string) {
   if (!start) return "Termin do uzupełnienia";
@@ -37,6 +38,7 @@ export default function AddTripPage() {
   const [error, setError] = useState("");
   const [authReady, setAuthReady] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
+  const [session, setSession] = useState<AccountSession | null>(null);
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
 
@@ -44,13 +46,14 @@ export default function AddTripPage() {
     let cancelled = false;
     void ensureFreshAccountSession(readAccountSession()).then((session) => {
       if (cancelled) return;
+      setSession(session);
       setSignedIn(Boolean(session));
       setAuthReady(true);
     });
     return () => { cancelled = true; };
   }, []);
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     setError("");
 
@@ -109,6 +112,16 @@ export default function AddTripPage() {
     localStorage.setItem(ACTIVE_TRIP_KEY, JSON.stringify(trip));
     upsertTripArchive(trip);
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
+
+    if (session) {
+      try {
+        await saveTripowniaUserState(session, collectLocalAccountState());
+      } catch {
+        setError("Plan zapisano na tym urządzeniu, ale synchronizacja konta chwilowo się nie udała. Spróbuj ponownie za moment.");
+        return;
+      }
+    }
+
     window.location.href = "/moja-podroz";
   }
 
