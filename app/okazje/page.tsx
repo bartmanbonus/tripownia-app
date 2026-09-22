@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import DealsPage from "@/components/DealsPage";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Tanie wakacje i city break – najtańsze okazje podróżnicze",
@@ -38,5 +39,6 @@ export default function DealsRoute(){
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }} />
     <DealsPage/>
+    <div className="shell" style={{paddingBottom:24}}><Link href="/radar-tripowni">Nie chcesz przeglądać wszystkiego? Zobacz 5 wyborów w Radarze Tripowni →</Link></div>
   </>;
 }
