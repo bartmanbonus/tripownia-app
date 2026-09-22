@@ -45,7 +45,8 @@ export default function Ferie2027Page() {
       <div className="kicker">GDZIE NA FERIE</div>
       <h2>Dobierz kierunek do tego, czego chcesz od zimowego wyjazdu</h2>
       <div className="seo-related-links">
-        <Link href="/podroze/cieple-wakacje-grudzien-2026">Ciepłe kierunki zimą →</Link>
+        <Link href="/gdzie-jest-cieplo-zima-bez-dalekiego-lotu">Gdzie jest ciepło zimą →</Link>
+        <Link href="/wakacje-z-dziecmi">Wakacje z dziećmi →</Link>
         <Link href="/wyspy-kanaryjskie-wakacje-all-inclusive-i-last-minute">Wyspy Kanaryjskie →</Link>
         <Link href="/egipt">Egipt →</Link>
         <Link href="/city-break">City break →</Link>
