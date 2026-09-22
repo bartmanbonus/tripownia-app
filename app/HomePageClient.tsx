@@ -632,8 +632,8 @@ export default function Home() {
             <h1>Tanie wakacje, city break i loty.<br/><span>Zaplanuj całą podróż.</span></h1>
             <p>Znajdź aktualne wakacje, city break, lot lub nocleg albo dodaj wyjazd, który już masz. Tripownia za darmo pomoże Ci krok po kroku ogarnąć plan, dokumenty, pogodę, atrakcje, transport, jedzenie i checklistę.</p>
             <div className="dream-hero-actions">
-              <Link className="dream-primary" href="/moja-podroz">Ułóż mi plan za darmo <ArrowRight size={18}/></Link>
-              <Link className="dream-secondary" href="#marketplace">Chcę coś kupić</Link>
+              <Link className="dream-primary" href="/dodaj-podroz">Ułóż mi plan za darmo <ArrowRight size={18}/></Link>
+              <Link className="dream-secondary" href="#wyszukiwarka">Znajdź wyjazd</Link>
             </div>
             <div className="dream-category-row" aria-label="Co znajdziesz w Tripowni">
               <Link href="/wakacje">🌴 Wakacje</Link>
@@ -674,7 +674,7 @@ export default function Home() {
           <h2>Powiedz nam tylko <span>dokąd i kiedy jedziesz.</span><br/>Resztę pomożemy Ci ogarnąć.</h2>
           <p>Tripownia zbiera w jednym miejscu rzeczy, które zwykle masz w notatkach, mailach, mapach i dziesięciu zakładkach. Nie musisz wiedzieć od czego zacząć — dostajesz kolejne kroki.</p>
           <div className="dream-free-plan-actions">
-            <Link href="/moja-podroz">Stwórz mój plan — 0 zł <ArrowRight size={18}/></Link>
+            <Link href="/dodaj-podroz">Stwórz mój plan — 0 zł <ArrowRight size={18}/></Link>
             <Link href="/app">Zobacz moją Tripownię</Link>
           </div>
           <div className="dream-free-plan-trust">Bez abonamentu za planner · Możesz dodać wyjazd kupiony gdzie indziej · Wszystko możesz odhaczać i wracać później</div>
