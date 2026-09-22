@@ -143,6 +143,8 @@ export default function AddTripPage() {
   );
   const basicsReady = Boolean(city.trim() && country.trim() && startDate && endDate);
   const missingCount = Object.values(pieces).filter((value) => !value).length;
+  const resolvedCount = (Object.keys(pieces) as PieceKey[]).filter((key) => pieces[key] || selectedProvider[key]).length;
+  const plannerStep = !basicsReady ? 1 : resolvedCount < 4 ? 2 : notes.trim() ? 4 : 3;
 
   useEffect(() => {
     let cancelled = false;
@@ -304,6 +306,10 @@ export default function AddTripPage() {
         </div>
 
         <form className="add-trip-form" onSubmit={submit}>
+          <div className="add-trip-progress" aria-label={`Krok ${plannerStep} z 4`}>
+            {[1,2,3,4].map((step) => <span key={step} className={step <= plannerStep ? "done" : ""}/>)}
+          </div>
+          <div className="add-trip-progress-copy"><span>Krok {plannerStep} z 4</span><span>{plannerStep === 1 ? "Kierunek" : plannerStep === 2 ? "Co już masz" : plannerStep === 3 ? "Uzupełniamy braki" : "Zapis planu"}</span></div>
           <section className="add-trip-section">
             <div className="add-trip-section-title"><MapPinned size={20}/><div><strong>1. Dokąd i kiedy?</strong><span>To wystarczy, żeby Tripownia zaczęła układać wyjazd.</span></div></div>
             <div className="add-trip-grid two">
@@ -348,8 +354,8 @@ export default function AddTripPage() {
                     <Plane size={22}/>
                     <div><small>LOT</small><h3>Kiwi.com</h3><p>Lot dopasowany do kierunku i terminu. Otwieramy gotowe wyszukiwanie.</p></div>
                     <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("flight", "Kiwi.com")}>{selectedProvider.flight ? "Wybrane ✓" : "Wybieram"}</button>
-                      <a href={suggestions.flight} target="_blank" rel="sponsored noopener noreferrer">Sprawdź loty <ExternalLink size={14}/></a>
+                      <a href={suggestions.flight} target="_blank" rel="sponsored noopener noreferrer">1. Sprawdź loty <ExternalLink size={14}/></a>
+                      <button className="trip-confirm-choice" type="button" onClick={() => chooseProvider("flight", "Kiwi.com")}>{selectedProvider.flight ? "Dodane do planu ✓" : "2. Dodaj wybraną opcję do planu"}</button>
                     </div>
                   </article>
                 )}
@@ -359,8 +365,8 @@ export default function AddTripPage() {
                     <BedDouble size={22}/>
                     <div><small>NOCLEG</small><h3>Booking.com</h3><p>Noclegi w Twoim kierunku i terminie. Nie musisz zaczynać wyszukiwania od zera.</p></div>
                     <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("hotel", "Booking.com")}>{selectedProvider.hotel ? "Wybrane ✓" : "Wybieram"}</button>
-                      <a href={suggestions.hotel} target="_blank" rel="sponsored noopener noreferrer">Sprawdź noclegi <ExternalLink size={14}/></a>
+                      <a href={suggestions.hotel} target="_blank" rel="sponsored noopener noreferrer">1. Sprawdź noclegi <ExternalLink size={14}/></a>
+                      <button className="trip-confirm-choice" type="button" onClick={() => chooseProvider("hotel", "Booking.com")}>{selectedProvider.hotel ? "Dodane do planu ✓" : "2. Dodaj wybraną opcję do planu"}</button>
                     </div>
                   </article>
                 )}
@@ -370,9 +376,9 @@ export default function AddTripPage() {
                     <Car size={22}/>
                     <div><small>TRANSFER</small><h3>Kiwitaxi / GetTransfer</h3><p>Jeśli transferu nie ma w pakiecie, wybierz dojazd z lotniska do noclegu.</p></div>
                     <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("transfer", "Kiwitaxi")}>{selectedProvider.transfer ? "Wybrane ✓" : "Wybieram Kiwitaxi"}</button>
-                      <a href={suggestions.transfer} target="_blank" rel="sponsored noopener noreferrer">Kiwitaxi <ExternalLink size={14}/></a>
-                      <a href={suggestions.transferAlt} target="_blank" rel="sponsored noopener noreferrer">GetTransfer <ExternalLink size={14}/></a>
+                      <a href={suggestions.transfer} target="_blank" rel="sponsored noopener noreferrer">Sprawdź Kiwitaxi <ExternalLink size={14}/></a>
+                      <a href={suggestions.transferAlt} target="_blank" rel="sponsored noopener noreferrer">Sprawdź GetTransfer <ExternalLink size={14}/></a>
+                      <button className="trip-confirm-choice" type="button" onClick={() => chooseProvider("transfer", "Kiwitaxi")}>{selectedProvider.transfer ? "Transfer dodany do planu ✓" : "Mam wybraną opcję — dodaj do planu"}</button>
                     </div>
                   </article>
                 )}
@@ -382,8 +388,8 @@ export default function AddTripPage() {
                     <Ticket size={22}/>
                     <div><small>ATRAKCJE</small><h3>GetYourGuide</h3><p>Najpopularniejsze bilety i wycieczki dla wybranego miejsca. Dodajesz tylko te, które chcesz.</p></div>
                     <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("attractions", "GetYourGuide")}>{selectedProvider.attractions ? "Wybrane ✓" : "Wybieram"}</button>
-                      <a href={suggestions.attractions} target="_blank" rel="sponsored noopener noreferrer">Sprawdź atrakcje <ExternalLink size={14}/></a>
+                      <a href={suggestions.attractions} target="_blank" rel="sponsored noopener noreferrer">1. Sprawdź atrakcje <ExternalLink size={14}/></a>
+                      <button className="trip-confirm-choice" type="button" onClick={() => chooseProvider("attractions", "GetYourGuide")}>{selectedProvider.attractions ? "Dodane do planu ✓" : "2. Dodaj wybrane atrakcje do planu"}</button>
                     </div>
                   </article>
                 )}
