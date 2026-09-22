@@ -41,3 +41,26 @@
 .trip-essential-done>span{display:grid;gap:2px}
 .trip-essential-done strong{font-size:14px}
 .trip-essential-done small{font-size:11px;color:#4f7c5e}
+
+
+.planner-preview-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:16px}
+.planner-preview-actions .primary-cta,.planner-preview-actions .secondary-cta{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 15px;border-radius:13px;text-decoration:none;font-size:12px;font-weight:900}
+.planner-preview-actions .secondary-cta{border:1px solid #ddd2ca;background:#fff;color:#24201d}
+
+@media(max-width:560px){
+  .my-trip-page .my-trip-hero h1{
+    font-size:clamp(34px,10vw,43px)!important;
+    line-height:1.01!important;
+    letter-spacing:-.045em!important;
+  }
+  .my-trip-page .my-trip-hero p{
+    font-size:15px!important;
+    line-height:1.5!important;
+  }
+  .planner-preview-actions{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    width:100%!important;
+  }
+  .planner-preview-actions a{width:100%!important}
+}
