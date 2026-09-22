@@ -64,6 +64,8 @@ export default function SiteFooter() {
                 <p className="footer-v2-address"><MapPin size={15} /> <span>Be in IT<br/>ul. Batalionów Chłopskich 77E/11<br/>01-305 Warszawa</span></p>
                 <Link href="/o-tripowni">O Tripowni</Link>
                 <Link href="/kontakt">Kontakt</Link>
+                <Link href="/dla-mediow">Dla mediów</Link>
+                <Link href="/wspolpraca">Współpraca</Link>
                 <Link href="/jak-dziala-tripownia">Jak działa Tripownia</Link>
                 <Link href="/standardy-redakcyjne">Standardy redakcyjne</Link>
                 <Link href="/faq">FAQ</Link>
