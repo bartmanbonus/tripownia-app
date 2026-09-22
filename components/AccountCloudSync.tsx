@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { accountAuthEventName, ensureFreshAccountSession, getTripowniaUserState, readAccountSession, saveTripowniaUserState } from "@/lib/accountAuth";
-import { applyCloudAccountState, collectLocalAccountState, hasMeaningfulLocalAccountState } from "@/lib/accountState";
+import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState, hasMeaningfulLocalAccountState } from "@/lib/accountState";
 
 const EVENTS = [
   "tripownia-profile-updated",
@@ -22,15 +22,28 @@ export default function AccountCloudSync() {
 
     async function bootstrap() {
       const session = await ensureFreshAccountSession(readAccountSession());
-      if (!session || cancelled) return;
+      if (!session || cancelled) {
+        ready = false;
+        return;
+      }
       try {
         const remote = await getTripowniaUserState(session);
         if (cancelled) return;
-        if (remote && !hasMeaningfulLocalAccountState()) {
+
+        const currentUserId = session.user?.id || remote?.user_id || "";
+        const localOwner = localStorage.getItem("tripownia-local-owner-v1") || "";
+
+        if (localOwner && currentUserId && localOwner !== currentUserId) {
+          clearLocalAccountState();
+        }
+
+        if (remote) {
           applyCloudAccountState(remote);
-        } else if (hasMeaningfulLocalAccountState()) {
+        } else if (hasMeaningfulLocalAccountState() && (!localOwner || localOwner === currentUserId)) {
           await saveTripowniaUserState(session, collectLocalAccountState());
         }
+
+        if (currentUserId) localStorage.setItem("tripownia-local-owner-v1", currentUserId);
         ready = true;
       } catch {
         ready = true;
