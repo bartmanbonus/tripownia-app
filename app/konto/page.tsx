@@ -25,6 +25,12 @@ import {
   type TripowniaUserState,
 } from "@/lib/accountAuth";
 
+function safeNextPath() {
+  if (typeof window === "undefined") return "";
+  const next = new URLSearchParams(window.location.search).get("next") || "";
+  return next.startsWith("/") && !next.startsWith("//") ? next : "";
+}
+
 export default function AccountPage() {
   const [session, setSession] = useState<AccountSession | null>(null);
   const [user, setUser] = useState<AccountUser | null>(null);
@@ -67,6 +73,8 @@ export default function AccountPage() {
         if (!cancelled) {
           setUser(accountUser);
           setCloudState(remote);
+          const next = safeNextPath();
+          if (next) window.setTimeout(() => window.location.replace(next), 250);
         }
       } catch {
         if (!cancelled) setMessage("Konto jest zalogowane, ale nie udało się teraz pobrać wszystkich danych.");
@@ -91,7 +99,9 @@ export default function AccountPage() {
     setBusy(true);
     setMessage("");
     try {
-      await requestMagicLink(email.trim(), `${window.location.origin}/konto`);
+      const next = safeNextPath();
+      const redirect = `${window.location.origin}/konto${next ? `?next=${encodeURIComponent(next)}` : ""}`;
+      await requestMagicLink(email.trim(), redirect);
       setMessage("Link do logowania wysłany. Sprawdź skrzynkę e-mail.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Nie udało się wysłać linku logowania.");
@@ -136,6 +146,10 @@ export default function AccountPage() {
   }
 
   const googleEnabled = isSocialProviderEnabled("google");
+  const nextPath = typeof window !== "undefined" ? safeNextPath() : "";
+  const authRedirect = typeof window !== "undefined"
+    ? window.location.origin + "/konto" + (nextPath ? "?next=" + encodeURIComponent(nextPath) : "")
+    : "";
   const appleEnabled = isSocialProviderEnabled("apple");
 
   return (
@@ -188,8 +202,8 @@ export default function AccountPage() {
               </form>
 
               {(googleEnabled || appleEnabled) && <div className="account-divider"><span>lub</span></div>}
-              {googleEnabled && <a className="account-social-button" href={socialLoginUrl("google", `${window.location.origin}/konto`)}>Kontynuuj z Google</a>}
-              {appleEnabled && <a className="account-social-button" href={socialLoginUrl("apple", `${window.location.origin}/konto`)}>Kontynuuj z Apple</a>}
+              {googleEnabled && <a className="account-social-button" href={socialLoginUrl("google", authRedirect)}>Kontynuuj z Google</a>}
+              {appleEnabled && <a className="account-social-button" href={socialLoginUrl("apple", authRedirect)}>Kontynuuj z Apple</a>}
             </div>
 
             <div className="account-card account-benefits-card">
