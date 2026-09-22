@@ -30,12 +30,10 @@ import {
 import { partners } from "@/lib/partners";
 
 const primaryItems = [
-  { href: "/moja-podroz", label: "Mój planner" },
   { href: "/#wyszukiwarka", label: "Znajdź wyjazd" },
-  { href: "/#marketplace", label: "Usługi" },
+  { href: "/moja-podroz", label: "Mój planner" },
+  { href: "/#marketplace", label: "Usługi podróżnicze" },
   { href: "/okazje", label: "Okazje Tripowni" },
-  { href: "/radar-tripowni", label: "Radar Tripowni" },
-  { href: "/dane-tripowni", label: "Dane Tripowni" },
   { href: "/kierunki", label: "Inspiracje" },
 ] as const;
 
