@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { accountAuthEventName, ensureFreshAccountSession, getTripowniaUserState, readAccountSession, saveTripowniaUserState } from "@/lib/accountAuth";
 import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState, hasMeaningfulLocalAccountState } from "@/lib/accountState";
 
+const DIRTY_KEY = "tripownia-local-dirty-v1";
+
 const EVENTS = [
   "tripownia-profile-updated",
   "tripownia-favorites-updated",
@@ -37,10 +39,16 @@ export default function AccountCloudSync() {
           clearLocalAccountState();
         }
 
-        if (remote) {
+        const localDirty = localStorage.getItem(DIRTY_KEY);
+
+        if (remote && localDirty && (!localOwner || localOwner === currentUserId)) {
+          await saveTripowniaUserState(session, collectLocalAccountState());
+          localStorage.removeItem(DIRTY_KEY);
+        } else if (remote) {
           applyCloudAccountState(remote);
         } else if (hasMeaningfulLocalAccountState() && (!localOwner || localOwner === currentUserId)) {
           await saveTripowniaUserState(session, collectLocalAccountState());
+          localStorage.removeItem(DIRTY_KEY);
         }
 
         if (currentUserId) localStorage.setItem("tripownia-local-owner-v1", currentUserId);
@@ -54,10 +62,13 @@ export default function AccountCloudSync() {
       if (!ready || cancelled) return;
       const session = await ensureFreshAccountSession(readAccountSession());
       if (!session || cancelled) return;
-      await saveTripowniaUserState(session, collectLocalAccountState()).catch(() => undefined);
+      await saveTripowniaUserState(session, collectLocalAccountState())
+        .then(() => localStorage.removeItem(DIRTY_KEY))
+        .catch(() => undefined);
     }
 
     const schedule = () => {
+      try { localStorage.setItem(DIRTY_KEY, String(Date.now())); } catch {}
       if (!ready) return;
       if (timer) window.clearTimeout(timer);
       timer = window.setTimeout(() => void push(), 900);
