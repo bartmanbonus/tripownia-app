@@ -177,7 +177,7 @@ export default function SearchHub({
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [results, setResults] = useState<any[]>([]);
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [visibleCount, setVisibleCount] = useState(12);
   const [loading, setLoading] = useState(false);
   const [expanding, setExpanding] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -255,7 +255,7 @@ export default function SearchHub({
     setLoading(true);
     setExpanding(false);
     setSearched(true);
-    setVisibleCount(6);
+    setVisibleCount(12);
     setSuggestionsOpen(false);
     setDepartureOpen(false);
     setNotice("");
@@ -383,7 +383,7 @@ export default function SearchHub({
     setAdvancedOpen(false);
     setSearched(false);
     setResults([]);
-    setVisibleCount(6);
+    setVisibleCount(12);
     setNotice("");
   }
 
@@ -428,7 +428,7 @@ export default function SearchHub({
     setWeekendOnly(false);
     setAdvancedOpen(false);
     setResults([]);
-    setVisibleCount(6);
+    setVisibleCount(12);
     setNotice("");
     setSearched(false);
     setLoading(false);
