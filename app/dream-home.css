@@ -132,3 +132,48 @@
     scroll-snap-align:start;
   }
 }
+
+
+/* 2026-09-22 marketplace clarity */
+.dream-marketplace-groups{display:grid;gap:22px;margin-top:28px}
+.dream-marketplace-group{display:grid;gap:12px}
+.dream-marketplace-group-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;padding:0 2px}
+.dream-marketplace-group-head small{font-size:11px;font-weight:900;letter-spacing:.12em;color:#8c7769}
+.dream-marketplace-group-head strong{font-size:14px;color:#342d29}
+.dream-marketplace-group .dream-marketplace-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.dream-marketplace-group .dream-service-card{min-height:190px}
+.dream-marketplace-footer{margin-top:24px;padding:18px 20px;border:1px solid rgba(43,36,32,.1);border-radius:18px;background:#fbf7f3;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.dream-marketplace-footer span{font-weight:800;color:#554a43}
+.dream-marketplace-footer a{display:inline-flex;align-items:center;gap:7px;font-weight:900;text-decoration:none;color:#171513}
+
+@media(max-width:720px){
+  .dream-marketplace-head{gap:16px}
+  .dream-marketplace-head h2 br{display:none}
+  .dream-marketplace-groups{gap:28px;margin-top:22px}
+  .dream-marketplace-group-head{display:block}
+  .dream-marketplace-group-head small{display:block;margin-bottom:5px}
+  .dream-marketplace-group-head strong{font-size:16px}
+  .dream-marketplace-group .dream-marketplace-grid{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    overflow:visible!important;
+    gap:10px!important;
+    padding-bottom:0;
+  }
+  .dream-marketplace-group .dream-service-card{
+    min-height:0!important;
+    width:100%!important;
+    display:grid;
+    grid-template-columns:44px 1fr auto;
+    grid-template-areas:"icon title action" "icon copy action";
+    align-items:center;
+    column-gap:12px;
+    padding:15px!important;
+  }
+  .dream-marketplace-group .dream-service-icon{grid-area:icon;margin:0!important}
+  .dream-marketplace-group .dream-service-card>strong{grid-area:title}
+  .dream-marketplace-group .dream-service-card>span{grid-area:copy}
+  .dream-marketplace-group .dream-service-card>em{grid-area:action;align-self:center;white-space:nowrap;font-size:0}
+  .dream-marketplace-group .dream-service-card>em::after{content:"›";font-size:25px;font-style:normal}
+  .dream-marketplace-footer{display:grid;padding:16px}
+}
