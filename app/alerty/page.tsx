@@ -11,6 +11,7 @@ import { trackEvent } from "@/lib/analytics";
 import { useLiveOffers } from "@/lib/useLiveOffers";
 import { recommendationScore } from "@/lib/offerQuality";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
+import { ensureFreshAccountSession, readAccountSession } from "@/lib/accountAuth";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type AlertSettings = {
@@ -131,6 +132,8 @@ export default function AlertsPage() {
   const [saved, setSaved] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
+  const [authReady, setAuthReady] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
   const { offers, source, loading, checkedAt, refresh } = useLiveOffers("/api/today-offers?mode=search&broad=1", 3 * 60 * 1000);
   const matchingOffers = useMemo(() => findMatchingOffers(settings, offers), [settings, offers]);
 
@@ -159,6 +162,28 @@ export default function AlertsPage() {
     }
 
     setPermission("Notification" in window ? Notification.permission : "unsupported");
+
+    void ensureFreshAccountSession(readAccountSession()).then((session) => {
+      const logged = Boolean(session);
+      setSignedIn(logged);
+      setAuthReady(true);
+      if (!logged) return;
+
+      try {
+        const pendingRaw = sessionStorage.getItem("tripownia-pending-alert-v1");
+        const pending = pendingRaw ? JSON.parse(pendingRaw) as AlertSettings : null;
+        if (pending) {
+          const restored = { ...DEFAULTS, ...pending, enabled: true };
+          setSettings(restored);
+          localStorage.setItem("tripownia-alert-settings", JSON.stringify(restored));
+          window.dispatchEvent(new Event("tripownia-alerts-updated"));
+          sessionStorage.removeItem("tripownia-pending-alert-v1");
+        }
+      } catch {
+        sessionStorage.removeItem("tripownia-pending-alert-v1");
+      }
+    });
+
     setHydrated(true);
   }, []);
 
@@ -171,6 +196,15 @@ export default function AlertsPage() {
 
   function save(event: FormEvent) {
     event.preventDefault();
+
+    if (!signedIn) {
+      try {
+        sessionStorage.setItem("tripownia-pending-alert-v1", JSON.stringify({ ...settings, enabled: true }));
+      } catch {}
+      window.location.href = "/konto?next=/alerty";
+      return;
+    }
+
     const next = { ...settings, enabled: true };
     const matches = findMatchingOffers(next, offers);
     setSettings(next);
@@ -267,10 +301,10 @@ export default function AlertsPage() {
             </label>
             <div className="app-alerts-status"><span>{freshness}</span><button type="button" className="app-secondary-button" onClick={refresh}><RefreshCw size={16}/> {loading ? "Sprawdzam…" : "Sprawdź teraz"}</button></div>
             <button className="primary-cta app-alerts-save" type="submit">
-              {saved ? <><CheckCircle2 size={18} /> Zapisano</> : settings.enabled ? "Aktualizuj alert" : "Zapisz alert"}
+              {saved ? <><CheckCircle2 size={18} /> Zapisano</> : !signedIn ? "Zaloguj się i zapisz alert" : settings.enabled ? "Aktualizuj alert" : "Zapisz alert"}
             </button>
             {settings.enabled && <button className="app-secondary-button" type="button" onClick={disableAlert}>Wyłącz alert</button>}
-            <small>Alert jest zapisany na tym urządzeniu — bez konta i logowania.</small>
+            <small>{authReady && signedIn ? "Alert jest przypisany do Twojego konta. Powiadomienia działają na urządzeniu, na którym je włączysz." : "Możesz ustawić parametry bez logowania, ale zapis alertu wymaga konta."}</small>
           </form>
 
           <aside className="app-alerts-card app-alerts-notification-card">
@@ -286,7 +320,7 @@ export default function AlertsPage() {
             ) : (
               <button className="app-secondary-button" onClick={enableNotifications}><Bell size={18} /> Włącz powiadomienia</button>
             )}
-            <p className="app-alerts-note">Alert zapisujemy na tym urządzeniu. Możesz go w każdej chwili zmienić albo wyłączyć.</p>
+            <p className="app-alerts-note">Ustawienia alertu zapisujemy na Twoim koncie. Zgoda na powiadomienia jest osobna dla każdej przeglądarki i urządzenia.</p>
           </aside>
         </div>
 
