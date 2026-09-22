@@ -6,7 +6,7 @@ import { CheckCircle2, Cloud, Download, LogOut, Mail, ShieldCheck, Sparkles, Use
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { readTravelProfile } from "@/lib/travelProfile";
-import { applyCloudAccountState, collectLocalAccountState } from "@/lib/accountState";
+import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState } from "@/lib/accountState";
 import {
   accountAuthEventName,
   consumeAccountSessionFromUrl,
@@ -126,11 +126,13 @@ export default function AccountPage() {
   async function logout() {
     setBusy(true);
     await signOutAccount(session);
+    clearLocalAccountState();
     setSession(null);
     setUser(null);
     setCloudState(null);
+    setSynced((value) => value + 1);
     setBusy(false);
-    setMessage("Wylogowano. Dane zapisane na tym urządzeniu pozostają dostępne lokalnie.");
+    setMessage("Wylogowano. Prywatne dane podróży zostały usunięte z tego urządzenia; kopia konta pozostaje w chmurze.");
   }
 
   const googleEnabled = isSocialProviderEnabled("google");
