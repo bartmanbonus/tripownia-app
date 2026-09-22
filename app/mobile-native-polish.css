@@ -586,3 +586,36 @@
     padding-bottom:18px!important;
   }
 }
+
+
+/* 2026-09-22: fixed bottom navigation must not cover active content. */
+@media (max-width:560px){
+  .mobile-app-controls{
+    min-height:58px!important;
+    padding:5px 4px!important;
+    transition:transform .22s ease,opacity .18s ease!important;
+    will-change:transform;
+  }
+  .mobile-app-controls a{
+    min-height:46px!important;
+  }
+  .mobile-app-controls.is-hidden{
+    transform:translateY(calc(100% + 24px))!important;
+    opacity:0!important;
+    pointer-events:none!important;
+  }
+  body:has(input:focus) .mobile-app-controls,
+  body:has(textarea:focus) .mobile-app-controls,
+  body:has(select:focus) .mobile-app-controls{
+    transform:translateY(calc(100% + 24px))!important;
+    opacity:0!important;
+    pointer-events:none!important;
+  }
+  .app-alerts-page .legacy-offers,
+  .app-alerts-footer-link{
+    scroll-margin-bottom:110px;
+  }
+  .app-alerts-card{
+    margin-bottom:6px;
+  }
+}
