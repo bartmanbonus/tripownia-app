@@ -64,6 +64,12 @@ function uniqueOfferVariants(rows: any[]) {
   });
 }
 
+function canonicalSearchDestination(value: string) {
+  const normalized = value.trim();
+  if (/\bbergamo\b/i.test(normalized)) return "Mediolan, Włochy";
+  return normalized;
+}
+
 function cityBreakFallbackLinks(destination: string) {
   const query = destination.trim();
   if (!query) return null;
@@ -154,8 +160,10 @@ export default function SearchHub({
   initialTab = "Inspiracje",
 }: Props) {
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [destination, setDestination] = useState(initialDestinations[0] || "");
-  const [departure, setDeparture] = useState(initialAirports[0] || "");
+  const [destination, setDestination] = useState("");
+  const [selectedDestinations, setSelectedDestinations] = useState<string[]>(initialDestinations);
+  const [departures, setDepartures] = useState<string[]>(initialAirports);
+  const [departureOpen, setDepartureOpen] = useState(false);
   const [dateMode, setDateMode] = useState<DateMode>("any");
   const [month, setMonth] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -173,6 +181,7 @@ export default function SearchHub({
   const [searched, setSearched] = useState(false);
   const [notice, setNotice] = useState("");
   const destinationRef = useRef<HTMLDivElement>(null);
+  const departureRef = useRef<HTMLDivElement>(null);
   const searchRunRef = useRef(0);
 
   const suggestions = useMemo(() => {
@@ -180,19 +189,22 @@ export default function SearchHub({
     if (!query) return WORLD_DESTINATIONS.filter((x) => isTravelDestinationAllowed(x.label, x.region)).slice(0, 8);
     return WORLD_DESTINATIONS
       .filter((x) => isTravelDestinationAllowed(x.label, x.region))
+      .filter((x) => !selectedDestinations.includes(x.label))
       .filter((x) => destinationMatches(query, x))
       .slice(0, 8);
-  }, [destination]);
+  }, [destination, selectedDestinations]);
 
   useEffect(() => {
-    setDestination(initialDestinations[0] || "");
-    setDeparture(initialAirports[0] || "");
+    setDestination("");
+    setSelectedDestinations(initialDestinations);
+    setDepartures(initialAirports);
     setDuration(initialDuration || "all");
   }, [initialAirports.join("|"), initialDestinations.join("|"), initialDuration]);
 
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
       if (destinationRef.current && !destinationRef.current.contains(event.target as Node)) setSuggestionsOpen(false);
+      if (departureRef.current && !departureRef.current.contains(event.target as Node)) setDepartureOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
@@ -205,11 +217,19 @@ export default function SearchHub({
 
   async function runSearch(destinationOverride?: string, overrides: SearchOverrides = {}) {
     const runId = ++searchRunRef.current;
-    const query = (destinationOverride ?? destination).trim();
-    if (query && isTravelDestinationBlocked(query)) {
+    const typed = (destinationOverride ?? destination).trim();
+    const requestedRaw = destinationOverride
+      ? [destinationOverride]
+      : Array.from(new Set([...selectedDestinations, ...(typed ? [typed] : [])]));
+    const requested = requestedRaw
+      .filter((item) => !isTravelDestinationBlocked(item))
+      .map(canonicalSearchDestination);
+    const blockedOnly = requestedRaw.length > 0 && requested.length === 0;
+
+    if (blockedOnly) {
       setSearched(true);
       setResults([]);
-      setNotice("Tego kierunku Tripownia obecnie nie promuje ze względów bezpieczeństwa.");
+      setNotice("Wybrane kierunki są obecnie wyłączone z rekomendacji ze względów bezpieczeństwa.");
       return;
     }
 
@@ -224,121 +244,99 @@ export default function SearchHub({
       from: overrides.dateFrom ?? dateFrom,
       to: overrides.dateTo ?? dateTo,
     };
+    const origins = departures.length ? departures : [""];
+    const targets = requested.length ? requested : [""];
 
     setLoading(true);
     setExpanding(false);
     setSearched(true);
     setVisibleCount(6);
     setSuggestionsOpen(false);
+    setDepartureOpen(false);
     setNotice("");
 
-    try {
-      const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });
-      if (query) params.set("q", query);
-      else params.set("broad", "1");
-      if (departure) params.set("from", departure);
-      if (activeDuration !== "all") params.set("nights", activeDuration);
-      if (activeBudget !== "all") params.set("maxPrice", activeBudget);
-      if (activeWeekend) params.set("weekend", "1");
-      if (activeBoard === "all inclusive") params.set("board", "allinclusive");
-      else if (activeBoard === "ultra all inclusive") params.set("board", "ultraallinclusive");
-      else if (activeBoard === "śniadanie") params.set("board", "breakfast");
-      else if (activeBoard === "half board") params.set("board", "halfboard");
-      else if (activeBoard === "full board") params.set("board", "fullboard");
-      else if (activeBoard === "bez wyżywienia") params.set("board", "roomonly");
+    const fetchBatch = async (includeFilters: boolean) => {
+      const combinations = targets.flatMap((target) => origins.map((origin) => ({ target, origin }))).slice(0, 20);
+      const payloads = await Promise.all(combinations.map(async ({ target, origin }) => {
+        const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });
+        if (target) params.set("q", target);
+        else params.set("broad", "1");
+        if (origin) params.set("from", origin);
+        if (includeFilters) {
+          if (activeDuration !== "all") params.set("nights", activeDuration);
+          if (activeBudget !== "all") params.set("maxPrice", activeBudget);
+          if (activeWeekend) params.set("weekend", "1");
+          if (activeBoard === "all inclusive") params.set("board", "allinclusive");
+          else if (activeBoard === "ultra all inclusive") params.set("board", "ultraallinclusive");
+          else if (activeBoard === "śniadanie") params.set("board", "breakfast");
+          else if (activeBoard === "half board") params.set("board", "halfboard");
+          else if (activeBoard === "full board") params.set("board", "fullboard");
+          else if (activeBoard === "bez wyżywienia") params.set("board", "roomonly");
+        }
+        try {
+          const response = await fetch(`/api/today-offers?${params.toString()}`, { cache: "no-store" });
+          const data = await response.json();
+          return response.ok && data?.ok !== false ? data : null;
+        } catch {
+          return null;
+        }
+      }));
+      return {
+        offers: payloads.flatMap((data) => Array.isArray(data?.offers) ? data.offers : []),
+        notice: payloads.map((data) => String(data?.notice || "")).find(Boolean) || "",
+      };
+    };
 
-      const response = await fetch(`/api/today-offers?${params.toString()}`, { cache: "no-store" });
-      const data = await response.json();
-      if (!response.ok || data?.ok === false) throw new Error(String(data?.error || `HTTP ${response.status}`));
+    try {
+      const exact = await fetchBatch(true);
       if (runId !== searchRunRef.current) return;
 
-      let rows = cleanRows(Array.isArray(data?.offers) ? data.offers : [], query);
-      const firstDatePass = prioritizeByDate(rows, datePreference);
-      rows = firstDatePass.rows;
+      let rows = requested.length
+        ? uniqueOfferVariants(cleanRows(exact.offers, "multi")).slice(0, 24)
+        : onePerDirection(cleanRows(exact.offers, "")).slice(0, 18);
+      let datePass = prioritizeByDate(rows, datePreference);
+      rows = datePass.rows;
       setResults(rows);
       setLoading(false);
 
-      const apiNotice = String(data?.notice || "");
-      if (rows.length >= 6) {
-        setNotice(firstDatePass.notice || apiNotice);
-        return;
-      }
-
-      setExpanding(true);
-      setNotice(rows.length
-        ? "Mamy dokładne dopasowania. Dobieramy jeszcze kilka najbliższych aktualnych opcji…"
-        : "Nie ma dokładnego dopasowania. Szukamy teraz najbliższych aktualnych opcji…");
-
-      const relaxedParams = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });
-      if (query) relaxedParams.set("q", query);
-      else relaxedParams.set("broad", "1");
-
-      const relaxedResponse = await fetch(`/api/today-offers?${relaxedParams.toString()}`, { cache: "no-store" });
-      const relaxedData = await relaxedResponse.json();
-      if (runId !== searchRunRef.current) return;
-
-      let finalDateNotice = firstDatePass.notice;
-      if (relaxedResponse.ok && relaxedData?.ok !== false) {
-        const relaxedRows = cleanRows(Array.isArray(relaxedData?.offers) ? relaxedData.offers : [], query);
-        rows = query
-          ? uniqueOfferVariants([...rows, ...relaxedRows]).slice(0, 18)
-          : onePerDirection([...rows, ...relaxedRows]).slice(0, 12);
-        const relaxedDatePass = prioritizeByDate(rows, datePreference);
-        rows = relaxedDatePass.rows;
-        finalDateNotice = relaxedDatePass.notice || finalDateNotice;
+      if (rows.length < 6) {
+        setExpanding(true);
+        const relaxed = await fetchBatch(false);
+        if (runId !== searchRunRef.current) return;
+        const relaxedRows = cleanRows(relaxed.offers, requested.length ? "multi" : "");
+        rows = requested.length
+          ? uniqueOfferVariants([...rows, ...relaxedRows]).slice(0, 24)
+          : onePerDirection([...rows, ...relaxedRows]).slice(0, 18);
+        datePass = prioritizeByDate(rows, datePreference);
+        rows = datePass.rows;
         setResults(rows);
       }
 
-      // City-break searches should never dead-end on an exact city.
-      // If the requested city is not in the current live pool, widen first to its country
-      // and finally to currently available city-breaks. We label this clearly as alternatives.
       if (!rows.length && activeMode === "City break") {
-        const countryFallback = query.includes(",") ? query.split(",").slice(-1)[0].trim() : "";
-        const fallbackParams = new URLSearchParams({ mode: "citybreak" });
-        if (countryFallback) fallbackParams.set("q", countryFallback);
-        else fallbackParams.set("broad", "1");
-
-        const fallbackResponse = await fetch(`/api/today-offers?${fallbackParams.toString()}`, { cache: "no-store" });
-        const fallbackData = await fallbackResponse.json();
+        const broadParams = new URLSearchParams({ mode: "citybreak", broad: "1" });
+        const broadResponse = await fetch(`/api/today-offers?${broadParams.toString()}`, { cache: "no-store" });
+        const broadData = await broadResponse.json();
         if (runId !== searchRunRef.current) return;
-
-        if (fallbackResponse.ok && fallbackData?.ok !== false) {
-          const fallbackRows = cleanRows(Array.isArray(fallbackData?.offers) ? fallbackData.offers : [], "");
-          rows = onePerDirection(fallbackRows).slice(0, 12);
-          const fallbackDatePass = prioritizeByDate(rows, datePreference);
-          rows = fallbackDatePass.rows;
-          finalDateNotice = rows.length
-            ? `Brak potwierdzonej oferty dokładnie dla „${query}”. Pokazujemy najbliższe aktualne city breaki${countryFallback ? ` w kraju: ${countryFallback}` : ""}.`
-            : finalDateNotice;
+        if (broadResponse.ok && broadData?.ok !== false) {
+          rows = onePerDirection(cleanRows(Array.isArray(broadData?.offers) ? broadData.offers : [], "")).slice(0, 12);
+          rows = prioritizeByDate(rows, datePreference).rows;
           setResults(rows);
-        }
-
-        if (!rows.length && countryFallback) {
-          const broadCityBreakParams = new URLSearchParams({ mode: "citybreak", broad: "1" });
-          const broadResponse = await fetch(`/api/today-offers?${broadCityBreakParams.toString()}`, { cache: "no-store" });
-          const broadData = await broadResponse.json();
-          if (runId !== searchRunRef.current) return;
-          if (broadResponse.ok && broadData?.ok !== false) {
-            const broadRows = cleanRows(Array.isArray(broadData?.offers) ? broadData.offers : [], "");
-            rows = onePerDirection(broadRows).slice(0, 12);
-            const broadDatePass = prioritizeByDate(rows, datePreference);
-            rows = broadDatePass.rows;
-            if (rows.length) {
-              finalDateNotice = `Nie ma teraz potwierdzonego „${query}”. Pokazujemy aktualne city breaki w najbliższych terminach, żeby nie zostawić Cię z pustym wynikiem.`;
-              setResults(rows);
-            }
-          }
         }
       }
 
+      const bergamoMapped = requestedRaw.some((item) => /\bbergamo\b/i.test(item));
+      const scope = [
+        requestedRaw.length ? `${requestedRaw.length} ${requestedRaw.length === 1 ? "kierunek" : "kierunki"}` : "gdziekolwiek",
+        departures.length ? `${departures.length} ${departures.length === 1 ? "lotnisko" : "lotniska"}` : "dowolne lotnisko",
+      ].join(" · ");
+
       if (rows.length) {
-        setNotice(finalDateNotice || (rows.length >= 6
-          ? "Najpierw pokazujemy najbliższe dopasowania, a dalej dodatkowe aktualne opcje dla tego samego kierunku."
-          : apiNotice || "Pokazujemy wszystkie aktualne dopasowania, które udało się teraz potwierdzić."));
+        const prefix = bergamoMapped ? "Bergamo wyszukujemy jako Mediolan, żeby pokazać realne oferty dla tego obszaru. " : "";
+        setNotice(`${prefix}${datePass.notice || `Zakres: ${scope}. Pokazujemy najlepsze aktualne dopasowania.`}`);
       } else {
-        setNotice(query
-          ? `Nie znaleźliśmy teraz potwierdzonej oferty dla „${query}”. Spróbuj zmienić kierunek albo wybierz Inspiracje.`
-          : "Nie znaleźliśmy teraz potwierdzonej oferty. Spróbuj ponownie lub wybierz jeden z szybkich kierunków.");
+        setNotice(bergamoMapped
+          ? "Dla Bergamo szukaliśmy ofert jako Mediolan. Nie mamy teraz potwierdzonego pakietu — spróbuj Lot + hotel albo elastycznych parametrów."
+          : `Nie znaleźliśmy teraz potwierdzonych ofert dla ustawień: ${scope}. Poszerz jeden filtr albo wybierz gdziekolwiek.`);
       }
     } catch {
       if (runId !== searchRunRef.current) return;
@@ -390,7 +388,9 @@ export default function SearchHub({
     const nextBoard = overrides.board ?? "all";
     const nextWeekend = overrides.weekendOnly ?? false;
 
-    setDestination(label);
+    const canonicalLabel = canonicalSearchDestination(label);
+    setSelectedDestinations([canonicalLabel]);
+    setDestination("");
     setDuration(nextDuration);
     setBudget(nextBudget);
     setBoard(nextBoard);
@@ -398,7 +398,7 @@ export default function SearchHub({
     setAdvancedOpen(nextBoard !== "all");
     if (overrides.tab) setActiveTab(overrides.tab);
 
-    void runSearch(label, {
+    void runSearch(canonicalLabel, {
       ...overrides,
       duration: nextDuration,
       budget: nextBudget,
@@ -410,7 +410,9 @@ export default function SearchHub({
   function resetSearch() {
     searchRunRef.current += 1;
     setDestination("");
-    setDeparture("");
+    setSelectedDestinations([]);
+    setDepartures([]);
+    setDepartureOpen(false);
     setDateMode("any");
     setMonth("");
     setDateFrom("");
@@ -432,7 +434,7 @@ export default function SearchHub({
     ["Rzym, Włochy", "Rzym na city break", { duration: "3-4", budget: "1500", tab: "City break" }],
     ["Teneryfa, Hiszpania", "Ciepło na Teneryfie", { duration: "5-7", budget: "3000", tab: "Wakacje" }],
     ["Djerba, Tunezja", "All Inclusive na Djerbie", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Wakacje" }],
-    ["Bergamo, Włochy", "Tani weekend w Bergamo", { duration: "3-4", budget: "1000", weekendOnly: true, tab: "City break" }],
+    ["Mediolan, Włochy", "Tani weekend: Mediolan / Bergamo", { duration: "3-4", budget: "1000", weekendOnly: true, tab: "City break" }],
     ["Zanzibar, Tanzania", "Egzotyka: Zanzibar", { duration: "11-14", budget: "7500", tab: "Wakacje" }],
   ];
 
@@ -456,40 +458,69 @@ export default function SearchHub({
 
         <form className="search-v3-form" onSubmit={submitSearch}>
           <div className="search-v3-field search-v3-destination" ref={destinationRef}>
-            <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd?</label>
+            <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd? <small>możesz wybrać kilka</small></label>
+            {selectedDestinations.length > 0 && (
+              <div className="search-v3-selected">
+                {selectedDestinations.map((item) => <button type="button" key={item} onClick={() => setSelectedDestinations((current) => current.filter((x) => x !== item))}>{item}<X size={12}/></button>)}
+              </div>
+            )}
             <div className="search-v3-input-wrap">
               <input
                 id="tripownia-destination"
                 value={destination}
                 onChange={(event) => { setDestination(event.target.value); setSuggestionsOpen(true); }}
                 onFocus={() => setSuggestionsOpen(true)}
-                placeholder="Miasto, kraj albo wyspa"
+                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Gdziekolwiek albo wybierz kilka miejsc"}
                 autoComplete="off"
               />
-              {destination && <button type="button" aria-label="Wyczyść kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
+              {destination && <button type="button" aria-label="Wyczyść wpisany kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
             </div>
 
             {suggestionsOpen && (
               <div className="search-v3-suggestions">
+                <button type="button" className="search-v3-anywhere" onClick={() => { setSelectedDestinations([]); setDestination(""); setSuggestionsOpen(false); }}>
+                  <MapPin size={15}/><span><strong>🌍 Gdziekolwiek</strong><small>Pokaż najlepsze opcje bez ograniczania kierunku</small></span>
+                </button>
                 {suggestions.length > 0 ? suggestions.map((item) => (
-                  <button key={item.label} type="button" onClick={() => { setDestination(item.label); setSuggestionsOpen(false); }}>
-                    <MapPin size={15}/><span><strong>{item.label}</strong><small>{item.region}</small></span>
+                  <button key={item.label} type="button" onClick={() => {
+                    const next = canonicalSearchDestination(item.label);
+                    setSelectedDestinations((current) => Array.from(new Set([...current, next])));
+                    setDestination("");
+                    setSuggestionsOpen(true);
+                  }}>
+                    <MapPin size={15}/><span><strong>{item.label}</strong><small>{item.region} · dodaj do wyboru</small></span>
                   </button>
                 )) : destination.trim() && !isTravelDestinationBlocked(destination) ? (
-                  <button type="button" onClick={() => setSuggestionsOpen(false)}><Search size={15}/><span><strong>Szukaj dokładnie „{destination.trim()}”</strong><small>Dowolny kierunek na świecie</small></span></button>
+                  <button type="button" onClick={() => {
+                    setSelectedDestinations((current) => Array.from(new Set([...current, canonicalSearchDestination(destination.trim())])));
+                    setDestination("");
+                    setSuggestionsOpen(false);
+                  }}><Search size={15}/><span><strong>Dodaj „{destination.trim()}”</strong><small>Dodaj jako kolejny kierunek</small></span></button>
                 ) : null}
               </div>
             )}
           </div>
 
-          <label className="search-v3-field search-v3-departure">
-            <span><Plane size={15}/> Skąd?</span>
-            <select value={departure} onChange={(event) => setDeparture(event.target.value)}>
-              <option value="">Wszystkie lotniska</option>
-              {airportOptions.map((airport: any) => <option key={airport.code} value={airport.code}>{airport.label}</option>)}
-            </select>
-            <ChevronDown size={15} className="search-v3-chevron"/>
-          </label>
+          <div className="search-v3-field search-v3-departure search-v3-multiselect" ref={departureRef}>
+            <span><Plane size={15}/> Skąd? <small>możesz wybrać kilka</small></span>
+            <button type="button" className="search-v3-multi-trigger" onClick={() => setDepartureOpen((open) => !open)}>
+              <strong>{departures.length ? (departures.length === 1 ? airportOptions.find((a:any) => a.code === departures[0])?.label || departures[0] : `${departures.length} lotniska`) : "Wszystkie lotniska"}</strong>
+              <ChevronDown size={15}/>
+            </button>
+            {departureOpen && (
+              <div className="search-v3-departure-menu">
+                <button type="button" className={!departures.length ? "active" : ""} onClick={() => setDepartures([])}>
+                  <span className="search-v3-option-check">{!departures.length && <Check size={14}/>}</span><span><strong>Wszystkie lotniska</strong><small>Jestem elastyczna/y</small></span>
+                </button>
+                {airportOptions.map((airport:any) => {
+                  const active = departures.includes(airport.code);
+                  return <button type="button" className={active ? "active" : ""} key={airport.code} onClick={() => setDepartures((current) => active ? current.filter((code) => code !== airport.code) : [...current, airport.code])}>
+                    <span className="search-v3-option-check">{active && <Check size={14}/>}</span><span><strong>{airport.label}</strong><small>{airport.code}</small></span>
+                  </button>;
+                })}
+              </div>
+            )}
+          </div>
 
           <label className="search-v3-field search-v3-date">
             <span><CalendarDays size={15}/> Kiedy?</span>
@@ -519,15 +550,9 @@ export default function SearchHub({
             <span>Budżet / os.</span>
             <select value={budget} onChange={(event) => setBudget(event.target.value)}>
               <option value="all">Dowolny</option>
-              <option value="750">do 750 zł</option>
-              <option value="1000">do 1 000 zł</option>
-              <option value="1500">do 1 500 zł</option>
-              <option value="2000">do 2 000 zł</option>
-              <option value="3000">do 3 000 zł</option>
-              <option value="5000">do 5 000 zł</option>
-              <option value="7500">do 7 500 zł</option>
-              <option value="10000">do 10 000 zł</option>
-              <option value="15000">do 15 000 zł</option>
+              <option value="750">do 750 zł</option><option value="1000">do 1 000 zł</option><option value="1500">do 1 500 zł</option>
+              <option value="2000">do 2 000 zł</option><option value="3000">do 3 000 zł</option><option value="5000">do 5 000 zł</option>
+              <option value="7500">do 7 500 zł</option><option value="10000">do 10 000 zł</option><option value="15000">do 15 000 zł</option>
             </select>
             <ChevronDown size={15} className="search-v3-chevron"/>
           </label>
