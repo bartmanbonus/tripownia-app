@@ -53,6 +53,12 @@ export default function Wakacje2027Page() {
       <div className="kicker">POPULARNE PUNKTY STARTU</div>
       <h2>Wakacje 2027 według lotniska i typu wyjazdu</h2>
       <div className="seo-related-links">
+        <Link href="/egipt-2027">Egipt 2027 →</Link>
+        <Link href="/turcja-2027">Turcja 2027 →</Link>
+        <Link href="/grecja-2027">Grecja 2027 →</Link>
+        <Link href="/wakacje-czerwiec-2027">Czerwiec 2027 →</Link>
+        <Link href="/wakacje-lipiec-2027">Lipiec 2027 →</Link>
+        <Link href="/wakacje-sierpien-2027">Sierpień 2027 →</Link>
         <Link href="/podroze/wakacje-z-warszawy">Wakacje z Warszawy →</Link>
         <Link href="/podroze/wakacje-z-krakowa">Wakacje z Krakowa →</Link>
         <Link href="/podroze/wakacje-z-katowic">Wakacje z Katowic →</Link>
