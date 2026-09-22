@@ -173,7 +173,7 @@ export default function ForYouPage() {
           return true;
         })
         .sort((a, b) => b.match - a.match || a.offer.price - b.offer.price),
-    ).slice(0, 6);
+    ).slice(0, 12);
 
     const exactIds = new Set(exact.map(({ offer }) => offer.id));
     const multiplier = profile.valuePriority === "price" ? 1.12 : profile.valuePriority === "time" ? 1.4 : 1.25;
@@ -184,10 +184,10 @@ export default function ForYouPage() {
         .filter(({ offer }) => Number(offer.price) <= flexibleBudget)
         .filter(({ offer }) => !profile.warmOnly || offer.category.includes("cieplo"))
         .sort((a, b) => b.match - a.match || a.offer.price - b.offer.price),
-    ).slice(0, Math.max(0, 6 - exact.length));
+    ).slice(0, Math.max(0, 12 - exact.length));
 
     const used = new Set([...exact, ...alternatives].map(({ offer }) => offer.id));
-    const inspirations = onePerDirection(ranked.filter(({ offer }) => !used.has(offer.id)).sort((a, b) => b.match - a.match || a.offer.price - b.offer.price)).slice(0, 4);
+    const inspirations = onePerDirection(ranked.filter(({ offer }) => !used.has(offer.id)).sort((a, b) => b.match - a.match || a.offer.price - b.offer.price)).slice(0, 8);
 
     return { exact, alternatives, inspirations, flexibleBudget };
   }, [offers, profile]);
