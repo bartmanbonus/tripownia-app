@@ -205,11 +205,19 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     url: canonicalUrl,
     dateModified,
     inLanguage: "pl-PL",
+    author: {
+      "@type": "Organization",
+      "@id": "https://tripownia.pl/#organization",
+      name: "Redakcja Tripowni",
+      url: "https://tripownia.pl/o-tripowni",
+    },
     publisher: {
       "@type": "Organization",
+      "@id": "https://tripownia.pl/#organization",
       name: "Tripownia",
       url: "https://tripownia.pl",
       logo: { "@type": "ImageObject", url: "https://tripownia.pl/tripownia-logo.webp" },
+      publishingPrinciples: "https://tripownia.pl/standardy-redakcyjne",
     },
   } : null;
 
@@ -220,7 +228,15 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
       <div className="legacy-breadcrumb"><Link href="/">Tripownia</Link><span>›</span><Link href={parent.href}>{parent.name}</Link><span>›</span><span aria-current="page">{item.title}</span></div>
       {archived && <div className="archive-banner"><strong>Oferta archiwalna</strong><span>Cena i dostępność mogły się zmienić. Na dole znajdziesz aktualne propozycje.</span></div>}
       <article className="legacy-article">
-        <header><div className="kicker">{archived ? "ARCHIWUM OFERT" : item.type === "post" ? "MAGAZYN TRIPOWNI" : "TRIPOWNIA"}</div><h1>{item.title}</h1></header>
+        <header>
+          <div className="kicker">{archived ? "ARCHIWUM OFERT" : item.type === "post" ? "MAGAZYN TRIPOWNI" : "TRIPOWNIA"}</div>
+          <h1>{item.title}</h1>
+          {item.type === "post" && <div className="article-publisher-note">
+            <span>Redakcja Tripowni</span>
+            {dateModified && <span>Zweryfikowano: {dateModified}</span>}
+            <Link href="/standardy-redakcyjne">Jak tworzymy i aktualizujemy treści →</Link>
+          </div>}
+        </header>
         <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
       </article>
 
