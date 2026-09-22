@@ -37,11 +37,11 @@ function PlannerPreview() {
       <div className="my-trip-hero">
         <div className="my-trip-icon"><MapPinned size={30}/></div>
         <div>
-          <div className="kicker">DARMOWY PLANER · PRYWATNY PO ZALOGOWANIU</div>
+          <div className="kicker">DARMOWY PLANER · BEZ KONTA LUB Z PROFILEM</div>
           <h1>Zaplanuj całą podróż w jednym miejscu.</h1>
           <p>Masz już lot, hotel albo cały wyjazd? Dodaj to, co masz, a Tripownia podpowie tylko brakujące rzeczy. Jeśli dopiero szukasz wyjazdu — zacznij od wyszukiwarki.</p>
           <div className="planner-preview-actions">
-            <Link className="primary-cta" href="/konto?next=/dodaj-podroz">Mam już wyjazd — dodaję</Link>
+            <Link className="primary-cta" href="/dodaj-podroz">Mam już wyjazd — dodaję</Link>
             <Link className="secondary-cta" href="/#wyszukiwarka">Szukam wyjazdu</Link>
           </div>
         </div>
@@ -64,14 +64,14 @@ function PlannerPreview() {
         <section className="my-trip-card"><div className="my-trip-card-head"><ListChecks size={20}/><h2>Przygotowanie</h2></div><p>Dokumenty, ubezpieczenie, eSIM, transfer, bagaż i rzeczy do zrobienia przed wyjazdem.</p></section>
         <section className="my-trip-card"><div className="my-trip-card-head"><Ticket size={20}/><h2>Plan na miejscu</h2></div><p>Atrakcje, bilety, restauracje, plan dnia i własne notatki w jednym planie.</p></section>
         <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet i rezerwacje</h2></div><p>Zbieraj koszty i informacje dotyczące konkretnej podróży bez przerzucania się między notatkami.</p></section>
-        <section className="my-trip-card"><div className="my-trip-card-head"><CheckCircle2 size={20}/><h2>Wracasz na każdym urządzeniu</h2></div><p>Po zalogowaniu plan synchronizuje się z Twoim kontem i jest odseparowany od planów innych użytkowników.</p></section>
+        <section className="my-trip-card"><div className="my-trip-card-head"><CheckCircle2 size={20}/><h2>Wracasz na każdym urządzeniu</h2></div><p>Konto jest opcjonalne. Po zalogowaniu synchronizujesz plany, checklisty i preferencje między urządzeniami.</p></section>
       </div>
 
       <div className="favorites-empty">
         <h2>Masz już wyjazd? Dodaj go. Nie masz? Najpierw go znajdź.</h2>
         <p>Tripownia ma działać także wtedy, gdy lot, hotel lub całą podróż kupujesz poza nami.</p>
         <div className="my-trip-empty-actions">
-          <Link className="primary-cta" href="/konto?next=/dodaj-podroz">Zaloguj się i utwórz plan <ArrowRight size={17}/></Link>
+          <Link className="primary-cta" href="/dodaj-podroz">Utwórz plan bez konta <ArrowRight size={17}/></Link>
           <Link className="secondary-cta" href="/#wyszukiwarka">Najpierw znajdź wyjazd</Link>
         </div>
       </div>
