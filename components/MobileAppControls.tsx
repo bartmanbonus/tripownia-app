@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Compass, Home, MapPinned, Search, UserRound } from "lucide-react";
 
@@ -42,6 +43,20 @@ function isPlanningPath(pathname: string) {
 
 export default function MobileAppControls() {
   const pathname = usePathname();
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const nextY = window.scrollY;
+      const delta = nextY - lastY;
+      if (Math.abs(delta) < 8) return;
+      setHidden(delta > 0 && nextY > 120);
+      lastY = nextY;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [pathname]);
   if (!isAppPath(pathname) || pathname.startsWith("/dodaj-podroz")) return null;
 
   const nav = [
@@ -53,7 +68,7 @@ export default function MobileAppControls() {
   ];
 
   return (
-    <nav className="mobile-app-controls" aria-label="Nawigacja aplikacji Tripownia">
+    <nav className={`mobile-app-controls${hidden ? " is-hidden" : ""}`} aria-label="Nawigacja aplikacji Tripownia">
       {nav.map(({ href, label, icon: Icon, active }) => (
         <Link key={label} href={href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}>
           <Icon size={20} strokeWidth={active ? 2.5 : 2.1} />
