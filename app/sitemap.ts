@@ -17,6 +17,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url:`${BASE_URL}/city-break`,changeFrequency:"daily",priority:.95 },
     { url:`${BASE_URL}/wakacje`,changeFrequency:"daily",priority:.95 },
     { url:`${BASE_URL}/wakacje-2027`,changeFrequency:"weekly",priority:.93 },
+    { url:`${BASE_URL}/wakacje-z-dziecmi`,changeFrequency:"weekly",priority:.9 },
+    { url:`${BASE_URL}/gdzie-jest-cieplo-zima-bez-dalekiego-lotu`,changeFrequency:"weekly",priority:.86 },
     { url:`${BASE_URL}/ferie-2027`,changeFrequency:"weekly",priority:.88 },
     { url:`${BASE_URL}/majowka-2027`,changeFrequency:"weekly",priority:.88 },
     { url:`${BASE_URL}/last-minute`,changeFrequency:"daily",priority:.95 },
