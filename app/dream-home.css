@@ -91,3 +91,44 @@
 .dream-mobile-start>a>span{font-size:20px}.dream-mobile-start strong,.dream-mobile-start small{display:block}.dream-mobile-start strong{font-size:12px}.dream-mobile-start small{margin-top:2px;color:#8b817a;font-size:9px}.dream-mobile-start>a:first-child small{color:#cfc7c2}
 .dream-value-strip{display:none!important}
 }
+
+
+/* 2026-09-22 homepage focus pass
+   Keep the depth in dedicated routes; the homepage only explains the core journey. */
+.homepage-focus-more{display:none}
+
+@media (min-width:0px){
+  /* Duplicate decision UI: hero already gives plan/search and the main SearchHub follows. */
+  .dream-mobile-start,
+  .dream-planner-wrap,
+
+  /* Secondary discovery mechanics live on their dedicated pages. */
+  .streaming-discovery,
+  .budget-wrap,
+  .chapter-discover,
+  .long-haul-home,
+  .experience-section,
+  .score-section{
+    display:none!important;
+  }
+}
+
+@media (max-width:720px){
+  /* Mobile gets one decision at a time; the four-step explainer is unnecessary here. */
+  .dream-value-strip{display:none!important}
+
+  /* Marketplace remains complete but compact: cards become a clean swipe rail. */
+  .dream-marketplace-grid{
+    display:flex!important;
+    overflow-x:auto!important;
+    gap:12px!important;
+    scroll-snap-type:x mandatory;
+    padding-bottom:8px;
+    scrollbar-width:none;
+  }
+  .dream-marketplace-grid::-webkit-scrollbar{display:none}
+  .dream-service-card{
+    flex:0 0 min(78vw,290px)!important;
+    scroll-snap-align:start;
+  }
+}
