@@ -30,8 +30,9 @@ type LiveCandidate = Offer & {
 };
 
 const CITY_BREAK_TERMS = [
-  "Rzym", "Barcelona", "Alicante", "Malta", "Pafos", "Sycylia", "Neapol", "Stambuł",
-  "Ateny", "Praga", "Budapeszt", "Wiedeń", "Lizbona", "Porto", "Walencja", "Sewilla",
+  "Rzym", "Mediolan", "Wenecja", "Neapol", "Barcelona", "Madryt", "Alicante", "Walencja", "Sewilla",
+  "Lizbona", "Porto", "Paryż", "Amsterdam", "Praga", "Budapeszt", "Wiedeń", "Ateny", "Stambuł",
+  "Malta", "Pafos", "Sycylia",
 ];
 
 const SURPRISE_TERMS = {
@@ -41,8 +42,9 @@ const SURPRISE_TERMS = {
 };
 
 const EUROPE_SEARCH_TERMS = [
-  "Grecja", "Hiszpania", "Cypr", "Malta", "Bułgaria", "Włochy", "Portugalia", "Albania",
+  "Grecja", "Hiszpania", "Cypr", "Malta", "Bułgaria", "Włochy", "Portugalia", "Albania", "Turcja",
   "Rodos", "Kreta", "Zakynthos", "Pafos", "Teneryfa", "Fuerteventura", "Majorka", "Sycylia",
+  "Rzym", "Mediolan", "Neapol", "Barcelona", "Alicante", "Lizbona", "Porto", "Ateny", "Stambuł",
 ];
 
 const EXOTIC_SEARCH_TERMS = [
@@ -56,10 +58,11 @@ const EXOTIC_SEARCH_TERMS = [
 const SEARCH_TERMS = [...EUROPE_SEARCH_TERMS, ...EXOTIC_SEARCH_TERMS];
 
 const BROAD_SEARCH_TERMS = [
-  "Grecja", "Hiszpania", "Cypr", "Turcja", "Tunezja", "Egipt",
-  "Bułgaria", "Albania", "Portugalia", "Włochy", "Maroko", "Malta",
-  "Teneryfa", "Fuerteventura", "Rodos", "Kreta", "Djerba", "Hurghada",
-  "Marsa Alam", "Zanzibar", "Kenia", "Mauritius", "Dominikana", "Meksyk"
+  "Grecja", "Hiszpania", "Cypr", "Turcja", "Tunezja", "Egipt", "Bułgaria", "Albania",
+  "Portugalia", "Włochy", "Maroko", "Malta", "Teneryfa", "Fuerteventura", "Rodos", "Kreta",
+  "Zakynthos", "Majorka", "Sycylia", "Djerba", "Hurghada", "Marsa Alam", "Sharm el Sheikh",
+  "Rzym", "Mediolan", "Neapol", "Barcelona", "Alicante", "Lizbona", "Porto", "Ateny", "Stambuł",
+  "Zanzibar", "Kenia", "Mauritius", "Dominikana", "Meksyk", "Tajlandia", "Malediwy", "Dubaj"
 ];
 
 const NEW_YEAR_SEARCH_TERMS = [
@@ -583,16 +586,16 @@ export async function GET(request: NextRequest) {
       : mode === "search" && broadSearch
         ? BROAD_SEARCH_TERMS
       : mode === "citybreak"
-        ? (query ? searchTerms : shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 12))
+        ? (query ? searchTerms : shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 20))
         : mode === "surprise"
-          ? shuffle(budget >= 3500 ? SURPRISE_TERMS.high : budget >= 1800 ? SURPRISE_TERMS.mid : SURPRISE_TERMS.low, `surprise:${key}:${budget}`).slice(0, 8)
+          ? shuffle(budget >= 3500 ? SURPRISE_TERMS.high : budget >= 1800 ? SURPRISE_TERMS.mid : SURPRISE_TERMS.low, `surprise:${key}:${budget}`).slice(0, 12)
           : mode === "newyear"
             ? NEW_YEAR_SEARCH_TERMS
           : mode === "search"
             ? BROAD_SEARCH_TERMS
             : [
-                ...shuffle(EUROPE_SEARCH_TERMS, `terms-eu:${key}`).slice(0, 7),
-                ...shuffle(EXOTIC_SEARCH_TERMS, `terms-exotic:${key}`).slice(0, 11),
+                ...shuffle(EUROPE_SEARCH_TERMS, `terms-eu:${key}`).slice(0, 14),
+                ...shuffle(EXOTIC_SEARCH_TERMS, `terms-exotic:${key}`).slice(0, 16),
               ];
     const jobs: Promise<{ provider: Provider; products: TdProduct[] }>[] = [];
 
@@ -757,7 +760,7 @@ export async function GET(request: NextRequest) {
             pool.filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5)
           ),
           `${key}:citybreak`,
-          8
+          20
         )
       : mode === "search"
         ? [...pool]
@@ -768,8 +771,8 @@ export async function GET(request: NextRequest) {
               .filter((offer) => offer.price <= budget)
               .filter((offer) => budget < 3500 || offer.price >= Math.round(budget * 0.45))
               .sort((a,b) => (b.score * 100 + b.price / 20) - (a.score * 100 + a.price / 20))
-              .slice(0, 12)
-          : selectDailyDiversified(dailyLengthPool.length >= 12 ? dailyLengthPool : cheapestDestinations, key, 20);
+              .slice(0, 20)
+          : selectDailyDiversified(dailyLengthPool.length >= 12 ? dailyLengthPool : cheapestDestinations, key, 36);
 
     const validEmptySearch = Boolean(query && !rescueMode && (mode === "search" || mode === "citybreak"));
 
