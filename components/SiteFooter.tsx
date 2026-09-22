@@ -62,6 +62,10 @@ export default function SiteFooter() {
                 <h3>Tripownia.pl</h3>
                 <a href="mailto:kontakt@tripownia.pl" className="footer-v2-contact"><Mail size={15} /> kontakt@tripownia.pl</a>
                 <p className="footer-v2-address"><MapPin size={15} /> <span>Be in IT<br/>ul. Batalionów Chłopskich 77E/11<br/>01-305 Warszawa</span></p>
+                <Link href="/o-tripowni">O Tripowni</Link>
+                <Link href="/jak-dziala-tripownia">Jak działa Tripownia</Link>
+                <Link href="/standardy-redakcyjne">Standardy redakcyjne</Link>
+                <Link href="/faq">FAQ</Link>
                 <Link href="/regulamin">Regulamin</Link>
                 <Link href="/polityka-prywatnosci">Polityka prywatności</Link>
                 <Link href="/informacja-afiliacyjna">Informacja afiliacyjna</Link>
