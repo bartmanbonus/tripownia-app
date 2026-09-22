@@ -63,7 +63,7 @@ export default function TravelAdvisor() {
         seen.add(key);
         return true;
       })
-      .slice(0, 3)
+      .slice(0, 12)
       .map((row) => row.offer);
   }, [offers, budget, maxNights, climate, style]);
 
@@ -126,18 +126,18 @@ export default function TravelAdvisor() {
             <button type="button" className="app-secondary-button" onClick={refresh}><RefreshCw size={16}/> {loading ? "Odświeżam…" : "Odśwież oferty"}</button>
           </div>
 
-          <button className="primary-cta advisor-submit" onClick={() => setSubmitted(true)}><Sparkles size={18}/> Pokaż moje 3 kierunki</button>
+          <button className="primary-cta advisor-submit" onClick={() => setSubmitted(true)}><Sparkles size={18}/> Pokaż moje kierunki i oferty</button>
         </div>
 
         {submitted && (
           <section className="advisor-results">
             <div className="section-heading">
               <div>
-                <div className="kicker">TOP 3 DLA CIEBIE</div>
+                <div className="kicker">NAJLEPSZE DLA CIEBIE</div>
                 <h2>{recommendations.length ? "Najlepsze dopasowanie" : loading ? "Sprawdzamy możliwości…" : "Brak dobrego dopasowania"}</h2>
                 <p>{recommendations.length
                   ? source === "live"
-                    ? "Wybraliśmy różne kierunki, które mieszczą się w Twoim budżecie i limicie długości, a następnie oceniliśmy jakość oferty i dopasowanie stylu."
+                    ? "Pokazujemy więcej różnych kierunków mieszczących się w Twoim budżecie i limicie długości — najlepsze są na początku."
                     : "Pokazujemy najlepsze dopasowania z ostatniej poprawnej puli. Przed rezerwacją potwierdź aktualną cenę."
                   : "Nie naginamy budżetu ani długości pobytu. Zwiększ budżet, liczbę nocy albo odśwież aktualną pulę."}</p>
               </div>
