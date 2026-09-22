@@ -73,6 +73,14 @@ const wakacjePathByDestination: Record<string,string> = {
 };
 
 function norm(value:string){ return String(value||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim(); }
+function canonicalDestination(value:string){
+  const n=norm(value);
+  if(n==="bergamo" || n.startsWith("bergamo,")) return "Mediolan";
+  if(n==="milan" || n.startsWith("milan,")) return "Mediolan";
+  if(n==="sajgon" || n.startsWith("sajgon,")) return "Ho Chi Minh";
+  if(n==="ho chi minh city") return "Ho Chi Minh";
+  return value.trim();
+}
 function destinationKey(destination:string){ const first=norm(destination.split(",")[0]); return {first,full:norm(destination)}; }
 function firstMatch<T>(map:Record<string,T>, destination:string):T|undefined{ const {first,full}=destinationKey(destination); if(map[first]) return map[first]; const key=Object.keys(map).find(k=>full.includes(k)); return key?map[key]:undefined; }
 function isoAfter(days:number){ const d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
@@ -101,6 +109,7 @@ function defaultSearchType(mode:Mode):SearchType{
 }
 
 function buildLinks(destination:string,fromCode:string,start:string,end:string,adults:number,searchType:SearchType){
+  destination=canonicalDestination(destination);
   const isLast=searchType==="lastminute";
   const eximPath=firstMatch(eximPathByDestination,destination)||(isLast?"/last-minute":"/wakacje");
   const wakacjePath=firstMatch(wakacjePathByDestination,destination)||(isLast?"/last-minute/":"/");
@@ -185,7 +194,7 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
     setSubmitted(true);
     trackEvent("partner_search_submit",{
       search_type:searchType,
-      destination:destination||"dowolny",
+      destination:canonicalDestination(destination)||"dowolny",
       departure:searchType==="hotels"?"hotel_only":from,
       start_date:start,
       end_date:end,
@@ -225,7 +234,7 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
     </div>
 
     {submitted&&!blockedDestination&&<div className="trip-search-results trip-search-decision">
-      <div><small>KROK 2 Z 3 · GOTOWE</small><strong>{destination||"Dowolny kierunek"}</strong><span>{searchType!=="hotels"?`${airportLabel(from)} · `:""}{start} – {end} · {adults} os.</span></div>
+      <div><small>KROK 2 Z 3 · GOTOWE</small><strong>{canonicalDestination(destination)||"Dowolny kierunek"}</strong><span>{searchType!=="hotels"?`${airportLabel(from)} · `:""}{start} – {end} · {adults} os.</span></div>
       <div className="trip-search-actions">
         <a className="primary" href={primary.url} target="_blank" rel="sponsored noopener noreferrer">{primary.label} →</a>
         {alternative&&<a className="secondary" href={alternative.url} target="_blank" rel="sponsored noopener noreferrer">{alternative.label}</a>}
