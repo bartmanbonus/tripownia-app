@@ -93,8 +93,8 @@ function cleanRows(rows: any[], query: string) {
     .sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
   return query
-    ? uniqueOfferVariants(cleaned).slice(0, 18)
-    : onePerDirection(cleaned).slice(0, 12);
+    ? uniqueOfferVariants(cleaned).slice(0, 36)
+    : onePerDirection(cleaned).slice(0, 24);
 }
 
 function isoMs(value: string) {
@@ -297,8 +297,8 @@ export default function SearchHub({
       if (runId !== searchRunRef.current) return;
 
       let rows = requested.length
-        ? uniqueOfferVariants(cleanRows(exact.offers, "multi")).slice(0, 24)
-        : onePerDirection(cleanRows(exact.offers, "")).slice(0, 18);
+        ? uniqueOfferVariants(cleanRows(exact.offers, "multi")).slice(0, 36)
+        : onePerDirection(cleanRows(exact.offers, "")).slice(0, 24);
       let datePass = prioritizeByDate(rows, datePreference);
       rows = datePass.rows;
       setResults(rows);
@@ -310,8 +310,8 @@ export default function SearchHub({
         if (runId !== searchRunRef.current) return;
         const relaxedRows = cleanRows(relaxed.offers, requested.length ? "multi" : "");
         rows = requested.length
-          ? uniqueOfferVariants([...rows, ...relaxedRows]).slice(0, 24)
-          : onePerDirection([...rows, ...relaxedRows]).slice(0, 18);
+          ? uniqueOfferVariants([...rows, ...relaxedRows]).slice(0, 36)
+          : onePerDirection([...rows, ...relaxedRows]).slice(0, 24);
         datePass = prioritizeByDate(rows, datePreference);
         rows = datePass.rows;
         setResults(rows);
@@ -323,7 +323,7 @@ export default function SearchHub({
         const broadData = await broadResponse.json();
         if (runId !== searchRunRef.current) return;
         if (broadResponse.ok && broadData?.ok !== false) {
-          rows = onePerDirection(cleanRows(Array.isArray(broadData?.offers) ? broadData.offers : [], "")).slice(0, 12);
+          rows = onePerDirection(cleanRows(Array.isArray(broadData?.offers) ? broadData.offers : [], "")).slice(0, 24);
           rows = prioritizeByDate(rows, datePreference).rows;
           setResults(rows);
         }
@@ -621,7 +621,8 @@ export default function SearchHub({
               </>
             )}
             {!loading && results.length === 0 && !expanding && (() => {
-              const fallback = activeTab === "City break" ? cityBreakFallbackLinks(destination) : null;
+              const fallbackDestination = selectedDestinations[0] || destination;
+              const fallback = activeTab === "City break" ? cityBreakFallbackLinks(fallbackDestination) : null;
               return <div className="search-v3-empty">
                 <strong>{fallback ? "Nie ma teraz gotowego pakietu — ale nadal możesz złożyć city break." : "Spróbuj trochę szerzej."}</strong>
                 <span>{fallback ? "Sprawdź lot i nocleg osobno u partnerów Tripowni albo zmień filtry pakietu." : "Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji."}</span>

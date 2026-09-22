@@ -12067,3 +12067,16 @@ img{
   .advisor-next .app-secondary-button{width:100%!important;justify-content:center!important}
   .advisor-submit{width:100%!important;white-space:normal!important}
 }
+
+
+/* V203 — footer audit: compact, readable, clear of mobile navigation */
+@media(max-width:700px){
+  .footer-v2{overflow:hidden}
+  .footer-v2-shell{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
+  .footer-v2-top-grid,.footer-v2-lower-grid{grid-template-columns:1fr!important;gap:24px!important}
+  .footer-v2-brand-card{width:100%!important;min-width:0!important}
+  .footer-v2-logo img{width:150px!important;height:auto!important}
+  .footer-v2-plan-cta{display:inline-flex!important;width:auto!important;max-width:100%!important;white-space:nowrap!important}
+  .footer-v2-trending-links{grid-template-columns:1fr 1fr!important;gap:10px 16px!important}
+  .footer-v2-contact,.footer-v2-address{min-width:0!important;overflow-wrap:anywhere}
+}

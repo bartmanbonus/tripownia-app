@@ -33,14 +33,11 @@ export default function SiteFooter() {
 
             <div className="footer-v2-trending">
               <div className="footer-v2-column">
-                <h3>Inspiracje i poradniki</h3>
+                <h3>Inspiracje</h3>
                 <div className="footer-v2-trending-links">
-                  <Link href="/lotniska-w-polsce-bez-limitu-100-ml-plynow">Lotniska bez limitu 100 ml</Link>
-                  <Link href="/podroze/city-break-listopad-2026">City break — listopad 2026</Link>
-                  <Link href="/podroze/cieple-wakacje-listopad-2026">Gdzie ciepło w listopadzie</Link>
-                  <Link href="/podroze/wyspy-kanaryjskie-grudzien-2026">Kanary — grudzień 2026</Link>
-                  <Link href="/podroze/wyspy-zielonego-przyladka-grudzien-2026">Cabo Verde — grudzień</Link>
-                  <Link href="/gdzie-na-sylwestra-2026-2027-15-kierunkow">Sylwester 2026/2027</Link>
+                  <Link href="/kierunki">Wszystkie kierunki</Link>
+                  <Link href="/podroze/city-break-listopad-2026">City break</Link>
+                  <Link href="/podroze/cieple-wakacje-listopad-2026">Gdzie jest ciepło</Link>
                   <Link href="/poradniki">Poradniki</Link>
                 </div>
               </div>
@@ -64,10 +61,7 @@ export default function SiteFooter() {
                 <p className="footer-v2-address"><MapPin size={15} /> <span>Be in IT<br/>ul. Batalionów Chłopskich 77E/11<br/>01-305 Warszawa</span></p>
                 <Link href="/o-tripowni">O Tripowni</Link>
                 <Link href="/kontakt">Kontakt</Link>
-                <Link href="/dla-mediow">Dla mediów</Link>
-                <Link href="/wspolpraca">Współpraca</Link>
                 <Link href="/jak-dziala-tripownia">Jak działa Tripownia</Link>
-                <Link href="/standardy-redakcyjne">Standardy redakcyjne</Link>
                 <Link href="/faq">FAQ</Link>
                 <Link href="/regulamin">Regulamin</Link>
                 <Link href="/polityka-prywatnosci">Polityka prywatności</Link>
