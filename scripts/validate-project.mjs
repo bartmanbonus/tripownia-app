@@ -147,6 +147,12 @@ requireText("components/UnifiedPage.tsx", "partner: partners.rentacar", "wynajem
 requireText("components/UnifiedPage.tsx", "return partners.esky.buildUrl(", "dalekie loty omijają builder afiliacyjny eSky");
 requireText("components/UnifiedPage.tsx", "return partners.booking.buildUrl(", "dalekie noclegi omijają builder afiliacyjny Booking");
 
+
+forbidText("components/SearchHub.tsx", "Więcej filtrów", "wyszukiwarka ponownie ukrywa podstawowe filtry");
+requireText("components/SearchHub.tsx", 'className="search-v3-board"', "wyżywienie nie jest od razu dostępne w wyszukiwarce");
+requireText("app/error.tsx", "Spróbuj ponownie", "brakuje odzyskiwalnego stanu błędu");
+requireText("app/not-found.tsx", "Ułóż plan za 0 zł", "404 nie prowadzi użytkownika z powrotem do lejka");
+
 console.log(`✅ Audyt OK: ${legacy.length} zmigrowanych stron + ${aliasMatches.length} naprawionych starych adresów. Brak znanych wewnętrznych linków prowadzących do 404.`);
 console.log("✅ Krytyczne guardy OK: search scope, live-first homepage, EXIM/TUI exact flow, affiliate validation i SEO transient ofert.");
 
