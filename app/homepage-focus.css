@@ -195,3 +195,115 @@ body:has(.dream-hero) .chapter-daily .daily-carousel-wrap {
     padding-bottom: 20px !important;
   }
 }
+
+
+/* Curated discovery: useful content without returning to a crowded homepage. */
+body:has(.dream-hero) .homepage-curated-trips,
+body:has(.dream-hero) .homepage-events,
+body:has(.dream-hero) .homepage-phenomena {
+  padding-top: clamp(96px, 10vw, 148px);
+  padding-bottom: clamp(96px, 10vw, 148px);
+}
+body:has(.dream-hero) .homepage-events {
+  background: #faf8f6;
+  max-width: none;
+  width: 100%;
+  padding-inline: max(24px, calc((100vw - 1240px) / 2));
+}
+body:has(.dream-hero) .homepage-curated-trips .section-heading,
+body:has(.dream-hero) .homepage-events .section-heading,
+body:has(.dream-hero) .homepage-phenomena .section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 32px;
+  margin-bottom: 48px;
+}
+body:has(.dream-hero) .homepage-curated-trips .section-heading > div,
+body:has(.dream-hero) .homepage-events .section-heading > div,
+body:has(.dream-hero) .homepage-phenomena .section-heading > div {
+  max-width: 760px;
+}
+body:has(.dream-hero) .section-premium-link {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  font-weight: 850;
+  color: #171513;
+}
+body:has(.dream-hero) .homepage-editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 20px;
+}
+body:has(.dream-hero) .homepage-editorial-card {
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  border-radius: 26px;
+  background: #fff;
+  border: 1px solid rgba(23,21,19,.08);
+  text-decoration: none;
+  color: #171513;
+}
+body:has(.dream-hero) .homepage-editorial-card small {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+body:has(.dream-hero) .homepage-editorial-card strong {
+  margin-top: 24px;
+  font-size: 25px;
+  line-height: 1.08;
+}
+body:has(.dream-hero) .homepage-editorial-card span {
+  margin-top: 12px;
+  color: #746a64;
+  line-height: 1.6;
+}
+body:has(.dream-hero) .homepage-editorial-card em {
+  margin-top: auto;
+  padding-top: 24px;
+  font-style: normal;
+  font-weight: 850;
+}
+body:has(.dream-hero) .homepage-phenomena-grid {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 18px;
+}
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-card {
+  display: block !important;
+}
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy {
+  padding: 18px 4px 0;
+}
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy small,
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy strong,
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy span,
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy em {
+  display: block;
+}
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy strong { margin-top: 7px; font-size: 20px; }
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy span { margin-top: 8px; color:#746a64; line-height:1.55; }
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy em { margin-top:14px; font-style:normal; font-weight:850; }
+
+@media(max-width:900px) {
+  body:has(.dream-hero) .homepage-editorial-grid { grid-template-columns:1fr; }
+  body:has(.dream-hero) .homepage-phenomena-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media(max-width:620px) {
+  body:has(.dream-hero) .homepage-curated-trips,
+  body:has(.dream-hero) .homepage-events,
+  body:has(.dream-hero) .homepage-phenomena { padding-top:80px; padding-bottom:80px; }
+  body:has(.dream-hero) .homepage-events { padding-inline:16px; }
+  body:has(.dream-hero) .homepage-curated-trips .section-heading,
+  body:has(.dream-hero) .homepage-events .section-heading,
+  body:has(.dream-hero) .homepage-phenomena .section-heading { display:block; margin-bottom:32px; }
+  body:has(.dream-hero) .section-premium-link { margin-top:20px; }
+  body:has(.dream-hero) .homepage-phenomena-grid { grid-template-columns:1fr; gap:28px; }
+  body:has(.dream-hero) .homepage-editorial-card { min-height:210px; padding:24px; }
+}
