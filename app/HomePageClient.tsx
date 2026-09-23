@@ -843,6 +843,59 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section shell homepage-curated-trips" aria-labelledby="curated-trips-title">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">GOTOWE WYJAZDY</div>
+            <h2 id="curated-trips-title">Konkretne pomysły, które możesz zarezerwować.</h2>
+            <p>Nie tylko inspiracje. Tu pokazujemy realne, aktualne opcje z terminem i ceną.</p>
+          </div>
+          <Link className="section-premium-link" href="/okazje">Zobacz wszystkie wyjazdy <ArrowRight size={16}/></Link>
+        </div>
+        <OfferRail kicker="🏙 CITY BREAK" title="Gotowe na kilka dni" description="Krótkie wyjazdy z konkretnym terminem i aktualną ceną." items={themedRails.city.slice(0, 6)}/>
+        <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun.slice(0, 6)}/>
+      </section>
+
+      <section className="section shell homepage-events" aria-labelledby="homepage-events-title">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">SPORT I WYDARZENIA</div>
+            <h2 id="homepage-events-title">Czasem najlepszym powodem do wyjazdu jest konkretne wydarzenie.</h2>
+            <p>Mecz, koncert albo duże wydarzenie może być początkiem całego city breaku.</p>
+          </div>
+          <Link className="section-premium-link" href="/wydarzenia">Zobacz wydarzenia <ArrowRight size={16}/></Link>
+        </div>
+        <div className="homepage-editorial-grid homepage-events-grid">
+          <Link href="/wydarzenia" className="homepage-editorial-card"><small>⚽ PIŁKA NOŻNA</small><strong>Weekend na mecz</strong><span>Barcelona, Mediolan i inne miasta, gdzie wydarzenie staje się pretekstem do całego wyjazdu.</span><em>Zobacz wyjazdy sportowe →</em></Link>
+          <Link href="/wydarzenia" className="homepage-editorial-card"><small>🏟️ LIVE</small><strong>Sport na żywo + city break</strong><span>Połącz wydarzenie z hotelem, lotem i planem miasta zamiast organizować wszystko osobno.</span><em>Sprawdź wydarzenia →</em></Link>
+          <Link href="/wydarzenia" className="homepage-editorial-card"><small>🎫 WYDARZENIA</small><strong>Jedź po konkretne przeżycie</strong><span>Nie tylko cel podróży. Czasem najważniejsze jest to, co dzieje się na miejscu.</span><em>Zobacz kalendarz →</em></Link>
+        </div>
+      </section>
+
+      <section className="section shell homepage-phenomena" aria-labelledby="homepage-phenomena-title">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">ZJAWISKA I SEZON</div>
+            <h2 id="homepage-phenomena-title">Niektóre podróże mają sens tylko w dobrym momencie.</h2>
+            <p>Zorza, sakura, safari czy jarmarki — termin jest tu równie ważny jak kierunek.</p>
+          </div>
+          <Link className="section-premium-link" href="/podroze-po-przezycia">Zobacz pełny kalendarz <ArrowRight size={16}/></Link>
+        </div>
+        <div className="homepage-phenomena-grid">
+          {experienceCards.slice(0, 4).map(card => (
+            <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
+              <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={card.fallbackImage} />
+              <div className="experience-teaser-copy">
+                <small>{card.season}</small>
+                <strong>{card.title}</strong>
+                <span>{card.text}</span>
+                <em>Zobacz najlepszy moment →</em>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section className="section shell streaming-discovery streaming-offers visual-chapter chapter-streaming" aria-label="Odkrywaj oferty Tripowni">
         <div className="section-heading"><div><div className="kicker">NETFLIX PODRÓŻY</div><h2>Przewijaj, aż coś kliknie.</h2><p>Nie jedna ściana ofert. Różne nastroje, różne budżety i konkretne kierunki — z tej samej potwierdzonej puli.</p></div></div>
         <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety z aktualnego feedu i konkretnymi terminami." items={themedRails.city}/>
