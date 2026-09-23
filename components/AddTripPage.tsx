@@ -15,6 +15,8 @@ import {
   Plane,
   Route,
   ShieldCheck,
+  Smartphone,
+  ParkingCircle,
   Sparkles,
   Ticket,
 } from "lucide-react";
@@ -25,7 +27,7 @@ import { ensureFreshAccountSession, readAccountSession, saveTripowniaUserState, 
 import { collectLocalAccountState } from "@/lib/accountState";
 import { partners } from "@/lib/partners";
 
-type PieceKey = "flight" | "hotel" | "transfer" | "attractions";
+type PieceKey = "flight" | "hotel" | "transfer" | "attractions" | "esim" | "parking";
 type PieceState = Record<PieceKey, boolean>;
 
 const initialPieces: PieceState = {
@@ -33,6 +35,8 @@ const initialPieces: PieceState = {
   hotel: false,
   transfer: false,
   attractions: false,
+  esim: false,
+  parking: false,
 };
 
 function dateLabel(start: string, end: string) {
@@ -96,6 +100,8 @@ function buildSuggestions(city: string, country: string, start: string, end: str
     attractions: partners.getyourguide.buildUrl(attractions.toString()),
     transfer: partners.kiwitaxi.buildUrl(),
     transferAlt: partners.gettransfer.buildUrl(),
+    esim: partners.fonia.buildUrl(),
+    parking: partners.parklot.buildUrl(),
   };
 }
 
@@ -177,6 +183,8 @@ export default function AddTripPage() {
               hotel: true,
               transfer: Boolean(pending.transferIncluded),
               attractions: false,
+              esim: false,
+              parking: false,
             });
             sessionStorage.removeItem("tripownia-pending-offer-v1");
           }
@@ -263,6 +271,8 @@ export default function AddTripPage() {
       checklist: {
         "Sprawdź transfer z lotniska i taxi na miejscu": pieces.transfer,
         "Zarezerwuj najważniejsze atrakcje": pieces.attractions,
+        "Sprawdź internet / eSIM na wyjazd": pieces.esim,
+        "Zarezerwuj parking przy lotnisku": pieces.parking,
       },
       dayPlan: [],
       journeyPieces: {
@@ -270,6 +280,8 @@ export default function AddTripPage() {
         hotel: { status: pieces.hotel ? "owned" : selectedProvider.hotel ? "selected" : "missing", provider: selectedProvider.hotel || "" },
         transfer: { status: pieces.transfer ? "owned" : selectedProvider.transfer ? "selected" : "missing", provider: selectedProvider.transfer || "" },
         attractions: { status: pieces.attractions ? "owned" : selectedProvider.attractions ? "selected" : "missing", provider: selectedProvider.attractions || "" },
+        esim: { status: pieces.esim ? "owned" : selectedProvider.esim ? "selected" : "missing", provider: selectedProvider.esim || "" },
+        parking: { status: pieces.parking ? "owned" : selectedProvider.parking ? "selected" : "missing", provider: selectedProvider.parking || "" },
       },
       suggestedLinks: suggestions,
     };
@@ -363,6 +375,8 @@ export default function AddTripPage() {
               <PieceToggle icon={<BedDouble size={20}/>} title="Hotel / nocleg" checked={pieces.hotel} onClick={() => togglePiece("hotel")} />
               <PieceToggle icon={<Car size={20}/>} title="Transfer z lotniska" checked={pieces.transfer} onClick={() => togglePiece("transfer")} />
               <PieceToggle icon={<Ticket size={20}/>} title="Atrakcje / bilety" checked={pieces.attractions} onClick={() => togglePiece("attractions")} />
+              <PieceToggle icon={<Smartphone size={20}/>} title="Internet / eSIM" checked={pieces.esim} onClick={() => togglePiece("esim")} />
+              <PieceToggle icon={<ParkingCircle size={20}/>} title="Parking przy lotnisku" checked={pieces.parking} onClick={() => togglePiece("parking")} />
             </div>
 
             {(pieces.flight || pieces.hotel) && (
@@ -375,7 +389,7 @@ export default function AddTripPage() {
           </section>
 
           <section className="add-trip-section trip-plan-suggestions">
-            <div className="add-trip-section-title"><Sparkles size={20}/><div><strong>3. Tripownia uzupełnia brakujące elementy</strong><span>{basicsReady ? `Brakuje ${missingCount} z 4 elementów. Wybierz propozycję albo zostaw ją na później.` : "Najpierw wpisz kierunek i daty, żeby przygotować właściwe linki."}</span></div></div>
+            <div className="add-trip-section-title"><Sparkles size={20}/><div><strong>3. Tripownia uzupełnia brakujące elementy</strong><span>{basicsReady ? `Brakuje ${missingCount} z 6 elementów. Wybierz propozycję albo zostaw ją na później.` : "Najpierw wpisz kierunek i daty, żeby przygotować właściwe linki."}</span></div></div>
 
             {!basicsReady ? (
               <div className="trip-plan-waiting">Uzupełnij kierunek i termin — wtedy pokażemy gotowe propozycje lotu, noclegu, transferu i atrakcji.</div>
@@ -422,6 +436,28 @@ export default function AddTripPage() {
                     <div className="trip-plan-option-actions">
                       <button type="button" onClick={() => chooseProvider("attractions", "GetYourGuide")}>{selectedProvider.attractions ? "Wybrane ✓" : "Wybieram"}</button>
                       <a href={suggestions.attractions} target="_blank" rel="sponsored noopener noreferrer">Sprawdź atrakcje <ExternalLink size={14}/></a>
+                    </div>
+                  </article>
+                )}
+
+                {!pieces.esim && (
+                  <article className={`trip-plan-option${selectedProvider.esim ? " selected" : ""}`}>
+                    <Smartphone size={22}/>
+                    <div><small>INTERNET / eSIM</small><h3>Fonia eSIM</h3><p>Internet na wyjazd bez szukania lokalnej karty SIM po przylocie.</p></div>
+                    <div className="trip-plan-option-actions">
+                      <button type="button" onClick={() => chooseProvider("esim", "Fonia eSIM")}>{selectedProvider.esim ? "Wybrane ✓" : "Wybieram"}</button>
+                      <a href={suggestions.esim} target="_blank" rel="sponsored noopener noreferrer">Sprawdź eSIM <ExternalLink size={14}/></a>
+                    </div>
+                  </article>
+                )}
+
+                {!pieces.parking && (
+                  <article className={`trip-plan-option${selectedProvider.parking ? " selected" : ""}`}>
+                    <ParkingCircle size={22}/>
+                    <div><small>PARKING</small><h3>Parklot.pl</h3><p>Parking przy lotnisku wylotu — przydatny, jeśli jedziesz na lotnisko samochodem.</p></div>
+                    <div className="trip-plan-option-actions">
+                      <button type="button" onClick={() => chooseProvider("parking", "Parklot.pl")}>{selectedProvider.parking ? "Wybrane ✓" : "Wybieram"}</button>
+                      <a href={suggestions.parking} target="_blank" rel="sponsored noopener noreferrer">Sprawdź parking <ExternalLink size={14}/></a>
                     </div>
                   </article>
                 )}
