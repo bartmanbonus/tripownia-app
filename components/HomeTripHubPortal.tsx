@@ -25,7 +25,7 @@ export default function HomeTripHubPortal() {
       return;
     }
 
-    const target = document.querySelector<HTMLElement>("#wyszukiwarka");
+    const target = document.querySelector<HTMLElement>(pathname === "/" ? "#okazje" : "#wyszukiwarka");
     if (!target) return;
 
     const mount = document.createElement("div");
