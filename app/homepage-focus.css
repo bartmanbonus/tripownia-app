@@ -307,3 +307,22 @@ body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy em { margin-to
   body:has(.dream-hero) .homepage-phenomena-grid { grid-template-columns:1fr; gap:28px; }
   body:has(.dream-hero) .homepage-editorial-card { min-height:210px; padding:24px; }
 }
+
+
+/* Expandable offer shelves: lots of choice without a wall of cards. */
+body:has(.dream-hero) .homepage-offer-more{margin-top:54px;display:grid;gap:12px}
+body:has(.dream-hero) .homepage-offer-more details{border-top:1px solid rgba(23,21,19,.1);padding:0}
+body:has(.dream-hero) .homepage-offer-more details:last-child{border-bottom:1px solid rgba(23,21,19,.1)}
+body:has(.dream-hero) .homepage-offer-more summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 4px}
+body:has(.dream-hero) .homepage-offer-more summary::-webkit-details-marker{display:none}
+body:has(.dream-hero) .homepage-offer-more summary span{display:flex;align-items:baseline;gap:16px}
+body:has(.dream-hero) .homepage-offer-more summary b{font-size:18px}
+body:has(.dream-hero) .homepage-offer-more summary small{color:#7d746e}
+body:has(.dream-hero) .homepage-offer-more details[open] summary svg{transform:rotate(90deg)}
+body:has(.dream-hero) .homepage-offer-more details>.offer-stream-row{padding:12px 0 54px;margin:0}
+@media(max-width:620px){
+ body:has(.dream-hero) .homepage-offer-more{margin-top:36px}
+ body:has(.dream-hero) .homepage-offer-more summary{padding:19px 2px}
+ body:has(.dream-hero) .homepage-offer-more summary span{display:block}
+ body:has(.dream-hero) .homepage-offer-more summary small{display:block;margin-top:4px}
+}
