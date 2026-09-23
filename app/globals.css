@@ -12080,3 +12080,27 @@ img{
   .footer-v2-trending-links{grid-template-columns:1fr 1fr!important;gap:10px 16px!important}
   .footer-v2-contact,.footer-v2-address{min-width:0!important;overflow-wrap:anywhere}
 }
+
+
+/* V204 — flexible planner + mobile logo/footer containment */
+.planner-mode-row,.planner-airports{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px}
+.planner-mode-row button,.planner-airports button{min-height:42px;padding:9px 13px;border:1px solid #ddd1c9;border-radius:999px;background:#fff;color:#29231f;font:inherit;font-size:12px;font-weight:850}
+.planner-mode-row button.active,.planner-airports button.active{border-color:#ef5b35;background:#fff0e9;color:#c94727}
+.planner-subtitle{display:flex;align-items:center;gap:8px;margin:20px 0 4px;font-size:14px}
+.planner-flex-options select{width:100%;min-height:48px;padding:0 12px;border:1px solid #ddd5cf;border-radius:14px;background:#fff;font:inherit}
+.planner-weekend-check{display:flex!important;align-items:center;gap:9px;padding-top:22px}
+.planner-weekend-check input{width:20px!important;height:20px!important;flex:0 0 20px}
+@media(max-width:700px){
+  .site-header .brand,.site-header .brand img,.header-brand,.header-brand img{max-width:92px!important;height:auto!important;object-fit:contain!important}
+  .add-trip-page{overflow:hidden}
+  .add-trip-form,.add-trip-section,.add-trip-grid,.add-trip-grid.two,.add-trip-grid.three{min-width:0!important;max-width:100%!important}
+  .add-trip-grid.two,.add-trip-grid.three{grid-template-columns:1fr!important}
+  .planner-mode-row,.planner-airports{max-width:100%;overflow:visible}
+  .planner-mode-row button,.planner-airports button{max-width:100%;white-space:normal}
+  .planner-weekend-check{padding-top:0}
+  .footer-v2-top-grid{display:grid!important;grid-template-columns:1fr!important}
+  .footer-v2-brand-card{display:grid!important;grid-template-columns:1fr!important;justify-items:start!important}
+  .footer-v2-logo{display:block!important;width:150px!important;max-width:48vw!important}
+  .footer-v2-logo img{display:block!important;width:100%!important;height:auto!important;max-width:100%!important}
+  .footer-v2-discover{width:100%!important}
+}
