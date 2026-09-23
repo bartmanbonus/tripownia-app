@@ -174,10 +174,10 @@ export default function SiteHeader() {
           <Link className="trip-header-brand" href={inApp ? "/app" : "/"} aria-label={inApp ? "Tripownia — start aplikacji" : "Tripownia.pl — strona główna"}>
             <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={68} height={68} priority />
           </Link>
-          <Link className="trip-header-search" href={searchHref} aria-label="Przejdź do wyszukiwarki wyjazdów">
+          <Link className="trip-header-search" style={{ display: "grid", gridTemplateColumns: "20px minmax(0, 1fr) 44px", gap: 10 }} href={searchHref} aria-label="Przejdź do wyszukiwarki wyjazdów">
             <Search size={20} strokeWidth={2.3} />
-            <span className="trip-header-search-copy"><strong>Znajdź wyjazd albo zacznij od kierunku</strong><small>Wakacje, loty, hotele i atrakcje — planner ogarnie resztę</small></span>
-            <span className="trip-header-search-cta" aria-hidden="true"><Search size={24} strokeWidth={2.8} /></span>
+            <span className="trip-header-search-copy" style={{ minWidth: 0, overflow: "hidden" }}><strong>Znajdź wyjazd</strong><small>Wakacje, loty, hotele i atrakcje — planner ogarnie resztę</small></span>
+            <span className="trip-header-search-cta" style={{ position: "static", width: 44, minWidth: 44, height: 44, padding: 0, transform: "none" }} aria-hidden="true"><Search size={24} strokeWidth={2.8} /></span>
           </Link>
           <nav className="trip-header-actions" aria-label="Twoje konto">
             <Link className="trip-header-action trip-header-action-primary" href="/dodaj-podroz" aria-label="Ułóż darmowy plan podróży"><Sparkles size={19} strokeWidth={2} /><span>Plan za 0 zł</span></Link>
