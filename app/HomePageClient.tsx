@@ -549,7 +549,11 @@ export default function Home() {
     const sun = fillRail(pick(o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c))), 5);
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
     const unusual = fillRail(pick(o => unusualNames.test(o.city)), 5);
-    return { city, sun, unusual };
+    const weekend = fillRail(pick(o => o.nights >= 2 && o.nights <= 4), 5);
+    const week = fillRail(pick(o => o.nights >= 6 && o.nights <= 9), 5);
+    const budgetFriendly = uniqueDestinations([...active].sort((a,b) => a.price - b.price)).slice(0, 8);
+    const premium = fillRail(pick(o => o.price >= 2500 || /malediw|mauritius|seszel|zanzibar|dubaj|dominik/i.test(`${o.city} ${o.country}`)), 5);
+    return { city, sun, unusual, weekend, week, budgetFriendly, premium };
   }, [dailyKey, liveOffers, eximCityBreaks]);
 
   const offersRailRef = useRef<HTMLDivElement>(null);
@@ -854,6 +858,24 @@ export default function Home() {
         </div>
         <OfferRail kicker="🏙 CITY BREAK" title="Gotowe na kilka dni" description="Krótkie wyjazdy z konkretnym terminem i aktualną ceną." items={themedRails.city.slice(0, 6)}/>
         <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun.slice(0, 6)}/>
+        <div className="homepage-offer-more">
+          <details open>
+            <summary><span><b>⚡ Na krótko</b><small>2–4 noce · szybki reset</small></span><ArrowRight size={18}/></summary>
+            <OfferRail kicker="WEEKEND / KRÓTKI WYJAZD" title="Wyskocz na kilka dni" description="Dobre opcje, kiedy nie chcesz brać całego tygodnia urlopu." items={themedRails.weekend.slice(0, 6)}/>
+          </details>
+          <details>
+            <summary><span><b>🏖 Tydzień odpoczynku</b><small>6–9 nocy · klasyczne wakacje</small></span><ArrowRight size={18}/></summary>
+            <OfferRail kicker="TYDZIEŃ" title="Pełny tydzień poza domem" description="Wyjazdy na prawdziwy odpoczynek, z konkretną ceną i terminem." items={themedRails.week.slice(0, 6)}/>
+          </details>
+          <details>
+            <summary><span><b>💸 Najtaniej teraz</b><small>oferty od najniższej ceny</small></span><ArrowRight size={18}/></summary>
+            <OfferRail kicker="DOBRY BUDŻET" title="Dużo podróży za mniej" description="Najtańsze aktualne kierunki z dzisiejszej puli." items={themedRails.budgetFriendly.slice(0, 6)}/>
+          </details>
+          <details>
+            <summary><span><b>✨ Raz a dobrze</b><small>dalsze i bardziej wyjątkowe</small></span><ArrowRight size={18}/></summary>
+            <OfferRail kicker="WIĘKSZA PODRÓŻ" title="Kiedy chcesz czegoś więcej" description="Droższe lub dalsze wyjazdy, które mają być główną podróżą sezonu." items={themedRails.premium.slice(0, 6)}/>
+          </details>
+        </div>
       </section>
 
       <section className="section shell homepage-events" aria-labelledby="homepage-events-title">
