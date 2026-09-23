@@ -423,7 +423,6 @@ export default function SearchHub({
     setBudget("all");
     setBoard("all");
     setWeekendOnly(false);
-    setAdvancedOpen(false);
     setResults([]);
     setVisibleCount(12);
     setNotice("");
