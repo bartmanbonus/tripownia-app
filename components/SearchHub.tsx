@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { CalendarDays, Check, ChevronDown, MapPin, Plane, Search, SlidersHorizontal, X } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, MapPin, Plane, Search, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches } from "@/lib/worldDestinations";
@@ -174,7 +174,6 @@ export default function SearchHub({
   const [budget, setBudget] = useState("all");
   const [board, setBoard] = useState("all");
   const [weekendOnly, setWeekendOnly] = useState(false);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [results, setResults] = useState<any[]>([]);
   const [visibleCount, setVisibleCount] = useState(12);
@@ -380,7 +379,6 @@ export default function SearchHub({
     setBudget("all");
     setBoard("all");
     setWeekendOnly(false);
-    setAdvancedOpen(false);
     setSearched(false);
     setResults([]);
     setVisibleCount(12);
@@ -400,7 +398,6 @@ export default function SearchHub({
     setBudget(nextBudget);
     setBoard(nextBoard);
     setWeekendOnly(nextWeekend);
-    setAdvancedOpen(nextBoard !== "all");
     if (overrides.tab) setActiveTab(overrides.tab);
 
     void runSearch(canonicalLabel, {
@@ -426,7 +423,6 @@ export default function SearchHub({
     setBudget("all");
     setBoard("all");
     setWeekendOnly(false);
-    setAdvancedOpen(false);
     setResults([]);
     setVisibleCount(12);
     setNotice("");
@@ -579,27 +575,22 @@ export default function SearchHub({
           </div>
         )}
 
-        <div className="search-v3-options-row">
-          <button type="button" className={`search-v3-more ${advancedOpen ? "active" : ""}`} onClick={() => setAdvancedOpen((value) => !value)}>
-            <SlidersHorizontal size={15}/> Więcej filtrów
-          </button>
+        <div className="search-v3-options-row search-v3-options-simple">
+          <label className="search-v3-board">
+            <span>Wyżywienie</span>
+            <select value={board} onChange={(event) => setBoard(event.target.value)}>
+              <option value="all">Dowolne</option>
+              <option value="bez wyżywienia">Bez wyżywienia</option>
+              <option value="śniadanie">Śniadanie</option>
+              <option value="half board">Half Board</option>
+              <option value="full board">Full Board</option>
+              <option value="all inclusive">All Inclusive</option>
+              <option value="ultra all inclusive">Ultra All Inclusive</option>
+            </select>
+          </label>
           <button type="button" className={`search-v3-weekend ${weekendOnly ? "active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
             <span className="search-v3-check">{weekendOnly && <Check size={13}/>}</span> Pobyt obejmuje sobotę i niedzielę
           </button>
-          {advancedOpen && (
-            <label className="search-v3-board">
-              <span>Wyżywienie</span>
-              <select value={board} onChange={(event) => setBoard(event.target.value)}>
-                <option value="all">Dowolne</option>
-                <option value="bez wyżywienia">Bez wyżywienia</option>
-                <option value="śniadanie">Śniadanie</option>
-                <option value="half board">Half Board</option>
-                <option value="full board">Full Board</option>
-                <option value="all inclusive">All Inclusive</option>
-                <option value="ultra all inclusive">Ultra All Inclusive</option>
-              </select>
-            </label>
-          )}
         </div>
 
         <div className="search-v3-quick">
