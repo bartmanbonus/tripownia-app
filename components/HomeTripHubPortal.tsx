@@ -7,11 +7,11 @@ import { usePathname } from "next/navigation";
 import { ArrowRight, Car, ClipboardCheck, MapPinned, Route, Sparkles } from "lucide-react";
 
 const actions = [
-  { href: "/dodaj-podroz", icon: Route, title: "Dodaj podróż", text: "Masz już lot lub hotel? Zacznij własny plan." },
-  { href: "/moja-podroz", icon: MapPinned, title: "Mój planner", text: "Rezerwacje, checklista i plan dzień po dniu." },
-  { href: "/przed-wyjazdem", icon: ClipboardCheck, title: "Przed wyjazdem", text: "Dokumenty, bagaż, odprawa i ostatnie przygotowania." },
-  { href: "/transfery", icon: Car, title: "Transfer", text: "Ogarnij dojazd z lotniska zanim wylądujesz." },
-  { href: "/atrakcje", icon: Sparkles, title: "Atrakcje", text: "Zapisz to, co naprawdę chcesz zrobić na miejscu." },
+  { href: "/transfery", icon: Car, title: "Transfer", text: "Dojazd z lotniska bez szukania po lądowaniu." },
+  { href: "/atrakcje", icon: Sparkles, title: "Atrakcje", text: "Bilety i rzeczy, które warto rezerwować wcześniej." },
+  { href: "/esim", icon: Route, title: "eSIM", text: "Internet gotowy od pierwszej chwili na miejscu." },
+  { href: "/parkingi", icon: MapPinned, title: "Parking", text: "Parking przy lotnisku dopasowany do wylotu." },
+  { href: "/przed-wyjazdem", icon: ClipboardCheck, title: "Checklista", text: "Dokumenty, bagaż i przygotowanie przed wyjazdem." },
 ];
 
 export default function HomeTripHubPortal() {
@@ -44,10 +44,10 @@ export default function HomeTripHubPortal() {
   return createPortal(
     <section className="shell already-booked-hub" aria-labelledby="already-booked-title">
       <div className="already-booked-copy">
-        <div className="kicker">MASZ JUŻ WYJAZD?</div>
-        <h2 id="already-booked-title">Nie musisz niczego kupować w Tripowni, żeby z niej korzystać.</h2>
-        <p>Dodaj swój lot, hotel i termin, a Tripownia pomoże Ci ogarnąć wszystko od przygotowania do planu na miejscu.</p>
-        <Link href="/dodaj-podroz" className="already-booked-primary">Ułóż mój plan za darmo <ArrowRight size={17}/></Link>
+        <div className="kicker">TU ZACZYNA SIĘ PRZEWAGA TRIPOWNI</div>
+        <h2 id="already-booked-title">Kupiłaś wyjazd? Tripownia dopiero się zaczyna.</h2>
+        <p>Dodaj lot i hotel — nawet kupione gdzie indziej. Dostaniesz jeden plan z dokumentami, checklistą i brakującymi elementami podróży.</p>
+        <Link href="/dodaj-podroz" className="already-booked-primary">Dodaj mój wyjazd za darmo <ArrowRight size={17}/></Link>
       </div>
 
       <div className="already-booked-actions">
