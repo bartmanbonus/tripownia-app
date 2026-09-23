@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 type Partner =
   | "wakacje"
@@ -64,6 +65,8 @@ function sourceFor(anchor: HTMLAnchorElement) {
   if (anchor.closest(".trip-search-actions")) return "partner_search_results";
   if (anchor.closest(".trip-partner-mini")) return "partner_search_browse";
   if (anchor.closest(".trip-search-extras")) return "search_extras";
+  if (anchor.closest(".trip-plan-option")) return "planner_partner";
+  if (anchor.closest(".search-v3-empty-actions")) return "search_fallback";
   if (anchor.closest(".favorites-page")) return "favorites";
   if (anchor.closest(".compare-page")) return "compare";
   if (anchor.closest(".offer-card")) return "offer_image";
@@ -175,7 +178,21 @@ export default function AffiliateClickBridge() {
 
     const handleInteraction = (event: Event) => {
       const anchor = interactiveAnchor(event);
-      if (anchor) wrapAnchor(anchor);
+      if (!anchor) return;
+      const before = anchor.href;
+      wrapAnchor(anchor);
+      if (event.type === "pointerdown" && isTrackedLiveHref(anchor)) {
+        try {
+          const tracked = new URL(anchor.href, window.location.origin);
+          trackEvent("affiliate_click", {
+            partner: tracked.searchParams.get("partner") || "unknown",
+            source: tracked.searchParams.get("source") || sourceFor(anchor),
+            destination: tracked.searchParams.get("destination") || destinationFor(anchor),
+            page: window.location.pathname,
+            outbound_host: (() => { try { return new URL(before).hostname; } catch { return ""; } })(),
+          });
+        } catch {}
+      }
     };
 
     document.addEventListener("pointerdown", handleInteraction, true);
