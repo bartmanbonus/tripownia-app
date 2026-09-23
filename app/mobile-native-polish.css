@@ -772,3 +772,53 @@
   transform: none !important;
   overflow: visible !important;
 }
+
+
+/* FINAL 2026-09-23 mobile footer alignment — keep after all older footer overrides. */
+@media(max-width:560px){
+  .footer-v2-top-grid{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(150px,.88fr)!important;
+    gap:16px!important;
+    align-items:stretch!important;
+  }
+  .footer-v2-brand-card{
+    position:relative!important;
+    align-self:stretch!important;
+    min-height:0!important;
+    height:auto!important;
+    overflow:hidden!important;
+    justify-content:flex-start!important;
+    align-items:flex-start!important;
+  }
+  .footer-v2-brand-card>p,
+  .footer-v2-brand-card>.footer-v2-plan-cta{display:none!important}
+  .footer-v2-logo{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    margin:0!important;
+    overflow:hidden!important;
+  }
+  .footer-v2-logo img{
+    width:100%!important;
+    height:100%!important;
+    max-width:100%!important;
+    max-height:100%!important;
+    object-fit:contain!important;
+    object-position:left center!important;
+    transform:none!important;
+    margin:0!important;
+  }
+  .footer-v2-discover{
+    align-self:start!important;
+    padding:0!important;
+    margin:0!important;
+  }
+  .footer-v2-discover h3{margin-top:0!important}
+  .footer-v2-bottom{
+    margin-bottom:calc(86px + env(safe-area-inset-bottom))!important;
+  }
+}
