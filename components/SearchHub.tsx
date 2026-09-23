@@ -452,7 +452,7 @@ export default function SearchHub({
         </div>
 
         <div className="search-v3-tabs" role="tablist" aria-label="Rodzaj podróży">
-          {["Inspiracje", "City break", "Lot + hotel", "Wakacje", "Atrakcje", "Parkingi", "eSIM"].map((tab) => (
+          {["Inspiracje", "City break", "Lot + hotel", "Wakacje"].map((tab) => (
             <button key={tab} type="button" className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
