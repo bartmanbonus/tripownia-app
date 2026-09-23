@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { trackEvent } from "@/lib/analytics";
 
 type Partner =
   | "wakacje"
@@ -175,7 +176,21 @@ export default function AffiliateClickBridge() {
 
     const handleInteraction = (event: Event) => {
       const anchor = interactiveAnchor(event);
-      if (anchor) wrapAnchor(anchor);
+      if (!anchor) return;
+      const before = anchor.href;
+      wrapAnchor(anchor);
+      if (event.type === "pointerdown" && isTrackedLiveHref(anchor)) {
+        try {
+          const tracked = new URL(anchor.href, window.location.origin);
+          trackEvent("affiliate_click", {
+            partner: tracked.searchParams.get("partner") || "unknown",
+            source: tracked.searchParams.get("source") || sourceFor(anchor),
+            destination: tracked.searchParams.get("destination") || destinationFor(anchor),
+            page: window.location.pathname,
+            outbound_host: (() => { try { return new URL(before).hostname; } catch { return ""; } })(),
+          });
+        } catch {}
+      }
     };
 
     document.addEventListener("pointerdown", handleInteraction, true);
