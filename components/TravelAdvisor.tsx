@@ -39,6 +39,8 @@ function matchScore(offer: Offer, budget: number, climate: string, style: string
 }
 
 export default function TravelAdvisor() {
+  const [minBudget, setMinBudget] = useState(0);
+  const [minNights, setMinNights] = useState(1);
   const [budget, setBudget] = useState(2000);
   const [maxNights, setMaxNights] = useState(5);
   const [climate, setClimate] = useState("dowolnie");
@@ -50,8 +52,8 @@ export default function TravelAdvisor() {
     const ranked = offers
       .filter((offer) => offer.availabilityStatus !== "expired")
       .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
-      .filter((offer) => offer.price <= budget)
-      .filter((offer) => offer.nights <= maxNights)
+      .filter((offer) => offer.price >= minBudget && offer.price <= budget)
+      .filter((offer) => offer.nights >= minNights && offer.nights <= maxNights)
       .map((offer) => ({ offer, score: matchScore(offer, budget, climate, style) }))
       .sort((a, b) => b.score - a.score || a.offer.price - b.offer.price);
 
@@ -65,7 +67,7 @@ export default function TravelAdvisor() {
       })
       .slice(0, 12)
       .map((row) => row.offer);
-  }, [offers, budget, maxNights, climate, style]);
+  }, [offers, minBudget, budget, minNights, maxNights, climate, style]);
 
   const freshness = source === "live"
     ? checkedAt
@@ -86,26 +88,20 @@ export default function TravelAdvisor() {
           <div>
             <div className="kicker">NIE WIESZ GDZIE LECIEĆ?</div>
             <h1>Powiedz, czego potrzebujesz. Tripownia wybierze kierunek.</h1>
-            <p>Nie musisz znać miasta ani kraju. Budżet i maksymalna długość są twardymi warunkami — klimat i styl pomagają wybrać najlepsze dopasowanie.</p>
+            <p>Nie musisz znać miasta ani kraju. Wybierz budżet i liczbę nocy od–do. Klimat i styl pomogą dopasować kierunek.</p>
           </div>
         </div>
 
         <div className="advisor-controls">
-          <label>
+          <div className="advisor-choice">
             <span><WalletCards size={17}/> Budżet na osobę</span>
-            <div className="advisor-range-row">
-              <input type="range" min="500" max="6000" step="100" value={budget} onChange={(e) => setBudget(Number(e.target.value))} />
-              <strong>{budget.toLocaleString("pl-PL")} zł</strong>
-            </div>
-          </label>
+            <RangeBounds label="Budżet na osobę" min={0} max={6000} step={100} lower={minBudget} upper={budget} unit="zł" onLower={setMinBudget} onUpper={setBudget} />
+          </div>
 
-          <label>
-            <span><Moon size={17}/> Maksymalnie nocy</span>
-            <div className="advisor-range-row">
-              <input type="range" min="2" max="14" step="1" value={maxNights} onChange={(e) => setMaxNights(Number(e.target.value))} />
-              <strong>{maxNights}</strong>
-            </div>
-          </label>
+          <div className="advisor-choice">
+            <span><Moon size={17}/> Liczba nocy</span>
+            <RangeBounds label="Liczba nocy" min={1} max={14} step={1} lower={minNights} upper={maxNights} unit="" onLower={setMinNights} onUpper={setMaxNights} />
+          </div>
 
           <div className="advisor-choice">
             <span><Sun size={17}/> Klimat</span>
@@ -137,9 +133,9 @@ export default function TravelAdvisor() {
                 <h2>{recommendations.length ? "Najlepsze dopasowanie" : loading ? "Sprawdzamy możliwości…" : "Brak dobrego dopasowania"}</h2>
                 <p>{recommendations.length
                   ? source === "live"
-                    ? "Pokazujemy więcej różnych kierunków mieszczących się w Twoim budżecie i limicie długości — najlepsze są na początku."
+                    ? "Pokazujemy więcej różnych kierunków mieszczących się w wybranym zakresie budżetu i liczby nocy — najlepsze są na początku."
                     : "Pokazujemy najlepsze dopasowania z ostatniej poprawnej puli. Przed rezerwacją potwierdź aktualną cenę."
-                  : "Nie naginamy budżetu ani długości pobytu. Zwiększ budżet, liczbę nocy albo odśwież aktualną pulę."}</p>
+                  : "Nie naginamy budżetu ani długości pobytu. Poszerz zakres budżetu lub liczby nocy albo odśwież aktualną pulę."}</p>
               </div>
             </div>
             {recommendations.length > 0 && <div className="cards-grid">{recommendations.map((offer) => <OfferCard key={offer.id} offer={offer} />)}</div>}
@@ -149,5 +145,30 @@ export default function TravelAdvisor() {
       </section>
       <SiteFooter />
     </main>
+  );
+}
+
+function RangeBounds({ label, min, max, step, lower, upper, unit, onLower, onUpper }: {
+  label: string; min: number; max: number; step: number;
+  lower: number; upper: number; unit: string;
+  onLower: (value: number) => void; onUpper: (value: number) => void;
+}) {
+  return (
+    <div role="group" aria-label={label} style={{ display: "grid", gap: 8, marginTop: 12, minWidth: 0 }}>
+      <label style={{ display: "grid", gap: 4, minWidth: 0 }}>
+        <span>Od <strong>{lower.toLocaleString("pl-PL")} {unit}</strong></span>
+        <input type="range" aria-label={label + " od"} aria-valuetext={lower + " " + unit}
+          min={min} max={max} step={step} value={lower}
+          onChange={(event) => onLower(Math.min(Number(event.target.value), upper))}
+          style={{ width: "100%", minWidth: 0, height: 44, margin: 0, accentColor: "#ff602e" }} />
+      </label>
+      <label style={{ display: "grid", gap: 4, minWidth: 0 }}>
+        <span>Do <strong>{upper.toLocaleString("pl-PL")} {unit}</strong></span>
+        <input type="range" aria-label={label + " do"} aria-valuetext={upper + " " + unit}
+          min={min} max={max} step={step} value={upper}
+          onChange={(event) => onUpper(Math.max(Number(event.target.value), lower))}
+          style={{ width: "100%", minWidth: 0, height: 44, margin: 0, accentColor: "#ff602e" }} />
+      </label>
+    </div>
   );
 }
