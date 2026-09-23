@@ -141,6 +141,12 @@ requireText("components/SearchHub.tsx", "selectedDestinations", "wyszukiwarka st
 requireText("components/SearchHub.tsx", 'type DateMode = "any" | "month" | "range"', "wyszukiwarka straciła elastyczne daty");
 requireText("components/AccountCloudSync.tsx", "saveTripowniaUserState", "konto straciło automatyczną synchronizację danych");
 
+
+requireText("components/UnifiedPage.tsx", "partner: partners.kiwitaxi", "strona transferów straciła afiliację Kiwitaxi");
+requireText("components/UnifiedPage.tsx", "partner: partners.rentacar", "wynajem auta omija centralną afiliację");
+requireText("components/UnifiedPage.tsx", "return partners.esky.buildUrl(", "dalekie loty omijają builder afiliacyjny eSky");
+requireText("components/UnifiedPage.tsx", "return partners.booking.buildUrl(", "dalekie noclegi omijają builder afiliacyjny Booking");
+
 console.log(`✅ Audyt OK: ${legacy.length} zmigrowanych stron + ${aliasMatches.length} naprawionych starych adresów. Brak znanych wewnętrznych linków prowadzących do 404.`);
 console.log("✅ Krytyczne guardy OK: search scope, live-first homepage, EXIM/TUI exact flow, affiliate validation i SEO transient ofert.");
 

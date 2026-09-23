@@ -56,13 +56,13 @@ function ServicePage({ type }: { type: ServiceType }) {
     transfery: {
       kicker: "PO PRZYLOCIE", title: "Transfery lotniskowe",
       lead: "Porównujemy pakiety całościowo — transfer w cenie może być ważniejszy niż kilkadziesiąt złotych różnicy w cenie wyjazdu.",
-      partner: null,
+      partner: partners.kiwitaxi,
       bullets: ["Sprawdź, czy transfer jest zawarty w pakiecie organizatora.", "Jeśli nie — porównaj transport publiczny, taxi i transfer prywatny.", "Zwróć uwagę na godzinę przylotu i odległość hotelu od lotniska."],
     },
     "wynajem-auta": {
       kicker: "NA MIEJSCU", title: "Wynajem auta na wakacje",
       lead: "Najpierw ustal, czy samochód rzeczywiście będzie potrzebny dla Twojej trasy i miejsca noclegu.",
-      partner: { buildUrl: () => "https://getrentacar.tpk.lv/buzTQvPf" },
+      partner: partners.rentacar,
       bullets: ["Sprawdź depozyt, udział własny i zakres ubezpieczenia.", "Zweryfikuj zasady paliwowe i limit kilometrów.", "Sprawdź wymagany wiek kierowcy i zasady odbioru po godzinach."],
     },
   }[type];
@@ -358,13 +358,13 @@ function longTripDates(stay: number) {
 
 function longTripEskyUrl(airport: string, stay: number) {
   const { departure, ret } = longTripDates(stay);
-  return `https://www2.esky.pl/flights/search/mp/WAWA/ap/${airport}?departureDate=${departure}&returnDate=${ret}&pa=2&py=0&pc=0&pi=0&sc=economy&partner_id=TRIPOWNIAPL&flexDatesOffset=0`;
+  return partners.esky.buildUrl(`https://www2.esky.pl/flights/search/mp/WAWA/ap/${airport}?departureDate=${departure}&returnDate=${ret}&pa=2&py=0&pc=0&pi=0&sc=economy&partner_id=TRIPOWNIAPL&flexDatesOffset=0`);
 }
 
 function longTripBookingUrl(city: string, stay: number) {
   const { departure, ret } = longTripDates(stay);
   const params = new URLSearchParams({ ss: city, checkin: departure, checkout: ret, group_adults: "2", no_rooms: "1", group_children: "0", aid: "818288" });
-  return `https://www.booking.com/searchresults.html?${params.toString()}`;
+  return partners.booking.buildUrl(`https://www.booking.com/searchresults.html?${params.toString()}`);
 }
 
 function LongHaulPage() {
