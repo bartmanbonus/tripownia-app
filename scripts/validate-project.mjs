@@ -129,6 +129,18 @@ requireText(
   "homepage nie ma limitu wieku ostatniej dobrej puli"
 );
 
+
+requireText("components/AffiliateClickBridge.tsx", 'trackEvent("affiliate_click"', "brakuje pomiaru kliknięć afiliacyjnych w GA4");
+requireText("components/AffiliateClickBridge.tsx", 'return "planner_partner"', "planner nie ma osobnego źródła kliknięcia afiliacyjnego");
+requireText("components/AffiliateClickBridge.tsx", 'return "search_fallback"', "fallback wyszukiwarki nie ma osobnego źródła kliknięcia afiliacyjnego");
+requireText("components/AddTripPage.tsx", "Plan możesz ułożyć bez konta.", "planner ponownie wymusza konto");
+requireText("components/AddTripPage.tsx", "partners.fonia.buildUrl()", "planner stracił afiliację eSIM");
+requireText("components/AddTripPage.tsx", "partners.parklot.buildUrl()", "planner stracił afiliację parkingu");
+requireText("components/SearchHub.tsx", 'if (/\\bbergamo\\b/i.test(normalized)) return "Mediolan, Włochy";', "Bergamo nie jest mapowane na Mediolan");
+requireText("components/SearchHub.tsx", "selectedDestinations", "wyszukiwarka straciła wielokrotny wybór kierunków");
+requireText("components/SearchHub.tsx", 'type DateMode = "any" | "month" | "range"', "wyszukiwarka straciła elastyczne daty");
+requireText("components/AccountCloudSync.tsx", "saveTripowniaUserState", "konto straciło automatyczną synchronizację danych");
+
 console.log(`✅ Audyt OK: ${legacy.length} zmigrowanych stron + ${aliasMatches.length} naprawionych starych adresów. Brak znanych wewnętrznych linków prowadzących do 404.`);
 console.log("✅ Krytyczne guardy OK: search scope, live-first homepage, EXIM/TUI exact flow, affiliate validation i SEO transient ofert.");
 
