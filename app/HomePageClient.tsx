@@ -882,7 +882,10 @@ export default function Home() {
           <Link className="section-premium-link" href="/podroze-po-przezycia">Zobacz pełny kalendarz <ArrowRight size={16}/></Link>
         </div>
         <div className="homepage-phenomena-grid">
-          {experienceCards.slice(0, 4).map(card => (
+          {[...experienceCards.slice(0, 4),
+            experienceCards.find(card => card.href.includes("#jarmarki"))!,
+            { href: "/okazje?s=sylwester", season: "29 GRUDNIA–2 STYCZNIA", title: "🥂 Sylwester za granicą", text: "Gotowy city break na przełom roku — lot, nocleg i miasto, w którym północ naprawdę jest wydarzeniem.", imageCity: "Praga", imageCountry: "Czechy", fallbackImage: "/images/experiences/jarmarki.png" }
+          ].map(card => (
             <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
               <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={card.fallbackImage} />
               <div className="experience-teaser-copy">
