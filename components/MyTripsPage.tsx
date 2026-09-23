@@ -42,10 +42,11 @@ export default function MyTripsPage() {
   };
 
   useEffect(() => {
+    load();
     void ensureFreshAccountSession(readAccountSession()).then((session) => {
       setSignedIn(Boolean(session));
       setAuthReady(true);
-      if (session) load();
+      load();
     });
     window.addEventListener(TRIP_ARCHIVE_EVENT, load as EventListener);
     window.addEventListener("tripownia-my-trip-updated", load as EventListener);
@@ -75,28 +76,6 @@ export default function MyTripsPage() {
     load();
   }
 
-  if (!authReady) return null;
-
-  if (!signedIn) {
-    return (
-      <main>
-        <SiteHeader/>
-        <section className="shell my-trips-page">
-          <div className="favorites-empty">
-            <Archive size={30}/>
-            <h1>Twoje podróże są prywatne.</h1>
-            <p>Zaloguj się, aby zobaczyć plany zapisane na swoim koncie. Bez logowania możesz przeglądać Tripownię i zobaczyć demo planera.</p>
-            <div className="my-trips-empty-actions">
-              <Link className="primary-cta" href="/konto?next=/moje-podroze">Zaloguj się</Link>
-              <Link href="/moja-podroz">Zobacz, co potrafi planer <ArrowRight size={17}/></Link>
-            </div>
-          </div>
-        </section>
-        <SiteFooter/>
-      </main>
-    );
-  }
-
   return (
     <main>
       <SiteHeader />
@@ -106,13 +85,14 @@ export default function MyTripsPage() {
           <div>
             <div className="kicker">TWOJA TRIPOWNIA</div>
             <h1>Moje podróże</h1>
-            <p>Aktywny wyjazd i poprzednie plany w jednym miejscu. Po zalogowaniu są przypisane do Twojego konta i synchronizowane między urządzeniami.</p>
+            <p>{signedIn ? "Aktywny wyjazd i poprzednie plany w jednym miejscu. Są przypisane do Twojego konta i synchronizowane między urządzeniami." : authReady ? "Aktywny wyjazd i poprzednie plany zapisujemy na tym urządzeniu bez konta. Zalogowanie jest potrzebne tylko do synchronizacji między urządzeniami." : "Aktywny wyjazd i poprzednie plany są dostępne na tym urządzeniu bez konta."}</p>
           </div>
         </div>
 
         <div className="my-trips-top-actions">
           <Link className="primary-cta" href="/dodaj-podroz"><Plus size={17}/> Dodaj własną podróż</Link>
           <Link href="/okazje">Znajdź nowy wyjazd <ArrowRight size={16}/></Link>
+          {authReady && !signedIn && <Link href="/konto?next=/moje-podroze">Zaloguj się, aby synchronizować</Link>}
         </div>
 
         {ordered.length ? (
