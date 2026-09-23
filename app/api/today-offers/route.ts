@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { partners } from "@/lib/partners";
 import type { Offer } from "@/lib/offers";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
@@ -328,7 +327,7 @@ function fromExim(product: TdProduct): LiveCandidate | null {
     board,
     dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "najbliższy dostępny termin",
     partner: "exim",
-    affiliateUrl: partners.exim.buildUrl(productUrl),
+    affiliateUrl: productUrl,
     linkType: "exact",
     linkMatch: "exact",
     transferIncluded: true,
@@ -390,7 +389,7 @@ function fromTui(product: TdProduct): LiveCandidate | null {
     board,
     dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "najbliższy dostępny termin",
     partner: "tui",
-    affiliateUrl: partners.tui.buildUrl(productUrl),
+    affiliateUrl: productUrl,
     linkType: "exact",
     linkMatch: "exact",
     provider: "tui",

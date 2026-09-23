@@ -29,33 +29,6 @@ export async function GET(
     return NextResponse.redirect(new URL(`/oferta/${offerId}`, request.url), 307);
   }
 
-  if (offer.partner === "exim") {
-    const qs = new URLSearchParams({
-      destination: offer.city,
-      country: offer.country,
-      from: offer.airportCode || "WAW",
-      nights: String(offer.nights || ""),
-      board: offer.board || "",
-      price: String(offer.price || ""),
-      source: request.nextUrl.searchParams.get("source") || "offer_card",
-    });
-    if (offer.destinationUrl) {
-      try { qs.set("path", new URL(offer.destinationUrl).pathname); } catch {}
-    }
-    return NextResponse.redirect(new URL(`/go/exim-best?${qs.toString()}`, request.url), 307);
-  }
-
-  if (offer.partner === "tui") {
-    const qs = new URLSearchParams({
-      destination: offer.city,
-      country: offer.country,
-      departure: offer.airportCode || "WAW",
-      duration: String(offer.nights || ""),
-      board: offer.board || "",
-    });
-    return NextResponse.redirect(new URL(`/api/tui-go?${qs.toString()}`, request.url), 307);
-  }
-
   const target = safeExternalUrl(offer.affiliateUrl);
 
   if (!target) {

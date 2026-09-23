@@ -232,19 +232,19 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
   }
 
   function trackOfferClick(placement: "image" | "card_cta") {
-    const outbound = !isExpired && (isExactLink || isLivePartnerLink || placement === "card_cta");
+    const outbound = !isExpired && hasExternalAffiliateUrl;
     trackEvent(outbound ? "outbound_partner_click" : "offer_open", { ...eventBase, placement });
   }
 
   if (override.hidden || publishedOverride.hidden) return null;
 
-  const externalCardLink = isExactLink || isLivePartnerLink;
-  const detailHref = isLivePartnerLink ? offer.affiliateUrl : `/oferta/${offer.id}`;
-  const buyHref = isExpired
-    ? isLiveOffer ? "/okazje" : `/oferta/${offer.id}`
-    : externalCardLink
-      ? offer.affiliateUrl
-      : `/go/${offer.id}?source=offer_card`;
+  const directAffiliate = !isExpired && hasExternalAffiliateUrl;
+  const cardHref = directAffiliate
+    ? offer.affiliateUrl
+    : isLiveOffer
+      ? "/okazje"
+      : `/oferta/${offer.id}`;
+  const buyHref = cardHref;
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
     : isLiveExact
@@ -270,11 +270,26 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       data-offer-price={displayPrice}
       data-offer-partner={offer.partner}
     >
-      <Link href={detailHref} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
-        <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
-        <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
-        {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
-      </Link>
+      {directAffiliate ? (
+        <a
+          href={cardHref}
+          target="_blank"
+          rel="sponsored noopener noreferrer"
+          onClick={() => trackOfferClick("image")}
+          className="offer-image"
+          aria-label={`Otwórz ofertę ${offer.city} u partnera`}
+        >
+          <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
+          <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
+          {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
+        </a>
+      ) : (
+        <Link href={cardHref} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
+          <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
+          <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
+          {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
+        </Link>
+      )}
 
       <button className="heart" aria-label={liked ? "Usuń z ulubionych" : "Dodaj do ulubionych"} onClick={toggleLike}><Heart size={20} fill={liked ? "currentColor" : "none"} /></button>
 
@@ -313,7 +328,13 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
 
         <div className="why-now"><span>DLACZEGO WARTO</span><strong>{override.note || publishedOverride.note || offer.reason}</strong></div>
 
-        <a className="card-cta" href={buyHref} rel={isExpired ? undefined : "sponsored"} onClick={() => trackOfferClick("card_cta")}>{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
+        <a
+          className="card-cta"
+          href={buyHref}
+          target={directAffiliate ? "_blank" : undefined}
+          rel={directAffiliate ? "sponsored noopener noreferrer" : undefined}
+          onClick={() => trackOfferClick("card_cta")}
+        >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
 
         {!isExpired && (
           <div className="offer-actions-row offer-actions-secondary">
