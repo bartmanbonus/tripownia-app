@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, MapPin, RefreshCw, Search, Sparkles } from "lucide-react";
+import { ArrowRight, CalendarDays, MapPin, RefreshCw, Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
@@ -103,6 +103,7 @@ export default function DealsPage() {
   const [month, setMonth] = useState("any");
   const [year, setYear] = useState("any");
   const [historyVersion, setHistoryVersion] = useState(0);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
@@ -159,6 +160,9 @@ export default function DealsPage() {
   const monthLabel = MONTH_OPTIONS.find((item) => item.value === month)?.label || "dowolny miesiąc";
   const yearLabel = year === "any" ? "dowolny rok" : year;
   const filtering = airport !== "any" || month !== "any" || year !== "any";
+  const filterSummary = filtering
+    ? [airport !== "any" ? airportLabel : "", month !== "any" ? monthLabel : "", year !== "any" ? yearLabel : ""].filter(Boolean).join(" · ")
+    : "Wszystkie lotniska · dowolny termin";
 
   const handleYearChange = (nextYear: string) => {
     setYear(nextYear);
@@ -178,7 +182,7 @@ export default function DealsPage() {
         <div>
           <div className="kicker">OKAZJE TRIPOWNI</div>
           <h1>Najpierw cena. Potem kierunek.</h1>
-          <p className="hub-lead">Sortujemy aktualne oferty od najtańszych, zostawiamy najniższą cenę dla każdego kierunku i wyróżniamy tylko te ceny, które naprawdę odstają od bieżącej puli. Historię cen zbieramy od teraz na podstawie realnych obserwacji.</p>
+          <p className="hub-lead">Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność pochodzą z bieżącego feedu partnera.</p>
         </div>
         <div className="deals-hub-actions">
           <Link className="primary-cta" href="/#wyszukiwarka"><Search size={17}/> Wyszukaj dokładniej</Link>
@@ -186,7 +190,23 @@ export default function DealsPage() {
         </div>
       </div>
 
-      <div className="deals-filter-panel" aria-label="Filtry okazji Tripowni">
+      <div className="deals-mobile-toolbar">
+        <button
+          type="button"
+          className={`deals-filter-toggle${filtersOpen ? " is-open" : ""}`}
+          onClick={() => setFiltersOpen((value) => !value)}
+          aria-expanded={filtersOpen}
+          aria-controls="deals-filters"
+        >
+          <SlidersHorizontal size={17}/>
+          <span><strong>Filtry</strong><small>{filterSummary}</small></span>
+        </button>
+        <button type="button" className="deals-mobile-refresh" onClick={refresh} disabled={loading} aria-label="Odśwież ceny">
+          <RefreshCw size={17} className={loading ? "is-spinning" : ""}/>
+        </button>
+      </div>
+
+      <div id="deals-filters" className={`deals-filter-panel${filtersOpen ? " is-open" : ""}`} aria-label="Filtry okazji Tripowni">
         <label>
           <span><MapPin size={15}/> Lotnisko wylotu</span>
           <select value={airport} onChange={(event) => setAirport(event.target.value)}>
@@ -214,16 +234,22 @@ export default function DealsPage() {
       </div>
 
       <div className="deals-trust-bar">
-        <span><Sparkles size={15}/><strong>{rows.length} {rows.length === 1 ? "różny kierunek" : "różnych kierunków"}</strong></span>
-        <span>{historicalCount ? `${historicalCount} historycznych minimów` : priceHighlights.size ? `${priceHighlights.size} cen wyraźnie poniżej mediany puli` : "Oferty od najniższej ceny"}</span>
-        <span>{filtering ? `${airportLabel} · ${monthLabel} · ${yearLabel}` : "Wszystkie dostępne lotniska, miesiące i lata"}</span>
-        <span>{sourceCopy}</span>
+        <span className="deals-trust-primary"><Sparkles size={15}/><strong>{rows.length} {rows.length === 1 ? "kierunek" : "kierunków"}</strong></span>
+        <span className="deals-trust-detail">{historicalCount ? `${historicalCount} historycznych minimów` : priceHighlights.size ? `${priceHighlights.size} cen wyraźnie poniżej mediany puli` : "Oferty od najniższej ceny"}</span>
+        <span className="deals-trust-detail">{filtering ? `${airportLabel} · ${monthLabel} · ${yearLabel}` : "Wszystkie dostępne lotniska i terminy"}</span>
+        <span className="deals-trust-source">{sourceCopy}</span>
       </div>
 
       {notice && <div className="deals-filter-notice">{notice}</div>}
 
       {rows.length > 0 ? (
-        <div className="cards-grid deals-premium-grid">{rows.map((offer) => <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>)}</div>
+        <>
+          <div className="deals-results-heading">
+            <div><span>AKTUALNE OFERTY</span><h2>{filtering ? "Najlepsze dopasowania" : "Najlepsze ceny teraz"}</h2></div>
+            <p>Kliknięcie w ofertę prowadzi bezpośrednio do konkretnej propozycji u partnera.</p>
+          </div>
+          <div className="cards-grid deals-premium-grid">{rows.map((offer) => <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>)}</div>
+        </>
       ) : !loading ? (
         <div className="self-search-empty">
           <strong>Nie mamy teraz potwierdzonych okazji w tej puli.</strong>
