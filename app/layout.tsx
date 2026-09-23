@@ -84,7 +84,7 @@ export const metadata: Metadata = {
 };
 
 const websiteJsonLd = { "@context": "https://schema.org", "@type": "WebSite", name: "Tripownia", alternateName: "Tripownia.pl", url: "https://tripownia.pl", inLanguage: "pl-PL" };
-const organizationJsonLd = { "@context": "https://schema.org", "@type": "Organization", "@id": "https://tripownia.pl/#organization", name: "Tripownia", alternateName: "Tripownia.pl", url: "https://tripownia.pl", logo: "https://tripownia.pl/tripownia-logo.webp", email: "kontakt@tripownia.pl", description: "Polski serwis podróżniczy do wyszukiwania wyjazdów, porównywania opcji i darmowego planowania całej podróży.", publishingPrinciples: "https://tripownia.pl/standardy-redakcyjne" };
+const organizationJsonLd = { "@context": "https://schema.org", "@type": "Organization", "@id": "https://tripownia.pl/#organization", name: "Tripownia", alternateName: "Tripownia.pl", url: "https://tripownia.pl", logo: "https://tripownia.pl/tripownia-logo.webp", email: "kontakt@tripownia.pl", description: "Polski serwis podróżniczy do wyszukiwania wyjazdów, porównywania opcji i darmowego planowania całej podróży.", publishingPrinciples: "https://tripownia.pl/standardy-redakcyjne", sameAs: ["https://www.facebook.com/987707741084438"] };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
