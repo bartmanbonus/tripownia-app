@@ -35,6 +35,7 @@ import "./country-checklist.css";
 import "./account.css";
 import "./planner-builder.css";
 import "./contrast-guard.css";
+import "./homepage-focus.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 import OfferRailDeduper from "@/components/OfferRailDeduper";
@@ -46,7 +47,6 @@ import MobileAppControls from "@/components/MobileAppControls";
 import TripArchiveSync from "@/components/TripArchiveSync";
 import OrganizerQuickLink from "@/components/OrganizerQuickLink";
 import HomeTripHubPortal from "@/components/HomeTripHubPortal";
-import PurchaseGuidePortal from "@/components/PurchaseGuidePortal";
 import AccountCloudSync from "@/components/AccountCloudSync";
 
 const HOME_TITLE = "Tanie wakacje, city break i planer podróży | Tripownia.pl";
@@ -94,7 +94,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c") }} />
         <LegacyHomeAnchorBridge />
         {children}
-        <PurchaseGuidePortal />
         <HomeTripHubPortal />
         <OfferRailDeduper />
         <AffiliateClickBridge />
