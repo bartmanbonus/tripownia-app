@@ -63,21 +63,23 @@ function slug(value: string) {
   return norm(value).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
-function kiwiOrigin(value: string) {
+function kiwiOrigin(value: string): string | null {
   const n = norm(value);
   if (n.includes("krak")) return "krakow-polska";
   if (n.includes("katow")) return "katowice-polska";
   if (n.includes("gdansk")) return "gdansk-polska";
   if (n.includes("wrocl")) return "wroclaw-polska";
   if (n.includes("poznan")) return "poznan-polska";
-  return "warszawa-polska";
+  if (n.includes("warsz") || n.includes("chopin") || n.includes("modlin")) return "warszawa-polska";
+  return null;
 }
 
 function buildSuggestions(city: string, country: string, start: string, end: string, departure: string) {
   const place = [city.trim(), country.trim()].filter(Boolean).join(", ");
 
   const kiwi = new URL("https://www.kiwi.com/pl/");
-  kiwi.searchParams.set("origin", kiwiOrigin(departure));
+  const origin = kiwiOrigin(departure);
+  if (origin) kiwi.searchParams.set("origin", origin);
   kiwi.searchParams.set("destination", slug(city || country));
   if (start) kiwi.searchParams.set("outboundDate", start);
   if (end) kiwi.searchParams.set("inboundDate", end);

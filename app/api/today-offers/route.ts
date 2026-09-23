@@ -679,14 +679,16 @@ export async function GET(request: NextRequest) {
       return false;
     };
 
+    const withinBudget = (offer: LiveCandidate) => !maxPrice || offer.price <= maxPrice;
+    const budgetCandidates = allCandidates.filter(withinBudget);
+
     const exactPool = rescueMode
-      ? allCandidates
-      : allCandidates.filter((offer) =>
+      ? budgetCandidates
+      : budgetCandidates.filter((offer) =>
           departureMatches(offer) &&
           nightsMatches(offer) &&
           boardMatches(offer) &&
-          weekendMatches(offer) &&
-          (!maxPrice || offer.price <= maxPrice)
+          weekendMatches(offer)
         );
 
     let pool = exactPool;
@@ -698,7 +700,7 @@ export async function GET(request: NextRequest) {
 
     if (mode === "search" || mode === "citybreak") {
       if (!pool.length && boardFilter !== "any") {
-        pool = allCandidates.filter((offer) =>
+        pool = budgetCandidates.filter((offer) =>
           departureMatches(offer) &&
           nightsMatches(offer) &&
           weekendMatches(offer) &&
@@ -708,7 +710,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (!pool.length && maxPrice) {
-        pool = allCandidates.filter((offer) =>
+        pool = budgetCandidates.filter((offer) =>
           departureMatches(offer) &&
           nightsMatches(offer) &&
           weekendMatches(offer)
@@ -717,7 +719,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (!pool.length && nightsFilter !== "any") {
-        pool = allCandidates.filter((offer) =>
+        pool = budgetCandidates.filter((offer) =>
           departureMatches(offer) &&
           weekendMatches(offer)
         );
@@ -725,13 +727,13 @@ export async function GET(request: NextRequest) {
       }
 
       if (!pool.length && weekendOnly) {
-        pool = allCandidates.filter((offer) => departureMatches(offer));
+        pool = budgetCandidates.filter((offer) => departureMatches(offer));
         if (pool.length) notice = "Nie znaleźliśmy terminu obejmującego cały weekend — pokazujemy dostępne terminy dla tego kierunku.";
       }
 
       if (!pool.length && departureFilter) {
-        pool = allCandidates;
-        if (pool.length) notice = "Brak ofert z wybranych lotnisk — pokazujemy inne dostępne lotniska dla tego samego kierunku.";
+        pool = budgetCandidates;
+        if (pool.length) notice = "Brak ofert z wybranych lotnisk — pokazujemy inne dostępne lotniska dla tego samego kierunku, nadal w Twoim budżecie.";
       }
     }
 

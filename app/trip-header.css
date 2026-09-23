@@ -11,6 +11,7 @@
 }
 
 .trip-header-shell {
+  font-family: inherit;
   width: min(1420px, calc(100% - 40px));
   margin: 0 auto;
 }
@@ -89,7 +90,7 @@
 .trip-header-search-copy small {
   overflow: hidden;
   color: #938c86;
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 650;
   line-height: 1.12;
   text-overflow: ellipsis;
@@ -129,7 +130,7 @@
   border-radius: 10px;
   color: #5f5954;
   text-decoration: none;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 820;
   white-space: nowrap;
   transition: background .16s ease, color .16s ease;
@@ -170,7 +171,7 @@
   border-radius: 9px;
   color: #4f4a46;
   text-decoration: none;
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 850;
   white-space: nowrap;
   transition: background .16s ease, color .16s ease;
@@ -233,7 +234,7 @@
   border-radius: 9px;
   color: #5f5954;
   cursor: pointer;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 850;
   text-decoration: none;
   white-space: nowrap;
@@ -297,7 +298,7 @@
   border-radius: 9px;
   color: #45403c;
   text-decoration: none;
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 780;
 }
 
@@ -420,7 +421,7 @@
   .trip-header-nav-link {
     min-height: 32px;
     padding: 0 9px;
-    font-size: 9.5px;
+    font-size: 11px;
   }
 
   .trip-header-tools {
@@ -440,7 +441,7 @@
   }
 
   .trip-header-search-copy strong {
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .trip-header-search > svg {

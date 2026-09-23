@@ -266,9 +266,9 @@ export default function SearchHub({
         if (target) params.set("q", target);
         else params.set("broad", "1");
         if (origin) params.set("from", origin);
+        if (activeBudget !== "all") params.set("maxPrice", activeBudget);
         if (includeFilters) {
           if (activeDuration !== "all") params.set("nights", activeDuration);
-          if (activeBudget !== "all") params.set("maxPrice", activeBudget);
           if (activeWeekend) params.set("weekend", "1");
           if (activeBoard === "all inclusive") params.set("board", "allinclusive");
           else if (activeBoard === "ultra all inclusive") params.set("board", "ultraallinclusive");
