@@ -398,7 +398,6 @@ export default function SearchHub({
     setBudget(nextBudget);
     setBoard(nextBoard);
     setWeekendOnly(nextWeekend);
-    setAdvancedOpen(nextBoard !== "all");
     if (overrides.tab) setActiveTab(overrides.tab);
 
     void runSearch(canonicalLabel, {
