@@ -12104,3 +12104,15 @@ img{
   .footer-v2-logo img{display:block!important;width:100%!important;height:auto!important;max-width:100%!important}
   .footer-v2-discover{width:100%!important}
 }
+
+
+/* V205 — footer logo must never overlap the next section */
+.footer-v2-brand-card{min-width:0;overflow:hidden}
+.footer-v2-logo{display:block!important;width:min(220px,100%)!important;height:auto!important;max-width:100%!important}
+.footer-v2-logo img{display:block!important;width:100%!important;height:auto!important;max-width:100%!important;object-fit:contain!important}
+@media(max-width:700px){
+  .footer-v2-top-grid{align-items:start!important}
+  .footer-v2-brand-card{padding-bottom:14px!important}
+  .footer-v2-logo{width:min(180px,52vw)!important}
+  .footer-v2-trending{clear:both!important;position:relative!important}
+}
