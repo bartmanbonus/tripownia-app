@@ -499,7 +499,8 @@ export default function Home() {
 
   const todaysOffers = useMemo(() =>
     cheapestPerDirection(liveOffers.map(offerForDisplay))
-      .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity)),
+      .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity))
+      .slice(0, 6),
     [liveOffers]
   );
 
@@ -628,12 +629,12 @@ export default function Home() {
       <section className="dream-hero">
         <div className="shell dream-hero-shell">
           <div className="dream-hero-copy">
-            <div className="dream-eyebrow"><Sparkles size={16}/> Twój osobisty asystent podróży — za darmo</div>
-            <h1>Tanie wakacje, city break i loty.<br/><span>Zaplanuj całą podróż.</span></h1>
-            <p>Znajdź aktualne wakacje, city break, lot lub nocleg albo dodaj wyjazd, który już masz. Tripownia za darmo pomoże Ci krok po kroku ogarnąć plan, dokumenty, pogodę, atrakcje, transport, jedzenie i checklistę.</p>
+            <div className="dream-eyebrow"><Sparkles size={16}/> Wyszukiwanie i darmowy planner w jednym miejscu</div>
+            <h1>Znajdź wyjazd.<br/><span>Zaplanuj całą podróż za 0 zł.</span></h1>
+            <p>Najpierw wybierz wyjazd. Potem Tripownia pomoże Ci ogarnąć lot, hotel, dokumenty, transfer, atrakcje, eSIM i checklistę — także jeśli rezerwujesz gdzie indziej.</p>
             <div className="dream-hero-actions">
-              <Link className="dream-primary" href="/dodaj-podroz">Ułóż mi plan za darmo <ArrowRight size={18}/></Link>
-              <Link className="dream-secondary" href="#wyszukiwarka">Znajdź wyjazd</Link>
+              <Link className="dream-primary" href="#wyszukiwarka">Znajdź wyjazd <ArrowRight size={18}/></Link>
+              <Link className="dream-secondary" href="/dodaj-podroz">Mam już wyjazd</Link>
             </div>
             <div className="dream-category-row" aria-label="Co znajdziesz w Tripowni">
               <Link href="/wakacje">🌴 Wakacje</Link>
@@ -815,7 +816,7 @@ export default function Home() {
         <div className="section-heading">
           <div>
             <div className="kicker">DZISIEJSZA SELEKCJA</div>
-            <h2>Dziś bralibyśmy te</h2>
+            <h2>Nie wiesz gdzie? Zacznij od tego, co dziś ma sens cenowo.</h2>
             <p>{dailyCopy}</p>
           </div>
           <Link className="section-premium-link" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
