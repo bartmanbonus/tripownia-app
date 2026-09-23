@@ -389,3 +389,13 @@
  .search-v3-selected{margin:2px 0 1px}
  .search-v3-departure-menu{width:calc(100vw - 38px);max-height:330px}
 }
+
+
+/* Simplified search options: meal plan is always visible */
+.search-v3-options-simple{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:12px;align-items:stretch}
+.search-v3-options-simple .search-v3-board{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.search-v3-options-simple .search-v3-board select{width:100%;min-width:0}
+@media(max-width:640px){
+  .search-v3-options-simple{grid-template-columns:1fr}
+  .search-v3-options-simple .search-v3-board,.search-v3-options-simple .search-v3-weekend{width:100%}
+}
