@@ -1,0 +1,41 @@
+/* Homepage focus release: keep product depth, remove repeated choices from the landing page. */
+body:has(.dream-hero) .dream-hero-card,
+body:has(.dream-hero) .dream-mobile-start,
+body:has(.dream-hero) .dream-value-strip,
+body:has(.dream-hero) .dream-free-plan,
+body:has(.dream-hero) .dream-marketplace,
+body:has(.dream-hero) .dream-personalization,
+body:has(.dream-hero) .streaming-discovery,
+body:has(.dream-hero) .budget-wrap,
+body:has(.dream-hero) .chapter-discover,
+body:has(.dream-hero) .long-haul-home,
+body:has(.dream-hero) .experience-section,
+body:has(.dream-hero) .custom-trip,
+body:has(.dream-hero) .score-section { display:none !important; }
+
+body:has(.dream-hero) .dream-hero-shell { grid-template-columns:minmax(0,780px); justify-content:center; text-align:center; }
+body:has(.dream-hero) .dream-hero-copy { max-width:780px; margin-inline:auto; }
+body:has(.dream-hero) .dream-hero-actions,
+body:has(.dream-hero) .dream-category-row { justify-content:center; }
+body:has(.dream-hero) .dream-category-row { margin-top:20px; }
+body:has(.dream-hero) .already-booked-hub { margin-top:34px; margin-bottom:34px; }
+body:has(.dream-hero) .already-booked-actions { grid-template-columns:repeat(5,minmax(0,1fr)); }
+body:has(.dream-hero) .chapter-daily { padding-top:42px; padding-bottom:42px; }
+body:has(.dream-hero) .content-hubs .hub-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+body:has(.dream-hero) .content-hubs .hub-grid > :nth-child(n+5) { display:none; }
+body:has(.dream-hero) .content-hubs .section-heading .kicker { font-size:0; }
+body:has(.dream-hero) .content-hubs .section-heading .kicker::after { content:"SZUKASZ INSPIRACJI?"; font-size:12px; }
+body:has(.dream-hero) .content-hubs .section-heading h2 { font-size:0; }
+body:has(.dream-hero) .content-hubs .section-heading h2::after { content:"Wybierz jeden kierunek i odkrywaj dalej."; font-size:clamp(28px,4vw,44px); }
+
+@media (max-width:900px) {
+  body:has(.dream-hero) .already-booked-actions,
+  body:has(.dream-hero) .content-hubs .hub-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:620px) {
+  body:has(.dream-hero) .dream-hero-shell { text-align:left; }
+  body:has(.dream-hero) .dream-hero-actions,
+  body:has(.dream-hero) .dream-category-row { justify-content:flex-start; }
+  body:has(.dream-hero) .already-booked-actions,
+  body:has(.dream-hero) .content-hubs .hub-grid { grid-template-columns:1fr; }
+}
