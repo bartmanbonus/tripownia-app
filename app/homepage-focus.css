@@ -1,5 +1,6 @@
 /* Homepage focus release: keep product depth, remove repeated choices from the landing page. */
 body:has(.dream-hero) .dream-hero-card,
+body:has(.dream-hero) .dream-category-row,
 body:has(.dream-hero) .dream-mobile-start,
 body:has(.dream-hero) .dream-value-strip,
 body:has(.dream-hero) .dream-free-plan,
