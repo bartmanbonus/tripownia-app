@@ -159,7 +159,13 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                   </div>
 
                   <div className="sports-premium-actions">
-                    <a className="sports-cta-primary" href={links.flightUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">Zaplanuj lot <span>→</span></a>
+                    <a
+                      className="sports-cta-primary"
+                      href={`/dodaj-podroz?source=sport&city=${encodeURIComponent(trip.city)}&country=${encodeURIComponent(trip.country)}&start=${links.departureDate}&end=${links.returnDate}&departure=${encodeURIComponent(activeDeparture.label)}&match=${encodeURIComponent(`${trip.homeTeam} vs ${trip.awayTeam}`)}&venue=${encodeURIComponent(trip.venue || trip.city)}&ticket=${encodeURIComponent(links.ticketUrl)}`}
+                    >
+                      Ułóż cały wyjazd <span>→</span>
+                    </a>
+                    <a className="sports-cta-secondary" href={links.flightUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">Sprawdź lot</a>
                     <a className="sports-cta-secondary" href={links.hotelUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">Znajdź nocleg</a>
                     <a className="sports-cta-ticket" href={links.ticketUrl} target="_blank" rel="noopener noreferrer">Oficjalne bilety</a>
                   </div>
