@@ -65,6 +65,8 @@ function sourceFor(anchor: HTMLAnchorElement) {
   if (anchor.closest(".trip-search-actions")) return "partner_search_results";
   if (anchor.closest(".trip-partner-mini")) return "partner_search_browse";
   if (anchor.closest(".trip-search-extras")) return "search_extras";
+  if (anchor.closest(".trip-plan-option")) return "planner_partner";
+  if (anchor.closest(".search-v3-empty-actions")) return "search_fallback";
   if (anchor.closest(".favorites-page")) return "favorites";
   if (anchor.closest(".compare-page")) return "compare";
   if (anchor.closest(".offer-card")) return "offer_image";
