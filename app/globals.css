@@ -12116,3 +12116,17 @@ img{
   .footer-v2-logo{width:min(180px,52vw)!important}
   .footer-v2-trending{clear:both!important;position:relative!important}
 }
+
+
+/* V206 — definitive mobile footer logo layout */
+.footer-v2-brand-card{overflow:visible!important}
+.footer-v2-logo{display:block!important;width:200px!important;height:124px!important;max-width:100%!important;margin:0 0 12px!important;overflow:hidden!important}
+.footer-v2-logo img{display:block!important;width:200px!important;height:124px!important;max-width:100%!important;object-fit:contain!important;object-position:left center!important}
+@media(max-width:700px){
+  .footer-v2-top-grid{display:grid!important;grid-template-columns:1fr!important;gap:22px!important}
+  .footer-v2-brand-card{display:flex!important;flex-direction:column!important;align-items:flex-start!important;width:100%!important;padding:0!important}
+  .footer-v2-logo{width:160px!important;height:100px!important;max-width:160px!important;margin:0 0 10px!important}
+  .footer-v2-logo img{width:160px!important;height:100px!important;max-width:160px!important}
+  .footer-v2-brand-card>p{margin:0 0 12px!important;max-width:420px!important}
+  .footer-v2-discover{width:100%!important}
+}

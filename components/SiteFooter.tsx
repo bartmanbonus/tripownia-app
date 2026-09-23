@@ -15,7 +15,7 @@ export default function SiteFooter() {
             <div className="footer-v2-top-grid">
               <div className="footer-v2-brand-card">
                 <Link href="/" className="footer-v2-logo" aria-label="Tripownia.pl — strona główna">
-                  <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={220} height={96} sizes="(max-width: 700px) 180px, 220px" style={{ width: "100%", height: "auto", objectFit: "contain" }} />
+                  <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={260} height={160} sizes="(max-width: 700px) 160px, 200px" />
                 </Link>
                 <p>Znajdź wyjazd albo dodaj ten, który już masz. Tripownia pomoże Ci za darmo ogarnąć całą podróż krok po kroku.</p>
                 <Link className="footer-v2-plan-cta" href="/dodaj-podroz">Ułóż plan za 0 zł →</Link>
