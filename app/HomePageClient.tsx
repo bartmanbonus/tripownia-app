@@ -638,7 +638,7 @@ export default function Home() {
             <p>Najpierw wybierz wyjazd. Potem Tripownia pomoże Ci ogarnąć lot, hotel, dokumenty, transfer, atrakcje, eSIM i checklistę — także jeśli rezerwujesz gdzie indziej.</p>
             <div className="dream-hero-actions">
               <Link className="dream-primary" href="#wyszukiwarka">Znajdź wyjazd <ArrowRight size={18}/></Link>
-              <Link className="dream-secondary" href="/dodaj-podroz">Mam już wyjazd</Link>
+              <Link className="dream-secondary" href="/dodaj-podroz?mode=owned">Dodaj kupiony wyjazd</Link>
             </div>
             <div className="dream-category-row" aria-label="Co znajdziesz w Tripowni">
               <Link href="/wakacje">🌴 Wakacje</Link>
@@ -653,7 +653,7 @@ export default function Home() {
             <div className="dream-card-kicker">ZACZNIJ TAK, JAK CI WYGODNIE</div>
             <Link href="#wyszukiwarka"><span>🔎</span><div><strong>Wiem, gdzie chcę lecieć</strong><small>Wyszukaj po swojemu</small></div><ArrowRight size={18}/></Link>
             <Link href="/gdzie-leciec"><span>✨</span><div><strong>Nie wiem gdzie</strong><small>Dobierz kierunek do mnie</small></div><ArrowRight size={18}/></Link>
-            <Link href="/dodaj-podroz"><span>🧳</span><div><strong>Mam już wyjazd</strong><small>Dostanę darmowy plan krok po kroku</small></div><ArrowRight size={18}/></Link>
+            <Link href="/dodaj-podroz?mode=owned"><span>🧳</span><div><strong>Dodaj kupiony wyjazd</strong><small>Wpisz to, co już masz — Tripownia ułoży resztę</small></div><ArrowRight size={18}/></Link>
           </div>
         </div>
       </section>
@@ -700,24 +700,24 @@ export default function Home() {
           </div>
           <Link className="section-premium-link" href="/okazje">Zobacz wszystkie wyjazdy <ArrowRight size={16}/></Link>
         </div>
-        <OfferRail kicker="🏙 CITY BREAK" title="Gotowe na kilka dni" description="Krótkie wyjazdy z konkretnym terminem i aktualną ceną." items={themedRails.city.slice(0, 6)}/>
-        <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun.slice(0, 6)}/>
+        <OfferRail kicker="🏙 CITY BREAK" title="Gotowe na kilka dni" description="Krótkie wyjazdy z konkretnym terminem i aktualną ceną." items={themedRails.city.slice(0, 10)}/>
+        <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun.slice(0, 10)}/>
         <div className="homepage-offer-more">
           <details open>
             <summary><span><b>⚡ Na krótko</b><small>2–4 noce · szybki reset</small></span><ArrowRight size={18}/></summary>
-            <OfferRail kicker="WEEKEND / KRÓTKI WYJAZD" title="Wyskocz na kilka dni" description="Dobre opcje, kiedy nie chcesz brać całego tygodnia urlopu." items={themedRails.weekend.slice(0, 6)}/>
+            <OfferRail kicker="WEEKEND / KRÓTKI WYJAZD" title="Wyskocz na kilka dni" description="Dobre opcje, kiedy nie chcesz brać całego tygodnia urlopu." items={themedRails.weekend.slice(0, 10)}/>
           </details>
-          <details>
+          <details open>
             <summary><span><b>🏖 Tydzień odpoczynku</b><small>6–9 nocy · klasyczne wakacje</small></span><ArrowRight size={18}/></summary>
-            <OfferRail kicker="TYDZIEŃ" title="Pełny tydzień poza domem" description="Wyjazdy na prawdziwy odpoczynek, z konkretną ceną i terminem." items={themedRails.week.slice(0, 6)}/>
+            <OfferRail kicker="TYDZIEŃ" title="Pełny tydzień poza domem" description="Wyjazdy na prawdziwy odpoczynek, z konkretną ceną i terminem." items={themedRails.week.slice(0, 10)}/>
           </details>
-          <details>
+          <details open>
             <summary><span><b>💸 Najtaniej teraz</b><small>oferty od najniższej ceny</small></span><ArrowRight size={18}/></summary>
-            <OfferRail kicker="DOBRY BUDŻET" title="Dużo podróży za mniej" description="Najtańsze aktualne kierunki z dzisiejszej puli." items={themedRails.budgetFriendly.slice(0, 6)}/>
+            <OfferRail kicker="DOBRY BUDŻET" title="Dużo podróży za mniej" description="Najtańsze aktualne kierunki z dzisiejszej puli." items={themedRails.budgetFriendly.slice(0, 10)}/>
           </details>
-          <details>
+          <details open>
             <summary><span><b>✨ Raz a dobrze</b><small>dalsze i bardziej wyjątkowe</small></span><ArrowRight size={18}/></summary>
-            <OfferRail kicker="WIĘKSZA PODRÓŻ" title="Kiedy chcesz czegoś więcej" description="Droższe lub dalsze wyjazdy, które mają być główną podróżą sezonu." items={themedRails.premium.slice(0, 6)}/>
+            <OfferRail kicker="WIĘKSZA PODRÓŻ" title="Kiedy chcesz czegoś więcej" description="Droższe lub dalsze wyjazdy, które mają być główną podróżą sezonu." items={themedRails.premium.slice(0, 10)}/>
           </details>
         </div>
       </section>
