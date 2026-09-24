@@ -138,7 +138,7 @@ requireText("components/AddTripPage.tsx", "partners.fonia.buildUrl()", "planner 
 requireText("components/AddTripPage.tsx", "partners.parklot.buildUrl()", "planner stracił afiliację parkingu");
 requireText("components/SearchHub.tsx", 'if (/\\bbergamo\\b/i.test(normalized)) return "Mediolan, Włochy";', "Bergamo nie jest mapowane na Mediolan");
 requireText("components/SearchHub.tsx", "selectedDestinations", "wyszukiwarka straciła wielokrotny wybór kierunków");
-requireText("components/SearchHub.tsx", 'type DateMode = "any" | "month" | "range"', "wyszukiwarka straciła elastyczne daty");
+requireText("components/SearchHub.tsx", 'type DateMode = "any" | "exact" | "month" | "range"', "wyszukiwarka straciła elastyczne daty");
 requireText("components/AccountCloudSync.tsx", "saveTripowniaUserState", "konto straciło automatyczną synchronizację danych");
 
 
