@@ -17,7 +17,7 @@ type Props = {
   initialTab?: string;
 };
 
-type DateMode = "any" | "month" | "range";
+type DateMode = "any" | "exact" | "month" | "range";
 
 type SearchOverrides = {
   duration?: string;
@@ -108,6 +108,11 @@ function offerStartMs(offer: any) {
 }
 
 function preferenceWindow(preference: DatePreference) {
+  if (preference.mode === "exact" && preference.from) {
+    const day = isoMs(preference.from);
+    if (Number.isFinite(day)) return { start: day, end: day + 86399999, label: "wybranym dniu" };
+  }
+
   if (preference.mode === "month" && /^\d{4}-\d{2}$/.test(preference.month)) {
     const [year, month] = preference.month.split("-").map(Number);
     const start = Date.UTC(year, month - 1, 1);
@@ -167,6 +172,7 @@ export default function SearchHub({
   const [departures, setDepartures] = useState<string[]>(initialAirports);
   const [departureOpen, setDepartureOpen] = useState(false);
   const [dateMode, setDateMode] = useState<DateMode>("any");
+  const [dateOpen, setDateOpen] = useState(false);
   const [month, setMonth] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -183,6 +189,7 @@ export default function SearchHub({
   const [notice, setNotice] = useState("");
   const destinationRef = useRef<HTMLDivElement>(null);
   const departureRef = useRef<HTMLDivElement>(null);
+  const dateRef = useRef<HTMLDivElement>(null);
   const searchRunRef = useRef(0);
 
   const suggestions = useMemo(() => {
@@ -206,6 +213,7 @@ export default function SearchHub({
     const onPointerDown = (event: PointerEvent) => {
       if (destinationRef.current && !destinationRef.current.contains(event.target as Node)) setSuggestionsOpen(false);
       if (departureRef.current && !departureRef.current.contains(event.target as Node)) setDepartureOpen(false);
+      if (dateRef.current && !dateRef.current.contains(event.target as Node)) setDateOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
@@ -415,6 +423,7 @@ export default function SearchHub({
     setSelectedDestinations([]);
     setDepartures([]);
     setDepartureOpen(false);
+    setDateOpen(false);
     setDateMode("any");
     setMonth("");
     setDateFrom("");
@@ -430,6 +439,28 @@ export default function SearchHub({
     setLoading(false);
     setExpanding(false);
   }
+
+  const monthChoices = useMemo(() => {
+    const formatter = new Intl.DateTimeFormat("pl-PL", { month: "long", year: "numeric" });
+    const now = new Date();
+    return Array.from({ length: 8 }, (_, offset) => {
+      const date = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+      return {
+        value: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`,
+        label: formatter.format(date),
+      };
+    });
+  }, []);
+
+  const dateSummary = useMemo(() => {
+    if (dateMode === "month") return monthChoices.find((item) => item.value === month)?.label || "Wybierz miesiąc";
+    if (dateMode === "exact") return dateFrom ? new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "short" }).format(new Date(`${dateFrom}T12:00:00`)) : "Wybierz dzień";
+    if (dateMode === "range") {
+      if (dateFrom && dateTo) return `${dateFrom.slice(5).replace("-", ".")} – ${dateTo.slice(5).replace("-", ".")}`;
+      return "Wybierz zakres";
+    }
+    return "Elastycznie";
+  }, [dateMode, month, dateFrom, dateTo, monthChoices]);
 
   const quickPicks: Array<[string, string, SearchOverrides]> = [
     ["Rzym, Włochy", "Rzym na city break", { duration: "3-4", budget: "1500", tab: "City break" }],
@@ -471,7 +502,7 @@ export default function SearchHub({
                 value={destination}
                 onChange={(event) => { setDestination(event.target.value); setSuggestionsOpen(true); }}
                 onFocus={() => setSuggestionsOpen(true)}
-                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Gdziekolwiek albo np. Rzym, Malta, Mediolan"}
+                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Np. Rzym, Malta, Tokio"}
                 autoComplete="off"
               />
               {destination && <button type="button" aria-label="Wyczyść wpisany kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
@@ -523,15 +554,65 @@ export default function SearchHub({
             )}
           </div>
 
-          <label className="search-v3-field search-v3-date">
+          <div className="search-v3-field search-v3-date search-v3-smart-date" ref={dateRef}>
             <span><CalendarDays size={15}/> Kiedy?</span>
-            <select value={dateMode} onChange={(event) => setDateMode(event.target.value as DateMode)}>
-              <option value="any">Elastycznie</option>
-              <option value="month">Cały miesiąc</option>
-              <option value="range">Zakres ± kilka dni</option>
-            </select>
-            <ChevronDown size={15} className="search-v3-chevron"/>
-          </label>
+            <button type="button" className="search-v3-date-trigger" onClick={() => setDateOpen((value) => !value)} aria-expanded={dateOpen}>
+              <strong>{dateSummary}</strong><ChevronDown size={15}/>
+            </button>
+            {dateOpen && (
+              <div className="search-v3-calendar-popover">
+                <div className="search-v3-calendar-head">
+                  <div><small>INTELIGENTNY KALENDARZ</small><strong>Jak elastyczny jest termin?</strong></div>
+                  <button type="button" aria-label="Zamknij kalendarz" onClick={() => setDateOpen(false)}><X size={16}/></button>
+                </div>
+                <div className="search-v3-calendar-modes">
+                  {[
+                    ["any","Elastycznie"],
+                    ["exact","Konkretny dzień"],
+                    ["month","Cały miesiąc"],
+                    ["range","Zakres dat"],
+                  ].map(([mode,label]) => (
+                    <button type="button" key={mode} className={dateMode === mode ? "active" : ""} onClick={() => setDateMode(mode as DateMode)}>{label}</button>
+                  ))}
+                </div>
+
+                {dateMode === "any" && (
+                  <div className="search-v3-calendar-flex">
+                    <strong>Nie ograniczaj terminu</strong>
+                    <span>Najpierw pokażemy najlepsze aktualne opcje. Możesz dodatkowo zaznaczyć weekend lub długość pobytu.</span>
+                  </div>
+                )}
+
+                {dateMode === "month" && (
+                  <div className="search-v3-month-grid">
+                    {monthChoices.map((item) => <button type="button" key={item.value} className={month === item.value ? "active" : ""} onClick={() => setMonth(item.value)}>{item.label}</button>)}
+                  </div>
+                )}
+
+                {dateMode === "exact" && (
+                  <label className="search-v3-calendar-input"><span>Data wyjazdu</span><input type="date" value={dateFrom} onChange={(event) => { setDateFrom(event.target.value); setDateTo(event.target.value); }} /></label>
+                )}
+
+                {dateMode === "range" && (
+                  <div className="search-v3-calendar-range">
+                    <label><span>Od</span><input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} /></label>
+                    <label><span>Do</span><input type="date" min={dateFrom || undefined} value={dateTo} onChange={(event) => setDateTo(event.target.value)} /></label>
+                  </div>
+                )}
+
+                <div className="search-v3-calendar-quick">
+                  <span>Na ile dni?</span>
+                  <div>
+                    {[["3-4","3–4"],["5-7","5–7"],["8-10","8–10"],["11-14","11–14"]].map(([value,label]) => <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label} dni</button>)}
+                  </div>
+                </div>
+                <div className="search-v3-calendar-footer">
+                  <button type="button" className={weekendOnly ? "active" : ""} onClick={() => setWeekendOnly((value) => !value)}><Check size={14}/> Weekend</button>
+                  <button type="button" className="primary" onClick={() => setDateOpen(false)}>Gotowe</button>
+                </div>
+              </div>
+            )}
+          </div>
 
           <label className="search-v3-field search-v3-duration">
             <span>Na ile?</span>
@@ -560,20 +641,6 @@ export default function SearchHub({
 
           <button type="submit" className="search-v3-submit" disabled={loading}><Search size={18}/>{loading ? "Szukamy…" : "Szukaj wyjazdu"}</button>
         </form>
-
-        {dateMode !== "any" && (
-          <div className="search-v3-date-details">
-            {dateMode === "month" ? (
-              <label><span>Miesiąc wyjazdu</span><input type="month" value={month} onChange={(event) => setMonth(event.target.value)} /></label>
-            ) : (
-              <>
-                <label><span>Najwcześniej</span><input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} /></label>
-                <label><span>Najpóźniej</span><input type="date" min={dateFrom || undefined} value={dateTo} onChange={(event) => setDateTo(event.target.value)} /></label>
-              </>
-            )}
-            <small>Daty są elastyczne — najpierw pokazujemy Twój termin, a jeśli ofert jest mało, najbliższe dostępne daty.</small>
-          </div>
-        )}
 
         <div className="search-v3-options-row">
           <button type="button" className={`search-v3-weekend ${weekendOnly ? "active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>

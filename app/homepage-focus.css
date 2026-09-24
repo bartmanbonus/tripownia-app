@@ -326,3 +326,299 @@ body:has(.dream-hero) .homepage-offer-more details>.offer-stream-row{padding:12p
  body:has(.dream-hero) .homepage-offer-more summary span{display:block}
  body:has(.dream-hero) .homepage-offer-more summary small{display:block;margin-top:4px}
 }
+
+
+/* 2026-09-24 UX pass — search + bookable offers first, tighter rhythm */
+body:has(.dream-hero) .dream-hero{
+  padding-top:clamp(42px,5vw,68px)!important;
+  padding-bottom:clamp(34px,4vw,58px)!important;
+}
+body:has(.dream-hero) .dream-hero-copy h1{
+  margin-bottom:14px!important;
+}
+body:has(.dream-hero) #wyszukiwarka.search-v3-section,
+body:has(.dream-hero) #wyszukiwarka.section{
+  margin-top:18px!important;
+  margin-bottom:36px!important;
+}
+body:has(.dream-hero) #okazje,
+body:has(.dream-hero) .chapter-daily{
+  padding-top:34px!important;
+  padding-bottom:44px!important;
+}
+body:has(.dream-hero) .homepage-curated-trips,
+body:has(.dream-hero) .homepage-events,
+body:has(.dream-hero) .homepage-phenomena{
+  padding-top:52px!important;
+  padding-bottom:52px!important;
+}
+body:has(.dream-hero) .homepage-curated-trips .section-heading,
+body:has(.dream-hero) .homepage-events .section-heading,
+body:has(.dream-hero) .homepage-phenomena .section-heading{
+  margin-bottom:26px!important;
+}
+body:has(.dream-hero) .homepage-offer-more{margin-top:30px!important}
+body:has(.dream-hero) .homepage-offer-more details>.offer-stream-row{padding-bottom:30px!important}
+body:has(.dream-hero) .content-hubs{
+  padding-top:58px!important;
+  padding-bottom:72px!important;
+}
+body:has(.dream-hero) .home-trip-hub-mount{
+  margin-top:54px!important;
+  margin-bottom:58px!important;
+}
+
+/* Header hierarchy: search stays primary, but not visually louder than everything else. */
+@media(max-width:560px){
+  .trip-mobile-account,
+  .trip-mobile-menu>summary{
+    min-height:36px!important;
+    padding:0 9px!important;
+    gap:5px!important;
+    font-size:11px!important;
+    font-weight:820!important;
+  }
+  .trip-mobile-account svg,
+  .trip-mobile-menu>summary svg{width:18px!important;height:18px!important}
+  .trip-header .trip-header-search{
+    min-height:48px!important;
+    height:48px!important;
+    grid-template-columns:18px minmax(0,1fr) 38px!important;
+    padding:4px 6px 4px 12px!important;
+    border-radius:16px!important;
+  }
+  .trip-header .trip-header-search-copy strong{
+    font-size:12px!important;
+    line-height:1.18!important;
+    white-space:nowrap!important;
+  }
+  .trip-header .trip-header-search-cta{
+    width:38px!important;
+    min-width:38px!important;
+    max-width:38px!important;
+    height:38px!important;
+  }
+  .trip-header .trip-header-search-cta>svg{width:19px!important;height:19px!important}
+}
+
+/* Smart calendar replaces the native mode dropdown. */
+.search-v3-smart-date{position:relative!important;z-index:35}
+.search-v3-date-trigger{
+  width:100%;
+  min-height:28px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#25201d;
+  font:inherit;
+  cursor:pointer;
+}
+.search-v3-date-trigger strong{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:14px;
+}
+.search-v3-calendar-popover{
+  position:absolute;
+  z-index:160;
+  top:calc(100% + 10px);
+  left:0;
+  width:min(620px,92vw);
+  padding:18px;
+  border:1px solid #e4d8d0;
+  border-radius:20px;
+  background:#fff;
+  box-shadow:0 24px 70px rgba(38,27,20,.18);
+}
+.search-v3-calendar-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:14px;
+}
+.search-v3-calendar-head>div{display:flex;flex-direction:column;gap:3px}
+.search-v3-calendar-head small{font-size:9px;font-weight:950;letter-spacing:.09em;color:#e2522e}
+.search-v3-calendar-head strong{font-size:18px;letter-spacing:-.02em}
+.search-v3-calendar-head>button{
+  width:34px;height:34px;display:grid;place-items:center;border:1px solid #ece3dd;border-radius:999px;background:#fff;cursor:pointer;
+}
+.search-v3-calendar-modes{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-bottom:14px;
+}
+.search-v3-calendar-modes button,
+.search-v3-month-grid button,
+.search-v3-calendar-quick button{
+  border:1px solid #e7ddd6;
+  border-radius:12px;
+  background:#fff;
+  color:#514841;
+  font:inherit;
+  font-size:11px;
+  font-weight:850;
+  cursor:pointer;
+}
+.search-v3-calendar-modes button{min-height:42px;padding:7px 8px}
+.search-v3-calendar-modes button.active,
+.search-v3-month-grid button.active,
+.search-v3-calendar-quick button.active{
+  border-color:#f1a78e;
+  background:#fff2ec;
+  color:#d84d29;
+}
+.search-v3-calendar-flex{
+  display:flex;flex-direction:column;gap:4px;padding:14px;border-radius:14px;background:#faf7f4;color:#6e625b;
+}
+.search-v3-calendar-flex strong{color:#29231f;font-size:13px}
+.search-v3-calendar-flex span{font-size:11px;line-height:1.45}
+.search-v3-month-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.search-v3-month-grid button{min-height:44px;text-transform:capitalize}
+.search-v3-calendar-input,
+.search-v3-calendar-range label{
+  display:flex;flex-direction:column;gap:6px;font-size:10px;font-weight:900;color:#675d56;
+}
+.search-v3-calendar-input input,
+.search-v3-calendar-range input{
+  min-height:46px;width:100%;box-sizing:border-box;border:1px solid #dfd4cc;border-radius:12px;padding:0 12px;background:#fff;font:inherit;
+}
+.search-v3-calendar-range{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.search-v3-calendar-quick{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:14px;border-top:1px solid #f0e9e4;
+}
+.search-v3-calendar-quick>span{font-size:10px;font-weight:900;color:#6c625b}
+.search-v3-calendar-quick>div{display:flex;gap:6px;flex-wrap:wrap}
+.search-v3-calendar-quick button{min-height:34px;padding:0 10px}
+.search-v3-calendar-footer{
+  display:flex;justify-content:space-between;gap:10px;margin-top:14px;
+}
+.search-v3-calendar-footer button{
+  min-height:40px;padding:0 13px;border:1px solid #e7ddd6;border-radius:11px;background:#fff;font:inherit;font-size:11px;font-weight:900;cursor:pointer;
+}
+.search-v3-calendar-footer button.active{background:#fff2ec;border-color:#f1a78e;color:#d84d29}
+.search-v3-calendar-footer button.primary{margin-left:auto;background:#201b18;border-color:#201b18;color:#fff}
+
+/* Event imagery should feel cinematic, not like a random thumbnail. */
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-media{
+  aspect-ratio:16/10;
+  overflow:hidden;
+  border-radius:24px;
+  background:#eee8e3;
+}
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-media img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  transform:scale(1.01);
+}
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-media>span{display:none!important}
+
+@media(max-width:620px){
+  body:has(.dream-hero) .dream-hero{
+    padding-top:28px!important;
+    padding-bottom:22px!important;
+  }
+  body:has(.dream-hero) .dream-hero-copy h1{
+    font-size:clamp(38px,11.5vw,49px)!important;
+    line-height:.96!important;
+  }
+  body:has(.dream-hero) .dream-hero-copy p{
+    font-size:14px!important;
+    line-height:1.5!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka.search-v3-section,
+  body:has(.dream-hero) #wyszukiwarka.section{
+    margin-top:10px!important;
+    margin-bottom:26px!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-head{
+    padding-top:24px!important;
+    padding-bottom:16px!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-head h2{
+    font-size:clamp(34px,10vw,42px)!important;
+    line-height:1!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-head p{
+    font-size:13px!important;
+    line-height:1.45!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-tabs{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:5px!important;
+    overflow:visible!important;
+    padding:0 12px 16px!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-tabs button{
+    min-width:0!important;
+    padding:0 6px!important;
+    font-size:10px!important;
+    white-space:nowrap!important;
+  }
+  body:has(.dream-hero) #okazje,
+  body:has(.dream-hero) .chapter-daily{
+    padding-top:28px!important;
+    padding-bottom:34px!important;
+  }
+  body:has(.dream-hero) .homepage-curated-trips,
+  body:has(.dream-hero) .homepage-events,
+  body:has(.dream-hero) .homepage-phenomena{
+    padding-top:38px!important;
+    padding-bottom:38px!important;
+  }
+  body:has(.dream-hero) .homepage-curated-trips .section-heading,
+  body:has(.dream-hero) .homepage-events .section-heading,
+  body:has(.dream-hero) .homepage-phenomena .section-heading{
+    margin-bottom:20px!important;
+  }
+  body:has(.dream-hero) .homepage-phenomena-grid{gap:18px!important}
+  body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy{padding:14px 2px 0!important}
+  body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy strong{font-size:19px!important}
+  body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy span{font-size:12px!important;line-height:1.5!important}
+  body:has(.dream-hero) .homepage-editorial-card{
+    min-height:178px!important;
+    padding:20px!important;
+  }
+  body:has(.dream-hero) .homepage-editorial-card strong{margin-top:14px!important;font-size:22px!important}
+  body:has(.dream-hero) .homepage-editorial-card span{font-size:12px!important}
+  body:has(.dream-hero) .homepage-editorial-card em{padding-top:16px!important;font-size:12px!important}
+
+  #wyszukiwarka .search-v3{overflow:visible!important}
+  .search-v3-calendar-popover{
+    position:fixed!important;
+    left:12px!important;
+    right:12px!important;
+    bottom:calc(12px + env(safe-area-inset-bottom))!important;
+    top:auto!important;
+    width:auto!important;
+    max-height:76vh!important;
+    overflow-y:auto!important;
+    padding:16px!important;
+    border-radius:22px!important;
+    z-index:1400!important;
+  }
+  .search-v3-calendar-modes{grid-template-columns:1fr 1fr!important}
+  .search-v3-month-grid{grid-template-columns:1fr 1fr!important}
+  .search-v3-calendar-range{grid-template-columns:1fr!important}
+  .search-v3-calendar-quick{align-items:flex-start;flex-direction:column!important}
+  .search-v3-calendar-footer{
+    position:sticky;
+    bottom:-16px;
+    padding:10px 0 0;
+    background:#fff;
+  }
+}
