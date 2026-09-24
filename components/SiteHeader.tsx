@@ -32,7 +32,7 @@ import { partners } from "@/lib/partners";
 const primaryItems = [
   { href: "/moja-podroz", label: "Mój planner" },
   { href: "/#wyszukiwarka", label: "Znajdź wyjazd" },
-  { href: "/#marketplace", label: "Usługi" },
+  { href: "/#uslugi-podrozy", label: "Usługi" },
   { href: "/okazje", label: "Okazje Tripowni" },
   { href: "/radar-tripowni", label: "Radar Tripowni" },
   { href: "/dane-tripowni", label: "Dane Tripowni" },

@@ -264,6 +264,39 @@ export default function SearchHub({
     return () => document.removeEventListener("pointerdown", onPointerDown);
   }, []);
 
+  // Keep keyboard users inside the open picker and return to its trigger on close.
+  useEffect(() => {
+    const host = dateOpen ? dateRef.current : departureOpen ? departureRef.current : suggestionsOpen ? destinationRef.current : null;
+    const panel = host?.querySelector<HTMLElement>('[role="dialog"]');
+    if (!panel) return;
+    const trigger = host?.querySelector<HTMLElement>('input, button');
+    const focusable = () => Array.from(panel.querySelectorAll<HTMLElement>('button:not(:disabled), input, select, a[href], [tabindex="0"]')).filter(node => node.getClientRects().length > 0);
+    if (!suggestionsOpen) focusable()[0]?.focus({ preventScroll: true });
+    const previousOverflow = document.body.style.overflow;
+    const fullscreen = window.matchMedia('(max-width: 640px)').matches;
+    if (fullscreen) document.body.style.overflow = 'hidden';
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setDateOpen(false);
+        setDepartureOpen(false);
+        setSuggestionsOpen(false);
+      }
+      if (event.key === 'Tab' && !suggestionsOpen) {
+        const nodes = focusable();
+        const first = nodes[0], last = nodes[nodes.length - 1];
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      if (fullscreen) document.body.style.overflow = previousOverflow;
+      if (panel.contains(document.activeElement) || document.activeElement === document.body) trigger?.focus({ preventScroll: true });
+    };
+  }, [dateOpen, departureOpen, suggestionsOpen]);
+
   useEffect(() => {
     if (searchRequest > 0) void runSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -310,6 +343,7 @@ export default function SearchHub({
     setVisibleCount(12);
     setSuggestionsOpen(false);
     setDepartureOpen(false);
+    setDateOpen(false);
     setNotice("");
 
     const fetchBatch = async (includeFilters: boolean) => {
@@ -356,14 +390,18 @@ export default function SearchHub({
       setResults(rows);
       setLoading(false);
 
+      let relaxedFilters = false;
+      let alternativeDirections = false;
       if (rows.length < 6) {
         setExpanding(true);
         const relaxed = await fetchBatch(false);
         if (runId !== searchRunRef.current) return;
+        const previousCount = rows.length;
         const relaxedRows = cleanRows(relaxed.offers, requested.length ? "multi" : "");
         rows = requested.length
           ? uniqueOfferVariants([...rows, ...relaxedRows]).slice(0, 36)
           : onePerDirection([...rows, ...relaxedRows]).slice(0, 24);
+        relaxedFilters = rows.length > previousCount;
         datePass = prioritizeByDate(rows, datePreference);
         rows = datePass.rows;
         setResults(rows);
@@ -376,7 +414,9 @@ export default function SearchHub({
         if (runId !== searchRunRef.current) return;
         if (broadResponse.ok && broadData?.ok !== false) {
           rows = onePerDirection(cleanRows(Array.isArray(broadData?.offers) ? broadData.offers : [], "")).slice(0, 24);
-          rows = prioritizeByDate(rows, datePreference).rows;
+          alternativeDirections = rows.length > 0;
+          datePass = prioritizeByDate(rows, datePreference);
+          rows = datePass.rows;
           setResults(rows);
         }
       }
@@ -389,7 +429,7 @@ export default function SearchHub({
 
       if (rows.length) {
         const prefix = bergamoMapped ? "Bergamo wyszukujemy jako Mediolan, żeby pokazać realne oferty dla tego obszaru. " : "";
-        setNotice(`${prefix}${datePass.notice || `Zakres: ${scope}. Pokazujemy najlepsze aktualne dopasowania.`}`);
+        setNotice([prefix, alternativeDirections ? "Brak ofert dla wybranych ustawień. Poniżej inne kierunki i lotniska — sprawdź też ich ceny." : `Zakres: ${scope}.`, relaxedFilters ? "Część propozycji ma inną długość pobytu, wyżywienie lub nie obejmuje weekendu. Szczegóły znajdziesz na kartach." : "", datePass.notice].filter(Boolean).join(" "));
       } else {
         setNotice(bergamoMapped
           ? "Dla Bergamo szukaliśmy ofert jako Mediolan. Nie mamy teraz potwierdzonego pakietu — spróbuj Lot + hotel albo elastycznych parametrów."
@@ -575,7 +615,8 @@ export default function SearchHub({
   }, [dateMode, month, dateFrom, dateTo]);
 
   const visibleCalendarMonth = calendarMonth || month || dateFrom.slice(0, 7) || localMonthKey();
-  const visibleCalendarCells = calendarCells(visibleCalendarMonth);
+  const now = new Date();
+  const todayISO = `${localMonthKey()}-${String(now.getDate()).padStart(2, "0")}`;
   const calendarSelectionLabel = dateMode === "month" && month
     ? monthLabel(month)
     : dateMode === "range" && dateFrom
@@ -599,14 +640,14 @@ export default function SearchHub({
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
             <h2>Gdzie chcesz lecieć?</h2>
-            <p>Możesz wybrać kilka kierunków i kilka lotnisk albo zostawić je puste. Tripownia ma szukać szeroko, kiedy jesteś elastyczna/y.</p>
+            <p>Wybierz kierunki i lotniska. Zostaw puste, jeśli chcesz szukać wszędzie.</p>
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
 
-        <div className="search-v3-tabs" role="tablist" aria-label="Rodzaj podróży">
+        <div className="search-v3-tabs" role="group" aria-label="Rodzaj podróży">
           {["Inspiracje", "City break", "Lot + hotel", "Wakacje"].map((tab) => (
-            <button key={tab} type="button" className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
+            <button key={tab} type="button" aria-pressed={activeTab === tab} className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
 
@@ -688,12 +729,12 @@ export default function SearchHub({
                   <button type="button" className="search-v3-panel-close" aria-label="Zamknij wybór lotnisk" onClick={() => setDepartureOpen(false)}><X size={16}/></button>
                 </div>
                 <div className="search-v3-panel-scroll">
-                  <button type="button" className={!departures.length ? "active" : ""} onClick={() => setDepartures([])}>
+                  <button type="button" aria-pressed={!departures.length} className={!departures.length ? "active" : ""} onClick={() => setDepartures([])}>
                     <span className="search-v3-option-check">{!departures.length && <Check size={14}/>}</span><span><strong>Wszystkie lotniska</strong><small>Jestem elastyczna/y</small></span>
                   </button>
                   {airportOptions.map((airport:any) => {
                     const active = departures.includes(airport.code);
-                    return <button type="button" className={active ? "active" : ""} key={airport.code} onClick={() => setDepartures((current) => active ? current.filter((code) => code !== airport.code) : [...current, airport.code])}>
+                    return <button type="button" aria-pressed={active} className={active ? "active" : ""} key={airport.code} onClick={() => setDepartures((current) => active ? current.filter((code) => code !== airport.code) : [...current, airport.code])}>
                       <span className="search-v3-option-check">{active && <Check size={14}/>}</span><span><strong>{airport.label}</strong><small>{airport.code}</small></span>
                     </button>;
                   })}
@@ -714,7 +755,7 @@ export default function SearchHub({
             {dateOpen && (
               <div className="search-v3-calendar-popover search-v3-calendar-esky" role="dialog" aria-label="Wybierz termin podróży">
                 <div className="search-v3-esky-top">
-                  <button type="button" className="search-v3-esky-back" aria-label="Zamknij kalendarz" onClick={() => setDateOpen(false)}><ChevronLeft size={20}/></button>
+                  <button type="button" className="search-v3-esky-back" aria-label="Zamknij kalendarz" onClick={() => setDateOpen(false)}><X size={20}/></button>
                   <button type="button" className="search-v3-esky-summary" onClick={() => setCalendarView("calendar")}>
                     <small>Kiedy?</small>
                     <strong>{dateSummary}</strong>
@@ -738,13 +779,24 @@ export default function SearchHub({
                   ><Trash2 size={18}/></button>
                 </div>
 
-                <div className="search-v3-esky-tabs" role="tablist" aria-label="Sposób wyboru terminu">
-                  <button type="button" className={calendarView === "calendar" ? "active" : ""} onClick={() => setCalendarView("calendar")}>Kalendarz</button>
-                  <button type="button" className={calendarView === "months" ? "active" : ""} onClick={() => setCalendarView("months")}>Miesiące</button>
+                <div className="search-v3-esky-tabs" role="group" aria-label="Sposób wyboru terminu">
+                  <button type="button" aria-pressed={calendarView === "calendar"} className={calendarView === "calendar" ? "active" : ""} onClick={() => setCalendarView("calendar")}>Kalendarz</button>
+                  <button type="button" aria-pressed={calendarView === "months"} className={calendarView === "months" ? "active" : ""} onClick={() => setCalendarView("months")}>Miesiące</button>
                 </div>
 
+                {calendarView === "calendar" && <>
+                  <div className="search-picker-modes" role="group" aria-label="Termin wylotu">
+                    <button type="button" aria-pressed={dateMode !== "range"} onClick={() => selectDateMode("exact")}>Konkretny dzień</button>
+                    <button type="button" aria-pressed={dateMode === "range"} onClick={() => { selectDateMode("range"); setDateFrom(""); setDateTo(""); }}>Zakres od–do</button>
+                  </div>
+                  <div className="search-picker-nav">
+                    <button type="button" aria-label="Poprzednie miesiące" disabled={visibleCalendarMonth <= localMonthKey()} onClick={() => setCalendarMonth(addMonths(visibleCalendarMonth, -1))}><ChevronLeft size={18}/></button>
+                    <span>{dateMode === "range" ? "Wybierz najwcześniejszy i najpóźniejszy wylot" : "Wybierz dzień wylotu"}</span>
+                    <button type="button" aria-label="Następne miesiące" onClick={() => setCalendarMonth(addMonths(visibleCalendarMonth, 1))}><ChevronRight size={18}/></button>
+                  </div>
+                </>}
                 {calendarView === "calendar" ? (
-                  <div className="search-v3-esky-calendar-scroll">
+                  <div className="search-v3-esky-calendar-scroll" key={visibleCalendarMonth}>
                     {[visibleCalendarMonth, addMonths(visibleCalendarMonth, 1), addMonths(visibleCalendarMonth, 2)].map((calendarValue) => {
                       const cells = calendarCells(calendarValue);
                       return (
@@ -779,6 +831,8 @@ export default function SearchHub({
                                       setDateTo(cell.iso);
                                     }
                                   }}
+                                  disabled={cell.iso < todayISO}
+                                  aria-pressed={selectedExact || rangeStart || rangeEnd}
                                   aria-label={cell.iso}
                                 >
                                   <span>{cell.day}</span>
@@ -820,13 +874,13 @@ export default function SearchHub({
                     <strong>Wybierz liczbę nocy</strong>
                     <div>
                       {[
-                        ["all","Dowolnie"],["1","1"],["2","2"],["3","3"],["4","4"],["5-7","5–7"],["8-10","8–10"],["11-14","11–14"]
+                        ["all","Dowolnie"],["1","1"],["2","2"],["3","3"],["4","4"],["5-7","5–7"],["8-10","8–10"],["11-14","11–14"],["15+","15+"]
                       ].map(([value,label]) => (
                         <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label}</button>
                       ))}
                     </div>
                   </div>
-                  <button type="button" className="search-v3-esky-apply" onClick={() => setDateOpen(false)}>Zastosuj</button>
+                  <button type="button" className="search-v3-esky-apply" disabled={dateMode === "range" && (!dateFrom || !dateTo)} onClick={() => setDateOpen(false)}>Zastosuj</button>
                 </div>
               </div>
             )}
@@ -836,6 +890,7 @@ export default function SearchHub({
             <span>Na ile?</span>
             <select value={duration} onChange={(event) => setDuration(event.target.value)}>
               <option value="all">Dowolnie</option>
+              <option value="1">1 noc</option><option value="2">2 noce</option><option value="3">3 noce</option><option value="4">4 noce</option>
               <option value="1-2">1–2 noce</option>
               <option value="3-4">3–4 noce</option>
               <option value="5-7">5–7 nocy</option>
@@ -867,8 +922,8 @@ export default function SearchHub({
                 <option value="all">Dowolne</option>
                 <option value="bez wyżywienia">Bez wyżywienia</option>
                 <option value="śniadanie">Śniadanie</option>
-                <option value="half board">Half Board</option>
-                <option value="full board">Full Board</option>
+                <option value="half board">Śniadanie i obiadokolacja</option>
+                <option value="full board">Trzy posiłki</option>
                 <option value="all inclusive">All Inclusive</option>
                 <option value="ultra all inclusive">Ultra All Inclusive</option>
               </select>
@@ -885,8 +940,8 @@ export default function SearchHub({
 
         {searched && (
           <div className="search-v3-results">
-            <div className="search-v3-results-head">
-              <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `${results.length} aktualnych ofert` : "Brak potwierdzonego dopasowania"}</h3></div>
+            <div className="search-v3-results-head" role="status" aria-live="polite">
+              <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `Znalezione oferty: ${results.length}` : "Brak potwierdzonego dopasowania"}</h3></div>
               {notice && <p>{notice}</p>}
             </div>
 

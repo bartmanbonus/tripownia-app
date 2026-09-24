@@ -156,7 +156,7 @@ function wrapAnchor(anchor: HTMLAnchorElement) {
   const href = trackedHref(anchor);
   if (!href) return;
   anchor.href = href;
-  anchor.removeAttribute("target");
+  // Preserve the link target so search results remain available in their tab.
   anchor.dataset.tripowniaOutboundWrapped = "1";
 }
 

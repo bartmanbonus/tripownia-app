@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, BadgeCheck, Scale, MapPinned, BadgePercent } from "lucide-react";
+import { partners } from "@/lib/partners";
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import TravelImage from "@/components/TravelImage";
@@ -245,21 +246,23 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       ? "/okazje"
       : `/oferta/${offer.id}`;
   const buyHref = cardHref;
+  const partnerName = partners[offer.partner]?.name || "partnera";
+  const nightsLabel = offer.nights === 1 ? "noc" : offer.nights % 10 >= 2 && offer.nights % 10 <= 4 && !(offer.nights % 100 >= 12 && offer.nights % 100 <= 14) ? "noce" : "nocy";
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
     : isLiveExact
-      ? "Sprawdź dostępność i rezerwuj"
+      ? `Sprawdź cenę w ${partnerName}`
       : isExactLink
-        ? "Sprawdź dostępność i rezerwuj"
+        ? `Sprawdź cenę w ${partnerName}`
         : "Sprawdź aktualną cenę";
   const trustText = isExpired
     ? "Oferta wygasła"
     : isLiveExact
-      ? checkedAt ? `Cena z feedu · ${checkedAt}` : "Cena z aktualnego feedu"
+      ? checkedAt ? `Aktualizacja oferty: ${checkedAt}` : "Cena przekazana przez organizatora"
       : isExactLink
         ? "Dokładny link do oferty · finalna cena u partnera"
         : isLiveOffer
-          ? "Oferta z feedu · finalna cena u partnera"
+          ? "Cena przekazana przez organizatora"
           : "Cena orientacyjna · finalna cena u partnera";
 
   return (
@@ -296,8 +299,10 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       <div className="offer-body">
         <div className="offer-topline">
           <div><div className="eyebrow">{offer.flag} {offer.country}</div><h3>{offer.city}</h3></div>
-          <div className="score"><strong>{offer.score}</strong><span>/10</span></div>
+          <div className="score" title="Ocena oferty Tripowni, nie ocena hotelu"><strong>{offer.score}</strong><span>/10 · Tripownia</span></div>
         </div>
+
+        {offer.hotel && <p className="offer-hotel-name">{offer.hotel}</p>}
 
         {!isExpired && (
           <div className={`deal-score deal-score-compact deal-score-${deal.verdict === "BIERZ" ? "buy" : deal.verdict === "DOBRA OPCJA" ? "good" : "check"}`} title={`Pewność oceny: ${deal.confidence}${stalePrice ? " · cena może być nieaktualna" : ""}`}>
@@ -322,7 +327,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
         <div className="offer-date-line"><CalendarDays size={15} /> <strong>{offer.dates}</strong></div>
         <div className="meta">
           <span><Plane size={15} /> {offer.departure}</span>
-          <span><Moon size={15} /> {offer.nights} nocy</span>
+          <span><Moon size={15} /> {offer.nights} {nightsLabel}</span>
           <span><Utensils size={15} /> {offer.board}</span>
         </div>
 
@@ -335,6 +340,8 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
           rel={directAffiliate ? "sponsored noopener noreferrer" : undefined}
           onClick={() => trackOfferClick("card_cta")}
         >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
+
+        {directAffiliate && <p className="offer-booking-note">Rezerwacja i płatność w {partnerName}, w nowej karcie. Cena za osobę może się zmienić — ostateczną kwotę potwierdza organizator.</p>}
 
         {!isExpired && (
           <div className="offer-actions-row offer-actions-secondary">

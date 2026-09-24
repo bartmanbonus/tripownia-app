@@ -36,6 +36,7 @@ import "./account.css";
 import "./planner-builder.css";
 import "./contrast-guard.css";
 import "./homepage-focus.css";
+import "./ux-audit.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 import OfferRailDeduper from "@/components/OfferRailDeduper";

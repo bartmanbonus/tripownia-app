@@ -119,7 +119,7 @@ function PieceToggle({
   onClick: () => void;
 }) {
   return (
-    <button type="button" className={`trip-piece-toggle${checked ? " active" : ""}`} onClick={onClick}>
+    <button type="button" aria-pressed={checked} className={`trip-piece-toggle${checked ? " active" : ""}`} onClick={onClick}>
       {icon}
       <span><strong>{title}</strong><small>{checked ? "Mam już — pomiń propozycje" : "Nie mam — pokaż propozycje"}</small></span>
       {checked ? <CheckCircle2 size={19}/> : <span className="trip-piece-dot"/>}
@@ -164,7 +164,9 @@ export default function AddTripPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    setOwnedMode(new URLSearchParams(window.location.search).get("mode") === "owned");
+    const owned = new URLSearchParams(window.location.search).get("mode") === "owned";
+    setOwnedMode(owned);
+    if (owned) { setDestinationMode("known"); setDateMode("range"); }
   }, []);
 
   useEffect(() => {
@@ -386,7 +388,7 @@ export default function AddTripPage() {
 
         <form className="add-trip-form" onSubmit={submit}>
           <section className="add-trip-section">
-            <div className="add-trip-section-title"><MapPinned size={20}/><div><strong>1. Co już wiesz o wyjeździe?</strong><span>Nie musisz znać kierunku ani dokładnych dat. Cena może zdecydować za Ciebie.</span></div></div>
+            <div className="add-trip-section-title"><MapPinned size={20}/><div><strong>1. Co już wiesz o wyjeździe?</strong><span>{ownedMode ? "Wpisz miejsce oraz daty kupionego wyjazdu. Poniżej zaznacz elementy, które masz już zarezerwowane." : "Nie musisz znać kierunku ani dokładnych dat. Cena może zdecydować za Ciebie."}</span></div></div>
 
             <div className="planner-mode-row">
               <button type="button" className={destinationMode === "open" ? "active" : ""} onClick={() => setDestinationMode("open")}>🌍 Gdziekolwiek</button>
@@ -405,13 +407,13 @@ export default function AddTripPage() {
             </div>
             {dateMode === "month" && <div className="add-trip-grid two"><label><span>Miesiąc</span><input type="month" value={travelMonth} onChange={(event) => setTravelMonth(event.target.value)} /></label></div>}
             {dateMode === "range" && <div className="add-trip-grid two">
-              <label><span>Najwcześniej</span><input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label>
-              <label><span>Najpóźniej</span><input type="date" min={startDate || undefined} value={endDate} onChange={(event) => setEndDate(event.target.value)} /></label>
+              <label><span>{ownedMode ? "Data wyjazdu" : "Najwcześniej"}</span><input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label>
+              <label><span>{ownedMode ? "Data powrotu" : "Najpóźniej"}</span><input type="date" min={startDate || undefined} value={endDate} onChange={(event) => setEndDate(event.target.value)} /></label>
             </div>}
-            <div className="add-trip-grid two planner-flex-options">
+            {!ownedMode && <div className="add-trip-grid two planner-flex-options">
               <label><span>Na ile?</span><select value={flexNights} onChange={(event) => setFlexNights(event.target.value)}><option value="1-3">1–3 noce</option><option value="3-7">3–7 nocy</option><option value="5-10">5–10 nocy</option><option value="7-14">7–14 nocy</option><option value="14+">14+ nocy</option></select></label>
               <label className="planner-weekend-check"><input type="checkbox" checked={weekendRequired} onChange={(event) => setWeekendRequired(event.target.checked)} /><span>Pobyt ma zawierać weekend</span></label>
-            </div>
+            </div>}
 
             <div className="planner-subtitle"><Plane size={17}/><strong>Skąd ruszasz?</strong></div>
             <div className="planner-mode-row">

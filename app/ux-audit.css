@@ -1,0 +1,80 @@
+/* Readability and picker behavior, shared by the public site and planner. */
+body { line-height: 1.5; }
+button, input, select, textarea { font-family: inherit; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible { outline: 3px solid #176eb0; outline-offset: 3px; }
+body:has(.dream-hero) .dream-hero h1 { font-size: clamp(2.25rem, 4.6vw, 4rem) !important; line-height: 1.08 !important; letter-spacing: -.035em !important; }
+body:has(.dream-hero) .dream-hero-copy > p { font-size: 1.125rem !important; line-height: 1.65 !important; }
+body:has(.dream-hero) .dream-hero { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+body:has(.dream-hero) #wyszukiwarka.search-v3-section { margin-top: 2rem !important; }
+#uslugi-podrozy, #wyszukiwarka { scroll-margin-top: 9rem; }
+.trip-header .trip-header-nav-link, .trip-header .trip-header-action, .trip-header .trip-header-help,
+.trip-header .trip-header-menu > summary { font-size: .875rem !important; line-height: 1.4 !important; min-height: 44px; }
+.trip-header .trip-header-search-copy small { font-size: .75rem !important; line-height: 1.4 !important; }
+.trip-header-nav-wrap { flex-wrap: wrap; }
+.trip-header-nav { flex-wrap: wrap; }
+#wyszukiwarka { scroll-margin-top: 9rem; }
+#wyszukiwarka .search-v3 { min-width: 0; }
+#wyszukiwarka .search-v3-head h2 { font-size: clamp(1.75rem, 3.3vw, 2.75rem) !important; line-height: 1.15 !important; letter-spacing: -.025em !important; }
+#wyszukiwarka .search-v3-head p { font-size: 1rem !important; line-height: 1.6 !important; }
+#wyszukiwarka .search-v3-field > label, #wyszukiwarka .search-v3-field > span,
+#wyszukiwarka .search-v3-tabs button, #wyszukiwarka .search-v3-quick button,
+#wyszukiwarka .search-v3-weekend, #wyszukiwarka .search-v3-board { font-size: .875rem !important; line-height: 1.5 !important; }
+#wyszukiwarka .search-v3-field small, #wyszukiwarka .search-v3-head small { font-size: .75rem !important; line-height: 1.4 !important; }
+#wyszukiwarka input, #wyszukiwarka select, #wyszukiwarka .search-v3-multi-trigger,
+#wyszukiwarka .search-v3-date-trigger { font-size: 1rem !important; min-height: 44px !important; }
+#wyszukiwarka .search-v3-tabs button { white-space: normal; }
+#wyszukiwarka .search-v3-panel-close { min-width: 44px; min-height: 44px; }
+#wyszukiwarka .search-v3-panel-scroll button { min-height: 48px; font-size: 1rem !important; }
+#wyszukiwarka .search-v3-calendar-esky { display: flex !important; flex-direction: column; max-height: min(800px, 90dvh) !important; }
+#wyszukiwarka .search-v3-esky-top, #wyszukiwarka .search-v3-esky-tabs,
+#wyszukiwarka .search-picker-nav, #wyszukiwarka .search-picker-modes,
+#wyszukiwarka .search-v3-esky-bottom { flex: 0 0 auto; }
+#wyszukiwarka .search-v3-esky-calendar-scroll, #wyszukiwarka .search-v3-esky-months-grid { min-height: 0; height: auto !important; flex: 1 1 auto; overflow-y: auto; padding: 8px 18px 16px !important; }
+#wyszukiwarka .search-v3-esky-bottom { position: static !important; padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+#wyszukiwarka .search-v3-calendar-grid > button { font-size: .875rem !important; min-height: 44px !important; line-height: 1.2 !important; }
+#wyszukiwarka .search-v3-calendar-grid > button:disabled { opacity: .35; cursor: not-allowed; background: transparent !important; }
+#wyszukiwarka .search-v3-esky-nights button { min-height: 44px; min-width: 44px; font-size: .875rem; }
+#wyszukiwarka .search-v3-esky-apply:disabled { opacity: .45; cursor: not-allowed; }
+.search-picker-modes { display: flex; gap: 8px; padding: 0 18px; }
+.search-picker-modes button { flex: 1; min-height: 44px; border: 1px solid #d8ccc4; border-radius: 12px; background: #fff; color: #27211d; font: inherit; font-size: .875rem; }
+.search-picker-modes button[aria-pressed="true"] { border-color: #ce4826; background: #fff0e9; }
+.search-picker-nav { display: grid; grid-template-columns: 44px minmax(0,1fr) 44px; align-items: center; gap: 8px; padding: 8px 18px; font-size: .875rem; text-align: center; }
+.search-picker-nav button { display: grid; place-items: center; min-height: 44px; background: #fff; border: 1px solid #ded4ce; border-radius: 10px; }
+.search-picker-nav button:disabled { opacity: .35; }
+.offer-card .offer-hotel-name { margin: 6px 0 12px; font-size: 1rem; line-height: 1.45; color: #443c37; overflow-wrap: anywhere; }
+.offer-card .offer-booking-note { margin: 10px 0; font-size: .8125rem; line-height: 1.5; color: #554b45; }
+.offer-card .offer-trust-line { font-size: .75rem !important; line-height: 1.5 !important; }
+.offer-card .meta, .offer-card .offer-date-line { font-size: .875rem !important; line-height: 1.5 !important; }
+.offer-card .card-cta { min-height: 48px !important; font-size: .9375rem !important; line-height: 1.4 !important; white-space: normal !important; padding: 12px !important; text-align: center; }
+.offer-card .card-cta svg { flex-shrink: 0; }
+.offer-card .offer-actions-row button { min-height: 44px !important; font-size: .875rem !important; line-height: 1.4 !important; }
+.offer-card .score span { display: block; font-size: .75rem !important; }
+@media (max-width: 640px) {
+  body:has(.dream-hero) .dream-hero { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+  body:has(.dream-hero) .dream-hero-copy > p { font-size: 1rem !important; }
+  #wyszukiwarka .search-v3-calendar-esky { height: 100dvh !important; max-height: 100dvh !important; }
+  #wyszukiwarka .search-v3-field { min-width: 0; }
+  #wyszukiwarka .search-v3-esky-top { grid-template-columns: 44px minmax(0,1fr) minmax(0,1fr) 44px; gap: 4px; padding-inline: 8px; }
+  #wyszukiwarka .search-v3-esky-summary { padding: 6px !important; }
+  #wyszukiwarka .search-v3-esky-summary strong { font-size: .875rem; overflow-wrap: anywhere; }
+  #wyszukiwarka .search-v3-options-row { flex-wrap: wrap; }
+  #wyszukiwarka .search-v3-board select { width: 100%; max-width: 100%; }
+  .offer-card .offer-actions-row { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .dream-hero-actions > a { font-size: .875rem !important; line-height: 1.4 !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto !important; }
+}
+
+.add-trip-form input, .add-trip-form select, .add-trip-form textarea { font-size: 1rem !important; min-height: 44px; }
+.add-trip-section-title span, .trip-piece-toggle small, .trip-plan-option p { font-size: .875rem !important; line-height: 1.55 !important; }
+.planner-mode-row button, .trip-plan-option-actions a, .trip-plan-option-actions button { font-size: .875rem !important; min-height: 44px !important; }
+@media(max-width:760px) { .trip-plan-option-actions { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+body:has(.dream-hero) .dream-hero-shell { min-height: 0 !important; }
+body:has(.dream-hero) .dream-hero h1 { text-wrap: balance; }
+#wyszukiwarka .search-v3-calendar-grid > button, #wyszukiwarka .search-v3-calendar-grid > .empty { aspect-ratio: auto !important; height: 44px !important; }
+#wyszukiwarka .search-v3-date-trigger strong, #wyszukiwarka .search-v3-multi-trigger strong { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.35 !important; }
+#wyszukiwarka .search-v3-field { height: auto !important; min-height: 84px !important; }
+@media (min-width: 641px) {
+  #wyszukiwarka .search-v3-calendar-esky { position: fixed !important; top: 5dvh !important; bottom: auto !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; width: min(680px, calc(100vw - 32px)) !important; }
+}
