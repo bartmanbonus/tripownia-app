@@ -749,45 +749,55 @@ export default function SearchHub({
                     disabled={visibleCalendarMonth <= localMonthKey()}
                     onClick={() => setCalendarMonth((current) => addMonths(current || visibleCalendarMonth, -1))}
                   ><ChevronLeft size={18}/></button>
-                  <strong>{monthLabel(visibleCalendarMonth)}</strong>
+                  <strong>{monthLabel(visibleCalendarMonth)} – {monthLabel(addMonths(visibleCalendarMonth, 1))}</strong>
                   <button type="button" aria-label="Następny miesiąc" onClick={() => setCalendarMonth((current) => addMonths(current || visibleCalendarMonth, 1))}><ChevronRight size={18}/></button>
                 </div>
 
                 {dateMode === "any" && (
                   <div className="search-v3-calendar-note">
                     <strong>Masz elastyczny termin?</strong>
-                    <span>Zostaw bez zaznaczenia, a pokażemy najszerszy wybór. Kliknięcie dnia automatycznie zawęzi wyszukiwanie.</span>
+                    <span>Nie musisz wybierać dnia. Zostaw elastycznie albo kliknij datę, żeby zawęzić wyniki.</span>
                   </div>
                 )}
 
-                {dateMode === "month" && (
-                  <button type="button" className="search-v3-calendar-month-select" onClick={() => setMonth(visibleCalendarMonth)}>
-                    {month === visibleCalendarMonth ? <><Check size={15}/> Wybrano {monthLabel(visibleCalendarMonth)}</> : <>Wybierz cały {monthLabel(visibleCalendarMonth)}</>}
-                  </button>
-                )}
-
-                <div className="search-v3-calendar-weekdays" aria-hidden="true">
-                  {["Pn","Wt","Śr","Cz","Pt","So","Nd"].map((day) => <span key={day}>{day}</span>)}
-                </div>
-
-                <div className="search-v3-calendar-grid">
-                  {visibleCalendarCells.map((cell, index) => {
-                    if (!cell) return <span className="empty" key={`empty-${index}`} />;
-                    const selectedExact = dateMode === "exact" && dateFrom === cell.iso;
-                    const selectedMonth = dateMode === "month" && month === visibleCalendarMonth;
-                    const rangeStart = dateMode === "range" && dateFrom === cell.iso;
-                    const rangeEnd = dateMode === "range" && dateTo === cell.iso;
-                    const inRange = dateMode === "range" && Boolean(dateFrom && dateTo && cell.iso > dateFrom && cell.iso < dateTo);
-                    const className = [
-                      selectedExact || selectedMonth || rangeStart || rangeEnd ? "selected" : "",
-                      rangeStart ? "range-start" : "",
-                      rangeEnd ? "range-end" : "",
-                      inRange ? "in-range" : "",
-                    ].filter(Boolean).join(" ");
+                <div className="search-v3-calendar-months">
+                  {[visibleCalendarMonth, addMonths(visibleCalendarMonth, 1)].map((calendarValue) => {
+                    const cells = calendarCells(calendarValue);
                     return (
-                      <button type="button" key={cell.iso} className={className} onClick={() => selectCalendarDay(cell.iso)} aria-label={cell.iso}>
-                        <span>{cell.day}</span>
-                      </button>
+                      <section className="search-v3-calendar-month" key={calendarValue}>
+                        <div className="search-v3-calendar-month-head">
+                          <strong>{monthLabel(calendarValue)}</strong>
+                          {dateMode === "month" && (
+                            <button type="button" className={month === calendarValue ? "active" : ""} onClick={() => setMonth(calendarValue)}>
+                              {month === calendarValue ? <><Check size={14}/> Wybrany</> : "Wybierz cały miesiąc"}
+                            </button>
+                          )}
+                        </div>
+                        <div className="search-v3-calendar-weekdays" aria-hidden="true">
+                          {["Pn","Wt","Śr","Cz","Pt","So","Nd"].map((day) => <span key={day}>{day}</span>)}
+                        </div>
+                        <div className="search-v3-calendar-grid">
+                          {cells.map((cell, index) => {
+                            if (!cell) return <span className="empty" key={`${calendarValue}-empty-${index}`} />;
+                            const selectedExact = dateMode === "exact" && dateFrom === cell.iso;
+                            const selectedMonth = dateMode === "month" && month === calendarValue;
+                            const rangeStart = dateMode === "range" && dateFrom === cell.iso;
+                            const rangeEnd = dateMode === "range" && dateTo === cell.iso;
+                            const inRange = dateMode === "range" && Boolean(dateFrom && dateTo && cell.iso > dateFrom && cell.iso < dateTo);
+                            const className = [
+                              selectedExact || selectedMonth || rangeStart || rangeEnd ? "selected" : "",
+                              rangeStart ? "range-start" : "",
+                              rangeEnd ? "range-end" : "",
+                              inRange ? "in-range" : "",
+                            ].filter(Boolean).join(" ");
+                            return (
+                              <button type="button" key={cell.iso} className={className} onClick={() => selectCalendarDay(cell.iso)} aria-label={cell.iso}>
+                                <span>{cell.day}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </section>
                     );
                   })}
                 </div>
