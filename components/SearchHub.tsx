@@ -362,6 +362,24 @@ export default function SearchHub({
     }
   }
 
+  function openDestinationPanel() {
+    setDepartureOpen(false);
+    setDateOpen(false);
+    setSuggestionsOpen(true);
+  }
+
+  function toggleDeparturePanel() {
+    setSuggestionsOpen(false);
+    setDateOpen(false);
+    setDepartureOpen((open) => !open);
+  }
+
+  function toggleDatePanel() {
+    setSuggestionsOpen(false);
+    setDepartureOpen(false);
+    setDateOpen((open) => !open);
+  }
+
   function submitSearch(event: FormEvent) {
     event.preventDefault();
     void runSearch();
@@ -382,6 +400,9 @@ export default function SearchHub({
     }
 
     searchRunRef.current += 1;
+    setSuggestionsOpen(false);
+    setDepartureOpen(false);
+    setDateOpen(false);
     setActiveTab(tab);
     setDuration("all");
     setBudget("all");
@@ -400,6 +421,9 @@ export default function SearchHub({
     const nextWeekend = overrides.weekendOnly ?? false;
 
     const canonicalLabel = canonicalSearchDestination(label);
+    setSuggestionsOpen(false);
+    setDepartureOpen(false);
+    setDateOpen(false);
     setSelectedDestinations([canonicalLabel]);
     setDestination("");
     setDuration(nextDuration);
@@ -420,6 +444,7 @@ export default function SearchHub({
   function resetSearch() {
     searchRunRef.current += 1;
     setDestination("");
+    setSuggestionsOpen(false);
     setSelectedDestinations([]);
     setDepartures([]);
     setDepartureOpen(false);
@@ -489,7 +514,7 @@ export default function SearchHub({
         </div>
 
         <form className="search-v3-form" onSubmit={submitSearch}>
-          <div className="search-v3-field search-v3-destination" ref={destinationRef}>
+          <div className={`search-v3-field search-v3-destination${suggestionsOpen ? " is-open" : ""}`} ref={destinationRef}>
             <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd? <small>możesz wybrać kilka</small></label>
             {selectedDestinations.length > 0 && (
               <div className="search-v3-selected">
@@ -500,8 +525,8 @@ export default function SearchHub({
               <input
                 id="tripownia-destination"
                 value={destination}
-                onChange={(event) => { setDestination(event.target.value); setSuggestionsOpen(true); }}
-                onFocus={() => setSuggestionsOpen(true)}
+                onChange={(event) => { setDestination(event.target.value); openDestinationPanel(); }}
+                onFocus={openDestinationPanel}
                 placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Np. Rzym, Malta, Tokio"}
                 autoComplete="off"
               />
@@ -509,54 +534,84 @@ export default function SearchHub({
             </div>
 
             {suggestionsOpen && (
-              <div className="search-v3-suggestions">
-                <button type="button" className="search-v3-anywhere" onClick={() => { setSelectedDestinations([]); setDestination(""); setSuggestionsOpen(false); }}>
-                  <MapPin size={15}/><span><strong>🌍 Gdziekolwiek</strong><small>Pokaż najlepsze opcje bez ograniczania kierunku</small></span>
-                </button>
-                {suggestions.length > 0 ? suggestions.map((item) => (
-                  <button key={item.label} type="button" onClick={() => {
-                    const next = canonicalSearchDestination(item.label);
-                    setSelectedDestinations((current) => Array.from(new Set([...current, next])));
-                    setDestination("");
-                    setSuggestionsOpen(true);
-                  }}>
-                    <MapPin size={15}/><span><strong>{item.label}</strong><small>{item.region} · dodaj do wyboru</small></span>
+              <div className="search-v3-suggestions" role="dialog" aria-label="Wybierz kierunki">
+                <div className="search-v3-panel-head">
+                  <div><strong>Wybierz kierunki</strong><small>Możesz dodać kilka i wyszukać je jednocześnie.</small></div>
+                  <button type="button" className="search-v3-panel-close" aria-label="Zamknij wybór kierunków" onClick={() => setSuggestionsOpen(false)}><X size={16}/></button>
+                </div>
+
+                {selectedDestinations.length > 0 && (
+                  <div className="search-v3-panel-selected">
+                    {selectedDestinations.map((item) => (
+                      <button type="button" key={item} onClick={() => setSelectedDestinations((current) => current.filter((x) => x !== item))}>
+                        {item}<X size={12}/>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <div className="search-v3-panel-scroll">
+                  <button type="button" className="search-v3-anywhere" onClick={() => { setSelectedDestinations([]); setDestination(""); setSuggestionsOpen(false); }}>
+                    <MapPin size={15}/><span><strong>🌍 Gdziekolwiek</strong><small>Pokaż najlepsze opcje bez ograniczania kierunku</small></span>
                   </button>
-                )) : destination.trim() && !isTravelDestinationBlocked(destination) ? (
-                  <button type="button" onClick={() => {
-                    setSelectedDestinations((current) => Array.from(new Set([...current, canonicalSearchDestination(destination.trim())])));
-                    setDestination("");
-                    setSuggestionsOpen(false);
-                  }}><Search size={15}/><span><strong>Dodaj „{destination.trim()}”</strong><small>Dodaj jako kolejny kierunek</small></span></button>
-                ) : null}
+                  {suggestions.length > 0 ? suggestions.map((item) => (
+                    <button key={item.label} type="button" onClick={() => {
+                      const next = canonicalSearchDestination(item.label);
+                      setSelectedDestinations((current) => Array.from(new Set([...current, next])));
+                      setDestination("");
+                    }}>
+                      <MapPin size={15}/><span><strong>{item.label}</strong><small>{item.region} · dodaj do wyboru</small></span>
+                    </button>
+                  )) : destination.trim() && !isTravelDestinationBlocked(destination) ? (
+                    <button type="button" onClick={() => {
+                      setSelectedDestinations((current) => Array.from(new Set([...current, canonicalSearchDestination(destination.trim())])));
+                      setDestination("");
+                    }}><Search size={15}/><span><strong>Dodaj „{destination.trim()}”</strong><small>Dodaj jako kolejny kierunek</small></span></button>
+                  ) : null}
+                </div>
+
+                <div className="search-v3-panel-footer">
+                  <span>{selectedDestinations.length ? `Wybrano: ${selectedDestinations.length}` : "Brak ograniczenia kierunku"}</span>
+                  <button type="button" onClick={() => setSuggestionsOpen(false)}>Gotowe</button>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="search-v3-field search-v3-departure search-v3-multiselect" ref={departureRef}>
+          <div className={`search-v3-field search-v3-departure search-v3-multiselect${departureOpen ? " is-open" : ""}`} ref={departureRef}>
             <span><Plane size={15}/> Skąd? <small>możesz wybrać kilka</small></span>
-            <button type="button" className="search-v3-multi-trigger" onClick={() => setDepartureOpen((open) => !open)}>
+            <button type="button" className="search-v3-multi-trigger" onClick={toggleDeparturePanel} aria-expanded={departureOpen}>
               <strong>{departures.length ? (departures.length === 1 ? airportOptions.find((a:any) => a.code === departures[0])?.label || departures[0] : `${departures.length} lotniska`) : "Wszystkie lotniska"}</strong>
               <ChevronDown size={15}/>
             </button>
             {departureOpen && (
-              <div className="search-v3-departure-menu">
-                <button type="button" className={!departures.length ? "active" : ""} onClick={() => setDepartures([])}>
-                  <span className="search-v3-option-check">{!departures.length && <Check size={14}/>}</span><span><strong>Wszystkie lotniska</strong><small>Jestem elastyczna/y</small></span>
-                </button>
-                {airportOptions.map((airport:any) => {
-                  const active = departures.includes(airport.code);
-                  return <button type="button" className={active ? "active" : ""} key={airport.code} onClick={() => setDepartures((current) => active ? current.filter((code) => code !== airport.code) : [...current, airport.code])}>
-                    <span className="search-v3-option-check">{active && <Check size={14}/>}</span><span><strong>{airport.label}</strong><small>{airport.code}</small></span>
-                  </button>;
-                })}
+              <div className="search-v3-departure-menu" role="dialog" aria-label="Wybierz lotniska wylotu">
+                <div className="search-v3-panel-head">
+                  <div><strong>Skąd chcesz lecieć?</strong><small>Możesz zaznaczyć kilka lotnisk.</small></div>
+                  <button type="button" className="search-v3-panel-close" aria-label="Zamknij wybór lotnisk" onClick={() => setDepartureOpen(false)}><X size={16}/></button>
+                </div>
+                <div className="search-v3-panel-scroll">
+                  <button type="button" className={!departures.length ? "active" : ""} onClick={() => setDepartures([])}>
+                    <span className="search-v3-option-check">{!departures.length && <Check size={14}/>}</span><span><strong>Wszystkie lotniska</strong><small>Jestem elastyczna/y</small></span>
+                  </button>
+                  {airportOptions.map((airport:any) => {
+                    const active = departures.includes(airport.code);
+                    return <button type="button" className={active ? "active" : ""} key={airport.code} onClick={() => setDepartures((current) => active ? current.filter((code) => code !== airport.code) : [...current, airport.code])}>
+                      <span className="search-v3-option-check">{active && <Check size={14}/>}</span><span><strong>{airport.label}</strong><small>{airport.code}</small></span>
+                    </button>;
+                  })}
+                </div>
+                <div className="search-v3-panel-footer">
+                  <span>{departures.length ? `Wybrano: ${departures.length}` : "Wszystkie lotniska"}</span>
+                  <button type="button" onClick={() => setDepartureOpen(false)}>Gotowe</button>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="search-v3-field search-v3-date search-v3-smart-date" ref={dateRef}>
+          <div className={`search-v3-field search-v3-date search-v3-smart-date${dateOpen ? " is-open" : ""}`} ref={dateRef}>
             <span><CalendarDays size={15}/> Kiedy?</span>
-            <button type="button" className="search-v3-date-trigger" onClick={() => setDateOpen((value) => !value)} aria-expanded={dateOpen}>
+            <button type="button" className="search-v3-date-trigger" onClick={toggleDatePanel} aria-expanded={dateOpen}>
               <strong>{dateSummary}</strong><ChevronDown size={15}/>
             </button>
             {dateOpen && (
