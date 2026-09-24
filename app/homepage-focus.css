@@ -1101,3 +1101,77 @@ body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy em{
  .search-v3-airport-footer{position:sticky!important;bottom:0!important;grid-template-columns:auto 1fr auto!important;padding-left:16px!important;padding-right:16px!important}
  .search-v3-airport-apply{min-width:110px!important}
 }
+
+/* 2026-09-24 always-open offer shelves + reliable touch rails */
+body:has(.dream-hero) .homepage-offer-more{
+  display:block!important;
+}
+body:has(.dream-hero) .homepage-offer-group{
+  display:block!important;
+  border-top:1px solid rgba(23,21,19,.10);
+  padding:22px 0 30px;
+  overflow:visible!important;
+}
+body:has(.dream-hero) .homepage-offer-group:last-child{
+  border-bottom:1px solid rgba(23,21,19,.10);
+}
+body:has(.dream-hero) .homepage-offer-group-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:4px;
+}
+body:has(.dream-hero) .homepage-offer-group-head span{
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+}
+body:has(.dream-hero) .homepage-offer-group-head b{font-size:18px}
+body:has(.dream-hero) .homepage-offer-group-head small{color:#7d746e}
+body:has(.dream-hero) .homepage-offer-group .offer-stream-row{
+  display:block!important;
+  overflow:visible!important;
+  max-width:100%!important;
+}
+body:has(.dream-hero) .homepage-offer-group .offer-stream-rail-wrap{
+  position:relative!important;
+  min-width:0!important;
+  max-width:100%!important;
+  overflow:visible!important;
+}
+body:has(.dream-hero) .homepage-offer-group .offer-stream-rail{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  touch-action:pan-x!important;
+  -webkit-overflow-scrolling:touch!important;
+  overscroll-behavior-x:contain!important;
+  scroll-snap-type:x proximity!important;
+  scroll-behavior:smooth!important;
+  pointer-events:auto!important;
+}
+body:has(.dream-hero) .homepage-offer-group .offer-stream-item{
+  flex-shrink:0!important;
+  pointer-events:auto!important;
+}
+@media(max-width:680px){
+  body:has(.dream-hero) .homepage-offer-group{padding:18px 0 26px!important}
+  body:has(.dream-hero) .homepage-offer-group-head span{display:block!important}
+  body:has(.dream-hero) .homepage-offer-group-head small{display:block;margin-top:4px}
+  body:has(.dream-hero) .homepage-offer-group .offer-stream-rail{
+    margin-right:-16px!important;
+    padding-right:18px!important;
+    scroll-padding-left:0!important;
+  }
+  body:has(.dream-hero) .homepage-offer-group .offer-stream-item{
+    flex:0 0 min(82vw,320px)!important;
+    width:min(82vw,320px)!important;
+    min-width:min(82vw,320px)!important;
+    max-width:min(82vw,320px)!important;
+  }
+}
