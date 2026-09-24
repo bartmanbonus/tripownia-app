@@ -17,10 +17,10 @@ function deduplicateRails() {
   const root = document.querySelector<HTMLElement>(".streaming-offers");
   if (!root) return;
 
-  const seen = new Set<string>();
   const rows = root.querySelectorAll<HTMLElement>(".offer-stream-row");
 
   rows.forEach((row) => {
+    const seen = new Set<string>();
     const items = row.querySelectorAll<HTMLElement>(".offer-stream-item");
 
     items.forEach((item) => {
