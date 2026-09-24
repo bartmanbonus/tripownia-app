@@ -825,26 +825,26 @@ export default function SearchHub({
             <ChevronDown size={15} className="search-v3-chevron"/>
           </label>
 
+          <div className="search-v3-options-row">
+            <button type="button" className={`search-v3-weekend ${weekendOnly ? "active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
+              <span className="search-v3-check">{weekendOnly && <Check size={13}/>}</span> Pobyt obejmuje sobotę i niedzielę
+            </button>
+            <label className="search-v3-board">
+              <span>Wyżywienie</span>
+              <select value={board} onChange={(event) => setBoard(event.target.value)}>
+                <option value="all">Dowolne</option>
+                <option value="bez wyżywienia">Bez wyżywienia</option>
+                <option value="śniadanie">Śniadanie</option>
+                <option value="half board">Half Board</option>
+                <option value="full board">Full Board</option>
+                <option value="all inclusive">All Inclusive</option>
+                <option value="ultra all inclusive">Ultra All Inclusive</option>
+              </select>
+            </label>
+          </div>
+
           <button type="submit" className="search-v3-submit" disabled={loading}><Search size={18}/>{loading ? "Szukamy…" : "Szukaj wyjazdu"}</button>
         </form>
-
-        <div className="search-v3-options-row">
-          <button type="button" className={`search-v3-weekend ${weekendOnly ? "active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
-            <span className="search-v3-check">{weekendOnly && <Check size={13}/>}</span> Pobyt obejmuje sobotę i niedzielę
-          </button>
-          <label className="search-v3-board">
-            <span>Wyżywienie</span>
-            <select value={board} onChange={(event) => setBoard(event.target.value)}>
-              <option value="all">Dowolne</option>
-              <option value="bez wyżywienia">Bez wyżywienia</option>
-              <option value="śniadanie">Śniadanie</option>
-              <option value="half board">Half Board</option>
-              <option value="full board">Full Board</option>
-              <option value="all inclusive">All Inclusive</option>
-              <option value="ultra all inclusive">Ultra All Inclusive</option>
-            </select>
-          </label>
-        </div>
 
         <div className="search-v3-quick">
           <span>Szybki start</span>
