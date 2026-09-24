@@ -9,13 +9,15 @@ export type DestinationImageRule = {
  * plik kierunki.csv. Jedna warstwa mapowania dla całego portalu.
  */
 const rules: Record<string, DestinationImageRule> = {
-  "zorza islandia": { label: "Zorza na Islandii", query: "Aurora borealis Iceland Thingvellir" },
-  "sakura japonia": { label: "Sakura w Japonii", query: "Cherry blossoms Japan Kyoto spring" },
-  "fiordy norwegia": { label: "Fiordy w Norwegii", query: "Geirangerfjord Norway fjord mountains" },
-  "nowa zelandia road trip": { label: "Nowa Zelandia", query: "New Zealand South Island road mountains lake" },
+  "zorza islandia": { label: "Zorza na Islandii", query: "Kirkjufell Iceland aurora borealis night landscape" },
+  "sakura japonia": { label: "Sakura w Japonii", query: "Mount Fuji cherry blossoms Kawaguchiko Japan spring" },
+  "fiordy norwegia": { label: "Fiordy w Norwegii", query: "Geirangerfjord Norway viewpoint deep fjord mountains summer" },
+  "nowa zelandia road trip": { label: "Nowa Zelandia", query: "Mount Cook road Lake Pukaki New Zealand South Island mountains" },
   "tulipany holandia": { label: "Tulipany w Holandii", query: "Tulip fields Netherlands Lisse spring" },
   "safari kenia tanzania": { label: "Safari Kenia i Tanzania", query: "Masai Mara Kenya safari lion savanna" },
-  "jarmarki wieden": { label: "Jarmarki w Wiedniu", query: "Vienna Christmas market Rathaus Austria" },
+  "jarmarki wieden": { label: "Jarmarki w Wiedniu", query: "Vienna Rathaus Christmas market night lights Austria" },
+  "jarmarki wieden noc": { label: "Jarmarki w Wiedniu", query: "Vienna Rathaus Christmas market night lights festive crowd Austria" },
+  "sylwester praga noc fajerwerki": { label: "Sylwester w Pradze", query: "Prague New Year fireworks night Vltava Charles Bridge Czech Republic" },
   "egzotyka pora sucha": { label: "Egzotyka w porze suchej", query: "Seychelles tropical beach palm turquoise water" },
   "abu dhabi": { label: "Abu Dhabi", query: "Sheikh Zayed Grand Mosque Abu Dhabi UAE" },
   "agadir": { label: "Agadir", query: "Agadir beach Morocco" },
