@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, X } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Trash2, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches } from "@/lib/worldDestinations";
@@ -218,6 +218,7 @@ export default function SearchHub({
   const [dateOpen, setDateOpen] = useState(false);
   const [month, setMonth] = useState("");
   const [calendarMonth, setCalendarMonth] = useState("");
+  const [calendarView, setCalendarView] = useState<"calendar" | "months">("calendar");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [duration, setDuration] = useState(initialDuration || "all");
@@ -711,100 +712,121 @@ export default function SearchHub({
               <strong>{dateSummary}</strong><ChevronDown size={15}/>
             </button>
             {dateOpen && (
-              <div className="search-v3-calendar-popover" role="dialog" aria-label="Wybierz termin podróży">
-                <div className="search-v3-calendar-head">
-                  <div><small>TERMIN WYJAZDU</small><strong>Wybierz datę</strong></div>
-                  <button type="button" aria-label="Zamknij kalendarz" onClick={() => setDateOpen(false)}><X size={16}/></button>
+              <div className="search-v3-calendar-popover search-v3-calendar-esky" role="dialog" aria-label="Wybierz termin podróży">
+                <div className="search-v3-esky-top">
+                  <button type="button" className="search-v3-esky-back" aria-label="Zamknij kalendarz" onClick={() => setDateOpen(false)}><ChevronLeft size={20}/></button>
+                  <button type="button" className="search-v3-esky-summary" onClick={() => setCalendarView("calendar")}>
+                    <small>Kiedy?</small>
+                    <strong>{dateSummary}</strong>
+                  </button>
+                  <div className="search-v3-esky-summary">
+                    <small>Na jak długo?</small>
+                    <strong>{duration === "all" ? "Dowolnie" : duration.replace("-", " – ") + (duration === "1-2" ? " noce" : " nocy")}</strong>
+                  </div>
+                  <button
+                    type="button"
+                    className="search-v3-esky-clear"
+                    aria-label="Wyczyść termin"
+                    onClick={() => {
+                      setDateMode("any");
+                      setMonth("");
+                      setDateFrom("");
+                      setDateTo("");
+                      setDuration("all");
+                      setWeekendOnly(false);
+                    }}
+                  ><Trash2 size={18}/></button>
                 </div>
 
-                <div className="search-v3-calendar-modes" aria-label="Sposób wyboru terminu">
-                  {[
-                    ["any","Elastycznie"],
-                    ["exact","Konkretny dzień"],
-                    ["range","Zakres dat"],
-                    ["month","Cały miesiąc"],
-                  ].map(([mode,label]) => (
-                    <button type="button" key={mode} className={dateMode === mode ? "active" : ""} onClick={() => selectDateMode(mode as DateMode)}>{label}</button>
-                  ))}
+                <div className="search-v3-esky-tabs" role="tablist" aria-label="Sposób wyboru terminu">
+                  <button type="button" className={calendarView === "calendar" ? "active" : ""} onClick={() => setCalendarView("calendar")}>Kalendarz</button>
+                  <button type="button" className={calendarView === "months" ? "active" : ""} onClick={() => setCalendarView("months")}>Miesiące</button>
                 </div>
 
-                <div className="search-v3-calendar-options">
-                  <div className="search-v3-calendar-duration">
-                    <span>Długość pobytu</span>
+                {calendarView === "calendar" ? (
+                  <div className="search-v3-esky-calendar-scroll">
+                    {[visibleCalendarMonth, addMonths(visibleCalendarMonth, 1), addMonths(visibleCalendarMonth, 2)].map((calendarValue) => {
+                      const cells = calendarCells(calendarValue);
+                      return (
+                        <section className="search-v3-esky-month" key={calendarValue}>
+                          <h3>{monthLabel(calendarValue)}</h3>
+                          <div className="search-v3-calendar-weekdays" aria-hidden="true">
+                            {["pon.","wt.","śr.","czw.","pt.","sob.","niedz."].map((day) => <span key={day}>{day}</span>)}
+                          </div>
+                          <div className="search-v3-calendar-grid">
+                            {cells.map((cell, index) => {
+                              if (!cell) return <span className="empty" key={`${calendarValue}-empty-${index}`} />;
+                              const selectedExact = dateMode === "exact" && dateFrom === cell.iso;
+                              const rangeStart = dateMode === "range" && dateFrom === cell.iso;
+                              const rangeEnd = dateMode === "range" && dateTo === cell.iso;
+                              const inRange = dateMode === "range" && Boolean(dateFrom && dateTo && cell.iso > dateFrom && cell.iso < dateTo);
+                              const className = [
+                                selectedExact || rangeStart || rangeEnd ? "selected" : "",
+                                rangeStart ? "range-start" : "",
+                                rangeEnd ? "range-end" : "",
+                                inRange ? "in-range" : "",
+                              ].filter(Boolean).join(" ");
+                              return (
+                                <button
+                                  type="button"
+                                  key={cell.iso}
+                                  className={className}
+                                  onClick={() => {
+                                    if (dateMode === "range") selectCalendarDay(cell.iso);
+                                    else {
+                                      setDateMode("exact");
+                                      setDateFrom(cell.iso);
+                                      setDateTo(cell.iso);
+                                    }
+                                  }}
+                                  aria-label={cell.iso}
+                                >
+                                  <span>{cell.day}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </section>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="search-v3-esky-months-grid">
+                    {Array.from({ length: 12 }, (_, offset) => addMonths(localMonthKey(), offset)).map((value) => (
+                      <button
+                        type="button"
+                        key={value}
+                        className={month === value ? "active" : ""}
+                        onClick={() => {
+                          setDateMode("month");
+                          setMonth(value);
+                          setCalendarMonth(value);
+                        }}
+                      >
+                        <span>{monthLabel(value).split(" ")[0]}</span>
+                        <small>{value.slice(0,4)}</small>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                <div className="search-v3-esky-bottom">
+                  <button type="button" className={`search-v3-esky-weekend${weekendOnly ? " active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
+                    <span className="search-v3-check">{weekendOnly && <Check size={13}/>}</span>
+                    Musi zawierać weekend
+                    <em>Nowość</em>
+                  </button>
+                  <div className="search-v3-esky-nights">
+                    <strong>Wybierz liczbę nocy</strong>
                     <div>
-                      {[["all","Dowolnie"],["3-4","3–4 dni"],["5-7","5–7 dni"],["8-10","8–10 dni"],["11-14","11–14 dni"]].map(([value,label]) => (
+                      {[
+                        ["all","Dowolnie"],["1","1"],["2","2"],["3","3"],["4","4"],["5-7","5–7"],["8-10","8–10"],["11-14","11–14"]
+                      ].map(([value,label]) => (
                         <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label}</button>
                       ))}
                     </div>
                   </div>
-                  <button type="button" className={`search-v3-calendar-weekend${weekendOnly ? " active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
-                    <Check size={14}/> Weekend
-                  </button>
-                </div>
-
-                <div className="search-v3-calendar-nav">
-                  <button
-                    type="button"
-                    aria-label="Poprzedni miesiąc"
-                    disabled={visibleCalendarMonth <= localMonthKey()}
-                    onClick={() => setCalendarMonth((current) => addMonths(current || visibleCalendarMonth, -1))}
-                  ><ChevronLeft size={18}/></button>
-                  <strong>{monthLabel(visibleCalendarMonth)} – {monthLabel(addMonths(visibleCalendarMonth, 1))}</strong>
-                  <button type="button" aria-label="Następny miesiąc" onClick={() => setCalendarMonth((current) => addMonths(current || visibleCalendarMonth, 1))}><ChevronRight size={18}/></button>
-                </div>
-
-                {dateMode === "any" && (
-                  <div className="search-v3-calendar-note">
-                    <strong>Masz elastyczny termin?</strong>
-                    <span>Nie musisz wybierać dnia. Zostaw elastycznie albo kliknij datę, żeby zawęzić wyniki.</span>
-                  </div>
-                )}
-
-                <div className="search-v3-calendar-months">
-                  {[visibleCalendarMonth, addMonths(visibleCalendarMonth, 1)].map((calendarValue) => {
-                    const cells = calendarCells(calendarValue);
-                    return (
-                      <section className="search-v3-calendar-month" key={calendarValue}>
-                        <div className="search-v3-calendar-month-head">
-                          <strong>{monthLabel(calendarValue)}</strong>
-                          {dateMode === "month" && (
-                            <button type="button" className={month === calendarValue ? "active" : ""} onClick={() => setMonth(calendarValue)}>
-                              {month === calendarValue ? <><Check size={14}/> Wybrany</> : "Wybierz cały miesiąc"}
-                            </button>
-                          )}
-                        </div>
-                        <div className="search-v3-calendar-weekdays" aria-hidden="true">
-                          {["Pn","Wt","Śr","Cz","Pt","So","Nd"].map((day) => <span key={day}>{day}</span>)}
-                        </div>
-                        <div className="search-v3-calendar-grid">
-                          {cells.map((cell, index) => {
-                            if (!cell) return <span className="empty" key={`${calendarValue}-empty-${index}`} />;
-                            const selectedExact = dateMode === "exact" && dateFrom === cell.iso;
-                            const selectedMonth = dateMode === "month" && month === calendarValue;
-                            const rangeStart = dateMode === "range" && dateFrom === cell.iso;
-                            const rangeEnd = dateMode === "range" && dateTo === cell.iso;
-                            const inRange = dateMode === "range" && Boolean(dateFrom && dateTo && cell.iso > dateFrom && cell.iso < dateTo);
-                            const className = [
-                              selectedExact || selectedMonth || rangeStart || rangeEnd ? "selected" : "",
-                              rangeStart ? "range-start" : "",
-                              rangeEnd ? "range-end" : "",
-                              inRange ? "in-range" : "",
-                            ].filter(Boolean).join(" ");
-                            return (
-                              <button type="button" key={cell.iso} className={className} onClick={() => selectCalendarDay(cell.iso)} aria-label={cell.iso}>
-                                <span>{cell.day}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </section>
-                    );
-                  })}
-                </div>
-
-                <div className="search-v3-calendar-footer">
-                  <div><small>Wybrany termin</small><strong>{calendarSelectionLabel}</strong></div>
-                  <button type="button" className="primary" onClick={() => setDateOpen(false)}>Gotowe</button>
+                  <button type="button" className="search-v3-esky-apply" onClick={() => setDateOpen(false)}>Zastosuj</button>
                 </div>
               </div>
             )}
