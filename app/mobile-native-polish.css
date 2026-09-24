@@ -823,3 +823,25 @@
     margin-bottom:calc(86px + env(safe-area-inset-bottom))!important;
   }
 }
+
+
+/* 2026-09-24 footer whitespace repair */
+@media(max-width:560px){
+  .footer.footer-v2{
+    padding-bottom:0!important;
+  }
+  .footer-v2-shell{
+    padding-bottom:10px!important;
+  }
+  .footer-v2-bottom{
+    margin-bottom:calc(74px + env(safe-area-inset-bottom))!important;
+    padding-bottom:0!important;
+  }
+  button[aria-label="Otwórz ustawienia prywatności"]{
+    position:fixed!important;
+    right:12px!important;
+    bottom:calc(82px + env(safe-area-inset-bottom))!important;
+    margin:0!important;
+    z-index:104!important;
+  }
+}
