@@ -149,6 +149,7 @@ export default function AddTripPage() {
   const [error, setError] = useState("");
   const [authReady, setAuthReady] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
+  const [ownedMode, setOwnedMode] = useState(false);
   const [session, setSession] = useState<AccountSession | null>(null);
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
@@ -160,6 +161,11 @@ export default function AddTripPage() {
   const hasDates = dateMode === "flexible" || (dateMode === "month" ? Boolean(travelMonth) : Boolean(startDate && endDate));
   const basicsReady = hasDestination && hasDates;
   const missingCount = Object.values(pieces).filter((value) => !value).length;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setOwnedMode(new URLSearchParams(window.location.search).get("mode") === "owned");
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -365,9 +371,9 @@ export default function AddTripPage() {
         <header className="add-trip-hero">
           <div className="add-trip-icon"><Route size={28}/></div>
           <div>
-            <div className="kicker">TWÓJ PLAN — 0 ZŁ</div>
-            <h1>My układamy. Ty tylko wybierasz.</h1>
-            <p>Tak jak w płatnych planach podróży — tylko u nas za darmo. Podajesz kierunek i termin, zaznaczasz co już masz, a Tripownia pokazuje brakujące elementy i gotowe miejsca, gdzie możesz je dobrać.</p>
+            <div className="kicker">{ownedMode ? "MASZ JUŻ WYJAZD" : "TWÓJ PLAN — 0 ZŁ"}</div>
+            <h1>{ownedMode ? "Dodaj to, co już masz. Resztę ułożymy wokół Twojej podróży." : "My układamy. Ty tylko wybierasz."}</h1>
+            <p>{ownedMode ? "Nie szukamy Ci nowego wyjazdu. Wpisz kierunek, termin i elementy, które masz już kupione — lot, hotel lub oba. Tripownia zbuduje planner, checklistę i podpowie tylko brakujące rzeczy." : "Tak jak w płatnych planach podróży — tylko u nas za darmo. Podajesz kierunek i termin, zaznaczasz co już masz, a Tripownia pokazuje brakujące elementy i gotowe miejsca, gdzie możesz je dobrać."}</p>
           </div>
         </header>
 

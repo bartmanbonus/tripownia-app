@@ -914,3 +914,43 @@ body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy em{
     background:#fff!important;
   }
 }
+
+
+/* 2026-09-24 homepage hierarchy + search CTA order */
+.search-v3-form>.search-v3-options-row{
+  grid-column:1/-1!important;
+  padding:2px 0 0!important;
+}
+.search-v3-form>.search-v3-submit{
+  grid-column:1/-1!important;
+  width:100%!important;
+  min-height:58px!important;
+}
+@media(max-width:640px){
+  .dream-hero{
+    padding-top:42px!important;
+    padding-bottom:48px!important;
+  }
+  .dream-hero-shell{
+    gap:28px!important;
+  }
+  .dream-hero-copy{
+    padding-top:8px!important;
+  }
+  .search-v3-form>.search-v3-options-row{
+    padding:2px 0 0!important;
+    gap:8px!important;
+  }
+  .search-v3-form>.search-v3-submit{
+    margin-top:2px!important;
+  }
+  .homepage-offer-more>details{
+    display:block!important;
+  }
+  .homepage-offer-more>details>summary{
+    margin-bottom:12px!important;
+  }
+  .homepage-offer-more>details[open]{
+    padding-bottom:8px!important;
+  }
+}
