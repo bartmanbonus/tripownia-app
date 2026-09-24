@@ -75,3 +75,6 @@ body:has(.dream-hero) .dream-hero h1 { text-wrap: balance; }
 #wyszukiwarka .search-v3-calendar-grid > button, #wyszukiwarka .search-v3-calendar-grid > .empty { aspect-ratio: auto !important; height: 44px !important; }
 #wyszukiwarka .search-v3-date-trigger strong, #wyszukiwarka .search-v3-multi-trigger strong { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.35 !important; }
 #wyszukiwarka .search-v3-field { height: auto !important; min-height: 84px !important; }
+@media (min-width: 641px) {
+  #wyszukiwarka .search-v3-calendar-esky { position: fixed !important; top: 5dvh !important; bottom: auto !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; width: min(680px, calc(100vw - 32px)) !important; }
+}
