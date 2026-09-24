@@ -198,6 +198,52 @@ export default function AddTripPage() {
     return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("source") !== "sport") return;
+
+    const sportCity = (params.get("city") || "").trim();
+    const sportCountry = (params.get("country") || "").trim();
+    const sportStart = (params.get("start") || "").trim();
+    const sportEnd = (params.get("end") || "").trim();
+    const sportDeparture = (params.get("departure") || "").trim();
+    const match = (params.get("match") || "").trim();
+    const venue = (params.get("venue") || "").trim();
+    const ticket = (params.get("ticket") || "").trim();
+
+    if (sportCity || sportCountry) {
+      setDestinationMode("known");
+      setCity(sportCity);
+      setCountry(sportCountry);
+    }
+    if (sportStart && sportEnd) {
+      setDateMode("range");
+      setStartDate(sportStart);
+      setEndDate(sportEnd);
+    }
+    if (sportDeparture) {
+      setDepartureMode("selected");
+      setDeparture(sportDeparture);
+      setDepartureOptions([sportDeparture]);
+    }
+
+    const noteParts = [
+      match ? `Wyjazd na mecz: ${match}` : "Wyjazd sportowy",
+      venue ? `Miejsce: ${venue}` : "",
+      ticket ? `Oficjalne bilety: ${ticket}` : "",
+    ].filter(Boolean);
+    setNotes(noteParts.join("\n"));
+    setPieces({
+      flight: false,
+      hotel: false,
+      transfer: false,
+      attractions: false,
+      esim: false,
+      parking: false,
+    });
+  }, []);
+
   function togglePiece(key: PieceKey) {
     setPieces((current) => ({ ...current, [key]: !current[key] }));
     setSelectedProvider((current) => {
