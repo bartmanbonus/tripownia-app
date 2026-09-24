@@ -330,14 +330,14 @@ function LongHaulHomeSection() {
 }
 
 const experienceCards = [
-  { href: "/podroze-po-przezycia#zorza", season: "WRZESIEŃ–MARZEC", title: "🌌 Zorza na Islandii", text: "Ciemne noce, geotermia i wyjazd planowany pod szansę zobaczenia zorzy.", imageCity: "zorza islandia", imageCountry: "Islandia", fallbackImage: "/images/experiences/islandia-zorza.png" },
-  { href: "/podroze-po-przezycia#sakura", season: "MARZEC–KWIECIEŃ", title: "🌸 Sakura w Japonii", text: "Tokio i Kioto wtedy, gdy kwitnienie wiśni staje się głównym punktem podróży.", imageCity: "sakura japonia", imageCountry: "Japonia", fallbackImage: "/images/experiences/japonia-sakura.png" },
-  { href: "/podroze-po-przezycia#fiordy", season: "MAJ–WRZESIEŃ", title: "🏔️ Fiordy i białe noce", text: "Długie dni, trekking, rejsy i spektakularne trasy widokowe po Norwegii.", imageCity: "fiordy norwegia", imageCountry: "Norwegia", fallbackImage: "/images/experiences/norwegia-fiordy.png" },
-  { href: "/podroze-po-przezycia#nowa-zelandia", season: "LISTOPAD–MARZEC", title: "🥾 Nowa Zelandia", text: "Road trip, góry i lato na południowej półkuli w najlepszym oknie na aktywny wyjazd.", imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia", fallbackImage: "/images/experiences/nowa-zelandia.png" },
-  { href: "/podroze-po-przezycia#tulipany", season: "KWIECIEŃ–MAJ", title: "🌷 Tulipany w Holandii", text: "Krótki city break połączony z polami kwiatów i sezonem, który trwa tylko chwilę.", imageCity: "tulipany holandia", imageCountry: "Holandia", fallbackImage: "/images/experiences/holandia-tulipany.png" },
-  { href: "/podroze-po-przezycia#safari", season: "CZERWIEC–PAŹDZIERNIK", title: "🦁 Safari w Kenii i Tanzanii", text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.", imageCity: "safari kenia tanzania", imageCountry: "Kenia", fallbackImage: "/images/experiences/kenia-safari.png" },
-  { href: "/podroze-po-przezycia#jarmarki", season: "LISTOPAD–GRUDZIEŃ", title: "🎄 Jarmarki bożonarodzeniowe", text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.", imageCity: "jarmarki wieden", imageCountry: "Austria", fallbackImage: "/images/experiences/jarmarki.png" },
-  { href: "/podroze-po-przezycia#egzotyka", season: "ZIMA W POLSCE", title: "🌴 Egzotyka w porze suchej", text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.", imageCity: "egzotyka pora sucha", imageCountry: "Seszele", fallbackImage: "/images/experiences/egzotyka.png" },
+  { href: "/podroze-po-przezycia#zorza", season: "WRZESIEŃ–MARZEC", title: "🌌 Zorza na Islandii", text: "Ciemne noce, geotermia i wyjazd planowany pod szansę zobaczenia zorzy.", imageCity: "zorza islandia", imageCountry: "Islandia" },
+  { href: "/podroze-po-przezycia#sakura", season: "MARZEC–KWIECIEŃ", title: "🌸 Sakura w Japonii", text: "Tokio i Kioto wtedy, gdy kwitnienie wiśni staje się głównym punktem podróży.", imageCity: "sakura japonia", imageCountry: "Japonia" },
+  { href: "/podroze-po-przezycia#fiordy", season: "MAJ–WRZESIEŃ", title: "🏔️ Fiordy i białe noce", text: "Długie dni, trekking, rejsy i spektakularne trasy widokowe po Norwegii.", imageCity: "fiordy norwegia", imageCountry: "Norwegia" },
+  { href: "/podroze-po-przezycia#nowa-zelandia", season: "LISTOPAD–MARZEC", title: "🥾 Nowa Zelandia", text: "Road trip, góry i lato na południowej półkuli w najlepszym oknie na aktywny wyjazd.", imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia" },
+  { href: "/podroze-po-przezycia#tulipany", season: "KWIECIEŃ–MAJ", title: "🌷 Tulipany w Holandii", text: "Krótki city break połączony z polami kwiatów i sezonem, który trwa tylko chwilę.", imageCity: "tulipany holandia", imageCountry: "Holandia" },
+  { href: "/podroze-po-przezycia#safari", season: "CZERWIEC–PAŹDZIERNIK", title: "🦁 Safari w Kenii i Tanzanii", text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.", imageCity: "safari kenia tanzania", imageCountry: "Kenia" },
+  { href: "/podroze-po-przezycia#jarmarki", season: "LISTOPAD–GRUDZIEŃ", title: "🎄 Jarmarki bożonarodzeniowe", text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.", imageCity: "jarmarki wieden noc", imageCountry: "Austria" },
+  { href: "/podroze-po-przezycia#egzotyka", season: "ZIMA W POLSCE", title: "🌴 Egzotyka w porze suchej", text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.", imageCity: "egzotyka pora sucha", imageCountry: "Seszele" },
 ];
 
 function ExperienceTeaserImage({ city, country, title, fallbackSrc }: { city: string; country: string; title: string; fallbackSrc?: string }) {
@@ -658,20 +658,114 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="shell dream-mobile-start" aria-label="Szybki start">
-        <Link href="/dodaj-podroz"><span>✨</span><div><strong>Zaplanuj za darmo</strong><small>Podaj kierunek i termin</small></div><ArrowRight size={17}/></Link>
-        <Link href="/dodaj-podroz"><span>🧳</span><div><strong>Mam już wyjazd</strong><small>Otwórz lub dodaj podróż</small></div><ArrowRight size={17}/></Link>
-        <Link href="#wyszukiwarka"><span>🔎</span><div><strong>Szukam wyjazdu</strong><small>Wakacje, loty i hotele</small></div><ArrowRight size={17}/></Link>
-      </section>
-
-      <section className="shell dream-value-strip" aria-label="Tripownia w skrócie">
-        <div><strong>1.</strong><span><b>Znajdź lub dodaj wyjazd</b><small>nawet kupiony poza Tripownią</small></span></div>
-        <div><strong>2.</strong><span><b>Dostajesz plan</b><small>krok po kroku, bez opłat</small></span></div>
-        <div><strong>3.</strong><span><b>Odhaczasz wszystko</b><small>dokumenty, pogodę, transport i atrakcje</small></span></div>
-        <div><strong>4.</strong><span><b>Kupujesz tylko to, czego brakuje</b><small>z marketplace'u usług</small></span></div>
-      </section>
-
       <SearchHub />
+
+      <section className="section shell visual-chapter chapter-daily" id="okazje">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">DZISIEJSZA SELEKCJA</div>
+            <h2>Nie wiesz gdzie? Zacznij od tego, co dziś ma sens cenowo.</h2>
+            <p>{dailyCopy}</p>
+          </div>
+          <Link className="section-premium-link" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
+        </div>
+        <div className="daily-carousel-wrap">
+          {todaysOffers.length > 1 && <div className="daily-carousel-controls" aria-label="Sterowanie karuzelą ofert">
+            <button type="button" onClick={() => moveOffersRail(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={18}/></button>
+            <button type="button" onClick={() => moveOffersRail(1)} aria-label="Następne oferty"><ArrowRight size={18}/></button>
+          </div>}
+          <div className="daily-carousel" ref={offersRailRef}>
+            {todaysOffers.length > 0 ? (
+              todaysOffers.map(o => <div className="daily-carousel-item" key={o.id}><OfferCard offer={o}/></div>)
+            ) : (
+              <div className="daily-live-empty">
+                <strong>{liveOffersStatus === "loading" ? "Sprawdzamy dzisiejszą pulę" : "Aktualizujemy dzisiejsze oferty"}</strong>
+                <span>Nie pokazujemy starych cen jako bieżących. Wyszukiwarka powyżej również działa wyłącznie na potwierdzonych danych.</span>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="premium-action-row">
+          <Link className="premium-action-main" href="#wyszukiwarka">Wyszukaj po swojemu <ArrowRight size={17}/></Link>
+          <Link className="premium-action-secondary" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={17}/></Link>
+        </div>
+      </section>
+
+      <section className="section shell homepage-curated-trips" aria-labelledby="curated-trips-title">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">GOTOWE WYJAZDY</div>
+            <h2 id="curated-trips-title">Konkretne pomysły, które możesz zarezerwować.</h2>
+            <p>Nie tylko inspiracje. Tu pokazujemy realne, aktualne opcje z terminem i ceną.</p>
+          </div>
+          <Link className="section-premium-link" href="/okazje">Zobacz wszystkie wyjazdy <ArrowRight size={16}/></Link>
+        </div>
+        <OfferRail kicker="🏙 CITY BREAK" title="Gotowe na kilka dni" description="Krótkie wyjazdy z konkretnym terminem i aktualną ceną." items={themedRails.city.slice(0, 6)}/>
+        <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun.slice(0, 6)}/>
+        <div className="homepage-offer-more">
+          <details open>
+            <summary><span><b>⚡ Na krótko</b><small>2–4 noce · szybki reset</small></span><ArrowRight size={18}/></summary>
+            <OfferRail kicker="WEEKEND / KRÓTKI WYJAZD" title="Wyskocz na kilka dni" description="Dobre opcje, kiedy nie chcesz brać całego tygodnia urlopu." items={themedRails.weekend.slice(0, 6)}/>
+          </details>
+          <details>
+            <summary><span><b>🏖 Tydzień odpoczynku</b><small>6–9 nocy · klasyczne wakacje</small></span><ArrowRight size={18}/></summary>
+            <OfferRail kicker="TYDZIEŃ" title="Pełny tydzień poza domem" description="Wyjazdy na prawdziwy odpoczynek, z konkretną ceną i terminem." items={themedRails.week.slice(0, 6)}/>
+          </details>
+          <details>
+            <summary><span><b>💸 Najtaniej teraz</b><small>oferty od najniższej ceny</small></span><ArrowRight size={18}/></summary>
+            <OfferRail kicker="DOBRY BUDŻET" title="Dużo podróży za mniej" description="Najtańsze aktualne kierunki z dzisiejszej puli." items={themedRails.budgetFriendly.slice(0, 6)}/>
+          </details>
+          <details>
+            <summary><span><b>✨ Raz a dobrze</b><small>dalsze i bardziej wyjątkowe</small></span><ArrowRight size={18}/></summary>
+            <OfferRail kicker="WIĘKSZA PODRÓŻ" title="Kiedy chcesz czegoś więcej" description="Droższe lub dalsze wyjazdy, które mają być główną podróżą sezonu." items={themedRails.premium.slice(0, 6)}/>
+          </details>
+        </div>
+      </section>
+
+      <section className="section shell homepage-events" aria-labelledby="homepage-events-title">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">SPORT I WYDARZENIA</div>
+            <h2 id="homepage-events-title">Czasem najlepszym powodem do wyjazdu jest konkretne wydarzenie.</h2>
+            <p>Mecz, koncert albo duże wydarzenie może być początkiem całego city breaku.</p>
+          </div>
+          <Link className="section-premium-link" href="/wydarzenia">Zobacz wydarzenia <ArrowRight size={16}/></Link>
+        </div>
+        <div className="homepage-editorial-grid homepage-events-grid">
+          <Link href="/wydarzenia" className="homepage-editorial-card"><small>⚽ MECZE</small><strong>Piłka nożna + city break</strong><span>Wybierz mecz, a Tripownia pomoże spiąć termin, lot, nocleg i plan całego wyjazdu.</span><em>Wybierz mecz →</em></Link>
+          <Link href="/podroze-po-przezycia" className="homepage-editorial-card"><small>🎵 KONCERTY I FESTIWALE</small><strong>Wyjazd dla konkretnego przeżycia</strong><span>Inspiracje na podróże, w których najważniejszy jest termin i to, co dzieje się na miejscu.</span><em>Znajdź pomysł →</em></Link>
+          <Link href="/podroze-po-przezycia" className="homepage-editorial-card"><small>🏎️ SPORT I WIELKIE WEEKENDY</small><strong>Nie tylko futbol</strong><span>Sportowe weekendy, sezonowe wydarzenia i podróże planowane wokół konkretnego momentu.</span><em>Zobacz kalendarz →</em></Link>
+        </div>
+      </section>
+
+      <section className="section shell homepage-phenomena" aria-labelledby="homepage-phenomena-title">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">ZJAWISKA I SEZON</div>
+            <h2 id="homepage-phenomena-title">Niektóre podróże mają sens tylko w dobrym momencie.</h2>
+            <p>Zorza, sakura, safari czy jarmarki — termin jest tu równie ważny jak kierunek.</p>
+          </div>
+          <Link className="section-premium-link" href="/podroze-po-przezycia">Zobacz pełny kalendarz <ArrowRight size={16}/></Link>
+        </div>
+        <div className="homepage-phenomena-grid">
+          {[...experienceCards.slice(0, 4),
+            experienceCards.find(card => card.href.includes("#jarmarki"))!,
+            { href: "/okazje?s=sylwester", season: "29 GRUDNIA–2 STYCZNIA", title: "🥂 Sylwester za granicą", text: "Gotowy city break na przełom roku — lot, nocleg i miasto, w którym północ naprawdę jest wydarzeniem.", imageCity: "sylwester praga noc fajerwerki", imageCountry: "Czechy" }
+          ].map(card => (
+            <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
+              <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={card.fallbackImage} />
+              <div className="experience-teaser-copy">
+                <small>{card.season}</small>
+                <strong>{card.title}</strong>
+                <span>{card.text}</span>
+                <em>Zobacz najlepszy moment →</em>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+
 
       <section className="section shell dream-free-plan">
         <div className="dream-free-plan-copy">
@@ -816,111 +910,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell visual-chapter chapter-daily" id="okazje">
-        <div className="section-heading">
-          <div>
-            <div className="kicker">DZISIEJSZA SELEKCJA</div>
-            <h2>Nie wiesz gdzie? Zacznij od tego, co dziś ma sens cenowo.</h2>
-            <p>{dailyCopy}</p>
-          </div>
-          <Link className="section-premium-link" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
-        </div>
-        <div className="daily-carousel-wrap">
-          {todaysOffers.length > 1 && <div className="daily-carousel-controls" aria-label="Sterowanie karuzelą ofert">
-            <button type="button" onClick={() => moveOffersRail(-1)} aria-label="Poprzednie oferty"><ArrowLeft size={18}/></button>
-            <button type="button" onClick={() => moveOffersRail(1)} aria-label="Następne oferty"><ArrowRight size={18}/></button>
-          </div>}
-          <div className="daily-carousel" ref={offersRailRef}>
-            {todaysOffers.length > 0 ? (
-              todaysOffers.map(o => <div className="daily-carousel-item" key={o.id}><OfferCard offer={o}/></div>)
-            ) : (
-              <div className="daily-live-empty">
-                <strong>{liveOffersStatus === "loading" ? "Sprawdzamy dzisiejszą pulę" : "Aktualizujemy dzisiejsze oferty"}</strong>
-                <span>Nie pokazujemy starych cen jako bieżących. Wyszukiwarka powyżej również działa wyłącznie na potwierdzonych danych.</span>
-              </div>
-            )}
-          </div>
-        </div>
-        <div className="premium-action-row">
-          <Link className="premium-action-main" href="#wyszukiwarka">Wyszukaj po swojemu <ArrowRight size={17}/></Link>
-          <Link className="premium-action-secondary" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={17}/></Link>
-        </div>
-      </section>
-
-      <section className="section shell homepage-curated-trips" aria-labelledby="curated-trips-title">
-        <div className="section-heading">
-          <div>
-            <div className="kicker">GOTOWE WYJAZDY</div>
-            <h2 id="curated-trips-title">Konkretne pomysły, które możesz zarezerwować.</h2>
-            <p>Nie tylko inspiracje. Tu pokazujemy realne, aktualne opcje z terminem i ceną.</p>
-          </div>
-          <Link className="section-premium-link" href="/okazje">Zobacz wszystkie wyjazdy <ArrowRight size={16}/></Link>
-        </div>
-        <OfferRail kicker="🏙 CITY BREAK" title="Gotowe na kilka dni" description="Krótkie wyjazdy z konkretnym terminem i aktualną ceną." items={themedRails.city.slice(0, 6)}/>
-        <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun.slice(0, 6)}/>
-        <div className="homepage-offer-more">
-          <details open>
-            <summary><span><b>⚡ Na krótko</b><small>2–4 noce · szybki reset</small></span><ArrowRight size={18}/></summary>
-            <OfferRail kicker="WEEKEND / KRÓTKI WYJAZD" title="Wyskocz na kilka dni" description="Dobre opcje, kiedy nie chcesz brać całego tygodnia urlopu." items={themedRails.weekend.slice(0, 6)}/>
-          </details>
-          <details>
-            <summary><span><b>🏖 Tydzień odpoczynku</b><small>6–9 nocy · klasyczne wakacje</small></span><ArrowRight size={18}/></summary>
-            <OfferRail kicker="TYDZIEŃ" title="Pełny tydzień poza domem" description="Wyjazdy na prawdziwy odpoczynek, z konkretną ceną i terminem." items={themedRails.week.slice(0, 6)}/>
-          </details>
-          <details>
-            <summary><span><b>💸 Najtaniej teraz</b><small>oferty od najniższej ceny</small></span><ArrowRight size={18}/></summary>
-            <OfferRail kicker="DOBRY BUDŻET" title="Dużo podróży za mniej" description="Najtańsze aktualne kierunki z dzisiejszej puli." items={themedRails.budgetFriendly.slice(0, 6)}/>
-          </details>
-          <details>
-            <summary><span><b>✨ Raz a dobrze</b><small>dalsze i bardziej wyjątkowe</small></span><ArrowRight size={18}/></summary>
-            <OfferRail kicker="WIĘKSZA PODRÓŻ" title="Kiedy chcesz czegoś więcej" description="Droższe lub dalsze wyjazdy, które mają być główną podróżą sezonu." items={themedRails.premium.slice(0, 6)}/>
-          </details>
-        </div>
-      </section>
-
-      <section className="section shell homepage-events" aria-labelledby="homepage-events-title">
-        <div className="section-heading">
-          <div>
-            <div className="kicker">SPORT I WYDARZENIA</div>
-            <h2 id="homepage-events-title">Czasem najlepszym powodem do wyjazdu jest konkretne wydarzenie.</h2>
-            <p>Mecz, koncert albo duże wydarzenie może być początkiem całego city breaku.</p>
-          </div>
-          <Link className="section-premium-link" href="/wydarzenia">Zobacz wydarzenia <ArrowRight size={16}/></Link>
-        </div>
-        <div className="homepage-editorial-grid homepage-events-grid">
-          <Link href="/wydarzenia" className="homepage-editorial-card"><small>⚽ PIŁKA NOŻNA</small><strong>Weekend na mecz</strong><span>Barcelona, Mediolan i inne miasta, gdzie wydarzenie staje się pretekstem do całego wyjazdu.</span><em>Zobacz wyjazdy sportowe →</em></Link>
-          <Link href="/wydarzenia" className="homepage-editorial-card"><small>🏟️ LIVE</small><strong>Sport na żywo + city break</strong><span>Połącz wydarzenie z hotelem, lotem i planem miasta zamiast organizować wszystko osobno.</span><em>Sprawdź wydarzenia →</em></Link>
-          <Link href="/wydarzenia" className="homepage-editorial-card"><small>🎫 WYDARZENIA</small><strong>Jedź po konkretne przeżycie</strong><span>Nie tylko cel podróży. Czasem najważniejsze jest to, co dzieje się na miejscu.</span><em>Zobacz kalendarz →</em></Link>
-        </div>
-      </section>
-
-      <section className="section shell homepage-phenomena" aria-labelledby="homepage-phenomena-title">
-        <div className="section-heading">
-          <div>
-            <div className="kicker">ZJAWISKA I SEZON</div>
-            <h2 id="homepage-phenomena-title">Niektóre podróże mają sens tylko w dobrym momencie.</h2>
-            <p>Zorza, sakura, safari czy jarmarki — termin jest tu równie ważny jak kierunek.</p>
-          </div>
-          <Link className="section-premium-link" href="/podroze-po-przezycia">Zobacz pełny kalendarz <ArrowRight size={16}/></Link>
-        </div>
-        <div className="homepage-phenomena-grid">
-          {[...experienceCards.slice(0, 4),
-            experienceCards.find(card => card.href.includes("#jarmarki"))!,
-            { href: "/okazje?s=sylwester", season: "29 GRUDNIA–2 STYCZNIA", title: "🥂 Sylwester za granicą", text: "Gotowy city break na przełom roku — lot, nocleg i miasto, w którym północ naprawdę jest wydarzeniem.", imageCity: "Praga", imageCountry: "Czechy", fallbackImage: "/images/experiences/jarmarki.png" }
-          ].map(card => (
-            <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
-              <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={card.fallbackImage} />
-              <div className="experience-teaser-copy">
-                <small>{card.season}</small>
-                <strong>{card.title}</strong>
-                <span>{card.text}</span>
-                <em>Zobacz najlepszy moment →</em>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
       <section className="section shell streaming-discovery streaming-offers visual-chapter chapter-streaming" aria-label="Odkrywaj oferty Tripowni">
         <div className="section-heading"><div><div className="kicker">NETFLIX PODRÓŻY</div><h2>Przewijaj, aż coś kliknie.</h2><p>Nie jedna ściana ofert. Różne nastroje, różne budżety i konkretne kierunki — z tej samej potwierdzonej puli.</p></div></div>
         <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety z aktualnego feedu i konkretnymi terminami." items={themedRails.city}/>
@@ -979,38 +968,6 @@ export default function Home() {
       </section>
 
       <LongHaulHomeSection />
-
-      <section className="section shell experience-section visual-chapter chapter-experience" id="przezycia">
-        <div className="section-heading">
-          <div>
-            <div className="kicker">PODRÓŻE PO PRZEŻYCIA</div>
-            <h2>Nie wybieraj miejsca.<br/>Wybierz to, co chcesz przeżyć.</h2>
-            <p>Sezonowe zjawiska, natura i podróże, dla których naprawdę warto złapać właściwy moment.</p>
-          </div>
-          <Link href="/podroze-po-przezycia">Zobacz pełny kalendarz <ArrowRight size={16}/></Link>
-        </div>
-
-        <div className="discovery-grid experience-home-grid">
-          {experienceCards.filter(card => card.href !== "/podroze-po-przezycia#jarmarki" || Date.now() <= new Date("2027-01-07T22:59:59Z").getTime()).map(card => (
-            <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
-              <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={card.fallbackImage} />
-              <div className="experience-teaser-copy">
-                <small>{card.season}</small>
-                <strong>{card.title}</strong>
-                <span>{card.text}</span>
-                <em>Zobacz najlepszy moment →</em>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        <div className="experience-signals-grid" aria-label="Co Tripownia bierze pod uwagę przy podróżach po przeżycia">
-          <div className="experience-signal"><span>🌦️</span><strong>Pogoda i sezon</strong><small>Pora sucha, deszczowa, temperatury i długość dnia.</small></div>
-          <div className="experience-signal"><span>🌌</span><strong>Zjawiska</strong><small>Zorza, kwitnienie, białe noce i krótkie okna sezonowe.</small></div>
-          <div className="experience-signal"><span>🐋</span><strong>Natura i migracje</strong><small>Safari, wieloryby i okresy największej aktywności przyrody.</small></div>
-          <div className="experience-signal"><span>🧊</span><strong>Warunki na miejscu</strong><small>Lodowce, trekking, stan szlaków i realna dostępność atrakcji.</small></div>
-        </div>
-      </section>
 
       <section className="section shell custom-trip visual-chapter chapter-custom">
         <div className="section-heading">
