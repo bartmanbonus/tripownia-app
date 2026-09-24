@@ -954,3 +954,84 @@ body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy em{
     padding-bottom:8px!important;
   }
 }
+
+
+/* 2026-09-24 denser calendar + paired CTAs */
+.search-v3-calendar-months{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:20px;
+}
+.search-v3-calendar-month-head{
+  min-height:36px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:5px;
+}
+.search-v3-calendar-month-head>strong{
+  font-size:13px;
+}
+.search-v3-calendar-month-head>button{
+  min-height:30px;
+  padding:0 9px;
+  border:1px solid #e6d9d1;
+  border-radius:999px;
+  background:#fff;
+  color:#665b54;
+  font:inherit;
+  font-size:9px;
+  font-weight:850;
+}
+.search-v3-calendar-month-head>button.active{
+  border-color:#f0a78f;
+  background:#fff0e9;
+  color:#d94e2a;
+}
+.dream-hero-actions{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+.dream-hero-actions>a{
+  width:100%!important;
+  min-width:0!important;
+}
+@media(max-width:620px){
+  .search-v3-calendar-popover{
+    max-height:90dvh!important;
+  }
+  .search-v3-calendar-months{
+    display:block;
+    max-height:46dvh;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    padding-right:2px;
+  }
+  .search-v3-calendar-month+.search-v3-calendar-month{
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px solid #eee6e0;
+  }
+  .search-v3-calendar-grid>button,
+  .search-v3-calendar-grid>.empty{
+    aspect-ratio:auto!important;
+    min-height:36px!important;
+  }
+  .dream-hero-actions{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .dream-hero-actions>a{
+    min-height:52px!important;
+    padding:0 10px!important;
+    font-size:13px!important;
+    text-align:center!important;
+    justify-content:center!important;
+  }
+  .dream-hero-actions>a svg{
+    width:16px!important;
+    height:16px!important;
+    flex:0 0 auto!important;
+  }
+}
