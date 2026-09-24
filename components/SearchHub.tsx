@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { CalendarDays, Check, ChevronDown, MapPin, Plane, Search, X } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches } from "@/lib/worldDestinations";
@@ -37,6 +37,49 @@ type DatePreference = {
   from: string;
   to: string;
 };
+
+function monthKey(year: number, monthIndex: number) {
+  return `${year}-${String(monthIndex + 1).padStart(2, "0")}`;
+}
+
+function localMonthKey() {
+  const now = new Date();
+  return monthKey(now.getFullYear(), now.getMonth());
+}
+
+function addMonths(value: string, delta: number) {
+  const [year, month] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1 + delta, 1));
+  return monthKey(date.getUTCFullYear(), date.getUTCMonth());
+}
+
+function monthLabel(value: string) {
+  if (!/^\d{4}-\d{2}$/.test(value)) return "";
+  const [year, month] = value.split("-").map(Number);
+  const raw = new Intl.DateTimeFormat("pl-PL", { month: "long", year: "numeric", timeZone: "UTC" })
+    .format(new Date(Date.UTC(year, month - 1, 1)));
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
+function calendarCells(value: string) {
+  if (!/^\d{4}-\d{2}$/.test(value)) return [] as Array<{ iso: string; day: number } | null>;
+  const [year, month] = value.split("-").map(Number);
+  const firstDay = new Date(Date.UTC(year, month - 1, 1)).getUTCDay();
+  const mondayOffset = (firstDay + 6) % 7;
+  const days = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const cells: Array<{ iso: string; day: number } | null> = Array.from({ length: mondayOffset }, () => null);
+  for (let day = 1; day <= days; day += 1) {
+    cells.push({ iso: `${value}-${String(day).padStart(2, "0")}`, day });
+  }
+  while (cells.length % 7) cells.push(null);
+  return cells;
+}
+
+function isoLabel(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return "";
+  return new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
+    .format(new Date(`${value}T12:00:00Z`));
+}
 
 function onePerDirection(rows: any[]) {
   const seen = new Set<string>();
@@ -174,6 +217,7 @@ export default function SearchHub({
   const [dateMode, setDateMode] = useState<DateMode>("any");
   const [dateOpen, setDateOpen] = useState(false);
   const [month, setMonth] = useState("");
+  const [calendarMonth, setCalendarMonth] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [duration, setDuration] = useState(initialDuration || "all");
@@ -377,7 +421,59 @@ export default function SearchHub({
   function toggleDatePanel() {
     setSuggestionsOpen(false);
     setDepartureOpen(false);
-    setDateOpen((open) => !open);
+    setDateOpen((open) => {
+      const next = !open;
+      if (next && !calendarMonth) {
+        setCalendarMonth(month || dateFrom.slice(0, 7) || localMonthKey());
+      }
+      return next;
+    });
+  }
+
+  function selectDateMode(mode: DateMode) {
+    setDateMode(mode);
+    if (mode === "any") {
+      setMonth("");
+      setDateFrom("");
+      setDateTo("");
+      return;
+    }
+    if (mode === "month") {
+      const nextMonth = calendarMonth || localMonthKey();
+      setCalendarMonth(nextMonth);
+      setMonth(nextMonth);
+      setDateFrom("");
+      setDateTo("");
+      return;
+    }
+    setMonth("");
+    if (!calendarMonth) setCalendarMonth(dateFrom.slice(0, 7) || localMonthKey());
+  }
+
+  function selectCalendarDay(iso: string) {
+    if (dateMode === "month") {
+      setMonth(iso.slice(0, 7));
+      return;
+    }
+
+    if (dateMode === "range") {
+      if (!dateFrom || dateTo) {
+        setDateFrom(iso);
+        setDateTo("");
+        return;
+      }
+      if (iso < dateFrom) {
+        setDateTo(dateFrom);
+        setDateFrom(iso);
+      } else {
+        setDateTo(iso);
+      }
+      return;
+    }
+
+    setDateMode("exact");
+    setDateFrom(iso);
+    setDateTo(iso);
   }
 
   function submitSearch(event: FormEvent) {
@@ -451,6 +547,7 @@ export default function SearchHub({
     setDateOpen(false);
     setDateMode("any");
     setMonth("");
+    setCalendarMonth("");
     setDateFrom("");
     setDateTo("");
     setDuration("all");
@@ -465,27 +562,26 @@ export default function SearchHub({
     setExpanding(false);
   }
 
-  const monthChoices = useMemo(() => {
-    const formatter = new Intl.DateTimeFormat("pl-PL", { month: "long", year: "numeric" });
-    const now = new Date();
-    return Array.from({ length: 8 }, (_, offset) => {
-      const date = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-      return {
-        value: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`,
-        label: formatter.format(date),
-      };
-    });
-  }, []);
-
   const dateSummary = useMemo(() => {
-    if (dateMode === "month") return monthChoices.find((item) => item.value === month)?.label || "Wybierz miesiąc";
-    if (dateMode === "exact") return dateFrom ? new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "short" }).format(new Date(`${dateFrom}T12:00:00`)) : "Wybierz dzień";
+    if (dateMode === "month") return month ? monthLabel(month) : "Wybierz miesiąc";
+    if (dateMode === "exact") return dateFrom ? isoLabel(dateFrom) : "Wybierz dzień";
     if (dateMode === "range") {
-      if (dateFrom && dateTo) return `${dateFrom.slice(5).replace("-", ".")} – ${dateTo.slice(5).replace("-", ".")}`;
+      if (dateFrom && dateTo) return `${isoLabel(dateFrom)} – ${isoLabel(dateTo)}`;
+      if (dateFrom) return `Od ${isoLabel(dateFrom)}`;
       return "Wybierz zakres";
     }
     return "Elastycznie";
-  }, [dateMode, month, dateFrom, dateTo, monthChoices]);
+  }, [dateMode, month, dateFrom, dateTo]);
+
+  const visibleCalendarMonth = calendarMonth || month || dateFrom.slice(0, 7) || localMonthKey();
+  const visibleCalendarCells = calendarCells(visibleCalendarMonth);
+  const calendarSelectionLabel = dateMode === "month" && month
+    ? monthLabel(month)
+    : dateMode === "range" && dateFrom
+      ? dateTo ? `${isoLabel(dateFrom)} – ${isoLabel(dateTo)}` : `Start: ${isoLabel(dateFrom)}`
+      : dateMode === "exact" && dateFrom
+        ? isoLabel(dateFrom)
+        : "Bez ograniczenia daty";
 
   const quickPicks: Array<[string, string, SearchOverrides]> = [
     ["Rzym, Włochy", "Rzym na city break", { duration: "3-4", budget: "1500", tab: "City break" }],
@@ -615,54 +711,89 @@ export default function SearchHub({
               <strong>{dateSummary}</strong><ChevronDown size={15}/>
             </button>
             {dateOpen && (
-              <div className="search-v3-calendar-popover">
+              <div className="search-v3-calendar-popover" role="dialog" aria-label="Wybierz termin podróży">
                 <div className="search-v3-calendar-head">
-                  <div><small>INTELIGENTNY KALENDARZ</small><strong>Jak elastyczny jest termin?</strong></div>
+                  <div><small>TERMIN WYJAZDU</small><strong>Wybierz datę</strong></div>
                   <button type="button" aria-label="Zamknij kalendarz" onClick={() => setDateOpen(false)}><X size={16}/></button>
                 </div>
-                <div className="search-v3-calendar-modes">
+
+                <div className="search-v3-calendar-modes" aria-label="Sposób wyboru terminu">
                   {[
                     ["any","Elastycznie"],
                     ["exact","Konkretny dzień"],
-                    ["month","Cały miesiąc"],
                     ["range","Zakres dat"],
+                    ["month","Cały miesiąc"],
                   ].map(([mode,label]) => (
-                    <button type="button" key={mode} className={dateMode === mode ? "active" : ""} onClick={() => setDateMode(mode as DateMode)}>{label}</button>
+                    <button type="button" key={mode} className={dateMode === mode ? "active" : ""} onClick={() => selectDateMode(mode as DateMode)}>{label}</button>
                   ))}
                 </div>
 
+                <div className="search-v3-calendar-options">
+                  <div className="search-v3-calendar-duration">
+                    <span>Długość pobytu</span>
+                    <div>
+                      {[["all","Dowolnie"],["3-4","3–4 dni"],["5-7","5–7 dni"],["8-10","8–10 dni"],["11-14","11–14 dni"]].map(([value,label]) => (
+                        <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <button type="button" className={`search-v3-calendar-weekend${weekendOnly ? " active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
+                    <Check size={14}/> Weekend
+                  </button>
+                </div>
+
+                <div className="search-v3-calendar-nav">
+                  <button
+                    type="button"
+                    aria-label="Poprzedni miesiąc"
+                    disabled={visibleCalendarMonth <= localMonthKey()}
+                    onClick={() => setCalendarMonth((current) => addMonths(current || visibleCalendarMonth, -1))}
+                  ><ChevronLeft size={18}/></button>
+                  <strong>{monthLabel(visibleCalendarMonth)}</strong>
+                  <button type="button" aria-label="Następny miesiąc" onClick={() => setCalendarMonth((current) => addMonths(current || visibleCalendarMonth, 1))}><ChevronRight size={18}/></button>
+                </div>
+
                 {dateMode === "any" && (
-                  <div className="search-v3-calendar-flex">
-                    <strong>Nie ograniczaj terminu</strong>
-                    <span>Najpierw pokażemy najlepsze aktualne opcje. Możesz dodatkowo zaznaczyć weekend lub długość pobytu.</span>
+                  <div className="search-v3-calendar-note">
+                    <strong>Masz elastyczny termin?</strong>
+                    <span>Zostaw bez zaznaczenia, a pokażemy najszerszy wybór. Kliknięcie dnia automatycznie zawęzi wyszukiwanie.</span>
                   </div>
                 )}
 
                 {dateMode === "month" && (
-                  <div className="search-v3-month-grid">
-                    {monthChoices.map((item) => <button type="button" key={item.value} className={month === item.value ? "active" : ""} onClick={() => setMonth(item.value)}>{item.label}</button>)}
-                  </div>
+                  <button type="button" className="search-v3-calendar-month-select" onClick={() => setMonth(visibleCalendarMonth)}>
+                    {month === visibleCalendarMonth ? <><Check size={15}/> Wybrano {monthLabel(visibleCalendarMonth)}</> : <>Wybierz cały {monthLabel(visibleCalendarMonth)}</>}
+                  </button>
                 )}
 
-                {dateMode === "exact" && (
-                  <label className="search-v3-calendar-input"><span>Data wyjazdu</span><input type="date" value={dateFrom} onChange={(event) => { setDateFrom(event.target.value); setDateTo(event.target.value); }} /></label>
-                )}
-
-                {dateMode === "range" && (
-                  <div className="search-v3-calendar-range">
-                    <label><span>Od</span><input type="date" value={dateFrom} onChange={(event) => setDateFrom(event.target.value)} /></label>
-                    <label><span>Do</span><input type="date" min={dateFrom || undefined} value={dateTo} onChange={(event) => setDateTo(event.target.value)} /></label>
-                  </div>
-                )}
-
-                <div className="search-v3-calendar-quick">
-                  <span>Na ile dni?</span>
-                  <div>
-                    {[["3-4","3–4"],["5-7","5–7"],["8-10","8–10"],["11-14","11–14"]].map(([value,label]) => <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label} dni</button>)}
-                  </div>
+                <div className="search-v3-calendar-weekdays" aria-hidden="true">
+                  {["Pn","Wt","Śr","Cz","Pt","So","Nd"].map((day) => <span key={day}>{day}</span>)}
                 </div>
+
+                <div className="search-v3-calendar-grid">
+                  {visibleCalendarCells.map((cell, index) => {
+                    if (!cell) return <span className="empty" key={`empty-${index}`} />;
+                    const selectedExact = dateMode === "exact" && dateFrom === cell.iso;
+                    const selectedMonth = dateMode === "month" && month === visibleCalendarMonth;
+                    const rangeStart = dateMode === "range" && dateFrom === cell.iso;
+                    const rangeEnd = dateMode === "range" && dateTo === cell.iso;
+                    const inRange = dateMode === "range" && Boolean(dateFrom && dateTo && cell.iso > dateFrom && cell.iso < dateTo);
+                    const className = [
+                      selectedExact || selectedMonth || rangeStart || rangeEnd ? "selected" : "",
+                      rangeStart ? "range-start" : "",
+                      rangeEnd ? "range-end" : "",
+                      inRange ? "in-range" : "",
+                    ].filter(Boolean).join(" ");
+                    return (
+                      <button type="button" key={cell.iso} className={className} onClick={() => selectCalendarDay(cell.iso)} aria-label={cell.iso}>
+                        <span>{cell.day}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
                 <div className="search-v3-calendar-footer">
-                  <button type="button" className={weekendOnly ? "active" : ""} onClick={() => setWeekendOnly((value) => !value)}><Check size={14}/> Weekend</button>
+                  <div><small>Wybrany termin</small><strong>{calendarSelectionLabel}</strong></div>
                   <button type="button" className="primary" onClick={() => setDateOpen(false)}>Gotowe</button>
                 </div>
               </div>
