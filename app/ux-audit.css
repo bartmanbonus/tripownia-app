@@ -70,3 +70,8 @@ body:has(.dream-hero) #wyszukiwarka.search-v3-section { margin-top: 2rem !import
 .add-trip-section-title span, .trip-piece-toggle small, .trip-plan-option p { font-size: .875rem !important; line-height: 1.55 !important; }
 .planner-mode-row button, .trip-plan-option-actions a, .trip-plan-option-actions button { font-size: .875rem !important; min-height: 44px !important; }
 @media(max-width:760px) { .trip-plan-option-actions { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+body:has(.dream-hero) .dream-hero-shell { min-height: 0 !important; }
+body:has(.dream-hero) .dream-hero h1 { text-wrap: balance; }
+#wyszukiwarka .search-v3-calendar-grid > button, #wyszukiwarka .search-v3-calendar-grid > .empty { aspect-ratio: auto !important; height: 44px !important; }
+#wyszukiwarka .search-v3-date-trigger strong, #wyszukiwarka .search-v3-multi-trigger strong { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.35 !important; }
+#wyszukiwarka .search-v3-field { height: auto !important; min-height: 84px !important; }

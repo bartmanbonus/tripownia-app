@@ -634,7 +634,7 @@ export default function Home() {
         <div className="shell dream-hero-shell">
           <div className="dream-hero-copy">
             <div className="dream-eyebrow"><Sparkles size={16}/> Wyszukiwanie i darmowy planner w jednym miejscu</div>
-            <h1>Znajdź wyjazd.<br/><span>Zaplanuj całą podróż za 0 zł.</span></h1>
+            <h1>Znajdź wyjazd.<br/><span>Zaplanuj całą podróż za 0 zł.</span></h1>
             <p>Najpierw wybierz wyjazd. Potem Tripownia pomoże Ci ogarnąć lot, hotel, dokumenty, transfer, atrakcje, eSIM i checklistę — także jeśli rezerwujesz gdzie indziej.</p>
             <div className="dream-hero-actions">
               <Link className="dream-primary" href="#wyszukiwarka">Znajdź wyjazd <ArrowRight size={18}/></Link>
