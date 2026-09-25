@@ -12,7 +12,7 @@ import {
 } from "@/lib/sportsEvents";
 
 export const metadata: Metadata = {
-  title: "Wyjazdy na mecze piłkarskie — terminarze i gotowe wyjazdy | Tripownia.pl",
+  title: "Wyjazdy na mecze piłkarskie — terminarze i gotowe wyjazdy",
   description: "Najciekawsze mecze w Europie połączone z gotowym planem wyjazdu: termin, miasto, lot, nocleg i oficjalne bilety.",
   alternates: { canonical: "/wydarzenia" },
 };
