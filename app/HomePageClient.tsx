@@ -725,16 +725,31 @@ export default function Home() {
       <section className="section shell homepage-events" aria-labelledby="homepage-events-title">
         <div className="section-heading">
           <div>
-            <div className="kicker">SPORT I WYDARZENIA</div>
+            <div className="kicker">WYJAZDY NA WYDARZENIA</div>
             <h2 id="homepage-events-title">Czasem najlepszym powodem do wyjazdu jest konkretne wydarzenie.</h2>
-            <p>Mecz, koncert albo duże wydarzenie może być początkiem całego city breaku.</p>
+            <p>Najpierw wybierasz wydarzenie. Potem Tripownia pomaga złożyć wokół niego cały wyjazd.</p>
           </div>
           <Link className="section-premium-link" href="/wydarzenia">Zobacz wydarzenia <ArrowRight size={16}/></Link>
         </div>
-        <div className="homepage-editorial-grid homepage-events-grid">
-          <Link href="/wydarzenia" className="homepage-editorial-card"><small>⚽ MECZE</small><strong>Piłka nożna + city break</strong><span>Wybierz mecz, a Tripownia pomoże spiąć termin, lot, nocleg i plan całego wyjazdu.</span><em>Wybierz mecz →</em></Link>
-          <Link href="/podroze-po-przezycia" className="homepage-editorial-card"><small>🎵 KONCERTY I FESTIWALE</small><strong>Wyjazd dla konkretnego przeżycia</strong><span>Inspiracje na podróże, w których najważniejszy jest termin i to, co dzieje się na miejscu.</span><em>Znajdź pomysł →</em></Link>
-          <Link href="/podroze-po-przezycia" className="homepage-editorial-card"><small>🏎️ SPORT I WIELKIE WEEKENDY</small><strong>Nie tylko futbol</strong><span>Sportowe weekendy, sezonowe wydarzenia i podróże planowane wokół konkretnego momentu.</span><em>Zobacz kalendarz →</em></Link>
+
+        <Link href="/wydarzenia" className="homepage-football-package">
+          <div className="homepage-football-copy">
+            <small>⚽ OSOBNY PAKIET</small>
+            <h3>Piłka nożna + city break</h3>
+            <p>Wybierz konkretny mecz. Tripownia dopasuje termin, lot, nocleg i plan pobytu wokół wydarzenia.</p>
+            <strong>Wybierz mecz i zbuduj wyjazd <ArrowRight size={17}/></strong>
+          </div>
+          <div className="homepage-football-steps" aria-label="Co obejmuje pakiet piłkarski">
+            <span><b>1</b> Mecz</span>
+            <span><b>2</b> Lot</span>
+            <span><b>3</b> Nocleg</span>
+            <span><b>4</b> City break</span>
+          </div>
+        </Link>
+
+        <div className="homepage-editorial-grid homepage-events-grid homepage-events-secondary">
+          <Link href="/podroze-po-przezycia" className="homepage-editorial-card"><small>🎵 KONCERTY I FESTIWALE</small><strong>Wyjazd pod konkretny termin</strong><span>Podróże, w których najważniejsze jest to, co dzieje się na miejscu.</span><em>Znajdź pomysł →</em></Link>
+          <Link href="/podroze-po-przezycia" className="homepage-editorial-card"><small>🏎️ INNE WYDARZENIA SPORTOWE</small><strong>Sportowe weekendy</strong><span>Wyścigi, turnieje i duże wydarzenia jako punkt startowy całego wyjazdu.</span><em>Zobacz kalendarz →</em></Link>
         </div>
       </section>
 
