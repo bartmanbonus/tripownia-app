@@ -12164,3 +12164,47 @@ img{
     font-size:9px!important;
   }
 }
+
+
+/* Dane Tripowni — clickable offer ranking */
+.tripownia-data-offer-link{
+  width:100%;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  color:inherit;
+  text-decoration:none;
+}
+.tripownia-data-offer-link>strong{
+  display:grid;
+  place-items:center;
+}
+.tripownia-data-offer-link>span{
+  min-width:0;
+}
+.tripownia-data-offer-link>em{
+  color:#e65431;
+  font-size:11px;
+  font-style:normal;
+  font-weight:900;
+  white-space:nowrap;
+}
+.guides-checklist li:has(.tripownia-data-offer-link){
+  cursor:pointer;
+  transition:background .16s ease,border-color .16s ease,transform .16s ease;
+}
+.guides-checklist li:has(.tripownia-data-offer-link):hover{
+  background:#fff7f2;
+  border-color:#efc4b3;
+  transform:translateY(-1px);
+}
+@media(max-width:640px){
+  .tripownia-data-offer-link{
+    grid-template-columns:auto minmax(0,1fr);
+  }
+  .tripownia-data-offer-link>em{
+    grid-column:2;
+    margin-top:4px;
+  }
+}
