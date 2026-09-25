@@ -1192,3 +1192,60 @@ body:has(.dream-hero) .homepage-offer-group .offer-stream-item{
  .search-v3-airport-footer{position:sticky!important;bottom:0!important;padding-left:16px!important;padding-right:16px!important}
  .search-v3-airport-apply{min-width:110px!important}
 }
+
+
+/* Compact sparse-offer fallback card; never create a giant empty area */
+.offer-stream-more-card{
+  flex:0 0 300px!important;
+  width:300px!important;
+  min-width:300px!important;
+  max-width:300px!important;
+  min-height:100%!important;
+}
+.offer-stream-more-card>a{
+  height:100%!important;
+  min-height:420px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  gap:10px!important;
+  padding:26px!important;
+  border:1px dashed #efc4b4!important;
+  border-radius:20px!important;
+  background:#fffaf7!important;
+  color:#221d1a!important;
+  text-decoration:none!important;
+}
+.offer-stream-more-card small{
+  color:#e45330!important;
+  font-size:9px!important;
+  font-weight:950!important;
+  letter-spacing:.08em!important;
+}
+.offer-stream-more-card strong{
+  font-size:22px!important;
+  line-height:1.05!important;
+}
+.offer-stream-more-card span{
+  color:#756a63!important;
+  font-size:12px!important;
+  line-height:1.5!important;
+}
+.offer-stream-more-card em{
+  margin-top:8px!important;
+  font-style:normal!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  color:#e45330!important;
+}
+@media(max-width:680px){
+  .offer-stream-more-card{
+    flex:0 0 min(82vw,320px)!important;
+    width:min(82vw,320px)!important;
+    min-width:min(82vw,320px)!important;
+    max-width:min(82vw,320px)!important;
+  }
+  .offer-stream-more-card>a{
+    min-height:360px!important;
+  }
+}

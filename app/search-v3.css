@@ -464,3 +464,26 @@
     overflow:hidden!important;
   }
 }
+
+
+/* Remove tiny line artifacts in quick-start strip */
+.search-v3-quick{
+  border-top:0!important;
+  box-shadow:none!important;
+  outline:0!important;
+}
+.search-v3-quick::before,
+.search-v3-quick::after,
+.search-v3-quick>div::before,
+.search-v3-quick>div::after{
+  content:none!important;
+  display:none!important;
+}
+.search-v3-quick>div{
+  scrollbar-width:none!important;
+}
+.search-v3-quick>div::-webkit-scrollbar{
+  display:none!important;
+  width:0!important;
+  height:0!important;
+}
