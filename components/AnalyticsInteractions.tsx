@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { trackEvent } from "@/lib/analytics";
+import { trackMetaCustomEvent } from "@/lib/metaPixel";
 
 function readSearchContext(root: HTMLElement) {
   const destination = root.querySelector<HTMLInputElement>("#tripownia-destination")?.value.trim() || "";
@@ -25,10 +26,9 @@ export default function AnalyticsInteractions() {
       const searchRoot = form.closest<HTMLElement>("#wyszukiwarka");
       if (!searchRoot) return;
 
-      trackEvent("search_use", {
-        ...readSearchContext(searchRoot),
-        trigger: "submit",
-      });
+      const context = { ...readSearchContext(searchRoot), trigger: "submit" };
+      trackEvent("search_use", context);
+      trackMetaCustomEvent("SearchUse", context);
     };
 
     const onClick = (event: MouseEvent) => {
@@ -39,11 +39,13 @@ export default function AnalyticsInteractions() {
       if (!button || !searchRoot) return;
 
       if (button.closest(".search-v3-quick")) {
-        trackEvent("search_use", {
+        const context = {
           ...readSearchContext(searchRoot),
           quick_pick: button.textContent?.replace(/\s+/g, " ").trim().slice(0, 100) || "quick_pick",
           trigger: "quick_pick",
-        });
+        };
+        trackEvent("search_use", context);
+        trackMetaCustomEvent("SearchUse", context);
         return;
       }
 
