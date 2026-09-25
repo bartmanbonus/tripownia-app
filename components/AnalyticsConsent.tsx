@@ -13,14 +13,9 @@ export default function AnalyticsConsentBanner() {
     setOpen(current === null);
   }, []);
 
-  function choose(next: Exclude<AnalyticsConsent, null> | "marketing") {
-    if (next === "marketing") {
-      window.localStorage.setItem("tripownia-consent-v1", "marketing");
-      window.dispatchEvent(new CustomEvent("tripownia-consent-updated", { detail: "marketing" }));
-    } else {
-      setAnalyticsConsent(next);
-    }
-    setConsent(next === "marketing" ? "analytics" : next);
+  function choose(next: Exclude<AnalyticsConsent, null>) {
+    setAnalyticsConsent(next);
+    setConsent(next);
     setOpen(false);
   }
 
