@@ -214,6 +214,7 @@ export default function SearchHub({
   const [selectedDestinations, setSelectedDestinations] = useState<string[]>(initialDestinations);
   const [departures, setDepartures] = useState<string[]>(initialAirports);
   const [departureOpen, setDepartureOpen] = useState(false);
+  const [departureQuery, setDepartureQuery] = useState("");
   const [dateMode, setDateMode] = useState<DateMode>("any");
   const [dateOpen, setDateOpen] = useState(false);
   const [month, setMonth] = useState("");
@@ -236,6 +237,12 @@ export default function SearchHub({
   const departureRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLDivElement>(null);
   const searchRunRef = useRef(0);
+
+  const filteredAirports = useMemo(() => {
+    const query = departureQuery.trim().toLocaleLowerCase("pl-PL");
+    if (!query) return airportOptions;
+    return airportOptions.filter((airport:any) => `${airport.label} ${airport.code}`.toLocaleLowerCase("pl-PL").includes(query));
+  }, [departureQuery]);
 
   const suggestions = useMemo(() => {
     const query = destination.trim();
@@ -723,25 +730,35 @@ export default function SearchHub({
               <ChevronDown size={15}/>
             </button>
             {departureOpen && (
-              <div className="search-v3-departure-menu" role="dialog" aria-label="Wybierz lotniska wylotu">
+              <div className="search-v3-departure-menu search-v3-airport-picker" role="dialog" aria-label="Wybierz lotniska wylotu">
                 <div className="search-v3-panel-head">
-                  <div><strong>Skąd chcesz lecieć?</strong><small>Możesz zaznaczyć kilka lotnisk.</small></div>
-                  <button type="button" className="search-v3-panel-close" aria-label="Zamknij wybór lotnisk" onClick={() => setDepartureOpen(false)}><X size={16}/></button>
+                  <div><strong>Skąd chcesz lecieć?</strong><small>Zaznacz jedno lub kilka lotnisk.</small></div>
+                  <button type="button" className="search-v3-panel-close" aria-label="Zamknij wybór lotnisk" onClick={() => setDepartureOpen(false)}><X size={18}/></button>
                 </div>
-                <div className="search-v3-panel-scroll">
-                  <button type="button" aria-pressed={!departures.length} className={!departures.length ? "active" : ""} onClick={() => setDepartures([])}>
-                    <span className="search-v3-option-check">{!departures.length && <Check size={14}/>}</span><span><strong>Wszystkie lotniska</strong><small>Jestem elastyczna/y</small></span>
-                  </button>
-                  {airportOptions.map((airport:any) => {
+                <label className="search-v3-airport-search">
+                  <Search size={17}/>
+                  <input value={departureQuery} onChange={(event) => setDepartureQuery(event.target.value)} placeholder="Wpisz miasto lub kod lotniska" autoFocus />
+                  {departureQuery && <button type="button" aria-label="Wyczyść wyszukiwanie lotniska" onClick={() => setDepartureQuery("")}><X size={15}/></button>}
+                </label>
+                <div className="search-v3-panel-scroll search-v3-airport-list">
+                  {!departureQuery && <div className="search-v3-airport-section-label">POPULARNE LOTNISKA W POLSCE</div>}
+                  {!departureQuery && (
+                    <button type="button" aria-pressed={!departures.length} className={!departures.length ? "active" : ""} onClick={() => setDepartures([])}>
+                      <span className="search-v3-option-check">{!departures.length && <Check size={14}/>}</span><span><strong>Wszystkie lotniska</strong><small>Nie ograniczaj miejsca wylotu</small></span>
+                    </button>
+                  )}
+                  {filteredAirports.map((airport:any) => {
                     const active = departures.includes(airport.code);
                     return <button type="button" aria-pressed={active} className={active ? "active" : ""} key={airport.code} onClick={() => setDepartures((current) => active ? current.filter((code) => code !== airport.code) : [...current, airport.code])}>
                       <span className="search-v3-option-check">{active && <Check size={14}/>}</span><span><strong>{airport.label}</strong><small>{airport.code}</small></span>
                     </button>;
                   })}
+                  {filteredAirports.length === 0 && <div className="search-v3-airport-empty">Nie znaleźliśmy takiego lotniska.</div>}
                 </div>
-                <div className="search-v3-panel-footer">
-                  <span>{departures.length ? `Wybrano: ${departures.length}` : "Wszystkie lotniska"}</span>
-                  <button type="button" onClick={() => setDepartureOpen(false)}>Gotowe</button>
+                <div className="search-v3-panel-footer search-v3-airport-footer">
+                  <button type="button" className="search-v3-airport-clear" onClick={() => { setDepartures([]); setDepartureQuery(""); }}>Wyczyść</button>
+                  <span>{departures.length ? `Wybrano: ${departures.length}` : "Dowolne lotnisko"}</span>
+                  <button type="button" className="search-v3-airport-apply" onClick={() => { setDepartureOpen(false); setDepartureQuery(""); }}>Wybierz</button>
                 </div>
               </div>
             )}

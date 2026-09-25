@@ -703,22 +703,22 @@ export default function Home() {
         <OfferRail kicker="🏙 CITY BREAK" title="Gotowe na kilka dni" description="Krótkie wyjazdy z konkretnym terminem i aktualną ceną." items={themedRails.city.slice(0, 10)}/>
         <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun.slice(0, 10)}/>
         <div className="homepage-offer-more">
-          <details open>
-            <summary><span><b>⚡ Na krótko</b><small>2–4 noce · szybki reset</small></span><ArrowRight size={18}/></summary>
-            <OfferRail kicker="WEEKEND / KRÓTKI WYJAZD" title="Wyskocz na kilka dni" description="Dobre opcje, kiedy nie chcesz brać całego tygodnia urlopu." items={themedRails.weekend.slice(0, 10)}/>
-          </details>
-          <details open>
-            <summary><span><b>🏖 Tydzień odpoczynku</b><small>6–9 nocy · klasyczne wakacje</small></span><ArrowRight size={18}/></summary>
-            <OfferRail kicker="TYDZIEŃ" title="Pełny tydzień poza domem" description="Wyjazdy na prawdziwy odpoczynek, z konkretną ceną i terminem." items={themedRails.week.slice(0, 10)}/>
-          </details>
-          <details open>
-            <summary><span><b>💸 Najtaniej teraz</b><small>oferty od najniższej ceny</small></span><ArrowRight size={18}/></summary>
-            <OfferRail kicker="DOBRY BUDŻET" title="Dużo podróży za mniej" description="Najtańsze aktualne kierunki z dzisiejszej puli." items={themedRails.budgetFriendly.slice(0, 10)}/>
-          </details>
-          <details open>
-            <summary><span><b>✨ Raz a dobrze</b><small>dalsze i bardziej wyjątkowe</small></span><ArrowRight size={18}/></summary>
-            <OfferRail kicker="WIĘKSZA PODRÓŻ" title="Kiedy chcesz czegoś więcej" description="Droższe lub dalsze wyjazdy, które mają być główną podróżą sezonu." items={themedRails.premium.slice(0, 10)}/>
-          </details>
+          <section className="homepage-offer-group">
+            <div className="homepage-offer-group-head"><span><b>⚡ Na krótko</b><small>2–4 noce · szybki reset</small></span></div>
+            <OfferRail kicker="WEEKEND / KRÓTKI WYJAZD" title="Wyskocz na kilka dni" description="Dobre opcje, kiedy nie chcesz brać całego tygodnia urlopu." items={themedRails.weekend.slice(0, 12)}/>
+          </section>
+          <section className="homepage-offer-group">
+            <div className="homepage-offer-group-head"><span><b>🏖 Tydzień odpoczynku</b><small>6–9 nocy · klasyczne wakacje</small></span></div>
+            <OfferRail kicker="TYDZIEŃ" title="Pełny tydzień poza domem" description="Wyjazdy na prawdziwy odpoczynek, z konkretną ceną i terminem." items={themedRails.week.slice(0, 12)}/>
+          </section>
+          <section className="homepage-offer-group">
+            <div className="homepage-offer-group-head"><span><b>💸 Najtaniej teraz</b><small>oferty od najniższej ceny</small></span></div>
+            <OfferRail kicker="DOBRY BUDŻET" title="Dużo podróży za mniej" description="Najtańsze aktualne kierunki z dzisiejszej puli." items={themedRails.budgetFriendly.slice(0, 12)}/>
+          </section>
+          <section className="homepage-offer-group">
+            <div className="homepage-offer-group-head"><span><b>✨ Raz a dobrze</b><small>dalsze i bardziej wyjątkowe</small></span></div>
+            <OfferRail kicker="WIĘKSZA PODRÓŻ" title="Kiedy chcesz czegoś więcej" description="Droższe lub dalsze wyjazdy, które mają być główną podróżą sezonu." items={themedRails.premium.slice(0, 12)}/>
+          </section>
         </div>
       </section>
 
