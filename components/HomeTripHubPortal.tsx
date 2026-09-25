@@ -45,7 +45,7 @@ export default function HomeTripHubPortal() {
     <section id="uslugi-podrozy" className="shell already-booked-hub" aria-labelledby="already-booked-title">
       <div className="already-booked-copy">
         <div className="kicker">TU ZACZYNA SIĘ PRZEWAGA TRIPOWNI</div>
-        <h2 id="already-booked-title">Kupiłaś wyjazd? Tripownia dopiero się zaczyna.</h2>
+        <h2 id="already-booked-title">Masz już kupiony wyjazd? Tripownia dopiero się zaczyna.</h2>
         <p>Dodaj lot i hotel — nawet kupione gdzie indziej. Dostaniesz jeden plan z dokumentami, checklistą i brakującymi elementami podróży.</p>
         <Link href="/dodaj-podroz?mode=owned" className="already-booked-primary">Dodaj mój wyjazd za darmo <ArrowRight size={17}/></Link>
       </div>
