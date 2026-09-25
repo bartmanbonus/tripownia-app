@@ -37,7 +37,7 @@ export async function GET(
     return NextResponse.redirect(new URL("/", request.url), 307);
   }
 
-  if (!["http:", "https:"].includes(target.protocol) || !hostAllowed(partner, target)) {
+  if (target.protocol !== "https:" || !hostAllowed(partner, target)) {
     return NextResponse.redirect(new URL("/", request.url), 307);
   }
 
