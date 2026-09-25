@@ -4,7 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import NewYearOffers from "@/components/NewYearOffers";
 
 export const metadata: Metadata = {
-  title: "Sylwester 2026/2027 — city break i dłuższe wyjazdy | Tripownia.pl",
+  title: "Sylwester 2026/2027 — city break i dłuższe wyjazdy",
   description: "Duża selekcja pomysłów na Sylwestra 2026/2027: city breaki 3–6 nocy, dłuższe pakiety 7–12 nocy oraz aktualne oferty.",
   alternates: { canonical: "/sylwester" },
 };
