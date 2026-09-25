@@ -395,7 +395,7 @@ function OfferRail({ kicker, title, description, items }: { kicker: string; titl
     </div>
     <div className={`offer-stream-rail-wrap${sparse ? " is-sparse" : ""}`}>
       {items.length > 1 && <div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div>}
-      <div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}>
+      <div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>
         {items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}
         {sparse && <div className="offer-stream-item offer-stream-more-card"><Link href="/okazje"><small>WIĘCEJ OPCJI</small><strong>Zobacz pełną pulę ofert</strong><span>Jeśli ta kategoria ma dziś mało dopasowań, pokażemy Ci wszystkie aktualne propozycje.</span><em>Zobacz oferty <ArrowRight size={15}/></em></Link></div>}
       </div>
