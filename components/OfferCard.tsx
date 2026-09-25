@@ -247,14 +247,16 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       : `/oferta/${offer.id}`;
   const buyHref = cardHref;
   const partnerName = partners[offer.partner]?.name || "partnera";
+  const compactPartnerName = partnerName
+    .replace(/\s+Tours?\b/gi, "")
+    .replace(/\s+Polska\b/gi, "")
+    .trim();
   const nightsLabel = offer.nights === 1 ? "noc" : offer.nights % 10 >= 2 && offer.nights % 10 <= 4 && !(offer.nights % 100 >= 12 && offer.nights % 100 <= 14) ? "noce" : "nocy";
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
-    : isLiveExact
-      ? `Sprawdź cenę w ${partnerName}`
-      : isExactLink
-        ? `Sprawdź cenę w ${partnerName}`
-        : "Sprawdź aktualną cenę";
+    : isLiveExact || isExactLink
+      ? `Sprawdź w ${compactPartnerName}`
+      : "Sprawdź aktualną cenę";
   const trustText = isExpired
     ? "Oferta wygasła"
     : isLiveExact
