@@ -1192,3 +1192,30 @@ body:has(.dream-hero) .homepage-offer-group .offer-stream-item{
  .search-v3-airport-footer{position:sticky!important;bottom:0!important;padding-left:16px!important;padding-right:16px!important}
  .search-v3-airport-apply{min-width:110px!important}
 }
+
+
+/* 2026-09-25 compact CTA height */
+body:has(.dream-hero) .dream-hero-actions>a,
+body:has(.dream-hero) .already-booked-primary{
+  min-height:46px!important;
+  padding:0 14px!important;
+  border-radius:14px!important;
+  font-size:12px!important;
+}
+body:has(.dream-hero) .already-booked-actions>a{
+  min-height:50px!important;
+  padding:10px 12px!important;
+  border-radius:14px!important;
+}
+@media(max-width:620px){
+  body:has(.dream-hero) .dream-hero-actions>a,
+  body:has(.dream-hero) .already-booked-primary{
+    min-height:44px!important;
+    padding:0 10px!important;
+    font-size:11.5px!important;
+  }
+  body:has(.dream-hero) .already-booked-actions>a{
+    min-height:46px!important;
+    padding:8px 10px!important;
+  }
+}
