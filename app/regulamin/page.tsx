@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Regulamin | Tripownia.pl",
+  title: "Regulamin",
   description: "Zasady korzystania z serwisu Tripownia.pl i przechodzenia do ofert partnerów.",
   alternates: { canonical: "/regulamin" },
 };
