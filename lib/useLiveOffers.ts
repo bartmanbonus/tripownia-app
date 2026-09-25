@@ -9,6 +9,7 @@ type LiveOffersResponse = {
   offers?: Offer[];
   notice?: string;
   error?: string;
+  sourceType?: "live" | "published_fallback";
 };
 
 type LiveOffersState = {
@@ -113,7 +114,7 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
       writeCache(endpoint, live, checkedAt);
       setState({
         offers: live,
-        source: "live",
+        source: data.sourceType === "published_fallback" ? "fallback" : "live",
         loading: false,
         checkedAt,
         notice: data.notice,
