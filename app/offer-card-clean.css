@@ -180,3 +180,46 @@
   .trip-search-decision .trip-search-actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important}
   .trip-search-decision .trip-search-actions a{width:100%!important}
 }
+
+
+/* 2026-09-25 keep offer CTAs on a single line */
+.offer-card-clean .card-cta{
+  min-height:44px!important;
+  padding:0 12px!important;
+  gap:6px!important;
+  white-space:nowrap!important;
+  flex-wrap:nowrap!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  font-size:10px!important;
+  line-height:1!important;
+}
+.offer-card-clean .card-cta svg{
+  flex:0 0 auto!important;
+  width:15px!important;
+  height:15px!important;
+}
+.offer-card-clean .offer-actions-row button{
+  white-space:nowrap!important;
+  flex-wrap:nowrap!important;
+  padding:0 9px!important;
+  font-size:8px!important;
+  line-height:1!important;
+  overflow:hidden!important;
+}
+.offer-card-clean .offer-actions-row button svg{
+  flex:0 0 auto!important;
+  width:13px!important;
+  height:13px!important;
+}
+@media(max-width:420px){
+  .offer-card-clean .card-cta{
+    padding:0 9px!important;
+    font-size:9.5px!important;
+  }
+  .offer-card-clean .offer-actions-row button{
+    padding:0 6px!important;
+    font-size:7.5px!important;
+  }
+}
