@@ -659,7 +659,7 @@ export default function SearchHub({
     ["Rzym, Włochy", "Rzym na city break", { duration: "3-4", budget: "1500", tab: "City break" }],
     ["Teneryfa, Hiszpania", "Ciepło na Teneryfie", { duration: "5-7", budget: "3000", tab: "Wakacje" }],
     ["Djerba, Tunezja", "All Inclusive na Djerbie", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Wakacje" }],
-    ["Mediolan, Włochy", "Tani weekend: Mediolan / Bergamo", { duration: "3-4", budget: "1000", weekendOnly: true, tab: "City break" }],
+    ["Mediolan, Włochy", "Mediolan / Bergamo", { duration: "3-4", budget: "1500", weekendOnly: false, tab: "City break" }],
     ["Zanzibar, Tanzania", "Egzotyka: Zanzibar", { duration: "11-14", budget: "7500", tab: "Wakacje" }],
   ];
 
