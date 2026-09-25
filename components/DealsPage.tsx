@@ -155,7 +155,7 @@ export default function DealsPage() {
     : source === "live"
       ? `Aktualny feed${checkedLabel ? ` · ${checkedLabel}` : ""}`
       : offers.length
-        ? `Ostatnia poprawna pula${checkedLabel ? ` · ${checkedLabel}` : ""}`
+        ? "Ostatnia opublikowana pula · sprawdź cenę u partnera"
         : "Nie udało się potwierdzić aktualnej puli";
 
   const airportLabel = AIRPORTS.find((item) => item.value === airport)?.label || "Wszystkie lotniska";
@@ -248,7 +248,7 @@ export default function DealsPage() {
         <>
           <div className="deals-results-heading">
             <div><span>AKTUALNE OFERTY</span><h2>{filtering ? "Najlepsze dopasowania" : "Najlepsze ceny teraz"}</h2></div>
-            <p>Kliknięcie w ofertę prowadzi bezpośrednio do konkretnej propozycji u partnera.</p>
+            <p>{source === "live" ? "Kliknięcie w ofertę prowadzi do propozycji u partnera." : "Pokazujemy opublikowaną pulę Tripowni. Aktualną cenę i dostępność potwierdzisz u partnera po kliknięciu."}</p>
           </div>
           <div className="cards-grid deals-premium-grid">{rows.map((offer) => <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>)}</div>
         </>
