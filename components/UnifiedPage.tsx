@@ -8,6 +8,7 @@ import { isInternalAlias } from "@/lib/internalAliases";
 import { offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import AdminStudio from "@/components/AdminStudio";
+import SearchHub from "@/components/SearchHub";
 
 
 const EXPERIENCE_IMAGE_BY_CITY: Record<string, string> = {
@@ -174,9 +175,14 @@ function ExperiencePage({ path }: { path: string }) {
       <p className="hub-lead">{page.lead}</p>
       <div className="experience-checklist">{page.highlights.map((item, i) => <div key={item}><span>{i + 1}</span><p>{item}</p></div>)}</div>
       <div className="experience-actions">
-        <Link className="primary-cta" href={`/?focus=destination#wyszukiwarka`}>Szukaj po swoich parametrach →</Link>
+        <a className="primary-cta" href="#wyszukiwarka">Szukaj po swoich parametrach →</a>
         <Link className="secondary-cta" href="/podroze-po-przezycia">← Kalendarz przeżyć</Link>
       </div>
+
+      <section className="experience-inline-search" aria-label={`Wyszukiwarka: ${page.partnerQuery}`}>
+        <div className="section-heading"><div><div className="kicker">WYSZUKAJ TEN KIERUNEK</div><h2>Ustaw własny termin, lotnisko i budżet</h2><p>Kierunek jest już uzupełniony. Możesz zmienić daty, długość pobytu, lotnisko wylotu i pozostałe filtry bez wracania na stronę główną.</p></div></div>
+        <SearchHub initialDestinations={[page.partnerQuery]} />
+      </section>
 
       <section className="experience-current-offers">
         <div className="section-heading"><div><div className="kicker">AKTUALNIE W TRIPOWNI</div><h2>{active.length ? `Aktualne okazje: ${page.partnerQuery}` : `Sprawdź aktualne ceny: ${page.partnerQuery}`}</h2><p>{active.length ? "Najpierw pokazujemy dopasowane aktywne oferty z bazy Tripowni." : "Nie mamy dziś zapisanej karty cenowej dokładnie pod to przeżycie. Nie pokazujemy losowych ofert — przejdź od razu do aktualnego wyszukiwania."}</p></div></div>
@@ -284,14 +290,14 @@ function ExperienceTripCards({ path }: { path: string }) {
 
 function ExperiencesCalendarPage() {
   const cards = [
-    ["/islandia-zorza-polarna","WRZESIEŃ–MARZEC","🌌 Zorza polarna","Islandia, północ Norwegii i Laponia — od razu z gotowymi wariantami wyjazdu."],
-    ["/japonia-kwitnienie-wisni","MARZEC–KWIECIEŃ","🌸 Kwitnienie wiśni w Japonii","Tokio, Osaka i Kioto w terminach ustawionych pod sezon sakury."],
-    ["/norwegia-fiordy","MAJ–WRZESIEŃ","🏔️ Fiordy i białe noce","Bergen, Oslo i Stavanger — trzy różne sposoby na Norwegię."],
-    ["/nowa-zelandia-najlepszy-czas","LISTOPAD–MARZEC","🥾 Nowa Zelandia","Auckland, Queenstown i Christchurch jako konkretne początki road tripu."],
-    ["/jarmarki-bozonarodzeniowe","LISTOPAD–GRUDZIEŃ","🎄 Jarmarki bożonarodzeniowe","Wiedeń, Praga i Budapeszt w gotowych grudniowych terminach."],
-    ["/holandia-tulipany","KWIECIEŃ–MAJ","🌷 Tulipany w Holandii","Amsterdam, Haarlem i Leiden — trzy bazy na sezon tulipanów."],
-    ["/safari-kenia-tanzania","CZERWIEC–PAŹDZIERNIK","🦁 Safari w Afryce","Nairobi, Kilimandżaro i Zanzibar — konkretne wejścia w Kenię i Tanzanię."],
-    ["/egzotyka-zima","LISTOPAD–MARZEC","🌴 Egzotyka zimą","Malediwy, Zanzibar i Phuket w terminach ustawionych na zimowe słońce."],
+    ["zorza","/islandia-zorza-polarna","WRZESIEŃ–MARZEC","🌌 Zorza polarna","Islandia, północ Norwegii i Laponia — od razu z gotowymi wariantami wyjazdu."],
+    ["sakura","/japonia-kwitnienie-wisni","MARZEC–KWIECIEŃ","🌸 Kwitnienie wiśni w Japonii","Tokio, Osaka i Kioto w terminach ustawionych pod sezon sakury."],
+    ["fiordy","/norwegia-fiordy","MAJ–WRZESIEŃ","🏔️ Fiordy i białe noce","Bergen, Oslo i Stavanger — trzy różne sposoby na Norwegię."],
+    ["nowa-zelandia","/nowa-zelandia-najlepszy-czas","LISTOPAD–MARZEC","🥾 Nowa Zelandia","Auckland, Queenstown i Christchurch jako konkretne początki road tripu."],
+    ["jarmarki","/jarmarki-bozonarodzeniowe","LISTOPAD–GRUDZIEŃ","🎄 Jarmarki bożonarodzeniowe","Wiedeń, Praga i Budapeszt w gotowych grudniowych terminach."],
+    ["tulipany","/holandia-tulipany","KWIECIEŃ–MAJ","🌷 Tulipany w Holandii","Amsterdam, Haarlem i Leiden — trzy bazy na sezon tulipanów."],
+    ["safari","/safari-kenia-tanzania","CZERWIEC–PAŹDZIERNIK","🦁 Safari w Afryce","Nairobi, Kilimandżaro i Zanzibar — konkretne wejścia w Kenię i Tanzanię."],
+    ["egzotyka","/egzotyka-zima","LISTOPAD–MARZEC","🌴 Egzotyka zimą","Malediwy, Zanzibar i Phuket w terminach ustawionych na zimowe słońce."],
   ] as const;
 
   return <main><SiteHeader/>
@@ -301,7 +307,7 @@ function ExperiencesCalendarPage() {
       <p className="hub-lead">Każde przeżycie ma już gotowe propozycje: konkretny kierunek, długość, termin i ustawiony lot z Warszawy. Klikasz wariant i sprawdzasz właśnie ten wyjazd — bez wracania do ogólnej wyszukiwarki.</p>
 
       <div className="experience-live-list">
-        {cards.map(([href, season, title, text]) => <section className="experience-live-row" key={href}>
+        {cards.map(([anchor, href, season, title, text]) => <section id={anchor} className="experience-live-row" style={{scrollMarginTop:"140px"}} key={href}>
           <div className="experience-live-head">
             <div><small>{season}</small><h2>{title}</h2><p>{text}</p></div>
             <Link href={href}>Jak zaplanować to przeżycie? →</Link>
