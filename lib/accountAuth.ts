@@ -216,7 +216,15 @@ export async function saveTripowniaUserState(session: AccountSession, state: Omi
 }
 
 export async function getTripowniaUserState(session: AccountSession) {
-  const response = await fetch(`${authBaseUrl()}/rest/v1/tripownia_user_state?select=*`, {
+  const accountUser = session.user || await getAccountUser(session);
+  if (!accountUser?.id) return null;
+
+  const params = new URLSearchParams({
+    select: "*",
+    user_id: `eq.${accountUser.id}`,
+    limit: "1",
+  });
+  const response = await fetch(`${authBaseUrl()}/rest/v1/tripownia_user_state?${params.toString()}`, {
     headers: sessionHeaders(session),
     cache: "no-store",
   });
