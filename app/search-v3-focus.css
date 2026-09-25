@@ -255,3 +255,34 @@ main > .self-search-home-stage{display:none!important}
     background:transparent!important;
   }
 }
+
+
+/* 2026-09-25 remove side-line artifacts around quick-start/search shell */
+#wyszukiwarka.search-v3-section,
+#wyszukiwarka .search-v3,
+#wyszukiwarka .search-v3-quick{
+  outline:0!important;
+}
+#wyszukiwarka.search-v3-section::before,
+#wyszukiwarka.search-v3-section::after,
+#wyszukiwarka .search-v3::before,
+#wyszukiwarka .search-v3::after,
+#wyszukiwarka .search-v3-quick::before,
+#wyszukiwarka .search-v3-quick::after{
+  content:none!important;
+  display:none!important;
+}
+#wyszukiwarka .search-v3-quick{
+  width:100%!important;
+  max-width:100%!important;
+  margin-inline:0!important;
+  border-left:0!important;
+  border-right:0!important;
+  border-bottom:0!important;
+  box-shadow:none!important;
+  box-sizing:border-box!important;
+}
+#wyszukiwarka.search-v3-section{
+  border-left:0!important;
+  border-right:0!important;
+}
