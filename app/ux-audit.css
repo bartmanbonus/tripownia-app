@@ -74,7 +74,64 @@ body:has(.dream-hero) .dream-hero-shell { min-height: 0 !important; }
 body:has(.dream-hero) .dream-hero h1 { text-wrap: balance; }
 #wyszukiwarka .search-v3-calendar-grid > button, #wyszukiwarka .search-v3-calendar-grid > .empty { aspect-ratio: auto !important; height: 44px !important; }
 #wyszukiwarka .search-v3-date-trigger strong, #wyszukiwarka .search-v3-multi-trigger strong { white-space: normal !important; overflow: visible !important; text-overflow: clip !important; line-height: 1.35 !important; }
-#wyszukiwarka .search-v3-field { height: auto !important; min-height: 84px !important; }
+/* Final search geometry: keep fields compact and aligned */
+#wyszukiwarka .search-v3-field,
+#wyszukiwarka .search-v3-submit{
+  height:58px!important;
+  min-height:58px!important;
+  border-radius:14px!important;
+}
+#wyszukiwarka .search-v3-field{
+  padding:8px 13px!important;
+}
+#wyszukiwarka .search-v3-field>label,
+#wyszukiwarka .search-v3-field>span{
+  font-size:10px!important;
+  line-height:1.1!important;
+}
+#wyszukiwarka .search-v3-field small{
+  font-size:9px!important;
+  line-height:1.1!important;
+}
+#wyszukiwarka .search-v3-field select,
+#wyszukiwarka .search-v3-input-wrap input,
+#wyszukiwarka .search-v3-multi-trigger strong,
+#wyszukiwarka .search-v3-date-trigger strong{
+  font-size:14px!important;
+  line-height:1.15!important;
+}
+#wyszukiwarka .search-v3-input-wrap input{
+  height:24px!important;
+}
+#wyszukiwarka .search-v3-chevron{
+  bottom:13px!important;
+}
+#wyszukiwarka .search-v3-options-row{
+  align-items:center!important;
+  gap:8px!important;
+  padding-bottom:14px!important;
+}
+#wyszukiwarka .search-v3-weekend,
+#wyszukiwarka .search-v3-board,
+#wyszukiwarka .search-v3-more{
+  min-height:38px!important;
+  height:38px!important;
+  border-radius:11px!important;
+}
+@media(max-width:920px){
+  #wyszukiwarka .search-v3-field,
+  #wyszukiwarka .search-v3-submit{
+    height:56px!important;
+    min-height:56px!important;
+  }
+}
+@media(max-width:560px){
+  #wyszukiwarka .search-v3-field,
+  #wyszukiwarka .search-v3-submit{
+    height:54px!important;
+    min-height:54px!important;
+  }
+}
 @media (min-width: 641px) {
   #wyszukiwarka .search-v3-calendar-esky { position: fixed !important; top: 5dvh !important; bottom: auto !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; width: min(680px, calc(100vw - 32px)) !important; }
 }
