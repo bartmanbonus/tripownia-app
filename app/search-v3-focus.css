@@ -229,3 +229,29 @@ main > .self-search-home-stage{display:none!important}
     font-size:10px!important;
   }
 }
+
+
+/* 2026-09-25 remove dark empty search-stage band */
+#wyszukiwarka.search-v3-section{
+  margin:-58px auto 8px!important;
+  padding:18px 12px 8px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#wyszukiwarka .search-v3{
+  margin:0 auto!important;
+}
+@media(max-width:920px){
+  #wyszukiwarka.search-v3-section{
+    margin-top:-34px!important;
+    padding:10px 6px 6px!important;
+    background:transparent!important;
+  }
+}
+@media(max-width:640px){
+  #wyszukiwarka.search-v3-section{
+    margin-top:-20px!important;
+    padding:6px 3px 4px!important;
+    background:transparent!important;
+  }
+}
