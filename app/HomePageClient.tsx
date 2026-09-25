@@ -894,43 +894,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="dream-planner-wrap">
-        <div className="shell dream-planner-grid">
-          <div className="dream-planner-copy">
-            <div className="kicker light">TWÓJ PERSONALNY PLANNER</div>
-            <h2>Masz już kupiony wyjazd?<br/>Tripownia dopiero się zaczyna.</h2>
-            <p>Dodaj podróż — nawet kupioną gdzie indziej. W jednym miejscu trzymaj termin, lot, nocleg, plan dnia, checklistę i rzeczy do dokupienia.</p>
-            <div className="dream-planner-actions">
-              <Link href="/dodaj-podroz">+ Dodaj podróż <ArrowRight size={17}/></Link>
-              <Link href="/moje-podroze">Moje podróże</Link>
-            </div>
-            <div className="dream-planner-note">Tripownia może dopasowywać rekomendacje do preferencji, które ustawisz: budżetu, lotniska, długości urlopu i stylu podróżowania.</div>
-          </div>
-
-          <div className="dream-planner-screen" aria-label="Przykładowy podgląd personalnego planera Tripowni">
-            <div className="dream-planner-top">
-              <div><small>PRZYKŁADOWY PLAN</small><strong>Wietnam 🇻🇳</strong><span>12 dni · przykład możliwości</span></div>
-              <Link href="/moja-podroz">Otwórz planner →</Link>
-            </div>
-            <div className="dream-planner-progress"><span style={{width:"68%"}} /></div>
-            <div className="dream-planner-list">
-              <Link href="/moja-podroz"><span>✈️</span><div><strong>Lot</strong><small>Dodaj rezerwację i godziny</small></div><b>›</b></Link>
-              <Link href="/moja-podroz"><span>🏨</span><div><strong>Nocleg</strong><small>Hotel i adres zawsze pod ręką</small></div><b>›</b></Link>
-              <Link href="/moja-podroz"><span>📍</span><div><strong>Plan dnia</strong><small>Ułóż miejsca i atrakcje</small></div><b>›</b></Link>
-              <Link href="/przed-wyjazdem"><span>✅</span><div><strong>Checklista</strong><small>Dokumenty, bagaż, transfer, eSIM</small></div><b>›</b></Link>
-            </div>
-            <div className="dream-planner-bottom">
-              <Link href="/dla-ciebie">✨ Dla Ciebie</Link>
-              <Link href="/profil">⚙️ Mój profil podróżnika</Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="section shell dream-personalization">
         <div>
           <small>DOPASOWANE DO CIEBIE</small>
           <h2>Ustaw swoje preferencje.<br/>Tripownia dopasuje do nich podróże.</h2>
+          <p>Na podstawie preferencji, które samodzielnie ustawisz — bez zgadywania, czego potrzebujesz.</p>
         </div>
         <div className="dream-personalization-chips">
           <span>✈️ Warszawa</span><span>💰 Twój budżet</span><span>🌡️ Ciepło</span><span>🗓️ Twój urlop</span><span>🏨 Twój standard</span><span>❤️ Twój styl</span>
