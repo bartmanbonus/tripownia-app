@@ -178,3 +178,158 @@
   .footer-v2-company .footer-v2-address{grid-column:1;grid-row:2/span 4}
   .footer-v2-trending-links{grid-template-columns:1fr}
 }
+
+
+/* 2026-09-25 equal footer taxonomy */
+.footer-v2-grid{
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:clamp(26px,3vw,48px)!important;
+  align-items:start!important;
+}
+.footer-v2-grid>.footer-v2-brand-card,
+.footer-v2-grid>.footer-v2-column{
+  min-width:0!important;
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+}
+.footer-v2-grid .footer-v2-brand-card{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+}
+.footer-v2-grid .footer-v2-logo{
+  width:150px!important;
+  height:118px!important;
+  margin:0 0 10px!important;
+  position:static!important;
+}
+.footer-v2-grid .footer-v2-brand-card>p{
+  display:block!important;
+  margin:0 0 14px!important;
+  max-width:250px!important;
+  color:#756e69!important;
+  font-size:11px!important;
+  line-height:1.55!important;
+}
+.footer-v2-grid .footer-v2-plan-cta{
+  display:inline-flex!important;
+  align-items:center!important;
+  min-height:36px!important;
+  margin:0!important;
+  padding:0 13px!important;
+  border-radius:999px!important;
+  background:#171513!important;
+  color:#fff!important;
+  font-size:10.5px!important;
+  font-weight:900!important;
+}
+.footer-v2-grid .footer-v2-column h3{
+  min-height:18px!important;
+  margin:0 0 16px!important;
+}
+.footer-v2-grid .footer-v2-column a{
+  margin-bottom:10px!important;
+}
+.footer-v2-grid .footer-v2-company{
+  display:block!important;
+}
+.footer-v2-grid .footer-v2-company h3,
+.footer-v2-grid .footer-v2-company .footer-v2-address,
+.footer-v2-grid .footer-v2-company a{
+  grid-column:auto!important;
+  grid-row:auto!important;
+}
+.footer-v2-legal{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px 16px!important;
+}
+.footer-v2-legal a{
+  color:#756e69!important;
+  font-size:10.5px!important;
+  text-decoration:none!important;
+}
+.footer-v2-legal a:hover{color:#e84d29!important}
+.footer-v2-bottom{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto auto!important;
+  align-items:center!important;
+  gap:20px!important;
+}
+@media(max-width:1100px){
+  .footer-v2-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    row-gap:30px!important;
+  }
+  .footer-v2-grid>.footer-v2-brand-card{
+    grid-column:1!important;
+  }
+}
+@media(max-width:720px){
+  .footer-v2-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:24px 18px!important;
+  }
+  .footer-v2-grid>.footer-v2-brand-card{
+    grid-column:1/-1!important;
+    display:grid!important;
+    grid-template-columns:110px minmax(0,1fr)!important;
+    grid-template-areas:
+      "logo copy"
+      "logo cta"!important;
+    column-gap:18px!important;
+    align-items:center!important;
+  }
+  .footer-v2-grid .footer-v2-logo{
+    grid-area:logo!important;
+    width:110px!important;
+    height:92px!important;
+    margin:0!important;
+  }
+  .footer-v2-grid .footer-v2-brand-card>p{
+    grid-area:copy!important;
+    margin:0 0 8px!important;
+    max-width:none!important;
+    font-size:10.5px!important;
+  }
+  .footer-v2-grid .footer-v2-plan-cta{
+    grid-area:cta!important;
+    justify-self:start!important;
+  }
+  .footer-v2-grid .footer-v2-column h3{
+    font-size:10.5px!important;
+    margin-bottom:10px!important;
+  }
+  .footer-v2-grid .footer-v2-column a{
+    font-size:11px!important;
+    margin-bottom:7px!important;
+  }
+  .footer-v2-bottom{
+    grid-template-columns:1fr!important;
+    gap:9px!important;
+    align-items:start!important;
+  }
+  .footer-v2-legal{
+    justify-content:flex-start!important;
+    gap:6px 12px!important;
+  }
+}
+@media(max-width:390px){
+  .footer-v2-grid{
+    grid-template-columns:1fr 1fr!important;
+    gap:22px 14px!important;
+  }
+  .footer-v2-grid>.footer-v2-brand-card{
+    grid-template-columns:92px minmax(0,1fr)!important;
+    column-gap:14px!important;
+  }
+  .footer-v2-grid .footer-v2-logo{
+    width:92px!important;
+    height:82px!important;
+  }
+}
