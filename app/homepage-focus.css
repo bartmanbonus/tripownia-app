@@ -1219,3 +1219,142 @@ body:has(.dream-hero) .already-booked-actions>a{
     padding:8px 10px!important;
   }
 }
+
+
+/* Standalone football package */
+.homepage-football-package{
+  display:grid!important;
+  grid-template-columns:minmax(0,1.2fr) minmax(300px,.8fr)!important;
+  gap:24px!important;
+  align-items:center!important;
+  margin:0 0 22px!important;
+  padding:30px!important;
+  border:1px solid rgba(23,21,19,.08)!important;
+  border-radius:24px!important;
+  background:#171513!important;
+  color:#fff!important;
+  text-decoration:none!important;
+}
+.homepage-football-copy small{
+  display:block!important;
+  margin-bottom:8px!important;
+  color:#ff8a68!important;
+  font-size:10px!important;
+  font-weight:950!important;
+  letter-spacing:.1em!important;
+}
+.homepage-football-copy h3{
+  margin:0 0 10px!important;
+  color:#fff!important;
+  font-size:clamp(28px,3vw,42px)!important;
+  line-height:1.02!important;
+}
+.homepage-football-copy p{
+  margin:0 0 18px!important;
+  max-width:56ch!important;
+  color:#d7d0cc!important;
+  line-height:1.6!important;
+}
+.homepage-football-copy strong{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  color:#fff!important;
+}
+.homepage-football-steps{
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+.homepage-football-steps span{
+  min-height:70px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  padding:14px!important;
+  border:1px solid rgba(255,255,255,.12)!important;
+  border-radius:16px!important;
+  background:rgba(255,255,255,.06)!important;
+  color:#fff!important;
+  font-weight:850!important;
+}
+.homepage-football-steps b{
+  width:28px!important;
+  height:28px!important;
+  display:grid!important;
+  place-items:center!important;
+  border-radius:50%!important;
+  background:#ff6546!important;
+  color:#fff!important;
+  font-size:12px!important;
+}
+.homepage-events-secondary{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+@media(max-width:760px){
+  .homepage-football-package{
+    grid-template-columns:1fr!important;
+    padding:22px!important;
+  }
+  .homepage-football-steps{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  .homepage-events-secondary{
+    grid-template-columns:1fr!important;
+  }
+}
+
+
+/* Compact sparse-offer fallback card; never create a giant empty area */
+.offer-stream-more-card{
+  flex:0 0 300px!important;
+  width:300px!important;
+  min-width:300px!important;
+  max-width:300px!important;
+  min-height:100%!important;
+}
+.offer-stream-more-card>a{
+  height:100%!important;
+  min-height:420px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  gap:10px!important;
+  padding:26px!important;
+  border:1px dashed #efc4b4!important;
+  border-radius:20px!important;
+  background:#fffaf7!important;
+  color:#221d1a!important;
+  text-decoration:none!important;
+}
+.offer-stream-more-card small{
+  color:#e45330!important;
+  font-size:9px!important;
+  font-weight:950!important;
+  letter-spacing:.08em!important;
+}
+.offer-stream-more-card strong{
+  font-size:22px!important;
+  line-height:1.05!important;
+}
+.offer-stream-more-card span{
+  color:#756a63!important;
+  font-size:12px!important;
+  line-height:1.5!important;
+}
+.offer-stream-more-card em{
+  margin-top:8px!important;
+  font-style:normal!important;
+  font-size:12px!important;
+  font-weight:900!important;
+  color:#e45330!important;
+}
+@media(max-width:680px){
+  .offer-stream-more-card{
+    flex:0 0 min(82vw,320px)!important;
+    width:min(82vw,320px)!important;
+    min-width:min(82vw,320px)!important;
+    max-width:min(82vw,320px)!important;
+  }
+  .offer-stream-more-card>a{min-height:360px!important}
+}

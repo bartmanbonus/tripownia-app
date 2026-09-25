@@ -228,6 +228,7 @@ export default function SearchHub({
   const [weekendOnly, setWeekendOnly] = useState(false);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [results, setResults] = useState<any[]>([]);
+  const [resultLocation, setResultLocation] = useState("");
   const [visibleCount, setVisibleCount] = useState(12);
   const [loading, setLoading] = useState(false);
   const [expanding, setExpanding] = useState(false);
@@ -253,6 +254,25 @@ export default function SearchHub({
       .filter((x) => destinationMatches(query, x))
       .slice(0, 8);
   }, [destination, selectedDestinations]);
+
+  const resultLocations = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const offer of results) {
+      const label = String(offer?.city || offer?.country || "").trim();
+      if (!label) continue;
+      counts.set(label, (counts.get(label) || 0) + 1);
+    }
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pl"))
+      .slice(0, 12);
+  }, [results]);
+
+  const visibleResults = useMemo(
+    () => resultLocation
+      ? results.filter((offer) => String(offer?.city || offer?.country || "").trim() === resultLocation)
+      : results,
+    [results, resultLocation]
+  );
 
   useEffect(() => {
     setDestination("");
@@ -348,6 +368,7 @@ export default function SearchHub({
     setExpanding(false);
     setSearched(true);
     setVisibleCount(12);
+    setResultLocation("");
     setSuggestionsOpen(false);
     setDepartureOpen(false);
     setDateOpen(false);
@@ -554,6 +575,7 @@ export default function SearchHub({
     setWeekendOnly(false);
     setSearched(false);
     setResults([]);
+    setResultLocation("");
     setVisibleCount(12);
     setNotice("");
   }
@@ -603,6 +625,7 @@ export default function SearchHub({
     setBoard("all");
     setWeekendOnly(false);
     setResults([]);
+    setResultLocation("");
     setVisibleCount(12);
     setNotice("");
     setSearched(false);
@@ -964,8 +987,21 @@ export default function SearchHub({
 
             {!loading && results.length > 0 && (
               <>
-                <div className="search-v3-results-grid">{results.slice(0, visibleCount).map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
-                {results.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(results.length, count + 6))}>Pokaż kolejne oferty ({results.length - visibleCount})</button>}
+                {resultLocations.length > 1 && (
+                  <div className="search-v3-result-filters" aria-label="Filtruj wyniki po miejscowości">
+                    <span>Miejscowość</span>
+                    <button type="button" className={!resultLocation ? "active" : ""} onClick={() => { setResultLocation(""); setVisibleCount(12); }}>
+                      Wszystkie <b>{results.length}</b>
+                    </button>
+                    {resultLocations.map(([location, count]) => (
+                      <button type="button" key={location} className={resultLocation === location ? "active" : ""} onClick={() => { setResultLocation(location); setVisibleCount(12); }}>
+                        {location} <b>{count}</b>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <div className="search-v3-results-grid">{visibleResults.slice(0, visibleCount).map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
+                {visibleResults.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(visibleResults.length, count + 6))}>Pokaż kolejne oferty ({visibleResults.length - visibleCount})</button>}
               </>
             )}
             {!loading && results.length === 0 && !expanding && (() => {

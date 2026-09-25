@@ -395,8 +395,10 @@ function OfferRail({ kicker, title, description, items }: { kicker: string; titl
     </div>
     <div className={`offer-stream-rail-wrap${sparse ? " is-sparse" : ""}`}>
       {items.length > 1 && <div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div>}
-      <div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>{items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}</div>
-      {sparse && <div className="offer-stream-sparse-helper"><small>CHCESZ WIĘCEJ OPCJI?</small><strong>Nie rozciągamy jednej oferty na cały ekran.</strong><span>Jeśli dzisiejszy feed ma mało dobrych dopasowań, pokażemy tylko zweryfikowane propozycje. Resztę możesz wyszukać po swoich parametrach.</span><Link href="#wyszukiwarka">Wyszukaj samodzielnie <ArrowRight size={16}/></Link></div>}
+      <div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>
+        {items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}
+        {sparse && <div className="offer-stream-item offer-stream-more-card"><Link href="/okazje"><small>WIĘCEJ OPCJI</small><strong>Zobacz pełną pulę ofert</strong><span>Jeśli ta kategoria ma dziś mało dopasowań, pokażemy Ci wszystkie aktualne propozycje.</span><em>Zobacz oferty <ArrowRight size={15}/></em></Link></div>}
+      </div>
     </div>
   </section>;
 }
@@ -433,7 +435,7 @@ export default function Home() {
     const useCachedPool = () => {
       const saved = readLastGoodDaily();
       if (saved?.offers?.length) {
-        setLiveOffers(saved.offers.slice(0, 20));
+        setLiveOffers(saved.offers.slice(0, 60));
         setLastLiveCheckedAt(saved.checkedAt || null);
       } else {
         setLiveOffers([]);
@@ -464,7 +466,7 @@ export default function Home() {
         }
 
         const checkedAt = typeof data?.checkedAt === "string" ? data.checkedAt : new Date().toISOString();
-        const freshPool = safeRows.slice(0, 20);
+        const freshPool = safeRows.slice(0, 60);
         setLiveOffers(freshPool);
         setLastLiveCheckedAt(checkedAt);
         setLiveOffersStatus("live");
@@ -491,7 +493,7 @@ export default function Home() {
         setEximCityBreaks(rows
           .filter((offer: TripOffer) => offer?.partner === "exim" && offer.nights >= 2 && offer.nights <= 5 && offer.price > 0 && offer.affiliateUrl)
           .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country))
-          .slice(0, 8));
+          .slice(0, 24));
       })
       .catch(() => setEximCityBreaks([]));
     return () => controller.abort();
@@ -545,7 +547,21 @@ export default function Home() {
       ...eximCityBreaks,
       ...liveOffers.filter(o => o.partner === "exim" && o.nights >= 2 && o.nights <= 5),
     ];
-    const city = uniqueDestinations(cheapestPerDirection(eximCityPool.map(offerForDisplay))).slice(0, 8);
+    const cityPrimary = uniqueDestinations(cheapestPerDirection(eximCityPool.map(offerForDisplay)));
+    const cityFallback = uniqueDestinations(active.filter(o => o.nights >= 2 && o.nights <= 5));
+    const city = (() => {
+      const result = [...cityPrimary];
+      const used = new Set(result.map(destinationGroupKey));
+      for (const offer of cityFallback) {
+        if (result.length >= 10) break;
+        const destination = destinationGroupKey(offer);
+        if (!used.has(destination)) {
+          result.push(offer);
+          used.add(destination);
+        }
+      }
+      return result.slice(0, 10);
+    })();
     const sun = fillRail(pick(o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c))), 5);
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
     const unusual = fillRail(pick(o => unusualNames.test(o.city)), 5);
@@ -725,16 +741,31 @@ export default function Home() {
       <section className="section shell homepage-events" aria-labelledby="homepage-events-title">
         <div className="section-heading">
           <div>
-            <div className="kicker">SPORT I WYDARZENIA</div>
+            <div className="kicker">WYJAZDY NA WYDARZENIA</div>
             <h2 id="homepage-events-title">Czasem najlepszym powodem do wyjazdu jest konkretne wydarzenie.</h2>
-            <p>Mecz, koncert albo duże wydarzenie może być początkiem całego city breaku.</p>
+            <p>Najpierw wybierasz wydarzenie. Potem Tripownia pomaga złożyć wokół niego cały wyjazd.</p>
           </div>
           <Link className="section-premium-link" href="/wydarzenia">Zobacz wydarzenia <ArrowRight size={16}/></Link>
         </div>
-        <div className="homepage-editorial-grid homepage-events-grid">
-          <Link href="/wydarzenia" className="homepage-editorial-card"><small>⚽ MECZE</small><strong>Piłka nożna + city break</strong><span>Wybierz mecz, a Tripownia pomoże spiąć termin, lot, nocleg i plan całego wyjazdu.</span><em>Wybierz mecz →</em></Link>
-          <Link href="/podroze-po-przezycia" className="homepage-editorial-card"><small>🎵 KONCERTY I FESTIWALE</small><strong>Wyjazd dla konkretnego przeżycia</strong><span>Inspiracje na podróże, w których najważniejszy jest termin i to, co dzieje się na miejscu.</span><em>Znajdź pomysł →</em></Link>
-          <Link href="/podroze-po-przezycia" className="homepage-editorial-card"><small>🏎️ SPORT I WIELKIE WEEKENDY</small><strong>Nie tylko futbol</strong><span>Sportowe weekendy, sezonowe wydarzenia i podróże planowane wokół konkretnego momentu.</span><em>Zobacz kalendarz →</em></Link>
+
+        <Link href="/wydarzenia" className="homepage-football-package">
+          <div className="homepage-football-copy">
+            <small>⚽ OSOBNY PAKIET</small>
+            <h3>Piłka nożna + city break</h3>
+            <p>Wybierz konkretny mecz. Tripownia dopasuje termin, lot, nocleg i plan pobytu wokół wydarzenia.</p>
+            <strong>Wybierz mecz i zbuduj wyjazd <ArrowRight size={17}/></strong>
+          </div>
+          <div className="homepage-football-steps" aria-label="Co obejmuje pakiet piłkarski">
+            <span><b>1</b> Mecz</span>
+            <span><b>2</b> Lot</span>
+            <span><b>3</b> Nocleg</span>
+            <span><b>4</b> City break</span>
+          </div>
+        </Link>
+
+        <div className="homepage-editorial-grid homepage-events-grid homepage-events-secondary">
+          <Link href="/podroze-po-przezycia" className="homepage-editorial-card"><small>🎵 KONCERTY I FESTIWALE</small><strong>Wyjazd pod konkretny termin</strong><span>Podróże, w których najważniejsze jest to, co dzieje się na miejscu.</span><em>Znajdź pomysł →</em></Link>
+          <Link href="/podroze-po-przezycia" className="homepage-editorial-card"><small>🏎️ INNE WYDARZENIA SPORTOWE</small><strong>Sportowe weekendy</strong><span>Wyścigi, turnieje i duże wydarzenia jako punkt startowy całego wyjazdu.</span><em>Zobacz kalendarz →</em></Link>
         </div>
       </section>
 
@@ -867,7 +898,7 @@ export default function Home() {
         <div className="shell dream-planner-grid">
           <div className="dream-planner-copy">
             <div className="kicker light">TWÓJ PERSONALNY PLANNER</div>
-            <h2>Kupiłaś wyjazd?<br/>Tripownia dopiero się zaczyna.</h2>
+            <h2>Masz już kupiony wyjazd?<br/>Tripownia dopiero się zaczyna.</h2>
             <p>Dodaj podróż — nawet kupioną gdzie indziej. W jednym miejscu trzymaj termin, lot, nocleg, plan dnia, checklistę i rzeczy do dokupienia.</p>
             <div className="dream-planner-actions">
               <Link href="/dodaj-podroz">+ Dodaj podróż <ArrowRight size={17}/></Link>

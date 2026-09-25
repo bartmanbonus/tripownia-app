@@ -35,8 +35,6 @@ const primaryItems = [
   { href: "/#uslugi-podrozy", label: "Usługi" },
   { href: "/okazje", label: "Okazje Tripowni" },
   { href: "/radar-tripowni", label: "Radar Tripowni" },
-  { href: "/dane-tripowni", label: "Dane Tripowni" },
-  { href: "/kierunki", label: "Inspiracje" },
 ] as const;
 
 const planningItems = [

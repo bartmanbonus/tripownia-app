@@ -6,9 +6,7 @@ import "./app-pwa.css";
 import "./trip-mode.css";
 import "./trip-toolkit.css";
 import "./app-home.css";
-import "./mobile-search-tabs-fix.css";
 import "./trip-header.css";
-import "./search-dream.css";
 import "./premium-system.css";
 import "./deals-premium.css";
 import "./homepage-dream.css";
@@ -17,7 +15,6 @@ import "./homepage-polish.css";
 import "./dream-home.css";
 import "./sitewide-polish.css";
 import "./sitewide-deep-polish.css";
-import "./search-ux-v2.css";
 import "./search-v3.css";
 import "./search-v3-focus.css";
 import "./footer-v2.css";
@@ -28,7 +25,6 @@ import "./privacy-controls.css";
 import "./my-trips.css";
 import "./trip-organizer.css";
 import "./travel-guides.css";
-import "./home-trip-hub.css";
 import "./purchase-guide.css";
 import "./for-you-guided.css";
 import "./country-checklist.css";
@@ -47,7 +43,6 @@ import AnalyticsInteractions from "@/components/AnalyticsInteractions";
 import MobileAppControls from "@/components/MobileAppControls";
 import TripArchiveSync from "@/components/TripArchiveSync";
 import OrganizerQuickLink from "@/components/OrganizerQuickLink";
-import HomeTripHubPortal from "@/components/HomeTripHubPortal";
 import AccountCloudSync from "@/components/AccountCloudSync";
 
 const HOME_TITLE = "Tanie wakacje, city break i planer podróży | Tripownia.pl";
@@ -95,7 +90,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c") }} />
         <LegacyHomeAnchorBridge />
         {children}
-        <HomeTripHubPortal />
         <OfferRailDeduper />
         <AffiliateClickBridge />
         <TripArchiveSync />

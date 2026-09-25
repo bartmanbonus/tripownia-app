@@ -3,16 +3,6 @@
 main > .self-search-home-stage{display:none!important}
 #wyszukiwarka:before{display:none!important}
 
-#wyszukiwarka.search-v3-section{
-  width:min(1760px,calc(100vw - 12px))!important;
-  margin:-58px auto 8px!important;
-  padding:34px 22px 72px!important;
-  border-radius:42px!important;
-  background:
-    radial-gradient(circle at 88% 4%,rgba(255,116,72,.22),transparent 28%),
-    linear-gradient(145deg,#211a17 0%,#36261f 52%,#241c18 100%)!important;
-  box-shadow:0 30px 80px rgba(35,24,19,.18)!important;
-}
 
 #wyszukiwarka .search-v3{
   max-width:1680px!important;
@@ -228,4 +218,61 @@ main > .self-search-home-stage{display:none!important}
     padding:0 11px!important;
     font-size:10px!important;
   }
+}
+
+
+/* 2026-09-25 remove dark empty search-stage band */
+#wyszukiwarka.search-v3-section{
+  margin:-58px auto 8px!important;
+  padding:18px 12px 8px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+#wyszukiwarka .search-v3{
+  margin:0 auto!important;
+}
+@media(max-width:920px){
+  #wyszukiwarka.search-v3-section{
+    margin-top:-34px!important;
+    padding:10px 6px 6px!important;
+    background:transparent!important;
+  }
+}
+@media(max-width:640px){
+  #wyszukiwarka.search-v3-section{
+    margin-top:-20px!important;
+    padding:6px 3px 4px!important;
+    background:transparent!important;
+  }
+}
+
+
+/* 2026-09-25 remove side-line artifacts around quick-start/search shell */
+#wyszukiwarka.search-v3-section,
+#wyszukiwarka .search-v3,
+#wyszukiwarka .search-v3-quick{
+  outline:0!important;
+}
+#wyszukiwarka.search-v3-section::before,
+#wyszukiwarka.search-v3-section::after,
+#wyszukiwarka .search-v3::before,
+#wyszukiwarka .search-v3::after,
+#wyszukiwarka .search-v3-quick::before,
+#wyszukiwarka .search-v3-quick::after{
+  content:none!important;
+  display:none!important;
+}
+#wyszukiwarka .search-v3-quick{
+  width:100%!important;
+  max-width:100%!important;
+  margin-inline:0!important;
+  border-left:0!important;
+  border-right:0!important;
+  border-bottom:0!important;
+  box-shadow:none!important;
+  box-sizing:border-box!important;
+}
+#wyszukiwarka.search-v3-section{
+  border-left:0!important;
+  border-right:0!important;
 }

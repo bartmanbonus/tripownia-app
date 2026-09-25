@@ -756,13 +756,18 @@ export async function GET(request: NextRequest) {
           })
           .slice(0, 30)
       : mode === "citybreak"
-      ? selectDaily(
-          cheapestPerDestination(
-            pool.filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5)
-          ),
-          `${key}:citybreak`,
-          20
-        )
+      ? query
+        ? pool
+            .filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5)
+            .sort((a, b) => a.price !== b.price ? a.price - b.price : b.score - a.score)
+            .slice(0, 40)
+        : selectDaily(
+            cheapestPerDestination(
+              pool.filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5)
+            ),
+            `${key}:citybreak`,
+            24
+          )
       : mode === "search"
         ? [...pool]
             .sort((a,b) => a.price !== b.price ? a.price - b.price : b.score - a.score)
