@@ -40,6 +40,7 @@ import AffiliateClickBridge from "@/components/AffiliateClickBridge";
 import AnalyticsClient from "@/components/AnalyticsClient";
 import AnalyticsConsentBanner from "@/components/AnalyticsConsent";
 import AnalyticsInteractions from "@/components/AnalyticsInteractions";
+import MetaPixelClient from "@/components/MetaPixelClient";
 import MobileAppControls from "@/components/MobileAppControls";
 import TripArchiveSync from "@/components/TripArchiveSync";
 import OrganizerQuickLink from "@/components/OrganizerQuickLink";
@@ -97,6 +98,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <OrganizerQuickLink />
         <MobileAppControls />
         <Suspense fallback={null}><AnalyticsClient /></Suspense>
+        <Suspense fallback={null}><MetaPixelClient /></Suspense>
         <AnalyticsInteractions />
         <AnalyticsConsentBanner />
         <PWARegister />
