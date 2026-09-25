@@ -73,7 +73,7 @@ const NEW_YEAR_SEARCH_TERMS = [
 const SEARCH_ALIASES: Record<string, string[]> = {
   rzym: ["Rzym", "Rome", "Włochy", "Italy"],
   paryz: ["Paryż", "Paris", "Francja", "France"],
-  mediolan: ["Mediolan", "Milan", "Włochy", "Italy"],
+  mediolan: ["Mediolan", "Milan", "Milano", "Bergamo", "Lombardia", "Lombardy"],
   wenecja: ["Wenecja", "Venice", "Włochy", "Italy"],
   barcelona: ["Barcelona", "Hiszpania", "Spain"],
   lizbona: ["Lizbona", "Lisbon", "Portugalia", "Portugal"],
@@ -452,6 +452,13 @@ function candidateMatchesQuery(offer: LiveCandidate, query: string) {
 
   const haystack = normalize(`${offer.city} ${offer.country} ${offer.hotel}`);
   if (haystack.includes(primary)) return true;
+
+  // Milan city-break searches should also include the practical Milan gateway area.
+  // Bergamo is a common low-cost airport/base for Milan trips, while broad "Italy"
+  // matching produced unrelated destinations.
+  if (primary === "mediolan" || primary === "milan" || primary === "milano") {
+    return /\b(mediolan|milan|milano|bergamo|lombardi|lombardy)\b/.test(haystack);
+  }
 
   const queryGroup = touristDestinationKey({ city: primary, country: "" });
   if (!queryGroup.includes("|") && queryGroup === touristDestinationKey(offer)) return true;
