@@ -285,13 +285,13 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
           aria-label={`Otwórz ofertę ${offer.city} u partnera`}
         >
           <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
-          <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
+          <span className={`badge ${deal.verdict === "BIERZ" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : deal.verdict}</span>
           {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
         </a>
       ) : (
         <Link href={cardHref} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
           <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
-          <span className={`badge ${(isLiveExact || offer.partner !== "exim") && offer.tag === "BIERZEMY" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : offer.tag}</span>
+          <span className={`badge ${deal.verdict === "BIERZ" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : deal.verdict}</span>
           {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
         </Link>
       )}
