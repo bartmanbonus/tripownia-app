@@ -26,6 +26,8 @@ import { ACTIVE_TRIP_KEY, upsertTripArchive } from "@/lib/tripArchive";
 import { ensureFreshAccountSession, readAccountSession, saveTripowniaUserState, type AccountSession } from "@/lib/accountAuth";
 import { collectLocalAccountState } from "@/lib/accountState";
 import { partners } from "@/lib/partners";
+import { trackEvent } from "@/lib/analytics";
+import { trackMetaCustomEvent } from "@/lib/metaPixel";
 
 type PieceKey = "flight" | "hotel" | "transfer" | "attractions" | "esim" | "parking";
 type PieceState = Record<PieceKey, boolean>;
@@ -268,6 +270,8 @@ export default function AddTripPage() {
   async function submit(event: FormEvent) {
     event.preventDefault();
     setError("");
+    trackEvent("planner_submit", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn });
+    trackMetaCustomEvent("PlannerStart", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn });
 
     if (destinationMode === "known" && !city.trim() && !country.trim()) {
       setError("Wpisz miasto, region albo kraj — albo wybierz opcję „Gdziekolwiek”.");
@@ -356,6 +360,8 @@ export default function AddTripPage() {
       }
     }
 
+    trackEvent("planner_created", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn, missing_count: missingCount });
+    trackMetaCustomEvent("PlannerCreated", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn, missing_count: missingCount });
     window.location.href = "/moja-podroz";
   }
 
