@@ -898,7 +898,7 @@ export default function Home() {
         <div className="shell dream-planner-grid">
           <div className="dream-planner-copy">
             <div className="kicker light">TWÓJ PERSONALNY PLANNER</div>
-            <h2>Kupiłaś wyjazd?<br/>Tripownia dopiero się zaczyna.</h2>
+            <h2>Masz już kupiony wyjazd?<br/>Tripownia dopiero się zaczyna.</h2>
             <p>Dodaj podróż — nawet kupioną gdzie indziej. W jednym miejscu trzymaj termin, lot, nocleg, plan dnia, checklistę i rzeczy do dokupienia.</p>
             <div className="dream-planner-actions">
               <Link href="/dodaj-podroz">+ Dodaj podróż <ArrowRight size={17}/></Link>
