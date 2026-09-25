@@ -956,19 +956,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell score-section visual-chapter chapter-score" id="score">
-        <div className="score-copy">
-          <div className="kicker">WYNIKI TRIPOWNIA.PL</div>
-          <h2>Cena to dopiero początek.</h2>
-          <p>Oceniamy wyjazd całościowo: cenę, pogodę, hotel, termin i lot. Dzięki temu od razu wiesz, czy oferta jest naprawdę dobra.</p>
-        </div>
-        <div className="score-box">
-          <div className="bigscore">9,6<span>/10</span></div>
-          {[['Cena','10/10'],['Pogoda','8/10'],['Hotel','9/10'],['Termin','10/10'],['Lot','9/10']].map(([a,b]) => <div className="score-row" key={a}><span>{a}</span><strong>{b}</strong></div>)}
-          <div className="verdict">🔥 BIERZEMY</div>
-        </div>
-      </section>
-
       <SiteFooter />
     </main>
   );
