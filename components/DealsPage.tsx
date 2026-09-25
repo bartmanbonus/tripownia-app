@@ -150,11 +150,13 @@ export default function DealsPage() {
     ? new Intl.DateTimeFormat("pl-PL", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Warsaw" }).format(new Date(checkedAt))
     : "";
 
-  const sourceCopy = source === "live"
-    ? `Aktualny feed${checkedLabel ? ` · ${checkedLabel}` : ""}`
-    : offers.length
-      ? `Ostatnia poprawna pula${checkedLabel ? ` · ${checkedLabel}` : ""}`
-      : "Brak potwierdzonej puli — odświeżamy dane";
+  const sourceCopy = loading && !offers.length
+    ? "Sprawdzamy aktualne ceny…"
+    : source === "live"
+      ? `Aktualny feed${checkedLabel ? ` · ${checkedLabel}` : ""}`
+      : offers.length
+        ? `Ostatnia poprawna pula${checkedLabel ? ` · ${checkedLabel}` : ""}`
+        : "Nie udało się potwierdzić aktualnej puli";
 
   const airportLabel = AIRPORTS.find((item) => item.value === airport)?.label || "Wszystkie lotniska";
   const monthLabel = MONTH_OPTIONS.find((item) => item.value === month)?.label || "dowolny miesiąc";
@@ -234,7 +236,7 @@ export default function DealsPage() {
       </div>
 
       <div className="deals-trust-bar">
-        <span className="deals-trust-primary"><Sparkles size={15}/><strong>{rows.length} {rows.length === 1 ? "kierunek" : "kierunków"}</strong></span>
+        <span className="deals-trust-primary"><Sparkles size={15}/><strong>{loading && !rows.length ? "Sprawdzamy oferty…" : `${rows.length} ${rows.length === 1 ? "kierunek" : "kierunków"}`}</strong></span>
         <span className="deals-trust-detail">{historicalCount ? `${historicalCount} historycznych minimów` : priceHighlights.size ? `${priceHighlights.size} cen wyraźnie poniżej mediany puli` : "Oferty od najniższej ceny"}</span>
         <span className="deals-trust-detail">{filtering ? `${airportLabel} · ${monthLabel} · ${yearLabel}` : "Wszystkie dostępne lotniska i terminy"}</span>
         <span className="deals-trust-source">{sourceCopy}</span>
