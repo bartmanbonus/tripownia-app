@@ -341,8 +341,6 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
           onClick={() => trackOfferClick("card_cta")}
         >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
 
-        {directAffiliate && <p className="offer-booking-note">Rezerwacja i płatność w {partnerName}, w nowej karcie. Cena za osobę może się zmienić — ostateczną kwotę potwierdza organizator.</p>}
-
         {!isExpired && (
           <div className="offer-actions-row offer-actions-secondary">
             <button className={`compare-toggle ${compared ? "active" : ""}`} onClick={toggleCompare}><Scale size={15} /> {compared ? "W porównaniu" : "Porównaj"}</button>
