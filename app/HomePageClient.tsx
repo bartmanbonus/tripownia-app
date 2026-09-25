@@ -956,33 +956,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell visual-chapter chapter-discover" id="odkrywaj">
-        <div className="section-heading"><div><div className="kicker">TROCHĘ DALEJ OD OCZYWISTOŚCI</div><h2>Czas odkryć coś mniej oczywistego.</h2></div></div>
-        <div className="discovery-grid">
-          <Link className="discovery-card" href="/maroko"><small>BLISKA EGZOTYKA</small><strong>🇲🇦 Maroko</strong><span>Kolor, jedzenie, pustynia i zupełnie inny klimat bez lotu na drugi koniec świata.</span></Link>
-          <Link className="discovery-card" href="/riwiera-albanska"><small>MNIEJ OCZYWISTE</small><strong>🇦🇱 Albania</strong><span>Bałkany, morze i kierunek, który wciąż można odkrywać poza utartym szlakiem.</span></Link>
-          <Link className="discovery-card" href="/madera"><small>AKTYWNIE</small><strong>🇵🇹 Madera</strong><span>Levada, klify i całoroczna zieleń zamiast klasycznego leżaka.</span></Link>
-          <Link className="discovery-card" href="/dubaj"><small>DALEJ</small><strong>🇦🇪 Dubaj i ZEA</strong><span>Słońce zimą i dobra baza do pierwszej dalszej podróży.</span></Link>
-        </div>
-      </section>
-
-      <LongHaulHomeSection />
-
-      <section className="section shell custom-trip visual-chapter chapter-custom">
-        <div className="section-heading">
-          <div>
-            <div className="kicker">WŁASNA PODRÓŻ</div>
-            <h2>Masz pomysł? Zbuduj wyjazd po swojemu.</h2>
-            <p>Wybierz kierunek, lotnisko, długość i budżet. Tripownia pomoże połączyć lot, nocleg i atrakcje zamiast wciskać gotowy pakiet.</p>
-          </div>
-        </div>
-        <div className="hub-grid">
-          <a href="#wyszukiwarka"><strong>🧩 Zacznij od własnych parametrów</strong><span>Ustaw filtry i przeszukaj aktualną bazę Tripowni.</span></a>
-          <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><strong>✈️ Dobierz lot</strong><span>Porównaj połączenia i dobierz najlepszy wariant.</span></a>
-          <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><strong>🏨 Dobierz nocleg</strong><span>Porównaj noclegi dla wybranego kierunku i terminu.</span></a>
-        </div>
-      </section>
-
       <section className="section shell content-hubs visual-chapter chapter-content">
         <div className="section-heading"><div><div className="kicker">ODKRYWAJ Z TRIPOWNIĄ</div><h2>Więcej niż dzisiejsza selekcja</h2></div></div>
         <div className="hub-grid">
