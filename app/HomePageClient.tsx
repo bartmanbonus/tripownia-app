@@ -320,9 +320,9 @@ function LongHaulHomeSection() {
       </div>
 
       <div className="long-haul-trust">
-        <div><span><Globe2 size={19}/></span><p><strong>Sprawdzone kierunki</strong><small>Tylko miejsca, które polecamy</small></p></div>
+        <div><span><Globe2 size={19}/></span><p><strong>Wybrane kierunki</strong><small>Kierunki z przydatnymi informacjami i ofertami</small></p></div>
         <div><span><BadgePercent size={19}/></span><p><strong>Dobre ceny</strong><small>Oferty z zaufanych partnerów</small></p></div>
-        <div><span><ShieldCheck size={19}/></span><p><strong>Bezpieczne podróże</strong><small>Praktyczne wskazówki i porady</small></p></div>
+        <div><span><ShieldCheck size={19}/></span><p><strong>Praktyczne przygotowanie</strong><small>Dokumenty, logistyka i rzeczy do sprawdzenia</small></p></div>
         <div><span><Compass size={19}/></span><p><strong>Inspiracje na cały rok</strong><small>Weekend, wakacje i wielkie podróże</small></p></div>
       </div>
     </section>
@@ -904,7 +904,7 @@ export default function Home() {
               <Link href="/dodaj-podroz">+ Dodaj podróż <ArrowRight size={17}/></Link>
               <Link href="/moje-podroze">Moje podróże</Link>
             </div>
-            <div className="dream-planner-note">Tripownia może dopasowywać rekomendacje do Twojego budżetu, lotniska, długości urlopu i stylu podróżowania.</div>
+            <div className="dream-planner-note">Tripownia może dopasowywać rekomendacje do preferencji, które ustawisz: budżetu, lotniska, długości urlopu i stylu podróżowania.</div>
           </div>
 
           <div className="dream-planner-screen" aria-label="Przykładowy podgląd personalnego planera Tripowni">
@@ -929,8 +929,8 @@ export default function Home() {
 
       <section className="section shell dream-personalization">
         <div>
-          <small>TRIPOWNIA UCZY SIĘ CIEBIE</small>
-          <h2>Nie dostajesz „popularnych ofert”.<br/>Dostajesz podróże pasujące do Ciebie.</h2>
+          <small>DOPASOWANE DO CIEBIE</small>
+          <h2>Ustaw swoje preferencje.<br/>Tripownia dopasuje do nich podróże.</h2>
         </div>
         <div className="dream-personalization-chips">
           <span>✈️ Warszawa</span><span>💰 Twój budżet</span><span>🌡️ Ciepło</span><span>🗓️ Twój urlop</span><span>🏨 Twój standard</span><span>❤️ Twój styl</span>
@@ -942,7 +942,7 @@ export default function Home() {
       </section>
 
       <section className="section shell streaming-discovery streaming-offers visual-chapter chapter-streaming" aria-label="Odkrywaj oferty Tripowni">
-        <div className="section-heading"><div><div className="kicker">NETFLIX PODRÓŻY</div><h2>Przewijaj, aż coś kliknie.</h2><p>Nie jedna ściana ofert. Różne nastroje, różne budżety i konkretne kierunki — z tej samej potwierdzonej puli.</p></div></div>
+        <div className="section-heading"><div><div className="kicker">PODRÓŻE DOPASOWANE DO NASTROJU</div><h2>Nie wiesz jeszcze gdzie? Zacznij od tego, czego potrzebujesz.</h2><p>Różne nastroje, budżety i konkretne kierunki — z tej samej potwierdzonej puli.</p></div></div>
         <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety z aktualnego feedu i konkretnymi terminami." items={themedRails.city}/>
         <OfferRail kicker="☀️ SŁOŃCE / ALL INCLUSIVE" title="Jeszcze trochę lata" description="Plaża, ciepło i gotowe wakacje — od krótkiego resetu po pełny tydzień." items={themedRails.sun}/>
         <OfferRail kicker="✨ UKRYTE PEREŁKI" title="Nie kolejny Rzym i Barcelona" description="Mniej oczywiste kierunki wybrane z aktualnej lub ostatniej poprawnej puli." items={themedRails.unusual}/>
