@@ -95,4 +95,15 @@ jobs:
             fi
           done
 
+          curl --fail --silent --show-error http://127.0.0.1:3000/dodaj-podroz > /tmp/tripownia-planner
+          grep -q "TWÓJ PLAN" /tmp/tripownia-planner
+          grep -q "Utwórz darmowy plan" /tmp/tripownia-planner
+          grep -q "Gdziekolwiek" /tmp/tripownia-planner
+
+          curl --fail --silent --show-error http://127.0.0.1:3000/ > /tmp/tripownia-home
+          if grep -q "NETFLIX PODRÓŻY" /tmp/tripownia-home; then
+            echo "Legacy homepage copy returned"
+            exit 1
+          fi
+
           node scripts/verify-seo.mjs
