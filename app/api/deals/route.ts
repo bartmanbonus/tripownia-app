@@ -138,6 +138,7 @@ export async function GET(request: NextRequest) {
   ]);
 
   const successful = results.filter((item) => item.response.ok);
+  const unavailableSources = results.filter((item) => !item.response.ok).map((item) => item.label);
   if (!successful.length) {
     const error = results.map((item) => item.payload.error).find(Boolean) || "Nie udało się pobrać okazji.";
     return NextResponse.json(
@@ -200,6 +201,11 @@ export async function GET(request: NextRequest) {
     notice = "Brak dokładnej kombinacji filtrów. Pokazujemy najtańsze aktualne okazje z całej potwierdzonej puli.";
   }
 
+  if (unavailableSources.length) {
+    const providerNotice = `Część źródeł jest chwilowo niedostępna (${unavailableSources.join(", ")}). Pokazujemy tylko oferty potwierdzone przez działające źródła.`;
+    notice = notice ? `${notice} ${providerNotice}` : providerNotice;
+  }
+
   const checkedAt = successful
     .map((item) => item.payload.checkedAt)
     .filter((value): value is string => Boolean(value))
@@ -216,6 +222,8 @@ export async function GET(request: NextRequest) {
       sort: "price_asc",
       selection: "cheapest_per_destination",
       sources: successful.map((item) => item.label),
+      unavailableSources,
+      partial: unavailableSources.length > 0,
       matchMode,
       filters: { airport: airport || null, month: month || null, year: year || null },
       notice,
