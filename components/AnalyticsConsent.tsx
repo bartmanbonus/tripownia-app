@@ -13,9 +13,14 @@ export default function AnalyticsConsentBanner() {
     setOpen(current === null);
   }, []);
 
-  function choose(next: Exclude<AnalyticsConsent, null>) {
-    setAnalyticsConsent(next);
-    setConsent(next);
+  function choose(next: Exclude<AnalyticsConsent, null> | "marketing") {
+    if (next === "marketing") {
+      window.localStorage.setItem("tripownia-consent-v1", "marketing");
+      window.dispatchEvent(new CustomEvent("tripownia-consent-updated", { detail: "marketing" }));
+    } else {
+      setAnalyticsConsent(next);
+    }
+    setConsent(next === "marketing" ? "analytics" : next);
     setOpen(false);
   }
 
@@ -29,7 +34,8 @@ export default function AnalyticsConsentBanner() {
           </div>
           <div className="analytics-consent-actions">
             <button type="button" className="secondary" onClick={() => choose("necessary")}>Tylko niezbędne</button>
-            <button type="button" onClick={() => choose("analytics")}>Akceptuję analitykę</button>
+            <button type="button" onClick={() => choose("analytics")}>Analityka</button>
+            <button type="button" onClick={() => choose("marketing")}>Analityka i marketing</button>
           </div>
         </aside>
       )}
