@@ -3,16 +3,6 @@
 main > .self-search-home-stage{display:none!important}
 #wyszukiwarka:before{display:none!important}
 
-#wyszukiwarka.search-v3-section{
-  width:min(1760px,calc(100vw - 12px))!important;
-  margin:-58px auto 8px!important;
-  padding:34px 22px 72px!important;
-  border-radius:42px!important;
-  background:
-    radial-gradient(circle at 88% 4%,rgba(255,116,72,.22),transparent 28%),
-    linear-gradient(145deg,#211a17 0%,#36261f 52%,#241c18 100%)!important;
-  box-shadow:0 30px 80px rgba(35,24,19,.18)!important;
-}
 
 #wyszukiwarka .search-v3{
   max-width:1680px!important;
