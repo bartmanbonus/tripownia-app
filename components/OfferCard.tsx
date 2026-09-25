@@ -12,6 +12,7 @@ import { isPriceStale } from "@/lib/offerQuality";
 import { isOfferExpired } from "@/lib/offers";
 import { getDealScore } from "@/lib/dealScore";
 import { ANALYTICS_CONSENT_EVENT, getAnalyticsConsent, trackEvent } from "@/lib/analytics";
+import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { readAccountSession } from "@/lib/accountAuth";
 import {
   COMPARE_OFFER_SNAPSHOTS_KEY,
@@ -234,7 +235,9 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
 
   function trackOfferClick(placement: "image" | "card_cta") {
     const outbound = !isExpired && hasExternalAffiliateUrl;
-    trackEvent(outbound ? "outbound_partner_click" : "offer_open", { ...eventBase, placement });
+    const params = { ...eventBase, placement };
+    trackEvent(outbound ? "outbound_partner_click" : "offer_open", params);
+    trackMetaCustomEvent(outbound ? "PartnerOutboundClick" : "OfferOpen", params);
   }
 
   if (override.hidden || publishedOverride.hidden) return null;
