@@ -170,3 +170,62 @@ main > .self-search-home-stage{display:none!important}
   #wyszukiwarka .search-v3-quick{padding:14px 16px 18px!important}
   #wyszukiwarka .search-v3-results{padding:20px 16px 24px!important}
 }
+
+
+/* 2026-09-25 compact search controls */
+#wyszukiwarka .search-v3-field,
+#wyszukiwarka .search-v3-submit{
+  height:58px!important;
+  min-height:58px!important;
+  border-radius:14px!important;
+}
+#wyszukiwarka .search-v3-field{
+  padding:8px 13px!important;
+}
+#wyszukiwarka .search-v3-field>span,
+#wyszukiwarka .search-v3-field>label{
+  font-size:10px!important;
+}
+#wyszukiwarka .search-v3-field select,
+#wyszukiwarka .search-v3-field input,
+#wyszukiwarka .search-v3-input-wrap input{
+  font-size:14px!important;
+}
+#wyszukiwarka .search-v3-destination .search-v3-input-wrap input{
+  font-size:15px!important;
+}
+#wyszukiwarka .search-v3-submit{
+  font-size:13px!important;
+  box-shadow:0 10px 22px rgba(244,81,44,.22)!important;
+}
+#wyszukiwarka .search-v3-tabs button{
+  min-height:38px!important;
+  padding:0 15px!important;
+  font-size:11px!important;
+}
+#wyszukiwarka .search-v3-more,
+#wyszukiwarka .search-v3-weekend,
+#wyszukiwarka .search-v3-board{
+  min-height:40px!important;
+  font-size:11px!important;
+}
+@media(max-width:920px){
+  #wyszukiwarka .search-v3-field,
+  #wyszukiwarka .search-v3-submit{
+    height:56px!important;
+    min-height:56px!important;
+  }
+}
+@media(max-width:640px){
+  #wyszukiwarka .search-v3-field,
+  #wyszukiwarka .search-v3-submit{
+    height:54px!important;
+    min-height:54px!important;
+    border-radius:13px!important;
+  }
+  #wyszukiwarka .search-v3-tabs button{
+    min-height:36px!important;
+    padding:0 11px!important;
+    font-size:10px!important;
+  }
+}
