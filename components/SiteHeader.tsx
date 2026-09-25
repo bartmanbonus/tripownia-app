@@ -30,11 +30,10 @@ import {
 import { partners } from "@/lib/partners";
 
 const primaryItems = [
-  { href: "/moja-podroz", label: "Mój planner" },
   { href: "/#wyszukiwarka", label: "Znajdź wyjazd" },
-  { href: "/#uslugi-podrozy", label: "Usługi" },
-  { href: "/okazje", label: "Okazje Tripowni" },
-  { href: "/radar-tripowni", label: "Radar Tripowni" },
+  { href: "/okazje", label: "Okazje" },
+  { href: "/kierunki", label: "Kierunki" },
+  { href: "/moja-podroz", label: "Planner" },
 ] as const;
 
 const planningItems = [
@@ -179,7 +178,6 @@ export default function SiteHeader() {
           </Link>
           <nav className="trip-header-actions" aria-label="Twoje konto">
             <Link className="trip-header-action trip-header-action-primary" href="/dodaj-podroz" aria-label="Ułóż darmowy plan podróży"><Sparkles size={19} strokeWidth={2} /><span>Plan za 0 zł</span></Link>
-            <Link className="trip-header-action" href="/moja-podroz" aria-label="Planner podróży"><MapPinned size={19} strokeWidth={2} /><span>Planner</span></Link>
             <Link className="trip-header-action" href="/konto" aria-label="Konto i logowanie"><UserRound size={19} strokeWidth={2} /><span>Konto</span></Link>
           </nav>
         </div>
@@ -193,7 +191,7 @@ export default function SiteHeader() {
           </nav>
           <div className="trip-header-tools">
             <details className="trip-header-menu">
-              <summary><Globe2 size={16} strokeWidth={2} /><span>Więcej inspiracji</span><ChevronDown size={13} strokeWidth={2.2} /></summary>
+              <summary><Globe2 size={16} strokeWidth={2} /><span>Więcej</span><ChevronDown size={13} strokeWidth={2.2} /></summary>
               <div className="trip-header-popover">
                 {planningItems.map((item) => {
                   const Icon = item.icon;
