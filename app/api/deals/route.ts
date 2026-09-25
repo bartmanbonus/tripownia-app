@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { Offer } from "@/lib/offers";
+import { offers as publishedOffers, type Offer } from "@/lib/offers";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { GET as getTodayOffers } from "@/app/api/today-offers/route";
 
@@ -140,7 +140,37 @@ export async function GET(request: NextRequest) {
   const successful = results.filter((item) => item.response.ok);
   const unavailableSources = results.filter((item) => !item.response.ok).map((item) => item.label);
   if (!successful.length) {
+    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal);
+    const fallbackExact = fallbackPool
+      .filter((offer) => airportMatches(offer, airport))
+      .filter((offer) => dateMatches(offer, month, year));
+    const fallbackOffers = lowestPriceDeals(fallbackExact.length ? fallbackExact : fallbackPool);
     const error = results.map((item) => item.payload.error).find(Boolean) || "Nie udało się pobrać okazji.";
+
+    if (fallbackOffers.length) {
+      return NextResponse.json(
+        {
+          ok: true,
+          checkedAt: new Date().toISOString(),
+          sourceCount: fallbackPool.length,
+          exactCount: fallbackExact.length,
+          destinationCount: fallbackOffers.length,
+          sort: "price_asc",
+          selection: "cheapest_per_destination",
+          sources: ["published-fallback"],
+          unavailableSources: results.map((item) => item.label),
+          partial: true,
+          sourceType: "published_fallback",
+          matchMode: fallbackExact.length ? "fallback_exact" : "fallback_pool",
+          filters: { airport: airport || null, month: month || null, year: year || null },
+          notice: "Live feedy partnerów są chwilowo niedostępne. Pokazujemy ostatnią opublikowaną pulę Tripowni; cenę i dostępność potwierdź u partnera po kliknięciu.",
+          offers: fallbackOffers,
+          error,
+        },
+        { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } }
+      );
+    }
+
     return NextResponse.json(
       { ok: false, offers: [], error },
       { status: 502, headers: { "Cache-Control": "no-store" } }
@@ -224,6 +254,7 @@ export async function GET(request: NextRequest) {
       sources: successful.map((item) => item.label),
       unavailableSources,
       partial: unavailableSources.length > 0,
+      sourceType: "live",
       matchMode,
       filters: { airport: airport || null, month: month || null, year: year || null },
       notice,
