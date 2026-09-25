@@ -14,7 +14,19 @@ export default function SocialShare({ url, title, text }: SocialShareProps) {
   const [copied, setCopied] = useState(false);
 
   const shareText = `LECIMY? ${text}`;
-  const encodedUrl = encodeURIComponent(url);
+
+  function campaignUrl(channel: string) {
+    try {
+      const tracked = new URL(url, window.location.origin);
+      tracked.searchParams.set("utm_source", channel);
+      tracked.searchParams.set("utm_medium", "social_share");
+      tracked.searchParams.set("utm_campaign", "organic_share");
+      return tracked.toString();
+    } catch {
+      return url;
+    }
+  }
+
   const encodedText = encodeURIComponent(shareText);
 
   function trackShare(channel: string) {
@@ -27,7 +39,7 @@ export default function SocialShare({ url, title, text }: SocialShareProps) {
 
   async function copyLink() {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(campaignUrl("copy"));
       setCopied(true);
       trackShare("copy");
       window.setTimeout(() => setCopied(false), 1800);
@@ -40,7 +52,7 @@ export default function SocialShare({ url, title, text }: SocialShareProps) {
   async function nativeShare() {
     if (navigator.share) {
       try {
-        await navigator.share({ title: `LECIMY? ${title}`, text: shareText, url });
+        await navigator.share({ title: `LECIMY? ${title}`, text: shareText, url: campaignUrl("native") });
         trackShare("native");
       } catch {
         // Zamknięcie systemowego okna udostępniania nie jest błędem użytkownika.
