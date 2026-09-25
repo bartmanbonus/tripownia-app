@@ -32,11 +32,12 @@ function median(values: number[]) {
 export default function TripowniaDataPage() {
   const active = offers.filter(o => o.availabilityStatus !== "expired" && Number(o.price) > 0);
 
-  const byDestination = Object.values(active.reduce<Record<string,{city:string;country:string;flag:string;prices:number[];count:number}>>((acc,o)=>{
+  const byDestination = Object.values(active.reduce<Record<string,{city:string;country:string;flag:string;prices:number[];count:number;bestOffer:(typeof active)[number]}>>((acc,o)=>{
     const key=`${o.city}|${o.country}`;
-    acc[key] ||= {city:o.city,country:o.country,flag:o.flag,prices:[],count:0};
+    acc[key] ||= {city:o.city,country:o.country,flag:o.flag,prices:[],count:0,bestOffer:o};
     acc[key].prices.push(o.price);
     acc[key].count += 1;
+    if (o.price < acc[key].bestOffer.price) acc[key].bestOffer = o;
     return acc;
   },{})).map(row=>({
     ...row,
@@ -109,8 +110,11 @@ export default function TripowniaDataPage() {
         </div>
         <ol>
           {byDestination.map((row,index)=><li key={`${row.city}-${row.country}`}>
-            <strong>{index+1}</strong>
-            <span>{row.flag} <b>{row.city}, {row.country}</b> — od {row.minPrice.toLocaleString("pl-PL")} zł{row.medianPrice ? ` · mediana ${row.medianPrice.toLocaleString("pl-PL")} zł` : ""}</span>
+            <a className="tripownia-data-offer-link" href={row.bestOffer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer" aria-label={`Sprawdź ofertę: ${row.city}, ${row.country} od ${row.minPrice} zł`}>
+              <strong>{index+1}</strong>
+              <span>{row.flag} <b>{row.city}, {row.country}</b> — od {row.minPrice.toLocaleString("pl-PL")} zł{row.medianPrice ? ` · mediana ${row.medianPrice.toLocaleString("pl-PL")} zł` : ""}</span>
+              <em>Sprawdź ofertę →</em>
+            </a>
           </li>)}
         </ol>
       </section>
