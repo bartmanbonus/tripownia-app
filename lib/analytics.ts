@@ -2,7 +2,7 @@ export const GA_MEASUREMENT_ID = "G-GHST5CY5LL";
 export const ANALYTICS_CONSENT_KEY = "tripownia-consent-v1";
 export const ANALYTICS_CONSENT_EVENT = "tripownia-consent-updated";
 
-export type AnalyticsConsent = "analytics" | "necessary" | null;
+export type AnalyticsConsent = "analytics" | "marketing" | "necessary" | null;
 export type AnalyticsParams = Record<string, string | number | boolean | undefined | null>;
 
 declare global {
@@ -17,7 +17,7 @@ const GA_DISABLE_KEY = `ga-disable-${GA_MEASUREMENT_ID}`;
 export function getAnalyticsConsent(): AnalyticsConsent {
   if (typeof window === "undefined") return null;
   const value = window.localStorage.getItem(ANALYTICS_CONSENT_KEY);
-  return value === "analytics" || value === "necessary" ? value : null;
+  return value === "analytics" || value === "marketing" || value === "necessary" ? value : null;
 }
 
 function setGaDisabled(disabled: boolean) {
@@ -52,7 +52,7 @@ export function setAnalyticsConsent(consent: Exclude<AnalyticsConsent, null>) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(ANALYTICS_CONSENT_KEY, consent);
 
-  if (consent === "analytics") {
+  if (consent === "analytics" || consent === "marketing") {
     ensureGtag();
     updateGoogleConsent(true);
   } else {
@@ -63,7 +63,7 @@ export function setAnalyticsConsent(consent: Exclude<AnalyticsConsent, null>) {
 }
 
 export function bootstrapAnalytics() {
-  if (typeof window === "undefined" || getAnalyticsConsent() !== "analytics") return false;
+  if (typeof window === "undefined" || !["analytics", "marketing"].includes(getAnalyticsConsent() || "")) return false;
 
   ensureGtag();
   updateGoogleConsent(true);
