@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
 
 export const metadata: Metadata = {
-  title: "Polityka prywatności i RODO | Tripownia.pl",
+  title: "Polityka prywatności i RODO",
   description: "Jak Tripownia.pl przetwarza dane, zapisuje preferencje lokalnie, korzysta z analityki za zgodą i realizuje prawa wynikające z RODO.",
   alternates: { canonical: "/polityka-prywatnosci" },
   robots: { index: true, follow: true },
