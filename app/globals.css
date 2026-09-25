@@ -12116,3 +12116,51 @@ img{
   .footer-v2-logo{width:min(180px,52vw)!important}
   .footer-v2-trending{clear:both!important;position:relative!important}
 }
+
+
+/* 2026-09-25 /kierunki — stable CTA alignment */
+.directions-v188-grid .directions-v188-card{
+  display:flex!important;
+  flex-direction:column!important;
+  height:100%!important;
+}
+.directions-v188-grid .directions-v188-body{
+  display:flex!important;
+  flex:1 1 auto!important;
+  flex-direction:column!important;
+  align-items:flex-start!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+.directions-v188-grid .directions-v188-body p{
+  min-height:0!important;
+  margin-bottom:16px!important;
+}
+.directions-v188-grid .directions-v188-link{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:7px!important;
+  min-height:36px!important;
+  margin-top:auto!important;
+  padding:0 12px!important;
+  border:1px solid #f1d8cc!important;
+  border-radius:999px!important;
+  background:#fff7f2!important;
+  color:#dd501e!important;
+  font-size:9.5px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+.directions-v188-grid .directions-v188-link b{
+  font-size:12px!important;
+  line-height:1!important;
+}
+@media(max-width:640px){
+  .directions-v188-grid .directions-v188-link{
+    min-height:34px!important;
+    padding:0 10px!important;
+    font-size:9px!important;
+  }
+}
