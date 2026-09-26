@@ -32,6 +32,7 @@ export const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/moj-planner": "/moja-podroz",
   "/planner": "/planer-podrozy",
   "/planer": "/planer-podrozy",
+  "/poradniki/lotniska-w-polsce-bez-limitu-100-ml-plynow": "/lotniska-w-polsce-bez-limitu-100-ml-plynow",
 };
 
 const SEO_CANONICAL_PATHS = {
