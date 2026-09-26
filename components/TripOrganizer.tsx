@@ -162,7 +162,7 @@ export default function TripOrganizer({
         <div>
           <div className="kicker">ORGANIZER WYJAZDU</div>
           <h2>Wszystko, co chcesz mieć pod ręką przed i w trakcie podróży</h2>
-          <p>Dane zapisują się tylko na tym urządzeniu i są przypisane do tej konkretnej podróży.</p>
+          <p>Dane są przypisane do tej konkretnej podróży. Po zalogowaniu synchronizujemy je z Twoim kontem, żeby można było wrócić do nich później także na innym urządzeniu.</p>
         </div>
         <Link href="/moje-podroze">Moje podróże <ChevronRight size={16}/></Link>
       </div>
