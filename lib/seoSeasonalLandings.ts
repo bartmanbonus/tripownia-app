@@ -16,9 +16,9 @@ export const seoSeasonalLandings = [
   },
   {
     slug: "city-break-listopad-2026",
-    title: "City break listopad 2026 — gdzie polecieć? Tani weekend, lot + hotel",
+    title: "City break listopad 2026 — gdzie polecieć na weekend? Lot + hotel",
     eyebrow: "CITY BREAK · LISTOPAD 2026",
-    lead: "City break w listopadzie 2026: gdzie polecieć na 2–5 dni? Porównaj tani weekend, lot + hotel oraz Maltę, Cypr, Hiszpanię, Portugalię i europejskie miasta.",
+    lead: "City break w listopadzie 2026: gdzie polecieć na 2–5 dni? Porównaj lot + hotel, tani weekend i kierunki takie jak Malta, Cypr, Hiszpania, Portugalia, Praga czy Wiedeń.",
     query: "City break",
     minNights: 2,
     maxNights: 5,
