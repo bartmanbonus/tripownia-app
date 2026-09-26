@@ -62,7 +62,37 @@ function relatedOffers(context: ArticleContext, destinationOverride?: string) {
 }
 
 function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
-  const hay = `${item.title} ${item.path}`.toLowerCase();
+  const canonicalPath = legacyCanonicalPath(item.path);
+  const hay = `${item.title} ${canonicalPath}`.toLowerCase();
+
+  const airportLandingLinks: Record<string, GrowthLink[]> = {
+    "/wakacje-z-poznania": [
+      { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
+      { href: "/podroze/last-minute-z-poznania", label: "Last minute z Poznania" },
+      { href: "/podroze/wakacje-z-poznania", label: "Wakacje z Poznania" },
+    ],
+    "/krakow": [
+      { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa" },
+      { href: "/podroze/last-minute-z-krakowa", label: "Last minute z Krakowa" },
+      { href: "/podroze/wakacje-z-krakowa", label: "Wakacje z Krakowa" },
+    ],
+    "/wakacje-z-gdanska-2": [
+      { href: "/podroze/city-break-z-gdanska", label: "City break z Gdańska" },
+      { href: "/podroze/last-minute-z-gdanska", label: "Last minute z Gdańska" },
+      { href: "/podroze/wakacje-z-gdanska", label: "Wakacje z Gdańska" },
+    ],
+    "/wroclaw": [
+      { href: "/podroze/city-break-z-wroclawia", label: "City break z Wrocławia" },
+      { href: "/podroze/last-minute-z-wroclawia", label: "Last minute z Wrocławia" },
+      { href: "/podroze/wakacje-z-wroclawia", label: "Wakacje z Wrocławia" },
+    ],
+    "/katowice": [
+      { href: "/podroze/city-break-z-katowic", label: "City break z Katowic" },
+      { href: "/podroze/last-minute-z-katowic", label: "Last minute z Katowic" },
+      { href: "/podroze/wakacje-z-katowic", label: "Wakacje z Katowic" },
+    ],
+  };
+  if (airportLandingLinks[canonicalPath]) return airportLandingLinks[canonicalPath];
   if (hay.includes("limit") && hay.includes("płyn")) return [
     { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
     { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa" },
