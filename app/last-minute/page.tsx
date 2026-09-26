@@ -5,7 +5,9 @@ import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
 import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
 import { offers, isOfferExpired } from "@/lib/offers";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
 export const metadata: Metadata = {
   title: "Last Minute 2026 — aktualne wakacje i All Inclusive",
@@ -57,6 +59,7 @@ export default function LastMinuteOffersPage() {
       <div className="section-heading"><div><div className="kicker">WIĘCEJ OKAZJI</div><h2>Kolejne Last Minute do sprawdzenia</h2></div></div>
       <div className="last-minute-offer-rail">{more.map(o=><OfferCard key={o.id} offer={o}/>)}</div>
     </section>
+    <section className="section shell"><FacebookFollowCTA placement="last_minute" compact /></section>
     <SiteFooter/>
   </main>;
 }
