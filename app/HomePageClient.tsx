@@ -331,15 +331,15 @@ function LongHaulHomeSection() {
 }
 
 const experienceCards = [
-  { href: "/podroze-po-przezycia#zorza", season: "WRZESIEŃ–MARZEC", title: "🌌 Zorza na Islandii", text: "Ciemne noce, geotermia i wyjazd planowany pod szansę zobaczenia zorzy.", imageCity: "zorza islandia", imageCountry: "Islandia", fallbackImage: "/images/seasons/aurora.webp" },
-  { href: "/podroze-po-przezycia#sakura", season: "MARZEC–KWIECIEŃ", title: "🌸 Sakura w Japonii", text: "Tokio i Kioto wtedy, gdy kwitnienie wiśni staje się głównym punktem podróży.", imageCity: "sakura japonia", imageCountry: "Japonia", fallbackImage: "/images/seasons/sakura.webp" },
-  { href: "/podroze-po-przezycia#fiordy", season: "MAJ–WRZESIEŃ", title: "🏔️ Fiordy i białe noce", text: "Długie dni, trekking, rejsy i spektakularne trasy widokowe po Norwegii.", imageCity: "fiordy norwegia", imageCountry: "Norwegia", fallbackImage: "/images/seasons/fjords.webp" },
-  { href: "/podroze-po-przezycia#nowa-zelandia", season: "LISTOPAD–MARZEC", title: "🥾 Nowa Zelandia", text: "Road trip, góry i lato na południowej półkuli w najlepszym oknie na aktywny wyjazd.", imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia", fallbackImage: "/images/seasons/new-zealand.webp" },
+  { href: "/podroze-po-przezycia#zorza", season: "WRZESIEŃ–MARZEC", title: "🌌 Zorza na Islandii", text: "Ciemne noce, geotermia i wyjazd planowany pod szansę zobaczenia zorzy.", imageCity: "zorza islandia", imageCountry: "Islandia", fallbackImage: "/images/experiences/islandia-zorza.png" },
+  { href: "/podroze-po-przezycia#sakura", season: "MARZEC–KWIECIEŃ", title: "🌸 Sakura w Japonii", text: "Tokio i Kioto wtedy, gdy kwitnienie wiśni staje się głównym punktem podróży.", imageCity: "sakura japonia", imageCountry: "Japonia", fallbackImage: "/images/experiences/japonia-sakura.png" },
+  { href: "/podroze-po-przezycia#fiordy", season: "MAJ–WRZESIEŃ", title: "🏔️ Fiordy i białe noce", text: "Długie dni, trekking, rejsy i spektakularne trasy widokowe po Norwegii.", imageCity: "fiordy norwegia", imageCountry: "Norwegia", fallbackImage: "/images/experiences/norwegia-fiordy.png" },
+  { href: "/podroze-po-przezycia#nowa-zelandia", season: "LISTOPAD–MARZEC", title: "🥾 Nowa Zelandia", text: "Road trip, góry i lato na południowej półkuli w najlepszym oknie na aktywny wyjazd.", imageCity: "nowa zelandia road trip", imageCountry: "Nowa Zelandia", fallbackImage: "/images/experiences/nowa-zelandia.png" },
   { href: "/podroze-po-przezycia#tulipany", season: "KWIECIEŃ–MAJ", title: "🌷 Tulipany w Holandii", text: "Krótki city break połączony z polami kwiatów i sezonem, który trwa tylko chwilę.", imageCity: "tulipany holandia", imageCountry: "Holandia", fallbackImage: "/images/experiences/holandia-tulipany.png" },
-  { href: "/podroze-po-przezycia#safari", season: "CZERWIEC–PAŹDZIERNIK", title: "🦁 Safari w Kenii i Tanzanii", text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.", imageCity: "safari kenia tanzania", imageCountry: "Kenia" },
-  { href: "/podroze-po-przezycia#wieloryby", season: "KWIECIEŃ–PAŹDZIERNIK", title: "🐋 Wieloryby i ocean", text: "Azory, Madera i Islandia w sezonie, w którym obserwacje wielorybów naprawdę mają sens.", imageCity: "wieloryby azory", imageCountry: "Portugalia", fallbackImage: "https://images.unsplash.com/photo-1454991727061-be514eae86f7?auto=format&fit=crop&fm=webp&q=82&w=1600" },
-  { href: "/jarmarki-bozonarodzeniowe", season: "LISTOPAD–GRUDZIEŃ", title: "🎄 Jarmarki bożonarodzeniowe", text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.", imageCity: "jarmarki wieden noc", imageCountry: "Austria", fallbackImage: "/images/seasons/christmas-market.webp" },
-  { href: "/podroze-po-przezycia#egzotyka", season: "ZIMA W POLSCE", title: "🌴 Egzotyka w porze suchej", text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.", imageCity: "egzotyka pora sucha", imageCountry: "Seszele" },
+  { href: "/podroze-po-przezycia#safari", season: "CZERWIEC–PAŹDZIERNIK", title: "🦁 Safari w Kenii i Tanzanii", text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.", imageCity: "safari kenia tanzania", imageCountry: "Kenia", fallbackImage: "/images/experiences/kenia-safari.png" },
+  { href: "/podroze-po-przezycia#wieloryby", season: "KWIECIEŃ–PAŹDZIERNIK", title: "🐋 Wieloryby i ocean", text: "Azory, Madera i Islandia w sezonie, w którym obserwacje wielorybów naprawdę mają sens.", imageCity: "wieloryby azory", imageCountry: "Portugalia", fallbackImage: "/images/destinations/madera.jpg" },
+  { href: "/jarmarki-bozonarodzeniowe", season: "LISTOPAD–GRUDZIEŃ", title: "🎄 Jarmarki bożonarodzeniowe", text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.", imageCity: "jarmarki wieden noc", imageCountry: "Austria", fallbackImage: "/images/experiences/jarmarki.png" },
+  { href: "/podroze-po-przezycia#egzotyka", season: "ZIMA W POLSCE", title: "🌴 Egzotyka w porze suchej", text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.", imageCity: "egzotyka pora sucha", imageCountry: "Seszele", fallbackImage: "/images/experiences/egzotyka.png" },
 ];
 
 const homepageTripTypes = [
@@ -389,7 +389,22 @@ function ExperienceTeaserImage({ city, country, title, fallbackSrc }: { city: st
   return (
     <div className="experience-teaser-media" aria-hidden="true">
       {src ? (
-        <img src={src} alt="" loading="lazy" decoding="async" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          onError={(event) => {
+            const image = event.currentTarget;
+            if (image.dataset.safeFallback !== "1") {
+              image.dataset.safeFallback = "1";
+              image.src = "/images/experiences/egzotyka.png";
+              image.style.display = "block";
+              return;
+            }
+            image.style.display = "none";
+          }}
+        />
       ) : (
         <div className="experience-teaser-skeleton" />
       )}
@@ -850,7 +865,7 @@ export default function Home() {
         </div>
         <div className="homepage-phenomena-grid">
           {[...experienceCards,
-            { href: "/sylwester", season: "29 GRUDNIA–2 STYCZNIA", title: "🥂 Sylwester za granicą", text: "Gotowy city break na przełom roku — lot, nocleg i miasto, w którym północ naprawdę jest wydarzeniem.", imageCity: "sylwester praga noc fajerwerki", imageCountry: "Czechy", fallbackImage: "/images/seasons/new-year.webp" }
+            { href: "/sylwester", season: "29 GRUDNIA–2 STYCZNIA", title: "🥂 Sylwester za granicą", text: "Gotowy city break na przełom roku — lot, nocleg i miasto, w którym północ naprawdę jest wydarzeniem.", imageCity: "sylwester praga noc fajerwerki", imageCountry: "Czechy", fallbackImage: "/images/destinations/praga.jpg" }
           ].map(card => (
             <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
               <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={"fallbackImage" in card && typeof card.fallbackImage === "string" ? card.fallbackImage : undefined} />
