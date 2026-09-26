@@ -75,8 +75,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return false;
   };
 
+  const redirectedLegacyPaths = new Set([
+    "/city-break-2",
+    "/grecja-2",
+    "/indywidualne-planowanie-podrozy-bez-ukrytych-kosztow",
+    "/tripownia-pl/okazje-tripownia",
+    "/czy-mozna-miec-dwa-bagaze-podreczne-samolocie-zasady-w-liniach-lotniczych",
+  ]);
+
   const legacyArticlePaths = [...new Set(legacyPosts.map(post => legacyCanonicalPath(post.path)))]
-    .filter(path => path !== "/city-break-2" && path !== "/grecja-2")
+    .filter(path => !redirectedLegacyPaths.has(path))
     .filter(path => !isLowValueLegacyPath(path));
 
   const legacyArticlePages: MetadataRoute.Sitemap = legacyArticlePaths.map(path => ({
