@@ -75,13 +75,49 @@ const dedicatedAppPaths = new Set([
 ]);
 
 const seoOverrides: Record<string, Metadata> = {
+  "/wakacje-z-poznania": {
+    title: "City break z Poznania, last minute i wakacje 2026 | Tripownia",
+    description: "Szukasz city breaku lub last minute z Poznania? Sprawdź krótkie wyjazdy, wakacje, lot + hotel i aktualne propozycje z Ławicy.",
+  },
+  "/krakow": {
+    title: "City break i last minute z Krakowa – loty i wakacje 2026 | Tripownia",
+    description: "City break z Krakowa, last minute, tanie loty i wakacje z Balic. Porównaj krótkie wyjazdy, lot + hotel i aktualne propozycje.",
+  },
+  "/wakacje-z-gdanska-2": {
+    title: "City break i last minute z Gdańska – loty i wakacje 2026 | Tripownia",
+    description: "City break z Gdańska, last minute i wakacje z Trójmiasta. Porównaj krótkie wyjazdy, lot + hotel i aktualne propozycje z GDN.",
+  },
+  "/wroclaw": {
+    title: "City break i last minute z Wrocławia – loty i wakacje 2026 | Tripownia",
+    description: "City break z Wrocławia, last minute, tanie loty i wakacje. Porównaj krótkie wyjazdy, lot + hotel i propozycje z lotniska WRO.",
+  },
+  "/katowice": {
+    title: "City break, All Inclusive i last minute z Katowic 2026 | Tripownia",
+    description: "Wyloty z Katowic-Pyrzowic: city break, All Inclusive, last minute i wakacje. Porównaj aktualne propozycje i pełny koszt wyjazdu.",
+  },
+  "/wakacje-ze-szczecina-all-inclusive-last-minute-i-lot-hotel": {
+    title: "Last minute ze Szczecina – wakacje, All Inclusive i lot + hotel 2026 | Tripownia",
+    description: "Last minute ze Szczecina, wakacje i All Inclusive z wylotem z SZZ. Sprawdź aktualne propozycje, lot + hotel i pełny koszt wyjazdu.",
+  },
+  "/babski-wyjazd-za-granice-12-najlepszych-kierunkow-z-przyjaciolkami": {
+    title: "Gdzie na babski weekend za granicą? 12 kierunków 2026 | Tripownia",
+    description: "Pomysły na babski wyjazd za granicę: 12 kierunków na weekend z przyjaciółkami, od city breaku po słońce, plażę i spa.",
+  },
+  "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje": {
+    title: "Malaga czy Alicante – gdzie lepiej na wakacje? Porównanie 2026 | Tripownia",
+    description: "Malaga czy Alicante? Porównaj plaże, pogodę, zwiedzanie, lotnisko i klimat obu kierunków, zanim wybierzesz wakacje w Hiszpanii.",
+  },
+  "/wyspy-zielonego-przyladka": {
+    title: "Wyspy Zielonego Przylądka 2026 – Sal czy Boa Vista? Wakacje | Tripownia",
+    description: "Sal czy Boa Vista? Porównaj Wyspy Zielonego Przylądka pod kątem plaż, hoteli, pogody, All Inclusive i stylu wakacji.",
+  },
   "/lotniska-w-polsce-bez-limitu-100-ml-plynow": {
     title: "Na których lotniskach w Polsce nie ma limitu 100 ml? Lista 2026 | Tripownia",
     description: "Które lotniska w Polsce zniosły limit 100 ml płynów? Sprawdź aktualne zasady na 2026 dla Krakowa, Poznania, Rzeszowa i Gdańska oraz co nadal obowiązuje na innych lotniskach.",
   },
   "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych": {
-    title: "Czy bagaż podręczny jest ważony? Ile bagaży można mieć? 2026 | Tripownia",
-    description: "Sprawdź limity bagażu podręcznego Ryanair, Wizz Air i LOT, wagę, wymiary oraz kiedy możesz zabrać drugą sztukę na pokład.",
+    title: "Czy bagaż podręczny jest ważony? Ryanair, Wizz Air i LOT 2026 | Tripownia",
+    description: "Czy linie ważą bagaż podręczny? Sprawdź limity, wagę i wymiary w Ryanair, Wizz Air i LOT oraz kiedy możesz zabrać drugą sztukę na pokład.",
   },
   "/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad": {
     title: "Czy można wnieść jedzenie do samolotu? Co wolno zabrać | Tripownia",
@@ -120,8 +156,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Którą grecką wyspę wybrać na wakacje? Porównaj Kretę, Rodos, Kos, Korfu, Zakynthos i Chalkidiki pod kątem plaż, zwiedzania, rodzin i All Inclusive.",
   },
   "/hiszpania": {
-    title: "Hiszpania nad morzem – gdzie jechać? Costa del Sol, Majorka czy Kanary | Tripownia",
-    description: "Gdzie do Hiszpanii nad morze? Porównaj Costa del Sol, Costa Blanca, Majorkę, Costa Brava i Wyspy Kanaryjskie pod kątem plaż, pogody i zwiedzania.",
+    title: "Południowe wybrzeże Hiszpanii – gdzie jechać? Costa del Sol, Costa Blanca i wyspy | Tripownia",
+    description: "Gdzie na wakacje w Hiszpanii? Porównaj Costa del Sol, Costa Blanca, Majorkę i Wyspy Kanaryjskie pod kątem plaż, pogody, zwiedzania i dojazdu.",
   },
   "/wietnam": {
     title: "Wietnam 2026 – Hanoi, Da Nang czy Phu Quoc? Gdzie na plażę i zwiedzanie | Tripownia",
@@ -136,12 +172,12 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Który kurort w Albanii wybrać? Porównaj Sarandę, Ksamil, Vlorę, Durrës i Himarë pod kątem plaż, transferu, rodzin i samodzielnego zwiedzania.",
   },
   "/malta": {
-    title: "Malta 2026 – gdzie spać i ile dni zaplanować? | Tripownia",
-    description: "Malta na 3 dni czy tydzień? Porównaj Vallettę, Sliemę, St. Julian’s, Mellieħę i Gozo. Zobacz, gdzie nocować i jak zaplanować pierwszy wyjazd.",
+    title: "Malta wakacje 2026 – city break, plaże i gdzie nocować | Tripownia",
+    description: "Planujesz wakacje na Malcie? Porównaj Vallettę, Sliemę, St. Julian’s, Mellieħę i Gozo, sprawdź city break, plaże i najlepszą bazę na 3–7 dni.",
   },
   "/wyspy-kanaryjskie-wakacje-all-inclusive-i-last-minute": {
-    title: "Wyspy Kanaryjskie – którą wyspę wybrać? Teneryfa, Gran Canaria, Fuerteventura czy Lanzarote | Tripownia",
-    description: "Porównaj Teneryfę, Gran Canarię, Fuerteventurę i Lanzarote. Sprawdź plaże, wiatr, pogodę zimą, All Inclusive i wybierz najlepszą wyspę dla siebie.",
+    title: "Wyspy Kanaryjskie All Inclusive 2026 – Teneryfa, Gran Canaria czy Fuerteventura? | Tripownia",
+    description: "Wyspy Kanaryjskie na wakacje i All Inclusive: porównaj Teneryfę, Gran Canarię, Fuerteventurę i Lanzarote, pogodę, plaże i najlepszy region.",
   },
   "/riwiera-turecka-czy-egejska-co-wybrac": {
     title: "Riwiera Turecka czy Egejska – co wybrać? Antalya, Side, Bodrum czy Marmaris | Tripownia",
@@ -206,8 +242,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const item = findLegacy(path);
   if (item) {
-    const metadata = seoOverrides[path] || { title: item.title, description: item.description || undefined };
-    return withCanonical(path, metadata);
+    const canonicalPath = legacyCanonicalPath(path);
+    const metadata = seoOverrides[canonicalPath] || { title: item.title, description: item.description || undefined };
+    return withCanonical(canonicalPath, metadata);
   }
 
   if (isInternalAlias(path)) {
