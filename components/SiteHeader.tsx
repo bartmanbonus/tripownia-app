@@ -56,6 +56,9 @@ const myTripowniaItems = [
   { href: "/gdzie-leciec", label: "Gdzie lecieć?", icon: Compass },
   { href: "/dla-ciebie", label: "Dla Ciebie", icon: Sparkles },
   { href: "/moja-podroz", label: "Mój planner", icon: MapPinned },
+  { href: "/ulubione", label: "Ulubione", icon: Heart },
+  { href: "/alerty", label: "Alerty", icon: Bell },
+  { href: "/profil", label: "Profil podróżnika", icon: UserRound },
   { href: "/konto", label: "Konto i logowanie", icon: UserRound },
 ] as const;
 
@@ -233,7 +236,7 @@ export default function SiteHeader() {
                 {myTripowniaItems.map((item) => { const Icon = item.icon; return <Link key={item.label} href={item.href}><Icon size={18} strokeWidth={2}/><span>{item.label}</span></Link>; })}
               </div>
             </details>
-            <a className="trip-header-help" href="mailto:kontakt@tripownia.pl?subject=Pomoc%20Tripownia"><CircleHelp size={16} strokeWidth={2} /><span>Pomoc</span></a>
+            <Link className="trip-header-help" href="/faq"><CircleHelp size={16} strokeWidth={2} /><span>Pomoc</span></Link>
           </div>
         </div>
       </div>
