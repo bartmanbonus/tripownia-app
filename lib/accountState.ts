@@ -9,6 +9,7 @@ const FAVORITES_KEY = "tripownia-favorites";
 const COMPARE_KEY = "tripownia-compare";
 const ALERTS_KEY = "tripownia-alert-settings";
 const TOOLKIT_PREFIX = "tripownia-trip-toolkit:";
+const ORGANIZER_PREFIX = "tripownia-organizer:";
 
 function parseJson<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -43,6 +44,19 @@ function toolkitByTrip() {
   return result;
 }
 
+function organizerByTrip() {
+  if (typeof window === "undefined") return {};
+  const result: Record<string, unknown> = {};
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const key = localStorage.key(index);
+    if (!key?.startsWith(ORGANIZER_PREFIX)) continue;
+    const tripId = key.slice(ORGANIZER_PREFIX.length);
+    if (!tripId) continue;
+    result[tripId] = parseJson<unknown>(key, {});
+  }
+  return result;
+}
+
 export function collectLocalAccountState(): Omit<TripowniaUserState, "user_id"> {
   const profile = readTravelProfile();
   return {
@@ -57,6 +71,7 @@ export function collectLocalAccountState(): Omit<TripowniaUserState, "user_id"> 
     trip_archive: parseJson<unknown[]>(TRIP_ARCHIVE_KEY, []),
     alert_settings: recordValue(ALERTS_KEY),
     toolkit_by_trip: toolkitByTrip(),
+    organizer_by_trip: organizerByTrip(),
   };
 }
 
@@ -69,7 +84,8 @@ export function hasMeaningfulLocalAccountState() {
     localStorage.getItem(ACTIVE_TRIP_KEY) ||
     localStorage.getItem(TRIP_ARCHIVE_KEY) ||
     localStorage.getItem(ALERTS_KEY) ||
-    Object.keys(toolkitByTrip()).length
+    Object.keys(toolkitByTrip()).length ||
+    Object.keys(organizerByTrip()).length
   );
 }
 
@@ -91,6 +107,9 @@ export function applyCloudAccountState(state: TripowniaUserState) {
 
   Object.entries(state.toolkit_by_trip || {}).forEach(([tripId, value]) => {
     if (tripId) localStorage.setItem(`${TOOLKIT_PREFIX}${tripId}`, JSON.stringify(value));
+  });
+  Object.entries(state.organizer_by_trip || {}).forEach(([tripId, value]) => {
+    if (tripId) localStorage.setItem(`${ORGANIZER_PREFIX}${tripId}`, JSON.stringify(value));
   });
 
   ["tripownia-profile-updated","tripownia-favorites-updated","tripownia-compare-updated","tripownia-my-trip-updated","tripownia-trips-updated","tripownia-alerts-updated","tripownia-toolkit-updated"]
@@ -115,12 +134,12 @@ export function clearLocalAccountState() {
     "tripownia-alert-last-notified",
   ].forEach((key) => localStorage.removeItem(key));
 
-  const toolkitKeys: string[] = [];
+  const scopedKeys: string[] = [];
   for (let index = 0; index < localStorage.length; index += 1) {
     const key = localStorage.key(index);
-    if (key?.startsWith(TOOLKIT_PREFIX)) toolkitKeys.push(key);
+    if (key?.startsWith(TOOLKIT_PREFIX) || key?.startsWith(ORGANIZER_PREFIX)) scopedKeys.push(key);
   }
-  toolkitKeys.forEach((key) => localStorage.removeItem(key));
+  scopedKeys.forEach((key) => localStorage.removeItem(key));
 
   ["tripownia-profile-updated","tripownia-favorites-updated","tripownia-compare-updated","tripownia-my-trip-updated","tripownia-trips-updated","tripownia-alerts-updated","tripownia-toolkit-updated"]
     .forEach((name) => window.dispatchEvent(new Event(name)));
