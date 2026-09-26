@@ -764,8 +764,6 @@ export default function Home() {
         </Link>
 
         <div className="homepage-editorial-grid homepage-events-grid homepage-events-secondary">
-          <Link href="/podroze-po-przezycia" className="homepage-editorial-card"><small>🎵 KONCERTY I FESTIWALE</small><strong>Wyjazd pod konkretny termin</strong><span>Podróże, w których najważniejsze jest to, co dzieje się na miejscu.</span><em>Znajdź pomysł →</em></Link>
-          <Link href="/podroze-po-przezycia" className="homepage-editorial-card"><small>🏎️ INNE WYDARZENIA SPORTOWE</small><strong>Sportowe weekendy</strong><span>Wyścigi, turnieje i duże wydarzenia jako punkt startowy całego wyjazdu.</span><em>Zobacz kalendarz →</em></Link>
         </div>
       </section>
 
