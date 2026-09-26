@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import AppHome from "@/components/AppHome";
+import HomePageClient from "@/app/HomePageClient";
 
 export const metadata: Metadata = {
-  title: "Moja Tripownia",
-  description: "Twój osobisty ekran Tripowni: dopasowane oferty, alerty, podróż i szybkie decyzje w jednym miejscu.",
+  title: "Tripownia — wyszukiwarka i planer podróży",
+  description: "Ta sama Tripownia w web i aplikacji: wyszukiwarka wyjazdów, okazje, kierunki i darmowy planer podróży.",
   robots: { index: false, follow: false, noarchive: true },
 };
 
 export default function Page() {
-  return <AppHome />;
+  return <HomePageClient />;
 }
