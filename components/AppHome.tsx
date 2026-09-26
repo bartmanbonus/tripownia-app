@@ -8,7 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
 import { offers } from "@/lib/offers";
-import { TRAVEL_PROFILE_KEY } from "@/lib/travelProfile";
+import { readTravelProfile, TRAVEL_PROFILE_KEY } from "@/lib/travelProfile";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
@@ -28,6 +28,7 @@ function onePerDirection(rows: TripOffer[]) {
 
 export default function AppHome() {
   const [profileReady, setProfileReady] = useState(false);
+  const [displayName, setDisplayName] = useState("");
   const [trip, setTrip] = useState<TripState>({});
   const [alerts, setAlerts] = useState<AlertState>({});
   const [favoriteCount, setFavoriteCount] = useState(0);
@@ -37,6 +38,7 @@ export default function AppHome() {
   useEffect(() => {
     const load = () => {
       setProfileReady(Boolean(localStorage.getItem(TRAVEL_PROFILE_KEY)));
+      setDisplayName(readTravelProfile().displayName.trim());
       try {
         setTrip(JSON.parse(localStorage.getItem("tripownia-my-trip") || "{}"));
         setAlerts(JSON.parse(localStorage.getItem("tripownia-alert-settings") || "{}"));
@@ -110,8 +112,8 @@ export default function AppHome() {
       <section className="shell app-home-page">
         <div className="app-home-hero">
           <div>
-            <div className="kicker">MOJA TRIPOWNIA</div>
-            <h1>Twój darmowy, personalizowany plan podróży.</h1>
+            <div className="kicker">{displayName ? `CZEŚĆ, ${displayName.toLocaleUpperCase("pl-PL")}` : "MOJA TRIPOWNIA"}</div>
+            <h1>{displayName ? "Twoje podróże. Twoje preferencje. Jedna Tripownia." : "Twój darmowy, personalizowany plan podróży."}</h1>
             <p>Powiedz nam dokąd jedziesz. Tripownia pomoże krok po kroku ułożyć cały wyjazd — co kupić, co przygotować, co zobaczyć, gdzie zjeść i na co uważać. Za darmo, w jednym miejscu.</p>
           </div>
           <div className="app-home-hero-actions">
