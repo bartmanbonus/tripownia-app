@@ -688,12 +688,20 @@ export async function GET(request: NextRequest) {
         .filter(Boolean);
 
       return codes.some((code) => {
-        if (code === "WAWA") return /warszawa|chopin|modlin|\bwaw\b|\bwmi\b/.test(haystack);
+        if (code === "WAWA") return /warszawa|chopin|okecie|modlin|\bwaw\b|\bwmi\b/.test(haystack);
+        if (code === "WAW") return /chopin|okecie|\bwaw\b/.test(haystack);
+        if (code === "WMI") return /modlin|\bwmi\b/.test(haystack);
         if (code === "KRK") return /krakow|balice|\bkrk\b/.test(haystack);
         if (code === "KTW") return /katowice|pyrzowice|\bktw\b/.test(haystack);
         if (code === "GDN") return /gdansk|rebiechowo|\bgdn\b/.test(haystack);
         if (code === "WRO") return /wroclaw|strachowice|\bwro\b/.test(haystack);
         if (code === "POZ") return /poznan|lawica|\bpoz\b/.test(haystack);
+        if (code === "RZE") return /rzeszow|jasionka|\brze\b/.test(haystack);
+        if (code === "LCJ") return /lodz|lublinek|\blcj\b/.test(haystack);
+        if (code === "LUZ") return /lublin|swidnik|\bluz\b/.test(haystack);
+        if (code === "SZZ") return /szczecin|goleniow|\bszz\b/.test(haystack);
+        if (code === "BZG") return /bydgoszcz|\bbzg\b/.test(haystack);
+        if (code === "IEG") return /zielona gora|babimost|\bieg\b/.test(haystack);
         return false;
       });
     };
@@ -803,8 +811,7 @@ export async function GET(request: NextRequest) {
       }
 
       if (!pool.length && departureFilter) {
-        pool = dateCandidates;
-        if (pool.length) notice = "Brak ofert z wybranych lotnisk — pokazujemy inne lotniska, ale nadal tylko w wybranym terminie.";
+        notice = "Brak potwierdzonych ofert z wybranych lotnisk w tym terminie. Zmień lotnisko albo wybierz „Wszystkie lotniska”.";
       }
     }
 
