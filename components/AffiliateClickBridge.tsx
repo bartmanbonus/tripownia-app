@@ -112,6 +112,23 @@ function createClickId() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+function visitAttribution() {
+  try {
+    const raw = sessionStorage.getItem("tripownia-attribution-v1");
+    const value = raw ? JSON.parse(raw) as Record<string, unknown> : null;
+    if (!value) return null;
+    return {
+      source: typeof value.source === "string" ? value.source : "",
+      medium: typeof value.medium === "string" ? value.medium : "",
+      campaign: typeof value.campaign === "string" ? value.campaign : "",
+      content: typeof value.content === "string" ? value.content : "",
+      landing: typeof value.landing === "string" ? value.landing : "",
+    };
+  } catch {
+    return null;
+  }
+}
+
 function trackedHref(anchor: HTMLAnchorElement) {
   const original = anchor.href;
   const partner = partnerFromUrl(original);
@@ -129,6 +146,12 @@ function trackedHref(anchor: HTMLAnchorElement) {
   if (destination) params.set("destination", destination);
   if (card.offer) params.set("offer", card.offer);
   if (card.price) params.set("price", card.price);
+  const attribution = visitAttribution();
+  if (attribution?.source) params.set("utmSource", attribution.source);
+  if (attribution?.medium) params.set("utmMedium", attribution.medium);
+  if (attribution?.campaign) params.set("utmCampaign", attribution.campaign);
+  if (attribution?.content) params.set("utmContent", attribution.content);
+  if (attribution?.landing) params.set("landing", attribution.landing);
   return `/go/live?${params.toString()}`;
 }
 
