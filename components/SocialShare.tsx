@@ -28,6 +28,10 @@ export default function SocialShare({ url, title, text }: SocialShareProps) {
   }
 
   const encodedText = encodeURIComponent(shareText);
+  const whatsappUrl = encodeURIComponent(campaignUrl("whatsapp"));
+  const facebookUrl = encodeURIComponent(campaignUrl("facebook"));
+  const linkedinUrl = encodeURIComponent(campaignUrl("linkedin"));
+  const xUrl = encodeURIComponent(campaignUrl("x"));
 
   function trackShare(channel: string) {
     trackEvent("share_offer", {
@@ -72,10 +76,10 @@ export default function SocialShare({ url, title, text }: SocialShareProps) {
       <div className="share-actions">
         <button type="button" className="share-native" onClick={nativeShare}><Share2 size={16}/> Wyślij „LECIMY?”</button>
         <div className="share-row">
-          <a href={`https://wa.me/?text=${encodedText}%20${encodedUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Udostępnij na WhatsApp" onClick={() => trackShare("whatsapp")}>WhatsApp</a>
-          <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Udostępnij na Facebooku" onClick={() => trackShare("facebook")}>Facebook</a>
-          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Udostępnij na LinkedIn" onClick={() => trackShare("linkedin")}>LinkedIn</a>
-          <a href={`https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Udostępnij na X" onClick={() => trackShare("x")}>X</a>
+          <a href={`https://wa.me/?text=${encodedText}%20${whatsappUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Udostępnij na WhatsApp" onClick={() => trackShare("whatsapp")}>WhatsApp</a>
+          <a href={`https://www.facebook.com/sharer/sharer.php?u=${facebookUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Udostępnij na Facebooku" onClick={() => trackShare("facebook")}>Facebook</a>
+          <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${linkedinUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Udostępnij na LinkedIn" onClick={() => trackShare("linkedin")}>LinkedIn</a>
+          <a href={`https://twitter.com/intent/tweet?text=${encodedText}&url=${xUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Udostępnij na X" onClick={() => trackShare("x")}>X</a>
           <button type="button" onClick={copyLink}>{copied ? <Check size={14}/> : <Copy size={14}/>} {copied ? "Skopiowano" : "Kopiuj link"}</button>
         </div>
       </div>
