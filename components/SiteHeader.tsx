@@ -118,6 +118,8 @@ export default function SiteHeader() {
     if (href === "/okazje") return pathname === "/okazje" || pathname.startsWith("/oferta/");
     return pathname === href || pathname.startsWith(`${href}/`);
   };
+  const bookingActive = pathname.startsWith("/wynajem-auta") || pathname.startsWith("/transfery") || pathname.startsWith("/parkingi") || pathname.startsWith("/esim") || pathname.startsWith("/ubezpieczenia");
+  const moreActive = ["/podroze-po-przezycia", "/dalekie-podroze", "/sylwester", "/inspiracje"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
 
   const siteSchema = {
     "@context": "https://schema.org",
@@ -207,7 +209,7 @@ export default function SiteHeader() {
           </nav>
           <div className="trip-header-tools">
             <details className="trip-header-menu">
-              <summary><Ticket size={16} strokeWidth={2} /><span>Rezerwuj</span><ChevronDown size={13} strokeWidth={2.2} /></summary>
+              <summary className={bookingActive ? "is-active" : undefined}><Ticket size={16} strokeWidth={2} /><span>Rezerwuj</span><ChevronDown size={13} strokeWidth={2.2} /></summary>
               <div className="trip-header-popover">
                 {bookingItems.map((item) => {
                   const Icon = item.icon;
@@ -217,7 +219,7 @@ export default function SiteHeader() {
               </div>
             </details>
             <details className="trip-header-menu">
-              <summary><Globe2 size={16} strokeWidth={2} /><span>Więcej</span><ChevronDown size={13} strokeWidth={2.2} /></summary>
+              <summary className={moreActive ? "is-active" : undefined}><Globe2 size={16} strokeWidth={2} /><span>Więcej</span><ChevronDown size={13} strokeWidth={2.2} /></summary>
               <div className="trip-header-popover">
                 {moreItems.map((item) => {
                   const Icon = item.icon;
@@ -226,7 +228,7 @@ export default function SiteHeader() {
               </div>
             </details>
             <details className="trip-header-menu">
-              <summary><Sparkles size={16} strokeWidth={2} /><span>Moja Tripownia</span><ChevronDown size={13} strokeWidth={2.2} /></summary>
+              <summary className={inApp ? "is-active" : undefined}><Sparkles size={16} strokeWidth={2} /><span>Moja Tripownia</span><ChevronDown size={13} strokeWidth={2.2} /></summary>
               <div className="trip-header-popover">
                 {myTripowniaItems.map((item) => { const Icon = item.icon; return <Link key={item.label} href={item.href}><Icon size={18} strokeWidth={2}/><span>{item.label}</span></Link>; })}
               </div>
