@@ -75,6 +75,19 @@ const dedicatedAppPaths = new Set([
 ]);
 
 const seoOverrides: Record<string, Metadata> = {
+  "/egipt": {
+    title: "Egipt 2026 – Hurghada, Marsa Alam czy Sharm el Sheikh? | Tripownia",
+    description: "Egipt na wakacje i All Inclusive: porównaj Hurghadę, Marsa Alam i Sharm el Sheikh, ustaw termin i sprawdź aktualne propozycje.",
+  },
+  "/maroko": {
+    title: "Maroko 2026 – Agadir czy Marrakesz? Wakacje i city break | Tripownia",
+    description: "Maroko na wakacje: Agadir, Marrakesz, Essaouira i Casablanca. Porównaj styl wyjazdu, ustaw termin i sprawdź aktualne propozycje.",
+  },
+  "/zea": {
+    title: "ZEA 2026 – Dubaj, Abu Dhabi czy Ras Al Khaimah? | Tripownia",
+    description: "Zjednoczone Emiraty Arabskie: Dubaj, Abu Dhabi i Ras Al Khaimah. Ustaw własne daty i sprawdź wakacje, noclegi oraz aktualne propozycje.",
+  },
+
   "/lublin-wakacje-city-break": {
     title: "City break z Lublina – weekend, lot + hotel i wakacje z LUZ | Tripownia",
     description: "City break z Lublina, wakacje i krótkie wyjazdy z lotniska LUZ. Sprawdź kierunki, lot + hotel i aktualne propozycje na 2–5 dni.",
@@ -271,6 +284,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 
   if (fixed[path]) return withCanonical(path, fixed[path]);
+  if (seoOverrides[path]) return withCanonical(path, seoOverrides[path]);
 
   const item = findLegacy(path);
   if (item) {
