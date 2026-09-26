@@ -239,7 +239,6 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
   if (override.hidden || publishedOverride.hidden) return null;
 
   const directAffiliate = !isExpired && hasExternalAffiliateUrl;
-  const sponsoredOutbound = offer.partner !== "wakacje";
   const cardHref = directAffiliate
     ? offer.affiliateUrl
     : isLiveOffer
@@ -279,7 +278,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
         <a
           href={cardHref}
           target="_blank"
-          rel={sponsoredOutbound ? "sponsored noopener noreferrer" : "noopener noreferrer"}
+          rel="sponsored noopener noreferrer"
           onClick={() => trackOfferClick("image")}
           className="offer-image"
           aria-label={`Otwórz ofertę ${offer.city} u partnera`}
@@ -339,7 +338,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
           className="card-cta"
           href={buyHref}
           target={directAffiliate ? "_blank" : undefined}
-          rel={directAffiliate ? (sponsoredOutbound ? "sponsored noopener noreferrer" : "noopener noreferrer") : undefined}
+          rel={directAffiliate ? "sponsored noopener noreferrer" : undefined}
           onClick={() => trackOfferClick("card_cta")}
         >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
 
