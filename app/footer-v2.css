@@ -171,7 +171,7 @@
     grid-column:1/-1;
     grid-row:auto;
     display:grid;
-    grid-template-columns:104px minmax(0,1fr);
+    grid-template-columns:180px minmax(0,1fr);
     grid-template-areas:
       "logo copy"
       "logo cta";
@@ -180,8 +180,8 @@
   }
   .footer-v2-logo{
     grid-area:logo;
-    width:104px;
-    height:92px;
+    width:180px;
+    height:110px;
     margin:0;
   }
   .footer-v2-brand-card>p{
@@ -220,11 +220,11 @@
 @media(max-width:390px){
   .footer-v2-grid{gap:22px 14px}
   .footer-v2-brand-card{
-    grid-template-columns:90px minmax(0,1fr);
+    grid-template-columns:150px minmax(0,1fr);
     column-gap:13px;
   }
   .footer-v2-logo{
-    width:90px;
-    height:80px;
+    width:150px;
+    height:100px;
   }
 }
