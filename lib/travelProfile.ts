@@ -4,6 +4,7 @@ export type TravelDurationPreference = "any" | "short" | "week" | "long";
 export type TravelValuePriority = "price" | "balance" | "time";
 
 export type TravelProfile = {
+  displayName: string;
   departure: string;
   budget: number;
   styles: string[];
@@ -21,6 +22,7 @@ export type TravelProfile = {
 };
 
 export const DEFAULT_TRAVEL_PROFILE: TravelProfile = {
+  displayName: "",
   departure: "Warszawa",
   budget: 1800,
   styles: ["city", "cieplo"],
