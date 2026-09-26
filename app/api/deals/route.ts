@@ -186,6 +186,37 @@ export async function GET(request: NextRequest) {
   }
   const sourceOffers = Array.from(unique.values());
 
+  if (!sourceOffers.length) {
+    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal);
+    const fallbackExact = fallbackPool
+      .filter((offer) => airportMatches(offer, airport))
+      .filter((offer) => dateMatches(offer, month, year));
+    const fallbackOffers = lowestPriceDeals(fallbackExact.length ? fallbackExact : fallbackPool);
+
+    if (fallbackOffers.length) {
+      return NextResponse.json(
+        {
+          ok: true,
+          checkedAt: new Date().toISOString(),
+          sourceCount: fallbackPool.length,
+          exactCount: fallbackExact.length,
+          destinationCount: fallbackOffers.length,
+          sort: "price_asc",
+          selection: "cheapest_per_destination",
+          sources: ["published-fallback"],
+          unavailableSources,
+          partial: true,
+          sourceType: "published_fallback",
+          matchMode: fallbackExact.length ? "fallback_exact" : "fallback_pool",
+          filters: { airport: airport || null, month: month || null, year: year || null },
+          notice: "Live feedy nie zwróciły teraz ofert. Pokazujemy ostatnią opublikowaną pulę Tripowni; cenę i dostępność potwierdź u partnera po kliknięciu.",
+          offers: fallbackOffers,
+        },
+        { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } }
+      );
+    }
+  }
+
   const exact = sourceOffers
     .filter((offer) => airportMatches(offer, airport))
     .filter((offer) => dateMatches(offer, month, year));
