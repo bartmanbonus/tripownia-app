@@ -304,6 +304,21 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
           </div>}
         </header>}
         {hasConversionPanel && <div className="kicker" style={{marginBottom:12}}>PRZEWODNIK PO KIERUNKU</div>}
+        {[
+          "/wakacje-z-poznania",
+          "/krakow",
+          "/wakacje-z-gdanska-2",
+          "/wroclaw",
+          "/katowice",
+          "/lublin-wakacje-city-break",
+          "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel",
+          "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel",
+        ].includes(canonicalPath) && (
+          <section className="legacy-internal-links" style={{ marginBottom: 20 }}>
+            <div className="kicker">NAJLEPSZE DOPASOWANIE</div>
+            <div>{growthLinks.map(link=><Link key={link.href} href={link.href}>{link.label} →</Link>)}</div>
+          </section>
+        )}
         <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
       </article>
 
