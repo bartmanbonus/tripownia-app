@@ -9,6 +9,7 @@ import { offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import AdminStudio from "@/components/AdminStudio";
 import SearchHub from "@/components/SearchHub";
+import DestinationLandingPanel from "@/components/DestinationLandingPanel";
 
 
 const EXPERIENCE_IMAGE_BY_CITY: Record<string, string> = {
@@ -451,6 +452,7 @@ export default function UnifiedPage({ path }: { path: string }) {
   if (path === "/transfery") return <ServicePage type="transfery"/>;
   if (path === "/wynajem-auta") return <ServicePage type="wynajem-auta"/>;
   if (path === "/podroze-po-przezycia") return <ExperiencesCalendarPage/>;
+  if (path === "/zea") return <main><SiteHeader/><section className="shell"><DestinationLandingPanel path="/zea"/></section><SiteFooter/></main>;
   if (path === "/dalekie-podroze") return <LongHaulPage/>;
   if (experiencePages[path]) return <ExperiencePage path={path}/>;
 
