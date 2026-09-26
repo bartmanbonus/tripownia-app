@@ -278,6 +278,9 @@ export default async function RoutePage({ params }: { params: Promise<{ slug: st
 
   if (path === "/indywidualne-planowanie-podrozy-bez-ukrytych-kosztow") permanentRedirect("/okazje");
   if (path === "/grecja-2") permanentRedirect("/grecja");
+  if (path === "/czy-mozna-miec-dwa-bagaze-podreczne-samolocie-zasady-w-liniach-lotniczych") {
+    permanentRedirect("/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych");
+  }
   const isSystemPath = systemPaths.has(path);
   const legacyItem = findLegacy(path);
   if (!isSystemPath && !legacyItem && !isInternalAlias(path)) notFound();
