@@ -35,6 +35,8 @@ const ALLOWED_HOSTS = new Set([
   "booking.com",
   "www.getyourguide.pl",
   "getyourguide.pl",
+  "www.getyourguide.com",
+  "getyourguide.com",
   "ad.seeplaces.com",
   "seeplaces.com",
   "www.seeplaces.com",
