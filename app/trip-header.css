@@ -254,6 +254,15 @@
   color: #171717;
 }
 
+.trip-header-menu > summary.is-active {
+  background: #fff1eb;
+  color: #ed542d;
+}
+
+.trip-header-menu > summary.is-active svg {
+  color: #ed542d;
+}
+
 .trip-header-menu > summary svg:last-child {
   transition: transform .18s ease;
 }
