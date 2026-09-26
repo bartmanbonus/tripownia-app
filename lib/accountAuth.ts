@@ -242,3 +242,31 @@ export async function signOutAccount(session = readAccountSession()) {
   }
   clearAccountSession();
 }
+
+
+export async function deleteAccount(session = readAccountSession()) {
+  if (!session || !isAccountAuthConfigured()) {
+    throw new Error("Musisz być zalogowana/y, żeby usunąć konto.");
+  }
+
+  const fresh = await ensureFreshAccountSession(session);
+  if (!fresh) throw new Error("Sesja wygasła. Zaloguj się ponownie.");
+
+  const response = await fetch(`${authBaseUrl()}/functions/v1/delete-account`, {
+    method: "POST",
+    headers: {
+      apikey: authApiKey(),
+      Authorization: `Bearer ${fresh.access_token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ confirm: true }),
+  });
+
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(String(payload?.error || payload?.message || "Nie udało się usunąć konta."));
+  }
+
+  clearAccountSession();
+  return true;
+}
