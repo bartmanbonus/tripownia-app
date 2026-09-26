@@ -13,7 +13,8 @@
   "dependencies": {
     "@capacitor/android": "latest",
     "@capacitor/core": "latest",
-    "@capacitor/ios": "latest"
+    "@capacitor/ios": "latest",
+    "@capacitor/browser": "latest"
   },
   "devDependencies": {
     "@capacitor/assets": "latest",
