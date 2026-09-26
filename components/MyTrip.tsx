@@ -143,6 +143,15 @@ export default function MyTrip() {
     () => offers.find((item) => item.id === trip.offerId) || trip.offerSnapshot,
     [trip.offerId, trip.offerSnapshot]
   );
+  const destinationPending = Boolean(offer?.manual && (!offer.city || offer.city === "Gdziekolwiek" || offer.city === "Kierunek jeszcze nie wybrany" || offer.country === "Dowolny kierunek"));
+  const destinationTitle = !offer
+    ? "Twój darmowy plan podróży"
+    : destinationPending
+      ? "Kierunek jeszcze nie wybrany"
+      : [offer.city, offer.country].filter(Boolean).join(", ");
+  const tripMeta = offer
+    ? [offer.dates, offer.nights > 0 ? `${offer.nights} ${offer.nights === 1 ? "noc" : offer.nights < 5 ? "noce" : "nocy"}` : "", offer.departure ? `wylot: ${offer.departure}` : ""].filter(Boolean).join(" · ")
+    : "";
   const displayPrice = useMemo(() => {
     if (!offer) return 0;
     if (offer.manual || offer.id < 0) return offer.price || 0;
@@ -184,7 +193,7 @@ export default function MyTrip() {
   const nextSteps = useMemo(() => {
     const steps = [
       { done: Boolean(trip.checklist?.["Sprawdź dokumenty i wymagania wjazdowe"]), label: "Sprawdź dokumenty i wymagania wjazdowe", href: "/przed-wyjazdem", icon: FileCheck2 },
-      { done: Boolean(trip.checklist?.["Dodaj ubezpieczenie"]), label: "Domknij ubezpieczenie", href: "/ubezpieczenia", icon: ShieldCheck },
+      { done: Boolean(trip.checklist?.["Dodaj ubezpieczenie"]), label: "Uzupełnij ubezpieczenie", href: "/ubezpieczenia", icon: ShieldCheck },
       { done: transferReady, label: "Sprawdź transfer i taxi", href: "/transfery", icon: Car },
       { done: Boolean(trip.checklist?.["Sprawdź internet / eSIM"]), label: "Przygotuj internet / eSIM", href: "/esim", icon: Wifi },
       { done: attractionsReady, label: "Dodaj najważniejsze atrakcje", href: "/atrakcje", icon: Ticket },
@@ -268,7 +277,7 @@ export default function MyTrip() {
       <section className="shell my-trip-page">
         <div className="my-trip-hero">
           <div className="my-trip-icon"><MapPinned size={30} /></div>
-          <div><div className="kicker">MOJA PODRÓŻ</div><h1>{offer ? `${offer.city}, ${offer.country}` : "Twój darmowy plan podróży"}</h1><p>{offer ? `${offer.dates} · ${offer.nights} noce · wylot: ${offer.departure}` : "Dodaj własny wyjazd albo wybierz ofertę z Tripowni. Planner pomoże Ci krok po kroku zebrać wszystko w jednym miejscu — bez opłat."}</p></div>
+          <div><div className="kicker">MOJA PODRÓŻ</div><h1>{destinationTitle}</h1><p>{offer ? tripMeta : "Dodaj własny wyjazd albo wybierz ofertę z Tripowni. Planner pomoże Ci krok po kroku zebrać wszystko w jednym miejscu — bez opłat."}</p>{offer?.manual && <div className="my-trip-edit-actions"><Link href="/dodaj-podroz?edit=active" className="secondary-cta">{destinationPending ? "Wybierz kierunek" : "Edytuj kierunek i termin"}</Link><Link href="/moje-podroze">Moje podróże →</Link></div>}</div>
         </div>
 
         {offer && (
@@ -304,7 +313,7 @@ export default function MyTrip() {
 
               <div className="trip-mode-card">
                 <div className="trip-mode-title"><CloudSun size={20}/><strong>Pogoda teraz</strong></div>
-                {weather?.loading ? <p>Sprawdzam pogodę w {offer.city}…</p> : weather?.error ? <p>{weather.error}</p> : weather ? <div className="trip-weather"><strong>{weather.temperature}°C</strong><div><span>{weatherLabel(weather.code)}</span><small>Odczuwalna {weather.apparent}°C · wiatr {weather.wind} km/h</small></div></div> : <p>Brak danych pogodowych.</p>}
+                {destinationPending ? <p>Wybierz kierunek, żeby sprawdzić pogodę.</p> : weather?.loading ? <p>Sprawdzam pogodę w {offer.city}…</p> : weather?.error ? <p>{weather.error}</p> : weather ? <div className="trip-weather"><strong>{weather.temperature}°C</strong><div><span>{weatherLabel(weather.code)}</span><small>Odczuwalna {weather.apparent}°C · wiatr {weather.wind} km/h</small></div></div> : <p>Brak danych pogodowych.</p>}
               </div>
 
               <div className="trip-mode-card">
@@ -336,7 +345,7 @@ export default function MyTrip() {
             {reminders.length > 0 && <section className="trip-reminders-strip">{reminders.map((item) => <div key={item.label} className={item.active ? "active" : ""}><span>{item.due}</span><strong>{item.label}</strong>{item.active && <em>TERAZ</em>}</div>)}</section>}
 
             <div className="my-trip-grid">
-              <section className="my-trip-card"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p><strong>{offer.departure}</strong> → {offer.city}</p><input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="Dodaj numer lotu / godzinę" /></section>
+              <section className="my-trip-card"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p><strong>{offer.departure}</strong> → {destinationPending ? "kierunek do wyboru" : offer.city}</p><input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="Dodaj numer lotu / godzinę" /></section>
               <section className="my-trip-card"><div className="my-trip-card-head"><BedDouble size={20}/><h2>Hotel</h2></div><p><strong>{offer.hotel}</strong> · {offer.board}</p><input value={trip.hotel || ""} onChange={(e) => save({ ...trip, hotel: e.target.value })} placeholder="Dodaj numer rezerwacji / adres" /></section>
               <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet</h2></div>{offer.manual || offer.id < 0 ? <p>Własny wyjazd — dodawaj koszty poniżej w sekcji wydatków.</p> : <><div className="my-trip-budget"><span>Oferta</span><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong></div>{cost && <div className="my-trip-budget total"><span>Szacowany pełny koszt</span><strong>{cost.total.toLocaleString("pl-PL")} zł / os.</strong></div>}<Link href="/porownaj">Porównaj z innymi ofertami →</Link></>}</section>
               <section className="my-trip-card"><div className="my-trip-card-head"><Ticket size={20}/><h2>Co ogarnąć</h2></div><div className="my-trip-checklist">{checklistItems.map((item) => { const checked = Boolean(trip.checklist?.[item]); return <button key={item} onClick={() => toggleChecklist(item)}>{checked ? <CheckCircle2 size={18}/> : <Circle size={18}/>}<span>{item}</span></button>; })}</div></section>
