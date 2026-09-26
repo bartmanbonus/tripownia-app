@@ -48,9 +48,9 @@ export const seoGrowthLandings: SeoLanding[] = [
   },
   {
     slug: "city-break-z-wroclawia",
-    title: "City break z Wrocławia — weekend samolotem",
+    title: "City break z Wrocławia — tani weekend i lot + hotel z WRO",
     eyebrow: "CITY BREAK Z WROCŁAWIA",
-    lead: "City break z Wrocławia: aktualne propozycje na 2–5 dni, loty i noclegi na krótki wyjazd.",
+    lead: "City break z Wrocławia (WRO): tani weekend, lot + hotel i krótkie wyjazdy na 2–5 dni. Porównaj aktualne kierunki i pełny koszt podróży.",
     query: "City break",
     departure: "Wrocław",
     departureCode: "WRO",
@@ -123,9 +123,9 @@ export const seoGrowthLandings: SeoLanding[] = [
   },
   {
     slug: "last-minute-z-wroclawia",
-    title: "Last Minute z Wrocławia — aktualne okazje",
+    title: "Last minute z Wrocławia — wakacje i All Inclusive z WRO",
     eyebrow: "LAST MINUTE Z WROCŁAWIA",
-    lead: "Last minute z Wrocławia: aktualne wakacje, All Inclusive i ciepłe kierunki na najbliższe terminy.",
+    lead: "Last minute z Wrocławia (WRO): aktualne wakacje, All Inclusive, loty i ciepłe kierunki na najbliższe terminy.",
     query: "Last Minute",
     departure: "Wrocław",
     departureCode: "WRO",
