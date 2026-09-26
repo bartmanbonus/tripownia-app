@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import NewYearOffers from "@/components/NewYearOffers";
 
 export const metadata: Metadata = {
-  title: "City break na Sylwestra 2026/2027 — gdzie polecieć?",
-  description: "City break na Sylwestra 2026/2027: sprawdź pomysły na 3–6 nocy, cieplejsze kierunki i dłuższe wyjazdy za granicę oraz aktualne oferty.",
+  title: "City break na Sylwestra 2026/2027 — aktualne oferty i lot + hotel",
+  description: "City break na Sylwestra 2026/2027: aktualne oferty na 3–6 nocy, lot + hotel, krótkie wyjazdy do Europy i opcje na przełom roku.",
   alternates: { canonical: "/sylwester" },
 };
 
@@ -20,6 +21,10 @@ export default function Page() {
         <div className="newyear-type-nav">
           <a href="#city-break">City break 3–6 nocy</a>
           <a href="#dluzsze">Dłuższe 7–12 nocy</a>
+        </div>
+        <div className="seo-related-links" style={{ marginTop: 16 }}>
+          <Link href="/gdzie-na-sylwestra-2026-2027-15-kierunkow">Gdzie na Sylwestra? 15 kierunków →</Link>
+          <Link href="/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok">Ciepłe kraje na Sylwestra →</Link>
         </div>
       </section>
       <NewYearOffers />
