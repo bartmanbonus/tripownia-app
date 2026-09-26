@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
+import SearchHub from "@/components/SearchHub";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 const title = "Majówka 2027 – gdzie lecieć? City break i ciepłe kierunki";
@@ -49,7 +49,7 @@ export default function Majowka2027Page() {
 
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">PORÓWNAJ WYJAZD</div><h2>Sprawdź aktualne opcje na majówkę</h2></div></div>
-      <div className="single-partner-search-wrap"><UnifiedPartnerSearch mode="city" /></div>
+      <div className="single-partner-search-wrap"><SearchHub embedded initialTab="City break" initialDateMode="range" initialDateFrom="2027-04-29" initialDateTo="2027-05-05" /></div>
     </section>
 
     <section className="shell seo-copy-section">
