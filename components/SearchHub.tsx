@@ -21,6 +21,7 @@ type Props = {
   initialMonth?: string;
   initialWeekendOnly?: boolean;
   embedded?: boolean;
+  destinationQuickPicks?: string[];
 };
 
 type DateMode = "any" | "exact" | "month" | "range";
@@ -240,6 +241,7 @@ export default function SearchHub({
   initialMonth = "",
   initialWeekendOnly = false,
   embedded = false,
+  destinationQuickPicks = [],
 }: Props) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [destination, setDestination] = useState("");
@@ -722,11 +724,39 @@ export default function SearchHub({
         <div className="search-v3-head">
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
-            <h2>Gdzie chcesz lecieć?</h2>
-            <p>Wybierz kierunki i lotniska. Zostaw puste, jeśli chcesz szukać wszędzie.</p>
+            {!embedded && <h2>Gdzie chcesz lecieć?</h2>}
+            {!embedded && <p>Wybierz kierunki i lotniska. Zostaw puste, jeśli chcesz szukać wszędzie.</p>}
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
+
+        {embedded && destinationQuickPicks.length > 0 && (
+          <div className="search-v3-destination-picks" aria-label="Szybki wybór kierunku">
+            <span>Szybki wybór</span>
+            <div>
+              {destinationQuickPicks.map((place) => {
+                const active = selectedDestinations.length === 1 && selectedDestinations[0] === place;
+                return (
+                  <button
+                    key={place}
+                    type="button"
+                    className={active ? "active" : ""}
+                    aria-pressed={active}
+                    onClick={() => {
+                      setSelectedDestinations([place]);
+                      setDestination("");
+                      setSuggestionsOpen(false);
+                      setSearched(false);
+                      setNotice("");
+                    }}
+                  >
+                    {place}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="search-v3-tabs" role="group" aria-label="Rodzaj podróży">
           {["Inspiracje", "City break", "Lot + hotel", "Wakacje"].map((tab) => (
