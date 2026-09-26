@@ -75,6 +75,14 @@ const dedicatedAppPaths = new Set([
 ]);
 
 const seoOverrides: Record<string, Metadata> = {
+  "/jak-zorganizowac-wyjazd-samodzielnie-bez-biura-podrozy": {
+    title: "Indywidualne planowanie podróży – jak zorganizować wyjazd samodzielnie | Tripownia",
+    description: "Indywidualne planowanie podróży krok po kroku: kierunek, lot, nocleg, atrakcje, transfer i checklista. Zobacz, jak zorganizować wakacje bez biura podróży.",
+  },
+  "/bulgaria": {
+    title: "Bułgaria wakacje 2026 – Słoneczny Brzeg, Złote Piaski czy Nessebar? | Tripownia",
+    description: "Wyjazd do Bułgarii: porównaj Słoneczny Brzeg, Złote Piaski, Nessebar i Warnę. Sprawdź plaże, pogodę, All Inclusive i wybierz region na lato.",
+  },
   "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": {
     title: "Last minute z Rzeszowa – loty, wakacje i All Inclusive z Jasionki | Tripownia",
     description: "Last minute z Rzeszowa i lotniska RZE: sprawdź loty, wakacje, All Inclusive i pakiety z Jasionki. Porównaj aktualne kierunki i pełny koszt wyjazdu.",
@@ -181,8 +189,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "City break we Włoszech: porównaj Rzym, Mediolan, Bari, Neapol, Wenecję i Sycylię. Sprawdź pomysły na 2–5 dni, lot + hotel i najlepsze miasta na krótki wyjazd.",
   },
   "/warszawa-modlin": {
-    title: "Loty z Modlina 2026 – gdzie można polecieć? City break i tanie loty | Tripownia",
-    description: "Gdzie można polecieć z Warszawy-Modlin (WMI)? Sprawdź kierunki, city breaki, tanie loty i pomysły na krótki wyjazd z Modlina.",
+    title: "Gdzie można polecieć z Modlina? Loty, city break i last minute 2026 | Tripownia",
+    description: "Loty z Warszawy-Modlin (WMI): sprawdź kierunki, city breaki, tanie loty i last minute. Porównaj pomysły na krótki wyjazd z Modlina.",
   },
   "/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok": {
     title: "Sylwester 2026/2027 za granicą – gdzie polecieć na Nowy Rok? | Tripownia",
@@ -197,8 +205,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Planujesz Wietnam? Sprawdź różnice między Hanoi, Da Nang, Hoi An, Ho Chi Minh City i Phu Quoc. Dowiedz się, gdzie szukać plaż i jak połączyć regiony.",
   },
   "/cypr": {
-    title: "Cypr 2026 – Pafos, Larnaka czy Ayia Napa? Gdzie najlepiej lecieć | Tripownia",
-    description: "Porównaj Pafos, Larnakę, Ayia Napę, Protaras i Limassol. Sprawdź plaże, logistykę, pogodę i wybierz najlepszą bazę na Cyprze.",
+    title: "Cypr wakacje 2026 – Pafos, Larnaka, Ayia Napa i plaże | Tripownia",
+    description: "Cypr na wakacje: porównaj Pafos, Larnakę, Ayia Napę, Protaras i Limassol. Sprawdź plaże, pogodę, All Inclusive i wybierz najlepszą bazę.",
   },
   "/albania": {
     title: "Albania 2026 – Saranda, Ksamil, Vlora czy Durrës? Kurorty nad morzem | Tripownia",
