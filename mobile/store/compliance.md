@@ -16,21 +16,28 @@ This file records the current store-submission answers for the mobile wrapper. R
 
 Current product behavior:
 
-- No Tripownia account is required for the current app experience.
-- Favorites, comparison, profile preferences and My Trip are currently stored locally on the user's device/browser storage.
+- A Tripownia account is optional. Users can browse and plan locally without creating an account.
+- When a user chooses to sign in, Tripownia can synchronize profile preferences, favorites, compared offers, current and archived trips, alerts and planner/toolkit data between devices.
+- Authentication uses Supabase. Email is processed when a user chooses email-based sign-in.
 - Tripownia does not currently operate its own checkout for travel bookings; booking links open external partners.
 - Affiliate links may contain tracking identifiers used to attribute clicks or bookings to Tripownia.
+- Analytics and Meta Pixel may run according to the user's consent choices on the web experience loaded by the app.
 - Hosting/infrastructure may process technical request data such as IP address, device/browser information, request time and requested page for delivery, security and diagnostics.
 
-Before submission, verify the final production build and every third-party SDK. If no additional analytics/ads SDK is added, do not declare data collection that the app does not perform itself. External partner websites have their own data practices after the user leaves Tripownia.
+Before submission, verify the final production build and every enabled analytics/auth SDK or web integration against the current Google Play Data safety definitions.
 
 ## Apple App Privacy — draft
 
-Current architecture does not intentionally request name, email, phone number, precise location, contacts, photos, health data, financial information or user-generated content from Tripownia users.
+Current product behavior may involve:
 
-Potential technical data processed by hosting/network infrastructure may include IP address and device/browser diagnostics. Review Apple's current definition of "collected" at submission time and answer according to the actual production stack and any enabled analytics SDKs.
+- Email address, only when the user chooses to sign in using email.
+- User-provided travel profile and trip-planning data when the user chooses to use account synchronization.
+- Technical usage/diagnostic data through hosting and analytics integrations, subject to the production consent configuration.
+- Affiliate attribution data on outbound partner links.
 
-The current app does not use data for cross-company advertising tracking by Tripownia itself. Affiliate attribution parameters are used on outbound partner links and should be re-evaluated against Apple's tracking definition before final submission.
+Tripownia does not currently request precise location, contacts, health data, financial account information, microphone, camera or photo-library access as part of the core app experience.
+
+Review Apple's current definitions of collected data, tracking and linked-to-user data at submission time and answer according to the final production stack.
 
 ## Content rating draft
 
@@ -40,7 +47,7 @@ Expected rating target: the lowest general-audience rating permitted by the stor
 
 ## Account deletion
 
-The current product does not require or create a Tripownia user account. Therefore there is currently no Tripownia account-deletion flow to expose. If server-side accounts are added later, an in-app and web account-deletion path must be added before store submission/update where required.
+Tripownia accounts are optional. Because users can create an account, a compliant account-deletion path must be available before public store release wherever required by Apple or Google. Verify the final in-app/web deletion flow before submission.
 
 ## Payments
 
@@ -48,4 +55,4 @@ Tripownia does not currently sell digital content or digital subscriptions insid
 
 ## Reviewer notes draft
 
-Tripownia helps users discover travel ideas and offers, compare selected options, save favorites and organize a trip. The app links users to external travel providers to complete bookings. No login is required for the current experience.
+Tripownia helps users discover travel ideas and offers, compare selected options, save favorites and organize a trip. The app links users to external travel providers to complete bookings. Login is optional and is used for synchronization and personalization.
