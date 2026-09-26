@@ -525,3 +525,96 @@ body:has(.dream-hero) #wyszukiwarka .search-v3-quick{
     max-width:130px!important;
   }
 }
+
+
+/* 2026-09-26 Maldives aerial hero background */
+body:has(.dream-hero) .dream-hero{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+  padding-top:28px!important;
+  padding-bottom:54px!important;
+  background-image:
+    linear-gradient(180deg,rgba(255,255,255,.76) 0%,rgba(255,255,255,.66) 48%,rgba(255,255,255,.78) 100%),
+    url('/images/longhaul/malediwy.webp')!important;
+  background-size:cover!important;
+  background-position:center 44%!important;
+  background-repeat:no-repeat!important;
+}
+body:has(.dream-hero) .dream-hero::after{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:-1!important;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.28),transparent 24%,transparent 76%,rgba(255,255,255,.22))!important;
+  pointer-events:none!important;
+}
+body:has(.dream-hero) .dream-hero-shell{
+  position:relative!important;
+  z-index:1!important;
+}
+body:has(.dream-hero) .dream-hero-copy{
+  max-width:790px!important;
+  margin-inline:auto!important;
+  text-align:center!important;
+}
+body:has(.dream-hero) .dream-eyebrow{
+  background:rgba(255,248,244,.88)!important;
+  border-color:rgba(242,101,34,.22)!important;
+  backdrop-filter:blur(8px)!important;
+  -webkit-backdrop-filter:blur(8px)!important;
+}
+body:has(.dream-hero) .dream-hero h1{
+  text-shadow:0 1px 0 rgba(255,255,255,.55)!important;
+}
+body:has(.dream-hero) .dream-hero-copy>p{
+  color:#403a36!important;
+  text-shadow:0 1px 0 rgba(255,255,255,.4)!important;
+}
+body:has(.dream-hero) .dream-hero-actions{
+  justify-content:center!important;
+}
+body:has(.dream-hero) #wyszukiwarka.search-v3-section{
+  margin-top:-34px!important;
+  position:relative!important;
+  z-index:30!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3{
+  box-shadow:0 20px 55px rgba(38,27,20,.14),0 3px 10px rgba(38,27,20,.05)!important;
+  border-color:rgba(205,191,181,.9)!important;
+}
+
+@media (min-width:1100px){
+  body:has(.dream-hero) .dream-hero{
+    background-position:center 46%!important;
+  }
+}
+
+@media (max-width:920px){
+  body:has(.dream-hero) .dream-hero{
+    padding-top:22px!important;
+    padding-bottom:44px!important;
+    background-position:center 48%!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka.search-v3-section{
+    margin-top:-28px!important;
+  }
+}
+
+@media (max-width:640px){
+  body:has(.dream-hero) .dream-hero{
+    padding-top:18px!important;
+    padding-bottom:34px!important;
+    background-position:center 48%!important;
+  }
+  body:has(.dream-hero) .dream-hero-copy{
+    text-align:left!important;
+  }
+  body:has(.dream-hero) .dream-hero-actions{
+    justify-content:flex-start!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka.search-v3-section{
+    margin-top:-18px!important;
+  }
+}
