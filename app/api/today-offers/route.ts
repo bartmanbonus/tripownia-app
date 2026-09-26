@@ -608,6 +608,7 @@ export async function GET(request: NextRequest) {
   const nightsFilter = (request.nextUrl.searchParams.get("nights") || "any").trim();
   const boardFilter = (request.nextUrl.searchParams.get("board") || "any").trim();
   const weekendOnly = request.nextUrl.searchParams.get("weekend") === "1";
+  const lastMinuteOnly = request.nextUrl.searchParams.get("lastMinute") === "1";
   const maxPrice = Math.max(0, Number(request.nextUrl.searchParams.get("maxPrice") || 0));
   const startDateFilter = safeIsoDate(request.nextUrl.searchParams.get("start"));
   const endDateFilter = safeIsoDate(request.nextUrl.searchParams.get("end"));
@@ -758,13 +759,25 @@ export async function GET(request: NextRequest) {
         )
       : budgetCandidates;
 
+    const lastMinuteMatches = (offer: LiveCandidate) => {
+      if (!lastMinuteOnly) return true;
+      if (!offer.startDateISO) return false;
+      const start = new Date(offer.startDateISO + "T00:00:00Z").getTime();
+      if (!Number.isFinite(start)) return false;
+      const today = new Date();
+      today.setUTCHours(0, 0, 0, 0);
+      const daysOut = Math.round((start - today.getTime()) / 86400000);
+      return daysOut >= 0 && daysOut <= 30;
+    };
+
     const exactPool = rescueMode
       ? budgetCandidates
       : dateCandidates.filter((offer) =>
           departureMatches(offer) &&
           nightsMatches(offer) &&
           boardMatches(offer) &&
-          weekendMatches(offer)
+          weekendMatches(offer) &&
+          lastMinuteMatches(offer)
         );
 
     let pool = exactPool;
@@ -783,7 +796,8 @@ export async function GET(request: NextRequest) {
         pool = dateCandidates.filter((offer) =>
           departureMatches(offer) &&
           nightsMatches(offer) &&
-          weekendMatches(offer)
+          weekendMatches(offer) &&
+          lastMinuteMatches(offer)
         );
         if (pool.length) notice = "Brak ofert z wybranym wyżywieniem — pokazujemy inne wyżywienie, ale nadal tylko w wybranym terminie.";
       }
@@ -792,7 +806,8 @@ export async function GET(request: NextRequest) {
         pool = dateCandidates.filter((offer) =>
           departureMatches(offer) &&
           nightsMatches(offer) &&
-          weekendMatches(offer)
+          weekendMatches(offer) &&
+          lastMinuteMatches(offer)
         );
         if (pool.length) notice = "Brak ofert w tym budżecie — pokazujemy droższe opcje, ale nadal tylko w wybranym terminie.";
       }
@@ -800,13 +815,14 @@ export async function GET(request: NextRequest) {
       if (!pool.length && nightsFilter !== "any") {
         pool = dateCandidates.filter((offer) =>
           departureMatches(offer) &&
-          weekendMatches(offer)
+          weekendMatches(offer) &&
+          lastMinuteMatches(offer)
         );
         if (pool.length) notice = "Brak ofert dla dokładnej długości pobytu — pokazujemy inne długości, ale nadal tylko w wybranym terminie.";
       }
 
       if (!pool.length && weekendOnly) {
-        pool = dateCandidates.filter((offer) => departureMatches(offer));
+        pool = dateCandidates.filter((offer) => departureMatches(offer) && lastMinuteMatches(offer));
         if (pool.length) notice = "Nie znaleźliśmy wyjazdu obejmującego weekend — pokazujemy dostępne opcje z tego samego zakresu dat.";
       }
 
