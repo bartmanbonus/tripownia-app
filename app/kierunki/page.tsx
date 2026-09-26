@@ -67,7 +67,7 @@ const directions = [
   {
     "href": "/wlochy",
     "search": "wlochy rzym mediolan bari sycylia sardynia neapol",
-    "category": "wakacje city-break",
+    "category": "city-break",
     "image": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=1200&q=86",
     "alt": "Włochy i Koloseum w Rzymie",
     "badges": [
@@ -93,7 +93,7 @@ const directions = [
   {
     "href": "/chorwacja",
     "search": "chorwacja dubrownik split zadar adriatyk",
-    "category": "wakacje city-break",
+    "category": "city-break",
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Aerial%20view%20of%20the%20Old%20Town%20of%20Dubrovnik%20-%20Croatia.jpg?width=1200",
     "alt": "Chorwacja i stare miasto w Dubrowniku",
     "badges": [
@@ -106,7 +106,7 @@ const directions = [
   {
     "href": "/malta",
     "search": "malta valletta blue lagoon comino gozo",
-    "category": "wakacje city-break",
+    "category": "city-break",
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Blue%20Lagoon%2C%20Comino.jpg?width=1200",
     "alt": "Malta, Blue Lagoon i wyspa Comino",
     "badges": [
@@ -132,7 +132,7 @@ const directions = [
   {
     "href": "/czarnogora",
     "search": "czarnogora kotor budva zatoka kotorska",
-    "category": "wakacje",
+    "category": "roadtrip",
     "image": "https://commons.wikimedia.org/wiki/Special:FilePath/Castillo%20de%20San%20Juan%2C%20Kotor%2C%20Bah%C3%ADa%20de%20Kotor%2C%20Montenegro%2C%202014-04-19%2C%20DD%2013.JPG?width=1200",
     "alt": "Czarnogóra, Kotor i Zatoka Kotorska",
     "badges": [
@@ -145,7 +145,7 @@ const directions = [
   {
     "href": "/portugalia",
     "search": "portugalia lizbona porto algarve madera",
-    "category": "wakacje city-break",
+    "category": "city-break",
     "image": "https://images.unsplash.com/photo-1555881400-74d7acaacd8b?auto=format&fit=crop&w=1200&q=86",
     "alt": "Portugalia i kolorowa Lizbona",
     "badges": [
@@ -158,7 +158,7 @@ const directions = [
   {
     "href": "/francja",
     "search": "francja paryz nicea lazurowe wybrzeze marsylia",
-    "category": "wakacje city-break",
+    "category": "city-break",
     "image": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=1200&q=86",
     "alt": "Francja i wieża Eiffla w Paryżu",
     "badges": [
@@ -236,7 +236,7 @@ const directions = [
   {
     "href": "/tajlandia",
     "search": "tajlandia bangkok phuket krabi koh samui",
-    "category": "wakacje city-break egzotyka",
+    "category": "city-break egzotyka",
     "image": "https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=1200&q=86",
     "alt": "Tajlandia, świątynia i egzotyczny krajobraz",
     "badges": [
