@@ -7,7 +7,6 @@ import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
 import { offers, isOfferExpired } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
-import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
 export const metadata: Metadata = {
   title: "Last Minute 2026 — aktualne wakacje i All Inclusive",
