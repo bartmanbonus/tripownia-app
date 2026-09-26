@@ -609,6 +609,7 @@ export async function GET(request: NextRequest) {
   const boardFilter = (request.nextUrl.searchParams.get("board") || "any").trim();
   const weekendOnly = request.nextUrl.searchParams.get("weekend") === "1";
   const lastMinuteOnly = request.nextUrl.searchParams.get("lastMinute") === "1";
+  const minPrice = Math.max(0, Number(request.nextUrl.searchParams.get("minPrice") || 0));
   const maxPrice = Math.max(0, Number(request.nextUrl.searchParams.get("maxPrice") || 0));
   const startDateFilter = safeIsoDate(request.nextUrl.searchParams.get("start"));
   const endDateFilter = safeIsoDate(request.nextUrl.searchParams.get("end"));
@@ -742,7 +743,7 @@ export async function GET(request: NextRequest) {
       return false;
     };
 
-    const withinBudget = (offer: LiveCandidate) => !maxPrice || offer.price <= maxPrice;
+    const withinBudget = (offer: LiveCandidate) => (!minPrice || offer.price >= minPrice) && (!maxPrice || offer.price <= maxPrice);
     const budgetCandidates = allCandidates.filter(withinBudget);
     const departureDateMatches = (offer: LiveCandidate) => {
       if (!startDateFilter && !endDateFilter) return true;
@@ -802,14 +803,14 @@ export async function GET(request: NextRequest) {
         if (pool.length) notice = "Brak ofert z wybranym wyżywieniem — pokazujemy inne wyżywienie, ale nadal tylko w wybranym terminie.";
       }
 
-      if (!pool.length && maxPrice) {
+      if (!pool.length && (minPrice || maxPrice)) {
         pool = dateCandidates.filter((offer) =>
           departureMatches(offer) &&
           nightsMatches(offer) &&
           weekendMatches(offer) &&
           lastMinuteMatches(offer)
         );
-        if (pool.length) notice = "Brak ofert w tym budżecie — pokazujemy droższe opcje, ale nadal tylko w wybranym terminie.";
+        if (pool.length) notice = "Brak ofert w wybranym budżecie — pokazujemy najbliższe cenowo opcje, ale nadal tylko w wybranym terminie.";
       }
 
       if (!pool.length && nightsFilter !== "any") {
