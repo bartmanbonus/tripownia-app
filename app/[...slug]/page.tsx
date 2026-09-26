@@ -224,6 +224,13 @@ export default async function RoutePage({ params }: { params: Promise<{ slug: st
   const { slug } = await params;
   const path = "/" + slug.join("/");
 
+  // Consolidate legacy WordPress /post_id duplicates into their clean canonical URL.
+  // GSC still shows substantial impressions/clicks on these aliases, so a permanent
+  // redirect preserves existing signals instead of leaving duplicate indexable pages.
+  if (path.endsWith("/post_id") && findLegacy(path)) {
+    permanentRedirect(legacyCanonicalPath(path));
+  }
+
   const legacyRedirects: Record<string, string> = {
     "/453-2": "/magazyn-podrozniczy",
     "/4557-2": "/gdzie-jest-cieplo-w-listopadzie",
