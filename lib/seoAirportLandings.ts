@@ -33,9 +33,9 @@ export const seoAirportLandings: SeoLanding[] = [
   },
   {
     slug: "last-minute-z-gdanska",
-    title: "Last Minute z Gdańska — aktualne wyloty z Trójmiasta",
-    eyebrow: "LAST MINUTE Z GDAŃSKA",
-    lead: "Last minute z Gdańska: szybkie wakacje, All Inclusive i ciepłe kierunki z wylotem z GDN.",
+    title: "Last minute z Gdańska — wakacje, All Inclusive i loty z GDN",
+    eyebrow: "LAST MINUTE Z GDAŃSKA / TRÓJMIASTA",
+    lead: "Last minute z Gdańska (GDN): aktualne wakacje, All Inclusive, loty i ciepłe kierunki na najbliższe terminy z Trójmiasta.",
     query: "Last Minute",
     departure: "Gdańsk",
     departureCode: "GDN",
