@@ -9,11 +9,11 @@ import { LONG_HAUL_IMAGES } from "@/lib/longHaulImages";
 export const revalidate = 86400;
 
 export const metadata: Metadata = {
-  title: "Dalekie podróże — Wietnam, Pekin, Nowy Jork, Japonia i więcej | Tripownia.pl",
+  title: "Dalekie podróże — Wietnam, Pekin, Nowy Jork, Japonia i więcej",
   description: "Pomysły na dalsze podróże z Polski: Wietnam, Pekin, Nowy Jork, Japonia, Tajlandia, Bali, Singapur, RPA, Australia, Malediwy i Meksyk. Loty i hotele z gotowym kierunkiem.",
   alternates: { canonical: "/dalekie-podroze" },
   openGraph: {
-    title: "Dalekie podróże | Tripownia.pl",
+    title: "Dalekie podróże",
     description: "Kierunki na większą podróż — z podpowiedzią, ile dni warto mieć i kiedy najlepiej lecieć.",
     url: "https://tripownia.pl/dalekie-podroze",
     type: "website",
