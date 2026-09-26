@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Cloud, Download, LogOut, Mail, ShieldCheck, Sparkles, UserRound } from "lucide-react";
+import { CheckCircle2, Cloud, Download, LogOut, Mail, ShieldCheck, Sparkles, Trash2, UserRound } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { readTravelProfile } from "@/lib/travelProfile";
@@ -10,6 +10,7 @@ import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountStat
 import {
   accountAuthEventName,
   consumeAccountSessionFromUrl,
+  deleteAccount,
   ensureFreshAccountSession,
   getAccountUser,
   getTripowniaUserState,
@@ -145,6 +146,31 @@ export default function AccountPage() {
     setMessage("Wylogowano. Prywatne dane podróży zostały usunięte z tego urządzenia; kopia konta pozostaje w chmurze.");
   }
 
+  async function removeAccount() {
+    if (!session) return;
+    const confirmed = window.confirm("Usunąć konto Tripowni na stałe? Znikną dane zapisane w chmurze i nie będzie można ich odzyskać.");
+    if (!confirmed) return;
+
+    const secondConfirmed = window.confirm("To ostatnie potwierdzenie. Czy na pewno chcesz trwale usunąć konto i dane konta?");
+    if (!secondConfirmed) return;
+
+    setBusy(true);
+    setMessage("");
+    try {
+      await deleteAccount(session);
+      clearLocalAccountState();
+      setSession(null);
+      setUser(null);
+      setCloudState(null);
+      setSynced((value) => value + 1);
+      setMessage("Konto i dane zapisane w chmurze zostały trwale usunięte.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Nie udało się usunąć konta.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const googleEnabled = isSocialProviderEnabled("google");
   const nextPath = typeof window !== "undefined" ? safeNextPath() : "";
   const authRedirect = typeof window !== "undefined"
@@ -178,6 +204,7 @@ export default function AccountPage() {
               <button type="button" className="account-primary-button" onClick={syncLocalData} disabled={busy}><Cloud size={17}/>{busy ? "Synchronizuję…" : "Zapisz to urządzenie w chmurze"}</button>
               {cloudState && <button type="button" className="account-social-button" onClick={restoreCloudData} disabled={busy}><Download size={16}/> Wczytaj dane z chmury na to urządzenie</button>}
               <button type="button" className="account-logout" onClick={logout} disabled={busy}><LogOut size={16}/> Wyloguj</button>
+              <button type="button" className="account-delete" onClick={removeAccount} disabled={busy}><Trash2 size={16}/> Usuń konto i dane</button>
             </div>
 
             <div className="account-card">
