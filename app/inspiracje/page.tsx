@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Compass, Flame, Heart, Map, Sparkles, Trophy } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -93,12 +94,13 @@ export default function InspirationsPage() {
         {moods.map((item) => {
           const Icon = item.icon;
           return <Link className={`inspo-mood-card tone-${item.tone}`} href={item.href} key={item.title}>
-            <img
+            <Image
               src={item.image}
               alt={item.imageAlt}
+              fill
+              sizes="(max-width: 760px) 100vw, 50vw"
               loading="lazy"
-              decoding="async"
-              style={{ objectPosition: item.imagePosition }}
+              style={{ objectFit: "cover", objectPosition: item.imagePosition }}
             />
             <div className="inspo-mood-overlay" />
             <div className="inspo-mood-content"><span><Icon size={15} />{item.kicker}</span><h3>{item.title}</h3><p>{item.text}</p><b>Odkryj propozycje <ArrowRight size={16} /></b></div>
