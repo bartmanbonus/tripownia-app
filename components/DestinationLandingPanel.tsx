@@ -109,8 +109,8 @@ const DESTINATIONS: Record<string, DestinationLandingConfig> = {
   "/albania": {
     flag: "🇦🇱",
     eyebrow: "ALBANIA",
-    title: "Albania: Riwiera, plaże i wakacje bez kombinowania",
-    lead: "Porównaj Riwierę Albańską, Ksamil, Sarandę i Durrës. Ustaw termin, lotnisko i długość pobytu, a potem sprawdź aktualne wakacje i noclegi.",
+    title: "Albania: kurorty, Riwiera i wakacje nad morzem",
+    lead: "Porównaj kurorty w Albanii: Ksamil, Sarandę, Durrës i Riwierę Albańską. Ustaw termin, lotnisko i długość pobytu, a potem sprawdź aktualne wakacje i noclegi.",
     searchDestination: "Albania",
     image: "/images/destinations/riwiera-albanska.jpg",
     popular: ["Ksamil", "Saranda", "Riwiera Albańska", "Durrës"],
