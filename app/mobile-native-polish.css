@@ -955,3 +955,22 @@
     font-size:11.5px!important;
   }
 }
+
+
+/* Mobile app discovery parity with public web */
+.app-discovery-section{margin:24px 0 10px}
+.app-discovery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.app-discovery-grid>a{display:flex;flex-direction:column;gap:7px;min-height:116px;padding:16px;border:1px solid #ece5df;border-radius:18px;background:#fff;color:#231f1c;text-decoration:none}
+.app-discovery-grid>a strong{font-size:15px;line-height:1.15}
+.app-discovery-grid>a span{font-size:12px;line-height:1.4;color:#746d68}
+.app-discovery-grid>a svg{color:#ef5b32}
+@media(max-width:820px){.app-discovery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){
+  .app-discovery-section{margin-top:18px}
+  .app-discovery-section .section-heading{align-items:flex-start!important;gap:10px!important}
+  .app-discovery-section .section-heading>a{font-size:12px!important}
+  .app-discovery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .app-discovery-grid>a{min-height:106px;padding:13px;border-radius:15px}
+  .app-discovery-grid>a strong{font-size:14px}
+  .app-discovery-grid>a span{font-size:11px}
+}
