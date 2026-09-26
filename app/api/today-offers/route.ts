@@ -611,6 +611,7 @@ export async function GET(request: NextRequest) {
   const maxPrice = Math.max(0, Number(request.nextUrl.searchParams.get("maxPrice") || 0));
   const startDateFilter = safeIsoDate(request.nextUrl.searchParams.get("start"));
   const endDateFilter = safeIsoDate(request.nextUrl.searchParams.get("end"));
+  const dateKind = (request.nextUrl.searchParams.get("dateKind") || "").trim();
   const rescueMode = (request.nextUrl.searchParams.get("rescue") || "").trim();
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
@@ -734,8 +735,19 @@ export async function GET(request: NextRequest) {
 
     const withinBudget = (offer: LiveCandidate) => !maxPrice || offer.price <= maxPrice;
     const budgetCandidates = allCandidates.filter(withinBudget);
+    const departureDateMatches = (offer: LiveCandidate) => {
+      if (!startDateFilter && !endDateFilter) return true;
+      if (!offer.startDateISO) return false;
+      if (startDateFilter && offer.startDateISO < startDateFilter) return false;
+      if (endDateFilter && offer.startDateISO > endDateFilter) return false;
+      return true;
+    };
     const dateCandidates = (startDateFilter || endDateFilter)
-      ? budgetCandidates.filter((offer) => dateWindowMatches(offer, startDateFilter, endDateFilter))
+      ? budgetCandidates.filter((offer) =>
+          dateKind === "departure"
+            ? departureDateMatches(offer)
+            : dateWindowMatches(offer, startDateFilter, endDateFilter)
+        )
       : budgetCandidates;
 
     const exactPool = rescueMode
@@ -753,7 +765,9 @@ export async function GET(request: NextRequest) {
       : query && !allCandidates.length
         ? `Nie znaleźliśmy teraz potwierdzonej oferty dla: ${query}.`
         : (startDateFilter || endDateFilter) && !dateCandidates.length
-          ? "Nie mamy teraz potwierdzonej oferty mieszczącej się w całym wybranym zakresie dat. Nie pokazujemy ofert z innych miesięcy jako rzekomego dopasowania."
+          ? dateKind === "departure"
+            ? "Nie mamy teraz potwierdzonej oferty z wylotem w wybranym zakresie dat. Nie pokazujemy ofert z innych terminów jako rzekomego dopasowania."
+            : "Nie mamy teraz potwierdzonej oferty mieszczącej się w całym wybranym zakresie dat. Nie pokazujemy ofert z innych miesięcy jako rzekomego dopasowania."
           : "";
 
     if (mode === "search" || mode === "citybreak") {
