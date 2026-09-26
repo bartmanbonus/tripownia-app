@@ -91,6 +91,16 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
       { href: "/podroze/last-minute-z-katowic", label: "Last minute z Katowic" },
       { href: "/podroze/wakacje-z-katowic", label: "Wakacje z Katowic" },
     ],
+    "/lublin-wakacje-city-break": [
+      { href: "/podroze/city-break-z-lublina", label: "City break z Lublina" },
+      { href: "/podroze/wakacje-z-lublina", label: "Wakacje z Lublina" },
+      { href: "/podroze/tanie-loty-z-lublina", label: "Tanie loty z Lublina" },
+    ],
+    "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel": [
+      { href: "/podroze/last-minute-z-olsztyna-mazur", label: "Last minute z Olsztyna-Mazur" },
+      { href: "/podroze/wakacje-z-olsztyna-mazur", label: "Wakacje z Olsztyna-Mazur" },
+      { href: "/podroze/city-break-z-olsztyna-mazur", label: "City break z Olsztyna-Mazur" },
+    ],
   };
   if (airportLandingLinks[canonicalPath]) return airportLandingLinks[canonicalPath];
   if (hay.includes("limit") && hay.includes("płyn")) return [
