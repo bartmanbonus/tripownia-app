@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import ArticlePartnerSearch from "@/components/ArticlePartnerSearch";
 import ArticleDeepDiveBlock from "@/components/ArticleDeepDiveBlock";
 import ArticleShare from "@/components/ArticleShare";
+import DestinationLandingPanel, { hasDestinationLanding } from "@/components/DestinationLandingPanel";
 import type { LegacyItem } from "@/lib/legacy";
 import { legacyCanonicalPath } from "@/lib/legacy";
 import { offers } from "@/lib/offers";
@@ -212,6 +213,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const archived = item.type === "product";
   const canonicalPath = legacyCanonicalPath(item.path);
   const isDestination = destinationGuidePaths.includes(canonicalPath);
+  const hasConversionPanel = hasDestinationLanding(canonicalPath);
   const parent = isDestination ? { name: "Kierunki", href: "/kierunki" }
     : item.type === "post" ? { name: "Poradniki", href: "/poradniki" }
     : { name: archived ? "Archiwum ofert" : "Okazje", href: "/okazje" };
