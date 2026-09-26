@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import TravelImage from "@/components/TravelImage";
 import type { Offer } from "@/lib/offers";
 
@@ -58,14 +59,18 @@ function formatShortDate(value: string) {
   return new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(`${value}T00:00:00Z`));
 }
 
-function curatedEximLink(item: CuratedIdea) {
+function curatedSearchLink(item: CuratedIdea) {
   const params = new URLSearchParams({
     destination: item.city,
-    country: item.country,
-    from: "WAW",
-    nights: String(nightsFromDates(item.dates)),
+    from: item.dates[0],
+    to: item.dates[1],
   });
-  return `/go/exim-best?${params.toString()}`;
+  return `/sylwester?${params.toString()}#szukaj-sylwester`;
+}
+
+function liveSearchLink(offer: Offer) {
+  const params = new URLSearchParams({ destination: offer.city });
+  return `/sylwester?${params.toString()}#szukaj-sylwester`;
 }
 
 export default function NewYearOffers() {
@@ -131,7 +136,7 @@ export default function NewYearOffers() {
                 <p><b>{offer.hotel}</b>{offer.board ? ` · ${offer.board}` : ""}</p>
                 <p>{offer.reason}</p>
                 <div className="seasonal-actions">
-                  <a className="newyear-primary-cta" href={offer.affiliateUrl || "#"} target="_blank" rel="sponsored noopener noreferrer">Zobacz tę ofertę →</a>
+                  <Link className="newyear-primary-cta" href={liveSearchLink(offer)}>Pokaż oferty na Tripowni →</Link>
                 </div>
               </div>
             </article>
@@ -148,7 +153,7 @@ export default function NewYearOffers() {
                 <p>{item.why}</p>
                 <p><b>Co połączyć:</b> {item.see}</p>
                 <div className="seasonal-actions">
-                  <a className="newyear-primary-cta" href={curatedEximLink(item)} target="_blank" rel="sponsored noopener noreferrer">Sprawdź aktualne pakiety →</a>
+                  <Link className="newyear-primary-cta" href={curatedSearchLink(item)}>Sprawdź ten kierunek tutaj →</Link>
                 </div>
               </div>
             </article>
