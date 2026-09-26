@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import NewYearOffers from "@/components/NewYearOffers";
+import SearchHub from "@/components/SearchHub";
 
 export const metadata: Metadata = {
   title: "City break na Sylwestra 2026/2027 — aktualne oferty i lot + hotel",
@@ -27,6 +28,26 @@ export default function Page() {
           <Link href="/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok">Ciepłe kraje na Sylwestra →</Link>
         </div>
       </section>
+
+      <section className="section shell" id="szukaj-sylwester">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">SZUKAJ PO SWOJEMU</div>
+            <h2>Wybierz kierunek, lotnisko i termin na przełom roku</h2>
+            <p>Możesz wybrać konkretny kierunek albo Gdziekolwiek, jedno lub kilka lotnisk oraz własny zakres dat.</p>
+          </div>
+        </div>
+        <div className="single-partner-search-wrap">
+          <SearchHub
+            embedded
+            initialTab="Wakacje"
+            initialDateMode="range"
+            initialDateFrom="2026-12-27"
+            initialDateTo="2027-01-03"
+          />
+        </div>
+      </section>
+
       <NewYearOffers />
       <SiteFooter />
     </main>
