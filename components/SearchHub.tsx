@@ -748,7 +748,7 @@ export default function SearchHub({
                 value={destination}
                 onChange={(event) => { setDestination(event.target.value); openDestinationPanel(); }}
                 onFocus={openDestinationPanel}
-                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Np. Rzym, Malta, Tokio"}
+                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Gdziekolwiek albo np. Rzym, Malta, Tokio"}
                 autoComplete="off"
               />
               {destination && <button type="button" aria-label="Wyczyść wpisany kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
@@ -773,7 +773,7 @@ export default function SearchHub({
 
                 <div className="search-v3-panel-scroll">
                   <button type="button" className="search-v3-anywhere" onClick={() => { setSelectedDestinations([]); setDestination(""); setSuggestionsOpen(false); }}>
-                    <MapPin size={15}/><span><strong>🌍 Gdziekolwiek</strong><small>Pokaż najlepsze opcje bez ograniczania kierunku</small></span>
+                    <MapPin size={15}/><span><strong>🌍 Gdziekolwiek</strong><small>Bez ograniczenia kierunku — pokaż najlepsze dostępne opcje</small></span>
                   </button>
                   {suggestions.length > 0 ? suggestions.map((item) => (
                     <button key={item.label} type="button" onClick={() => {
@@ -1030,6 +1030,10 @@ export default function SearchHub({
 
         {searched && (
           <div className="search-v3-results">
+            <div className="search-v3-active-summary">
+              <strong>{selectedDestinations.length ? selectedDestinations.join(" + ") : "Gdziekolwiek"}</strong>
+              <span>{departures.length ? departures.length === 1 ? "1 wybrane lotnisko" : `${departures.length} wybrane lotniska` : "Wszystkie lotniska"} · {dateSummary}</span>
+            </div>
             <div className="search-v3-results-head" role="status" aria-live="polite">
               <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `Znalezione oferty: ${results.length}` : "Brak potwierdzonego dopasowania"}</h3></div>
               {notice && <p>{notice}</p>}
