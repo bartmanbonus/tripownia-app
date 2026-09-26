@@ -222,10 +222,11 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
       const response=await fetch(`/api/today-offers?${params.toString()}`,{cache:"no-store"});
       const payload=await response.json();
       const rows=Array.isArray(payload?.offers)?payload.offers:[];
+      const notice=typeof payload?.notice==="string"?payload.notice:"";
       setLiveOffers(rows);
-      setLiveNotice(typeof payload?.notice==="string"?payload.notice:"");
-      if(!response.ok && !rows.length) setSearchError(payload?.error||"Nie udało się pobrać aktualnych ofert.");
-      if(response.ok && !rows.length) setSearchError("Nie znaleźliśmy teraz potwierdzonej oferty dla tych parametrów. Zmień termin, lotnisko albo kierunek.");
+      setLiveNotice(notice);
+      if(!response.ok && !rows.length) setSearchError(payload?.error||notice||"Nie udało się pobrać aktualnych ofert.");
+      if(response.ok && !rows.length) setSearchError(notice||"Nie znaleźliśmy teraz potwierdzonej oferty dla tych parametrów. Zmień termin, lotnisko albo kierunek.");
     }catch{
       setSearchError("Nie udało się teraz pobrać aktualnych ofert. Spróbuj ponownie za chwilę.");
     }finally{
@@ -273,7 +274,7 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
 
     {submitted&&!blockedDestination&&searchType!=="flights"&&searchType!=="hotels"&&<div className="trip-live-search-results">
       <div className="trip-live-search-head">
-        <div><small>AKTUALNE DOPASOWANIA</small><strong>{liveOffers.length? `${liveOffers.length} ${liveOffers.length===1?"konkretna oferta":"konkretne oferty"}` : searching ? "Szukamy ofert…" : "Brak potwierdzonych ofert"}</strong></div>
+        <div><small>AKTUALNE DOPASOWANIA</small><strong>{liveOffers.length? `${Math.min(liveOffers.length,12)} ${Math.min(liveOffers.length,12)===1?"konkretna oferta":"konkretnych ofert"}${liveOffers.length>12?" z najlepszych dopasowań":""}` : searching ? "Szukamy ofert…" : "Brak potwierdzonych ofert"}</strong></div>
         <span>{canonicalDestination(destination)||"Gdziekolwiek"} · {from.includes("ANY")?"dowolne lotnisko":from.map(airportLabel).join(" + ")} · {start} – {end}</span>
       </div>
       {liveNotice&&<p className="trip-live-search-notice">{liveNotice}</p>}
