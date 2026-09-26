@@ -68,9 +68,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     // compete with descriptive evergreen URLs in Google's crawl queue.
     if (/^\/\d+(?:-\d+)?$/.test(path)) return true;
 
-    // Old emoji-prefixed article slugs are still reachable, but we keep them
-    // out of the sitemap so the sitemap only advertises clean, descriptive URLs.
-    if (lowerPath.startsWith("/%f0%9f")) return true;
+    // Old emoji-decorated slugs are still reachable, but they are migration
+    // leftovers and should not be advertised to Google from the sitemap.
+    if (lowerPath.includes("%f0%9f")) return true;
+
+    // Old promotional/duplicate migration articles are intentionally reachable,
+    // but they are not useful sitemap targets compared with the current hubs.
+    if ([
+      "/jedna-cena-za-calosc-zero-niespodzianek-dlaczego-tripownia-pl-wygrywa-z-konkurencja%e2%9c%88%ef%b8%8f%f0%9f%92%b0",
+      "/ukryta-pora-roku-podrozniczy-game-changer-2026-czyli-przelom-w-planowaniu-wyjazdow-%e2%9c%88%ef%b8%8f%f0%9f%8c%bf",
+    ].includes(lowerPath)) return true;
 
     return false;
   };
