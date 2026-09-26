@@ -5,6 +5,8 @@ import { BedDouble, CalendarDays, Check, MapPin, Package, Plane, Search, Sun, Us
 import { partners } from "@/lib/partners";
 import { isTravelDestinationBlocked } from "@/lib/travelSafety";
 import { trackEvent } from "@/lib/analytics";
+import OfferCard from "@/components/OfferCard";
+import type { Offer } from "@/lib/offers";
 
 type Mode = "all" | "city" | "holiday" | "lastminute";
 type SearchType = "package" | "city" | "holiday" | "lastminute" | "flights" | "hotels";
@@ -160,6 +162,10 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
   const [adults,setAdults]=useState(initialAdults);
   const [weekendOnly,setWeekendOnly]=useState(initialWeekendOnly);
   const [submitted,setSubmitted]=useState(false);
+  const [liveOffers,setLiveOffers]=useState<Offer[]>([]);
+  const [liveNotice,setLiveNotice]=useState("");
+  const [searching,setSearching]=useState(false);
+  const [searchError,setSearchError]=useState("");
   const blockedDestination=isTravelDestinationBlocked(destination);
   const selectedFrom = from.includes("ANY") ? "WAW" : (from[0] || "WAW");
   const links=useMemo(()=>buildLinks(destination,selectedFrom,start,end,adults,searchType),[destination,selectedFrom,start,end,adults,searchType]);
@@ -179,12 +185,6 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
     return {label:"Sprawdź pakiety w EXIM Tours",url:links.exim,source:"EXIM Tours"};
   },[searchType,links]);
 
-  const alternative=useMemo(()=>{
-    if(searchType==="holiday"||searchType==="lastminute") return {label:"Porównaj w Wakacje.pl",url:links.wakacje,source:"Wakacje.pl"};
-    if(searchType==="city"||searchType==="package") return {label:"Porównaj w TUI",url:links.tui,source:"TUI"};
-    return null;
-  },[searchType,links]);
-
   function changeType(type:SearchType){
     setSearchType(type);
     setSubmitted(false);
@@ -192,8 +192,11 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
     if((type==="holiday"||type==="lastminute") && start){ setEnd(plusDays(start,7)); }
   }
 
-  function submitSearch(){
+  async function submitSearch(){
     setSubmitted(true);
+    setSearchError("");
+    setLiveNotice("");
+    setLiveOffers([]);
     trackEvent("partner_search_submit",{
       search_type:searchType,
       destination:canonicalDestination(destination)||"dowolny",
@@ -203,6 +206,31 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
       adults,
       weekend_only:weekendOnly,
     });
+
+    if(searchType==="flights" || searchType==="hotels") return;
+
+    const params=new URLSearchParams();
+    params.set("mode",searchType==="city"?"citybreak":"search");
+    if(destination.trim()) params.set("q",destination.trim());
+    if(!from.includes("ANY") && from.length) params.set("from",from.join(","));
+    if(start) params.set("start",start);
+    if(end) params.set("end",end);
+    if(weekendOnly) params.set("weekend","1");
+
+    setSearching(true);
+    try{
+      const response=await fetch(`/api/today-offers?${params.toString()}`,{cache:"no-store"});
+      const payload=await response.json();
+      const rows=Array.isArray(payload?.offers)?payload.offers:[];
+      setLiveOffers(rows);
+      setLiveNotice(typeof payload?.notice==="string"?payload.notice:"");
+      if(!response.ok && !rows.length) setSearchError(payload?.error||"Nie udało się pobrać aktualnych ofert.");
+      if(response.ok && !rows.length) setSearchError("Nie znaleźliśmy teraz potwierdzonej oferty dla tych parametrów. Zmień termin, lotnisko albo kierunek.");
+    }catch{
+      setSearchError("Nie udało się teraz pobrać aktualnych ofert. Spróbuj ponownie za chwilę.");
+    }finally{
+      setSearching(false);
+    }
   }
 
   return <section className="trip-search-engine trip-search-conversion" id="pelna-wyszukiwarka">
@@ -227,7 +255,7 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
         <label className="trip-field"><span><CalendarDays size={15}/> Kiedy?</span><input type="date" value={start} onChange={e=>{setSubmitted(false);setStart(e.target.value);if(e.target.value>=end)setEnd(plusDays(e.target.value,(searchType==="city"||searchType==="package")?3:7))}}/></label>
         <label className="trip-field"><span><CalendarDays size={15}/> Do kiedy?</span><input type="date" min={start} value={end} onChange={e=>{setEnd(e.target.value);setSubmitted(false)}}/></label>
         <label className="trip-field trip-people"><span><Users size={15}/> Ile osób?</span><select value={adults} onChange={e=>{setAdults(Number(e.target.value));setSubmitted(false)}}>{[1,2,3,4,5,6].map(n=><option value={n} key={n}>{n} {n===1?"osoba":"osoby"}</option>)}</select></label>
-        <button className="trip-search-submit" type="button" onClick={submitSearch} disabled={blockedDestination}><Search size={19}/><span>Znajdź wyjazd</span></button>
+        <button className="trip-search-submit" type="button" onClick={submitSearch} disabled={blockedDestination||searching}><Search size={19}/><span>{searching?"Szukamy aktualnych ofert…":"Znajdź wyjazd"}</span></button>
       </div>
       <div className="trip-search-weekend-row">
         <label className={`weekend-required ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>{const checked=e.target.checked;setWeekendOnly(checked);setSubmitted(false);if(checked){const r=weekendRange(start,searchType);setStart(r.start);setEnd(r.end);}}}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Musi obejmować weekend</strong><small>Tripownia ustawi najbliższy sensowny termin z sobotą i niedzielą.</small></div></label>
@@ -235,13 +263,22 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
       {blockedDestination&&<div role="alert" style={{marginTop:12,padding:"12px 14px",borderRadius:14,background:"#fff2ed",border:"1px solid #ffd0c2",fontWeight:750,color:"#8a2b12"}}>Ten kierunek nie jest obecnie promowany przez Tripownię ze względów bezpieczeństwa. Wybierz inny kierunek.</div>}
     </div>
 
-    {submitted&&!blockedDestination&&<div className="trip-search-results trip-search-decision">
+    {submitted&&!blockedDestination&&(searchType==="flights"||searchType==="hotels")&&<div className="trip-search-results trip-search-decision">
       <div><small>KROK 2 Z 3 · GOTOWE</small><strong>{canonicalDestination(destination)||"Gdziekolwiek"}</strong><span>{searchType!=="hotels"?`${from.includes("ANY")?"Dowolne lotnisko":from.map(airportLabel).join(" + ")} · `:""}{start} – {end} · {adults} os.</span></div>
       <div className="trip-search-actions">
         <a className="primary" href={primary.url} target="_blank" rel="sponsored noopener noreferrer">{primary.label} →</a>
-        {alternative&&<a className="secondary" href={alternative.url} target="_blank" rel="sponsored noopener noreferrer">{alternative.label}</a>}
       </div>
-      <p className="trip-search-booking-note">Tripownia przekazuje parametry wyszukiwania. Finalną cenę i rezerwację potwierdzasz bezpośrednio u partnera.</p>
+      <p className="trip-search-booking-note">Przenosimy Cię do wyników z ustawionym kierunkiem i terminem. Finalną cenę potwierdzasz u partnera.</p>
+    </div>}
+
+    {submitted&&!blockedDestination&&searchType!=="flights"&&searchType!=="hotels"&&<div className="trip-live-search-results">
+      <div className="trip-live-search-head">
+        <div><small>AKTUALNE DOPASOWANIA</small><strong>{liveOffers.length? `${liveOffers.length} ${liveOffers.length===1?"konkretna oferta":"konkretne oferty"}` : searching ? "Szukamy ofert…" : "Brak potwierdzonych ofert"}</strong></div>
+        <span>{canonicalDestination(destination)||"Gdziekolwiek"} · {from.includes("ANY")?"dowolne lotnisko":from.map(airportLabel).join(" + ")} · {start} – {end}</span>
+      </div>
+      {liveNotice&&<p className="trip-live-search-notice">{liveNotice}</p>}
+      {searchError&&<div className="trip-live-search-empty"><strong>{searchError}</strong><span>Nie kierujemy Cię do pustej strony. Zmień jeden parametr i wyszukaj ponownie.</span></div>}
+      {liveOffers.length>0&&<div className="cards-grid trip-live-search-grid">{liveOffers.slice(0,12).map((offer)=><OfferCard key={offer.id} offer={offer}/>)}</div>}
     </div>}
   </section>;
 }
