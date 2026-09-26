@@ -789,7 +789,7 @@ export default function Home() {
         <div className="homepage-phenomena-grid">
           {[...experienceCards.slice(0, 4),
             experienceCards.find(card => card.href.includes("#jarmarki"))!,
-            { href: "/okazje?s=sylwester", season: "29 GRUDNIA–2 STYCZNIA", title: "🥂 Sylwester za granicą", text: "Gotowy city break na przełom roku — lot, nocleg i miasto, w którym północ naprawdę jest wydarzeniem.", imageCity: "sylwester praga noc fajerwerki", imageCountry: "Czechy", fallbackImage: "/images/destinations/praga.jpg" }
+            { href: "/okazje?s=sylwester", season: "29 GRUDNIA–2 STYCZNIA", title: "🥂 Sylwester za granicą", text: "Gotowy city break na przełom roku — lot, nocleg i miasto, w którym północ naprawdę jest wydarzeniem.", imageCity: "sylwester praga noc fajerwerki", imageCountry: "Czechy", fallbackImage: "/images/seasons/new-year.webp" }
           ].map(card => (
             <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
               <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={"fallbackImage" in card && typeof card.fallbackImage === "string" ? card.fallbackImage : undefined} />
