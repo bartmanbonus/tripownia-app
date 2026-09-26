@@ -441,7 +441,11 @@ export default function Home() {
         setLiveOffers(saved.offers.slice(0, 60));
         setLastLiveCheckedAt(saved.checkedAt || null);
       } else {
-        setLiveOffers([]);
+        const publishedFallback = offers
+          .filter((offer) => !isOfferExpired(offer))
+          .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
+          .slice(0, 60);
+        setLiveOffers(publishedFallback);
         setLastLiveCheckedAt(null);
       }
       setLiveOffersStatus("fallback");
@@ -642,7 +646,7 @@ export default function Home() {
   const dailyCopy = liveOffersStatus === "live"
     ? "Dzisiejsza pula pochodzi z aktualnego feedu. Status ceny i dokładność linku oznaczamy na każdej karcie."
     : hasOffers
-      ? "Pokazujemy ostatnią poprawnie potwierdzoną pulę z ostatnich 48 godzin. Status ceny sprawdzisz na każdej karcie."
+      ? "Live feed jest chwilowo niedostępny. Pokazujemy ostatnią opublikowaną pulę Tripowni — aktualną cenę i dostępność potwierdzisz po kliknięciu u partnera."
       : "Sprawdzamy dzisiejszą pulę. Nie pokazujemy archiwalnych cen w zastępstwie aktualnych danych.";
 
   return (
