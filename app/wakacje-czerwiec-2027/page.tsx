@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
+import SearchHub from "@/components/SearchHub";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 const title = "Wakacje czerwiec 2027 – gdzie lecieć? Tanie kierunki i All Inclusive";
@@ -39,7 +39,7 @@ export default function June2027Page(){
         <Link href="/wakacje-lipiec-2027">Lipiec 2027 →</Link>
       </div>
     </section>
-    <section className="section shell"><div className="section-heading"><div><div className="kicker">SPRAWDŹ OFERTY</div><h2>Wakacje w czerwcu 2027</h2></div></div><div className="single-partner-search-wrap"><UnifiedPartnerSearch mode="holiday" /></div></section>
+    <section className="section shell"><div className="section-heading"><div><div className="kicker">SPRAWDŹ OFERTY</div><h2>Wakacje w czerwcu 2027</h2></div></div><div className="single-partner-search-wrap"><SearchHub embedded initialTab="Wakacje" initialDateMode="month" initialMonth="2027-06" /></div></section>
     <SiteFooter/>
   </main>;
 }
