@@ -188,8 +188,8 @@ export default function DealsPage() {
           <p className="hub-lead">Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność pochodzą z bieżącego feedu partnera.</p>
         </div>
         <div className="deals-hub-actions">
-          <Link className="primary-cta" href="/#wyszukiwarka"><Search size={17}/> Wyszukaj dokładniej</Link>
-          <button className="secondary-cta" type="button" onClick={refresh} disabled={loading}><RefreshCw size={16}/>{loading ? "Odświeżamy…" : "Odśwież ceny"}</button>
+          <Link className="primary-cta" href="/#wyszukiwarka"><Search size={16}/> Dokładne wyszukiwanie</Link>
+          <button className="secondary-cta" type="button" onClick={refresh} disabled={loading}><RefreshCw size={15}/>{loading ? "Odświeżamy…" : "Odśwież"}</button>
         </div>
       </div>
 
