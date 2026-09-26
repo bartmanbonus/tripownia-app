@@ -7,7 +7,7 @@ import { partners } from "@/lib/partners";
 import { EXPERIENCE_IMAGES } from "@/lib/experienceImages";
 
 export const metadata: Metadata = {
-  title: "Podróże po przeżycia — kiedy lecieć na zorzę, sakurę i safari | Tripownia.pl",
+  title: "Podróże po przeżycia — kiedy lecieć na zorzę, sakurę i safari",
   description: "Kalendarz podróży po przeżycia: najlepsze okna na zorzę, sakurę, fiordy, safari, tulipany i egzotykę.",
   alternates: { canonical: "/podroze-po-przezycia" },
 };
