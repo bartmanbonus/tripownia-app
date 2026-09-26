@@ -33,8 +33,8 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     ],
   },
   "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje": {
-    title: "Malaga czy Alicante — co wybrać?",
-    lead: "Malaga leży w Andaluzji i daje więcej klasycznego zwiedzania oraz dostęp do Costa del Sol. Alicante leży w Walencji, ma kompaktowe centrum i łatwy dostęp do Costa Blanca. Na krótki city break wygodniejsze bywa Alicante, a przy dłuższym wyjeździe i objazdowym zwiedzaniu Malaga daje więcej opcji.",
+    title: "Malaga czy Alicante — co wybrać i czy Alicante leży w Andaluzji?",
+    lead: "Alicante nie leży w Andaluzji — znajduje się we Wspólnocie Walenckiej. Malaga leży w Andaluzji i daje dostęp do Costa del Sol. Na krótki city break Alicante jest kompaktowe, a Malaga daje więcej opcji na dłuższe zwiedzanie regionu.",
     links: [
       { href: "/hiszpania", label: "Hiszpania — porównaj regiony" },
       { href: "/city-break", label: "Aktualne city breaki" },
@@ -42,8 +42,8 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     ],
   },
   "/sagrada-familia-osiagnela-maksymalna-wysokosc-20-lutego-2026-historyczna-data-dla-barcelony": {
-    title: "Jak wysoka jest Sagrada Familia?",
-    lead: "Docelowa wysokość centralnej wieży Jezusa Chrystusa to 172,5 m. Dzięki temu bazylika pozostaje nieco niższa od wzgórza Montjuïc, zgodnie z zamysłem Gaudíego. Jeśli szukasz samej liczby: 172,5 metra.",
+    title: "Jak wysoka jest Sagrada Familia? 172,5 metra",
+    lead: "Sagrada Familia osiągnęła 172,5 m 20 lutego 2026 roku po montażu górnego ramienia krzyża na wieży Jezusa Chrystusa. To najwyższy punkt świątyni — jeśli szukasz samej liczby, odpowiedź brzmi: 172,5 metra.",
     links: [
       { href: "/city-break", label: "City break do Barcelony" },
       { href: "/hiszpania", label: "Hiszpania — kierunki i wakacje" },
