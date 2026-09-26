@@ -47,7 +47,9 @@ Expected rating target: the lowest general-audience rating permitted by the stor
 
 ## Account deletion
 
-Tripownia accounts are optional. Because users can create an account, a compliant account-deletion path must be available before public store release wherever required by Apple or Google. Verify the final in-app/web deletion flow before submission.
+Tripownia accounts are optional. Logged-in users can permanently delete their account and synchronized cloud data from the in-app account settings. The deletion flow calls an authenticated Supabase Edge Function, removes the user's Tripownia state and deletes the Supabase Auth user. Local Tripownia account data is then cleared from the device.
+
+Re-check the final store questionnaire wording and privacy-policy wording before submission.
 
 ## Payments
 
