@@ -351,6 +351,8 @@ export default async function SeoLandingPage({ params }: PageProps) {
         <div className="seo-related">
           <Link href="/podroze">← Wszystkie pomysły na podróże</Link>
           <Link href="/kierunki">Zobacz wszystkie kierunki →</Link>
+          <Link href="/okazje">Najtańsze okazje teraz →</Link>
+          <Link href="/planer-podrozy">Ułóż darmowy plan podróży →</Link>
         </div>
       </section>
 
