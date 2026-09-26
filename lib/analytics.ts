@@ -55,6 +55,10 @@ export function setAnalyticsConsent(consent: Exclude<AnalyticsConsent, null>) {
   if (consent === "analytics" || consent === "marketing") {
     ensureGtag();
     updateGoogleConsent(true);
+    // Start GA immediately in the same user interaction. This avoids relying
+    // exclusively on a later consent-event listener, which can be missed by
+    // some browsers/webviews.
+    bootstrapAnalytics();
   } else {
     updateGoogleConsent(false);
   }
