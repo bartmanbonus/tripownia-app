@@ -266,15 +266,6 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
       { href: "/planer-podrozy", label: "Planer podróży" },
     ],
   },
-  "/jak-tanio-podrozowac-po-europie-10-sposobow-na-tansze-wyjazdy": {
-    title: "Jak tanio podróżować po Europie?",
-    lead: "Największe oszczędności zwykle daje elastyczny termin, porównanie kilku lotnisk, mały bagaż, nocleg poza ścisłym centrum i liczenie całego kosztu wyjazdu zamiast samego biletu.",
-    links: [
-      { href: "/tanie-loty", label: "Tanie loty" },
-      { href: "/city-break", label: "City break" },
-      { href: "/okazje", label: "Okazje Tripowni" },
-    ],
-  },
   "/jak-znalezc-tani-hotel-8-sposobow-na-oszczednosc-przy-rezerwacji-noclegow": {
     title: "Jak znaleźć tani hotel bez przepłacania?",
     lead: "Porównaj nie tylko cenę pokoju, ale też lokalizację, dojazdy, podatki lokalne, śniadanie i warunki anulowania. Tańszy nocleg daleko od centrum może wyjść drożej po doliczeniu transportu.",
