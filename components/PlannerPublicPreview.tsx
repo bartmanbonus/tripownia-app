@@ -15,17 +15,15 @@ export default function PlannerPublicPreview() {
           <div>
             <div className="kicker">ZOBACZ, CO POTRAFI TRIPOWNIA</div>
             <h1>Cała podróż w jednym prywatnym planie.</h1>
-            <p>To tylko przykład działania planera — nie jest przypisany do żadnej osoby. Po zalogowaniu Twój prawdziwy plan, rezerwacje, checklista i notatki są zapisane na Twoim koncie.</p>
+            <p>Każda podróż ma własny plan, rezerwacje, checklistę i notatki. Po zalogowaniu zapisujesz je na swoim koncie i możesz wrócić do nich później.</p>
           </div>
         </div>
 
         <section className="trip-readiness">
           <div className="trip-readiness-main">
-            <div className="trip-readiness-score"><strong>Demo</strong><span>przykład</span></div>
+            <div className="trip-readiness-score"><strong>1</strong><span>miejsce</span></div>
             <div className="trip-readiness-copy">
-              <small>PRZYKŁADOWY WYJAZD</small>
-              <h2>Rzym · 4 dni</h2>
-              <p>Zobacz, jak Tripownia zbiera wszystko, czego potrzebujesz przed i podczas podróży.</p>
+              <small>TWOJA PODRÓŻ</small><h2>Plan, który uzupełniasz po swojemu</h2><p>Tripownia zbiera wszystko, czego potrzebujesz przed i podczas konkretnej podróży.</p>
             </div>
           </div>
         </section>
@@ -78,8 +76,7 @@ export default function PlannerPublicPreview() {
 
         <div className="favorites-empty">
           <Sparkles size={28}/>
-          <h2>Po zalogowaniu demo znika.</h2>
-          <p>Zobaczysz wyłącznie własne podróże zapisane na Twoim koncie.</p>
+          <h2>Po zalogowaniu widzisz wyłącznie swoje podróże.</h2><p>Każdy zapisany wyjazd jest przypisany do Twojego konta i może być synchronizowany między urządzeniami.</p>
           <Link className="primary-cta" href="/konto"><ShieldCheck size={17}/> Przejdź do konta</Link>
         </div>
       </section>
