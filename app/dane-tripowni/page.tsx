@@ -151,6 +151,8 @@ export default function TripowniaDataPage() {
           <h2>Chcesz zobaczyć konkret?</h2>
           <p>Radar Tripowni wybiera codziennie krótki zestaw ofert, a Okazje pokazują pełniejszą listę dostępnych propozycji.</p>
           <Link href="/radar-tripowni">Radar Tripowni →</Link>
+          <br/>
+          <Link href="/okazje">Zobacz wszystkie aktualne okazje →</Link>
         </section>
       </section>
 
