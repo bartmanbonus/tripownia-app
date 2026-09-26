@@ -257,6 +257,33 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
       { href: "/city-break", label: "City break" },
     ],
   },
+  "/gdzie-na-sylwestra-2026-2027-15-kierunkow": {
+    title: "Gdzie polecieć na Sylwestra 2026/2027?",
+    lead: "Na przełom roku warto najpierw zdecydować, czy chcesz city break, ciepły kierunek czy dłuższy wyjazd. Potem porównaj pogodę, długość lotu, ceny noclegów i dostępność powrotów 1–3 stycznia.",
+    links: [
+      { href: "/sylwester", label: "City break na Sylwestra" },
+      { href: "/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok", label: "Ciepłe kraje na Sylwestra" },
+      { href: "/okazje", label: "Aktualne okazje" },
+    ],
+  },
+  "/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok": {
+    title: "Ciepłe kraje na Sylwestra — gdzie szukać słońca?",
+    lead: "Na krótszy lot sprawdź Egipt, Kanary, Maltę i Cypr, a przy większym budżecie także dalsze kierunki. Porównuj nie tylko temperaturę powietrza, ale też temperaturę wody, wiatr i długość dnia.",
+    links: [
+      { href: "/gdzie-na-sylwestra-2026-2027-15-kierunkow", label: "15 kierunków na Sylwestra" },
+      { href: "/gdzie-jest-cieplo-zima-bez-dalekiego-lotu", label: "Ciepło zimą bez dalekiego lotu" },
+      { href: "/wakacje", label: "Aktualne wakacje" },
+    ],
+  },
+  "/wakacje-z-psem-za-granica-gdzie-jechac-i-jak-sie-przygotowac": {
+    title: "Gdzie na wakacje z psem za granicę?",
+    lead: "Najłatwiejsze są kierunki z prostym dojazdem, dużą bazą noclegów przyjaznych zwierzętom i jasnymi zasadami wstępu na plaże oraz campingi. Przed wyjazdem sprawdź dokumenty psa, szczepienia i regulamin noclegu.",
+    links: [
+      { href: "/ubezpieczenia", label: "Ubezpieczenie podróżne" },
+      { href: "/przed-wyjazdem", label: "Checklista przed wyjazdem" },
+      { href: "/poradniki", label: "Więcej poradników" },
+    ],
+  },
 };
 
 function norm(value: string) {
