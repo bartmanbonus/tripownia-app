@@ -18,9 +18,9 @@ export const seoGrowthLandings: SeoLanding[] = [
   },
   {
     slug: "city-break-z-katowic",
-    title: "City break z Katowic — weekend z Pyrzowic",
+    title: "City break z Katowic — tani weekend, lot + hotel z Pyrzowic",
     eyebrow: "CITY BREAK Z KATOWIC",
-    lead: "City break z Katowic-Pyrzowic: pomysły na 2–5 dni, aktualne oferty i szybkie porównanie cen.",
+    lead: "City break z Katowic-Pyrzowic: tani weekend samolotem, lot + hotel i krótkie wyjazdy na 2–5 dni. Porównaj aktualne kierunki i pełny koszt podróży.",
     query: "City break",
     departure: "Katowice",
     departureCode: "KTW",
