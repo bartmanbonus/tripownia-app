@@ -47,13 +47,15 @@ export default function AccountPage() {
   const configured = isAccountAuthConfigured();
 
   const localStats = useMemo(() => {
-    if (typeof window === "undefined") return { visited: 0, favorites: 0, compare: 0, trip: false };
+    if (typeof window === "undefined") return { visited: 0, favorites: 0, compare: 0, trip: false, trips: 0 };
     const profile = readTravelProfile();
+    const state = collectLocalAccountState();
     return {
       visited: profile.visitedCountries.length,
-      favorites: collectLocalAccountState().favorite_offer_ids.length,
-      compare: collectLocalAccountState().compare_offer_ids.length,
-      trip: Boolean(collectLocalAccountState().current_trip),
+      favorites: state.favorite_offer_ids.length,
+      compare: state.compare_offer_ids.length,
+      trip: Boolean(state.current_trip),
+      trips: Array.isArray(state.trip_archive) ? state.trip_archive.length : 0,
     };
   }, [session, synced]);
 
@@ -260,10 +262,16 @@ export default function AccountPage() {
             <div className="account-card">
               <div className="account-card-title"><Sparkles size={21}/><div><small>TWOJE DANE</small><strong>{cloudState ? "Kopia w chmurze istnieje" : "Utwórz pierwszą kopię"}</strong></div></div>
               <div className="account-local-stats account-local-stats-grid">
+                <span><b>{localStats.trips}</b> zapisanych podróży</span>
                 <span><b>{localStats.visited}</b> odwiedzonych krajów</span>
                 <span><b>{localStats.favorites}</b> ulubionych</span>
                 <span><b>{localStats.compare}</b> porównywanych</span>
-                <span><b>{localStats.trip ? "Tak" : "Nie"}</b> moja podróż</span>
+              </div>
+              <div className="account-hub-links">
+                <Link href="/moje-podroze">Moje podróże →</Link>
+                <Link href="/dodaj-podroz">+ Dodaj podróż</Link>
+                <Link href="/profil">Mój profil →</Link>
+                <Link href="/dla-ciebie">Dla Ciebie →</Link>
               </div>
               <small className="account-footnote">Dane kont są odseparowane regułami dostępu — zalogowany użytkownik widzi i zmienia wyłącznie swój zapis.</small>
             </div>
