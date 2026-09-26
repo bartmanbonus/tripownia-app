@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
+import SearchHub from "@/components/SearchHub";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 const title = "Wakacje 2027 – tanie oferty, All Inclusive i lot + hotel";
@@ -70,7 +70,7 @@ export default function Wakacje2027Page() {
 
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">PORÓWNAJ TERAZ</div><h2>Sprawdź aktualne wakacje</h2><p>Wyszukaj kierunek i termin, a przed zakupem porównaj końcową cenę oraz warunki u partnera.</p></div></div>
-      <div className="single-partner-search-wrap"><UnifiedPartnerSearch mode="holiday" /></div>
+      <div className="single-partner-search-wrap"><SearchHub embedded initialTab="Wakacje" /></div>
     </section>
 
     <section className="shell guides-checklist">
