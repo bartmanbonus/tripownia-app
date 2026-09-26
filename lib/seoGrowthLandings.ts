@@ -3,9 +3,9 @@ import type { SeoLanding } from "@/lib/seoLandings";
 export const seoGrowthLandings: SeoLanding[] = [
   {
     slug: "city-break-z-warszawy",
-    title: "City break z Warszawy — krótki wyjazd samolotem",
+    title: "City break z Warszawy — tani weekend, lot + hotel z WAW i Modlina",
     eyebrow: "CITY BREAK Z WARSZAWY",
-    lead: "City break z Warszawy i Modlina: krótkie wyjazdy na 2–5 dni, aktualne ceny i szybkie porównanie ofert.",
+    lead: "City break z Warszawy: krótkie wyjazdy na 2–5 dni, tani weekend, lot + hotel oraz wyloty z Chopina i Modlina. Porównaj kierunki dla tego samego terminu.",
     query: "City break",
     departure: "Warszawa",
     departureCode: "WAW",
