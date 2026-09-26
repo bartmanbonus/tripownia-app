@@ -19,10 +19,10 @@ export function bootstrapMetaPixel() {
 
   if (!window.fbq) {
     const fbq = function (...args: unknown[]) {
-      if (fbq.callMethod) fbq.callMethod(...args);
-      else (fbq.queue ||= []).push(args);
-    } as Window["fbq"];
-    if (!fbq) return false;
+      const current = window.fbq;
+      if (current?.callMethod) current.callMethod(...args);
+      else if (current) (current.queue ||= []).push(args);
+    } as NonNullable<Window["fbq"]>;
     fbq.queue = [];
     fbq.loaded = true;
     fbq.version = "2.0";
