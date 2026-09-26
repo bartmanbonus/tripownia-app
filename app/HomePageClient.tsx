@@ -859,22 +859,19 @@ export default function Home() {
 
         <div className="dream-free-plan-board">
           <div className="dream-free-plan-top">
-            <div><small>TWÓJ WYJAZD</small><strong>12 dni · 68% gotowe</strong></div>
-            <span>Za darmo</span>
+            <div><small>TWOJA TRIPOWNIA</small><strong>Wszystkie podróże w jednym miejscu</strong></div>
+            <span>Konto opcjonalne</span>
           </div>
-          <div className="dream-free-plan-progress"><span /></div>
           <div className="dream-free-plan-items">
-            <div className="done"><b>✓</b><span><strong>Lot</strong><small>Dodany</small></span></div>
-            <div className="done"><b>✓</b><span><strong>Hotel</strong><small>Dodany</small></span></div>
-            <div><b>!</b><span><strong>Dokumenty i wymagania</strong><small>Sprawdź przed wyjazdem</small></span></div>
-            <div><b>☀</b><span><strong>Pogoda</strong><small>Prognoza pod Twój termin</small></span></div>
-            <div><b>🚕</b><span><strong>Transport i taxi</strong><small>Jak poruszać się na miejscu</small></span></div>
-            <div><b>🎟</b><span><strong>Atrakcje</strong><small>Co warto zarezerwować wcześniej</small></span></div>
-            <div><b>🍜</b><span><strong>Jedzenie</strong><small>Co i gdzie warto spróbować</small></span></div>
-            <div><b>📸</b><span><strong>Miejsca na zdjęcia</strong><small>Kadry warte dodania do planu</small></span></div>
-            <div><b>🧳</b><span><strong>Checklista</strong><small>14 z 21 rzeczy gotowych</small></span></div>
+            <div className="done"><b>✓</b><span><strong>Twoje podróże</strong><small>aktualne i wcześniejsze plany</small></span></div>
+            <div className="done"><b>✓</b><span><strong>Profil podróżnika</strong><small>budżet, lotniska, styl i preferencje</small></span></div>
+            <div><b>✓</b><span><strong>Plan dnia i checklista</strong><small>osobno dla każdego wyjazdu</small></span></div>
+            <div><b>✓</b><span><strong>Rezerwacje i notatki</strong><small>lot, hotel, transfer i ważne informacje</small></span></div>
+            <div><b>✓</b><span><strong>Wydatki</strong><small>koszty konkretnej podróży w jednym miejscu</small></span></div>
+            <div><b>✓</b><span><strong>Ulubione i porównania</strong><small>wracasz do zapisanych ofert później</small></span></div>
+            <div><b>✓</b><span><strong>Synchronizacja konta</strong><small>po zalogowaniu wracasz do danych na innym urządzeniu</small></span></div>
           </div>
-          <Link className="dream-free-plan-board-cta" href="/dodaj-podroz" onClick={() => trackEvent("planner_cta_click", { placement: "homepage_board" })}>Stwórz swój planner za 0 zł <ArrowRight size={16}/></Link>
+          <Link className="dream-free-plan-board-cta" href="/dodaj-podroz" onClick={() => trackEvent("planner_cta_click", { placement: "homepage_board" })}>Dodaj swoją pierwszą podróż <ArrowRight size={16}/></Link>
         </div>
       </section>
 
