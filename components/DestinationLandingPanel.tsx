@@ -88,6 +88,23 @@ const DESTINATIONS: Record<string, DestinationLandingConfig> = {
       { label: "Najpopularniejsza baza", value: "Santa Maria" },
     ],
   },
+  "/cypr": {
+    flag: "🇨🇾",
+    eyebrow: "CYPR",
+    title: "Cypr: wakacje, plaże i wybór regionu",
+    lead: "Porównaj Pafos, Larnakę, Ayia Napę i Protaras, ustaw termin oraz lotnisko wylotu, a potem sprawdź aktualne wakacje, All Inclusive i noclegi.",
+    searchDestination: "Cypr",
+    image: "/images/destinations/pafos.jpg",
+    popular: ["Pafos", "Larnaka", "Ayia Napa", "Protaras"],
+    matchingTerms: ["cypr", "pafos", "larnaka", "larnaca", "ayia napa", "protaras"],
+    wakacjeUrl: "https://www.wakacje.pl/wczasy/cypr/",
+    bookingQuery: "Cyprus",
+    highlights: [
+      { label: "Zwiedzanie + plaże", value: "Pafos" },
+      { label: "Wygodna baza", value: "Larnaka" },
+      { label: "Plaże i kurort", value: "Ayia Napa / Protaras" },
+    ],
+  },
   "/egipt": {
     flag: "🇪🇬",
     eyebrow: "EGIPT",
