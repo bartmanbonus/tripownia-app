@@ -216,11 +216,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
   }
 
   function addToTrip() {
-    if (!readAccountSession()) {
-      try { sessionStorage.setItem("tripownia-pending-offer-v1", JSON.stringify(offerSnapshot)); } catch {}
-      window.location.href = "/konto?next=/dodaj-podroz";
-      return;
-    }
+    const signedIn = Boolean(readAccountSession());
     const previous = readTrip();
     const sameTrip = previous?.offerId === offer.id;
     const tripId = typeof previous?.tripId === "string" && previous.tripId ? previous.tripId : createTripId(offer.id);
@@ -229,7 +225,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       : { tripId: createTripId(offer.id), offerId: offer.id, offerSnapshot, checklist: {}, dayPlan: [] };
     localStorage.setItem("tripownia-my-trip", JSON.stringify(nextTrip));
     setTripAdded(true);
-    trackEvent("trip_add", { ...eventBase, trip_id: nextTrip.tripId });
+    trackEvent("trip_add", { ...eventBase, trip_id: nextTrip.tripId, signed_in: signedIn });
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
