@@ -133,8 +133,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Malaga czy Alicante? Porównaj plaże, pogodę, zwiedzanie, lotnisko i klimat obu kierunków, zanim wybierzesz wakacje w Hiszpanii.",
   },
   "/wyspy-zielonego-przyladka": {
-    title: "Wyspy Zielonego Przylądka 2026 – Sal czy Boa Vista? Wakacje | Tripownia",
-    description: "Sal czy Boa Vista? Porównaj Wyspy Zielonego Przylądka pod kątem plaż, hoteli, pogody, All Inclusive i stylu wakacji.",
+    title: "Wyspy Zielonego Przylądka – Sal czy Boa Vista? Wakacje 2026 | Tripownia",
+    description: "Wyspy Zielonego Przylądka: Sal czy Boa Vista? Porównaj plaże, hotele, pogodę, All Inclusive i styl wakacji, zanim wybierzesz konkretną wyspę.",
   },
   "/lotniska-w-polsce-bez-limitu-100-ml-plynow": {
     title: "Na których lotniskach w Polsce nie ma limitu 100 ml? Lista 2026 | Tripownia",
@@ -197,8 +197,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Który kurort w Albanii wybrać? Porównaj Sarandę, Ksamil, Vlorę, Durrës i Himarë pod kątem plaż, transferu, rodzin i samodzielnego zwiedzania.",
   },
   "/malta": {
-    title: "Malta wakacje 2026 – city break, plaże i gdzie nocować | Tripownia",
-    description: "Planujesz wakacje na Malcie? Porównaj Vallettę, Sliemę, St. Julian’s, Mellieħę i Gozo, sprawdź city break, plaże i najlepszą bazę na 3–7 dni.",
+    title: "Malta wakacje 2026 – city break, lot + hotel i plaże | Tripownia",
+    description: "Malta wakacje i city break: porównaj Vallettę, Sliemę, St. Julian’s, Mellieħę i Gozo. Sprawdź lot + hotel, plaże i najlepszą bazę na 3–7 dni.",
   },
   "/wyspy-kanaryjskie-wakacje-all-inclusive-i-last-minute": {
     title: "Wyspy Kanaryjskie All Inclusive 2026 – Teneryfa, Gran Canaria czy Fuerteventura? | Tripownia",
