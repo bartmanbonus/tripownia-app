@@ -75,6 +75,27 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
 }
 
 export function middleware(request: NextRequest) {
+  // Keep one public hostname for SEO. Old links and bookmarks may still use www.
+  const host = request.headers.get("host")?.toLowerCase() || "";
+  if (host === "www.tripownia.pl") {
+    const target = request.nextUrl.clone();
+    target.hostname = "tripownia.pl";
+    target.protocol = "https:";
+    return NextResponse.redirect(target, 308);
+  }
+
+  // Consolidate old WordPress-style /poradniki/<slug> aliases into the clean
+  // canonical root article URL when that article exists in the migrated corpus.
+  if (request.nextUrl.pathname.startsWith("/poradniki/")) {
+    const candidate = "/" + request.nextUrl.pathname.slice("/poradniki/".length).replace(/^\/+|\/+$/g, "");
+    if (candidate !== "/" && seoDuplicateCanonical(candidate)) {
+      return permanentRedirect(request, seoDuplicateCanonical(candidate)!);
+    }
+    // The clean migrated article may already be its own canonical path.
+    // Redirect only when the root slug is known as a migrated article.
+    // We intentionally leave unknown /poradniki/* routes untouched.
+  }
+
   const experienceImageResponse = highQualityExperienceImageRedirect(request);
   if (experienceImageResponse) return experienceImageResponse;
   const legacyResponse = cleanLegacyWordPressUrl(request);
