@@ -11,7 +11,20 @@ export const metadata: Metadata = {
   alternates: { canonical: "/sylwester" },
 };
 
-export default function Page() {
+type PageProps = {
+  searchParams: Promise<{
+    destination?: string;
+    from?: string;
+    to?: string;
+  }>;
+};
+
+export default async function Page({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const selectedDestination = typeof params.destination === "string" ? params.destination : "";
+  const selectedFrom = typeof params.from === "string" ? params.from : "2026-12-27";
+  const selectedTo = typeof params.to === "string" ? params.to : "2027-01-03";
+
   return (
     <main>
       <SiteHeader />
@@ -39,11 +52,14 @@ export default function Page() {
         </div>
         <div className="single-partner-search-wrap">
           <SearchHub
+            key={`${selectedDestination}|${selectedFrom}|${selectedTo}`}
             embedded
             initialTab="Wakacje"
+            initialDestinations={selectedDestination ? [selectedDestination] : []}
             initialDateMode="range"
-            initialDateFrom="2026-12-27"
-            initialDateTo="2027-01-03"
+            initialDateFrom={selectedFrom}
+            initialDateTo={selectedTo}
+            searchRequest={selectedDestination ? 1 : 0}
           />
         </div>
       </section>
