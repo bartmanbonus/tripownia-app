@@ -140,6 +140,14 @@ const seoOverrides: Record<string, Metadata> = {
     title: "Wyspy Zielonego Przylądka – Sal czy Boa Vista? Wakacje 2026 | Tripownia",
     description: "Wyspy Zielonego Przylądka: Sal czy Boa Vista? Porównaj plaże, hotele, pogodę, All Inclusive i styl wakacji, zanim wybierzesz konkretną wyspę.",
   },
+  "/jak-tanio-podrozowac-po-europie-10-sposobow-na-tansze-wyjazdy": {
+    title: "Jak tanio podróżować po Europie? 10 sposobów na tańszy wyjazd | Tripownia",
+    description: "Tanie podróżowanie po Europie: 10 praktycznych sposobów na tańsze loty, noclegi, transport i city breaki bez rezygnowania z wygody.",
+  },
+  "/jak-znalezc-tani-hotel-8-sposobow-na-oszczednosc-przy-rezerwacji-noclegow": {
+    title: "Jak znaleźć tani hotel? 8 sposobów na tańszy nocleg | Tripownia",
+    description: "Jak znaleźć tani hotel i nie przepłacić za nocleg? Sprawdź 8 sposobów na porównanie cen, lokalizacji, warunków anulowania i pełnego kosztu rezerwacji.",
+  },
   "/lotniska-w-polsce-bez-limitu-100-ml-plynow": {
     title: "Na których lotniskach w Polsce nie ma limitu 100 ml? Lista 2026 | Tripownia",
     description: "Które lotniska w Polsce zniosły limit 100 ml płynów? Sprawdź aktualne zasady na 2026 dla Krakowa, Poznania, Rzeszowa i Gdańska oraz co nadal obowiązuje na innych lotniskach.",
