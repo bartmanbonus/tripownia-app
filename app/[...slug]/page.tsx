@@ -154,7 +154,7 @@ export async function generateStaticParams() {
   for (const item of legacyItems) paths.add(legacyCanonicalPath(item.path).replace(/^\//, ""));
   for (const path of systemPaths) paths.add(path.replace(/^\//, ""));
   for (const path of internalAliasPaths) paths.add(path.replace(/^\//, ""));
-  return [...paths].filter(Boolean).filter((path) => !dedicatedAppPaths.has("/" + path.replace(/^\\/+/, ""))).map((path) => ({ slug: path.split("/").filter(Boolean) }));
+  return [...paths].filter(Boolean).filter((path) => !dedicatedAppPaths.has("/" + path.replace(/^\/+/, ""))).map((path) => ({ slug: path.split("/").filter(Boolean) }));
 }
 
 function humanize(path: string) {
