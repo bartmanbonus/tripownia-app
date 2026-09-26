@@ -12752,3 +12752,200 @@ img{
   .trip-flex-options{display:grid!important;grid-template-columns:1fr 1fr!important}
   .trip-flex-options button{width:100%!important}
 }
+
+
+/* 2026-09-26 — /kierunki badge sizing + planner visibility */
+.directions-v188-badges{
+  align-items:flex-start!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+}
+.directions-v188-badges span{
+  flex:0 0 auto!important;
+  width:auto!important;
+  height:26px!important;
+  min-height:26px!important;
+  max-height:26px!important;
+  padding:0 9px!important;
+  line-height:24px!important;
+  align-self:flex-start!important;
+  white-space:nowrap!important;
+  border-radius:999px!important;
+}
+.trip-open-suggestions{
+  margin-top:14px;
+  padding:18px;
+  border:1px solid #eadfd8;
+  border-radius:18px;
+  background:#fffaf7;
+}
+.planner-helper{
+  margin:6px 0 14px;
+  color:#746b65;
+  font-size:13px;
+  line-height:1.5;
+}
+.trip-plan-option-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.trip-plan-option{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  gap:12px;
+  align-items:start;
+  padding:14px;
+  border:1px solid #e9ded7;
+  border-radius:16px;
+  background:#fff;
+  min-width:0;
+}
+.trip-plan-option>svg{
+  color:#ef5b35;
+  margin-top:3px;
+}
+.trip-plan-option>div{
+  min-width:0;
+}
+.trip-plan-option-image{
+  grid-column:1 / -1;
+  width:100%;
+  height:126px;
+  object-fit:cover;
+  border-radius:12px;
+  display:block;
+}
+.trip-plan-option h3{
+  margin:2px 0 5px;
+  font-size:17px;
+}
+.trip-plan-option p{
+  margin:0;
+  color:#756b64;
+  font-size:11px;
+  line-height:1.45;
+}
+.trip-plan-option small{
+  color:#ee5d36;
+  font-size:9px;
+  font-weight:900;
+}
+.trip-plan-option-actions{
+  grid-column:1 / -1;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:4px;
+}
+.trip-plan-option-actions button,
+.trip-plan-option-actions a{
+  min-height:36px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:0 11px;
+  border-radius:999px;
+  font-size:10px;
+  font-weight:900;
+  text-decoration:none;
+}
+.trip-plan-option-actions button{
+  border:0;
+  background:#191715;
+  color:#fff;
+  cursor:pointer;
+}
+.trip-plan-option-actions a{
+  border:1px solid #ead9cf;
+  background:#fff7f2;
+  color:#d6542d;
+}
+.trip-piece-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+  margin-top:14px;
+}
+.trip-piece-toggle{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  min-height:70px;
+  padding:12px;
+  border:1px solid #e8ddd6;
+  border-radius:15px;
+  background:#fff;
+  text-align:left;
+  cursor:pointer;
+}
+.trip-piece-toggle.active{
+  border-color:#ef6b45;
+  background:#fff4ef;
+}
+.trip-piece-toggle strong,
+.trip-piece-toggle small{
+  display:block;
+}
+.trip-piece-toggle strong{
+  font-size:12px;
+}
+.trip-piece-toggle small{
+  margin-top:3px;
+  color:#82766e;
+  font-size:9px;
+}
+.trip-piece-dot{
+  width:16px;
+  height:16px;
+  border:2px solid #d7cbc3;
+  border-radius:50%;
+}
+.trip-plan-waiting{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 14px;
+  border:1px dashed #ddcfc6;
+  border-radius:14px;
+  background:#fcf8f5;
+  color:#736a64;
+  font-size:12px;
+}
+.text-link-button{
+  border:0;
+  background:transparent;
+  color:#df572e;
+  font-weight:900;
+  cursor:pointer;
+}
+.my-trip-edit-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.my-trip-edit-actions .secondary-cta{
+  margin:0;
+}
+.my-trip-edit-actions>a:last-child{
+  color:#5f5650;
+  font-size:11px;
+  font-weight:850;
+  text-decoration:none;
+}
+@media(max-width:760px){
+  .trip-plan-option-grid,
+  .trip-piece-grid{
+    grid-template-columns:1fr;
+  }
+  .trip-plan-waiting{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}
