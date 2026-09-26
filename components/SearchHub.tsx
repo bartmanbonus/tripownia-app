@@ -730,6 +730,11 @@ export default function SearchHub({
     return "własny budżet";
   }, [budget, customBudgetMin, customBudgetMax]);
 
+  const budgetInvalid = budget === "custom"
+    && Number(customBudgetMin || 0) > 0
+    && Number(customBudgetMax || 0) > 0
+    && Number(customBudgetMin) > Number(customBudgetMax);
+
   const visibleCalendarMonth = calendarMonth || month || dateFrom.slice(0, 7) || localMonthKey();
   const now = new Date();
   const todayISO = `${localMonthKey()}-${String(now.getDate()).padStart(2, "0")}`;
@@ -1075,7 +1080,7 @@ export default function SearchHub({
           </label>
 
           {budget === "custom" && (
-            <div className="search-v3-budget-custom" aria-label="Własny zakres budżetu na osobę">
+            <div className={`search-v3-budget-custom${budgetInvalid ? " is-invalid" : ""}`} aria-label="Własny zakres budżetu na osobę">
               <div className="search-v3-budget-inputs">
                 <label><span>Od</span><div><input type="number" inputMode="numeric" min="0" max="15000" step="50" value={customBudgetMin} onChange={(event) => setCustomBudgetMin(event.target.value.replace(/[^0-9]/g, ""))} placeholder="np. 1500"/><b>zł</b></div></label>
                 <label><span>Do</span><div><input type="number" inputMode="numeric" min="0" max="15000" step="50" value={customBudgetMax} onChange={(event) => setCustomBudgetMax(event.target.value.replace(/[^0-9]/g, ""))} placeholder="np. 3000"/><b>zł</b></div></label>
@@ -1084,7 +1089,9 @@ export default function SearchHub({
                 <label><span>Minimum</span><input type="range" min="0" max="15000" step="250" value={Math.min(15000, Math.max(0, Number(customBudgetMin || 0)))} onChange={(event) => { const next = Number(event.target.value); const currentMax = Number(customBudgetMax || 0); setCustomBudgetMin(String(currentMax > 0 ? Math.min(next, currentMax) : next)); }}/></label>
                 <label><span>Maksimum</span><input type="range" min="500" max="15000" step="250" value={Math.min(15000, Math.max(500, Number(customBudgetMax || 3000)))} onChange={(event) => { const next = Number(event.target.value); const currentMin = Number(customBudgetMin || 0); setCustomBudgetMax(String(Math.max(next, currentMin || 0))); }}/></label>
               </div>
-              <small>Filtr działa dokładnie dla podanego zakresu ceny na osobę.</small>
+              <small className={budgetInvalid ? "search-v3-budget-error" : undefined}>
+                {budgetInvalid ? "Kwota „Od” nie może być wyższa niż kwota „Do”." : "Filtr działa dokładnie dla podanego zakresu ceny na osobę."}
+              </small>
             </div>
           )}
 
@@ -1103,7 +1110,7 @@ export default function SearchHub({
             </label>
           </div>
 
-          <button type="submit" className="search-v3-submit" disabled={loading}><Search size={18}/>{loading ? "Szukamy…" : "Szukaj wyjazdu"}</button>
+          <button type="submit" className="search-v3-submit" disabled={loading || budgetInvalid}><Search size={18}/>{loading ? "Szukamy…" : budgetInvalid ? "Popraw budżet" : "Szukaj wyjazdu"}</button>
         </form>
 
         {!embedded && <div className="search-v3-quick">
