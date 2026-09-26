@@ -148,12 +148,12 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Gdzie lecieć we wrześniu na ciepłe wakacje? Sprawdź kierunki z dobrą pogodą, krótszymi kolejkami i propozycje na późne lato.",
   },
   "/jak-dojechac-z-lotniska-do-centrum-miasta-najtansze-opcje-transportu": {
-    title: "Jak dostać się z lotniska do centrum najtaniej? 2026 | Tripownia",
-    description: "Autobus, pociąg, taxi czy transfer? Sprawdź, jak najtaniej dostać się z lotniska do centrum i policzyć pełny koszt dojazdu dla 1–4 osób.",
+    title: "Jak dojechać z lotniska do centrum? Najtańsze opcje 2026 | Tripownia",
+    description: "Jak dojechać z lotniska do centrum: autobus, pociąg, taxi czy transfer? Porównaj opcje i policz pełny koszt dojazdu dla 1–4 osób.",
   },
   "/wakacje-z-psem-za-granica-gdzie-jechac-i-jak-sie-przygotowac": {
-    title: "Camping z psem za granicą 2026 – gdzie jechać? | Tripownia",
-    description: "Które kraje warto sprawdzić na camping z psem? Porównaj Włochy, Chorwację, Austrię i Niemcy oraz sprawdź paszport, szczepienia i zasady konkretnego campingu.",
+    title: "Które kraje są przyjazne psom na campingach? Europa 2026 | Tripownia",
+    description: "Camping z psem za granicą: porównaj Włochy, Chorwację, Austrię i Niemcy oraz sprawdź paszport, szczepienia i zasady pobytu z psem.",
   },
   "/etna-sparalizowala-loty-na-sycylie-co-zrobic-po-odwolaniu-lotu-do-katanii": {
     title: "Katania – loty odwołane przez Etnę? Co robić w 2026 | Tripownia",
