@@ -210,3 +210,165 @@ body:has(.dream-hero) .dream-hero h1 { text-wrap: balance; }
     font-weight:700!important;
   }
 }
+
+
+/* 2026-09-26 homepage density + search field typography repair */
+body:has(.dream-hero) .dream-hero{
+  padding-top:28px!important;
+  padding-bottom:18px!important;
+}
+body:has(.dream-hero) .dream-hero h1{
+  margin:14px 0 12px!important;
+  font-size:clamp(2.65rem,4.15vw,3.75rem)!important;
+  line-height:.98!important;
+}
+body:has(.dream-hero) .dream-hero-copy>p{
+  max-width:690px!important;
+  font-size:1rem!important;
+  line-height:1.5!important;
+}
+body:has(.dream-hero) .dream-hero-actions{
+  margin-top:18px!important;
+}
+body:has(.dream-hero) #wyszukiwarka.search-v3-section{
+  margin-top:8px!important;
+  padding-top:8px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-head{
+  padding-top:26px!important;
+  padding-bottom:16px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-tabs{
+  padding-bottom:16px!important;
+}
+
+#wyszukiwarka .search-v3-form{
+  gap:10px!important;
+}
+#wyszukiwarka .search-v3-field{
+  height:66px!important;
+  min-height:66px!important;
+  padding:9px 12px!important;
+  gap:4px!important;
+  justify-content:center!important;
+}
+#wyszukiwarka .search-v3-field>label,
+#wyszukiwarka .search-v3-field>span{
+  min-width:0!important;
+  min-height:14px!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:nowrap!important;
+  gap:4px!important;
+  white-space:nowrap!important;
+  font-size:10px!important;
+  line-height:1!important;
+}
+#wyszukiwarka .search-v3-field>label svg,
+#wyszukiwarka .search-v3-field>span svg{
+  width:14px!important;
+  height:14px!important;
+  flex:0 0 14px!important;
+}
+#wyszukiwarka .search-v3-field small{
+  min-width:0!important;
+  margin-left:1px!important;
+  font-size:8.5px!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  color:#958a83!important;
+}
+#wyszukiwarka .search-v3-input-wrap,
+#wyszukiwarka .search-v3-multi-trigger,
+#wyszukiwarka .search-v3-date-trigger{
+  width:100%!important;
+  min-width:0!important;
+  height:28px!important;
+  min-height:28px!important;
+}
+#wyszukiwarka .search-v3-field input,
+#wyszukiwarka .search-v3-field select,
+#wyszukiwarka .search-v3-input-wrap input,
+#wyszukiwarka .search-v3-multi-trigger,
+#wyszukiwarka .search-v3-date-trigger{
+  min-height:28px!important;
+  height:28px!important;
+  line-height:1.2!important;
+}
+#wyszukiwarka .search-v3-field select,
+#wyszukiwarka .search-v3-input-wrap input,
+#wyszukiwarka .search-v3-multi-trigger strong,
+#wyszukiwarka .search-v3-date-trigger strong{
+  min-width:0!important;
+  font-size:13px!important;
+  line-height:1.2!important;
+}
+#wyszukiwarka .search-v3-multi-trigger strong,
+#wyszukiwarka .search-v3-date-trigger strong{
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+#wyszukiwarka .search-v3-input-wrap input{
+  padding:0!important;
+}
+#wyszukiwarka .search-v3-input-wrap input::placeholder{
+  font-size:13px!important;
+  line-height:1.2!important;
+}
+#wyszukiwarka .search-v3-chevron{
+  right:12px!important;
+  bottom:16px!important;
+}
+
+@media (min-width:1181px){
+  #wyszukiwarka .search-v3-form{
+    grid-template-columns:minmax(270px,1.8fr) minmax(170px,1.05fr) minmax(155px,1fr) minmax(125px,.78fr) minmax(145px,.88fr)!important;
+  }
+}
+@media (max-width:920px){
+  body:has(.dream-hero) .dream-hero{
+    padding-top:24px!important;
+    padding-bottom:16px!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka.search-v3-section{
+    margin-top:6px!important;
+  }
+  #wyszukiwarka .search-v3-field{
+    height:64px!important;
+    min-height:64px!important;
+  }
+}
+@media (max-width:640px){
+  body:has(.dream-hero) .dream-hero{
+    padding-top:20px!important;
+    padding-bottom:14px!important;
+  }
+  body:has(.dream-hero) .dream-hero h1{
+    margin:12px 0 10px!important;
+    font-size:clamp(2.25rem,10.8vw,3rem)!important;
+  }
+  body:has(.dream-hero) .dream-hero-actions{
+    margin-top:14px!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka.search-v3-section{
+    margin-top:4px!important;
+  }
+  #wyszukiwarka .search-v3-field{
+    height:66px!important;
+    min-height:66px!important;
+  }
+  #wyszukiwarka .search-v3-field input,
+  #wyszukiwarka .search-v3-field select,
+  #wyszukiwarka .search-v3-input-wrap,
+  #wyszukiwarka .search-v3-input-wrap input,
+  #wyszukiwarka .search-v3-multi-trigger,
+  #wyszukiwarka .search-v3-date-trigger{
+    height:32px!important;
+    min-height:32px!important;
+  }
+  #wyszukiwarka .search-v3-chevron{
+    bottom:16px!important;
+  }
+}
