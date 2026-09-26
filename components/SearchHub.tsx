@@ -766,7 +766,7 @@ export default function SearchHub({
 
         <form className="search-v3-form" onSubmit={submitSearch}>
           <div className={`search-v3-field search-v3-destination${suggestionsOpen ? " is-open" : ""}`} ref={destinationRef}>
-            <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd? <small>możesz wybrać kilka</small></label>
+            <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd? <small>wiele kierunków</small></label>
             {selectedDestinations.length > 0 && (
               <div className="search-v3-selected">
                 {selectedDestinations.map((item) => <button type="button" key={item} onClick={() => setSelectedDestinations((current) => current.filter((x) => x !== item))}>{item}<X size={12}/></button>)}
@@ -778,7 +778,7 @@ export default function SearchHub({
                 value={destination}
                 onChange={(event) => { setDestination(event.target.value); openDestinationPanel(); }}
                 onFocus={openDestinationPanel}
-                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Gdziekolwiek albo np. Rzym, Malta, Tokio"}
+                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Gdziekolwiek lub np. Rzym, Malta, Tokio"}
                 autoComplete="off"
               />
               {destination && <button type="button" aria-label="Wyczyść wpisany kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
@@ -830,7 +830,7 @@ export default function SearchHub({
           </div>
 
           <div className={`search-v3-field search-v3-departure search-v3-multiselect${departureOpen ? " is-open" : ""}`} ref={departureRef}>
-            <span><Plane size={15}/> Skąd? <small>możesz wybrać kilka</small></span>
+            <span><Plane size={15}/> Skąd? <small>wiele lotnisk</small></span>
             <button type="button" className="search-v3-multi-trigger" onClick={toggleDeparturePanel} aria-expanded={departureOpen}>
               <strong>{departures.length ? (departures.length === 1 ? airportOptions.find((a:any) => a.code === departures[0])?.label || departures[0] : `${departures.length} lotniska`) : "Wszystkie lotniska"}</strong>
               <ChevronDown size={15}/>
