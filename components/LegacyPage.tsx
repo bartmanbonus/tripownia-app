@@ -19,6 +19,21 @@ import { getArticleDeepDiveWave9 } from "@/lib/articleDeepDiveWave9";
 
 type GrowthLink = { href: string; label: string };
 
+type SeoOpportunityBlock = { title: string; lead: string; links: GrowthLink[] };
+
+const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
+  "/babski-wyjazd-za-granice-12-najlepszych-kierunkow-z-przyjaciolkami": {
+    title: "Gdzie na babski weekend za granicą?",
+    lead: "Na 2–4 dni najlepiej sprawdzają się kierunki z prostym lotem, szybkim transferem i dużym wyborem restauracji, atrakcji oraz noclegów. Porównaj kilka miast dla tego samego terminu zamiast zaczynać od jednego kierunku.",
+    links: [
+      { href: "/city-break", label: "Aktualne city breaki" },
+      { href: "/malta", label: "Malta na babski weekend" },
+      { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
+      { href: "/podroze/city-break-z-katowic", label: "City break z Katowic" },
+    ],
+  },
+};
+
 function norm(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
@@ -219,6 +234,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const canonicalPath = legacyCanonicalPath(item.path);
   const isDestination = destinationGuidePaths.includes(canonicalPath);
   const hasConversionPanel = hasDestinationLanding(canonicalPath);
+  const seoOpportunity = seoOpportunityBlocks[canonicalPath];
   const parent = isDestination ? { name: "Kierunki", href: "/kierunki" }
     : item.type === "post" ? { name: "Poradniki", href: "/poradniki" }
     : { name: archived ? "Archiwum ofert" : "Okazje", href: "/okazje" };
@@ -292,6 +308,13 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
       </article>
 
       {deepDive && <ArticleDeepDiveBlock deepDive={deepDive} />}
+
+      {seoOpportunity && <section className="legacy-internal-links">
+        <div className="kicker">POD FRAZĘ, KTÓREJ SZUKASZ</div>
+        <h2>{seoOpportunity.title}</h2>
+        <p>{seoOpportunity.lead}</p>
+        <div>{seoOpportunity.links.map(link => <Link key={link.href} href={link.href}>{link.label} →</Link>)}</div>
+      </section>}
 
       {(item.type === "post" || isDestination) && <RelatedTravelGuides path={canonicalPath} title={item.title} isDestination={isDestination} />}
 
