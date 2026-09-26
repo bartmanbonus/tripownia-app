@@ -132,12 +132,12 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Czy linie ważą bagaż podręczny? Sprawdź limity, wagę i wymiary w Ryanair, Wizz Air i LOT oraz kiedy możesz zabrać drugą sztukę na pokład.",
   },
   "/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad": {
-    title: "Czy można wnieść jedzenie do samolotu? Co wolno zabrać | Tripownia",
-    description: "Jedzenie w bagażu podręcznym: co możesz zabrać do samolotu, na co uważać przy płynach i jakie zasady sprawdzić przed kontrolą bezpieczeństwa.",
+    title: "Czy można wnieść jedzenie do samolotu? Co wolno zabrać w 2026 | Tripownia",
+    description: "Czy można zabrać jedzenie do samolotu? Sprawdź kanapki, napoje, jedzenie dla dzieci, płyny i zasady bagażu podręcznego przed kontrolą bezpieczeństwa.",
   },
   "/gdzie-jest-cieplo-w-listopadzie": {
-    title: "Gdzie jest ciepło w listopadzie? 12 kierunków na słońce | Tripownia",
-    description: "Gdzie polecieć w listopadzie po słońce? Zobacz ciepłe kierunki na krótki wyjazd i wakacje oraz sprawdź, gdzie warto szukać dobrej pogody.",
+    title: "Gdzie jest ciepło w listopadzie 2026? 12 kierunków na słońce | Tripownia",
+    description: "Gdzie polecieć w listopadzie po słońce? Porównaj Egipt, Kanary, Maroko, Cypr, Maltę i dalsze kierunki oraz wybierz pogodę pod swój budżet i długość lotu.",
   },
   "/gdzie-na-sylwestra-2026-2027-15-kierunkow": {
     title: "Gdzie na Sylwestra 2026/2027? 15 kierunków za granicę | Tripownia",
@@ -148,8 +148,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Gdzie lecieć we wrześniu na ciepłe wakacje? Sprawdź kierunki z dobrą pogodą, krótszymi kolejkami i propozycje na późne lato.",
   },
   "/jak-dojechac-z-lotniska-do-centrum-miasta-najtansze-opcje-transportu": {
-    title: "Jak dojechać z lotniska do centrum? Najtańsze opcje 2026 | Tripownia",
-    description: "Jak dojechać z lotniska do centrum: autobus, pociąg, taxi czy transfer? Porównaj opcje i policz pełny koszt dojazdu dla 1–4 osób.",
+    title: "Jak dojechać z lotniska do centrum? Autobus, pociąg czy taxi | Tripownia",
+    description: "Jak najtaniej dojechać z lotniska do centrum? Porównaj autobus, pociąg, taxi i transfer oraz sprawdź, kiedy każda opcja naprawdę się opłaca.",
   },
   "/wakacje-z-psem-za-granica-gdzie-jechac-i-jak-sie-przygotowac": {
     title: "Które kraje są przyjazne psom na campingach? Europa 2026 | Tripownia",
@@ -192,8 +192,28 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Wyspy Kanaryjskie na wakacje i All Inclusive: porównaj Teneryfę, Gran Canarię, Fuerteventurę i Lanzarote, pogodę, plaże i najlepszy region.",
   },
   "/riwiera-turecka-czy-egejska-co-wybrac": {
-    title: "Riwiera Turecka czy Egejska – co wybrać? Antalya, Side, Bodrum czy Marmaris | Tripownia",
-    description: "Riwiera Turecka czy Turcja Egejska? Porównaj plaże, resorty, All Inclusive, pogodę, transfery i kurorty: Antalya, Side, Alanya, Bodrum i Marmaris.",
+    title: "Riwiera Turecka czy Egejska? Antalya, Side, Bodrum czy Marmaris | Tripownia",
+    description: "Riwiera Turecka czy Egejska? Porównaj pogodę, plaże, All Inclusive, transfery i kurorty Antalya, Side, Alanya, Bodrum oraz Marmaris przed wyborem wakacji.",
+  },
+  "/czy-trzeba-drukowac-karte-pokladowa-odprawa-online-krok-po-kroku": {
+    title: "Czy trzeba drukować kartę pokładową? Odprawa online 2026 | Tripownia",
+    description: "Czy karta pokładowa w telefonie wystarczy? Sprawdź odprawę online, wyjątki linii i lotnisk oraz kiedy warto mieć wydruk przed wylotem.",
+  },
+  "/kiedy-kupowac-tanie-loty-najlepszy-moment-na-rezerwacje": {
+    title: "Kiedy kupować tanie loty? Najlepszy moment na rezerwację 2026 | Tripownia",
+    description: "Kiedy najlepiej kupić bilet lotniczy? Sprawdź, ile wcześniej szukać lotów, kiedy ceny zwykle rosną i jak porównywać terminy bez mitów o jednym magicznym dniu.",
+  },
+  "/tajlandia-czy-wietnam-ktory-kierunek-wybrac-na-wakacje": {
+    title: "Tajlandia czy Wietnam? Co wybrać na wakacje w 2026 | Tripownia",
+    description: "Tajlandia czy Wietnam? Porównaj pogodę, plaże, zwiedzanie, jedzenie, ceny i logistykę, żeby wybrać lepszy kierunek dla swojego stylu podróży.",
+  },
+  "/co-zrobic-gdy-linia-lotnicza-zgubi-bagaz-poradnik-dla-podroznych": {
+    title: "Zgubiony bagaż na lotnisku – co robić i jakie masz prawa? | Tripownia",
+    description: "Linia zgubiła bagaż? Sprawdź zgłoszenie PIR, terminy, zakupy pierwszej potrzeby, odpowiedzialność przewoźnika i jak przygotować reklamację.",
+  },
+  "/czy-mozna-podrozowac-z-dowodem-osobistym-lista-krajow": {
+    title: "Gdzie można lecieć na dowód osobisty? Lista krajów 2026 | Tripownia",
+    description: "Do jakich krajów można podróżować na dowód osobisty bez paszportu? Sprawdź listę kierunków i zasady dokumentów przed wyjazdem.",
   },
 };
 
@@ -285,6 +305,7 @@ export default async function RoutePage({ params }: { params: Promise<{ slug: st
     "/4557-2": "/gdzie-jest-cieplo-w-listopadzie",
     "/5047-2": "/gdzie-na-wakacje-we-wrzesniu",
     "/5049-2": "/gdzie-na-wakacje-we-wrzesniu",
+    "/tripownia-pl/okazje-tripownia": "/okazje",
   };
   if (legacyRedirects[path]) permanentRedirect(legacyRedirects[path]);
 
