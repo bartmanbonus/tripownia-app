@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, BadgeCheck, Scale } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Plus, Scale, Trash2 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { offers, publishedOfferOverrides, type Offer } from "@/lib/offers";
@@ -63,6 +63,14 @@ export default function ComparePage() {
     window.dispatchEvent(new Event("tripownia-compare-updated"));
   }
 
+  function clearAll() {
+    localStorage.removeItem("tripownia-compare");
+    localStorage.removeItem(COMPARE_OFFER_SNAPSHOTS_KEY);
+    setIds([]);
+    setSnapshots({});
+    window.dispatchEvent(new Event("tripownia-compare-updated"));
+  }
+
   return (
     <main>
       <SiteHeader />
@@ -71,8 +79,20 @@ export default function ComparePage() {
         <h1>Porównaj wyjazdy</h1>
         <p className="hub-lead">Zestawiamy cenę, szacowany pełny koszt, pogodę, długość pobytu, wyżywienie i Tripownia Deal Score. Zapisane oferty live nie znikają po odświeżeniu.</p>
 
-        {selected.length >= 2 ? (
-          <div className="compare-grid" style={{ gridTemplateColumns: `repeat(${Math.min(selected.length, 3)}, minmax(0,1fr))` }}>
+        <div className="compare-page-toolbar">
+          <span><strong>{selected.length}/3</strong> wybrane oferty</span>
+          {selected.length > 0 && <button type="button" onClick={clearAll}><Trash2 size={15}/> Wyczyść porównanie</button>}
+        </div>
+
+        {selected.length === 1 && (
+          <div className="compare-page-hint">
+            <Scale size={18}/>
+            <span>Masz już pierwszą ofertę. Dodaj jeszcze jedną, żeby zobaczyć pełne porównanie obok siebie.</span>
+          </div>
+        )}
+
+        {selected.length > 0 ? (
+          <div className="compare-grid" style={{ gridTemplateColumns: `repeat(${Math.min(selected.length < 3 ? selected.length + 1 : selected.length, 3)}, minmax(0,1fr))` }}>
             {selected.map((offer) => {
               const clientOverride = getOfferOverride(offer.id);
               const publishedOverride = publishedOfferOverrides[String(offer.id)] || {};
@@ -113,6 +133,13 @@ export default function ComparePage() {
                 </article>
               );
             })}
+            {selected.length < 3 && (
+              <Link className="compare-add-card" href="/#wyszukiwarka">
+                <Plus size={28}/>
+                <strong>{selected.length === 1 ? "Dodaj drugą ofertę" : "Dodaj trzecią ofertę"}</strong>
+                <span>Wróć do wyszukiwarki i kliknij „Porównaj” na kolejnej ofercie.</span>
+              </Link>
+            )}
           </div>
         ) : (
           <div className="favorites-empty">
