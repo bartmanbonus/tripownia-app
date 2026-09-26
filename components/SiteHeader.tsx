@@ -33,7 +33,7 @@ const primaryItems = [
   { href: "/#wyszukiwarka", label: "Znajdź wyjazd" },
   { href: "/okazje", label: "Okazje" },
   { href: "/kierunki", label: "Kierunki" },
-  { href: "/moja-podroz", label: "Planner" },
+  { href: "/planer-podrozy", label: "Planner" },
 ] as const;
 
 const planningItems = [
