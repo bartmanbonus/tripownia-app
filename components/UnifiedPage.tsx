@@ -68,7 +68,7 @@ function ServicePage({ type }: { type: ServiceType }) {
     },
   }[type];
 
-  return <main><SiteHeader/><section className="shell service-page"><div className="kicker">{config.kicker}</div><h1>{config.title}</h1><p className="hub-lead">{config.lead}</p><div className="service-panel"><div><h2>Co sprawdzić?</h2><ul>{config.bullets.map((b)=><li key={b}>{b}</li>)}</ul></div><div className="service-cta">{config.partner ? <><strong>Sprawdź dostępne opcje</strong><p>Po kliknięciu przechodzisz bezpośrednio do rezerwacji. Cena i dostępność są potwierdzane na ostatnim kroku.</p><a href={config.partner.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Sprawdź teraz →</a></> : <><strong>Porównywarka w przygotowaniu</strong><p>Nie wysyłamy Cię na przypadkową stronę tylko po to, żeby mieć link. Gdy dodamy sprawdzonego partnera, pojawi się tu konkretna opcja.</p><Link href="/poradniki">Zobacz poradniki →</Link></>}</div></div></section><SiteFooter/></main>;
+  return <main><SiteHeader/><section className="shell service-page"><div className="kicker">{config.kicker}</div><h1>{config.title}</h1><p className="hub-lead">{config.lead}</p><div className="service-panel"><div><h2>Co sprawdzić?</h2><ul>{config.bullets.map((b)=><li key={b}>{b}</li>)}</ul></div><div className="service-cta">{config.partner ? <><strong>Sprawdź dostępne opcje</strong><p>Po kliknięciu przechodzisz do partnera. Aktualną cenę i dostępność potwierdzisz przed rezerwacją.</p><a href={config.partner.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Sprawdź teraz →</a></> : <><strong>Porównywarka w przygotowaniu</strong><p>Nie wysyłamy Cię na przypadkową stronę tylko po to, żeby mieć link. Gdy dodamy sprawdzonego partnera, pojawi się tu konkretna opcja.</p><Link href="/poradniki">Zobacz poradniki →</Link></>}</div></div><nav className="guides-quick-links" aria-label="Dalsze planowanie podróży"><Link href="/okazje">Okazje</Link><Link href="/planer-podrozy">Darmowy planer</Link><Link href="/przed-wyjazdem">Checklista</Link><Link href="/kierunki">Kierunki</Link></nav></section><SiteFooter/></main>;
 }
 
 function humanize(path: string) {
@@ -189,8 +189,8 @@ function ExperiencePage({ path }: { path: string }) {
         {active.length > 0 && <div className="cards-grid">{active.map(o => <OfferCard key={o.id} offer={experienceImage(o)}/>)}</div>}
         <div className="experience-partner-grid">
           <a href={eskyUrl} target="_blank" rel="sponsored noopener noreferrer"><span>✈️</span><div><strong>Sprawdź loty</strong><small>Kierunek ustawiony na {page.partnerQuery}</small></div><b>Sprawdź →</b></a>
-          <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🛫</span><div><strong>Loty w Loty</strong><small>Cel ustawiony · sortowanie od najniższej ceny</small></div><b>Sprawdź →</b></a>
-          <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏨</span><div><strong>Noclegi Noclegi</strong><small>Wyszukiwanie dla: {page.partnerQuery}</small></div><b>Sprawdź →</b></a>
+          <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🛫</span><div><strong>Loty — porównywarka</strong><small>Cel ustawiony · sortowanie od najniższej ceny</small></div><b>Sprawdź →</b></a>
+          <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏨</span><div><strong>Noclegi</strong><small>Wyszukiwanie dla: {page.partnerQuery}</small></div><b>Sprawdź →</b></a>
         </div>
       </section>
     </section>
