@@ -34,18 +34,20 @@ const details: Record<string, ArticleDeepDive> = {
   "/lotniska-w-polsce-bez-limitu-100-ml-plynow": {
     kicker: "AKTUALNE ZASADY 2026",
     title: "Gdzie w Polsce naprawdę nie obowiązuje już limit 100 ml?",
-    quickAnswer: "Nie ma jednej zasady dla wszystkich polskich lotnisk. Na części portów z certyfikowanymi skanerami C3 można przejść kontrolę z płynami w opakowaniach do 2 litrów. Na innych nadal obowiązuje standardowe 100 ml. Sprawdzaj zawsze lotnisko wylotu, a przy przesiadce także lotnisko tranzytowe.",
-    checkedAt: "13.09.2026",
+    quickAnswer: "Nie ma jednej zasady dla wszystkich polskich lotnisk. Kraków, Poznań i Rzeszów oficjalnie dopuszczają płyny w opakowaniach do 2 litrów. W Gdańsku nowe linie ze skanerami C3 pozwalają na opakowania do 2 litrów, ale wdrożenie nadal jest etapowe. Wrocław i Katowice nadal publikują zasadę 100 ml.",
+    checkedAt: "26.09.2026",
     sections: [
       {
         title: "Potwierdzone ułatwienia na polskich lotniskach",
         table: {
           headers: ["Lotnisko", "Co możesz zabrać", "Co ważne"],
           rows: [
-            ["Kraków-Balice (KRK)", "Płyny w opakowaniach do 2 l", "Kraków Airport informuje o zniesieniu limitu 100 ml dzięki skanerom CT."],
-            ["Poznań-Ławica (POZ)", "Każde opakowanie do 2 l", "Lotnisko podaje, że nie ma łącznego limitu ilości płynów, o ile wszystko mieści się w bagażu podręcznym."],
+            ["Kraków-Balice (KRK)", "Płyny w opakowaniach do 2 l", "Kraków Airport oficjalnie zniósł limit 100 ml dzięki skanerom CT."],
+            ["Poznań-Ławica (POZ)", "Każde opakowanie do 2 l", "Poznań Airport podaje brak łącznego limitu ilości płynów, o ile wszystko mieści się w bagażu podręcznym."],
             ["Rzeszów-Jasionka (RZE)", "Płyny do 2 l", "Port potwierdza pełne wdrożenie skanerów C3 i zniesienie limitu 100 ml."],
-            ["Gdańsk (GDN)", "Do 2 l na nowych liniach C3", "Nowe skanery 3D działają od lipca 2026; port wdraża je stopniowo, więc zwróć uwagę, przez którą linię kontroli przechodzisz."],
+            ["Gdańsk (GDN)", "Do 2 l na nowych liniach C3", "Nowe skanery 3D działają od lipca 2026; wdrożenie jest etapowe, więc zasady mogą zależeć od linii kontroli."],
+            ["Wrocław (WRO)", "Standardowo do 100 ml", "Oficjalny poradnik lotniska nadal podaje pojemniki do 100 ml w torbie do 1 litra."],
+            ["Katowice-Pyrzowice (KTW)", "Standardowo do 100 ml", "Oficjalna strona lotniska nadal podaje pojemniki poniżej 100 ml w jednej torbie do 1 litra."],
           ],
         },
       },
@@ -77,9 +79,11 @@ const details: Record<string, ArticleDeepDive> = {
     sources: [
       { label: "Komisja Europejska — zasady dotyczące płynów", url: "https://transport.ec.europa.eu/transport-modes/air/aviation-security/aviation-security-policy/liquids-aerosols-and-gels_en" },
       { label: "Kraków Airport — koniec limitu 100 ml", url: "https://krakowairport.pl/blog/en/koniec-z-limitem-100-ml/" },
-      { label: "Poznań-Ławica — kontrola bezpieczeństwa", url: "https://poznanairport.pl/przed-podroza/kontrola-bezpieczenstwa/" },
+      { label: "Poznań-Ławica — płyny i aerozole", url: "https://poznanairport.pl/przed-podroza/bagaz/plyny-i-aerozole/" },
       { label: "Rzeszów-Jasionka — skanery C3", url: "https://www.rzeszowairport.pl/pl/lotnisko/aktualnosci/326/oficjalne-otwarcie-zmodernizowanego-punktu-kontroli-bezpieczenstwa" },
       { label: "Gdańsk Airport — skanery 3D", url: "https://www.airport.gdansk.pl/aktualnosci/skanery-3d-juz-pracuja-w-gdansku" },
+      { label: "Port Lotniczy Wrocław — poradnik przed odlotem", url: "https://airport.wroclaw.pl/pasazer/odlatuje/poradnik-przed-odlotem/" },
+      { label: "Katowice Airport — bagaż i płyny", url: "https://www.katowice-airport.com/pl/dla-pasazera/przed-podroza/bagaz" },
     ],
   },
 
