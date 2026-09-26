@@ -9,7 +9,7 @@ import { offers } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import AdminStudio from "@/components/AdminStudio";
 import SearchHub from "@/components/SearchHub";
-import DestinationLandingPanel from "@/components/DestinationLandingPanel";
+import DestinationLandingPanel, { hasDestinationLanding } from "@/components/DestinationLandingPanel";
 
 
 const EXPERIENCE_IMAGE_BY_CITY: Record<string, string> = {
@@ -402,6 +402,9 @@ function LongHaulPage() {
 }
 
 function AliasLandingPage({ path }: { path: string }) {
+  if (hasDestinationLanding(path)) {
+    return <main><SiteHeader/><section className="shell"><DestinationLandingPanel path={path}/></section><SiteFooter/></main>;
+  }
   const title = humanize(path);
   const q = decodeURIComponent(path).toLocaleLowerCase("pl").replace(/[-/]/g," ");
   const active = offers.filter(o => o.availabilityStatus !== "expired");
