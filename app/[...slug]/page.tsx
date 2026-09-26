@@ -223,6 +223,15 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function RoutePage({ params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
   const path = "/" + slug.join("/");
+
+  const legacyRedirects: Record<string, string> = {
+    "/453-2": "/magazyn-podrozniczy",
+    "/4557-2": "/gdzie-jest-cieplo-w-listopadzie",
+    "/5047-2": "/gdzie-na-wakacje-we-wrzesniu",
+    "/5049-2": "/gdzie-na-wakacje-we-wrzesniu",
+  };
+  if (legacyRedirects[path]) permanentRedirect(legacyRedirects[path]);
+
   if (path === "/indywidualne-planowanie-podrozy-bez-ukrytych-kosztow") permanentRedirect("/okazje");
   if (path === "/grecja-2") permanentRedirect("/grecja");
   const isSystemPath = systemPaths.has(path);
