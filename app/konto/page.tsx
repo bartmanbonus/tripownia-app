@@ -6,6 +6,8 @@ import { CheckCircle2, Cloud, Download, LogOut, Mail, ShieldCheck, Sparkles, Tra
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { readTravelProfile } from "@/lib/travelProfile";
+import { trackEvent } from "@/lib/analytics";
+import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState } from "@/lib/accountState";
 import {
   accountAuthEventName,
@@ -120,8 +122,12 @@ export default function AccountPage() {
           setSession(result.session);
           const accountUser = await getAccountUser(result.session);
           setUser(accountUser);
+          trackEvent("sign_up", { method: "password", confirmation_required: false });
+          trackMetaCustomEvent("AccountCreated", { method: "password" });
           setMessage("Konto utworzone. Twoje dane Tripowni są teraz przypisane do konta.");
         } else {
+          trackEvent("sign_up", { method: "password", confirmation_required: true });
+          trackMetaCustomEvent("AccountCreated", { method: "password", confirmation_required: true });
           setMessage("Konto utworzone. Sprawdź e-mail i potwierdź adres, a potem wróć tutaj i zaloguj się hasłem.");
         }
       } else {
@@ -135,6 +141,7 @@ export default function AccountPage() {
         setCloudState(remote);
         if (remote) applyCloudAccountState(remote);
         else if (collectLocalAccountState()) await saveTripowniaUserState(logged, collectLocalAccountState());
+        trackEvent("login", { method: "password" });
         setMessage("Zalogowano. Wczytaliśmy Twoją Tripownię.");
         const next = safeNextPath();
         if (next) window.setTimeout(() => window.location.replace(next), 350);
@@ -155,6 +162,7 @@ export default function AccountPage() {
       const next = safeNextPath();
       const redirect = `${window.location.origin}/konto${next ? `?next=${encodeURIComponent(next)}` : ""}`;
       await requestMagicLink(email.trim(), redirect);
+      trackEvent("magic_link_requested", { method: "email" });
       setMessage("Link do logowania wysłany. Sprawdź skrzynkę e-mail.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Nie udało się wysłać linku logowania.");
@@ -171,6 +179,7 @@ export default function AccountPage() {
       const saved = await saveTripowniaUserState(session, collectLocalAccountState());
       setCloudState(saved);
       setSynced((value) => value + 1);
+      trackEvent("account_sync", { action: "save_to_cloud" });
       setMessage("Zapisano w chmurze. Profil, ulubione, porównania, podróże, alerty i planner są przypisane do konta.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Nie udało się zsynchronizować danych.");
