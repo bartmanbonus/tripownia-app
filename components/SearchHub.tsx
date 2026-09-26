@@ -15,6 +15,12 @@ type Props = {
   initialDuration?: string;
   searchRequest?: number;
   initialTab?: string;
+  initialDateMode?: "any" | "exact" | "month" | "range";
+  initialDateFrom?: string;
+  initialDateTo?: string;
+  initialMonth?: string;
+  initialWeekendOnly?: boolean;
+  embedded?: boolean;
 };
 
 type DateMode = "any" | "exact" | "month" | "range";
@@ -208,6 +214,12 @@ export default function SearchHub({
   initialDuration = "all",
   searchRequest = 0,
   initialTab = "Inspiracje",
+  initialDateMode = "any",
+  initialDateFrom = "",
+  initialDateTo = "",
+  initialMonth = "",
+  initialWeekendOnly = false,
+  embedded = false,
 }: Props) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [destination, setDestination] = useState("");
@@ -215,17 +227,17 @@ export default function SearchHub({
   const [departures, setDepartures] = useState<string[]>(initialAirports);
   const [departureOpen, setDepartureOpen] = useState(false);
   const [departureQuery, setDepartureQuery] = useState("");
-  const [dateMode, setDateMode] = useState<DateMode>("any");
+  const [dateMode, setDateMode] = useState<DateMode>(initialDateMode);
   const [dateOpen, setDateOpen] = useState(false);
-  const [month, setMonth] = useState("");
-  const [calendarMonth, setCalendarMonth] = useState("");
+  const [month, setMonth] = useState(initialMonth);
+  const [calendarMonth, setCalendarMonth] = useState(initialMonth || initialDateFrom.slice(0, 7));
   const [calendarView, setCalendarView] = useState<"calendar" | "months">("calendar");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [dateFrom, setDateFrom] = useState(initialDateFrom);
+  const [dateTo, setDateTo] = useState(initialDateTo);
   const [duration, setDuration] = useState(initialDuration || "all");
   const [budget, setBudget] = useState("all");
   const [board, setBoard] = useState("all");
-  const [weekendOnly, setWeekendOnly] = useState(false);
+  const [weekendOnly, setWeekendOnly] = useState(initialWeekendOnly);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [results, setResults] = useState<any[]>([]);
   const [resultLocation, setResultLocation] = useState("");
@@ -279,7 +291,24 @@ export default function SearchHub({
     setSelectedDestinations(initialDestinations);
     setDepartures(initialAirports);
     setDuration(initialDuration || "all");
-  }, [initialAirports.join("|"), initialDestinations.join("|"), initialDuration]);
+    setActiveTab(initialTab);
+    setDateMode(initialDateMode);
+    setDateFrom(initialDateFrom);
+    setDateTo(initialDateTo);
+    setMonth(initialMonth);
+    setCalendarMonth(initialMonth || initialDateFrom.slice(0, 7));
+    setWeekendOnly(initialWeekendOnly);
+  }, [
+    initialAirports.join("|"),
+    initialDestinations.join("|"),
+    initialDuration,
+    initialTab,
+    initialDateMode,
+    initialDateFrom,
+    initialDateTo,
+    initialMonth,
+    initialWeekendOnly,
+  ]);
 
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
@@ -664,7 +693,7 @@ export default function SearchHub({
   ];
 
   return (
-    <section className="section shell search-v3-section" id="wyszukiwarka">
+    <section className={embedded ? "search-v3-section search-v3-embedded" : "section shell search-v3-section"} id={embedded ? undefined : "wyszukiwarka"}>
       <div className="search-v3">
         <div className="search-v3-head">
           <div>
