@@ -141,8 +141,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Wyspy Zielonego Przylądka: Sal czy Boa Vista? Porównaj plaże, hotele, pogodę, All Inclusive i styl wakacji, zanim wybierzesz konkretną wyspę.",
   },
   "/jak-tanio-podrozowac-po-europie-10-sposobow-na-tansze-wyjazdy": {
-    title: "Jak tanio podróżować po Europie? 10 sposobów na tańszy wyjazd | Tripownia",
-    description: "Tanie podróżowanie po Europie: 10 praktycznych sposobów na tańsze loty, noclegi, transport i city breaki bez rezygnowania z wygody.",
+    title: "Tanie podróżowanie po Europie – 10 sposobów na tańszy wyjazd | Tripownia",
+    description: "Jak tanio podróżować po Europie? Sprawdź 10 praktycznych sposobów na tańsze loty, noclegi, transport, city breaki i planowanie całego wyjazdu.",
   },
   "/jak-znalezc-tani-hotel-8-sposobow-na-oszczednosc-przy-rezerwacji-noclegow": {
     title: "Jak znaleźć tani hotel? 8 sposobów na tańszy nocleg | Tripownia",
@@ -169,8 +169,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Gdzie polecieć na Sylwestra 2026/2027? Zobacz 15 kierunków na city break, Europę i dalszy wyjazd oraz wybierz opcję pod pogodę, budżet i długość lotu.",
   },
   "/gdzie-na-wakacje-we-wrzesniu": {
-    title: "Gdzie na wakacje we wrześniu 2026? Ciepłe kierunki | Tripownia",
-    description: "Gdzie lecieć we wrześniu na ciepłe wakacje? Sprawdź kierunki z dobrą pogodą, krótszymi kolejkami i propozycje na późne lato.",
+    title: "Ciepłe wakacje we wrześniu 2026 – gdzie lecieć? | Tripownia",
+    description: "Ciepłe wakacje we wrześniu: gdzie lecieć na słońce po sezonie? Porównaj kierunki, długość lotu i styl wyjazdu na późne lato 2026.",
   },
   "/jak-dojechac-z-lotniska-do-centrum-miasta-najtansze-opcje-transportu": {
     title: "Jak dojechać z lotniska do centrum? Autobus, pociąg czy taxi | Tripownia",
