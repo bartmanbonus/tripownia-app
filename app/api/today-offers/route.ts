@@ -805,16 +805,6 @@ export async function GET(request: NextRequest) {
         if (pool.length) notice = "Brak ofert z wybranym wyżywieniem — pokazujemy inne wyżywienie, ale nadal tylko w wybranym terminie.";
       }
 
-      if (!pool.length && (minPrice || maxPrice)) {
-        pool = dateCandidates.filter((offer) =>
-          departureMatches(offer) &&
-          nightsMatches(offer) &&
-          weekendMatches(offer) &&
-          lastMinuteMatches(offer)
-        );
-        if (pool.length) notice = "Brak ofert w wybranym budżecie — pokazujemy najbliższe cenowo opcje, ale nadal tylko w wybranym terminie.";
-      }
-
       if (!pool.length && nightsFilter !== "any") {
         pool = dateCandidates.filter((offer) =>
           departureMatches(offer) &&
