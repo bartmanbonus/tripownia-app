@@ -93,8 +93,8 @@ const seoOverrides: Record<string, Metadata> = {
   },
 
   "/lublin-wakacje-city-break": {
-    title: "City break z Lublina – weekend, lot + hotel i wakacje z LUZ | Tripownia",
-    description: "City break z Lublina, wakacje i krótkie wyjazdy z lotniska LUZ. Sprawdź kierunki, lot + hotel i aktualne propozycje na 2–5 dni.",
+    title: "City break z Lublina, wakacje i lot + hotel z LUZ | Tripownia",
+    description: "City break z Lublina na 2–5 dni, wakacje i lot + hotel z LUZ. Sprawdź aktualne kierunki i krótkie wyjazdy z lokalnego lotniska.",
   },
   "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel": {
     title: "Wakacje z Olsztyna-Mazur (Szymany) – last minute i lot + hotel | Tripownia",
@@ -105,16 +105,16 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Jaka jest wysokość Sagrada Familia? Sprawdź maksymalną wysokość bazyliki w Barcelonie, najważniejsze liczby i co zmieniło się w 2026 roku.",
   },
   "/wakacje-z-poznania": {
-    title: "City break z Poznania, last minute i wakacje 2026 | Tripownia",
-    description: "Szukasz city breaku lub last minute z Poznania? Sprawdź krótkie wyjazdy, wakacje, lot + hotel i aktualne propozycje z Ławicy.",
+    title: "City break z Poznania, last minute i wakacje – lot + hotel | Tripownia",
+    description: "City break z Poznania, last minute i wakacje z Ławicy. Sprawdź krótkie wyjazdy na 2–5 dni, lot + hotel i aktualne kierunki z POZ.",
   },
   "/krakow": {
-    title: "City break i last minute z Krakowa – loty i wakacje 2026 | Tripownia",
-    description: "City break z Krakowa, last minute, tanie loty i wakacje z Balic. Porównaj krótkie wyjazdy, lot + hotel i aktualne propozycje.",
+    title: "City break z Krakowa, last minute i wakacje – lot + hotel | Tripownia",
+    description: "City break z Krakowa, last minute i wakacje z Balic. Porównaj wyjazdy na 2–5 dni, lot + hotel i aktualne kierunki z KRK.",
   },
   "/wakacje-z-gdanska-2": {
-    title: "City break i last minute z Gdańska – loty i wakacje 2026 | Tripownia",
-    description: "City break z Gdańska, last minute i wakacje z Trójmiasta. Porównaj krótkie wyjazdy, lot + hotel i aktualne propozycje z GDN.",
+    title: "City break z Gdańska, last minute i wakacje – lot + hotel | Tripownia",
+    description: "City break z Gdańska, last minute i wakacje z GDN. Porównaj tanie loty, lot + hotel i krótkie wyjazdy z Trójmiasta.",
   },
   "/wroclaw": {
     title: "City break i last minute z Wrocławia – loty i wakacje 2026 | Tripownia",
@@ -216,9 +216,21 @@ const seoOverrides: Record<string, Metadata> = {
     title: "Malta wakacje 2026 – city break, lot + hotel i plaże | Tripownia",
     description: "Malta wakacje i city break: porównaj Vallettę, Sliemę, St. Julian’s, Mellieħę i Gozo. Sprawdź lot + hotel, plaże i najlepszą bazę na 3–7 dni.",
   },
+  "/maroko": {
+    title: "Maroko All Inclusive 2026 – Agadir, Marrakesz i wakacje | Tripownia",
+    description: "Maroko All Inclusive i wakacje: porównaj Agadir, Marrakesz i wybrzeże Atlantyku. Sprawdź hotele, plaże, pogodę i najlepszy region na urlop.",
+  },
+  "/egipt": {
+    title: "Egipt All Inclusive 2026 – Hurghada, Marsa Alam i Sharm | Tripownia",
+    description: "Egipt All Inclusive: porównaj Hurghadę, Marsa Alam i Sharm el Sheikh. Sprawdź hotele, plaże, rafę, transfer i wybierz region pod swój budżet.",
+  },
+  "/najlepsze-aplikacje-podroznicze-10-aplikacji-ktore-ulatwia-kazda-podroz": {
+    title: "Aplikacje do zwiedzania miast – 10 najlepszych aplikacji podróżniczych | Tripownia",
+    description: "Najlepsze aplikacje do zwiedzania miast i podróżowania: mapy, atrakcje, transport, planowanie i rezerwacje. Zobacz 10 praktycznych aplikacji na wyjazd.",
+  },
   "/wyspy-kanaryjskie-wakacje-all-inclusive-i-last-minute": {
-    title: "Wyspy Kanaryjskie All Inclusive 2026 – Teneryfa, Gran Canaria czy Fuerteventura? | Tripownia",
-    description: "Wyspy Kanaryjskie na wakacje i All Inclusive: porównaj Teneryfę, Gran Canarię, Fuerteventurę i Lanzarote, pogodę, plaże i najlepszy region.",
+    title: "Wyspy Kanaryjskie All Inclusive 2026 – wakacje i last minute | Tripownia",
+    description: "Wyspy Kanaryjskie All Inclusive: porównaj Teneryfę, Gran Canarię, Fuerteventurę i Lanzarote. Sprawdź wakacje, last minute, plaże i pogodę.",
   },
   "/riwiera-turecka-czy-egejska-co-wybrac": {
     title: "Riwiera Turecka czy Egejska? Antalya, Side, Bodrum czy Marmaris | Tripownia",
@@ -287,7 +299,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const path = "/" + slug.join("/");
   const fixed: Record<string, Metadata> = {
     "/okazje": { title: "Okazje podróżnicze | Tripownia.pl", description: "Wybrane przez Tripownię city breaki, wakacje i pakiety z wielu źródeł." },
-    "/poradniki": { title: "Poradniki podróżnicze | Tripownia.pl", description: "Praktyczne poradniki, formalności, lotniska, inspiracje i wskazówki przed podróżą." },
+    "/poradniki": { title: "Poradniki podróżnicze 2026 – loty, bagaż i prawa pasażera | Tripownia", description: "Praktyczne poradniki o lotach, bagażu, odprawie, prawach pasażera, lotniskach, dokumentach i planowaniu podróży." },
     "/parkingi": { title: "Parkingi przy lotniskach | Tripownia.pl", description: "Najpierw sprawdź lotnisko i wyjazd, potem dobierz parking." },
     "/atrakcje": { title: "Atrakcje i bilety | Tripownia.pl", description: "Dobierz atrakcje do konkretnego kierunku i terminu podróży." },
     "/esim": { title: "eSIM i internet w podróży | Tripownia.pl", description: "Internet na wyjeździe — praktyczne informacje i sprawdzony partner." },
