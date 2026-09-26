@@ -16,6 +16,7 @@
 }
 
 .heroContent {
+  min-width: 0;
   max-width: 780px;
   padding: 54px;
   color: #fff;
@@ -39,6 +40,8 @@
   font-size: clamp(2.25rem, 4.7vw, 4.7rem);
   line-height: .98;
   letter-spacing: -.045em;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .hero p {
