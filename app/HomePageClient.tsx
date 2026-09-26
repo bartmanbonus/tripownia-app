@@ -815,9 +815,6 @@ export default function Home() {
             <span><b>4</b> City break</span>
           </div>
         </Link>
-
-        <div className="homepage-editorial-grid homepage-events-grid homepage-events-secondary">
-        </div>
       </section>
 
       <section className="section shell homepage-phenomena" aria-labelledby="homepage-phenomena-title">
