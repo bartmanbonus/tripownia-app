@@ -162,7 +162,8 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
     let observer: IntersectionObserver | null = null;
 
     const trackIfEligible = () => {
-      if (!visibleEnough || viewedOfferIds.has(offer.id) || getAnalyticsConsent() !== "analytics") return;
+      const consent = getAnalyticsConsent();
+      if (!visibleEnough || viewedOfferIds.has(offer.id) || !["analytics", "marketing"].includes(consent || "")) return;
       rememberViewedOffer(offer.id);
       trackEvent("offer_view", eventBase);
       observer?.disconnect();
