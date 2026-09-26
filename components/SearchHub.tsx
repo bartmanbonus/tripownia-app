@@ -265,6 +265,7 @@ export default function SearchHub({
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [results, setResults] = useState<any[]>([]);
   const [resultLocation, setResultLocation] = useState("");
+  const [resultSort, setResultSort] = useState<"recommended" | "price" | "rating" | "nights">("recommended");
   const [visibleCount, setVisibleCount] = useState(12);
   const [loading, setLoading] = useState(false);
   const [expanding, setExpanding] = useState(false);
@@ -303,12 +304,16 @@ export default function SearchHub({
       .slice(0, 12);
   }, [results]);
 
-  const visibleResults = useMemo(
-    () => resultLocation
+  const visibleResults = useMemo(() => {
+    const filtered = resultLocation
       ? results.filter((offer) => String(offer?.city || offer?.country || "").trim() === resultLocation)
-      : results,
-    [results, resultLocation]
-  );
+      : [...results];
+
+    if (resultSort === "price") return [...filtered].sort((a, b) => Number(a?.price || Infinity) - Number(b?.price || Infinity));
+    if (resultSort === "rating") return [...filtered].sort((a, b) => Number(b?.score || 0) - Number(a?.score || 0) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
+    if (resultSort === "nights") return [...filtered].sort((a, b) => Number(a?.nights || Infinity) - Number(b?.nights || Infinity) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
+    return filtered;
+  }, [results, resultLocation, resultSort]);
 
   useEffect(() => {
     setDestination("");
@@ -431,6 +436,7 @@ export default function SearchHub({
     setSearched(true);
     setVisibleCount(12);
     setResultLocation("");
+    setResultSort("recommended");
     setSuggestionsOpen(false);
     setDepartureOpen(false);
     setDateOpen(false);
@@ -1118,19 +1124,30 @@ export default function SearchHub({
 
             {!loading && results.length > 0 && (
               <>
-                {resultLocations.length > 1 && (
-                  <div className="search-v3-result-filters" aria-label="Filtruj wyniki po miejscowości">
-                    <span>Miejscowość</span>
-                    <button type="button" className={!resultLocation ? "active" : ""} onClick={() => { setResultLocation(""); setVisibleCount(12); }}>
-                      Wszystkie <b>{results.length}</b>
-                    </button>
-                    {resultLocations.map(([location, count]) => (
-                      <button type="button" key={location} className={resultLocation === location ? "active" : ""} onClick={() => { setResultLocation(location); setVisibleCount(12); }}>
-                        {location} <b>{count}</b>
+                <div className="search-v3-results-toolbar">
+                  {resultLocations.length > 1 && (
+                    <div className="search-v3-result-filters" aria-label="Filtruj wyniki po miejscowości">
+                      <span>Miejscowość</span>
+                      <button type="button" className={!resultLocation ? "active" : ""} onClick={() => { setResultLocation(""); setVisibleCount(12); }}>
+                        Wszystkie <b>{results.length}</b>
                       </button>
-                    ))}
-                  </div>
-                )}
+                      {resultLocations.map(([location, count]) => (
+                        <button type="button" key={location} className={resultLocation === location ? "active" : ""} onClick={() => { setResultLocation(location); setVisibleCount(12); }}>
+                          {location} <b>{count}</b>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <label className="search-v3-sort">
+                    <span>Sortuj</span>
+                    <select value={resultSort} onChange={(event) => { setResultSort(event.target.value as typeof resultSort); setVisibleCount(12); }}>
+                      <option value="recommended">Polecane</option>
+                      <option value="price">Najtańsze</option>
+                      <option value="rating">Najwyżej oceniane</option>
+                      <option value="nights">Najkrótszy wyjazd</option>
+                    </select>
+                  </label>
+                </div>
                 <div className="search-v3-results-grid">{visibleResults.slice(0, visibleCount).map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
                 {visibleResults.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(visibleResults.length, count + 6))}>Pokaż kolejne oferty ({visibleResults.length - visibleCount})</button>}
               </>
