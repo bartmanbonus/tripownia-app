@@ -4,12 +4,25 @@ import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ANALYTICS_CONSENT_EVENT, bootstrapAnalytics, trackEvent, trackPageView } from "@/lib/analytics";
 
+const ATTRIBUTION_KEY = "tripownia-attribution-v1";
+
 function trackReferral(searchParams: URLSearchParams) {
   const source = (searchParams.get("utm_source") || "").toLowerCase();
   const medium = (searchParams.get("utm_medium") || "").toLowerCase();
   const campaign = searchParams.get("utm_campaign") || "";
   const content = searchParams.get("utm_content") || "";
   if (!source && !medium && !campaign) return;
+
+  try {
+    sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify({
+      source,
+      medium,
+      campaign,
+      content,
+      landing: window.location.pathname,
+      capturedAt: new Date().toISOString(),
+    }));
+  } catch {}
 
   trackEvent("campaign_referral", {
     source,
