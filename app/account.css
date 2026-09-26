@@ -31,3 +31,12 @@
 .account-delete:hover{background:#fff0eb}
 .account-delete:disabled{opacity:.6;cursor:default}
 @media(max-width:760px){.account-delete{margin:8px 0 0}}
+
+.account-auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 12px;padding:4px;border-radius:14px;background:#f7f2ee}
+.account-auth-tabs button{min-height:40px;border:0;border-radius:10px;background:transparent;color:#796e67;font-size:11px;font-weight:900;cursor:pointer}
+.account-auth-tabs button.active{background:#fff;color:#d4512d;box-shadow:0 4px 14px rgba(50,32,20,.08)}
+.account-password-form{display:grid;gap:8px}
+.account-password-form input{min-height:50px;padding:0 14px;border:1px solid #ddd1c8;border-radius:13px;background:#fff;color:#211d1a;font:inherit;font-size:13px}
+.account-password-form button,.account-magic-form button{min-height:50px;padding:0 17px;border:0;border-radius:13px;background:linear-gradient(135deg,#ff6539,#ff4f2d);color:#fff;font-size:11px;font-weight:950;cursor:pointer;box-shadow:0 10px 24px rgba(255,84,47,.2)}
+.account-magic-form button{width:100%;min-height:44px;background:#fff;color:#4f4640;border:1px solid #ddd1c8;box-shadow:none}
+.account-password-form button:disabled,.account-magic-form button:disabled{opacity:.55;cursor:default}
