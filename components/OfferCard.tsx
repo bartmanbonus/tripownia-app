@@ -82,6 +82,7 @@ function readTrip() {
 export default function OfferCard({ offer, priceHighlight }: { offer: Offer; priceHighlight?: PriceHighlight }) {
   const [liked, setLiked] = useState(false);
   const [compared, setCompared] = useState(false);
+  const [compareCount, setCompareCount] = useState(0);
   const [tripAdded, setTripAdded] = useState(false);
   const [override, setOverride] = useState<OfferOverride>({});
   const cardRef = useRef<HTMLElement | null>(null);
@@ -93,6 +94,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       setLiked(ids.includes(offer.id));
       const compareIds = readNumberArray("tripownia-compare");
       setCompared(compareIds.includes(offer.id));
+      setCompareCount(compareIds.length);
       const trip = readTrip();
       setTripAdded(trip?.offerId === offer.id);
     };
@@ -211,6 +213,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
     else removeOfferSnapshot(COMPARE_OFFER_SNAPSHOTS_KEY, offer.id);
     pruneOfferSnapshots(COMPARE_OFFER_SNAPSHOTS_KEY, next);
     setCompared(next.includes(offer.id));
+    setCompareCount(next.length);
     trackEvent(adding ? "compare_add" : "compare_remove", eventBase);
     window.dispatchEvent(new Event("tripownia-compare-updated"));
   }
@@ -351,7 +354,8 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
 
         {(compared || tripAdded) && (
           <div className="offer-after-actions">
-            {compared && <Link href="/porownaj">Otwórz porównanie</Link>}
+            {compared && compareCount >= 2 && <Link href="/porownaj">Porównaj teraz ({compareCount})</Link>}
+            {compared && compareCount < 2 && <span className="offer-compare-hint">Dodaj jeszcze 1 ofertę</span>}
             {tripAdded && <Link href="/moja-podroz">Otwórz Moją podróż</Link>}
           </div>
         )}
