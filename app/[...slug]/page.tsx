@@ -75,6 +75,18 @@ const dedicatedAppPaths = new Set([
 ]);
 
 const seoOverrides: Record<string, Metadata> = {
+  "/lublin-wakacje-city-break": {
+    title: "City break z Lublina – weekend, lot + hotel i wakacje z LUZ | Tripownia",
+    description: "City break z Lublina, wakacje i krótkie wyjazdy z lotniska LUZ. Sprawdź kierunki, lot + hotel i aktualne propozycje na 2–5 dni.",
+  },
+  "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel": {
+    title: "Last minute z Olsztyna-Mazur i Szyman – wakacje z SZY | Tripownia",
+    description: "Last minute i wakacje z lotniska Olsztyn-Mazury w Szymanach (SZY). Sprawdź aktualne kierunki, All Inclusive i lokalne wyloty.",
+  },
+  "/sagrada-familia-osiagnela-maksymalna-wysokosc-20-lutego-2026-historyczna-data-dla-barcelony": {
+    title: "Sagrada Familia – wysokość. Ile metrów ma bazylika w 2026? | Tripownia",
+    description: "Jaka jest wysokość Sagrada Familia? Sprawdź maksymalną wysokość bazyliki w Barcelonie, najważniejsze liczby i co zmieniło się w 2026 roku.",
+  },
   "/wakacje-z-poznania": {
     title: "City break z Poznania, last minute i wakacje 2026 | Tripownia",
     description: "Szukasz city breaku lub last minute z Poznania? Sprawdź krótkie wyjazdy, wakacje, lot + hotel i aktualne propozycje z Ławicy.",
@@ -144,8 +156,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Które kraje warto sprawdzić na camping z psem? Porównaj Włochy, Chorwację, Austrię i Niemcy oraz sprawdź paszport, szczepienia i zasady konkretnego campingu.",
   },
   "/etna-sparalizowala-loty-na-sycylie-co-zrobic-po-odwolaniu-lotu-do-katanii": {
-    title: "Loty na Sycylię odwołane przez Etnę? Katania 2026 – co robić | Tripownia",
-    description: "Etna wpływa na lot do Katanii? Sprawdź kolejność działania, status lotu, prawa do zwrotu lub zmiany trasy i kiedy odszkodowanie nie jest automatyczne.",
+    title: "Katania – loty odwołane przez Etnę? Co robić w 2026 | Tripownia",
+    description: "Czy loty na Sycylię są odwołane? Sprawdź status lotu do Katanii, co zrobić po anulowaniu rejsu oraz zasady zwrotu, zmiany trasy i odszkodowania.",
   },
   "/gdzie-poleciec-na-weekend-z-polski-12-pomyslow-na-city-break": {
     title: "Gdzie polecieć na weekend z Polski? City break 2026 | Tripownia",
