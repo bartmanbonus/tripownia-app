@@ -953,9 +953,6 @@ export default function SearchHub({
           </label>
 
           <div className="search-v3-options-row">
-            <button type="button" className={`search-v3-weekend ${weekendOnly ? "active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
-              <span className="search-v3-check">{weekendOnly && <Check size={13}/>}</span> Pobyt obejmuje sobotę i niedzielę
-            </button>
             <label className="search-v3-board">
               <span>Wyżywienie</span>
               <select value={board} onChange={(event) => setBoard(event.target.value)}>
