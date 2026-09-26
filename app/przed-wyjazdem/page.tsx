@@ -81,6 +81,18 @@ export default function BeforeTripPage() {
           ))}
         </div>
 
+        <section className="seo-related-block" style={{ marginTop: 28 }}>
+          <div className="kicker">NAJCZĘŚCIEJ SPRAWDZANE PRZED LOTEM</div>
+          <div className="seo-related-links" style={{ marginTop: 12 }}>
+            <Link href="/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych">Czy bagaż podręczny jest ważony? →</Link>
+            <Link href="/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad">Czy można wnieść jedzenie do samolotu? →</Link>
+            <Link href="/czy-trzeba-drukowac-karte-pokladowa-odprawa-online-krok-po-kroku">Czy trzeba drukować kartę pokładową? →</Link>
+            <Link href="/co-zrobic-gdy-linia-lotnicza-zgubi-bagaz-poradnik-dla-podroznych">Co zrobić, gdy linia zgubi bagaż? →</Link>
+            <Link href="/jak-dojechac-z-lotniska-do-centrum-miasta-najtansze-opcje-transportu">Jak dojechać z lotniska do centrum? →</Link>
+            <Link href="/kiedy-kupowac-tanie-loty-najlepszy-moment-na-rezerwacje">Kiedy kupować tanie loty? →</Link>
+          </div>
+        </section>
+
         <section className="guides-checklist before-trip-cta">
           <div>
             <div className="kicker">TWOJA PODRÓŻ</div>
