@@ -10,11 +10,27 @@ import {
   sportsDepartures,
   sportsMatchKey,
 } from "@/lib/sportsEvents";
+import styles from "./events.module.css";
 
 export const metadata: Metadata = {
   title: "Wyjazdy na mecze piłkarskie — terminarze i gotowe wyjazdy",
-  description: "Najciekawsze mecze w Europie połączone z gotowym planem wyjazdu: termin, miasto, lot, nocleg i oficjalne bilety.",
+  description: "Mecze w Europie połączone z planem wyjazdu: termin, miasto, lot, nocleg i oficjalne bilety. Filtruj klub, ligę, miesiąc i lotnisko wylotu.",
   alternates: { canonical: "/wydarzenia" },
+  openGraph: {
+    type: "website",
+    locale: "pl_PL",
+    siteName: "Tripownia",
+    title: "Wyjazdy na mecze piłkarskie — terminarze i gotowe wyjazdy",
+    description: "Filtruj mecze po klubie, lidze i terminie, a potem ułóż cały wyjazd z lotem i noclegiem.",
+    url: "/wydarzenia",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Wyjazdy na mecze piłkarskie | Tripownia",
+    description: "Filtruj mecze po klubie, lidze i terminie, a potem ułóż cały wyjazd.",
+    images: ["/opengraph-image"],
+  },
 };
 
 export const dynamic = "force-dynamic";
@@ -48,8 +64,8 @@ function initials(name: string) {
 
 function TeamCrest({ src, name }: { src?: string | null; name: string }) {
   return src
-    ? <span className="team-crest"><img src={src} alt={`Herb ${name}`} loading="lazy" /></span>
-    : <span className="team-crest team-crest-fallback" aria-label={`Herb ${name}`}>{initials(name)}</span>;
+    ? <span className={styles.crest}><img src={src} alt={"Herb " + name} loading="lazy" /></span>
+    : <span className={[styles.crest, styles.crestFallback].join(" ")} aria-label={"Herb " + name}>{initials(name)}</span>;
 }
 
 export default async function EventsPage({ searchParams }: { searchParams: SearchParams }) {
@@ -60,6 +76,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
   const selectedClub = one(params.club);
   const selectedCompetition = one(params.competition);
   const selectedMonth = one(params.month);
+  const showAll = one(params.all) === "1";
   const parsedNights = Number(one(params.nights) || "3");
   const selectedNights = [2, 3, 4].includes(parsedNights) ? parsedNights : 3;
   const parsedPeople = Number(one(params.people) || "2");
@@ -73,9 +90,6 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
     return true;
   });
 
-  // Gdy oglądamy wszystkie kluby, ten sam fizyczny mecz może pasować do obu
-  // obserwowanych drużyn (np. Real–Inter). Na liście pokazujemy go tylko raz.
-  // Po wybraniu konkretnego klubu nadal zachowujemy jego pełny terminarz.
   const filteredTrips = Array.from(
     filteredTripsRaw.reduce((map, trip) => {
       const key = sportsMatchKey(trip);
@@ -84,105 +98,120 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
     }, new Map<string, (typeof filteredTripsRaw)[number]>()).values()
   );
 
+  const visibleTrips = showAll ? filteredTrips : filteredTrips.slice(0, 48);
   const activeDeparture = sportsDepartures.find(item => item.code === selectedFrom) || sportsDepartures[0];
 
+  const moreParams = new URLSearchParams();
+  if (selectedFrom) moreParams.set("from", selectedFrom);
+  if (selectedClub) moreParams.set("club", selectedClub);
+  if (selectedCompetition) moreParams.set("competition", selectedCompetition);
+  if (selectedMonth) moreParams.set("month", selectedMonth);
+  moreParams.set("nights", String(selectedNights));
+  moreParams.set("people", String(selectedPeople));
+  moreParams.set("all", "1");
+
   return (
-    <main className="sports-page-premium">
+    <main className={styles.page}>
       <SiteHeader/>
       <BreadcrumbSchema items={[
         { name: "Tripownia", url: "https://tripownia.pl/" },
         { name: "Mecze piłkarskie", url: "https://tripownia.pl/wydarzenia" },
       ]}/>
 
-      <section className="sports-hero sports-hero-premium">
-        <div className="shell sports-hero-inner">
-          <div className="sports-hero-copy">
-            <div className="kicker">WEEKEND Z MECZEM</div>
-            <h1>Mecz jest pretekstem. My układamy z niego cały wyjazd.</h1>
-            <p>Śledzimy terminarze, pilnujemy zmian godzin i od razu podpowiadamy sensowny termin przelotu oraz nocleg.</p>
-            <div className="sales-quick-tags">
+      <section className={styles.hero}>
+        <div className={styles.heroGrid}>
+          <div>
+            <div className={styles.kicker}>WEEKEND Z MECZEM</div>
+            <h1>Najpierw wybierz mecz. Potem ułóż cały wyjazd.</h1>
+            <p>Filtruj po klubie, lidze i miesiącu. Tripownia ustawi sensowny termin pobytu, a potem przejdziesz do lotu, noclegu i oficjalnych biletów.</p>
+            <div className={styles.quick}>
               <a href="/wydarzenia?club=inter-mediolan">Inter</a>
               <a href="/wydarzenia?club=fc-barcelona">Barcelona</a>
               <a href="/wydarzenia?club=real-madryt">Real Madryt</a>
               <a href="/wydarzenia?competition=PL">Premier League</a>
+              <a href="/wydarzenia?competition=CL">Liga Mistrzów</a>
             </div>
           </div>
-          <div className="sports-hero-counter">
+          <div className={styles.counter}>
             <small>NA RADARZE</small>
             <strong>{filteredTrips.length}</strong>
             <span>{filteredTrips.length === 1 ? "mecz" : "meczów"} do zaplanowania</span>
-            <p>Terminarze sprawdzamy automatycznie i uzupełniamy, gdy pojawiają się nowe daty.</p>
+            <p>Na starcie pokazujemy najbliższe 48. Użyj filtrów, żeby szybciej dojść do konkretnego wyjazdu.</p>
           </div>
         </div>
       </section>
 
-      <section className="shell sports-section sports-section-premium">
-        <form className="sports-filters sports-filters-premium" method="get">
-          <label><span>Skąd lecisz?</span><select name="from" defaultValue={selectedFrom}>{sportsDepartures.map(item => <option key={item.code} value={item.code}>{item.label}</option>)}</select></label>
-          <label><span>Klub</span><select name="club" defaultValue={selectedClub}><option value="">Wszystkie kluby</option>{sportsClubs.map(club => <option key={club.slug} value={club.slug}>{club.displayName}</option>)}</select></label>
-          <label><span>Rozgrywki</span><select name="competition" defaultValue={selectedCompetition}><option value="">Wszystkie rozgrywki</option>{sportsCompetitions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
-          <label><span>Kiedy?</span><select name="month" defaultValue={selectedMonth}><option value="">Dowolny termin</option>{months.map(month => <option key={month} value={month}>{monthLabel(month)}</option>)}</select></label>
-          <label><span>Długość</span><select name="nights" defaultValue={String(selectedNights)}><option value="2">2 noce</option><option value="3">3 noce</option><option value="4">4 noce</option></select></label>
-          <label><span>Osoby</span><select name="people" defaultValue={String(selectedPeople)}><option value="1">1 osoba</option><option value="2">2 osoby</option><option value="3">3 osoby</option><option value="4">4 osoby</option></select></label>
-          <div className="sports-filter-actions"><button type="submit">Pokaż mecze</button><a href="/wydarzenia">Wyczyść</a></div>
-        </form>
-
-        <div className="sports-filter-summary sports-filter-summary-premium">
-          <span>✈️ {activeDeparture.label}</span><span>•</span><span>przylot dzień przed meczem</span><span>•</span><span>{selectedNights} noce</span><span>•</span><span>{selectedPeople} os.</span>
+      <section className={styles.shell}>
+        <div className={styles.filterCard}>
+          <div className={styles.filterHead}>
+            <div>
+              <div className={styles.kicker}>FILTRY WYJAZDU</div>
+              <h2>Znajdź mecz pod swój termin</h2>
+              <p>Nie musisz przewijać całego terminarza. Wybierz skąd lecisz, klub lub ligę i miesiąc.</p>
+            </div>
+          </div>
+          <form className={styles.filters} method="get">
+            <label><span>Skąd lecisz?</span><select name="from" defaultValue={selectedFrom}>{sportsDepartures.map(item => <option key={item.code} value={item.code}>{item.label}</option>)}</select></label>
+            <label><span>Klub</span><select name="club" defaultValue={selectedClub}><option value="">Wszystkie kluby</option>{sportsClubs.map(club => <option key={club.slug} value={club.slug}>{club.displayName}</option>)}</select></label>
+            <label><span>Rozgrywki</span><select name="competition" defaultValue={selectedCompetition}><option value="">Wszystkie rozgrywki</option>{sportsCompetitions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
+            <label><span>Kiedy?</span><select name="month" defaultValue={selectedMonth}><option value="">Dowolny termin</option>{months.map(month => <option key={month} value={month}>{monthLabel(month)}</option>)}</select></label>
+            <label><span>Długość</span><select name="nights" defaultValue={String(selectedNights)}><option value="2">2 noce</option><option value="3">3 noce</option><option value="4">4 noce</option></select></label>
+            <label><span>Osoby</span><select name="people" defaultValue={String(selectedPeople)}><option value="1">1 osoba</option><option value="2">2 osoby</option><option value="3">3 osoby</option><option value="4">4 osoby</option></select></label>
+            <div className={styles.actions}><button type="submit">Pokaż mecze</button><a href="/wydarzenia">Wyczyść filtry</a></div>
+          </form>
+          <div className={styles.summary}>
+            <span>✈️ {activeDeparture.label}</span>
+            <span>przylot dzień przed meczem</span>
+            <span>{selectedNights} noce</span>
+            <span>{selectedPeople} os.</span>
+          </div>
         </div>
 
-        {filteredTrips.length ? (
-          <div className="sports-event-grid sports-event-grid-premium">
-            {filteredTrips.map(trip => {
-              const links = buildSportsTripLinks(trip, selectedFrom, selectedNights, selectedPeople);
-              return (
-                <article className="sports-event-card sports-event-card-premium" key={`${trip.clubSlug}-${trip.id}`}>
-                  <div className="sports-card-headline">
-                    <span className="sports-competition-pill">{trip.competition}</span>
-                    <span className={`sports-homeaway-pill ${trip.isHome ? "is-home" : "is-away"}`}>{trip.isHome ? "DOM" : "WYJAZD"}</span>
-                  </div>
+        <div className={styles.resultsHead}>
+          <div><div className={styles.kicker}>NAJBLIŻSZE MECZE</div><h2>{selectedClub || selectedCompetition || selectedMonth ? "Wyniki dla Twoich filtrów" : "Wybierz mecz i jedź"}</h2><p>Godziny spotkań mogą ulec zmianie — przed zakupem lotu potwierdź finalny termin organizatora rozgrywek.</p></div>
+        </div>
 
-                  <div className="sports-matchup">
-                    <div className="sports-team"><TeamCrest src={trip.homeCrest} name={trip.homeTeam}/><strong>{trip.homeTeam}</strong></div>
-                    <div className="sports-vs"><span>vs</span><small>{formatKickoff(trip.kickoff)}</small></div>
-                    <div className="sports-team sports-team-away"><TeamCrest src={trip.awayCrest} name={trip.awayTeam}/><strong>{trip.awayTeam}</strong></div>
-                  </div>
-
-                  <div className="sports-match-meta">
-                    <span>📍 {trip.venue || trip.city}</span>
-                    <span>🌍 {trip.city}, {trip.country}</span>
-                  </div>
-
-                  <div className="sports-trip-line sports-trip-line-premium">
-                    <strong>{activeDeparture.label} → {trip.city}</strong>
-                    <span>{links.departureDate} – {links.returnDate} · {selectedNights} noce · {selectedPeople} os.</span>
-                  </div>
-
-                  <div className="sports-premium-actions">
-                    <a
-                      className="sports-cta-primary"
-                      href={`/dodaj-podroz?source=sport&city=${encodeURIComponent(trip.city)}&country=${encodeURIComponent(trip.country)}&start=${links.departureDate}&end=${links.returnDate}&departure=${encodeURIComponent(activeDeparture.label)}&match=${encodeURIComponent(`${trip.homeTeam} vs ${trip.awayTeam}`)}&venue=${encodeURIComponent(trip.venue || trip.city)}&ticket=${encodeURIComponent(links.ticketUrl)}`}
-                    >
-                      Ułóż cały wyjazd <span>→</span>
-                    </a>
-                    <a className="sports-cta-secondary" href={links.flightUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">Sprawdź lot</a>
-                    <a className="sports-cta-secondary" href={links.hotelUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">Znajdź nocleg</a>
-                    <a className="sports-cta-ticket" href={links.ticketUrl} target="_blank" rel="noopener noreferrer">Oficjalne bilety</a>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+        {visibleTrips.length ? (
+          <>
+            <div className={styles.grid}>
+              {visibleTrips.map(trip => {
+                const links = buildSportsTripLinks(trip, selectedFrom, selectedNights, selectedPeople);
+                return (
+                  <article className={styles.card} key={trip.clubSlug + "-" + trip.id}>
+                    <div className={styles.cardTop}>
+                      <span className={styles.pill}>{trip.competition}</span>
+                      <span className={[styles.pill, trip.isHome ? styles.home : styles.away].join(" ")}>{trip.isHome ? "DOM" : "WYJAZD"}</span>
+                    </div>
+                    <div className={styles.match}>
+                      <div className={styles.team}><TeamCrest src={trip.homeCrest} name={trip.homeTeam}/><strong>{trip.homeTeam}</strong></div>
+                      <div className={styles.vs}><strong>vs</strong><small>{formatKickoff(trip.kickoff)}</small></div>
+                      <div className={styles.team}><TeamCrest src={trip.awayCrest} name={trip.awayTeam}/><strong>{trip.awayTeam}</strong></div>
+                    </div>
+                    <div className={styles.meta}><span>📍 {trip.venue || trip.city}</span><span>🌍 {trip.city}, {trip.country}</span></div>
+                    <div className={styles.trip}><strong>{activeDeparture.label} → {trip.city}</strong><span>{links.departureDate} – {links.returnDate} · {selectedNights} noce · {selectedPeople} os.</span></div>
+                    <div className={styles.cardActions}>
+                      <a className={styles.primary} href={"/dodaj-podroz?source=sport&city=" + encodeURIComponent(trip.city) + "&country=" + encodeURIComponent(trip.country) + "&start=" + links.departureDate + "&end=" + links.returnDate + "&departure=" + encodeURIComponent(activeDeparture.label) + "&match=" + encodeURIComponent(trip.homeTeam + " vs " + trip.awayTeam) + "&venue=" + encodeURIComponent(trip.venue || trip.city) + "&ticket=" + encodeURIComponent(links.ticketUrl)}>Ułóż cały wyjazd →</a>
+                      <a href={links.flightUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">Sprawdź lot</a>
+                      <a href={links.hotelUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">Znajdź nocleg</a>
+                      <a href={links.ticketUrl} target="_blank" rel="noopener noreferrer">Oficjalne bilety</a>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+            {!showAll && filteredTrips.length > visibleTrips.length && <div className={styles.more}><a href={"/wydarzenia?" + moreParams.toString()}>Pokaż wszystkie {filteredTrips.length} mecze</a></div>}
+          </>
         ) : (
-          <div className="sports-empty-state"><strong>Nie ma meczów dla tego zestawu filtrów.</strong><p>Zmień miesiąc, klub lub rozgrywki.</p><a href="/wydarzenia">Pokaż wszystkie mecze</a></div>
+          <div className={styles.empty}><strong>Nie ma meczów dla tego zestawu filtrów.</strong><p>Zmień miesiąc, klub lub rozgrywki.</p><a href="/wydarzenia">Pokaż wszystkie mecze</a></div>
         )}
       </section>
 
-      <section className="sports-clubs sports-clubs-premium">
-        <div className="shell">
-          <div className="section-heading"><div><div className="kicker">KLUBY NA RADARZE</div><h2>Wybierz klub i zobacz cały dostępny terminarz.</h2></div></div>
-          <div className="sports-club-grid">
-            {sportsClubs.map(club => <a href={`/wydarzenia?club=${club.slug}&from=${selectedFrom}&nights=${selectedNights}&people=${selectedPeople}`} key={club.slug}><span>{club.emoji}</span><strong>{club.displayName}</strong><small>{club.city}</small></a>)}
+      <section className={styles.clubs}>
+        <div className={styles.shell}>
+          <div className={styles.kicker}>KLUBY NA RADARZE</div>
+          <h2>Wybierz klub i zobacz cały dostępny terminarz.</h2>
+          <div className={styles.clubGrid}>
+            {sportsClubs.map(club => <a href={"/wydarzenia?club=" + club.slug + "&from=" + selectedFrom + "&nights=" + selectedNights + "&people=" + selectedPeople} key={club.slug}><span>{club.emoji}</span><strong>{club.displayName}</strong><small>{club.city}</small></a>)}
           </div>
         </div>
       </section>
