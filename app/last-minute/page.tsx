@@ -3,7 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
-import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
+import SearchHub from "@/components/SearchHub";
 import { offers, isOfferExpired } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
@@ -51,7 +51,7 @@ export default function LastMinuteOffersPage() {
     </section>
 
     <section className="section shell partner-search-shopping">
-      <UnifiedPartnerSearch mode="lastminute" initialDestination=""/>
+      <SearchHub embedded initialTab="Last minute" />
     </section>
 
     <section className="section shell">
