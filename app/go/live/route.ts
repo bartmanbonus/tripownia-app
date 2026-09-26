@@ -257,6 +257,11 @@ export async function GET(request: NextRequest) {
   const price = safeText(request.nextUrl.searchParams.get("price"), 40);
   const page = safeText(request.nextUrl.searchParams.get("page"), 160);
   const clickId = safeText(request.nextUrl.searchParams.get("clickId"), 80);
+  const utmSource = safeText(request.nextUrl.searchParams.get("utmSource"), 80);
+  const utmMedium = safeText(request.nextUrl.searchParams.get("utmMedium"), 80);
+  const utmCampaign = safeText(request.nextUrl.searchParams.get("utmCampaign"), 120);
+  const utmContent = safeText(request.nextUrl.searchParams.get("utmContent"), 120);
+  const landing = safeText(request.nextUrl.searchParams.get("landing"), 160);
 
   console.info(
     "[tripownia_affiliate_click]",
@@ -270,6 +275,7 @@ export async function GET(request: NextRequest) {
       price,
       page,
       clickId,
+      attribution: { source: utmSource, medium: utmMedium, campaign: utmCampaign, content: utmContent, landing },
       originalHost: originalTarget.hostname,
       targetHost: target.hostname,
       live: true,
