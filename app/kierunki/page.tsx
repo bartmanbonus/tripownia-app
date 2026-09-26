@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import DirectionsExplorer from "@/components/DirectionsExplorer";
 
 export const metadata: Metadata = {
   title: "Kierunki podróży – gdzie pojechać na wakacje i city break?",
@@ -327,120 +328,8 @@ export default function KierunkiPage() {
           </Link>
         </header>
 
-        <div className="directions-v188-tools">
-          <label className="directions-v188-search">
-            <span aria-hidden="true">⌕</span>
-            <input
-              id="directions-search"
-              type="search"
-              placeholder="Wpisz kraj lub kierunek, np. Grecja, Egipt, Włochy…"
-              aria-label="Wyszukaj kierunek podróży"
-            />
-          </label>
-
-          <div className="directions-v188-filters" aria-label="Filtry kierunków">
-            {filters.map((filter, index) => (
-              <button
-                key={filter.key}
-                type="button"
-                className={index === 0 ? "active" : ""}
-                data-filter={filter.key}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="directions-v188-heading">
-          <div>
-            <small>INSPIRACJE NA KOLEJNY WYJAZD</small>
-            <h2>Wybierz miejsce i zacznij od konkretu.</h2>
-          </div>
-          <span id="directions-count">{directions.length} kierunków</span>
-        </div>
-
-        <div className="directions-v188-grid" id="directions-grid">
-          {directions.map((direction) => (
-            <Link
-              key={direction.href}
-              href={direction.href}
-              className="directions-v188-card"
-              data-name={direction.search}
-              data-category={direction.category}
-            >
-              <div className="directions-v188-image">
-                <img src={direction.image} alt={direction.alt} loading="lazy" decoding="async"/>
-                <div className="directions-v188-badges">
-                  {direction.badges.slice(0,2).map((badge) => <span key={badge}>{badge}</span>)}
-                </div>
-                <span className="directions-v188-heart" aria-hidden="true">♡</span>
-              </div>
-
-              <div className="directions-v188-body">
-                <h3>{direction.title}</h3>
-                <p>{direction.description}</p>
-                <span className="directions-v188-link">Zobacz kierunek <b>→</b></span>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        <div className="directions-v188-empty" id="directions-empty" hidden>
-          <strong>Nie znaleźliśmy takiego kierunku.</strong>
-          <span>Spróbuj innej nazwy albo przejdź do pełnej wyszukiwarki Tripowni.</span>
-          <Link href="/#szukaj-samodzielnie">Otwórz wyszukiwarkę →</Link>
-        </div>
+        <DirectionsExplorer directions={directions} filters={filters}/>
       </section>
-
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            (() => {
-              const search = document.getElementById("directions-search");
-              const cards = [...document.querySelectorAll(".directions-v188-card")];
-              const filters = [...document.querySelectorAll(".directions-v188-filters button")];
-              const count = document.getElementById("directions-count");
-              const empty = document.getElementById("directions-empty");
-              let active = "all";
-
-              const normalize = (value) => (value || "")
-                .toLocaleLowerCase("pl")
-                .normalize("NFD")
-                .replace(/[\\u0300-\\u036f]/g, "");
-
-              const apply = () => {
-                const q = normalize(search?.value);
-                let visible = 0;
-
-                cards.forEach((card) => {
-                  const name = normalize(card.getAttribute("data-name"));
-                  const category = normalize(card.getAttribute("data-category"));
-                  const matchesSearch = !q || name.includes(q);
-                  const matchesFilter = active === "all" || category.includes(normalize(active));
-                  const show = matchesSearch && matchesFilter;
-                  card.style.display = show ? "" : "none";
-                  if (show) visible += 1;
-                });
-
-                if (count) count.textContent = visible + (visible === 1 ? " kierunek" : " kierunków");
-                if (empty) empty.hidden = visible !== 0;
-              };
-
-              search?.addEventListener("input", apply);
-
-              filters.forEach((button) => {
-                button.addEventListener("click", () => {
-                  active = button.getAttribute("data-filter") || "all";
-                  filters.forEach((item) => item.classList.remove("active"));
-                  button.classList.add("active");
-                  apply();
-                });
-              });
-            })();
-          `
-        }}
-      />
 
       <SiteFooter/>
     </main>
