@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
+import SearchHub from "@/components/SearchHub";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 const title = "Egipt 2027 – wakacje All Inclusive, Hurghada i Marsa Alam";
@@ -42,7 +42,7 @@ export default function Egipt2027Page() {
     </section>
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">AKTUALNE OFERTY</div><h2>Sprawdź Egipt 2027</h2></div></div>
-      <div className="single-partner-search-wrap"><UnifiedPartnerSearch mode="holiday" initialDestination="Egipt" /></div>
+      <div className="single-partner-search-wrap"><SearchHub embedded initialTab="Wakacje" initialDestinations={["Egipt"]} /></div>
     </section>
     <SiteFooter/>
   </main>;
