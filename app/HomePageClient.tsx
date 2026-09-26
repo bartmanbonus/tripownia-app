@@ -338,7 +338,7 @@ const experienceCards = [
   { href: "/podroze-po-przezycia#tulipany", season: "KWIECIEŃ–MAJ", title: "🌷 Tulipany w Holandii", text: "Krótki city break połączony z polami kwiatów i sezonem, który trwa tylko chwilę.", imageCity: "tulipany holandia", imageCountry: "Holandia" },
   { href: "/podroze-po-przezycia#safari", season: "CZERWIEC–PAŹDZIERNIK", title: "🦁 Safari w Kenii i Tanzanii", text: "Suchszy sezon, dzika przyroda i podróż, której termin ma ogromne znaczenie.", imageCity: "safari kenia tanzania", imageCountry: "Kenia" },
   { href: "/podroze-po-przezycia#wieloryby", season: "KWIECIEŃ–PAŹDZIERNIK", title: "🐋 Wieloryby i ocean", text: "Azory, Madera i Islandia w sezonie, w którym obserwacje wielorybów naprawdę mają sens.", imageCity: "wieloryby azory", imageCountry: "Portugalia" },
-  { href: "/podroze-po-przezycia#jarmarki", season: "LISTOPAD–GRUDZIEŃ", title: "🎄 Jarmarki bożonarodzeniowe", text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.", imageCity: "jarmarki wieden noc", imageCountry: "Austria", fallbackImage: "/images/seasons/christmas-market.webp" },
+  { href: "/jarmarki-bozonarodzeniowe", season: "LISTOPAD–GRUDZIEŃ", title: "🎄 Jarmarki bożonarodzeniowe", text: "Wiedeń, Praga, Budapeszt i inne miasta wtedy, gdy sam klimat jest powodem wyjazdu.", imageCity: "jarmarki wieden noc", imageCountry: "Austria", fallbackImage: "/images/seasons/christmas-market.webp" },
   { href: "/podroze-po-przezycia#egzotyka", season: "ZIMA W POLSCE", title: "🌴 Egzotyka w porze suchej", text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.", imageCity: "egzotyka pora sucha", imageCountry: "Seszele" },
 ];
 
@@ -831,7 +831,7 @@ export default function Home() {
         </div>
         <div className="homepage-phenomena-grid">
           {[...experienceCards,
-            { href: "/okazje?s=sylwester", season: "29 GRUDNIA–2 STYCZNIA", title: "🥂 Sylwester za granicą", text: "Gotowy city break na przełom roku — lot, nocleg i miasto, w którym północ naprawdę jest wydarzeniem.", imageCity: "sylwester praga noc fajerwerki", imageCountry: "Czechy", fallbackImage: "/images/seasons/new-year.webp" }
+            { href: "/sylwester", season: "29 GRUDNIA–2 STYCZNIA", title: "🥂 Sylwester za granicą", text: "Gotowy city break na przełom roku — lot, nocleg i miasto, w którym północ naprawdę jest wydarzeniem.", imageCity: "sylwester praga noc fajerwerki", imageCountry: "Czechy", fallbackImage: "/images/seasons/new-year.webp" }
           ].map(card => (
             <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
               <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={"fallbackImage" in card && typeof card.fallbackImage === "string" ? card.fallbackImage : undefined} />
