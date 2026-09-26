@@ -5,7 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { partners } from "@/lib/partners";
 
 export const metadata: Metadata = {
-  title: "Jarmarki bożonarodzeniowe 2026 — terminy i wyjazdy | Tripownia.pl",
+  title: "Jarmarki bożonarodzeniowe 2026 — terminy i wyjazdy",
   description: "Wiedeń, Praga, Drezno, Norymberga, Berlin, Budapeszt i Salzburg — terminy jarmarków 2026 i gotowe pomysły na wyjazd.",
   alternates: { canonical: "/jarmarki-bozonarodzeniowe" },
 };
