@@ -12949,3 +12949,265 @@ img{
     flex-direction:column;
   }
 }
+
+
+/* Winter sun guide — production layout */
+.winter-sun-page{background:#fbf7f3;color:#171717}
+.winter-sun-page>.shell{max-width:1180px!important}
+.winter-sun-hero{
+  position:relative;
+  min-height:430px;
+  margin-top:30px!important;
+  overflow:hidden;
+  border:1px solid #eadfd7;
+  border-radius:28px;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.92) 40%,rgba(255,255,255,.22) 72%,rgba(255,255,255,.03) 100%),
+    url("https://images.unsplash.com/photo-1540202404-a2f29016b523?auto=format&fit=crop&w=1800&q=88") center/cover no-repeat;
+  box-shadow:0 24px 60px rgba(59,38,24,.09);
+}
+.winter-sun-hero-copy{
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-start;
+  min-height:430px;
+  max-width:690px;
+  padding:56px 60px;
+}
+.winter-sun-page .kicker{
+  color:#ff4d2f;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+.winter-sun-hero h1{
+  margin:12px 0 16px;
+  max-width:660px;
+  font-size:clamp(46px,5.2vw,72px);
+  line-height:.97;
+  letter-spacing:-3px;
+}
+.winter-sun-hero p{
+  max-width:590px;
+  margin:0;
+  color:#6f625b;
+  font-size:16px;
+  line-height:1.65;
+}
+.winter-sun-hero-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:24px;
+}
+.winter-sun-primary,
+.winter-sun-secondary{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:48px;
+  padding:0 18px;
+  border-radius:14px;
+  text-decoration:none!important;
+  font-weight:900;
+}
+.winter-sun-primary{background:#171717;color:#fff!important}
+.winter-sun-secondary{border:1px solid #e6d8cf;background:#fff;color:#171717!important}
+
+.winter-sun-section{
+  margin-top:24px!important;
+  padding:34px 36px!important;
+  border:1px solid #eadfd7;
+  border-radius:24px;
+  background:#fff;
+}
+.winter-sun-section-head{max-width:820px}
+.winter-sun-section h2,
+.winter-sun-quick h2,
+.winter-sun-editorial h2,
+.winter-sun-search-heading h2,
+.winter-sun-faq h2{
+  margin:8px 0 0;
+  font-size:clamp(30px,3.4vw,44px);
+  line-height:1.04;
+  letter-spacing:-1.5px;
+}
+.winter-sun-section-head p,
+.winter-sun-search-heading p{
+  margin:12px 0 0;
+  color:#74675f;
+  font-size:14px;
+  line-height:1.55;
+}
+.winter-sun-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+  margin-top:24px;
+}
+.winter-sun-card{
+  display:flex;
+  flex-direction:column;
+  min-height:260px;
+  padding:20px;
+  border:1px solid #e9ddd5;
+  border-radius:18px;
+  background:#fffaf7;
+  color:#171717!important;
+  text-decoration:none!important;
+  transition:.16s ease;
+}
+.winter-sun-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 14px 30px rgba(53,34,22,.07);
+}
+.winter-sun-card-badge{
+  align-self:flex-start;
+  padding:7px 9px;
+  border-radius:999px;
+  background:#fff0e8;
+  color:#c43a1e;
+  font-size:10px;
+  font-weight:900;
+}
+.winter-sun-card h3{margin:18px 0 6px;font-size:22px}
+.winter-sun-card strong{color:#4f433c;font-size:12px}
+.winter-sun-card p{
+  margin:12px 0 0;
+  color:#73675f;
+  font-size:13px;
+  line-height:1.55;
+}
+.winter-sun-card-link{
+  margin-top:auto;
+  padding-top:18px;
+  color:#171717;
+  font-size:12px;
+  font-weight:900;
+}
+
+.winter-sun-quick{
+  display:grid;
+  grid-template-columns:minmax(260px,.8fr) minmax(0,1.5fr);
+  gap:28px;
+  align-items:center;
+  margin-top:24px!important;
+  padding:30px 34px!important;
+  border:1px solid #f0d7ca;
+  border-radius:24px;
+  background:#fff7f2;
+}
+.winter-sun-quick-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.winter-sun-quick-grid a{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  min-height:64px;
+  padding:14px 16px;
+  border:1px solid #eadfd7;
+  border-radius:14px;
+  background:#fff;
+  color:#171717!important;
+  text-decoration:none!important;
+}
+.winter-sun-quick-grid strong{font-size:13px}
+.winter-sun-quick-grid span{font-size:12px;font-weight:850}
+
+.winter-sun-editorial{
+  display:grid;
+  grid-template-columns:minmax(320px,.9fr) minmax(0,1.3fr);
+  gap:34px;
+  align-items:center;
+  margin-top:28px!important;
+}
+.winter-sun-editorial-media{
+  min-height:330px;
+  border-radius:24px;
+  background:url("https://images.unsplash.com/photo-1551887373-6a0209f4c7e4?auto=format&fit=crop&w=1200&q=86") center/cover no-repeat;
+  box-shadow:0 18px 42px rgba(53,34,22,.08);
+}
+.winter-sun-editorial-copy p{
+  margin:16px 0 0;
+  color:#6f625b;
+  font-size:15px;
+  line-height:1.7;
+}
+.winter-sun-pills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:20px;
+}
+.winter-sun-pills a{
+  padding:10px 13px;
+  border:1px solid #e7ddd6;
+  border-radius:999px;
+  background:#fff;
+  color:#171717!important;
+  text-decoration:none!important;
+  font-size:12px;
+  font-weight:850;
+}
+
+.winter-sun-search-section{
+  margin-top:34px!important;
+  padding:34px 0 54px!important;
+}
+.winter-sun-search-heading{max-width:760px;margin-bottom:18px}
+
+.winter-sun-faq{
+  margin-bottom:40px!important;
+  padding:34px 36px!important;
+  border:1px solid #eadfd7;
+  border-radius:24px;
+  background:#fff;
+}
+.winter-sun-faq-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-top:22px;
+}
+.winter-sun-faq article{
+  padding:18px;
+  border:1px solid #eee3dc;
+  border-radius:16px;
+  background:#fffaf7;
+}
+.winter-sun-faq h3{margin:0;font-size:15px;line-height:1.35}
+.winter-sun-faq p{margin:10px 0 0;color:#71655e;font-size:12px;line-height:1.55}
+
+@media(max-width:980px){
+  .winter-sun-grid{grid-template-columns:1fr 1fr}
+  .winter-sun-quick{grid-template-columns:1fr}
+  .winter-sun-editorial{grid-template-columns:1fr}
+  .winter-sun-faq-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .winter-sun-page>.shell{width:auto!important;margin-left:12px!important;margin-right:12px!important}
+  .winter-sun-hero{
+    min-height:520px;
+    border-radius:20px;
+    background:
+      linear-gradient(180deg,rgba(255,255,255,.98) 0%,rgba(255,255,255,.93) 52%,rgba(255,255,255,.24) 80%,rgba(255,255,255,.04) 100%),
+      url("https://images.unsplash.com/photo-1540202404-a2f29016b523?auto=format&fit=crop&w=1100&q=86") center/cover no-repeat;
+  }
+  .winter-sun-hero-copy{min-height:520px;justify-content:flex-start;padding:30px 22px}
+  .winter-sun-hero h1{font-size:40px;letter-spacing:-2px}
+  .winter-sun-hero p{font-size:14px}
+  .winter-sun-section,.winter-sun-quick,.winter-sun-faq{padding:24px 18px!important;border-radius:20px}
+  .winter-sun-grid{grid-template-columns:1fr}
+  .winter-sun-card{min-height:220px}
+  .winter-sun-quick-grid{grid-template-columns:1fr}
+  .winter-sun-editorial{gap:20px}
+  .winter-sun-editorial-media{min-height:230px;border-radius:20px}
+}
