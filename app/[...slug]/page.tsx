@@ -79,14 +79,6 @@ const seoOverrides: Record<string, Metadata> = {
     title: "Last minute z Rzeszowa – loty, wakacje i All Inclusive z Jasionki | Tripownia",
     description: "Last minute z Rzeszowa i lotniska RZE: sprawdź loty, wakacje, All Inclusive i pakiety z Jasionki. Porównaj aktualne kierunki i pełny koszt wyjazdu.",
   },
-  "/egipt": {
-    title: "Egipt 2026 – Hurghada, Marsa Alam czy Sharm el Sheikh? | Tripownia",
-    description: "Egipt na wakacje i All Inclusive: porównaj Hurghadę, Marsa Alam i Sharm el Sheikh, ustaw termin i sprawdź aktualne propozycje.",
-  },
-  "/maroko": {
-    title: "Maroko 2026 – Agadir czy Marrakesz? Wakacje i city break | Tripownia",
-    description: "Maroko na wakacje: Agadir, Marrakesz, Essaouira i Casablanca. Porównaj styl wyjazdu, ustaw termin i sprawdź aktualne propozycje.",
-  },
   "/zea": {
     title: "ZEA 2026 – Dubaj, Abu Dhabi czy Ras Al Khaimah? | Tripownia",
     description: "Zjednoczone Emiraty Arabskie: Dubaj, Abu Dhabi i Ras Al Khaimah. Ustaw własne daty i sprawdź wakacje, noclegi oraz aktualne propozycje.",
