@@ -429,7 +429,7 @@ export default function SearchHub({
     const fetchBatch = async (includeFilters: boolean) => {
       const combinations = targets.flatMap((target) => origins.map((origin) => ({ target, origin }))).slice(0, 20);
       const payloads = await Promise.all(combinations.map(async ({ target, origin }) => {
-        const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });
+        const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });\n        if (activeMode === "Last minute") params.set("lastMinute", "1");
         if (target) params.set("q", target);
         else params.set("broad", "1");
         if (origin) params.set("from", origin);
@@ -759,7 +759,7 @@ export default function SearchHub({
         )}
 
         <div className="search-v3-tabs" role="group" aria-label="Rodzaj podróży">
-          {["Inspiracje", "City break", "Lot + hotel", "Wakacje"].map((tab) => (
+          {["Inspiracje", "City break", "Wakacje", "Last minute", "Lot + hotel"].map((tab) => (
             <button key={tab} type="button" aria-pressed={activeTab === tab} className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
