@@ -342,6 +342,24 @@ const experienceCards = [
   { href: "/podroze-po-przezycia#egzotyka", season: "ZIMA W POLSCE", title: "🌴 Egzotyka w porze suchej", text: "Tropiki dobrane nie tylko po cenie, ale także po sezonie, opadach i warunkach na miejscu.", imageCity: "egzotyka pora sucha", imageCountry: "Seszele" },
 ];
 
+const homepageTripTypes = [
+  { href: "/city-break", icon: "🏙️", title: "City break", note: "2–4 dni · szybki wyjazd" },
+  { href: "/wakacje", icon: "🏖️", title: "Wakacje", note: "pakiety · All Inclusive · słońce" },
+  { href: "/last-minute-oferty", icon: "⚡", title: "Last minute", note: "wyjazdy na już i najbliższe tygodnie" },
+  { href: "/dalekie-podroze", icon: "🌏", title: "Dalekie podróże", note: "Azja · Ameryka · Afryka · Oceania" },
+  { href: "/polska", icon: "🇵🇱", title: "Polska", note: "weekendy i wakacje bliżej domu" },
+  { href: "/wakacje-z-dziecmi", icon: "👨‍👩‍👧‍👦", title: "Z dziećmi", note: "rodzinne kierunki i wygodny wyjazd" },
+  { href: "/ferie-2027", icon: "⛷️", title: "Ferie 2027", note: "zimowy wyjazd w terminie szkolnym" },
+  { href: "/majowka-2027", icon: "🌿", title: "Majówka 2027", note: "długi weekend i gotowe pomysły" },
+  { href: "/wakacje-2027", icon: "☀️", title: "Wakacje 2027", note: "planuj wcześniej i porównuj terminy" },
+  { href: "/tanie-loty", icon: "✈️", title: "Tanie loty", note: "okazje lotnicze z Polski" },
+  { href: "/podroze-po-przezycia", icon: "✨", title: "Podróże po przeżycia", note: "zorza · sakura · safari · sezon" },
+  { href: "/wydarzenia", icon: "⚽", title: "Mecze i wydarzenia", note: "wydarzenie jako powód do wyjazdu" },
+  { href: "/jarmarki-bozonarodzeniowe", icon: "🎄", title: "Jarmarki", note: "świąteczne miasta i konkretne terminy" },
+  { href: "/sylwester", icon: "🥂", title: "Sylwester", note: "city break na przełom roku" },
+  { href: "/gdzie-jest-cieplo-zima-bez-dalekiego-lotu", icon: "🌤️", title: "Ciepło zimą", note: "słońce bez bardzo dalekiego lotu" },
+] as const;
+
 function ExperienceTeaserImage({ city, country, title, fallbackSrc }: { city: string; country: string; title: string; fallbackSrc?: string }) {
   const [src, setSrc] = useState<string | null>(fallbackSrc || null);
 
@@ -750,6 +768,26 @@ export default function Home() {
             <div className="homepage-offer-group-head"><span><b>✨ Raz a dobrze</b><small>dalsze i bardziej wyjątkowe</small></span></div>
             <OfferRail kicker="WIĘKSZA PODRÓŻ" title="Kiedy chcesz czegoś więcej" description="Droższe lub dalsze wyjazdy, które mają być główną podróżą sezonu." items={themedRails.premium.slice(0, 12)}/>
           </section>
+        </div>
+      </section>
+
+      <section className="section shell homepage-trip-types" aria-labelledby="homepage-trip-types-title">
+        <div className="section-heading homepage-trip-types-heading">
+          <div>
+            <div className="kicker">WYBIERZ SWÓJ WYJAZD</div>
+            <h2 id="homepage-trip-types-title">Wszystkie najważniejsze typy podróży w jednym miejscu.</h2>
+            <p>Nie chowamy kategorii po podstronach. Wybierz to, czego szukasz, i od razu przejdź do odpowiedniej puli.</p>
+          </div>
+          <Link className="section-premium-link" href="/kierunki">Wszystkie kierunki <ArrowRight size={16}/></Link>
+        </div>
+        <div className="homepage-trip-types-grid">
+          {homepageTripTypes.map(item => (
+            <Link className="homepage-trip-type-card" href={item.href} key={item.href}>
+              <span aria-hidden="true">{item.icon}</span>
+              <div><strong>{item.title}</strong><small>{item.note}</small></div>
+              <ArrowRight size={17}/>
+            </Link>
+          ))}
         </div>
       </section>
 
