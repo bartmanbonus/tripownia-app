@@ -258,6 +258,8 @@ export default function SearchHub({
   const [dateTo, setDateTo] = useState(initialDateTo);
   const [duration, setDuration] = useState(initialDuration || "all");
   const [budget, setBudget] = useState("all");
+  const [customBudgetMin, setCustomBudgetMin] = useState("");
+  const [customBudgetMax, setCustomBudgetMax] = useState("");
   const [board, setBoard] = useState("all");
   const [weekendOnly, setWeekendOnly] = useState(initialWeekendOnly);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
@@ -403,6 +405,14 @@ export default function SearchHub({
 
     const activeDuration = overrides.duration ?? duration;
     const activeBudget = overrides.budget ?? budget;
+    const parsedCustomMin = Math.max(0, Number(customBudgetMin || 0));
+    const parsedCustomMax = Math.max(0, Number(customBudgetMax || 0));
+    const activeMinBudget = activeBudget === "custom"
+      ? parsedCustomMin && parsedCustomMax ? Math.min(parsedCustomMin, parsedCustomMax) : parsedCustomMin
+      : 0;
+    const activeMaxBudget = activeBudget === "custom"
+      ? parsedCustomMin && parsedCustomMax ? Math.max(parsedCustomMin, parsedCustomMax) : parsedCustomMax
+      : activeBudget !== "all" ? Math.max(0, Number(activeBudget || 0)) : 0;
     const activeBoard = overrides.board ?? board;
     const activeWeekend = overrides.weekendOnly ?? weekendOnly;
     const activeMode = overrides.tab ?? activeTab;
@@ -433,7 +443,8 @@ export default function SearchHub({
         if (target) params.set("q", target);
         else params.set("broad", "1");
         if (origin) params.set("from", origin);
-        if (activeBudget !== "all") params.set("maxPrice", activeBudget);
+        if (activeMinBudget > 0) params.set("minPrice", String(activeMinBudget));
+        if (activeMaxBudget > 0) params.set("maxPrice", String(activeMaxBudget));
         if (apiDates.start) params.set("start", apiDates.start);
         if (apiDates.end) params.set("end", apiDates.end);
         if (apiDates.start || apiDates.end) params.set("dateKind", "departure");
@@ -626,6 +637,8 @@ export default function SearchHub({
     setActiveTab(tab);
     setDuration("all");
     setBudget("all");
+    setCustomBudgetMin("");
+    setCustomBudgetMax("");
     setBoard("all");
     setWeekendOnly(false);
     setSearched(false);
@@ -698,6 +711,17 @@ export default function SearchHub({
     }
     return "Elastycznie";
   }, [dateMode, month, dateFrom, dateTo]);
+
+  const budgetSummary = useMemo(() => {
+    if (budget === "all") return "dowolny budżet";
+    if (budget !== "custom") return `do ${Number(budget).toLocaleString("pl-PL")} zł/os.`;
+    const min = Math.max(0, Number(customBudgetMin || 0));
+    const max = Math.max(0, Number(customBudgetMax || 0));
+    if (min && max) return `${Math.min(min, max).toLocaleString("pl-PL")}–${Math.max(min, max).toLocaleString("pl-PL")} zł/os.`;
+    if (min) return `od ${min.toLocaleString("pl-PL")} zł/os.`;
+    if (max) return `do ${max.toLocaleString("pl-PL")} zł/os.`;
+    return "własny budżet";
+  }, [budget, customBudgetMin, customBudgetMax]);
 
   const visibleCalendarMonth = calendarMonth || month || dateFrom.slice(0, 7) || localMonthKey();
   const now = new Date();
@@ -1026,14 +1050,36 @@ export default function SearchHub({
 
           <label className="search-v3-field search-v3-budget">
             <span>Budżet / os.</span>
-            <select value={budget} onChange={(event) => setBudget(event.target.value)}>
+            <select
+              value={budget}
+              onChange={(event) => {
+                const next = event.target.value;
+                setBudget(next);
+                if (next === "custom" && !customBudgetMin && !customBudgetMax) setCustomBudgetMax("3000");
+              }}
+            >
               <option value="all">Dowolny</option>
               <option value="750">do 750 zł</option><option value="1000">do 1 000 zł</option><option value="1500">do 1 500 zł</option>
               <option value="2000">do 2 000 zł</option><option value="3000">do 3 000 zł</option><option value="5000">do 5 000 zł</option>
               <option value="7500">do 7 500 zł</option><option value="10000">do 10 000 zł</option><option value="15000">do 15 000 zł</option>
+              <option value="custom">Własny zakres…</option>
             </select>
             <ChevronDown size={15} className="search-v3-chevron"/>
           </label>
+
+          {budget === "custom" && (
+            <div className="search-v3-budget-custom" aria-label="Własny zakres budżetu na osobę">
+              <div className="search-v3-budget-inputs">
+                <label><span>Od</span><div><input type="number" inputMode="numeric" min="0" max="15000" step="50" value={customBudgetMin} onChange={(event) => setCustomBudgetMin(event.target.value.replace(/[^0-9]/g, ""))} placeholder="np. 1500"/><b>zł</b></div></label>
+                <label><span>Do</span><div><input type="number" inputMode="numeric" min="0" max="15000" step="50" value={customBudgetMax} onChange={(event) => setCustomBudgetMax(event.target.value.replace(/[^0-9]/g, ""))} placeholder="np. 3000"/><b>zł</b></div></label>
+              </div>
+              <div className="search-v3-budget-sliders">
+                <label><span>Minimum</span><input type="range" min="0" max="15000" step="250" value={Math.min(15000, Math.max(0, Number(customBudgetMin || 0)))} onChange={(event) => { const next = Number(event.target.value); const currentMax = Number(customBudgetMax || 0); setCustomBudgetMin(String(currentMax > 0 ? Math.min(next, currentMax) : next)); }}/></label>
+                <label><span>Maksimum</span><input type="range" min="500" max="15000" step="250" value={Math.min(15000, Math.max(500, Number(customBudgetMax || 3000)))} onChange={(event) => { const next = Number(event.target.value); const currentMin = Number(customBudgetMin || 0); setCustomBudgetMax(String(Math.max(next, currentMin || 0))); }}/></label>
+              </div>
+              <small>Filtr działa dokładnie dla podanego zakresu ceny na osobę.</small>
+            </div>
+          )}
 
           <div className="search-v3-options-row">
             <label className="search-v3-board">
@@ -1062,7 +1108,7 @@ export default function SearchHub({
           <div className="search-v3-results">
             <div className="search-v3-active-summary">
               <strong>{selectedDestinations.length ? selectedDestinations.join(" + ") : "Gdziekolwiek"}</strong>
-              <span>{departures.length ? departures.length === 1 ? "1 wybrane lotnisko" : `${departures.length} wybrane lotniska` : "Wszystkie lotniska"} · {dateSummary}</span>
+              <span>{departures.length ? departures.length === 1 ? "1 wybrane lotnisko" : `${departures.length} wybrane lotniska` : "Wszystkie lotniska"} · {dateSummary} · {budgetSummary}</span>
             </div>
             <div className="search-v3-results-head" role="status" aria-live="polite">
               <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `Znalezione oferty: ${results.length}` : "Brak potwierdzonego dopasowania"}</h3></div>
