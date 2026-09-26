@@ -655,8 +655,8 @@ export default function Home() {
             <h1>Znajdź wyjazd.<br/><span>Zaplanuj całą podróż za 0 zł.</span></h1>
             <p>Najpierw wybierz wyjazd. Potem Tripownia pomoże Ci ogarnąć lot, hotel, dokumenty, transfer, atrakcje, eSIM i checklistę — także jeśli rezerwujesz gdzie indziej.</p>
             <div className="dream-hero-actions">
-              <Link className="dream-primary" href="#wyszukiwarka">Znajdź wyjazd <ArrowRight size={18}/></Link>
-              <Link className="dream-secondary" href="/dodaj-podroz?mode=owned">Dodaj kupiony wyjazd</Link>
+              <Link className="dream-primary" href="#wyszukiwarka" onClick={() => trackEvent("home_primary_cta", { action: "search" })}>Znajdź wyjazd <ArrowRight size={18}/></Link>
+              <Link className="dream-secondary" href="/dodaj-podroz?mode=owned" onClick={() => trackEvent("home_primary_cta", { action: "add_owned_trip" })}>Dodaj kupiony wyjazd</Link>
             </div>
             <div className="dream-category-row" aria-label="Co znajdziesz w Tripowni">
               <Link href="/wakacje">🌴 Wakacje</Link>
@@ -812,7 +812,7 @@ export default function Home() {
           <h2>Powiedz nam tylko <span>dokąd i kiedy jedziesz.</span><br/>Resztę pomożemy Ci ogarnąć.</h2>
           <p>Tripownia zbiera w jednym miejscu rzeczy, które zwykle masz w notatkach, mailach, mapach i dziesięciu zakładkach. Nie musisz wiedzieć od czego zacząć — dostajesz kolejne kroki.</p>
           <div className="dream-free-plan-actions">
-            <Link href="/dodaj-podroz">Stwórz mój plan — 0 zł <ArrowRight size={18}/></Link>
+            <Link href="/dodaj-podroz" onClick={() => trackEvent("planner_cta_click", { placement: "homepage_free_plan" })}>Stwórz mój plan — 0 zł <ArrowRight size={18}/></Link>
             <Link href="/app">Zobacz moją Tripownię</Link>
           </div>
           <div className="dream-free-plan-trust">Bez abonamentu za planner · Możesz dodać wyjazd kupiony gdzie indziej · Wszystko możesz odhaczać i wracać później</div>
@@ -835,7 +835,7 @@ export default function Home() {
             <div><b>📸</b><span><strong>Miejsca na zdjęcia</strong><small>Kadry warte dodania do planu</small></span></div>
             <div><b>🧳</b><span><strong>Checklista</strong><small>14 z 21 rzeczy gotowych</small></span></div>
           </div>
-          <Link className="dream-free-plan-board-cta" href="/dodaj-podroz">Stwórz swój planner za 0 zł <ArrowRight size={16}/></Link>
+          <Link className="dream-free-plan-board-cta" href="/dodaj-podroz" onClick={() => trackEvent("planner_cta_click", { placement: "homepage_board" })}>Stwórz swój planner za 0 zł <ArrowRight size={16}/></Link>
         </div>
       </section>
 
@@ -846,7 +846,7 @@ export default function Home() {
             <h2>Wszystko do podróży.<br/><span>W kolejności, w której naprawdę tego potrzebujesz.</span></h2>
             <p>Nie szukasz po dziesięciu stronach. Wybierasz etap podróży i od razu przechodzisz do właściwej usługi.</p>
           </div>
-          <Link className="dream-marketplace-all" href="/dodaj-podroz?mode=owned">Mam już wyjazd — dodaj go do planera <ArrowRight size={17}/></Link>
+          <Link className="dream-marketplace-all" href="/dodaj-podroz?mode=owned" onClick={() => trackEvent("planner_cta_click", { placement: "homepage_marketplace_owned" })}>Mam już wyjazd — dodaj go do planera <ArrowRight size={17}/></Link>
         </div>
 
         <div className="dream-marketplace-groups">
