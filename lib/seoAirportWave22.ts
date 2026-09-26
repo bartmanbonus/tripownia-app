@@ -33,9 +33,9 @@ export const seoAirportWave22: SeoLanding[] = [
   },
   {
     slug: "city-break-z-lublina",
-    title: "City break z Lublina — tani weekend z LUZ",
+    title: "City break z Lublina — tani weekend, lot + hotel z LUZ",
     eyebrow: "CITY BREAK Z LUBLINA",
-    lead: "City break z Lublina (LUZ): krótkie wyjazdy na 2–5 dni, tanie loty i opcje lot + hotel z lokalnego lotniska.",
+    lead: "City break z Lublina (LUZ): tani weekend samolotem, lot + hotel i krótkie wyjazdy na 2–5 dni. Sprawdź kierunki i pełny koszt podróży.",
     query: "City break",
     departure: "Lublin",
     departureCode: "LUZ",
