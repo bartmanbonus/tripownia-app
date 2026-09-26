@@ -92,6 +92,13 @@ export function hasMeaningfulLocalAccountState() {
 export function applyCloudAccountState(state: TripowniaUserState) {
   if (typeof window === "undefined") return;
 
+  const scopedKeysToReplace: string[] = [];
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const key = localStorage.key(index);
+    if (key?.startsWith(TOOLKIT_PREFIX) || key?.startsWith(ORGANIZER_PREFIX)) scopedKeysToReplace.push(key);
+  }
+  scopedKeysToReplace.forEach((key) => localStorage.removeItem(key));
+
   const profile = state.travel_profile as unknown as Partial<TravelProfile>;
   if (profile && typeof profile === "object") saveTravelProfile({ ...readTravelProfile(), ...profile });
 
