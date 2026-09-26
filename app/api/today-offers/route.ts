@@ -446,8 +446,8 @@ function tripLengthMatches(offer: LiveCandidate) {
   return offer.nights >= 7 && offer.nights <= 14;
 }
 
-function candidateMatchesQuery(offer: LiveCandidate, query: string) {
-  const primary = normalize(query.split(",")[0] || query);
+function candidateMatchesSingleQuery(offer: LiveCandidate, query: string) {
+  const primary = normalize(query);
   if (!primary) return true;
 
   const haystack = normalize(`${offer.city} ${offer.country} ${offer.hotel}`);
@@ -464,6 +464,50 @@ function candidateMatchesQuery(offer: LiveCandidate, query: string) {
   if (!queryGroup.includes("|") && queryGroup === touristDestinationKey(offer)) return true;
 
   return normalize(offer.country) === primary;
+}
+
+function candidateMatchesQuery(offer: LiveCandidate, query: string) {
+  const queries = query
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  if (!queries.length) return true;
+  return queries.some((item) => candidateMatchesSingleQuery(offer, item));
+}
+
+function safeIsoDate(value: string | null) {
+  return value && /^20\d{2}-\d{2}-\d{2}$/.test(value) ? value : "";
+}
+
+function offerEndDateISO(offer: LiveCandidate) {
+  if (offer.endDateISO && /^20\d{2}-\d{2}-\d{2}$/.test(offer.endDateISO)) return offer.endDateISO;
+  if (!offer.startDateISO || !/^20\d{2}-\d{2}-\d{2}$/.test(offer.startDateISO)) return "";
+  const start = new Date(`${offer.startDateISO}T00:00:00Z`);
+  if (Number.isNaN(start.getTime())) return "";
+  return addDays(start, Math.max(1, offer.nights || 1)).toISOString().slice(0, 10);
+}
+
+function dateWindowMatches(offer: LiveCandidate, start: string, end: string) {
+  if (!start && !end) return true;
+  if (!offer.startDateISO) return false;
+  const offerEnd = offerEndDateISO(offer) || offer.startDateISO;
+  if (start && offer.startDateISO < start) return false;
+  if (end && offerEnd > end) return false;
+  return true;
+}
+
+function dateWindowDistance(offer: LiveCandidate, start: string, end: string) {
+  if (!start && !end) return 0;
+  if (!offer.startDateISO) return Number.POSITIVE_INFINITY;
+  const offerEnd = offerEndDateISO(offer) || offer.startDateISO;
+  const dayMs = 86400000;
+  if (start && offer.startDateISO < start) {
+    return Math.round((Date.parse(`${start}T00:00:00Z`) - Date.parse(`${offer.startDateISO}T00:00:00Z`)) / dayMs);
+  }
+  if (end && offerEnd > end) {
+    return Math.round((Date.parse(`${offerEnd}T00:00:00Z`) - Date.parse(`${end}T00:00:00Z`)) / dayMs);
+  }
+  return 0;
 }
 
 function selectDailyDiversified(candidates: LiveCandidate[], key: string, limit = 20) {
@@ -565,6 +609,8 @@ export async function GET(request: NextRequest) {
   const boardFilter = (request.nextUrl.searchParams.get("board") || "any").trim();
   const weekendOnly = request.nextUrl.searchParams.get("weekend") === "1";
   const maxPrice = Math.max(0, Number(request.nextUrl.searchParams.get("maxPrice") || 0));
+  const startDateFilter = safeIsoDate(request.nextUrl.searchParams.get("start"));
+  const endDateFilter = safeIsoDate(request.nextUrl.searchParams.get("end"));
   const rescueMode = (request.nextUrl.searchParams.get("rescue") || "").trim();
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
@@ -695,7 +741,8 @@ export async function GET(request: NextRequest) {
           departureMatches(offer) &&
           nightsMatches(offer) &&
           boardMatches(offer) &&
-          weekendMatches(offer)
+          weekendMatches(offer) &&
+          dateWindowMatches(offer, startDateFilter, endDateFilter)
         );
 
     let pool = exactPool;
@@ -706,6 +753,18 @@ export async function GET(request: NextRequest) {
         : "";
 
     if (mode === "search" || mode === "citybreak") {
+      if (!pool.length && (startDateFilter || endDateFilter)) {
+        pool = budgetCandidates.filter((offer) =>
+          departureMatches(offer) &&
+          nightsMatches(offer) &&
+          boardMatches(offer) &&
+          weekendMatches(offer)
+        );
+        if (pool.length) {
+          notice = "Brak potwierdzonej oferty mieszczącej się dokładnie w tym oknie dat. Pokazujemy najbliższe dostępne terminy i najpierw sortujemy je według odległości od wybranego terminu.";
+        }
+      }
+
       if (!pool.length && boardFilter !== "any") {
         pool = budgetCandidates.filter((offer) =>
           departureMatches(offer) &&
@@ -777,7 +836,12 @@ export async function GET(request: NextRequest) {
           )
       : mode === "search"
         ? [...pool]
-            .sort((a,b) => a.price !== b.price ? a.price - b.price : b.score - a.score)
+            .sort((a,b) => {
+              const dateDelta = (startDateFilter || endDateFilter)
+                ? dateWindowDistance(a, startDateFilter, endDateFilter) - dateWindowDistance(b, startDateFilter, endDateFilter)
+                : 0;
+              return dateDelta || (a.price !== b.price ? a.price - b.price : b.score - a.score);
+            })
             .slice(0, 200)
         : mode === "surprise"
           ? cheapestDestinations
