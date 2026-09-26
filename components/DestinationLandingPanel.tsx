@@ -40,8 +40,8 @@ const DESTINATIONS: Record<string, DestinationLandingConfig> = {
   "/malta": {
     flag: "🇲🇹",
     eyebrow: "MALTA",
-    title: "Malta: wakacje, city break i lot + hotel",
-    lead: "Planujesz Maltę? Ustaw termin i lotnisko, porównaj city break, wakacje i lot + hotel, a potem sprawdź Vallettę, Sliemę, St. Julian’s, Mellieħę i Gozo.",
+    title: "City break Malta: lot + hotel, wakacje i plaże",
+    lead: "Planujesz city break na Malcie? Ustaw termin i lotnisko, porównaj lot + hotel oraz wakacje, a potem sprawdź Vallettę, Sliemę, St. Julian’s, Mellieħę i Gozo.",
     searchDestination: "Malta",
     image: "/images/destinations/valletta.jpg",
     popular: ["Valletta", "Sliema", "St. Julian's", "Mellieha", "Gozo"],
