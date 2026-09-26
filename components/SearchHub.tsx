@@ -439,7 +439,8 @@ export default function SearchHub({
     const fetchBatch = async (includeFilters: boolean) => {
       const combinations = targets.flatMap((target) => origins.map((origin) => ({ target, origin }))).slice(0, 20);
       const payloads = await Promise.all(combinations.map(async ({ target, origin }) => {
-        const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });\n        if (activeMode === "Last minute") params.set("lastMinute", "1");
+        const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });
+        if (activeMode === "Last minute") params.set("lastMinute", "1");
         if (target) params.set("q", target);
         else params.set("broad", "1");
         if (origin) params.set("from", origin);
