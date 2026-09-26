@@ -3,8 +3,8 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
-import { partners } from "@/lib/partners";
 import { EXPERIENCE_IMAGES } from "@/lib/experienceImages";
+import SearchHub from "@/components/SearchHub";
 
 export const metadata: Metadata = {
   title: "Podróże po przeżycia — kiedy lecieć na zorzę, sakurę i safari",
@@ -60,22 +60,60 @@ const experiences: Experience[] = [
   ]},
 ];
 
-function flightUrl(i: Idea) {
-  const u = new URL("https://www.kiwi.com/deep");
-  u.searchParams.set("from", "WAW");
-  u.searchParams.set("to", i.airport);
-  u.searchParams.set("departure", i.sample[0]);
-  u.searchParams.set("return", i.sample[1]);
-  u.searchParams.set("currency", "PLN");
-  return partners.kiwi.buildUrl(u.toString());
-}
-function attractionUrl(city:string){return partners.getyourguide.buildUrl(`https://www.getyourguide.pl/s/?q=${encodeURIComponent(city)}`)}
+type PageProps = {
+  searchParams: Promise<{
+    destination?: string;
+    from?: string;
+    to?: string;
+    experience?: string;
+  }>;
+};
 
-export default function ExperiencesPage(){
+function internalExperienceSearch(i: Idea, experienceId: string) {
+  const params = new URLSearchParams({
+    destination: `${i.city}, ${i.country}`,
+    from: i.sample[0],
+    to: i.sample[1],
+    experience: experienceId,
+  });
+  return `/podroze-po-przezycia?${params.toString()}#szukaj-przezycie`;
+}
+
+export default async function ExperiencesPage({ searchParams }: PageProps){
+  const params = await searchParams;
+  const selectedDestination = typeof params.destination === "string" ? params.destination : "";
+  const selectedFrom = typeof params.from === "string" ? params.from : "";
+  const selectedTo = typeof params.to === "string" ? params.to : "";
+  const selectedExperience = typeof params.experience === "string" ? params.experience : "";
+  const hasSelection = Boolean(selectedDestination);
   const showMarkets = Date.now() <= new Date("2027-01-07T22:59:59Z").getTime();
   return <main className="experience-expanded-page"><SiteHeader/><BreadcrumbSchema items={[{name:"Tripownia",url:"https://tripownia.pl/"},{name:"Podróże po przeżycia",url:"https://tripownia.pl/podroze-po-przezycia"}]}/>
     <section className="experience-expanded-hero"><div className="shell"><div className="kicker">PODRÓŻE PO PRZEŻYCIA</div><h1>Nie jedna data. Właściwy moment.</h1><p>Najpierw pokazujemy okres, w którym dane zjawisko ma największy sens. Dopiero potem wybierasz konkretny kierunek i termin.</p><div className="experience-season-nav"><a href="#zorza">🌌 Zorza</a><a href="#sakura">🌸 Sakura</a><a href="#fiordy">🏔️ Fiordy</a><a href="#nowa-zelandia">🥾 Nowa Zelandia</a><a href="#safari">🦁 Safari</a>{showMarkets&&<Link href="/jarmarki-bozonarodzeniowe">🎄 Jarmarki</Link>}<Link href="/sylwester">🥂 Sylwester</Link></div></div></section>
-    <section className="section shell"><div className="experience-expanded-grid">{experiences.map(item=><article className="experience-expanded-card" id={item.id} key={item.id}><div className="experience-expanded-card-image"><img src={item.image} alt={item.title}/></div><div className="experience-expanded-card-top"><span>{item.icon}</span><div><small>REKOMENDOWANE OKNO</small><h2>{item.title}</h2><b className="experience-window">{item.window}</b></div></div><p className="experience-expanded-lead">{item.lead}</p><div className="experience-ideas">{item.ideas.map(i=><div className="experience-idea" key={i.city}><strong>{i.city}</strong><small>{i.label}</small><div className="experience-idea-actions"><a href={flightUrl(i)} target="_blank" rel="sponsored noopener noreferrer">Sprawdź wyjazd →</a><a href={attractionUrl(i.city)} target="_blank" rel="sponsored noopener noreferrer">Atrakcje</a></div></div>)}</div></article>)}</div></section>
+    <section className="section shell" id="szukaj-przezycie">
+      <div className="section-heading">
+        <div>
+          <div className="kicker">SZUKAJ W TRIPOWNI</div>
+          <h2>{hasSelection ? `Oferty dla: ${selectedDestination}` : "Wybierz przeżycie i sprawdź wyjazd bez wychodzenia z Tripowni"}</h2>
+          <p>{hasSelection
+            ? `Ustawiliśmy kierunek i przykładowe okno dat. Możesz je zmienić, dodać lotnisko wylotu albo poszerzyć wyszukiwanie.`
+            : "Kliknij „Sprawdź w Tripowni” przy wybranym kierunku albo ustaw własny kierunek i termin poniżej."}</p>
+          {selectedExperience && <small>Wybrane przeżycie: {selectedExperience}</small>}
+        </div>
+      </div>
+      <div className="single-partner-search-wrap">
+        <SearchHub
+          key={`${selectedDestination}|${selectedFrom}|${selectedTo}`}
+          embedded
+          initialTab="City break"
+          initialDestinations={selectedDestination ? [selectedDestination] : []}
+          initialDateMode={selectedFrom || selectedTo ? "range" : "any"}
+          initialDateFrom={selectedFrom}
+          initialDateTo={selectedTo}
+          searchRequest={hasSelection ? 1 : 0}
+        />
+      </div>
+    </section>
+    <section className="section shell"><div className="experience-expanded-grid">{experiences.map(item=><article className="experience-expanded-card" id={item.id} key={item.id}><div className="experience-expanded-card-image"><img src={item.image} alt={item.title}/></div><div className="experience-expanded-card-top"><span>{item.icon}</span><div><small>REKOMENDOWANE OKNO</small><h2>{item.title}</h2><b className="experience-window">{item.window}</b></div></div><p className="experience-expanded-lead">{item.lead}</p><div className="experience-ideas">{item.ideas.map(i=><div className="experience-idea" key={i.city}><strong>{i.city}</strong><small>{i.label}</small><div className="experience-idea-actions"><Link href={internalExperienceSearch(i, item.id)}>Sprawdź w Tripowni →</Link><Link href="/planer-podrozy">Dodaj do planu</Link></div></div>)}</div></article>)}</div></section>
     {showMarkets&&<section className="shell experience-market-callout"><div><small>SEZONOWO</small><strong>Jarmarki bożonarodzeniowe 2026</strong><span>Sekcja działa tylko w sezonie i znika automatycznie po zakończeniu jarmarków.</span></div><Link href="/jarmarki-bozonarodzeniowe">Zobacz terminy jarmarków →</Link></section>}
     <SiteFooter/></main>
 }
