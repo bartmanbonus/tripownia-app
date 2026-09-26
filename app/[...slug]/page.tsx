@@ -93,8 +93,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "City break z Lublina, wakacje i krótkie wyjazdy z lotniska LUZ. Sprawdź kierunki, lot + hotel i aktualne propozycje na 2–5 dni.",
   },
   "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel": {
-    title: "Last minute z Olsztyna-Mazur i Szyman – wakacje z SZY | Tripownia",
-    description: "Last minute i wakacje z lotniska Olsztyn-Mazury w Szymanach (SZY). Sprawdź aktualne kierunki, All Inclusive i lokalne wyloty.",
+    title: "Wakacje z Olsztyna-Mazur (Szymany) – last minute i lot + hotel | Tripownia",
+    description: "Wakacje z Szyman i lotniska Olsztyn-Mazury (SZY): last minute, lot + hotel i aktualne kierunki. Sprawdź lokalne wyloty bez dojazdu do Warszawy.",
   },
   "/sagrada-familia-osiagnela-maksymalna-wysokosc-20-lutego-2026-historyczna-data-dla-barcelony": {
     title: "Sagrada Familia – wysokość. Ile metrów ma bazylika w 2026? | Tripownia",
@@ -154,7 +154,7 @@ const seoOverrides: Record<string, Metadata> = {
   },
   "/gdzie-na-sylwestra-2026-2027-15-kierunkow": {
     title: "Gdzie na Sylwestra 2026/2027? 15 kierunków za granicę | Tripownia",
-    description: "Pomysły na Sylwestra 2026/2027 za granicą: city break, słońce i dalsze kierunki. Zobacz 15 propozycji i wybierz wyjazd dla siebie.",
+    description: "Gdzie polecieć na Sylwestra 2026/2027? Zobacz 15 kierunków na city break, Europę i dalszy wyjazd oraz wybierz opcję pod pogodę, budżet i długość lotu.",
   },
   "/gdzie-na-wakacje-we-wrzesniu": {
     title: "Gdzie na wakacje we wrześniu 2026? Ciepłe kierunki | Tripownia",
@@ -177,8 +177,20 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Pomysły na city break z Polski: wybierz kierunek pod godziny lotów, transfer i realny czas na miejscu. Porównaj weekendowe wyjazdy na 2–4 dni.",
   },
   "/grecja": {
-    title: "Grecja 2026 – którą wyspę wybrać? Kreta, Rodos, Kos czy Korfu | Tripownia",
-    description: "Którą grecką wyspę wybrać na wakacje? Porównaj Kretę, Rodos, Kos, Korfu, Zakynthos i Chalkidiki pod kątem plaż, zwiedzania, rodzin i All Inclusive.",
+    title: "Grecja wakacje 2026 – Kreta, Rodos, Kos czy Korfu? | Tripownia",
+    description: "Grecja na wakacje 2026: porównaj Kretę, Rodos, Kos, Korfu, Zakynthos i Chalkidiki. Sprawdź plaże, zwiedzanie, All Inclusive i wybierz wyspę dla siebie.",
+  },
+  "/wlochy": {
+    title: "Włochy city break 2026 – Rzym, Mediolan, Bari czy Neapol? | Tripownia",
+    description: "City break we Włoszech: porównaj Rzym, Mediolan, Bari, Neapol, Wenecję i Sycylię. Sprawdź pomysły na 2–5 dni, lot + hotel i najlepsze miasta na krótki wyjazd.",
+  },
+  "/warszawa-modlin": {
+    title: "Loty z Modlina 2026 – gdzie można polecieć? City break i tanie loty | Tripownia",
+    description: "Gdzie można polecieć z Warszawy-Modlin (WMI)? Sprawdź kierunki, city breaki, tanie loty i pomysły na krótki wyjazd z Modlina.",
+  },
+  "/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok": {
+    title: "Ciepłe kraje na Sylwestra 2026/2027 – gdzie polecieć? | Tripownia",
+    description: "Gdzie jest ciepło na Sylwestra 2026/2027? Porównaj Egipt, Wyspy Kanaryjskie, Cypr, Maltę i dalsze kierunki na Nowy Rok za granicą.",
   },
   "/hiszpania": {
     title: "Południowe wybrzeże Hiszpanii – gdzie jechać? Costa del Sol, Costa Blanca i wyspy | Tripownia",
