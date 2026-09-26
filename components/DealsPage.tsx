@@ -12,6 +12,7 @@ import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { useLiveOffers } from "@/lib/useLiveOffers";
 import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
+import { trackEvent } from "@/lib/analytics";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -260,6 +261,10 @@ export default function DealsPage() {
       ) : null}
 
       <div className="deals-end-cta"><div><strong>Chcesz zawęzić jeszcze bardziej?</strong><span>W głównej wyszukiwarce ustawisz też kierunek, budżet, długość pobytu, weekend i wyżywienie.</span></div><Link href="/#wyszukiwarka">Przejdź do wyszukiwarki <ArrowRight size={16}/></Link></div>
+      <div className="facebook-growth-strip facebook-growth-strip-compact">
+        <div><small>NIE PRZEGAP KOLEJNEJ PULI</small><strong>Obserwuj Tripownię na Facebooku.</strong><span>Nowe okazje i konkretne wyjazdy publikujemy również tam.</span></div>
+        <a href="https://www.facebook.com/987707741084438" target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("facebook_follow_click", { placement: "deals_page" })}>Obserwuj na Facebooku →</a>
+      </div>
     </section>
     <SiteFooter/>
   </main>;
