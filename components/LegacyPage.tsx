@@ -102,6 +102,11 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
       { href: "/podroze/wakacje-z-olsztyna-mazur", label: "Wakacje z Olsztyna-Mazur" },
       { href: "/podroze/city-break-z-olsztyna-mazur", label: "City break z Olsztyna-Mazur" },
     ],
+    "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": [
+      { href: "/podroze/last-minute-z-rzeszowa", label: "Last minute z Rzeszowa" },
+      { href: "/podroze/wakacje-z-rzeszowa", label: "Wakacje z Rzeszowa" },
+      { href: "/podroze/city-break-z-rzeszowa", label: "City break z Rzeszowa" },
+    ],
   };
   if (airportLandingLinks[canonicalPath]) return airportLandingLinks[canonicalPath];
   if (hay.includes("limit") && hay.includes("płyn")) return [
