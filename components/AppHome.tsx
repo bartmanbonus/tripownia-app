@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Bell, CheckCircle2, Circle, Compass, Heart, MapPinned, Sparkles, UserRound, ArrowRight, Scale, Ticket, BookOpen, Wifi, Car, ParkingCircle, ListChecks, CloudSun, Utensils, ShoppingBag, Camera, FileCheck2, ShieldCheck, Navigation } from "lucide-react";
+import { Bell, CheckCircle2, Circle, Compass, Heart, MapPinned, Sparkles, UserRound, ArrowRight, Scale, Ticket, BookOpen, Wifi, Car, ParkingCircle, ListChecks, CloudSun, Utensils, ShoppingBag, Camera, FileCheck2, ShieldCheck, Navigation, Palmtree, Building2, Zap, CalendarDays, Globe2 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
@@ -121,6 +121,26 @@ export default function AppHome() {
         </div>
 
         <SearchHub initialTab="Inspiracje" />
+        <section className="app-discovery-section">
+          <div className="section-heading">
+            <div>
+              <div className="kicker">ODKRYWAJ JAK NA TRIPOWNIA.PL</div>
+              <h2>Wszystkie najważniejsze typy podróży masz też w aplikacji.</h2>
+              <p>Nie tylko planer. Z aplikacji przejdziesz od pomysłu na wyjazd do konkretnej oferty i całej organizacji podróży.</p>
+            </div>
+            <Link href="/kierunki">Wszystkie kierunki <ArrowRight size={16}/></Link>
+          </div>
+          <div className="app-discovery-grid">
+            <Link href="/city-break"><Building2 size={21}/><strong>City break</strong><span>Krótki wyjazd na 2–4 noce.</span></Link>
+            <Link href="/wakacje"><Palmtree size={21}/><strong>Wakacje</strong><span>Urlop, słońce i dłuższy odpoczynek.</span></Link>
+            <Link href="/last-minute"><Zap size={21}/><strong>Last minute</strong><span>Oferty na szybki wyjazd.</span></Link>
+            <Link href="/wydarzenia"><Ticket size={21}/><strong>Mecze i eventy</strong><span>Najpierw wydarzenie, potem cały wyjazd.</span></Link>
+            <Link href="/podroze-po-przezycia"><Sparkles size={21}/><strong>Podróże po przeżycia</strong><span>Sakura, zorza, safari, fiordy i więcej.</span></Link>
+            <Link href="/dalekie-podroze"><Globe2 size={21}/><strong>Dalekie podróże</strong><span>Większe wyprawy i egzotyczne kierunki.</span></Link>
+            <Link href="/jarmarki-bozonarodzeniowe"><CalendarDays size={21}/><strong>Jarmarki</strong><span>Sezonowe wyjazdy i świąteczne city breaki.</span></Link>
+            <Link href="/sylwester"><Zap size={21}/><strong>Sylwester</strong><span>Pomysły na koniec roku za granicą.</span></Link>
+          </div>
+        </section>
 
         <section className="free-plan-wow">
           <div className="free-plan-wow-head">
