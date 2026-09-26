@@ -27,6 +27,7 @@ export type TripowniaUserState = {
   trip_archive?: unknown[];
   alert_settings?: Record<string, unknown>;
   toolkit_by_trip?: Record<string, unknown>;
+  organizer_by_trip?: Record<string, unknown>;
   created_at?: string;
   updated_at?: string;
 };
@@ -269,4 +270,41 @@ export async function deleteAccount(session = readAccountSession()) {
 
   clearAccountSession();
   return true;
+}
+
+
+export async function signInWithPassword(email: string, password: string) {
+  if (!isAccountAuthConfigured()) throw new Error("Logowanie nie jest jeszcze podłączone.");
+  const response = await fetch(`${authBaseUrl()}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: publicHeaders(),
+    body: JSON.stringify({ email: email.trim(), password }),
+  });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(String(payload?.msg || payload?.message || payload?.error_description || "Nie udało się zalogować."));
+  }
+  const session = normalizeSession(await response.json() as AccountSession);
+  saveAccountSession(session);
+  return session;
+}
+
+export async function signUpWithPassword(email: string, password: string) {
+  if (!isAccountAuthConfigured()) throw new Error("Rejestracja nie jest jeszcze podłączona.");
+  const response = await fetch(`${authBaseUrl()}/auth/v1/signup`, {
+    method: "POST",
+    headers: publicHeaders(),
+    body: JSON.stringify({ email: email.trim(), password, data: { product: "Tripownia" } }),
+  });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(String(payload?.msg || payload?.message || payload?.error_description || "Nie udało się utworzyć konta."));
+  }
+  const payload = await response.json() as Partial<AccountSession> & { user?: AccountUser };
+  if (payload.access_token && payload.refresh_token) {
+    const session = normalizeSession(payload as AccountSession);
+    saveAccountSession(session);
+    return { session, confirmationRequired: false };
+  }
+  return { session: null, confirmationRequired: true };
 }
