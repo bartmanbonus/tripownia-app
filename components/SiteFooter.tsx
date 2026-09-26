@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Mail, MapPin } from "lucide-react";
 import OfferRailDeduper from "@/components/OfferRailDeduper";
 import { trackEvent } from "@/lib/analytics";
+import { partners } from "@/lib/partners";
 
 export default function SiteFooter() {
   return (
@@ -31,23 +32,26 @@ export default function SiteFooter() {
             </div>
 
             <div className="footer-v2-column">
-              <h3>Inspiracje i dane</h3>
+              <h3>Odkrywaj</h3>
+              <Link href="/okazje">Okazje</Link>
               <Link href="/kierunki">Wszystkie kierunki</Link>
+              <Link href="/wydarzenia">Mecze i eventy</Link>
               <Link href="/podroze-po-przezycia">Podróże po przeżycia</Link>
-              <Link href="/dane-tripowni">Dane Tripowni</Link>
-              <Link href="/radar-tripowni">Radar Tripowni</Link>
-              <Link href="/poradniki">Poradniki</Link>
+              <Link href="/dalekie-podroze">Dalekie podróże</Link>
+              <Link href="/sylwester">Sylwester</Link>
+              <Link href="/inspiracje">Inspiracje</Link>
             </div>
 
             <div className="footer-v2-column">
-              <h3>Marketplace</h3>
+              <h3>Rezerwuj</h3>
               <Link href="/wakacje">Wakacje</Link>
-              <Link href="/atrakcje">Atrakcje</Link>
+              <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Hotele</a>
+              <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Loty</a>
+              <a href={partners.getyourguide.buildUrl("https://www.getyourguide.pl/")} target="_blank" rel="sponsored noopener noreferrer">Atrakcje</a>
+              <Link href="/wynajem-auta">Wynajem auta</Link>
               <Link href="/transfery">Transfery</Link>
               <Link href="/parkingi">Parkingi</Link>
               <Link href="/esim">eSIM</Link>
-              <Link href="/ubezpieczenia">Ubezpieczenia</Link>
-              <Link href="/wynajem-auta">Wynajem auta</Link>
             </div>
 
             <div className="footer-v2-column footer-v2-company">
