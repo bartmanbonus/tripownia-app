@@ -212,6 +212,51 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
       { href: "/last-minute", label: "Last minute" },
     ],
   },
+  "/lotniska-w-polsce-bez-limitu-100-ml-plynow": {
+    title: "Które lotniska w Polsce zniosły limit płynów?",
+    lead: "Zasady zależą od lotniska i zastosowanej kontroli bezpieczeństwa. Przed wylotem sprawdź aktualną informację dla konkretnego portu, zamiast zakładać, że jedna zasada obowiązuje w całej Polsce.",
+    links: [
+      { href: "/przed-wyjazdem", label: "Checklista przed wylotem" },
+      { href: "/tanie-loty", label: "Tanie loty" },
+      { href: "/poradniki", label: "Poradniki podróżnicze" },
+    ],
+  },
+  "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych": {
+    title: "Czy bagaż podręczny jest ważony i ile sztuk można zabrać?",
+    lead: "Tak — linie mogą sprawdzać zarówno wagę, jak i wymiary bagażu. Liczba sztuk i limity zależą od przewoźnika oraz taryfy, dlatego przed lotem warto sprawdzić zasady dla konkretnego biletu.",
+    links: [
+      { href: "/przed-wyjazdem", label: "Checklista przed wylotem" },
+      { href: "/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad", label: "Jedzenie w bagażu podręcznym" },
+      { href: "/poradniki", label: "Więcej poradników" },
+    ],
+  },
+  "/jak-dojechac-z-lotniska-do-centrum-miasta-najtansze-opcje-transportu": {
+    title: "Jak najtaniej dojechać z lotniska do centrum?",
+    lead: "Najtańszy bywa autobus lub pociąg, ale przy 2–4 osobach taxi albo transfer może mieć podobny koszt na osobę. Porównuj cenę, czas dojazdu i godzinę przylotu, a nie tylko najniższą stawkę.",
+    links: [
+      { href: "/transfery", label: "Transfery lotniskowe" },
+      { href: "/city-break", label: "City break" },
+      { href: "/planer-podrozy", label: "Planer podróży" },
+    ],
+  },
+  "/jak-tanio-podrozowac-po-europie-10-sposobow-na-tansze-wyjazdy": {
+    title: "Jak tanio podróżować po Europie?",
+    lead: "Największe oszczędności zwykle daje elastyczny termin, porównanie kilku lotnisk, mały bagaż, nocleg poza ścisłym centrum i liczenie całego kosztu wyjazdu zamiast samego biletu.",
+    links: [
+      { href: "/tanie-loty", label: "Tanie loty" },
+      { href: "/city-break", label: "City break" },
+      { href: "/okazje", label: "Okazje Tripowni" },
+    ],
+  },
+  "/jak-znalezc-tani-hotel-8-sposobow-na-oszczednosc-przy-rezerwacji-noclegow": {
+    title: "Jak znaleźć tani hotel bez przepłacania?",
+    lead: "Porównaj nie tylko cenę pokoju, ale też lokalizację, dojazdy, podatki lokalne, śniadanie i warunki anulowania. Tańszy nocleg daleko od centrum może wyjść drożej po doliczeniu transportu.",
+    links: [
+      { href: "/hotele", label: "Hotele i noclegi" },
+      { href: "/planer-podrozy", label: "Planer podróży" },
+      { href: "/city-break", label: "City break" },
+    ],
+  },
 };
 
 function norm(value: string) {
