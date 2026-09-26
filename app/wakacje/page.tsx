@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
 import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
 import { offers, isOfferExpired } from "@/lib/offers";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
 export const metadata: Metadata = {
   title: "Tanie wakacje 2026 — All Inclusive, last minute i lot + hotel",
@@ -48,6 +49,7 @@ export default function WakacjePage() {
         <Link href="/podroze/cieple-wakacje-grudzien-2026">Ciepłe wakacje w grudniu →</Link>
       </div>
     </section>
+    <section className="section shell"><FacebookFollowCTA placement="wakacje" compact /></section>
     <SiteFooter/>
   </main>;
 }
