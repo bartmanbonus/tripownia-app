@@ -398,7 +398,7 @@ function ExperienceTeaserImage({ city, country, title, fallbackSrc }: { city: st
   );
 }
 
-function OfferRail({ kicker, title, description, items }: { kicker: string; title: string; description: string; items: typeof offers }) {
+function OfferRail({ kicker, title, description, items, moreHref = "/okazje" }: { kicker: string; title: string; description: string; items: typeof offers; moreHref?: string }) {
   const railRef = useRef<HTMLDivElement>(null);
   const move = (direction: -1 | 1) => {
     const rail = railRef.current;
@@ -408,17 +408,16 @@ function OfferRail({ kicker, title, description, items }: { kicker: string; titl
     rail.scrollBy({ left: direction * step * 2, behavior: "smooth" });
   };
   if (!items.length) return null;
-  const sparse = items.length < 3;
-  const densityClass = items.length === 1 ? " is-single" : items.length === 2 ? " is-double" : "";
-  return <section className={`offer-stream-row${sparse ? " is-sparse" : ""}${densityClass}`}>
+  return <section className="offer-stream-row">
     <div className="offer-stream-head">
       <div><div className="kicker">{kicker}</div><h3>{title}</h3><p>{description}</p></div>
+      <Link className="offer-stream-more-link" href={moreHref}>Zobacz więcej <ArrowRight size={15}/></Link>
     </div>
-    <div className={`offer-stream-rail-wrap${sparse ? " is-sparse" : ""}${densityClass}`}>
-      {items.length > 1 && <div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div>}
+    <div className="offer-stream-rail-wrap">
+      <div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div>
       <div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>
         {items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}
-        {sparse && <div className="offer-stream-item offer-stream-more-card"><Link href="/okazje"><small>WIĘCEJ OPCJI</small><strong>Zobacz pełną pulę ofert</strong><span>Jeśli ta kategoria ma dziś mało dopasowań, pokażemy Ci wszystkie aktualne propozycje.</span><em>Zobacz oferty <ArrowRight size={15}/></em></Link></div>}
+        <div className="offer-stream-item offer-stream-more-card"><Link href={moreHref}><small>WIĘCEJ OFERT</small><strong>Zobacz pełną pulę</strong><span>Przejdź do wszystkich aktualnych propozycji i wybierz kolejne kierunki.</span><em>Zobacz więcej <ArrowRight size={15}/></em></Link></div>
       </div>
     </div>
   </section>;
@@ -544,56 +543,79 @@ export default function Home() {
 
   const themedRails = useMemo(() => {
     const key = dailyKey;
-    const cheapestDirections = cheapestPerDirection(
-      liveOffers.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay)
-    );
-    const active: TripOffer[] = seededShuffle<TripOffer>(cheapestDirections, `tripownia-rails:${key}`);
-    const uniqueDestinations = (rows: typeof active) => {
-      const seen = new Set<string>();
-      return rows.filter((offer) => {
-        const destination = destinationGroupKey(offer);
-        if (seen.has(destination)) return false;
-        seen.add(destination);
-        return true;
-      });
-    };
-    const pick = (match: (o: TripOffer) => boolean, limit = 8) => uniqueDestinations(active.filter(match)).slice(0, limit);
-    const fillRail = (primary: typeof active, minimum = 5) => {
-      const result = uniqueDestinations(primary);
-      const used = new Set(result.map(destinationGroupKey));
-      for (const offer of active) {
-        if (result.length >= minimum) break;
-        const destination = destinationGroupKey(offer);
-        if (!used.has(destination)) { result.push(offer); used.add(destination); }
-      }
-      return result;
-    };
-    const eximCityPool = [
-      ...eximCityBreaks,
-      ...liveOffers.filter(o => o.partner === "exim" && o.nights >= 2 && o.nights <= 5),
-    ];
-    const cityPrimary = uniqueDestinations(cheapestPerDirection(eximCityPool.map(offerForDisplay)));
-    const cityFallback = uniqueDestinations(active.filter(o => o.nights >= 2 && o.nights <= 5));
-    const city = (() => {
-      const result = [...cityPrimary];
-      const used = new Set(result.map(destinationGroupKey));
-      for (const offer of cityFallback) {
-        if (result.length >= 10) break;
-        const destination = destinationGroupKey(offer);
-        if (!used.has(destination)) {
+    const reserveOffers = offers
+      .filter((offer) => !isOfferExpired(offer))
+      .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
+      .map(offerForDisplay);
+
+    const mergedById = new Map<number, TripOffer>();
+    for (const offer of reserveOffers) mergedById.set(offer.id, offer);
+    for (const offer of liveOffers.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay)) mergedById.set(offer.id, offer);
+    for (const offer of eximCityBreaks.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay)) mergedById.set(offer.id, offer);
+
+    const pool = seededShuffle<TripOffer>(Array.from(mergedById.values()), `tripownia-rails:${key}`);
+
+    const buildRail = (match: (o: TripOffer) => boolean, limit = 12, fallbackMatch?: (o: TripOffer) => boolean) => {
+      const matching = pool.filter(match);
+      const fallback = fallbackMatch ? pool.filter(fallbackMatch) : [];
+      const result: TripOffer[] = [];
+      const usedIds = new Set<number>();
+      const usedDestinations = new Set<string>();
+
+      const addUniqueDestinations = (rows: TripOffer[]) => {
+        for (const offer of rows) {
+          if (result.length >= limit) break;
+          const destination = destinationGroupKey(offer);
+          if (usedIds.has(offer.id) || usedDestinations.has(destination)) continue;
           result.push(offer);
-          used.add(destination);
+          usedIds.add(offer.id);
+          usedDestinations.add(destination);
         }
-      }
-      return result.slice(0, 10);
-    })();
-    const sun = fillRail(pick(o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c))), 5);
+      };
+
+      const addRemaining = (rows: TripOffer[]) => {
+        for (const offer of rows) {
+          if (result.length >= limit) break;
+          if (usedIds.has(offer.id)) continue;
+          result.push(offer);
+          usedIds.add(offer.id);
+        }
+      };
+
+      addUniqueDestinations(matching);
+      addUniqueDestinations(fallback);
+      addRemaining(matching);
+      addRemaining(fallback);
+      if (result.length < limit) addRemaining(pool);
+      return result.slice(0, limit);
+    };
+
+    const city = buildRail(
+      o => o.nights >= 2 && o.nights <= 5,
+      12,
+      o => o.nights >= 2 && o.nights <= 6
+    );
+    const sun = buildRail(
+      o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c)) || /egipt|turcj|grecj|hiszp|cypr|tunez|zanzibar|malediw|mauritius|dominik/i.test(`${o.city} ${o.country}`),
+      12
+    );
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
-    const unusual = fillRail(pick(o => unusualNames.test(o.city)), 5);
-    const weekend = fillRail(pick(o => o.nights >= 2 && o.nights <= 4), 5);
-    const week = fillRail(pick(o => o.nights >= 6 && o.nights <= 9), 5);
-    const budgetFriendly = uniqueDestinations([...active].sort((a,b) => a.price - b.price)).slice(0, 8);
-    const premium = fillRail(pick(o => o.price >= 2500 || /malediw|mauritius|seszel|zanzibar|dubaj|dominik/i.test(`${o.city} ${o.country}`)), 5);
+    const unusual = buildRail(o => unusualNames.test(o.city), 12);
+    const weekend = buildRail(
+      o => o.nights >= 2 && o.nights <= 4,
+      12,
+      o => o.nights >= 2 && o.nights <= 5
+    );
+    const week = buildRail(
+      o => o.nights >= 6 && o.nights <= 9,
+      12,
+      o => o.nights >= 5 && o.nights <= 10
+    );
+    const budgetFriendly = [...pool].sort((a,b) => a.price - b.price).slice(0, 12);
+    const premium = buildRail(
+      o => o.price >= 2500 || /malediw|mauritius|seszel|zanzibar|dubaj|dominik|meksyk|tajland|wietnam/i.test(`${o.city} ${o.country}`),
+      12
+    );
     return { city, sun, unusual, weekend, week, budgetFriendly, premium };
   }, [dailyKey, liveOffers, eximCityBreaks]);
 
@@ -749,8 +771,8 @@ export default function Home() {
           </div>
           <Link className="section-premium-link" href="/okazje">Zobacz wszystkie wyjazdy <ArrowRight size={16}/></Link>
         </div>
-        <OfferRail kicker="🏙 CITY BREAK" title="Gotowe na kilka dni" description="Krótkie wyjazdy z konkretnym terminem i aktualną ceną." items={themedRails.city.slice(0, 10)}/>
-        <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun.slice(0, 10)}/>
+        <OfferRail kicker="🏙 CITY BREAK" title="Gotowe na kilka dni" description="Krótkie wyjazdy z konkretnym terminem i aktualną ceną." items={themedRails.city.slice(0, 12)}/>
+        <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun.slice(0, 12)}/>
         <div className="homepage-offer-more">
           <section className="homepage-offer-group">
             <div className="homepage-offer-group-head"><span><b>⚡ Na krótko</b><small>2–4 noce · szybki reset</small></span></div>
