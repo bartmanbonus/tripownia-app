@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
+import SearchHub from "@/components/SearchHub";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 const title = "Grecja 2027 – wakacje, All Inclusive i greckie wyspy";
@@ -42,7 +42,7 @@ export default function Grecja2027Page() {
     </section>
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">AKTUALNE OFERTY</div><h2>Sprawdź Grecję 2027</h2></div></div>
-      <div className="single-partner-search-wrap"><UnifiedPartnerSearch mode="holiday" initialDestination="Grecja" /></div>
+      <div className="single-partner-search-wrap"><SearchHub embedded initialTab="Wakacje" initialDestinations={["Grecja"]} /></div>
     </section>
     <SiteFooter/>
   </main>;
