@@ -33,17 +33,17 @@ export const seoGrowthLandings: SeoLanding[] = [
   },
   {
     slug: "city-break-z-gdanska",
-    title: "City break z Gdańska — krótki wyjazd z Trójmiasta",
-    eyebrow: "CITY BREAK Z GDAŃSKA",
-    lead: "City break z Gdańska: krótkie wyjazdy na 2–5 dni, tanie loty i aktualne propozycje z wylotem z Trójmiasta.",
+    title: "City break z Gdańska 2026 — lot + hotel i tani weekend z GDN",
+    eyebrow: "CITY BREAK Z GDAŃSKA / TRÓJMIASTA",
+    lead: "City break z Gdańska (GDN): lot + hotel, tanie loty i krótkie wyjazdy na 2–5 dni. Porównaj aktualne kierunki z Trójmiasta i realny czas na miejscu.",
     query: "City break",
     departure: "Gdańsk",
     departureCode: "GDN",
     categoryKeywords: ["city", "weekend", "tanio"],
     maxNights: 5,
     paragraphs: [
-      "Z Gdańska dobrze sprawdzają się krótkie wypady do miast Europy Północnej i Zachodniej, ale najlepszy kierunek zależy od konkretnego terminu.",
-      "Przy weekendzie szukaj lotów, które dają możliwie dużo czasu na miejscu zamiast wyłącznie najniższej ceny biletu."
+      "City break z Gdańska warto układać pod godziny połączeń i realny czas na miejscu. Przy weekendzie lepszy może być nieco droższy lot, jeśli daje cały dodatkowy dzień w mieście.",
+      "Porównaj kilka kierunków z GDN, a do ceny biletu dolicz bagaż, nocleg i transfer z lotniska. Tripownia pokazuje wyjazd jako całość, a nie tylko najtańszy pojedynczy element."
     ],
   },
   {
@@ -195,17 +195,17 @@ export const seoGrowthLandings: SeoLanding[] = [
   },
   {
     slug: "city-break-z-poznania",
-    title: "City break z Poznania — weekend samolotem",
-    eyebrow: "CITY BREAK Z POZNANIA",
-    lead: "City break z Poznania: krótkie wyjazdy na 2–5 dni, aktualne propozycje i loty z Ławicy.",
+    title: "City break z Poznania 2026 — lot + hotel i tani weekend z POZ",
+    eyebrow: "CITY BREAK Z POZNANIA / ŁAWICY",
+    lead: "City break z Poznania-Ławicy (POZ): lot + hotel, tanie loty i krótkie wyjazdy na 2–5 dni. Porównaj aktualne kierunki, godziny lotów i pełny koszt weekendu.",
     query: "City break",
     departure: "Poznań",
     departureCode: "POZ",
     categoryKeywords: ["city", "weekend", "tanio"],
     maxNights: 5,
     paragraphs: [
-      "Przy krótkim wyjeździe z Poznania warto wybierać kierunki, które dają dobre godziny lotów i prosty dojazd z lotniska do centrum.",
-      "Jeśli termin jest stały, porównaj kilka miast zamiast szukać tylko jednego — to zwykle najszybsza droga do dobrej ceny."
+      "Przy city breaku z Poznania warto porównać kilka miast dla tego samego weekendu. Przy 2–5 dniach godziny lotów i dojazd z lotniska do centrum mają często większe znaczenie niż sama cena biletu.",
+      "Porównuj lot + hotel, bagaż i transfer jako jeden koszt. Jeśli termin jest stały, sprawdzenie kilku kierunków z Ławicy zwykle szybciej prowadzi do dobrej oferty niż polowanie na jedno konkretne miasto."
     ],
   },
   {
