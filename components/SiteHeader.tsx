@@ -171,6 +171,13 @@ export default function SiteHeader() {
                   <Link href="/wynajem-auta"><Car size={18} /><span>Wynajem auta</span></Link>
                   <a href={partners.getyourguide.buildUrl("https://www.getyourguide.pl/")} target="_blank" rel="sponsored noopener noreferrer"><Building2 size={18} /><span>Atrakcje</span></a>
                 </div>
+                <div className="trip-mobile-menu-section">
+                  <strong>Inspiracje</strong>
+                  <Link href="/podroze-po-przezycia"><Sparkles size={18} /><span>Podróże po przeżycia</span></Link>
+                  <Link href="/dalekie-podroze"><Palmtree size={18} /><span>Dalekie podróże</span></Link>
+                  <Link href="/sylwester"><Zap size={18} /><span>Sylwester</span></Link>
+                  <Link href="/inspiracje"><Lightbulb size={18} /><span>Inspiracje</span></Link>
+                </div>
               </div>
             </details>
           </div>
