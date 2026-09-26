@@ -10,6 +10,70 @@ const systemPaths = new Set([
   "/podroze-po-przezycia", "/dalekie-podroze"
 ]);
 
+const dedicatedAppPaths = new Set([
+  "/admin",
+  "/admin/social",
+  "/alerty",
+  "/app",
+  "/city-break",
+  "/city-break-2",
+  "/dalekie-podroze",
+  "/dane-tripowni",
+  "/dla-ciebie",
+  "/dla-mediow",
+  "/dodaj-podroz",
+  "/egipt-2027",
+  "/faq",
+  "/ferie-2027",
+  "/gdzie-jest-cieplo-zima-bez-dalekiego-lotu",
+  "/gdzie-leciec",
+  "/grecja-2027",
+  "/informacja-afiliacyjna",
+  "/inspiracje",
+  "/jak-dziala-tripownia",
+  "/jarmarki-bozonarodzeniowe",
+  "/kierunki",
+  "/kontakt",
+  "/konto",
+  "/last-minute",
+  "/last-minute-oferty",
+  "/magazyn-podrozniczy",
+  "/magazyn-podrozniczy/city-break-2026",
+  "/magazyn-podrozniczy/last-minute-2026",
+  "/majowka-2027",
+  "/moja-podroz",
+  "/moje-podroze",
+  "/o-tripowni",
+  "/okazje",
+  "/organizer",
+  "/planer-podrozy",
+  "/podroze",
+  "/podroze-po-przezycia",
+  "/polityka-prywatnosci",
+  "/polska",
+  "/poradniki",
+  "/porownaj",
+  "/profil",
+  "/przed-wyjazdem",
+  "/radar-tripowni",
+  "/regulamin",
+  "/standardy-redakcyjne",
+  "/sylwester",
+  "/tanie-loty",
+  "/transfery",
+  "/turcja-2027",
+  "/ulubione",
+  "/wakacje",
+  "/wakacje-2027",
+  "/wakacje-czerwiec-2027",
+  "/wakacje-lipiec-2027",
+  "/wakacje-sierpien-2027",
+  "/wakacje-z-dziecmi",
+  "/wspolpraca",
+  "/wydarzenia",
+  "/wynajem-auta",
+]);
+
 const seoOverrides: Record<string, Metadata> = {
   "/lotniska-w-polsce-bez-limitu-100-ml-plynow": {
     title: "Na których lotniskach w Polsce nie ma limitu 100 ml? Lista 2026 | Tripownia",
@@ -90,7 +154,7 @@ export async function generateStaticParams() {
   for (const item of legacyItems) paths.add(legacyCanonicalPath(item.path).replace(/^\//, ""));
   for (const path of systemPaths) paths.add(path.replace(/^\//, ""));
   for (const path of internalAliasPaths) paths.add(path.replace(/^\//, ""));
-  return [...paths].filter(Boolean).map((path) => ({ slug: path.split("/").filter(Boolean) }));
+  return [...paths].filter(Boolean).filter((path) => !dedicatedAppPaths.has("/" + path.replace(/^\\/+/, ""))).map((path) => ({ slug: path.split("/").filter(Boolean) }));
 }
 
 function humanize(path: string) {
