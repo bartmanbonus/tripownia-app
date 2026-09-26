@@ -270,8 +270,9 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     <div className="legacy-shell shell">
       <div className="legacy-breadcrumb"><Link href="/">Tripownia</Link><span>›</span><Link href={parent.href}>{parent.name}</Link><span>›</span><span aria-current="page">{item.title}</span></div>
       {archived && <div className="archive-banner"><strong>Oferta archiwalna</strong><span>Cena i dostępność mogły się zmienić. Na dole znajdziesz aktualne propozycje.</span></div>}
+      {hasConversionPanel && <DestinationLandingPanel path={canonicalPath} />}
       <article className="legacy-article">
-        <header>
+        {!hasConversionPanel && <header>
           <div className="kicker">{archived ? "ARCHIWUM OFERT" : item.type === "post" ? "MAGAZYN TRIPOWNI" : "TRIPOWNIA"}</div>
           <h1>{item.title}</h1>
           {item.type === "post" && <div className="article-publisher-note">
@@ -280,7 +281,8 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
             <Link href="/standardy-redakcyjne">Jak tworzymy i aktualizujemy treści →</Link>
             <ArticleShare title={item.title} />
           </div>}
-        </header>
+        </header>}
+        {hasConversionPanel && <div className="kicker" style={{marginBottom:12}}>PRZEWODNIK PO KIERUNKU</div>}
         <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
       </article>
 
