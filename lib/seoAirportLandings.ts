@@ -78,9 +78,9 @@ export const seoAirportLandings: SeoLanding[] = [
   },
   {
     slug: "last-minute-z-rzeszowa",
-    title: "Last Minute z Rzeszowa — wakacje z Jasionki",
-    eyebrow: "LAST MINUTE Z RZESZOWA",
-    lead: "Last minute z Rzeszowa: aktualne wyjazdy wakacyjne i ciepłe kierunki z wylotem z RZE.",
+    title: "Last minute z Rzeszowa — loty i wakacje z Jasionki (RZE)",
+    eyebrow: "LAST MINUTE Z RZESZOWA / JASIONKI",
+    lead: "Last minute z Rzeszowa-Jasionki (RZE): aktualne loty, wakacje, All Inclusive i ciepłe kierunki na najbliższe terminy.",
     query: "Last Minute",
     departure: "Rzeszów",
     departureCode: "RZE",
