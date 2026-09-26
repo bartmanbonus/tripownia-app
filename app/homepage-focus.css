@@ -1358,3 +1358,104 @@ body:has(.dream-hero) .already-booked-actions>a{
   }
   .offer-stream-more-card>a{min-height:360px!important}
 }
+
+
+/* 2026-09-26 sparse offer shelves: compact desktop geometry */
+body:has(.dream-hero) .offer-stream-row.is-sparse{
+  margin-top:24px!important;
+  padding:24px 24px 28px!important;
+  border:1px solid #eadfd8!important;
+  border-radius:24px!important;
+  background:#fff!important;
+  overflow:hidden!important;
+}
+body:has(.dream-hero) .offer-stream-row.is-sparse .offer-stream-head{
+  margin-bottom:18px!important;
+}
+body:has(.dream-hero) .offer-stream-row.is-sparse .offer-stream-rail-wrap{
+  width:fit-content!important;
+  max-width:100%!important;
+  overflow:visible!important;
+}
+body:has(.dream-hero) .offer-stream-row.is-sparse .offer-stream-rail{
+  display:flex!important;
+  width:auto!important;
+  max-width:100%!important;
+  gap:18px!important;
+  overflow:visible!important;
+  padding:0!important;
+}
+body:has(.dream-hero) .offer-stream-row.is-sparse .offer-stream-item{
+  flex:0 0 320px!important;
+  width:320px!important;
+  min-width:320px!important;
+  max-width:320px!important;
+}
+body:has(.dream-hero) .offer-stream-row.is-sparse.is-single .offer-stream-rail{
+  grid-template-columns:none!important;
+}
+body:has(.dream-hero) .offer-stream-row.is-sparse .offer-stream-more-card{
+  align-self:stretch!important;
+  min-height:0!important;
+}
+body:has(.dream-hero) .offer-stream-row.is-sparse .offer-stream-more-card>a{
+  min-height:0!important;
+  height:100%!important;
+  padding:28px!important;
+  justify-content:center!important;
+}
+body:has(.dream-hero) .offer-stream-row.is-sparse .offer-stream-more-card strong{
+  font-size:24px!important;
+  line-height:1.08!important;
+}
+body:has(.dream-hero) .offer-stream-row.is-sparse .offer-stream-more-card span{
+  max-width:28ch!important;
+}
+body:has(.dream-hero) .homepage-offer-group .offer-stream-row.is-sparse{
+  padding:22px 22px 26px!important;
+}
+body:has(.dream-hero) .homepage-offer-group .offer-stream-row.is-sparse .offer-stream-rail{
+  overflow:visible!important;
+}
+body:has(.dream-hero) .homepage-offer-group .offer-stream-row.is-sparse .offer-stream-item{
+  flex:0 0 320px!important;
+  width:320px!important;
+  min-width:320px!important;
+  max-width:320px!important;
+}
+
+@media (min-width: 900px){
+  body:has(.dream-hero) .offer-stream-row.is-single .offer-stream-rail-wrap{
+    max-width:658px!important;
+  }
+  body:has(.dream-hero) .offer-stream-row.is-double .offer-stream-rail-wrap{
+    max-width:996px!important;
+  }
+}
+
+@media(max-width:680px){
+  body:has(.dream-hero) .offer-stream-row.is-sparse{
+    padding:18px 14px 20px!important;
+    border-radius:20px!important;
+  }
+  body:has(.dream-hero) .offer-stream-row.is-sparse .offer-stream-rail-wrap{
+    width:100%!important;
+  }
+  body:has(.dream-hero) .offer-stream-row.is-sparse .offer-stream-rail{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:12px!important;
+    width:100%!important;
+  }
+  body:has(.dream-hero) .offer-stream-row.is-sparse .offer-stream-item,
+  body:has(.dream-hero) .homepage-offer-group .offer-stream-row.is-sparse .offer-stream-item{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    flex-basis:auto!important;
+  }
+  body:has(.dream-hero) .offer-stream-row.is-sparse .offer-stream-more-card>a{
+    min-height:220px!important;
+    padding:22px!important;
+  }
+}
