@@ -53,8 +53,8 @@ export default function PrivacyDataControls() {
       <div className="privacy-data-head">
         <ShieldCheck size={21} />
         <div>
-          <strong id="privacy-data-title">Twoje dane na tym urządzeniu</strong>
-          <span>Profil, zapisane podróże, organizer, checklisty, ulubione i alerty są dziś przechowywane lokalnie.</span>
+          <strong id="privacy-data-title">Twoje dane Tripowni</strong>
+          <span>Bez logowania dane pozostają na tym urządzeniu. Po zalogowaniu profil, podróże, organizer, checklisty, ulubione i alerty są synchronizowane z Twoim kontem.</span>
         </div>
       </div>
       <div className="privacy-data-actions">
