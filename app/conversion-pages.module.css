@@ -20,6 +20,7 @@
 }
 
 .heroCopy {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -41,6 +42,8 @@
   font-size: clamp(42px, 5.1vw, 72px);
   line-height: .98;
   letter-spacing: -.05em;
+  overflow-wrap: anywhere;
+  word-break: normal;
 }
 
 .hero p {
