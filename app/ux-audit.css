@@ -784,3 +784,49 @@ body:has(.dream-hero) #wyszukiwarka .search-v3{
     transform:none!important;
   }
 }
+
+
+/* 2026-09-26 footer mobile overlap hotfix */
+@media (max-width:560px){
+  .footer-v2-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    row-gap:26px!important;
+    column-gap:18px!important;
+    align-items:start!important;
+  }
+  .footer-v2-brand-card{
+    grid-column:1/-1!important;
+    grid-row:auto!important;
+    position:relative!important;
+    min-height:76px!important;
+    height:auto!important;
+    margin:0!important;
+    padding:0!important;
+    display:block!important;
+    overflow:visible!important;
+  }
+  .footer-v2-logo{
+    position:static!important;
+    inset:auto!important;
+    width:132px!important;
+    height:72px!important;
+    min-height:72px!important;
+    margin:0!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:flex-start!important;
+    overflow:visible!important;
+  }
+  .footer-v2-logo img{
+    position:static!important;
+    display:block!important;
+    width:132px!important;
+    height:72px!important;
+    max-width:132px!important;
+    max-height:72px!important;
+    object-fit:contain!important;
+    object-position:left center!important;
+    transform:none!important;
+    margin:0!important;
+  }
+}
