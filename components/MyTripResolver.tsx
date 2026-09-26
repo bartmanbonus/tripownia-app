@@ -30,50 +30,29 @@ function hydrateStoredOffer() {
   }
 }
 
-function PlannerPreview() {
+function PlannerEmptyState({ signedIn }: { signedIn: boolean }) {
   return <main>
     <SiteHeader/>
     <section className="shell my-trip-page">
       <div className="my-trip-hero">
         <div className="my-trip-icon"><MapPinned size={30}/></div>
         <div>
-          <div className="kicker">DARMOWY PLANER · PRYWATNY PO ZALOGOWANIU</div>
-          <h1>Zaplanuj całą podróż w jednym miejscu.</h1>
-          <p>Masz już lot, hotel albo cały wyjazd? Dodaj to, co masz, a Tripownia podpowie tylko brakujące rzeczy. Jeśli dopiero szukasz wyjazdu — zacznij od wyszukiwarki.</p>
+          <div className="kicker">MOJA PODRÓŻ</div>
+          <h1>Nie masz jeszcze aktywnej podróży.</h1>
+          <p>{signedIn
+            ? "Dodaj pierwszy wyjazd. Zapiszemy go na Twoim koncie razem z planem dnia, checklistą, rezerwacjami, wydatkami i organizerem."
+            : "Dodaj wyjazd lokalnie albo zaloguj się, żeby zachować podróże i wracać do nich na innych urządzeniach."}</p>
           <div className="planner-preview-actions">
-            <Link className="primary-cta" href="/konto?next=/dodaj-podroz">Mam już wyjazd — dodaję</Link>
-            <Link className="secondary-cta" href="/#wyszukiwarka">Szukam wyjazdu</Link>
+            <Link className="primary-cta" href="/dodaj-podroz">+ Dodaj podróż</Link>
+            <Link className="secondary-cta" href="/#wyszukiwarka">Znajdź wyjazd</Link>
           </div>
         </div>
-      </div>
-
-      <section className="trip-readiness">
-        <div className="trip-readiness-main">
-          <div className="trip-readiness-score"><strong>Demo</strong><span>planera</span></div>
-          <div className="trip-readiness-copy">
-            <small>JEDEN WYJAZD · JEDNO MIEJSCE</small>
-            <h2>Zbierasz to, czego normalnie szukasz w kilku aplikacjach.</h2>
-            <p>Lot, hotel, transfer, atrakcje, dokumenty, plan dnia i checklista zostają przy jednym wyjeździe. Nie musisz kupować wszystkiego przez Tripownię.</p>
-          </div>
-        </div>
-      </section>
-
-      <div className="my-trip-grid">
-        <section className="my-trip-card"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p>Dodaj własny lot, numer rejsu i godzinę startu. Nie musisz kupować biletu przez Tripownię.</p></section>
-        <section className="my-trip-card"><div className="my-trip-card-head"><BedDouble size={20}/><h2>Nocleg</h2></div><p>Zapisz hotel lub apartament kupiony gdziekolwiek i miej adres oraz informacje przy wyjeździe.</p></section>
-        <section className="my-trip-card"><div className="my-trip-card-head"><ListChecks size={20}/><h2>Przygotowanie</h2></div><p>Dokumenty, ubezpieczenie, eSIM, transfer, bagaż i rzeczy do zrobienia przed wyjazdem.</p></section>
-        <section className="my-trip-card"><div className="my-trip-card-head"><Ticket size={20}/><h2>Plan na miejscu</h2></div><p>Atrakcje, bilety, restauracje, plan dnia i własne notatki w jednym planie.</p></section>
-        <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet i rezerwacje</h2></div><p>Zbieraj koszty i informacje dotyczące konkretnej podróży bez przerzucania się między notatkami.</p></section>
-        <section className="my-trip-card"><div className="my-trip-card-head"><CheckCircle2 size={20}/><h2>Wracasz na każdym urządzeniu</h2></div><p>Po zalogowaniu plan synchronizuje się z Twoim kontem i jest odseparowany od planów innych użytkowników.</p></section>
       </div>
 
       <div className="favorites-empty">
-        <h2>Masz już wyjazd? Dodaj go. Nie masz? Najpierw go znajdź.</h2>
-        <p>Tripownia ma działać także wtedy, gdy lot, hotel lub całą podróż kupujesz poza nami.</p>
-        <div className="my-trip-empty-actions">
-          <Link className="primary-cta" href="/konto?next=/dodaj-podroz">Zaloguj się i utwórz plan <ArrowRight size={17}/></Link>
-          <Link className="secondary-cta" href="/#wyszukiwarka">Najpierw znajdź wyjazd</Link>
-        </div>
+        <h2>Twoje plany pojawią się tutaj.</h2>
+        <p>Każda podróż ma własny plan, checklistę, notatki, rezerwacje, wydatki i przygotowanie. Możesz mieć ich kilka i wracać do nich później.</p>
+        {!signedIn && <Link href="/konto?next=/moja-podroz">Zaloguj się, aby synchronizować między urządzeniami →</Link>}
       </div>
     </section>
     <SiteFooter/>
@@ -110,6 +89,6 @@ export default function MyTripResolver() {
   }, []);
 
   if (!ready) return null;
-  if (!signedIn) return <PlannerPreview/>;
+  if (tripKey === "static") return <PlannerEmptyState signedIn={signedIn}/>;
   return <MyTrip key={tripKey}/>;
 }
