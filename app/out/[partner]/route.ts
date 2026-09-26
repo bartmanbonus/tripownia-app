@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { recordClick } from "@/lib/clickStats";
 
 const allowedHosts: Record<string, string[]> = {
-  esky: ["esky.pl", "www.esky.pl", "www2.esky.pl"],
+  // eSky is now a legacy alias that resolves to the Kiwi affiliate programme.
+  esky: ["esky.pl", "www.esky.pl", "www2.esky.pl", "kiwi.com", "www.kiwi.com", "c111.travelpayouts.com", "kiwi.tpk.lv"],
   kiwi: ["kiwi.com", "www.kiwi.com", "c111.travelpayouts.com", "kiwi.tpk.lv"],
   booking: ["booking.com", "www.booking.com"],
   wakacje: ["wakacje.pl", "www.wakacje.pl"],
@@ -13,6 +14,9 @@ const allowedHosts: Record<string, string[]> = {
   holidaypark: ["holidaypark.pl", "www.holidaypark.pl", "visit.holidaypark.pl"],
   fonia: ["fonia.app", "www.fonia.app", "clk.tradedoubler.com"],
   parklot: ["parklot.pl", "www.parklot.pl"],
+  rentacar: ["getrentacar.tpk.lv"],
+  kiwitaxi: ["kiwitaxi.tpk.lv"],
+  gettransfer: ["gettransfer.tpk.lv"],
 };
 
 function hostAllowed(partner: string, url: URL) {
