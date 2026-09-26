@@ -177,8 +177,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Jak najtaniej dojechać z lotniska do centrum? Porównaj autobus, pociąg, taxi i transfer oraz sprawdź, kiedy każda opcja naprawdę się opłaca.",
   },
   "/wakacje-z-psem-za-granica-gdzie-jechac-i-jak-sie-przygotowac": {
-    title: "Które kraje są przyjazne psom na campingach? Europa 2026 | Tripownia",
-    description: "Camping z psem za granicą: porównaj Włochy, Chorwację, Austrię i Niemcy oraz sprawdź paszport, szczepienia i zasady pobytu z psem.",
+    title: "Wakacje z psem za granicą 2026 – samolotem czy autem? | Tripownia",
+    description: "Wakacje z psem za granicą: sprawdź dokumenty, lot samolotem, noclegi, campingi i kierunki przyjazne zwierzętom w Europie.",
   },
   "/etna-sparalizowala-loty-na-sycylie-co-zrobic-po-odwolaniu-lotu-do-katanii": {
     title: "Katania – odwołane loty na Sycylię? Etna i status lotów 2026 | Tripownia",
@@ -217,8 +217,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Cypr na wakacje: porównaj Pafos, Larnakę, Ayia Napę, Protaras i Limassol. Sprawdź plaże, pogodę, All Inclusive i wybierz najlepszą bazę.",
   },
   "/albania": {
-    title: "Albania 2026 – Saranda, Ksamil, Vlora czy Durrës? Kurorty nad morzem | Tripownia",
-    description: "Który kurort w Albanii wybrać? Porównaj Sarandę, Ksamil, Vlorę, Durrës i Himarë pod kątem plaż, transferu, rodzin i samodzielnego zwiedzania.",
+    title: "Albania kurorty 2026 – Saranda, Ksamil, Vlora czy Durrës? | Tripownia",
+    description: "Najpopularniejsze kurorty w Albanii: porównaj Sarandę, Ksamil, Vlorę, Durrës i Himarë pod kątem plaż, transferu, rodzin i zwiedzania.",
   },
   "/malta": {
     title: "City break Malta 2026 – lot + hotel, wakacje i plaże | Tripownia",
