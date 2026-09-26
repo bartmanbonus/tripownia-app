@@ -35,7 +35,7 @@ function partnerFromUrl(value: string): Partner | null {
     if (host === "wakacje.pl" || host === "www.wakacje.pl") return "wakacje";
     if (host === "c111.travelpayouts.com" || host === "kiwi.tpk.lv" || host === "kiwi.com" || host === "www.kiwi.com") return "kiwi";
     if (host === "booking.com" || host === "www.booking.com") return "booking";
-    if (host === "getyourguide.pl" || host === "www.getyourguide.pl") return "getyourguide";
+    if (host === "getyourguide.pl" || host === "www.getyourguide.pl" || host === "getyourguide.com" || host === "www.getyourguide.com") return "getyourguide";
     if (host === "ad.seeplaces.com" || host === "seeplaces.com" || host === "www.seeplaces.com") return "seeplaces";
     if (host === "visit.holidaypark.pl" || host === "holidaypark.pl" || host === "www.holidaypark.pl") return "holidaypark";
     if (host === "fonia.app" || host === "www.fonia.app") return "fonia";
