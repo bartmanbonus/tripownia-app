@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Building2, CalendarDays, MapPin, Plane, Search, Sun, Users } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
+import SearchHub from "@/components/SearchHub";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 const title = "Ferie zimowe 2027 – terminy województw i gdzie lecieć";
@@ -130,7 +130,7 @@ export default function Ferie2027Page() {
         <h2>Sprawdź aktualne wakacje na ferie</h2>
         <p>Wybierz kierunek, lotnisko i zakres dat. Pokażemy tylko oferty, które rzeczywiście pasują do ustawionych parametrów.</p>
       </div>
-      <div className="single-partner-search-wrap ferie-search-wrap"><UnifiedPartnerSearch mode="holiday" /></div>
+      <div className="ferie-search-wrap"><SearchHub embedded initialTab="Wakacje" /></div>
     </section>
 
     <SiteFooter/>
