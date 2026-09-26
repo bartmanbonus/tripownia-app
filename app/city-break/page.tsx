@@ -30,6 +30,15 @@ const seasonalCityBreaks = [
   { href: "/podroze/city-break-grudzien-2026", label: "City break — grudzień 2026" },
 ];
 
+const airportCityBreaks = [
+  { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
+  { href: "/podroze/city-break-z-katowic", label: "City break z Katowic" },
+  { href: "/podroze/city-break-z-lublina", label: "City break z Lublina" },
+  { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
+  { href: "/podroze/city-break-z-gdanska", label: "City break z Gdańska" },
+  { href: "/podroze/city-break-z-wroclawia", label: "City break z Wrocławia" },
+];
+
 export default function CityBreakPage() {
   const cityOffers = offers.filter(o => !isOfferExpired(o) && o.partner !== "esky" && (o.category.includes("city") || o.category.includes("weekend"))).slice(0, 12);
   return <main><SiteHeader/>
@@ -40,7 +49,11 @@ export default function CityBreakPage() {
       <div className="seo-related-links" style={{marginTop: "18px"}}>
         {seasonalCityBreaks.map(item => <Link key={item.href} href={item.href}>{item.label} →</Link>)}
       </div>
+      <div className="seo-related-links" style={{marginTop: "12px"}}>
+        {airportCityBreaks.map(item => <Link key={item.href} href={item.href}>{item.label} →</Link>)}
+      </div>
       <Link className="editorial-link" href="/magazyn-podrozniczy/city-break-2026">Poradnik: jak szukać city breaków →</Link>
+      <Link className="editorial-link" href="/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych">Bagaż podręczny: limity i zasady 2026 →</Link>
     </section>
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">OKAZJE TRIPOWNI</div><h2>Na początek kilka naszych typów</h2></div></div>
