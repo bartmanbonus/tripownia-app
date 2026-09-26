@@ -1,6 +1,6 @@
 "use client";
 
-export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "";
+export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || "1814788099972866";
 
 declare global {
   interface Window {
