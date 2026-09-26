@@ -12208,3 +12208,25 @@ img{
     margin-top:4px;
   }
 }
+
+
+/* V117 — mobile conversion polish */
+@media(max-width:640px){
+  .trip-search-engine{border-radius:20px!important;margin-top:22px!important}
+  .trip-search-title{padding:20px 16px 13px!important}
+  .trip-search-title h2{font-size:26px!important;letter-spacing:-.8px!important}
+  .trip-search-shell{margin:10px!important;padding:10px!important;border-radius:16px!important}
+  .trip-search-form{gap:10px!important}
+  .dropdown-trigger,.compact-select,.compact-submit{height:56px!important;min-height:56px!important;border-radius:14px!important}
+  .compact-submit{width:100%!important;font-size:15px!important}
+  .dropdown-menu{position:fixed!important;inset:auto 10px 10px 10px!important;width:auto!important;max-height:calc(100dvh - 86px)!important;overflow:auto!important;border-radius:22px!important;z-index:1000!important}
+  .trip-search-actions{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+  .trip-search-actions a{width:100%!important;min-height:50px!important;justify-content:center!important}
+  .offer-actions-row{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+  .offer-actions-row button{min-width:0!important;min-height:44px!important;justify-content:center!important}
+  .card-cta{min-height:52px!important;justify-content:center!important}
+  .account-email-form{grid-template-columns:1fr!important}
+  .account-email-form input,.account-email-form button{min-height:52px!important;width:100%!important}
+  .planner-mode-row{display:grid!important;grid-template-columns:1fr!important}
+  .planner-mode-row button{min-height:48px!important;text-align:center!important}
+}
