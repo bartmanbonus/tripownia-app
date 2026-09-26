@@ -61,8 +61,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   if (showMarkets) staticPages.push({ url:`${BASE_URL}/jarmarki-bozonarodzeniowe`,changeFrequency:"daily",priority:.9 });
 
+  const isLowValueLegacyPath = (path: string) => {
+    const lowerPath = path.toLowerCase();
+
+    // WordPress migration leftovers such as /453-2 or /5049-2 should not
+    // compete with descriptive evergreen URLs in Google's crawl queue.
+    if (/^\/\d+(?:-\d+)?$/.test(path)) return true;
+
+    // Old emoji-prefixed article slugs are still reachable, but we keep them
+    // out of the sitemap so the sitemap only advertises clean, descriptive URLs.
+    if (lowerPath.startsWith("/%f0%9f")) return true;
+
+    return false;
+  };
+
   const legacyArticlePaths = [...new Set(legacyPosts.map(post => legacyCanonicalPath(post.path)))]
-    .filter(path => path !== "/city-break-2" && path !== "/grecja-2");
+    .filter(path => path !== "/city-break-2" && path !== "/grecja-2")
+    .filter(path => !isLowValueLegacyPath(path));
 
   const legacyArticlePages: MetadataRoute.Sitemap = legacyArticlePaths.map(path => ({
     url: `${BASE_URL}${path}`,
