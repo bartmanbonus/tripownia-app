@@ -33,19 +33,22 @@ const primaryItems = [
   { href: "/#wyszukiwarka", label: "Znajdź wyjazd" },
   { href: "/okazje", label: "Okazje" },
   { href: "/kierunki", label: "Kierunki" },
+  { href: "/wydarzenia", label: "Mecze i eventy" },
   { href: "/planer-podrozy", label: "Planner" },
 ] as const;
 
-const planningItems = [
-  { href: "/wydarzenia", label: "Mecze i eventy", icon: Ticket },
-  { href: "/podroze-po-przezycia", label: "Podróże po przeżycia", icon: Sparkles },
-  { href: "/dalekie-podroze", label: "Dalekie podróże", icon: Palmtree },
-  { href: "/sylwester", label: "Sylwester", icon: Zap },
-  { href: "/inspiracje", label: "Inspiracje", icon: Lightbulb },
+const bookingItems = [
   { href: partners.booking.buildUrl(), label: "Hotele", icon: BedDouble, external: true },
   { href: partners.kiwi.buildUrl(), label: "Loty", icon: Plane, external: true },
   { href: "/wynajem-auta", label: "Wynajem auta", icon: Car },
   { href: partners.getyourguide.buildUrl("https://www.getyourguide.pl/"), label: "Atrakcje", icon: Building2, external: true },
+] as const;
+
+const moreItems = [
+  { href: "/podroze-po-przezycia", label: "Podróże po przeżycia", icon: Sparkles },
+  { href: "/dalekie-podroze", label: "Dalekie podróże", icon: Palmtree },
+  { href: "/sylwester", label: "Sylwester", icon: Zap },
+  { href: "/inspiracje", label: "Inspiracje", icon: Lightbulb },
 ] as const;
 
 const myTripowniaItems = [
@@ -153,14 +156,20 @@ export default function SiteHeader() {
                 <div className="trip-mobile-menu-section">
                   <strong>Szukaj i planuj</strong>
                   <Link href="/okazje"><Sparkles size={18} /><span>Okazje</span></Link>
+                  <Link href="/wydarzenia"><Ticket size={18} /><span>Mecze i eventy</span></Link>
                   <Link href="/radar-tripowni"><Compass size={18} /><span>Radar Tripowni</span></Link>
                   <Link href="/wakacje"><Palmtree size={18} /><span>Wakacje</span></Link>
                   <Link href="/city-break"><Building2 size={18} /><span>City break</span></Link>
                   <Link href="/last-minute"><Zap size={18} /><span>Last minute</span></Link>
                   <Link href="/kierunki"><Compass size={18} /><span>Kierunki</span></Link>
                   <Link href="/poradniki"><BookOpen size={18} /><span>Poradniki</span></Link>
-                  <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><Plane size={18} /><span>Loty</span></a>
+                </div>
+                <div className="trip-mobile-menu-section">
+                  <strong>Rezerwuj</strong>
                   <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><BedDouble size={18} /><span>Hotele</span></a>
+                  <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><Plane size={18} /><span>Loty</span></a>
+                  <Link href="/wynajem-auta"><Car size={18} /><span>Wynajem auta</span></Link>
+                  <a href={partners.getyourguide.buildUrl("https://www.getyourguide.pl/")} target="_blank" rel="sponsored noopener noreferrer"><Building2 size={18} /><span>Atrakcje</span></a>
                 </div>
               </div>
             </details>
@@ -191,11 +200,20 @@ export default function SiteHeader() {
           </nav>
           <div className="trip-header-tools">
             <details className="trip-header-menu">
-              <summary><Globe2 size={16} strokeWidth={2} /><span>Więcej</span><ChevronDown size={13} strokeWidth={2.2} /></summary>
+              <summary><Ticket size={16} strokeWidth={2} /><span>Rezerwuj</span><ChevronDown size={13} strokeWidth={2.2} /></summary>
               <div className="trip-header-popover">
-                {planningItems.map((item) => {
+                {bookingItems.map((item) => {
                   const Icon = item.icon;
                   if ("external" in item && item.external) return <a key={item.label} href={item.href} target="_blank" rel="sponsored noopener noreferrer"><Icon size={18} strokeWidth={2}/><span>{item.label}</span></a>;
+                  return <Link key={item.label} href={item.href}><Icon size={18} strokeWidth={2}/><span>{item.label}</span></Link>;
+                })}
+              </div>
+            </details>
+            <details className="trip-header-menu">
+              <summary><Globe2 size={16} strokeWidth={2} /><span>Więcej</span><ChevronDown size={13} strokeWidth={2.2} /></summary>
+              <div className="trip-header-popover">
+                {moreItems.map((item) => {
+                  const Icon = item.icon;
                   return <Link key={item.label} href={item.href}><Icon size={18} strokeWidth={2}/><span>{item.label}</span></Link>;
                 })}
               </div>
