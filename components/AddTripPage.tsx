@@ -26,6 +26,7 @@ import { ACTIVE_TRIP_KEY, upsertTripArchive } from "@/lib/tripArchive";
 import { ensureFreshAccountSession, readAccountSession, saveTripowniaUserState, type AccountSession } from "@/lib/accountAuth";
 import { collectLocalAccountState } from "@/lib/accountState";
 import { partners } from "@/lib/partners";
+import { offers, type Offer } from "@/lib/offers";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 
@@ -82,21 +83,21 @@ function buildSuggestions(city: string, country: string, start: string, end: str
   const kiwi = new URL("https://www.kiwi.com/pl/");
   const origin = kiwiOrigin(departure);
   if (origin) kiwi.searchParams.set("origin", origin);
-  kiwi.searchParams.set("destination", slug(city || country));
+  if (city.trim() || country.trim()) kiwi.searchParams.set("destination", slug(city || country));
   if (start) kiwi.searchParams.set("outboundDate", start);
   if (end) kiwi.searchParams.set("inboundDate", end);
   kiwi.searchParams.set("adults", "2");
   kiwi.searchParams.set("currency", "PLN");
 
   const booking = new URL("https://www.booking.com/searchresults.pl.html");
-  booking.searchParams.set("ss", place);
+  if (place) booking.searchParams.set("ss", place);
   if (start) booking.searchParams.set("checkin", start);
   if (end) booking.searchParams.set("checkout", end);
   booking.searchParams.set("group_adults", "2");
   booking.searchParams.set("no_rooms", "1");
 
   const attractions = new URL("https://www.getyourguide.pl/s/");
-  attractions.searchParams.set("q", `${place} atrakcje`);
+  if (place) attractions.searchParams.set("q", `${place} atrakcje`);
 
   return {
     flight: partners.kiwi.buildUrl(kiwi.toString()),
@@ -137,6 +138,7 @@ export default function AddTripPage() {
   const [departureAt, setDepartureAt] = useState("");
   const [departure, setDeparture] = useState("");
   const [destinationMode, setDestinationMode] = useState<"open" | "known">("open");
+  const [skipDestinationChoice, setSkipDestinationChoice] = useState(false);
   const [dateMode, setDateMode] = useState<"flexible" | "range" | "month">("flexible");
   const [travelMonth, setTravelMonth] = useState("");
   const [flexNights, setFlexNights] = useState("3-7");
@@ -159,9 +161,16 @@ export default function AddTripPage() {
     () => buildSuggestions(city, country, startDate, endDate, departure),
     [city, country, startDate, endDate, departure],
   );
-  const hasDestination = destinationMode === "open" || Boolean(city.trim() || country.trim());
+  const hasSpecificDestination = Boolean(city.trim() || country.trim());
   const hasDates = dateMode === "flexible" || (dateMode === "month" ? Boolean(travelMonth) : Boolean(startDate && endDate));
-  const basicsReady = hasDestination && hasDates;
+  const basicsReady = hasSpecificDestination && hasDates;
+  const openOfferSuggestions = useMemo(
+    () => [...offers]
+      .filter((offer) => offer.partner !== "wakacje" && offer.availabilityStatus !== "expired")
+      .sort((a, b) => (b.score - a.score) || (a.price - b.price))
+      .slice(0, 6),
+    [],
+  );
   const missingCount = Object.values(pieces).filter((value) => !value).length;
 
   useEffect(() => {
@@ -253,6 +262,14 @@ export default function AddTripPage() {
       parking: false,
     });
   }, []);
+
+  function chooseOpenOffer(offer: Offer) {
+    setCity(offer.city);
+    setCountry(offer.country);
+    setDestinationMode("known");
+    setSkipDestinationChoice(false);
+    trackEvent("planner_open_destination_selected", { offer_id: offer.id, city: offer.city, partner: offer.partner });
+  }
 
   function togglePiece(key: PieceKey) {
     setPieces((current) => ({ ...current, [key]: !current[key] }));
@@ -394,16 +411,47 @@ export default function AddTripPage() {
 
         <form className="add-trip-form" onSubmit={submit}>
           <section className="add-trip-section">
-            <div className="add-trip-section-title"><MapPinned size={20}/><div><strong>1. Co już wiesz o wyjeździe?</strong><span>{ownedMode ? "Wpisz miejsce oraz daty kupionego wyjazdu. Poniżej zaznacz elementy, które masz już zarezerwowane." : "Nie musisz znać kierunku ani dokładnych dat. Cena może zdecydować za Ciebie."}</span></div></div>
+            <div className="add-trip-section-title"><MapPinned size={20}/><div><strong>1. Zacznij od tego, co chcesz podać</strong><span>{ownedMode ? "Wpisz tylko informacje, które już masz. Pozostałe elementy możesz pominąć." : "Nie musisz znać kierunku ani dokładnych dat. Każdy element tego kroku jest opcjonalny."}</span></div></div>
 
             <div className="planner-mode-row">
-              <button type="button" className={destinationMode === "open" ? "active" : ""} onClick={() => setDestinationMode("open")}>🌍 Gdziekolwiek</button>
-              <button type="button" className={destinationMode === "known" ? "active" : ""} onClick={() => setDestinationMode("known")}>📍 Wiem dokąd chcę</button>
+              <button type="button" className={destinationMode === "open" ? "active" : ""} onClick={() => { setDestinationMode("open"); setSkipDestinationChoice(false); }}>🌍 Lecę gdziekolwiek</button>
+              <button type="button" className={destinationMode === "known" ? "active" : ""} onClick={() => { setDestinationMode("known"); setSkipDestinationChoice(false); }}>📍 Wiem dokąd chcę</button>
             </div>
             {destinationMode === "known" && <div className="add-trip-grid two">
               <label><span>Miasto / region</span><input value={city} onChange={(event) => setCity(event.target.value)} placeholder="np. Hanoi, Kreta, Mediolan" autoComplete="address-level2" /></label>
               <label><span>Kraj — opcjonalnie</span><input value={country} onChange={(event) => setCountry(event.target.value)} placeholder="np. Wietnam" autoComplete="country-name" /></label>
             </div>}
+            {!ownedMode && destinationMode === "open" && !skipDestinationChoice && (
+              <div className="trip-open-suggestions">
+                <div className="planner-subtitle"><Sparkles size={17}/><strong>Nie masz kierunku? To my zaczynamy.</strong></div>
+                <p className="planner-helper">Wybierz jedną z konkretnych propozycji poniżej. Dopiero wtedy pokażemy lot, nocleg, transfer i atrakcje dopasowane do miejsca.</p>
+                <div className="trip-plan-option-grid">
+                  {openOfferSuggestions.map((offer) => (
+                    <article className="trip-plan-option" key={`open-${offer.id}`}>
+                      <MapPinned size={22}/>
+                      <div>
+                        <small>{offer.flag} {offer.country}</small>
+                        <h3>{offer.city}</h3>
+                        <p>{offer.hotel} · {offer.dates} · od {offer.price.toLocaleString("pl-PL")} zł/os.</p>
+                      </div>
+                      <div className="trip-plan-option-actions">
+                        <button type="button" onClick={() => chooseOpenOffer(offer)}>Wybieram ten kierunek</button>
+                        <a href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Sprawdź ofertę <ExternalLink size={14}/></a>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+                <button type="button" className="secondary-cta" onClick={() => setSkipDestinationChoice(true)}>
+                  Pomiń kierunek i przejdź dalej
+                </button>
+              </div>
+            )}
+            {!ownedMode && destinationMode === "open" && skipDestinationChoice && (
+              <div className="trip-plan-waiting">
+                Kierunek pominięty. Możesz zbudować pusty plan i uzupełnić miejsce później.
+                <button type="button" className="text-link-button" onClick={() => setSkipDestinationChoice(false)}>Pokaż propozycje kierunków</button>
+              </div>
+            )}
 
             <div className="planner-subtitle"><CalendarDays size={17}/><strong>Kiedy?</strong></div>
             <div className="planner-mode-row">
@@ -431,7 +479,7 @@ export default function AddTripPage() {
             </div>}
           </section>
           <section className="add-trip-section">
-            <div className="add-trip-section-title"><CheckCircle2 size={20}/><div><strong>2. Co już masz?</strong><span>Zaznacz gotowe elementy. Tripownia nie będzie ich proponować ponownie.</span></div></div>
+            <div className="add-trip-section-title"><CheckCircle2 size={20}/><div><strong>2. Co już masz? <em>(opcjonalnie)</em></strong><span>Masz lot, hotel albo transfer? Zaznacz. Nie masz nic — pomiń cały krok.</span></div></div>
             <div className="trip-piece-grid">
               <PieceToggle icon={<Plane size={20}/>} title="Lot / transport do celu" checked={pieces.flight} onClick={() => togglePiece("flight")} />
               <PieceToggle icon={<BedDouble size={20}/>} title="Hotel / nocleg" checked={pieces.hotel} onClick={() => togglePiece("hotel")} />
@@ -451,10 +499,10 @@ export default function AddTripPage() {
           </section>
 
           <section className="add-trip-section trip-plan-suggestions">
-            <div className="add-trip-section-title"><Sparkles size={20}/><div><strong>3. Tripownia uzupełnia brakujące elementy</strong><span>{basicsReady ? `Brakuje ${missingCount} z 6 elementów. Wybierz propozycję albo zostaw ją na później.` : "Najpierw wpisz kierunek i daty, żeby przygotować właściwe linki."}</span></div></div>
+            <div className="add-trip-section-title"><Sparkles size={20}/><div><strong>3. Tripownia uzupełnia brakujące elementy <em>(opcjonalnie)</em></strong><span>{basicsReady ? `Brakuje ${missingCount} z 6 elementów. Wybierz propozycję albo pomiń — możesz wrócić później.` : hasSpecificDestination ? "Ustaw termin albo zostaw go elastyczny, a pokażemy dopasowane propozycje." : "Pominęłaś kierunek. Nie będziemy zgadywać lotu ani hotelu — możesz zapisać plan i dodać miejsce później."}</span></div></div>
 
             {!basicsReady ? (
-              <div className="trip-plan-waiting">Uzupełnij kierunek i termin — wtedy pokażemy gotowe propozycje lotu, noclegu, transferu i atrakcji.</div>
+              <div className="trip-plan-waiting">{hasSpecificDestination ? "Uzupełnij termin lub zostaw go elastyczny — wtedy pokażemy gotowe propozycje." : "Dodaj kierunek, kiedy będziesz gotowa. Do tego czasu ten krok pozostaje pominięty."}</div>
             ) : (
               <div className="trip-plan-option-grid">
                 {!pieces.flight && (
@@ -532,13 +580,13 @@ export default function AddTripPage() {
           </section>
 
           <section className="add-trip-section">
-            <div className="add-trip-section-title"><NotebookPen size={20}/><div><strong>4. Co jeszcze zapamiętać?</strong><span>Opcjonalna notatka. Resztę będziesz uzupełniać już w swoim planie.</span></div></div>
+            <div className="add-trip-section-title"><NotebookPen size={20}/><div><strong>4. Co jeszcze zapamiętać? <em>(opcjonalnie)</em></strong><span>Nie musisz nic wpisywać. Notatkę możesz dodać teraz albo później w swoim planie.</span></div></div>
             <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="np. późny przylot, dziecko w podróży, chcemy dużo zwiedzać..." rows={4} />
           </section>
 
           {error && <div className="add-trip-error" role="alert">{error}</div>}
           <div className="add-trip-actions">
-            <button type="submit" className="primary-cta">{signedIn ? "Zapisz mój darmowy plan" : "Utwórz darmowy plan"} <ArrowRight size={17}/></button>
+            <button type="submit" className="primary-cta">{signedIn ? "Zapisz plan z tym, co podałam" : "Utwórz plan z tym, co podałam"} <ArrowRight size={17}/></button>
             <Link href="/#wyszukiwarka">Najpierw chcę znaleźć cały wyjazd</Link>
           </div>
         </form>
