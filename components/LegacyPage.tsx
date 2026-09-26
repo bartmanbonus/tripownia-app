@@ -32,6 +32,41 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
       { href: "/podroze/city-break-z-katowic", label: "City break z Katowic" },
     ],
   },
+  "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje": {
+    title: "Malaga czy Alicante — co wybrać?",
+    lead: "Malaga leży w Andaluzji i daje więcej klasycznego zwiedzania oraz dostęp do Costa del Sol. Alicante leży w Walencji, ma kompaktowe centrum i łatwy dostęp do Costa Blanca. Na krótki city break wygodniejsze bywa Alicante, a przy dłuższym wyjeździe i objazdowym zwiedzaniu Malaga daje więcej opcji.",
+    links: [
+      { href: "/hiszpania", label: "Hiszpania — porównaj regiony" },
+      { href: "/city-break", label: "Aktualne city breaki" },
+      { href: "/podroze/city-break-listopad-2026", label: "City break — listopad 2026" },
+    ],
+  },
+  "/sagrada-familia-osiagnela-maksymalna-wysokosc-20-lutego-2026-historyczna-data-dla-barcelony": {
+    title: "Jak wysoka jest Sagrada Familia?",
+    lead: "Docelowa wysokość centralnej wieży Jezusa Chrystusa to 172,5 m. Dzięki temu bazylika pozostaje nieco niższa od wzgórza Montjuïc, zgodnie z zamysłem Gaudíego. Jeśli szukasz samej liczby: 172,5 metra.",
+    links: [
+      { href: "/city-break", label: "City break do Barcelony" },
+      { href: "/hiszpania", label: "Hiszpania — kierunki i wakacje" },
+    ],
+  },
+  "/etna-sparalizowala-loty-na-sycylie-co-zrobic-po-odwolaniu-lotu-do-katanii": {
+    title: "Czy loty do Katanii są odwołane?",
+    lead: "Nie da się odpowiedzieć jednym stałym komunikatem — status zmienia się zależnie od aktywności Etny i konkretnego rejsu. Sprawdź numer lotu u przewoźnika i w oficjalnym flight trackingu lotniska Catania-Fontanarossa przed wyjazdem na lotnisko.",
+    links: [
+      { href: "/tanie-loty", label: "Sprawdź alternatywne loty" },
+      { href: "/ubezpieczenia", label: "Ubezpieczenie podróżne" },
+      { href: "/alerty", label: "Ustaw alert podróżniczy" },
+    ],
+  },
+  "/wyspy-zielonego-przyladka": {
+    title: "Sal czy Boa Vista — którą wyspę wybrać?",
+    lead: "Sal ma więcej infrastruktury, restauracji i wycieczek wokół Santa Maria. Boa Vista jest spokojniejsza, bardziej resortowa i mocniej nastawiona na plażę. Jeśli chcesz więcej rzeczy poza hotelem, zwykle łatwiejsza jest Sal; jeśli priorytetem jest odpoczynek i resort, sprawdź Boa Vista.",
+    links: [
+      { href: "/podroze/wyspy-zielonego-przyladka-listopad-2026", label: "Cabo Verde — listopad 2026" },
+      { href: "/podroze/wyspy-zielonego-przyladka-grudzien-2026", label: "Cabo Verde — grudzień 2026" },
+      { href: "/wakacje", label: "Aktualne wakacje" },
+    ],
+  },
 };
 
 function norm(value: string) {
