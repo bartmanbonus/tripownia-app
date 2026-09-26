@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Scale, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { COMPARE_OFFER_SNAPSHOTS_KEY } from "@/lib/savedOfferSnapshots";
 
 function readCompareIds() {
   try {
@@ -32,7 +33,7 @@ export default function CompareTray() {
 
   function clear() {
     localStorage.removeItem("tripownia-compare");
-    localStorage.removeItem("tripownia-compare-offer-snapshots");
+    localStorage.removeItem(COMPARE_OFFER_SNAPSHOTS_KEY);
     setIds([]);
     window.dispatchEvent(new Event("tripownia-compare-updated"));
   }
