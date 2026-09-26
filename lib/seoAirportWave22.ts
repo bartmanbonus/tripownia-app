@@ -3,9 +3,9 @@ import type { SeoLanding } from "@/lib/seoLandings";
 export const seoAirportWave22: SeoLanding[] = [
   {
     slug: "city-break-z-gdanska",
-    title: "City break z Gdańska — tani weekend z GDN",
+    title: "City break z Gdańska — tani weekend i lot + hotel 2026",
     eyebrow: "CITY BREAK Z GDAŃSKA",
-    lead: "City break z Gdańska (GDN): krótkie wyjazdy na 2–5 dni, tanie loty i opcje lot + hotel. Porównaj kilka miast na ten sam weekend.",
+    lead: "City break z Gdańska (GDN): tani weekend, lot + hotel i krótkie wyjazdy na 2–5 dni. Porównaj aktualne kierunki z Trójmiasta.",
     query: "City break",
     departure: "Gdańsk",
     departureCode: "GDN",
