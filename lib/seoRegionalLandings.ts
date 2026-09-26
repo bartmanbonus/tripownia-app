@@ -3,9 +3,9 @@ import type { SeoLanding } from "@/lib/seoLandings";
 export const seoRegionalLandings: SeoLanding[] = [
   {
     slug: "wakacje-z-olsztyna-mazur",
-    title: "Wyloty z Olsztyna-Mazur — wakacje, city break i last minute",
-    eyebrow: "WYLOTY Z OLSZTYNA-MAZUR",
-    lead: "Aktualne wakacje, city breaki i last minute z lotniska Olsztyn-Mazury (SZY).",
+    title: "Wakacje z Olsztyna-Mazur i Szyman — wyloty z SZY",
+    eyebrow: "WYLOTY Z OLSZTYNA-MAZUR / SZYMAN",
+    lead: "Wakacje z Olsztyna-Mazur i lotniska w Szymanach (SZY): aktualne city breaki, last minute i lokalne wyloty.",
     query: "Wakacje",
     departure: "Olsztyn-Mazury",
     departureCode: "SZY",
@@ -18,9 +18,9 @@ export const seoRegionalLandings: SeoLanding[] = [
   },
   {
     slug: "last-minute-z-olsztyna-mazur",
-    title: "Last Minute z Olsztyna-Mazur — aktualne wyloty z SZY",
-    eyebrow: "LAST MINUTE Z OLSZTYNA-MAZUR",
-    lead: "Sprawdź aktualne last minute z lotniska Olsztyn-Mazury i porównaj dostępne wakacyjne kierunki.",
+    title: "Last Minute z Olsztyna-Mazur i Szyman — aktualne wyloty SZY",
+    eyebrow: "LAST MINUTE Z OLSZTYNA-MAZUR / SZYMAN",
+    lead: "Last minute z Olsztyna-Mazur i lotniska w Szymanach (SZY): porównaj aktualne wakacyjne kierunki, pakiety i lokalne wyloty.",
     query: "Last Minute",
     departure: "Olsztyn-Mazury",
     departureCode: "SZY",
