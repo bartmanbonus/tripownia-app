@@ -10,22 +10,22 @@ import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import styles from "../conversion-pages.module.css";
 
 export const metadata: Metadata = {
-  title: "City break lot + hotel 2026 — weekend i krótkie wyjazdy",
-  description: "City break lot + hotel: krótkie wyjazdy na 2–5 dni, weekendowe propozycje i aktualne oferty. Ustaw kierunek, termin i lotnisko wylotu.",
+  title: "City break lot + hotel 2026 — loty z noclegiem i tani weekend",
+  description: "City break lot + hotel, loty z noclegiem i krótkie wyjazdy na 2–5 dni. Ustaw kierunek, termin oraz lotnisko i porównaj aktualne propozycje.",
   alternates: { canonical: "/city-break" },
   openGraph: {
     type: "website",
     locale: "pl_PL",
     siteName: "Tripownia",
-    title: "City break lot + hotel 2026 — weekend i krótkie wyjazdy",
-    description: "City break lot + hotel: krótkie wyjazdy na 2–5 dni, weekendowe propozycje i aktualne oferty.",
+    title: "City break lot + hotel 2026 — loty z noclegiem i tani weekend",
+    description: "City break lot + hotel, loty z noclegiem i krótkie wyjazdy na 2–5 dni. Porównaj aktualne propozycje.",
     url: "/city-break",
     images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "City break lot + hotel 2026 — weekend i krótkie wyjazdy",
-    description: "City break lot + hotel: krótkie wyjazdy na 2–5 dni, weekendowe propozycje i aktualne oferty.",
+    title: "City break lot + hotel 2026 — loty z noclegiem i tani weekend",
+    description: "City break lot + hotel, loty z noclegiem i krótkie wyjazdy na 2–5 dni. Porównaj aktualne propozycje.",
     images: ["/opengraph-image"],
   },
 };
@@ -65,8 +65,8 @@ export default function CityBreakPage() {
       <div className={styles.heroGrid}>
         <div className={styles.heroCopy}>
           <div className={styles.kicker}>CITY BREAK 2026</div>
-          <h1>Krótki wyjazd, bez chaosu i przypadkowych linków.</h1>
-          <p>Ustaw miasto, lotnisko wylotu, termin i liczbę nocy. Możesz też zacząć od gotowych kierunków albo sprawdzić propozycje Tripowni.</p>
+          <h1>City break: lot + hotel, loty z noclegiem i krótki weekend</h1>
+          <p>Ustaw miasto, lotnisko wylotu, termin i liczbę nocy. Porównaj wariant lot + hotel, gotowe kierunki oraz krótkie wyjazdy na 2–5 dni.</p>
           <div className={styles.heroActions}>
             <a className={styles.primary} href="#szukaj-city-break">Szukaj city breaku</a>
             <Link className={styles.secondary} href="/magazyn-podrozniczy/city-break-2026">Jak dobrze szukać city breaków</Link>
