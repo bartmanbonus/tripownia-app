@@ -372,3 +372,156 @@ body:has(.dream-hero) #wyszukiwarka .search-v3-tabs{
     bottom:16px!important;
   }
 }
+
+
+/* 2026-09-26 homepage premium compact pass */
+body:has(.dream-hero) .dream-hero{
+  padding-top:22px!important;
+  padding-bottom:12px!important;
+}
+body:has(.dream-hero) .dream-hero-shell{
+  min-height:0!important;
+}
+body:has(.dream-hero) .dream-eyebrow{
+  padding:7px 11px!important;
+  font-size:11px!important;
+}
+body:has(.dream-hero) .dream-hero h1{
+  max-width:760px!important;
+  margin:12px auto 10px!important;
+  font-size:clamp(2.55rem,4vw,3.55rem)!important;
+  line-height:.98!important;
+  letter-spacing:-.045em!important;
+}
+body:has(.dream-hero) .dream-hero-copy>p{
+  max-width:650px!important;
+  margin-inline:auto!important;
+  font-size:.98rem!important;
+  line-height:1.48!important;
+}
+body:has(.dream-hero) .dream-hero-actions{
+  margin-top:15px!important;
+  gap:9px!important;
+}
+body:has(.dream-hero) #wyszukiwarka.search-v3-section{
+  margin-top:0!important;
+  padding-top:4px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3{
+  border-radius:26px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-head{
+  padding:22px 26px 13px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-head h2{
+  margin-top:0!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-head p{
+  margin-top:7px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-tabs{
+  gap:6px!important;
+  padding:0 26px 13px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-tabs button{
+  min-height:38px!important;
+  padding:0 14px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-form{
+  gap:9px!important;
+  padding:0 26px 12px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-field{
+  height:62px!important;
+  min-height:62px!important;
+  padding:8px 11px!important;
+  gap:3px!important;
+  box-shadow:none!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-field>label,
+body:has(.dream-hero) #wyszukiwarka .search-v3-field>span{
+  min-width:0!important;
+  height:15px!important;
+  min-height:15px!important;
+  flex-wrap:nowrap!important;
+  overflow:hidden!important;
+  white-space:nowrap!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-field small{
+  min-width:0!important;
+  max-width:110px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-input-wrap,
+body:has(.dream-hero) #wyszukiwarka .search-v3-multi-trigger,
+body:has(.dream-hero) #wyszukiwarka .search-v3-date-trigger{
+  min-height:27px!important;
+  height:27px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-input-wrap input,
+body:has(.dream-hero) #wyszukiwarka .search-v3-field select,
+body:has(.dream-hero) #wyszukiwarka .search-v3-multi-trigger strong,
+body:has(.dream-hero) #wyszukiwarka .search-v3-date-trigger strong{
+  font-size:12.5px!important;
+  line-height:1.15!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-chevron{
+  bottom:15px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-options-row{
+  padding:0 26px 12px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-quick{
+  padding:13px 26px 16px!important;
+}
+
+@media (min-width:1181px){
+  body:has(.dream-hero) #wyszukiwarka .search-v3-form{
+    grid-template-columns:minmax(300px,1.9fr) minmax(175px,1.08fr) minmax(160px,1fr) minmax(120px,.72fr) minmax(140px,.82fr)!important;
+  }
+}
+
+@media (max-width:920px){
+  body:has(.dream-hero) .dream-hero{
+    padding-top:18px!important;
+    padding-bottom:10px!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-head{
+    padding:20px 20px 12px!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-tabs{
+    padding-left:20px!important;
+    padding-right:20px!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-form{
+    padding-left:20px!important;
+    padding-right:20px!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-options-row,
+  body:has(.dream-hero) #wyszukiwarka .search-v3-quick{
+    padding-left:20px!important;
+    padding-right:20px!important;
+  }
+}
+
+@media (max-width:640px){
+  body:has(.dream-hero) .dream-hero{
+    padding-top:16px!important;
+    padding-bottom:8px!important;
+  }
+  body:has(.dream-hero) .dream-hero h1{
+    margin:10px 0 8px!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka.search-v3-section{
+    margin-top:0!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-field{
+    height:62px!important;
+    min-height:62px!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-field small{
+    max-width:130px!important;
+  }
+}
