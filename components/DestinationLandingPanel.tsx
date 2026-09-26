@@ -163,7 +163,7 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
             <p>Kierunek jest już uzupełniony. Zmień tylko to, co ma znaczenie dla Twojego wyjazdu.</p>
           </div>
         </div>
-        <SearchHub initialDestinations={[config.searchDestination]} />
+        <SearchHub embedded initialDestinations={[config.searchDestination]} destinationQuickPicks={config.popular} />
       </section>
 
       <section className={styles.offersSection}>
