@@ -121,6 +121,97 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
       { href: "/last-minute", label: "Aktualne last minute" },
     ],
   },
+  "/wakacje-z-poznania": {
+    title: "City break z Poznania — gdzie polecieć na 2–5 dni?",
+    lead: "Przy krótkim wyjeździe z Poznania najlepiej porównywać nie tylko cenę biletu, ale też godziny lotów i transfer z lotniska docelowego. Jeśli liczy się weekend, wybierz kierunek, który daje pełne dwa lub trzy dni na miejscu.",
+    links: [
+      { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
+      { href: "/podroze/last-minute-z-poznania", label: "Last minute z Poznania" },
+      { href: "/podroze/wakacje-z-poznania", label: "Wakacje z Poznania" },
+    ],
+  },
+  "/krakow": {
+    title: "City break z Krakowa — lot + hotel z Balic",
+    lead: "Na city break z Krakowa porównaj kierunki dla tego samego weekendu i zwróć uwagę na godziny wylotu oraz powrotu. Przy pobycie 2–5 dni dobry rozkład lotów często daje więcej niż kilkadziesiąt złotych oszczędności.",
+    links: [
+      { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa" },
+      { href: "/podroze/last-minute-z-krakowa", label: "Last minute z Krakowa" },
+      { href: "/podroze/wakacje-z-krakowa", label: "Wakacje z Krakowa" },
+    ],
+  },
+  "/wakacje-z-gdanska-2": {
+    title: "City break z Gdańska — lot + hotel i krótki weekend",
+    lead: "Z Gdańska warto porównywać kilka miast dla tych samych dat. Przy krótkim wyjeździe znaczenie mają bezpośredni lot, szybki transfer do centrum i godziny, które nie zabierają połowy pierwszego lub ostatniego dnia.",
+    links: [
+      { href: "/podroze/city-break-z-gdanska", label: "City break z Gdańska" },
+      { href: "/podroze/last-minute-z-gdanska", label: "Last minute z Gdańska" },
+      { href: "/podroze/wakacje-z-gdanska", label: "Wakacje z Gdańska" },
+    ],
+  },
+  "/lublin-wakacje-city-break": {
+    title: "City break z Lublina — dokąd polecieć z LUZ?",
+    lead: "Przy wylocie z Lublina najpierw sprawdź bezpośrednie połączenia dla wybranego terminu. Na 2–5 dni wybieraj kierunki, gdzie lot i transfer zostawiają dużo czasu na miejscu.",
+    links: [
+      { href: "/podroze/city-break-z-lublina", label: "City break z Lublina" },
+      { href: "/podroze/wakacje-z-lublina", label: "Wakacje z Lublina" },
+      { href: "/podroze/tanie-loty-z-lublina", label: "Tanie loty z Lublina" },
+    ],
+  },
+  "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel": {
+    title: "Last minute z Olsztyna-Mazur — wyloty z Szyman",
+    lead: "Jeśli chcesz lecieć z Szyman, najpierw sprawdź realną dostępność z SZY dla konkretnego tygodnia. Lokalny wylot może być wygodniejszy nawet przy nieco wyższej cenie, jeśli odpada koszt i czas dojazdu do innego lotniska.",
+    links: [
+      { href: "/podroze/last-minute-z-olsztyna-mazur", label: "Last minute z Olsztyna-Mazur" },
+      { href: "/podroze/wakacje-z-olsztyna-mazur", label: "Wakacje z Olsztyna-Mazur" },
+      { href: "/podroze/city-break-z-olsztyna-mazur", label: "City break z Olsztyna-Mazur" },
+    ],
+  },
+  "/wyspy-kanaryjskie-wakacje-all-inclusive-i-last-minute": {
+    title: "Wyspy Kanaryjskie All Inclusive — którą wyspę wybrać?",
+    lead: "Teneryfa daje najwięcej różnorodności i zwiedzania, Gran Canaria łączy kurorty z większym wyborem miejscowości, Fuerteventura jest mocna plażowo, a Lanzarote wyróżnia się krajobrazem. Przy All Inclusive porównaj też region i transfer, nie tylko nazwę wyspy.",
+    links: [
+      { href: "/podroze/wyspy-kanaryjskie-listopad-2026", label: "Kanary — listopad 2026" },
+      { href: "/podroze/wyspy-kanaryjskie-grudzien-2026", label: "Kanary — grudzień 2026" },
+      { href: "/wakacje", label: "Aktualne wakacje" },
+    ],
+  },
+  "/wlochy": {
+    title: "City break we Włoszech — Rzym, Mediolan, Bari czy Neapol?",
+    lead: "Rzym jest najmocniejszy na klasyczne zwiedzanie, Mediolan sprawdza się na bardzo krótki wypad, Bari daje dostęp do Apulii, a Neapol łączy miasto z Pompejami i wybrzeżem. Przy 2–4 dniach wybieraj przede wszystkim pod dobry rozkład lotów.",
+    links: [
+      { href: "/city-break", label: "Aktualne city breaki" },
+      { href: "/podroze/city-break-listopad-2026", label: "City break — listopad 2026" },
+      { href: "/tanie-loty", label: "Tanie loty" },
+    ],
+  },
+  "/gdzie-poleciec-na-weekend-z-polski-12-pomyslow-na-city-break": {
+    title: "Gdzie polecieć na weekend z Polski?",
+    lead: "Na 2–4 dni najlepiej wybierać miasta z bezpośrednim lotem, szybkim transferem do centrum i godzinami, które nie zabierają całego pierwszego ani ostatniego dnia. Dopiero potem porównuj cenę samego biletu.",
+    links: [
+      { href: "/city-break", label: "Aktualne city breaki" },
+      { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
+      { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
+      { href: "/podroze/city-break-z-gdanska", label: "City break z Gdańska" },
+    ],
+  },
+  "/maroko": {
+    title: "Maroko na wakacje — Agadir czy Marrakesz?",
+    lead: "Agadir jest lepszy, jeśli priorytetem są plaża, hotel i spokojniejszy wypoczynek. Marrakesz wygrywa klimatem miasta, riadami, jedzeniem i zwiedzaniem. Na All Inclusive częściej zaczynaj od Agadiru, a na city break od Marrakeszu.",
+    links: [
+      { href: "/wakacje", label: "Aktualne wakacje" },
+      { href: "/city-break", label: "City break" },
+      { href: "/last-minute", label: "Last minute" },
+    ],
+  },
+  "/egipt": {
+    title: "Egipt All Inclusive — Hurghada, Marsa Alam czy Sharm?",
+    lead: "Hurghada daje największy wybór hoteli i łatwą logistykę, Marsa Alam jest spokojniejsze i mocne pod rafę, a Sharm el Sheikh łączy resorty z dobrym snorkelingiem i nurkowaniem. Porównuj konkretny hotel i długość transferu, nie tylko region.",
+    links: [
+      { href: "/podroze/egipt-listopad-2026", label: "Egipt — listopad 2026" },
+      { href: "/wakacje", label: "Aktualne wakacje" },
+      { href: "/last-minute", label: "Last minute" },
+    ],
+  },
 };
 
 function norm(value: string) {
