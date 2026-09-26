@@ -786,6 +786,8 @@ export async function GET(request: NextRequest) {
       ? "Pokazujemy najlepsze aktualne oferty dostępne teraz w naszych feedach."
       : query && !allCandidates.length
         ? `Nie znaleźliśmy teraz potwierdzonej oferty dla: ${query}.`
+        : (minPrice || maxPrice) && allCandidates.length > 0 && !budgetCandidates.length
+          ? "Nie mamy teraz potwierdzonych ofert w wybranym budżecie. Zmień zakres ceny, żeby zobaczyć więcej opcji."
         : (startDateFilter || endDateFilter) && !dateCandidates.length
           ? dateKind === "departure"
             ? "Nie mamy teraz potwierdzonej oferty z wylotem w wybranym zakresie dat. Nie pokazujemy ofert z innych terminów jako rzekomego dopasowania."
