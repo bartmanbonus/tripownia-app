@@ -153,8 +153,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Które lotniska w Polsce zniosły limit 100 ml płynów? Sprawdź aktualne zasady na 2026 dla Krakowa, Poznania, Rzeszowa i Gdańska oraz co nadal obowiązuje na innych lotniskach.",
   },
   "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych": {
-    title: "Czy bagaż podręczny jest ważony? Ryanair, Wizz Air i LOT 2026 | Tripownia",
-    description: "Czy linie ważą bagaż podręczny? Sprawdź limity, wagę i wymiary w Ryanair, Wizz Air i LOT oraz kiedy możesz zabrać drugą sztukę na pokład.",
+    title: "Ile bagażu podręcznego można zabrać do samolotu? Zasady 2026 | Tripownia",
+    description: "Ile bagaży podręcznych można mieć i czy linie je ważą? Sprawdź, od czego zależą liczba sztuk, waga i wymiary bagażu przed lotem.",
   },
   "/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad": {
     title: "Czy można wnieść jedzenie do samolotu? Co wolno zabrać w 2026 | Tripownia",
@@ -185,8 +185,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Czy loty na Sycylię są odwołane? Sprawdź status lotu do Katanii, co zrobić po anulowaniu rejsu oraz zasady zwrotu, zmiany trasy i odszkodowania.",
   },
   "/gdzie-poleciec-na-weekend-z-polski-12-pomyslow-na-city-break": {
-    title: "Gdzie polecieć na weekend z Polski? City break 2026 | Tripownia",
-    description: "Pomysły na city break z Polski: wybierz kierunek pod godziny lotów, transfer i realny czas na miejscu. Porównaj weekendowe wyjazdy na 2–4 dni.",
+    title: "Gdzie polecieć na weekend za granicę? City break z Polski 2026 | Tripownia",
+    description: "Gdzie polecieć na weekend? Porównaj city breaki na 2–4 dni z Polski pod godziny lotów, transfer, nocleg i realny czas na miejscu.",
   },
   "/grecja": {
     title: "Grecja wakacje 2026 – Kreta, Rodos, Kos czy Korfu? | Tripownia",
@@ -221,8 +221,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Który kurort w Albanii wybrać? Porównaj Sarandę, Ksamil, Vlorę, Durrës i Himarë pod kątem plaż, transferu, rodzin i samodzielnego zwiedzania.",
   },
   "/malta": {
-    title: "Malta wakacje 2026 – city break, lot + hotel i plaże | Tripownia",
-    description: "Malta wakacje i city break: porównaj Vallettę, Sliemę, St. Julian’s, Mellieħę i Gozo. Sprawdź lot + hotel, plaże i najlepszą bazę na 3–7 dni.",
+    title: "City break Malta 2026 – lot + hotel, wakacje i plaże | Tripownia",
+    description: "City break na Malcie i wakacje: porównaj Vallettę, Sliemę, St. Julian’s, Mellieħę i Gozo. Sprawdź lot + hotel i najlepszą bazę na 3–7 dni.",
   },
   "/maroko": {
     title: "Maroko All Inclusive 2026 – Agadir, Marrakesz i wakacje | Tripownia",
