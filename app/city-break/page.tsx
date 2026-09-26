@@ -8,8 +8,8 @@ import { offers, isOfferExpired } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
 export const metadata: Metadata = {
-  title: "City break 2026 — lot + hotel, weekend i krótkie wyjazdy",
-  description: "City break 2026: krótkie wyjazdy, lot + hotel i weekendowe propozycje. Sprawdź aktualne oferty oraz city breaki na październik, listopad i grudzień.",
+  title: "City break lot + hotel 2026 — weekend i krótkie wyjazdy",
+  description: "City break lot + hotel: krótkie wyjazdy na 2–5 dni, weekendowe propozycje i aktualne oferty. Sprawdź city breaki z polskich lotnisk.",
   alternates: { canonical: "/city-break" },
 };
 
