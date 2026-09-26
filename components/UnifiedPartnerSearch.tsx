@@ -23,7 +23,7 @@ type Props = {
 };
 
 const airportChoices = [
-  { code: "ANY", label: "Dowolne lotnisko w Polsce" },
+  { code: "ANY", label: "Dowolne lotnisko" },
   { code: "WAW", label: "Warszawa Chopina" },
   { code: "WMI", label: "Warszawa Modlin" },
   { code: "KRK", label: "Kraków" },
@@ -225,8 +225,8 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
       const notice=typeof payload?.notice==="string"?payload.notice:"";
       setLiveOffers(rows);
       setLiveNotice(notice);
-      if(!response.ok && !rows.length) setSearchError(payload?.error||notice||"Nie udało się pobrać aktualnych ofert.");
-      if(response.ok && !rows.length) setSearchError(notice||"Nie znaleźliśmy teraz potwierdzonej oferty dla tych parametrów. Zmień termin, lotnisko albo kierunek.");
+      if(!response.ok && !rows.length) setSearchError("Nie udało się pobrać aktualnych ofert.");
+      if(response.ok && !rows.length) setSearchError("Brak ofert w wybranym terminie.");
     }catch{
       setSearchError("Nie udało się teraz pobrać aktualnych ofert. Spróbuj ponownie za chwilę.");
     }finally{
@@ -256,10 +256,10 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
         <label className="trip-field"><span><CalendarDays size={15}/> Kiedy?</span><input type="date" value={start} onChange={e=>{setSubmitted(false);setStart(e.target.value);if(e.target.value>=end)setEnd(plusDays(e.target.value,(searchType==="city"||searchType==="package")?3:7))}}/></label>
         <label className="trip-field"><span><CalendarDays size={15}/> Do kiedy?</span><input type="date" min={start} value={end} onChange={e=>{setEnd(e.target.value);setSubmitted(false)}}/></label>
         <label className="trip-field trip-people"><span><Users size={15}/> Ile osób?</span><select value={adults} onChange={e=>{setAdults(Number(e.target.value));setSubmitted(false)}}>{[1,2,3,4,5,6].map(n=><option value={n} key={n}>{n} {n===1?"osoba":"osoby"}</option>)}</select></label>
-        <button className="trip-search-submit" type="button" onClick={submitSearch} disabled={blockedDestination||searching}><Search size={19}/><span>{searching?"Szukamy aktualnych ofert…":"Znajdź wyjazd"}</span></button>
+        <button className="trip-search-submit" type="button" onClick={submitSearch} disabled={blockedDestination||searching}><Search size={19}/><span>{searching?"Szukamy…":"Szukaj"}</span></button>
       </div>
       <div className="trip-search-weekend-row">
-        <label className={`weekend-required ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>{const checked=e.target.checked;setWeekendOnly(checked);setSubmitted(false);if(checked){const r=weekendRange(start,searchType);setStart(r.start);setEnd(r.end);}}}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Musi obejmować weekend</strong><small>Tripownia ustawi najbliższy sensowny termin z sobotą i niedzielą.</small></div></label>
+        <label className={`weekend-required ${weekendOnly?"active":""}`}><input type="checkbox" checked={weekendOnly} onChange={e=>{const checked=e.target.checked;setWeekendOnly(checked);setSubmitted(false);if(checked){const r=weekendRange(start,searchType);setStart(r.start);setEnd(r.end);}}}/><span className="weekend-check">{weekendOnly?<Check size={14}/>:null}</span><div><strong>Weekend</strong><small>Najbliższy termin z sobotą i niedzielą.</small></div></label>
       </div>
       {blockedDestination&&<div role="alert" style={{marginTop:12,padding:"12px 14px",borderRadius:14,background:"#fff2ed",border:"1px solid #ffd0c2",fontWeight:750,color:"#8a2b12"}}>Ten kierunek nie jest obecnie promowany przez Tripownię ze względów bezpieczeństwa. Wybierz inny kierunek.</div>}
     </div>
@@ -277,8 +277,8 @@ export default function UnifiedPartnerSearch({mode="all",initialDestination="",i
         <div><small>AKTUALNE DOPASOWANIA</small><strong>{liveOffers.length? `${Math.min(liveOffers.length,12)} ${Math.min(liveOffers.length,12)===1?"konkretna oferta":"konkretnych ofert"}${liveOffers.length>12?" z najlepszych dopasowań":""}` : searching ? "Szukamy ofert…" : "Brak potwierdzonych ofert"}</strong></div>
         <span>{canonicalDestination(destination)||"Gdziekolwiek"} · {from.includes("ANY")?"dowolne lotnisko":from.map(airportLabel).join(" + ")} · {start} – {end}</span>
       </div>
-      {liveNotice&&<p className="trip-live-search-notice">{liveNotice}</p>}
-      {searchError&&<div className="trip-live-search-empty"><strong>{searchError}</strong><span>Nie kierujemy Cię do pustej strony. Zmień jeden parametr i wyszukaj ponownie.</span></div>}
+      {liveNotice&&liveOffers.length>0&&<p className="trip-live-search-notice">{liveNotice}</p>}
+      {searchError&&<div className="trip-live-search-empty"><strong>{searchError}</strong><span>Zmień datę, lotnisko lub kierunek i spróbuj ponownie.</span></div>}
       {liveOffers.length>0&&<div className="cards-grid trip-live-search-grid">{liveOffers.slice(0,12).map((offer)=><OfferCard key={offer.id} offer={offer}/>)}</div>}
     </div>}
   </section>;
