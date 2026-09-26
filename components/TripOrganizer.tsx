@@ -123,6 +123,7 @@ export default function TripOrganizer({
   function save(next: OrganizerState) {
     setState(next);
     localStorage.setItem(storageKey(tripId), JSON.stringify(next));
+    window.dispatchEvent(new Event("tripownia-organizer-updated"));
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
