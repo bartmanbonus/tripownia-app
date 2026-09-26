@@ -19,7 +19,9 @@ import {
   readAccountSession,
   requestMagicLink,
   saveTripowniaUserState,
+  signInWithPassword,
   signOutAccount,
+  signUpWithPassword,
   socialLoginUrl,
   type AccountSession,
   type AccountUser,
@@ -37,6 +39,8 @@ export default function AccountPage() {
   const [user, setUser] = useState<AccountUser | null>(null);
   const [cloudState, setCloudState] = useState<TripowniaUserState | null>(null);
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [synced, setSynced] = useState(0);
@@ -93,6 +97,52 @@ export default function AccountPage() {
       window.removeEventListener("storage", handleAuthChange);
     };
   }, []);
+
+  async function submitPasswordAuth(event: FormEvent) {
+    event.preventDefault();
+    const cleanEmail = email.trim();
+    if (!cleanEmail || !password) return;
+    if (password.length < 8) {
+      setMessage("Hasło powinno mieć co najmniej 8 znaków.");
+      return;
+    }
+
+    setBusy(true);
+    setMessage("");
+    try {
+      if (authMode === "register") {
+        const result = await signUpWithPassword(cleanEmail, password);
+        if (result.session) {
+          const remote = await getTripowniaUserState(result.session).catch(() => null);
+          if (!remote) await saveTripowniaUserState(result.session, collectLocalAccountState());
+          setSession(result.session);
+          const accountUser = await getAccountUser(result.session);
+          setUser(accountUser);
+          setMessage("Konto utworzone. Twoje dane Tripowni są teraz przypisane do konta.");
+        } else {
+          setMessage("Konto utworzone. Sprawdź e-mail i potwierdź adres, a potem wróć tutaj i zaloguj się hasłem.");
+        }
+      } else {
+        const logged = await signInWithPassword(cleanEmail, password);
+        setSession(logged);
+        const [accountUser, remote] = await Promise.all([
+          getAccountUser(logged),
+          getTripowniaUserState(logged),
+        ]);
+        setUser(accountUser);
+        setCloudState(remote);
+        if (remote) applyCloudAccountState(remote);
+        else if (collectLocalAccountState()) await saveTripowniaUserState(logged, collectLocalAccountState());
+        setMessage("Zalogowano. Wczytaliśmy Twoją Tripownię.");
+        const next = safeNextPath();
+        if (next) window.setTimeout(() => window.location.replace(next), 350);
+      }
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Nie udało się zalogować.");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function sendMagicLink(event: FormEvent) {
     event.preventDefault();
@@ -221,11 +271,23 @@ export default function AccountPage() {
         ) : (
           <div className="account-grid">
             <div className="account-card account-login-card">
-              <div className="account-card-title"><Mail size={21}/><div><small>NAJPROŚCIEJ</small><strong>Zaloguj się e-mailem</strong></div></div>
-              <p>Bez hasła. Wyślemy bezpieczny link, który zaloguje Cię do Tripowni.</p>
-              <form onSubmit={sendMagicLink} className="account-email-form">
+              <div className="account-card-title"><Mail size={21}/><div><small>TWOJE KONTO</small><strong>{authMode === "register" ? "Utwórz konto Tripowni" : "Zaloguj się do Tripowni"}</strong></div></div>
+              <p>{authMode === "register" ? "Załóż konto raz i wracaj do swoich podróży, profilu, checklist, rezerwacji i ulubionych na webie oraz w aplikacji." : "Zaloguj się tym samym kontem na webie i w aplikacji. Twoje podróże i preferencje będą w jednym miejscu."}</p>
+
+              <div className="account-auth-tabs">
+                <button type="button" className={authMode === "login" ? "active" : ""} onClick={() => setAuthMode("login")}>Logowanie</button>
+                <button type="button" className={authMode === "register" ? "active" : ""} onClick={() => setAuthMode("register")}>Nowe konto</button>
+              </div>
+
+              <form onSubmit={submitPasswordAuth} className="account-password-form">
                 <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="twoj@email.pl" autoComplete="email" required />
-                <button type="submit" disabled={busy}>{busy ? "Wysyłam…" : "Wyślij link logowania"}</button>
+                <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={authMode === "register" ? "Hasło — min. 8 znaków" : "Hasło"} autoComplete={authMode === "register" ? "new-password" : "current-password"} minLength={8} required />
+                <button type="submit" disabled={busy}>{busy ? "Chwila…" : authMode === "register" ? "Utwórz konto" : "Zaloguj się"}</button>
+              </form>
+
+              <div className="account-divider"><span>albo bez hasła</span></div>
+              <form onSubmit={sendMagicLink} className="account-magic-form">
+                <button type="submit" disabled={busy || !email.trim()}>Wyślij jednorazowy link na ten e-mail</button>
               </form>
 
               {(googleEnabled || appleEnabled) && <div className="account-divider"><span>lub</span></div>}
