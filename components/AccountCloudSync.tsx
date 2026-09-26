@@ -14,6 +14,7 @@ const EVENTS = [
   "tripownia-trips-updated",
   "tripownia-alerts-updated",
   "tripownia-toolkit-updated",
+  "tripownia-organizer-updated",
 ];
 
 export default function AccountCloudSync() {
