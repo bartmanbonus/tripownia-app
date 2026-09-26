@@ -101,8 +101,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Wakacje z Szyman i lotniska Olsztyn-Mazury (SZY): last minute, lot + hotel i aktualne kierunki. Sprawdź lokalne wyloty bez dojazdu do Warszawy.",
   },
   "/sagrada-familia-osiagnela-maksymalna-wysokosc-20-lutego-2026-historyczna-data-dla-barcelony": {
-    title: "Sagrada Familia – wysokość. Ile metrów ma bazylika w 2026? | Tripownia",
-    description: "Jaka jest wysokość Sagrada Familia? Sprawdź maksymalną wysokość bazyliki w Barcelonie, najważniejsze liczby i co zmieniło się w 2026 roku.",
+    title: "Sagrada Familia ma 172,5 m – wysokość bazyliki w 2026 | Tripownia",
+    description: "Sagrada Familia osiągnęła 172,5 m wysokości. Sprawdź, kiedy świątynia osiągnęła najwyższy punkt i jak wysoka jest wieża Jezusa Chrystusa.",
   },
   "/wakacje-z-poznania": {
     title: "City break z Poznania, last minute i wakacje – lot + hotel | Tripownia",
@@ -133,8 +133,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Pomysły na babski wyjazd za granicę: 12 kierunków na weekend z przyjaciółkami, od city breaku po słońce, plażę i spa.",
   },
   "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje": {
-    title: "Malaga czy Alicante – gdzie lepiej na wakacje? Porównanie 2026 | Tripownia",
-    description: "Malaga czy Alicante? Porównaj plaże, pogodę, zwiedzanie, lotnisko i klimat obu kierunków, zanim wybierzesz wakacje w Hiszpanii.",
+    title: "Malaga czy Alicante? Co wybrać, Andaluzja i odległość | Tripownia",
+    description: "Malaga czy Alicante? Alicante nie leży w Andaluzji. Porównaj region, plaże, pogodę, zwiedzanie i wybierz lepszą bazę dla swojego wyjazdu.",
   },
   "/wyspy-zielonego-przyladka": {
     title: "Wyspy Zielonego Przylądka – Sal czy Boa Vista? Wakacje 2026 | Tripownia",
@@ -149,8 +149,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Jak znaleźć tani hotel i nie przepłacić za nocleg? Sprawdź 8 sposobów na porównanie cen, lokalizacji, warunków anulowania i pełnego kosztu rezerwacji.",
   },
   "/lotniska-w-polsce-bez-limitu-100-ml-plynow": {
-    title: "Na których lotniskach w Polsce nie ma limitu 100 ml? Lista 2026 | Tripownia",
-    description: "Które lotniska w Polsce zniosły limit 100 ml płynów? Sprawdź aktualne zasady na 2026 dla Krakowa, Poznania, Rzeszowa i Gdańska oraz co nadal obowiązuje na innych lotniskach.",
+    title: "Lotniska bez limitu płynów 2026 – gdzie zniesiono 100 ml? | Tripownia",
+    description: "Które lotniska w Polsce zniosły limit 100 ml? Aktualna lista: Kraków, Poznań, Rzeszów, Gdańsk oraz zasady we Wrocławiu i Katowicach.",
   },
   "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych": {
     title: "Ile bagażu podręcznego można zabrać do samolotu? Zasady 2026 | Tripownia",
@@ -181,8 +181,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Camping z psem za granicą: porównaj Włochy, Chorwację, Austrię i Niemcy oraz sprawdź paszport, szczepienia i zasady pobytu z psem.",
   },
   "/etna-sparalizowala-loty-na-sycylie-co-zrobic-po-odwolaniu-lotu-do-katanii": {
-    title: "Katania – loty odwołane przez Etnę? Co robić w 2026 | Tripownia",
-    description: "Czy loty na Sycylię są odwołane? Sprawdź status lotu do Katanii, co zrobić po anulowaniu rejsu oraz zasady zwrotu, zmiany trasy i odszkodowania.",
+    title: "Katania – odwołane loty na Sycylię? Etna i status lotów 2026 | Tripownia",
+    description: "Czy loty do Katanii są odwołane? Zobacz, gdzie sprawdzić aktualny status rejsu i co zrobić po anulowaniu lotu przez zakłócenia związane z Etną.",
   },
   "/gdzie-poleciec-na-weekend-z-polski-12-pomyslow-na-city-break": {
     title: "Gdzie polecieć na weekend za granicę? City break z Polski 2026 | Tripownia",
