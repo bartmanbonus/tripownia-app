@@ -66,6 +66,70 @@ function slug(value: string) {
   return norm(value).replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
 
+const cityCountryHints: Record<string, string> = {
+  rzym: "Włochy",
+  roma: "Włochy",
+  mediolan: "Włochy",
+  bergamo: "Włochy",
+  neapol: "Włochy",
+  wenecja: "Włochy",
+  florencja: "Włochy",
+  barcelona: "Hiszpania",
+  madryt: "Hiszpania",
+  malaga: "Hiszpania",
+  sewilla: "Hiszpania",
+  alicante: "Hiszpania",
+  paryz: "Francja",
+  nicea: "Francja",
+  lizbona: "Portugalia",
+  porto: "Portugalia",
+  aten: "Grecja",
+  ateny: "Grecja",
+  saloniki: "Grecja",
+  hanoi: "Wietnam",
+  sajgon: "Wietnam",
+  "ho chi minh": "Wietnam",
+  bangkok: "Tajlandia",
+  phuket: "Tajlandia",
+  krabi: "Tajlandia",
+  dubaj: "ZEA",
+  marrakesz: "Maroko",
+  praga: "Czechy",
+  budapeszt: "Węgry",
+  wieden: "Austria",
+  londyn: "Wielka Brytania",
+  amsterdam: "Holandia",
+  kopenhaga: "Dania",
+};
+
+function inferCountryFromCity(city: string, country: string) {
+  const explicit = country.trim();
+  if (explicit) return explicit;
+  return cityCountryHints[norm(city)] || "";
+}
+
+type EditableTrip = {
+  tripId?: string;
+  offerId?: number;
+  offerSnapshot?: Offer;
+  flight?: string;
+  departureAt?: string;
+  hotel?: string;
+  notes?: string;
+  checklist?: Record<string, boolean>;
+  dayPlan?: Array<Record<string, unknown>>;
+  journeyPieces?: Partial<Record<PieceKey, { status?: "owned" | "selected" | "missing"; provider?: string }>>;
+  searchPreferences?: {
+    destinationMode?: "open" | "known";
+    dateMode?: "flexible" | "range" | "month";
+    travelMonth?: string;
+    flexNights?: string;
+    weekendRequired?: boolean;
+    departureMode?: "any" | "selected";
+    departureOptions?: string[];
+  };
+};
+
 function kiwiOrigin(value: string): string | null {
   const n = norm(value);
   if (n.includes("krak")) return "krakow-polska";
@@ -155,6 +219,7 @@ export default function AddTripPage() {
   const [signedIn, setSignedIn] = useState(false);
   const [ownedMode, setOwnedMode] = useState(false);
   const [session, setSession] = useState<AccountSession | null>(null);
+  const [editingTrip, setEditingTrip] = useState<EditableTrip | null>(null);
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
   const suggestions = useMemo(
@@ -166,7 +231,7 @@ export default function AddTripPage() {
   const basicsReady = hasSpecificDestination && hasDates;
   const openOfferSuggestions = useMemo(
     () => [...offers]
-      .filter((offer) => offer.partner !== "wakacje" && offer.availabilityStatus !== "expired")
+      .filter((offer) => offer.availabilityStatus !== "expired")
       .sort((a, b) => (b.score - a.score) || (a.price - b.price))
       .slice(0, 6),
     [],
@@ -175,8 +240,59 @@ export default function AddTripPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const owned = new URLSearchParams(window.location.search).get("mode") === "owned";
+    const params = new URLSearchParams(window.location.search);
+    const owned = params.get("mode") === "owned";
+    const editActive = params.get("edit") === "active";
     setOwnedMode(owned);
+
+    if (editActive) {
+      try {
+        const saved = JSON.parse(localStorage.getItem(ACTIVE_TRIP_KEY) || "null") as EditableTrip | null;
+        const snapshot = saved?.offerSnapshot;
+        if (saved && snapshot) {
+          setEditingTrip(saved);
+          const pendingDestination = !snapshot.city || snapshot.city === "Gdziekolwiek" || snapshot.city === "Kierunek jeszcze nie wybrany";
+          setDestinationMode(pendingDestination ? "open" : "known");
+          setSkipDestinationChoice(pendingDestination);
+          setCity(pendingDestination ? "" : snapshot.city || "");
+          setCountry(["Dowolny kierunek", "Do wyboru"].includes(snapshot.country || "") ? "" : snapshot.country || "");
+
+          const prefs = saved.searchPreferences || {};
+          setDateMode(prefs.dateMode || (snapshot.dates?.startsWith("Elastycznie") ? "flexible" : "flexible"));
+          setTravelMonth(prefs.travelMonth || "");
+          setFlexNights(prefs.flexNights || "3-7");
+          setWeekendRequired(Boolean(prefs.weekendRequired));
+          setDepartureMode(prefs.departureMode || "any");
+          setDepartureOptions(Array.isArray(prefs.departureOptions) ? prefs.departureOptions : []);
+
+          setFlight(saved.flight || "");
+          setHotel(saved.hotel || "");
+          setNotes(saved.notes || "");
+          const journey = saved.journeyPieces || {};
+          setPieces({
+            flight: Boolean(saved.flight) || journey.flight?.status === "owned",
+            hotel: Boolean(saved.hotel) || journey.hotel?.status === "owned",
+            transfer: journey.transfer?.status === "owned",
+            attractions: journey.attractions?.status === "owned",
+            esim: journey.esim?.status === "owned",
+            parking: journey.parking?.status === "owned",
+          });
+          setSelectedProvider({
+            flight: journey.flight?.provider || undefined,
+            hotel: journey.hotel?.provider || undefined,
+            transfer: journey.transfer?.provider || undefined,
+            attractions: journey.attractions?.provider || undefined,
+            esim: journey.esim?.provider || undefined,
+            parking: journey.parking?.provider || undefined,
+          });
+          setDepartureAt(saved.departureAt || "");
+        }
+      } catch {
+        setEditingTrip(null);
+      }
+      return;
+    }
+
     if (owned) { setDestinationMode("known"); setDateMode("range"); }
   }, []);
 
@@ -311,17 +427,20 @@ export default function AddTripPage() {
     }
 
     const createdAt = Date.now();
-    const offerId = -createdAt;
-    const tripId = `trip-custom-${createdAt}-${Math.random().toString(36).slice(2, 8)}`;
+    const offerId = editingTrip?.offerId ?? -createdAt;
+    const tripId = editingTrip?.tripId || `trip-custom-${createdAt}-${Math.random().toString(36).slice(2, 8)}`;
+    const resolvedCountry = inferCountryFromCity(city, country);
+    const destinationPending = !city.trim() && !resolvedCountry;
     const snapshot = {
+      ...(editingTrip?.offerSnapshot || {}),
       id: offerId,
-      flag: "🌍",
-      city: city.trim() || (destinationMode === "open" ? "Gdziekolwiek" : "Do wyboru"),
-      country: country.trim() || (destinationMode === "open" ? "Dowolny kierunek" : "Do wyboru"),
-      price: 0,
+      flag: editingTrip?.offerSnapshot?.flag || "🌍",
+      city: city.trim() || "Kierunek jeszcze nie wybrany",
+      country: resolvedCountry,
+      price: editingTrip?.offerSnapshot?.price || 0,
       departure: departureMode === "any" ? "Polska — dowolne lotnisko" : (departureOptions.join(", ") || departure.trim() || "Do ustalenia"),
       airportCode: "",
-      nights,
+      nights: dateMode === "range" ? nights : 0,
       weather: "",
       score: 0,
       tag: "OKAZJA" as const,
@@ -338,20 +457,21 @@ export default function AddTripPage() {
     };
 
     const trip = {
+      ...(editingTrip || {}),
       tripId,
       offerId,
       offerSnapshot: snapshot,
-      departureAt: departureAt || `${startDate}T08:00`,
-      flight: pieces.flight ? flight.trim() : "",
-      hotel: pieces.hotel ? hotel.trim() : "",
-      notes: notes.trim(),
-      checklist: {
+      departureAt: departureAt || editingTrip?.departureAt || (startDate ? `${startDate}T08:00` : ""),
+      flight: pieces.flight ? flight.trim() : (editingTrip?.flight || ""),
+      hotel: pieces.hotel ? hotel.trim() : (editingTrip?.hotel || ""),
+      notes: notes.trim() || editingTrip?.notes || "",
+      checklist: editingTrip?.checklist || {
         "Sprawdź transfer z lotniska i taxi na miejscu": pieces.transfer,
         "Zarezerwuj najważniejsze atrakcje": pieces.attractions,
         "Sprawdź internet / eSIM na wyjazd": pieces.esim,
         "Zarezerwuj parking przy lotnisku": pieces.parking,
       },
-      dayPlan: [],
+      dayPlan: editingTrip?.dayPlan || [],
       journeyPieces: {
         flight: { status: pieces.flight ? "owned" : selectedProvider.flight ? "selected" : "missing", provider: selectedProvider.flight || "" },
         hotel: { status: pieces.hotel ? "owned" : selectedProvider.hotel ? "selected" : "missing", provider: selectedProvider.hotel || "" },
@@ -363,7 +483,7 @@ export default function AddTripPage() {
       suggestedLinks: suggestions,
     };
 
-    const tripWithPreferences = { ...trip, searchPreferences: { destinationMode, dateMode, travelMonth, flexNights, weekendRequired, departureMode, departureOptions } };
+    const tripWithPreferences = { ...trip, searchPreferences: { destinationMode, dateMode, travelMonth, flexNights, weekendRequired, departureMode, departureOptions, destinationPending } };
     localStorage.setItem(ACTIVE_TRIP_KEY, JSON.stringify(tripWithPreferences));
     upsertTripArchive(tripWithPreferences);
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
@@ -396,8 +516,8 @@ export default function AddTripPage() {
         <header className="add-trip-hero">
           <div className="add-trip-icon"><Route size={28}/></div>
           <div>
-            <div className="kicker">{ownedMode ? "MASZ JUŻ WYJAZD" : "TWÓJ PLAN — 0 ZŁ"}</div>
-            <h1>{ownedMode ? "Dodaj to, co już masz. Resztę ułożymy wokół Twojej podróży." : "My układamy. Ty tylko wybierasz."}</h1>
+            <div className="kicker">{editingTrip ? "EDYTUJ PODRÓŻ" : ownedMode ? "MASZ JUŻ WYJAZD" : "TWÓJ PLAN — 0 ZŁ"}</div>
+            <h1>{editingTrip ? "Uzupełnij swój plan bez zaczynania od zera." : ownedMode ? "Dodaj to, co już masz. Resztę ułożymy wokół Twojej podróży." : "My układamy. Ty tylko wybierasz."}</h1>
             <p>{ownedMode ? "Nie szukamy Ci nowego wyjazdu. Wpisz kierunek, termin i elementy, które masz już kupione — lot, hotel lub oba. Tripownia zbuduje planner, checklistę i podpowie tylko brakujące rzeczy." : "Tak jak w płatnych planach podróży — tylko u nas za darmo. Podajesz kierunek i termin, zaznaczasz co już masz, a Tripownia pokazuje brakujące elementy i gotowe miejsca, gdzie możesz je dobrać."}</p>
           </div>
         </header>
@@ -430,6 +550,7 @@ export default function AddTripPage() {
                     <article className="trip-plan-option" key={`open-${offer.id}`}>
                       <MapPinned size={22}/>
                       <div>
+                        <img className="trip-plan-option-image" src={offer.image} alt="" loading="lazy" />
                         <small>{offer.flag} {offer.country}</small>
                         <h3>{offer.city}</h3>
                         <p>{offer.hotel} · {offer.dates} · od {offer.price.toLocaleString("pl-PL")} zł/os.</p>
@@ -586,7 +707,7 @@ export default function AddTripPage() {
 
           {error && <div className="add-trip-error" role="alert">{error}</div>}
           <div className="add-trip-actions">
-            <button type="submit" className="primary-cta">{signedIn ? "Zapisz plan z tym, co podałam" : "Utwórz plan z tym, co podałam"} <ArrowRight size={17}/></button>
+            <button type="submit" className="primary-cta">{editingTrip ? "Zapisz zmiany w planie" : signedIn ? "Zapisz plan z tym, co podałam" : "Utwórz plan z tym, co podałam"} <ArrowRight size={17}/></button>
             <Link href="/#wyszukiwarka">Najpierw chcę znaleźć cały wyjazd</Link>
           </div>
         </form>
