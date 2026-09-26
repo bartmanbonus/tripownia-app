@@ -734,15 +734,17 @@ export async function GET(request: NextRequest) {
 
     const withinBudget = (offer: LiveCandidate) => !maxPrice || offer.price <= maxPrice;
     const budgetCandidates = allCandidates.filter(withinBudget);
+    const dateCandidates = (startDateFilter || endDateFilter)
+      ? budgetCandidates.filter((offer) => dateWindowMatches(offer, startDateFilter, endDateFilter))
+      : budgetCandidates;
 
     const exactPool = rescueMode
       ? budgetCandidates
-      : budgetCandidates.filter((offer) =>
+      : dateCandidates.filter((offer) =>
           departureMatches(offer) &&
           nightsMatches(offer) &&
           boardMatches(offer) &&
-          weekendMatches(offer) &&
-          dateWindowMatches(offer, startDateFilter, endDateFilter)
+          weekendMatches(offer)
         );
 
     let pool = exactPool;
@@ -750,56 +752,45 @@ export async function GET(request: NextRequest) {
       ? "Pokazujemy najlepsze aktualne oferty dostępne teraz w naszych feedach."
       : query && !allCandidates.length
         ? `Nie znaleźliśmy teraz potwierdzonej oferty dla: ${query}.`
-        : "";
+        : (startDateFilter || endDateFilter) && !dateCandidates.length
+          ? "Nie mamy teraz potwierdzonej oferty mieszczącej się w całym wybranym zakresie dat. Nie pokazujemy ofert z innych miesięcy jako rzekomego dopasowania."
+          : "";
 
     if (mode === "search" || mode === "citybreak") {
-      if (!pool.length && (startDateFilter || endDateFilter)) {
-        pool = budgetCandidates.filter((offer) =>
+      if (!pool.length && boardFilter !== "any") {
+        pool = dateCandidates.filter((offer) =>
           departureMatches(offer) &&
           nightsMatches(offer) &&
-          boardMatches(offer) &&
           weekendMatches(offer)
         );
-        if (pool.length) {
-          notice = "Brak potwierdzonej oferty mieszczącej się dokładnie w tym oknie dat. Pokazujemy najbliższe dostępne terminy i najpierw sortujemy je według odległości od wybranego terminu.";
-        }
-      }
-
-      if (!pool.length && boardFilter !== "any") {
-        pool = budgetCandidates.filter((offer) =>
-          departureMatches(offer) &&
-          nightsMatches(offer) &&
-          weekendMatches(offer) &&
-          (!maxPrice || offer.price <= maxPrice)
-        );
-        if (pool.length) notice = "Brak ofert z wybranym wyżywieniem — pokazujemy najbliższe dostępne opcje dla tego kierunku.";
+        if (pool.length) notice = "Brak ofert z wybranym wyżywieniem — pokazujemy inne wyżywienie, ale nadal tylko w wybranym terminie.";
       }
 
       if (!pool.length && maxPrice) {
-        pool = budgetCandidates.filter((offer) =>
+        pool = dateCandidates.filter((offer) =>
           departureMatches(offer) &&
           nightsMatches(offer) &&
           weekendMatches(offer)
         );
-        if (pool.length) notice = "Brak ofert w tym budżecie — pokazujemy najbliższe cenowo dostępne opcje dla tego kierunku.";
+        if (pool.length) notice = "Brak ofert w tym budżecie — pokazujemy droższe opcje, ale nadal tylko w wybranym terminie.";
       }
 
       if (!pool.length && nightsFilter !== "any") {
-        pool = budgetCandidates.filter((offer) =>
+        pool = dateCandidates.filter((offer) =>
           departureMatches(offer) &&
           weekendMatches(offer)
         );
-        if (pool.length) notice = "Brak ofert dla dokładnej długości pobytu — pokazujemy najbliższe dostępne terminy dla tego kierunku.";
+        if (pool.length) notice = "Brak ofert dla dokładnej długości pobytu — pokazujemy inne długości, ale nadal tylko w wybranym terminie.";
       }
 
       if (!pool.length && weekendOnly) {
-        pool = budgetCandidates.filter((offer) => departureMatches(offer));
-        if (pool.length) notice = "Nie znaleźliśmy terminu obejmującego cały weekend — pokazujemy dostępne terminy dla tego kierunku.";
+        pool = dateCandidates.filter((offer) => departureMatches(offer));
+        if (pool.length) notice = "Nie znaleźliśmy wyjazdu obejmującego weekend — pokazujemy dostępne opcje z tego samego zakresu dat.";
       }
 
       if (!pool.length && departureFilter) {
-        pool = budgetCandidates;
-        if (pool.length) notice = "Brak ofert z wybranych lotnisk — pokazujemy inne dostępne lotniska dla tego samego kierunku, nadal w Twoim budżecie.";
+        pool = dateCandidates;
+        if (pool.length) notice = "Brak ofert z wybranych lotnisk — pokazujemy inne lotniska, ale nadal tylko w wybranym terminie.";
       }
     }
 
@@ -842,7 +833,7 @@ export async function GET(request: NextRequest) {
                 : 0;
               return dateDelta || (a.price !== b.price ? a.price - b.price : b.score - a.score);
             })
-            .slice(0, 200)
+            .slice(0, 36)
         : mode === "surprise"
           ? cheapestDestinations
               .filter((offer) => offer.price <= budget)
