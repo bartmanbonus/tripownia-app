@@ -835,7 +835,7 @@ export default function Home() {
             <div><b>📸</b><span><strong>Miejsca na zdjęcia</strong><small>Kadry warte dodania do planu</small></span></div>
             <div><b>🧳</b><span><strong>Checklista</strong><small>14 z 21 rzeczy gotowych</small></span></div>
           </div>
-          <Link className="dream-free-plan-board-cta" href="/moja-podroz">Otwórz swój planner <ArrowRight size={16}/></Link>
+          <Link className="dream-free-plan-board-cta" href="/dodaj-podroz">Stwórz swój planner za 0 zł <ArrowRight size={16}/></Link>
         </div>
       </section>
 
@@ -846,7 +846,7 @@ export default function Home() {
             <h2>Wszystko do podróży.<br/><span>W kolejności, w której naprawdę tego potrzebujesz.</span></h2>
             <p>Nie szukasz po dziesięciu stronach. Wybierasz etap podróży i od razu przechodzisz do właściwej usługi.</p>
           </div>
-          <Link className="dream-marketplace-all" href="/moja-podroz">Mam już wyjazd — otwórz planner <ArrowRight size={17}/></Link>
+          <Link className="dream-marketplace-all" href="/dodaj-podroz?mode=owned">Mam już wyjazd — dodaj go do planera <ArrowRight size={17}/></Link>
         </div>
 
         <div className="dream-marketplace-groups">
