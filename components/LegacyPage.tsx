@@ -103,6 +103,15 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
       { href: "/last-minute", label: "Last minute" },
     ],
   },
+  "/malta": {
+    title: "Malta city break czy wakacje — co wybrać?",
+    lead: "Na 3–4 dni najlepiej sprawdzają się Valletta, Sliema i okolice z dobrym dojazdem. Przy 5–7 dniach można dołożyć plaże, Gozo i spokojniejszą bazę. Porównaj lot + hotel oraz gotowe wakacje dla tego samego terminu.",
+    links: [
+      { href: "/city-break", label: "City break" },
+      { href: "/wakacje", label: "Aktualne wakacje" },
+      { href: "/podroze/malta-listopad-2026", label: "Malta — listopad 2026" },
+    ],
+  },
   "/warszawa-modlin": {
     title: "Gdzie można polecieć z Modlina?",
     lead: "Najlepiej zaczynać od aktualnej siatki połączeń i terminu, a nie od jednej z góry wybranej destynacji. Dla krótkiego wyjazdu porównaj godziny lotów, koszt dojazdu do Modlina i transfer z lotniska docelowego.",
@@ -240,8 +249,8 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     ],
   },
   "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych": {
-    title: "Czy bagaż podręczny jest ważony i ile sztuk można zabrać?",
-    lead: "Tak — linie mogą sprawdzać zarówno wagę, jak i wymiary bagażu. Liczba sztuk i limity zależą od przewoźnika oraz taryfy, dlatego przed lotem warto sprawdzić zasady dla konkretnego biletu.",
+    title: "Ile bagażu podręcznego można zabrać do samolotu?",
+    lead: "Nie ma jednej liczby dla wszystkich biletów. Linie mogą sprawdzać wagę i wymiary, a liczba bezpłatnych sztuk zależy od przewoźnika, taryfy oraz wykupionych dodatków. Przed lotem sprawdź dokładne zasady przypisane do swojego biletu.",
     links: [
       { href: "/przed-wyjazdem", label: "Checklista przed wylotem" },
       { href: "/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad", label: "Jedzenie w bagażu podręcznym" },
