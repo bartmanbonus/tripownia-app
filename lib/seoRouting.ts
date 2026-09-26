@@ -30,8 +30,8 @@ export const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/city-break-2": "/city-break",
   "/aletry-todroznicze": "/alerty",
   "/moj-planner": "/moja-podroz",
-  "/planner": "/moja-podroz",
-  "/planer": "/moja-podroz",
+  "/planner": "/planer-podrozy",
+  "/planer": "/planer-podrozy",
 };
 
 const SEO_CANONICAL_PATHS = {
