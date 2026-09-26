@@ -3,9 +3,9 @@ import type { SeoLanding } from "@/lib/seoLandings";
 export const seoAirportLandings: SeoLanding[] = [
   {
     slug: "last-minute-z-poznania",
-    title: "Last Minute z Poznania — aktualne wyloty z Ławicy",
-    eyebrow: "LAST MINUTE Z POZNANIA",
-    lead: "Last minute z Poznania: aktualne wakacje, All Inclusive i ciepłe kierunki z wylotem z Ławicy.",
+    title: "Last minute z Poznania — wakacje, All Inclusive i lot + hotel z POZ",
+    eyebrow: "LAST MINUTE Z POZNANIA / ŁAWICY",
+    lead: "Last minute z Poznania-Ławicy (POZ): aktualne wakacje, All Inclusive, czartery i opcje lot + hotel na najbliższe terminy.",
     query: "Last Minute",
     departure: "Poznań",
     departureCode: "POZ",
