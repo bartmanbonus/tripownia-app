@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
+import SearchHub from "@/components/SearchHub";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 
 const title = "Wakacje sierpień 2027 – gdzie lecieć? All Inclusive i ciepłe kierunki";
@@ -39,7 +39,7 @@ export default function August2027Page(){
         <Link href="/wakacje-2027">Wakacje 2027 →</Link>
       </div>
     </section>
-    <section className="section shell"><div className="section-heading"><div><div className="kicker">SPRAWDŹ OFERTY</div><h2>Wakacje w sierpniu 2027</h2></div></div><div className="single-partner-search-wrap"><UnifiedPartnerSearch mode="holiday" /></div></section>
+    <section className="section shell"><div className="section-heading"><div><div className="kicker">SPRAWDŹ OFERTY</div><h2>Wakacje w sierpniu 2027</h2></div></div><div className="single-partner-search-wrap"><SearchHub embedded initialTab="Wakacje" initialDateMode="month" initialMonth="2027-08" /></div></section>
     <SiteFooter/>
   </main>;
 }
