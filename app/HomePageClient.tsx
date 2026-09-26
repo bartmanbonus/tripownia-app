@@ -389,11 +389,12 @@ function OfferRail({ kicker, title, description, items }: { kicker: string; titl
   };
   if (!items.length) return null;
   const sparse = items.length < 3;
-  return <section className={`offer-stream-row${sparse ? " is-sparse" : ""}`}>
+  const densityClass = items.length === 1 ? " is-single" : items.length === 2 ? " is-double" : "";
+  return <section className={`offer-stream-row${sparse ? " is-sparse" : ""}${densityClass}`}>
     <div className="offer-stream-head">
       <div><div className="kicker">{kicker}</div><h3>{title}</h3><p>{description}</p></div>
     </div>
-    <div className={`offer-stream-rail-wrap${sparse ? " is-sparse" : ""}`}>
+    <div className={`offer-stream-rail-wrap${sparse ? " is-sparse" : ""}${densityClass}`}>
       {items.length > 1 && <div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div>}
       <div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>
         {items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}
