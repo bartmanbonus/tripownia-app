@@ -1053,10 +1053,9 @@ export default function SearchHub({
           <button type="submit" className="search-v3-submit" disabled={loading}><Search size={18}/>{loading ? "Szukamy…" : "Szukaj wyjazdu"}</button>
         </form>
 
-        <div className="search-v3-quick">
+        {!embedded && <div className="search-v3-quick">
           <span>Szybki start</span>
-          <div>{quickPicks.map(([destinationLabel, label, overrides]) => <button type="button" key={destinationLabel} onClick={() => quickSearch(destinationLabel, overrides)}>{label}</button>)}</div>
-        </div>
+          <div>{quickPicks.map(([destinationLabel, label, overrides]) => <button type="button" key={destinationLabel} onClick={() => quickSearch(destinationLabel, overrides)}>{label}</button>)}</div>}
 
         {searched && (
           <div className="search-v3-results">
