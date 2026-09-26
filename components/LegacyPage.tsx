@@ -140,8 +140,8 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     ],
   },
   "/wakacje-z-gdanska-2": {
-    title: "City break z Gdańska — lot + hotel i krótki weekend",
-    lead: "Z Gdańska warto porównywać kilka miast dla tych samych dat. Przy krótkim wyjeździe znaczenie mają bezpośredni lot, szybki transfer do centrum i godziny, które nie zabierają połowy pierwszego lub ostatniego dnia.",
+    title: "City break, last minute i wakacje z Gdańska",
+    lead: "Na 2–5 dni przejdź do city breaku z GDN, a przy dłuższych wyjazdach sprawdź last minute lub wakacje. Rozdzielamy te intencje, żeby Google i użytkownik trafiali do właściwej strony.",
     links: [
       { href: "/podroze/city-break-z-gdanska", label: "City break z Gdańska" },
       { href: "/podroze/last-minute-z-gdanska", label: "Last minute z Gdańska" },
@@ -192,6 +192,24 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
       { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
       { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
       { href: "/podroze/city-break-z-gdanska", label: "City break z Gdańska" },
+    ],
+  },
+  "/gdzie-na-wakacje-we-wrzesniu": {
+    title: "Gdzie na ciepłe wakacje we wrześniu?",
+    lead: "We wrześniu warto wybierać kierunki pod temperaturę, długość lotu i rodzaj wyjazdu, a nie tylko nazwę kraju. Porównaj południe Europy, wyspy i cieplejsze kierunki pod własny termin oraz budżet.",
+    links: [
+      { href: "/wakacje", label: "Aktualne wakacje" },
+      { href: "/last-minute", label: "Last minute" },
+      { href: "/gdzie-jest-cieplo-zima-bez-dalekiego-lotu", label: "Ciepłe kierunki bez dalekiego lotu" },
+    ],
+  },
+  "/jak-tanio-podrozowac-po-europie-10-sposobow-na-tansze-wyjazdy": {
+    title: "Jak tanio podróżować po Europie?",
+    lead: "Największą różnicę daje elastyczny termin, porównanie kilku lotnisk, pełny koszt lotu z bagażem oraz nocleg poza najbardziej turystyczną lokalizacją. Warto porównywać cały wyjazd, a nie pojedynczy tani bilet.",
+    links: [
+      { href: "/tanie-loty", label: "Tanie loty" },
+      { href: "/city-break", label: "Tani city break" },
+      { href: "/planer-podrozy", label: "Zaplanuj podróż" },
     ],
   },
   "/maroko": {
