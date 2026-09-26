@@ -67,6 +67,60 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
       { href: "/wakacje", label: "Aktualne wakacje" },
     ],
   },
+  "/jak-zorganizowac-wyjazd-samodzielnie-bez-biura-podrozy": {
+    title: "Jak wygląda indywidualne planowanie podróży?",
+    lead: "Najprościej zacząć od terminu i budżetu, potem wybrać kierunek, lot, nocleg i dopiero atrakcje oraz transfer. W planerze Tripowni możesz zebrać te elementy w jednym miejscu i zaznaczyć, co masz już zarezerwowane.",
+    links: [
+      { href: "/planer-podrozy", label: "Otwórz darmowy planer podróży" },
+      { href: "/moja-podroz", label: "Zbuduj swoją podróż" },
+      { href: "/przed-wyjazdem", label: "Checklista przed wyjazdem" },
+    ],
+  },
+  "/najlepsze-aplikacje-podroznicze-10-aplikacji-ktore-ulatwia-kazda-podroz": {
+    title: "Jaka aplikacja do zwiedzania miast?",
+    lead: "Na wyjeździe warto rozdzielić potrzeby: mapa i transport, atrakcje, rezerwacje oraz plan całej podróży. Tripownia może pełnić rolę organizera wyjazdu, a do nawigacji i transportu warto korzystać z aplikacji wyspecjalizowanych w danym mieście.",
+    links: [
+      { href: "/planer-podrozy", label: "Planer podróży Tripowni" },
+      { href: "/atrakcje", label: "Atrakcje i bilety" },
+      { href: "/transfery", label: "Transfery lotniskowe" },
+    ],
+  },
+  "/bulgaria": {
+    title: "Wyjazd do Bułgarii — który region wybrać?",
+    lead: "Słoneczny Brzeg daje największy wybór hoteli i rozrywki, Nessebar łączy plażę ze zwiedzaniem, a Złote Piaski i okolice Warny są dobrym punktem startowym na północnym wybrzeżu. Przy wyborze porównaj przede wszystkim region, transfer i standard hotelu.",
+    links: [
+      { href: "/wakacje", label: "Aktualne wakacje" },
+      { href: "/last-minute", label: "Last minute" },
+      { href: "/wakacje-z-dziecmi", label: "Wakacje z dziećmi" },
+    ],
+  },
+  "/cypr": {
+    title: "Cypr na wakacje — Pafos, Larnaka czy Ayia Napa?",
+    lead: "Pafos łączy plaże ze zwiedzaniem, Larnaka jest wygodną bazą z lotniskiem blisko miasta, a Ayia Napa i Protaras są mocniej nastawione na plaże i kurortowy wypoczynek. Wybór zależy od tego, czy ważniejsze jest zwiedzanie, plaża czy spokojniejszy pobyt.",
+    links: [
+      { href: "/wakacje", label: "Wakacje na Cyprze" },
+      { href: "/podroze/cieple-wakacje-listopad-2026", label: "Ciepłe kierunki — listopad" },
+      { href: "/last-minute", label: "Last minute" },
+    ],
+  },
+  "/warszawa-modlin": {
+    title: "Gdzie można polecieć z Modlina?",
+    lead: "Najlepiej zaczynać od aktualnej siatki połączeń i terminu, a nie od jednej z góry wybranej destynacji. Dla krótkiego wyjazdu porównaj godziny lotów, koszt dojazdu do Modlina i transfer z lotniska docelowego.",
+    links: [
+      { href: "/city-break", label: "City break" },
+      { href: "/tanie-loty", label: "Tanie loty" },
+      { href: "/last-minute", label: "Last minute" },
+    ],
+  },
+  "/wakacje-ze-szczecina-all-inclusive-last-minute-i-lot-hotel": {
+    title: "Last minute ze Szczecina — od czego zacząć?",
+    lead: "Przy wylocie ze Szczecina-Goleniowa najpierw sprawdź realną dostępność z SZZ dla wybranego terminu. Jeśli lokalnych opcji jest mało, dopiero wtedy porównaj alternatywne lotniska po doliczeniu dojazdu.",
+    links: [
+      { href: "/podroze/wakacje-ze-szczecina", label: "Wakacje ze Szczecina" },
+      { href: "/podroze/city-break-ze-szczecina", label: "City break ze Szczecina" },
+      { href: "/last-minute", label: "Aktualne last minute" },
+    ],
+  },
 };
 
 function norm(value: string) {
