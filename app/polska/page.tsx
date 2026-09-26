@@ -7,11 +7,11 @@ import TravelImage from "@/components/TravelImage";
 import { partners } from "@/lib/partners";
 
 export const metadata: Metadata = {
-  title: "Weekend i wakacje w Polsce | Tripownia.pl",
+  title: "Weekend i wakacje w Polsce",
   description: "Gdańsk, Sopot, Kołobrzeg, Kraków, Wrocław, Poznań, Toruń, Lublin, Łódź i Zakopane. Pomysły na wyjazd w Polsce z noclegami i atrakcjami.",
   alternates: { canonical: "/polska" },
   openGraph: {
-    title: "Weekend i wakacje w Polsce | Tripownia.pl",
+    title: "Weekend i wakacje w Polsce",
     description: "10 kierunków na city break, morze, góry i weekend bez samolotu.",
     type: "website",
     url: "/polska",
