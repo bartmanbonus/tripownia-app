@@ -53,6 +53,11 @@ export default function ProfilePage() {
 
         <form className="app-alerts-card" onSubmit={submit}>
           <label>
+            <span><UserRound size={17} /> Jak mamy się do Ciebie zwracać?</span>
+            <input value={profile.displayName} onChange={(e) => setProfile({ ...profile, displayName: e.target.value.slice(0, 60) })} placeholder="np. Gosia" autoComplete="given-name" />
+          </label>
+
+          <label>
             <span><Plane size={17} /> Najczęściej wylatuję z</span>
             <input value={profile.departure} onChange={(e) => setProfile({ ...profile, departure: e.target.value })} placeholder="np. Warszawa" />
           </label>
@@ -157,7 +162,7 @@ export default function ProfilePage() {
           <label className="profile-checkbox"><input type="checkbox" checked={profile.warmOnly} onChange={(e) => setProfile({ ...profile, warmOnly: e.target.checked })} /> Najczęściej szukam ciepła</label>
 
           <button className="primary-cta app-alerts-save" type="submit">{saved ? <><CheckCircle2 size={18} /> Zapisano</> : "Zapisz mój profil"}</button>
-          <small>Profil zapisujemy na tym urządzeniu. Możesz go zmienić w dowolnym momencie.</small>
+          <small>Bez logowania profil zostaje na tym urządzeniu. Po zalogowaniu synchronizujemy go z Twoim kontem, żeby wracał na webie i w aplikacji.</small>
         </form>
 
         <PrivacyDataControls />
