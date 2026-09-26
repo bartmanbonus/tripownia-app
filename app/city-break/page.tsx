@@ -1,16 +1,33 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
-import UnifiedPartnerSearch from "@/components/UnifiedPartnerSearch";
+import SearchHub from "@/components/SearchHub";
 import { offers, isOfferExpired } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
+import styles from "../conversion-pages.module.css";
 
 export const metadata: Metadata = {
   title: "City break lot + hotel 2026 — weekend i krótkie wyjazdy",
-  description: "City break lot + hotel: krótkie wyjazdy na 2–5 dni, weekendowe propozycje i aktualne oferty. Sprawdź city breaki z polskich lotnisk.",
+  description: "City break lot + hotel: krótkie wyjazdy na 2–5 dni, weekendowe propozycje i aktualne oferty. Ustaw kierunek, termin i lotnisko wylotu.",
   alternates: { canonical: "/city-break" },
+  openGraph: {
+    type: "website",
+    locale: "pl_PL",
+    siteName: "Tripownia",
+    title: "City break lot + hotel 2026 — weekend i krótkie wyjazdy",
+    description: "City break lot + hotel: krótkie wyjazdy na 2–5 dni, weekendowe propozycje i aktualne oferty.",
+    url: "/city-break",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "City break lot + hotel 2026 — weekend i krótkie wyjazdy",
+    description: "City break lot + hotel: krótkie wyjazdy na 2–5 dni, weekendowe propozycje i aktualne oferty.",
+    images: ["/opengraph-image"],
+  },
 };
 
 const cityBreakIdeas = [
@@ -25,44 +42,100 @@ const cityBreakIdeas = [
 ];
 
 const seasonalCityBreaks = [
-  { href: "/podroze/city-break-pazdziernik-2026", label: "City break — październik 2026" },
-  { href: "/podroze/city-break-listopad-2026", label: "City break — listopad 2026" },
-  { href: "/podroze/city-break-grudzien-2026", label: "City break — grudzień 2026" },
+  { href: "/podroze/city-break-pazdziernik-2026", label: "Październik 2026" },
+  { href: "/podroze/city-break-listopad-2026", label: "Listopad 2026" },
+  { href: "/podroze/city-break-grudzien-2026", label: "Grudzień 2026" },
 ];
 
 const airportCityBreaks = [
-  { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
-  { href: "/podroze/city-break-z-katowic", label: "City break z Katowic" },
-  { href: "/podroze/city-break-z-lublina", label: "City break z Lublina" },
-  { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
-  { href: "/podroze/city-break-z-gdanska", label: "City break z Gdańska" },
-  { href: "/podroze/city-break-z-wroclawia", label: "City break z Wrocławia" },
+  { href: "/podroze/city-break-z-warszawy", label: "Z Warszawy" },
+  { href: "/podroze/city-break-z-krakowa", label: "Z Krakowa" },
+  { href: "/podroze/city-break-z-katowic", label: "Z Katowic" },
+  { href: "/podroze/city-break-z-gdanska", label: "Z Gdańska" },
+  { href: "/podroze/city-break-z-wroclawia", label: "Z Wrocławia" },
+  { href: "/podroze/city-break-z-poznania", label: "Z Poznania" },
 ];
 
 export default function CityBreakPage() {
-  const cityOffers = offers.filter(o => !isOfferExpired(o) && o.partner !== "esky" && (o.category.includes("city") || o.category.includes("weekend"))).slice(0, 12);
-  return <main><SiteHeader/>
-    <section className="shopping-hero shell">
-      <div className="kicker">CITY BREAK 2026 — WYBIERASZ SAM</div>
-      <h1>City break: lot + hotel, weekend i krótki wyjazd.</h1>
-      <p>Sprawdź aktualne propozycje na 2–5 dni albo wybierz konkretny miesiąc. Nie ograniczamy wyników do naszych rekomendacji — możesz też wyszukać własny kierunek i termin.</p>
-      <div className="seo-related-links" style={{marginTop: "18px"}}>
-        {seasonalCityBreaks.map(item => <Link key={item.href} href={item.href}>{item.label} →</Link>)}
+  const cityOffers = offers.filter(o => !isOfferExpired(o) && o.partner !== "esky" && (o.category.includes("city") || o.category.includes("weekend"))).slice(0, 6);
+  return <main className={styles.page}>
+    <SiteHeader/>
+
+    <section className={styles.hero}>
+      <div className={styles.heroGrid}>
+        <div className={styles.heroCopy}>
+          <div className={styles.kicker}>CITY BREAK 2026</div>
+          <h1>Krótki wyjazd, bez chaosu i przypadkowych linków.</h1>
+          <p>Ustaw miasto, lotnisko wylotu, termin i liczbę nocy. Możesz też zacząć od gotowych kierunków albo sprawdzić propozycje Tripowni.</p>
+          <div className={styles.heroActions}>
+            <a className={styles.primary} href="#szukaj-city-break">Szukaj city breaku</a>
+            <Link className={styles.secondary} href="/magazyn-podrozniczy/city-break-2026">Jak dobrze szukać city breaków</Link>
+          </div>
+        </div>
+        <div className={styles.heroMedia}>
+          <Image src="/images/destinations/rzym.jpg" alt="City break w europejskim mieście" fill sizes="(max-width:980px) 100vw, 45vw" priority/>
+        </div>
       </div>
-      <div className="seo-related-links" style={{marginTop: "12px"}}>
-        {airportCityBreaks.map(item => <Link key={item.href} href={item.href}>{item.label} →</Link>)}
+    </section>
+
+    <section className={styles.shell}>
+      <div className={styles.factGrid}>
+        <div className={styles.fact}><small>ILE DNI</small><strong>2–5 dni</strong><p>Na city break najczęściej liczy się wygodny układ lotów, nie sama cena.</p></div>
+        <div className={styles.fact}><small>LOTNISKO</small><strong>Porównaj dojazd</strong><p>Tani bilet z dalszego lotniska może przestać być tani po doliczeniu transportu.</p></div>
+        <div className={styles.fact}><small>NOCLEG</small><strong>Lokalizacja ma znaczenie</strong><p>Przy krótkim wyjeździe godzina dziennie stracona na dojazdy boli bardziej.</p></div>
+        <div className={styles.fact}><small>BAGAŻ</small><strong>Sprawdź zasady linii</strong><p>Na 2–4 dni często wystarczy podręczny, ale limity linii różnią się mocno.</p></div>
       </div>
-      <Link className="editorial-link" href="/magazyn-podrozniczy/city-break-2026">Poradnik: jak szukać city breaków →</Link>
-      <Link className="editorial-link" href="/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych">Bagaż podręczny: limity i zasady 2026 →</Link>
     </section>
-    <section className="section shell">
-      <div className="section-heading"><div><div className="kicker">OKAZJE TRIPOWNI</div><h2>Na początek kilka naszych typów</h2></div></div>
-      <div className="city-shopping-row">{cityOffers.map(o => <OfferCard key={o.id} offer={o}/>)}</div>
-      <div className="city-break-idea-head"><div><div className="kicker">WIĘCEJ KIERUNKÓW</div><h2>Nie ograniczamy city breaku do dwóch aktualnych pakietów</h2><p>To kierunki do dalszego wyszukania — bez udawania, że mamy dla każdego aktualną cenę pakietu.</p></div></div>
-      <div className="city-break-idea-grid">{cityBreakIdeas.map(item => <a key={item.city} className="city-break-idea-card" href="#szukaj-city-break"><img src={item.image} alt={`${item.city}, ${item.country}`}/><span><small>{item.country}</small><strong>{item.city}</strong><p>{item.text}</p><b>Szukaj city breaku →</b></span></a>)}</div>
-      <div className="single-partner-search-wrap" id="szukaj-city-break"><UnifiedPartnerSearch mode="city" /></div>
+
+    <section className={styles.shell} id="szukaj-city-break">
+      <div className={styles.searchPanel}>
+        <div className={styles.searchPanelHead}>
+          <div className={styles.kicker}>SZUKAJ PO SWOJEMU</div>
+          <h2>Miasto, termin, lotnisko — i gotowe</h2>
+          <p>Domyślnie ustawiamy krótki wyjazd. Możesz wpisać kilka kierunków albo zostawić pole puste i szukać szerzej.</p>
+        </div>
+        <SearchHub
+          embedded
+          initialTab="City break"
+          initialDuration="3-4"
+          destinationQuickPicks={["Rzym", "Mediolan", "Barcelona", "Praga", "Wiedeń", "Porto"]}
+        />
+      </div>
     </section>
-    <section className="section shell"><FacebookFollowCTA placement="city_break" compact /></section>
+
+    {cityOffers.length > 0 && <section className={[styles.shell, styles.section].join(" ")}>
+      <div className={styles.sectionHead}>
+        <div><div className={styles.kicker}>AKTUALNE PROPOZYCJE</div><h2>Na początek kilka sprawdzanych kierunków</h2><p>Ceny i dostępność potwierdzasz u partnera. Nie pokazujemy archiwalnych ofert jako aktualnych.</p></div>
+        <Link href="/okazje">Wszystkie okazje →</Link>
+      </div>
+      <div className={styles.offerRow}>{cityOffers.map(o => <OfferCard key={o.id} offer={o}/>)}</div>
+    </section>}
+
+    <section className={[styles.shell, styles.section].join(" ")}>
+      <div className={styles.sectionHead}><div><div className={styles.kicker}>WIĘCEJ POMYSŁÓW</div><h2>Nie ograniczamy city breaku do aktualnych kart</h2><p>Te kierunki służą jako szybki start do własnego wyszukiwania.</p></div></div>
+      <div className={styles.imageCardGrid}>
+        {cityBreakIdeas.map(item => (
+          <a key={item.city} className={styles.imageCard} href="#szukaj-city-break">
+            <div className={styles.imageWrap}><Image src={item.image} alt={item.city + ", " + item.country} fill sizes="(max-width:640px) 100vw, (max-width:980px) 50vw, 25vw"/></div>
+            <div className={styles.imageBody}><small>{item.country}</small><strong>{item.city}</strong><p>{item.text}</p><b>Szukaj city breaku →</b></div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section className={styles.shell}>
+      <div className={styles.sectionCard}>
+        <div className={styles.kicker}>SZUKAJ WG TERMINU LUB LOTNISKA</div>
+        <h2>Gotowe skróty, jeśli nie chcesz ustawiać wszystkiego od zera</h2>
+        <div className={styles.linkPills}>
+          {seasonalCityBreaks.map(item => <Link key={item.href} href={item.href}>{item.label}</Link>)}
+          {airportCityBreaks.map(item => <Link key={item.href} href={item.href}>{item.label}</Link>)}
+          <Link href="/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych">Bagaż podręczny</Link>
+        </div>
+      </div>
+    </section>
+
+    <section className={[styles.shell, styles.section].join(" ")}><FacebookFollowCTA placement="city_break" compact /></section>
     <SiteFooter/>
   </main>;
 }
