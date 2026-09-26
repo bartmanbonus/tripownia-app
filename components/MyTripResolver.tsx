@@ -70,7 +70,7 @@ export default function MyTripResolver() {
       const session = await ensureFreshAccountSession(readAccountSession());
       if (cancelled) return;
       setSignedIn(Boolean(session));
-      setTripKey(session ? hydrateStoredOffer() : "static");
+      setTripKey(hydrateStoredOffer());
       setReady(true);
     };
 
