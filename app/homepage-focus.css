@@ -1459,3 +1459,93 @@ body:has(.dream-hero) .homepage-offer-group .offer-stream-row.is-sparse .offer-s
     padding:22px!important;
   }
 }
+
+
+/* 2026-09-26 homepage trip type navigation */
+body:has(.dream-hero) .homepage-trip-types{
+  padding-top:52px!important;
+  padding-bottom:52px!important;
+}
+body:has(.dream-hero) .homepage-trip-types-heading{
+  margin-bottom:24px!important;
+}
+body:has(.dream-hero) .homepage-trip-types-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+body:has(.dream-hero) .homepage-trip-type-card{
+  min-height:86px;
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:13px;
+  padding:17px 18px;
+  border:1px solid rgba(23,21,19,.09);
+  border-radius:18px;
+  background:#fff;
+  color:#171513;
+  text-decoration:none;
+  transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
+}
+body:has(.dream-hero) .homepage-trip-type-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(242,101,34,.3);
+  box-shadow:0 12px 28px rgba(25,20,16,.07);
+}
+body:has(.dream-hero) .homepage-trip-type-card>span{
+  width:40px;
+  height:40px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:#fff5ef;
+  font-size:21px;
+}
+body:has(.dream-hero) .homepage-trip-type-card strong,
+body:has(.dream-hero) .homepage-trip-type-card small{
+  display:block;
+}
+body:has(.dream-hero) .homepage-trip-type-card strong{
+  font-size:16px;
+  line-height:1.2;
+}
+body:has(.dream-hero) .homepage-trip-type-card small{
+  margin-top:4px;
+  color:#7d746e;
+  font-size:11px;
+  line-height:1.35;
+}
+body:has(.dream-hero) .homepage-trip-type-card>svg{
+  color:#b85a38;
+}
+
+@media(max-width:900px){
+  body:has(.dream-hero) .homepage-trip-types-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:620px){
+  body:has(.dream-hero) .homepage-trip-types{
+    padding-top:38px!important;
+    padding-bottom:38px!important;
+  }
+  body:has(.dream-hero) .homepage-trip-types-heading{
+    margin-bottom:18px!important;
+  }
+  body:has(.dream-hero) .homepage-trip-types-grid{
+    grid-template-columns:1fr;
+    gap:9px;
+  }
+  body:has(.dream-hero) .homepage-trip-type-card{
+    min-height:72px;
+    padding:13px 14px;
+    border-radius:15px;
+  }
+  body:has(.dream-hero) .homepage-trip-type-card>span{
+    width:36px;
+    height:36px;
+    border-radius:11px;
+    font-size:19px;
+  }
+}
