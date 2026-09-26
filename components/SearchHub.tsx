@@ -1055,7 +1055,8 @@ export default function SearchHub({
 
         {!embedded && <div className="search-v3-quick">
           <span>Szybki start</span>
-          <div>{quickPicks.map(([destinationLabel, label, overrides]) => <button type="button" key={destinationLabel} onClick={() => quickSearch(destinationLabel, overrides)}>{label}</button>)}</div>}
+          <div>{quickPicks.map(([destinationLabel, label, overrides]) => <button type="button" key={destinationLabel} onClick={() => quickSearch(destinationLabel, overrides)}>{label}</button>)}</div>
+        </div>}
 
         {searched && (
           <div className="search-v3-results">
