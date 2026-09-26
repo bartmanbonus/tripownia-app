@@ -1,10 +1,16 @@
-Tripownia pomaga znaleźć inspiracje i oferty podróżnicze, porównać wybrane propozycje, zapisać ulubione oraz przygotować własną podróż.
+Tripownia pomaga znaleźć wyjazd, porównać propozycje i ogarnąć całą podróż w jednym miejscu.
 
 W aplikacji znajdziesz m.in.:
+• aktualne okazje, city breaki, wakacje i last minute,
+• inspiracje, wydarzenia i podróże po przeżycia,
 • sekcję Dla Ciebie z propozycjami dopasowanymi do preferencji,
-• alerty i zapis ulubionych ofert,
-• porównanie wybranych propozycji,
-• planer Moja podróż z budżetem, checklistą i notatkami,
-• atrakcje, mapy i przydatne elementy planowania wyjazdu.
+• alerty, zapis ulubionych ofert i porównanie wybranych propozycji,
+• planer Moja podróż z checklistą, notatkami i planem dnia,
+• atrakcje, transfery, parkingi, eSIM i inne przydatne elementy wyjazdu,
+• konto Tripowni z opcjonalną synchronizacją danych między urządzeniami.
 
-Tripownia ma ułatwiać cały proces: od inspiracji, przez wybór, aż po organizację wyjazdu w jednym miejscu.
+Nie musisz mieć konta, żeby przeglądać Tripownię. Konto służy do synchronizacji i personalizacji.
+
+Tripownia nie sprzedaje wyjazdów bezpośrednio. Rezerwacje są finalizowane u zewnętrznych partnerów, a aplikacja może korzystać z linków afiliacyjnych.
+
+Tripownia ma ułatwiać cały proces: od pomysłu, przez wybór, aż po organizację wyjazdu w jednym miejscu.
