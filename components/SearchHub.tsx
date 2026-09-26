@@ -156,6 +156,26 @@ function offerStartMs(offer: any) {
   return isoMs(String(offer?.startDateISO || ""));
 }
 
+function apiDepartureWindow(preference: DatePreference) {
+  if (preference.mode === "exact" && /^\d{4}-\d{2}-\d{2}$/.test(preference.from)) {
+    return { start: preference.from, end: preference.from };
+  }
+  if (preference.mode === "range") {
+    const from = /^\d{4}-\d{2}-\d{2}$/.test(preference.from) ? preference.from : "";
+    const to = /^\d{4}-\d{2}-\d{2}$/.test(preference.to) ? preference.to : "";
+    if (from || to) return { start: from || to, end: to || from };
+  }
+  if (preference.mode === "month" && /^\d{4}-\d{2}$/.test(preference.month)) {
+    const [year, month] = preference.month.split("-").map(Number);
+    const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+    return {
+      start: `${preference.month}-01`,
+      end: `${preference.month}-${String(lastDay).padStart(2, "0")}`,
+    };
+  }
+  return { start: "", end: "" };
+}
+
 function preferenceWindow(preference: DatePreference) {
   if (preference.mode === "exact" && preference.from) {
     const day = isoMs(preference.from);
@@ -390,6 +410,7 @@ export default function SearchHub({
       from: overrides.dateFrom ?? dateFrom,
       to: overrides.dateTo ?? dateTo,
     };
+    const apiDates = apiDepartureWindow(datePreference);
     const origins = departures.length ? departures : [""];
     const targets = requested.length ? requested : [""];
 
@@ -411,6 +432,9 @@ export default function SearchHub({
         else params.set("broad", "1");
         if (origin) params.set("from", origin);
         if (activeBudget !== "all") params.set("maxPrice", activeBudget);
+        if (apiDates.start) params.set("start", apiDates.start);
+        if (apiDates.end) params.set("end", apiDates.end);
+        if (apiDates.start || apiDates.end) params.set("dateKind", "departure");
         if (includeFilters) {
           if (activeDuration !== "all") params.set("nights", activeDuration);
           if (activeWeekend) params.set("weekend", "1");
