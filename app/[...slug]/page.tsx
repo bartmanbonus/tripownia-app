@@ -75,6 +75,10 @@ const dedicatedAppPaths = new Set([
 ]);
 
 const seoOverrides: Record<string, Metadata> = {
+  "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": {
+    title: "Last minute z Rzeszowa – loty, wakacje i All Inclusive z Jasionki | Tripownia",
+    description: "Last minute z Rzeszowa i lotniska RZE: sprawdź loty, wakacje, All Inclusive i pakiety z Jasionki. Porównaj aktualne kierunki i pełny koszt wyjazdu.",
+  },
   "/egipt": {
     title: "Egipt 2026 – Hurghada, Marsa Alam czy Sharm el Sheikh? | Tripownia",
     description: "Egipt na wakacje i All Inclusive: porównaj Hurghadę, Marsa Alam i Sharm el Sheikh, ustaw termin i sprawdź aktualne propozycje.",
@@ -189,8 +193,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Gdzie można polecieć z Warszawy-Modlin (WMI)? Sprawdź kierunki, city breaki, tanie loty i pomysły na krótki wyjazd z Modlina.",
   },
   "/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok": {
-    title: "Ciepłe kraje na Sylwestra 2026/2027 – gdzie polecieć? | Tripownia",
-    description: "Gdzie jest ciepło na Sylwestra 2026/2027? Porównaj Egipt, Wyspy Kanaryjskie, Cypr, Maltę i dalsze kierunki na Nowy Rok za granicą.",
+    title: "Sylwester 2026/2027 za granicą – gdzie polecieć na Nowy Rok? | Tripownia",
+    description: "Sylwester 2026/2027 za granicą: city break, ciepłe kraje i dalsze kierunki. Porównaj pomysły na Nowy Rok i wybierz wyjazd dopasowany do terminu.",
   },
   "/hiszpania": {
     title: "Południowe wybrzeże Hiszpanii – gdzie jechać? Costa del Sol, Costa Blanca i wyspy | Tripownia",
