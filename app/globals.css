@@ -13438,3 +13438,39 @@ img{
     flex:1 1 auto;
   }
 }
+
+
+/* Budget validation + compare tray item controls */
+.search-v3-budget-custom.is-invalid{
+  border-color:#efb0a0;
+  background:#fff5f1;
+}
+.search-v3-budget-error{
+  color:#c74424!important;
+  font-weight:850!important;
+}
+.compare-tray-items{
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px;
+  margin-top:6px;
+}
+.compare-tray-items button{
+  min-height:26px;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:0 8px;
+  border:1px solid #eadfd7;
+  border-radius:999px;
+  background:#fff;
+  color:#665b54;
+  font-size:9px;
+  font-weight:850;
+  cursor:pointer;
+}
+.compare-tray-items button:hover{
+  border-color:#f0b9a8;
+  background:#fff5f0;
+  color:#c64a28;
+}
