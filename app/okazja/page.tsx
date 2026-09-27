@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, MapPin, Plane, Moon, Utensils, CalendarDays, BadgeCheck } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import TravelImage from "@/components/TravelImage";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Okazja podróżnicza | Tripownia.pl",
@@ -48,6 +48,32 @@ function safePrice(value: string) {
   return Number.isFinite(parsed) && parsed > 0 && parsed < 100000 ? parsed : null;
 }
 
+const COUNTRY_IMAGE: Record<string, string> = {
+  "Albania": "/images/destinations/riwiera-albanska.jpg",
+  "Austria": "/images/destinations/wieden.jpg",
+  "Chorwacja": "/images/destinations/split.jpg",
+  "Cypr": "/images/destinations/pafos.jpg",
+  "Czechy": "/images/destinations/praga.jpg",
+  "Egipt": "/images/destinations/marsa-alam.jpg",
+  "Francja": "/images/destinations/paryz.jpg",
+  "Grecja": "/images/destinations/rodos.jpg",
+  "Hiszpania": "/images/destinations/barcelona.jpg",
+  "Holandia": "/images/destinations/amsterdam.jpg",
+  "Irlandia": "/images/destinations/dublin.jpg",
+  "Malta": "/images/destinations/valletta.jpg",
+  "Maroko": "/images/destinations/marrakesz.jpg",
+  "Portugalia": "/images/destinations/lizbona.jpg",
+  "Tunezja": "/images/destinations/djerba.jpg",
+  "Turcja": "/images/destinations/stambul.jpg",
+  "Węgry": "/images/destinations/budapeszt.jpg",
+  "Wielka Brytania": "/images/destinations/londyn.jpg",
+  "Włochy": "/images/destinations/rzym.jpg",
+};
+
+function countryImage(country: string) {
+  return COUNTRY_IMAGE[country] || null;
+}
+
 export default async function SocialOfferLanding({
   searchParams,
 }: {
@@ -66,6 +92,7 @@ export default async function SocialOfferLanding({
   if (!target) return notFound();
 
   const partnerLabel = target.partner.label;
+  const imageSrc = countryImage(country);
 
   return (
     <main>
@@ -77,12 +104,25 @@ export default async function SocialOfferLanding({
 
         <section className="detail-hero">
           <div className="detail-image">
-            <TravelImage
-              city={city}
-              country={country}
-              alt={[city, country].filter(Boolean).join(", ")}
-              className="detail-photo-img"
-            />
+            {imageSrc ? (
+              <Image
+                src={imageSrc}
+                alt={`${city}, ${country}`}
+                className="detail-photo-img"
+                width={1600}
+                height={1000}
+                sizes="(max-width: 760px) 100vw, 50vw"
+                priority
+              />
+            ) : (
+              <div className="tripownia-image-empty detail-photo-img" role="img" aria-label={`${city}, ${country}`}>
+                <div className="tripownia-image-empty-inner">
+                  <span className="tripownia-image-mark">✈</span>
+                  <strong>{city}</strong>
+                  <small>{country || "Tripownia.pl"}</small>
+                </div>
+              </div>
+            )}
             <span className="badge hot">OKAZJA TRIPOWNI</span>
           </div>
 
