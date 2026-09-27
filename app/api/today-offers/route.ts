@@ -58,10 +58,12 @@ const SEARCH_TERMS = [...EUROPE_SEARCH_TERMS, ...EXOTIC_SEARCH_TERMS];
 
 const BROAD_SEARCH_TERMS = [
   "Grecja", "Hiszpania", "Cypr", "Turcja", "Tunezja", "Egipt", "Bułgaria", "Albania",
-  "Portugalia", "Włochy", "Maroko", "Malta", "Teneryfa", "Fuerteventura", "Rodos", "Kreta",
-  "Zakynthos", "Majorka", "Sycylia", "Djerba", "Hurghada", "Marsa Alam", "Sharm el Sheikh",
-  "Rzym", "Mediolan", "Neapol", "Barcelona", "Alicante", "Lizbona", "Porto", "Ateny", "Stambuł",
-  "Zanzibar", "Kenia", "Mauritius", "Dominikana", "Meksyk", "Tajlandia", "Malediwy", "Dubaj"
+  "Portugalia", "Włochy", "Maroko", "Malta", "Teneryfa", "Fuerteventura", "Gran Canaria", "Lanzarote",
+  "Rodos", "Kreta", "Korfu", "Zakynthos", "Santorini", "Pafos", "Cypr Południowy", "Majorka", "Sycylia",
+  "Madera", "Sardynia", "Djerba", "Hurghada", "Marsa Alam", "Sharm el Sheikh", "Marrakesz", "Marrakech",
+  "Agadir", "Rzym", "Mediolan", "Neapol", "Barcelona", "Alicante", "Walencja", "Sewilla", "Lizbona",
+  "Porto", "Ateny", "Stambuł", "Zanzibar", "Kenia", "Mauritius", "Sri Lanka", "Dominikana", "Meksyk",
+  "Kuba", "Tajlandia", "Wietnam", "Bali", "Malediwy", "Dubaj", "Wyspy Zielonego Przylądka"
 ];
 
 const NEW_YEAR_SEARCH_TERMS = [
@@ -81,6 +83,26 @@ const SEARCH_ALIASES: Record<string, string[]> = {
   nowy_jork: ["Nowy Jork", "New York", "USA"],
   tokio: ["Tokio", "Tokyo", "Japonia", "Japan"],
   bangkok: ["Bangkok", "Tajlandia", "Thailand"],
+  marrakesz: ["Marrakesz", "Marrakech", "Maroko", "Morocco"],
+  marrakech: ["Marrakech", "Marrakesz", "Maroko", "Morocco"],
+  agadir: ["Agadir", "Maroko", "Morocco"],
+  malta: ["Malta"],
+  pafos: ["Pafos", "Paphos", "Cypr", "Cyprus"],
+  cypr: ["Cypr", "Cyprus", "Pafos", "Paphos"],
+  majorka: ["Majorka", "Mallorca", "Hiszpania", "Spain"],
+  sycylia: ["Sycylia", "Sicily", "Włochy", "Italy"],
+  korfu: ["Korfu", "Corfu", "Grecja", "Greece"],
+  santorini: ["Santorini", "Grecja", "Greece"],
+  maderа: ["Madera", "Madeira", "Portugalia", "Portugal"],
+  madera: ["Madera", "Madeira", "Portugalia", "Portugal"],
+  sardynia: ["Sardynia", "Sardinia", "Włochy", "Italy"],
+  porto: ["Porto", "Portugalia", "Portugal"],
+  neapol: ["Neapol", "Naples", "Włochy", "Italy"],
+  alicante: ["Alicante", "Costa Blanca", "Hiszpania", "Spain"],
+  walencja: ["Walencja", "Valencia", "Hiszpania", "Spain"],
+  sewilla: ["Sewilla", "Seville", "Hiszpania", "Spain"],
+  stambul: ["Stambuł", "Istanbul", "Turcja", "Turkey"],
+  istanbul: ["Istanbul", "Stambuł", "Turcja", "Turkey"],
   djerba: ["Djerba", "Dżerba", "Tunezja", "Tunisia"],
   hammamet: ["Hammamet", "Tunezja", "Tunisia"],
   monastir: ["Monastir", "Tunezja", "Tunisia"],
@@ -106,7 +128,7 @@ function expandSearchTerms(rawTerms: string[]) {
     expanded.push(raw);
     if (SEARCH_ALIASES[key]) expanded.push(...SEARCH_ALIASES[key]);
   }
-  return Array.from(new Set(expanded)).slice(0, 24);
+  return Array.from(new Set(expanded)).slice(0, 40);
 }
 
 const FLAGS: Record<string, string> = {
