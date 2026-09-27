@@ -29,6 +29,12 @@ const AIRPORTS = [
   { value: "GDN", label: "Gdańsk" },
   { value: "WRO", label: "Wrocław" },
   { value: "POZ", label: "Poznań" },
+  { value: "RZE", label: "Rzeszów" },
+  { value: "LCJ", label: "Łódź" },
+  { value: "LUZ", label: "Lublin" },
+  { value: "SZZ", label: "Szczecin" },
+  { value: "BZG", label: "Bydgoszcz" },
+  { value: "IEG", label: "Zielona Góra" },
 ] as const;
 
 const MONTH_NAMES = [
