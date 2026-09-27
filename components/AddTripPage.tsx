@@ -336,6 +336,33 @@ export default function AddTripPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
+    if (params.get("source") !== "experience") return;
+
+    const experienceCity = (params.get("city") || "").trim();
+    const experienceCountry = (params.get("country") || "").trim();
+    const experienceStart = (params.get("start") || "").trim();
+    const experienceEnd = (params.get("end") || "").trim();
+    const experienceName = (params.get("experience") || "").trim();
+
+    if (experienceCity || experienceCountry) {
+      setDestinationMode("known");
+      setSkipDestinationChoice(false);
+      setCity(experienceCity);
+      setCountry(experienceCountry);
+    }
+    if (experienceStart && experienceEnd) {
+      setDateMode("range");
+      setStartDate(experienceStart);
+      setEndDate(experienceEnd);
+    }
+    if (experienceName) {
+      setNotes(`Inspiracja Tripowni: ${experienceName}`);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
     if (params.get("source") !== "sport") return;
 
     const sportCity = (params.get("city") || "").trim();
