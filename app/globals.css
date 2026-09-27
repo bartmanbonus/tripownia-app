@@ -13474,3 +13474,62 @@ img{
   background:#fff5f0;
   color:#c64a28;
 }
+
+
+/* V184 — Podróże po przeżycia + Sylwester: prostsza ścieżka wyboru */
+.experience-choice-guide{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-top:28px;
+  margin-bottom:12px;
+}
+.experience-choice-guide>div{
+  padding:18px 20px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+}
+.experience-choice-guide strong{display:block;font-size:15px;margin-bottom:5px}
+.experience-choice-guide span{display:block;color:var(--muted);font-size:12px;line-height:1.55}
+.experience-selected-search{scroll-margin-top:92px;padding-top:34px!important;padding-bottom:22px!important}
+.experience-forecast-note{
+  margin:-4px 0 16px;
+  padding:11px 13px;
+  border-radius:12px;
+  border:1px solid #f1dfcf;
+  background:#fff8f2;
+  color:#66564b;
+  font-size:11px;
+  line-height:1.55;
+}
+.experience-forecast-note strong{color:#b95027}
+.experience-idea-actions{display:flex;gap:8px;flex-wrap:wrap}
+.experience-idea-actions a:last-child{color:#5f5955}
+.newyear-more-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-top:22px;
+}
+.newyear-more-wrap span{font-size:11px;color:var(--muted)}
+.newyear-more-button{
+  min-height:42px;
+  padding:0 16px;
+  border:1px solid #dfd2c9;
+  border-radius:12px;
+  background:#fff;
+  color:#211915;
+  font-weight:900;
+  cursor:pointer;
+}
+.newyear-more-button:hover{border-color:#ff542f;color:#d94928}
+.newyear-more-button.secondary{background:#f8f5f2}
+@media(max-width:760px){
+  .experience-choice-guide{grid-template-columns:1fr}
+  .experience-idea-actions a{width:100%;text-align:center}
+  .newyear-more-wrap{align-items:stretch;flex-direction:column}
+  .newyear-more-button{width:100%}
+}
