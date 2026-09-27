@@ -181,7 +181,7 @@ function dailyKey(now = new Date()) {
   }, {});
 
   const date = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)));
-  if (Number(parts.hour) < 8) date.setUTCDate(date.getUTCDate() - 1);
+  if (Number(parts.hour) < 6) date.setUTCDate(date.getUTCDate() - 1);
   return date.toISOString().slice(0, 10);
 }
 
