@@ -122,7 +122,9 @@ export default function DealsPage() {
   }, [airport, month, year]);
 
   const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
+  const { offers: todayOffers, loading: todayLoading, checkedAt: todayCheckedAt } = useLiveOffers("/api/today-offers");
   const rows = useMemo(() => cheapestUnique(offers as DealsOffer[]), [offers]);
+  const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
   const poolHighlights = useMemo(() => buildPoolHighlights(rows), [rows]);
 
   useEffect(() => {
@@ -155,6 +157,10 @@ export default function DealsPage() {
 
   const checkedLabel = checkedAt
     ? new Intl.DateTimeFormat("pl-PL", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Warsaw" }).format(new Date(checkedAt))
+    : "";
+
+  const todayCheckedLabel = todayCheckedAt
+    ? new Intl.DateTimeFormat("pl-PL", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Warsaw" }).format(new Date(todayCheckedAt))
     : "";
 
   const sourceCopy = loading && !offers.length
@@ -198,6 +204,19 @@ export default function DealsPage() {
           <button className="secondary-cta" type="button" onClick={refresh} disabled={loading}><RefreshCw size={15}/>{loading ? "Odświeżamy…" : "Odśwież"}</button>
         </div>
       </div>
+
+      <div className="deals-results-heading">
+        <div><span>DZISIAJ W TRIPOWNI</span><h2>5 okazji, które warto sprawdzić dziś</h2></div>
+        <p>{todayLoading && !todayRows.length ? "Szukamy dzisiejszych okazji…" : `Codzienna selekcja Tripowni${todayCheckedLabel ? ` · sprawdzone ${todayCheckedLabel}` : ""}. Te same kierunki wykorzystujemy w naszych publikacjach społecznościowych.`}</p>
+      </div>
+      {todayRows.length > 0 ? (
+        <div className="cards-grid deals-premium-grid">{todayRows.map((offer) => <OfferCard key={`today-${offer.id}`} offer={offer}/>)}</div>
+      ) : !todayLoading ? (
+        <div className="self-search-empty">
+          <strong>Dzisiejsza pula właśnie się odświeża.</strong>
+          <span>Wróć za chwilę — pokazujemy tylko oferty, które udało się potwierdzić w bieżącym feedzie.</span>
+        </div>
+      ) : null}
 
       <div className="deals-mobile-toolbar">
         <button
