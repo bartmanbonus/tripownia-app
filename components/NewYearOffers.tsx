@@ -76,6 +76,7 @@ function liveSearchLink(offer: Offer) {
 export default function NewYearOffers() {
   const [live, setLive] = useState<Offer[]>([]);
   const [checkedAt, setCheckedAt] = useState<string>("");
+  const [expanded, setExpanded] = useState<Record<"CITY BREAK"|"DŁUŻEJ", boolean>>({ "CITY BREAK": false, "DŁUŻEJ": false });
 
   useEffect(() => {
     let active = true;
@@ -113,6 +114,11 @@ export default function NewYearOffers() {
   const renderSection = (type: "CITY BREAK" | "DŁUŻEJ") => {
     const data = merged(type);
     const isCity = type === "CITY BREAK";
+    const total = data.live.length + data.curated.length;
+    const visibleLimit = expanded[type] ? total : 6;
+    const liveVisible = data.live.slice(0, visibleLimit);
+    const curatedVisible = data.curated.slice(0, Math.max(0, visibleLimit - liveVisible.length));
+    const hiddenCount = Math.max(0, total - liveVisible.length - curatedVisible.length);
     return (
       <section className="section shell" id={isCity ? "city-break" : "dluzsze"}>
         <div className="section-heading newyear-heading">
@@ -125,7 +131,7 @@ export default function NewYearOffers() {
         </div>
 
         <div className="seasonal-grid newyear-expanded-grid">
-          {data.live.map((offer) => (
+          {liveVisible.map((offer) => (
             <article className="seasonal-card newyear-card newyear-live-card" key={`live-${offer.id}`}>
               <div className="newyear-card-media">
                 <TravelImage city={offer.city} country={offer.country} alt={`${offer.city} na Sylwestra`} overrideSrc={offer.image}/>
@@ -142,7 +148,7 @@ export default function NewYearOffers() {
             </article>
           ))}
 
-          {data.curated.map((item) => (
+          {curatedVisible.map((item) => (
             <article className="seasonal-card newyear-card" key={`curated-${item.city}`}>
               <div className="newyear-card-media">
                 <TravelImage city={item.city} country={item.country} alt={`${item.city} na Sylwestra`} overrideSrc={item.image}/>
@@ -159,6 +165,21 @@ export default function NewYearOffers() {
             </article>
           ))}
         </div>
+        {hiddenCount > 0 && (
+          <div className="newyear-more-wrap">
+            <button type="button" className="newyear-more-button" onClick={() => setExpanded((current) => ({ ...current, [type]: true }))}>
+              Pokaż pozostałe {hiddenCount} kierunki
+            </button>
+            <span>Najpierw pokazujemy krótszą selekcję. Rozwiń tylko, jeśli chcesz więcej inspiracji.</span>
+          </div>
+        )}
+        {expanded[type] && total > 6 && (
+          <div className="newyear-more-wrap">
+            <button type="button" className="newyear-more-button secondary" onClick={() => setExpanded((current) => ({ ...current, [type]: false }))}>
+              Zwiń listę
+            </button>
+          </div>
+        )}
       </section>
     );
   };
