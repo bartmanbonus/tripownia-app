@@ -21,6 +21,7 @@ type SourceResult = {
   label: string;
 };
 
+// Keep a broad enough live pool so valid affiliate deals are not hidden too early.
 const DEAL_LIMIT = 36;
 
 function normalize(value: string | undefined | null) {
