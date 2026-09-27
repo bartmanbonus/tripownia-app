@@ -21,7 +21,7 @@ type SourceResult = {
   label: string;
 };
 
-const DEAL_LIMIT = 20;
+const DEAL_LIMIT = 36;
 
 function normalize(value: string | undefined | null) {
   return (value || "")
