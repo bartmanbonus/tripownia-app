@@ -581,3 +581,559 @@
     flex: 0 0 auto;
   }
 }
+
+
+/* Planner landing UX */
+.plannerHero {
+  width: min(1280px, calc(100% - 32px));
+  margin: 28px auto 20px;
+}
+
+.plannerHeroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, .88fr) minmax(460px, 1.12fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.plannerIntro,
+.plannerLaunchCard,
+.plannerCompactCard {
+  border: 1px solid #e8e3de;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 18px 46px rgba(40, 31, 24, .06);
+}
+
+.plannerIntro {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 520px;
+  padding: clamp(30px, 4.2vw, 58px);
+  background:
+    radial-gradient(circle at 12% 8%, rgba(242, 132, 66, .11), transparent 32%),
+    #fff;
+}
+
+.plannerIntro h1 {
+  max-width: 720px;
+  margin: 0;
+  font-size: clamp(42px, 5vw, 68px);
+  line-height: .98;
+  letter-spacing: -.05em;
+}
+
+.plannerIntro > p {
+  max-width: 690px;
+  margin: 20px 0 0;
+  color: #675f59;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.plannerTrust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 26px;
+}
+
+.plannerTrust span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #eadfd6;
+  border-radius: 999px;
+  background: #fff8f3;
+  color: #5e5046;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.plannerSavedShortcut {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 28px;
+  color: #6c625c;
+  font-size: 13px;
+}
+
+.plannerSavedShortcut a {
+  color: #1f1a17;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.plannerLaunchCard {
+  padding: clamp(24px, 3.2vw, 38px);
+}
+
+.plannerLaunchCard h2 {
+  margin: 0;
+  font-size: clamp(30px, 3.4vw, 44px);
+  line-height: 1.02;
+  letter-spacing: -.04em;
+}
+
+.plannerLaunchLead {
+  margin: 10px 0 22px;
+  color: #6f655e;
+  line-height: 1.55;
+}
+
+.plannerStartGrid {
+  display: grid;
+  gap: 10px;
+}
+
+.plannerStartOption {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 17px;
+  border: 1px solid #e7dfd9;
+  border-radius: 20px;
+  background: #fff;
+  color: inherit;
+  text-decoration: none;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.plannerStartOption:hover {
+  transform: translateY(-1px);
+  border-color: #cfc1b6;
+  box-shadow: 0 10px 24px rgba(40, 31, 24, .07);
+}
+
+.plannerStartOption:first-child {
+  background: #fff8f3;
+  border-color: #f0d3bf;
+}
+
+.plannerStartIcon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  background: #f4efeb;
+  font-size: 22px;
+}
+
+.plannerStartOption:first-child .plannerStartIcon {
+  background: #ffe7d7;
+}
+
+.plannerStartCopy small {
+  display: block;
+  color: #8a7d74;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.plannerStartCopy strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 18px;
+}
+
+.plannerStartCopy span {
+  display: block;
+  margin-top: 4px;
+  color: #6d645e;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.plannerStartArrow {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.plannerOpenRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #eee7e2;
+  color: #756a63;
+  font-size: 12px;
+}
+
+.plannerOpenRow a {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #f5f1ed;
+  color: #2a2420;
+  font-size: 11px;
+  font-weight: 900;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.plannerProgress {
+  margin-top: 18px;
+  padding: 24px;
+  border: 1px solid #e8e3de;
+  border-radius: 24px;
+  background: #fff;
+}
+
+.plannerProgressHead {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.plannerProgressHead h2 {
+  margin: 0;
+  font-size: clamp(26px, 2.9vw, 38px);
+  letter-spacing: -.035em;
+}
+
+.plannerProgressHead p {
+  max-width: 620px;
+  margin: 0;
+  color: #6d645e;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.plannerProgressGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.plannerProgressStep {
+  position: relative;
+  min-height: 118px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #f7f3ef;
+}
+
+.plannerProgressStep span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #1f1a17;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.plannerProgressStep strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 15px;
+}
+
+.plannerProgressStep p {
+  margin: 5px 0 0;
+  color: #746a63;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.plannerFeatureSection {
+  padding: 34px 0 8px;
+}
+
+.plannerFeatureSection h2 {
+  margin: 0;
+  font-size: clamp(28px, 3.3vw, 44px);
+  line-height: 1.03;
+  letter-spacing: -.035em;
+}
+
+.plannerFeatureSection > p {
+  max-width: 760px;
+  margin: 10px 0 0;
+  color: #6e655f;
+  line-height: 1.55;
+}
+
+.plannerFeatureGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.plannerFeature {
+  min-height: 132px;
+  padding: 16px;
+  border: 1px solid #e8e1dc;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.plannerFeatureIcon {
+  font-size: 22px;
+}
+
+.plannerFeature strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.plannerFeature span {
+  display: block;
+  margin-top: 5px;
+  color: #766b64;
+  font-size: 11px;
+  line-height: 1.42;
+}
+
+.plannerTwoColumn {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 26px 0 8px;
+}
+
+.plannerCompactCard {
+  padding: 26px;
+}
+
+.plannerCompactCard h2 {
+  margin: 0;
+  font-size: clamp(24px, 2.7vw, 34px);
+  line-height: 1.05;
+  letter-spacing: -.03em;
+}
+
+.plannerCompactCard p {
+  margin: 10px 0 0;
+  color: #6f655e;
+  line-height: 1.55;
+}
+
+.plannerChecklist {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.plannerChecklist div {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 10px;
+  align-items: start;
+  color: #4c433d;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.plannerChecklist b {
+  color: #1f1a17;
+}
+
+.plannerCardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 20px;
+}
+
+.plannerCardActions a {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 14px;
+  border: 1px solid #e2dad4;
+  border-radius: 999px;
+  background: #fff;
+  color: #2f2925;
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.plannerCardActions a:first-child {
+  border-color: #1f1a17;
+  background: #1f1a17;
+  color: #fff;
+}
+
+.plannerFaq {
+  padding: 28px 0 42px;
+}
+
+.plannerFaq h2 {
+  margin: 0 0 14px;
+  font-size: clamp(28px, 3.1vw, 40px);
+  letter-spacing: -.035em;
+}
+
+.plannerFaq details {
+  border-top: 1px solid #e5ddd7;
+  background: transparent;
+}
+
+.plannerFaq details:last-child {
+  border-bottom: 1px solid #e5ddd7;
+}
+
+.plannerFaq summary {
+  cursor: pointer;
+  padding: 16px 0;
+  color: #26211e;
+  font-weight: 900;
+  list-style: none;
+}
+
+.plannerFaq summary::-webkit-details-marker {
+  display: none;
+}
+
+.plannerFaq summary::after {
+  content: "+";
+  float: right;
+  color: #8a7d74;
+  font-size: 19px;
+}
+
+.plannerFaq details[open] summary::after {
+  content: "–";
+}
+
+.plannerFaq details p {
+  max-width: 860px;
+  margin: -4px 0 16px;
+  color: #6d645e;
+  line-height: 1.55;
+}
+
+@media (max-width: 980px) {
+  .plannerHeroGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .plannerIntro {
+    min-height: auto;
+  }
+
+  .plannerProgressGrid,
+  .plannerFeatureGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .plannerHero {
+    width: min(100% - 18px, 1280px);
+    margin-top: 12px;
+  }
+
+  .plannerIntro,
+  .plannerLaunchCard,
+  .plannerCompactCard {
+    border-radius: 21px;
+  }
+
+  .plannerIntro {
+    padding: 24px 18px;
+  }
+
+  .plannerIntro h1 {
+    font-size: clamp(36px, 11vw, 48px);
+  }
+
+  .plannerIntro > p {
+    font-size: 15px;
+  }
+
+  .plannerLaunchCard {
+    padding: 20px 14px;
+  }
+
+  .plannerStartOption {
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+    padding: 14px 12px;
+  }
+
+  .plannerStartIcon {
+    width: 42px;
+    height: 42px;
+  }
+
+  .plannerOpenRow {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .plannerOpenRow > span {
+    grid-column: 1 / -1;
+  }
+
+  .plannerOpenRow a {
+    justify-content: center;
+  }
+
+  .plannerProgress {
+    padding: 18px 14px;
+    border-radius: 20px;
+  }
+
+  .plannerProgressHead {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .plannerProgressGrid,
+  .plannerFeatureGrid,
+  .plannerTwoColumn {
+    grid-template-columns: 1fr;
+  }
+
+  .plannerFeatureSection {
+    padding-top: 26px;
+  }
+
+  .plannerFeature {
+    min-height: auto;
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    column-gap: 8px;
+  }
+
+  .plannerFeatureIcon {
+    grid-row: 1 / span 2;
+  }
+
+  .plannerFeature strong,
+  .plannerFeature span {
+    margin-top: 0;
+  }
+
+  .plannerCompactCard {
+    padding: 20px 16px;
+  }
+
+  .plannerCardActions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .plannerCardActions a {
+    justify-content: center;
+  }
+}
