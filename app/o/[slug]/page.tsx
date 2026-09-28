@@ -6,11 +6,38 @@ import { ArrowLeft, BadgeCheck, CalendarDays, ExternalLink, MapPin, Moon, Plane,
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AffiliateOfferLink from "@/components/AffiliateOfferLink";
-import { getSocialOffer } from "@/lib/socialOffers";
+import { getSocialOffer, type SocialOffer } from "@/lib/socialOffers";
+
+type SocialOfferPage = SocialOffer & { expired?: boolean };
+
+const LEGACY_RZYM_529: SocialOfferPage = {
+  slug: "rzym-529",
+  city: "Rzym",
+  country: "Włochy",
+  price: 529,
+  departure: "Warszawa–Modlin",
+  nights: 3,
+  dates: "30 listopada – 3 grudnia 2026",
+  board: "Bez wyżywienia",
+  hotel: "hu Roma Camping In Town",
+  partner: "other",
+  partnerLabel: "Oferta archiwalna",
+  affiliateUrl: "",
+  imageSrc: "/images/destinations/rzym.jpg",
+  imageCountry: "Włochy",
+  checkedAt: "2026-09-28T13:30:00+02:00",
+  status: "expired",
+  expired: true,
+};
+
+function getOfferForPage(slug: string): SocialOfferPage | null {
+  if (slug.toLocaleLowerCase("pl") === "rzym-529") return LEGACY_RZYM_529;
+  return getSocialOffer(slug);
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const offer = getSocialOffer(slug);
+  const offer = getOfferForPage(slug);
   if (!offer) {
     return {
       title: "Okazja podróżnicza | Tripownia.pl",
@@ -46,7 +73,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ShortSocialOfferPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const offer = getSocialOffer(slug);
+  const offer = getOfferForPage(slug);
   if (!offer) return notFound();
 
   return (
@@ -83,11 +110,22 @@ export default async function ShortSocialOfferPage({ params }: { params: Promise
               <span><Utensils/> <b>{offer.board}</b></span>
               <span><MapPin/> <b>{offer.city}, {offer.country}</b></span>
             </div>
-            <div className="detail-source">Najpierw oglądasz szczegóły w Tripowni. Rezerwacja i płatność odbywają się bezpośrednio u partnera.</div>
-            <div className="detail-action-box">
-              <AffiliateOfferLink href={offer.affiliateUrl} partner={offer.partnerLabel} slug={offer.slug} destination={`${offer.city}, ${offer.country}`} />
-              <small className="affiliate-note">Link partnerski. Możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.</small>
-            </div>
+            {offer.expired ? (
+              <>
+                <div className="detail-source"><strong>Ta konkretna oferta 529 zł/os. na 30.11–03.12.2026 nie jest już dostępna.</strong> Nie przekierowujemy jej do innego terminu ani innej ceny.</div>
+                <div className="detail-action-box">
+                  <Link className="btn primary" href="/okazje">Zobacz aktualne okazje</Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="detail-source">Najpierw oglądasz szczegóły w Tripowni. Rezerwacja i płatność odbywają się bezpośrednio u partnera.</div>
+                <div className="detail-action-box">
+                  <AffiliateOfferLink href={offer.affiliateUrl} partner={offer.partnerLabel} slug={offer.slug} destination={`${offer.city}, ${offer.country}`} />
+                  <small className="affiliate-note">Link partnerski. Możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.</small>
+                </div>
+              </>
+            )}
           </div>
         </section>
       </div>
