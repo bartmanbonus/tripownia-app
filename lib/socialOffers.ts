@@ -202,7 +202,9 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
 };
 
 export function getSocialOffer(slug: string): SocialOffer | null {
-  const offer = SOCIAL_OFFERS[slug.toLocaleLowerCase("pl")] || null;
+  const normalizedSlug = slug.toLocaleLowerCase("pl");
+  const resolvedSlug = normalizedSlug === "rzym-529" ? "rzym-artis-621" : normalizedSlug;
+  const offer = SOCIAL_OFFERS[resolvedSlug] || null;
   if (!offer) return null;
   if (offer.status !== "active") return null;
   if (!validAffiliateUrl(offer.affiliateUrl)) return null;
