@@ -83,7 +83,7 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
     price: 529,
     departure: "Warszawa–Modlin",
     nights: 3,
-    dates: "16–19 listopada 2026",
+    dates: "30 listopada – 3 grudnia 2026",
     board: "Bez wyżywienia",
     hotel: "hu Roma Camping In Town",
     partner: "tanilocik",
@@ -91,7 +91,7 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
     affiliateUrl: "https://tanilocik.pl/Wakacje?place=ci-rom",
     imageSrc: "/images/destinations/rzym.jpg",
     imageCountry: "Włochy",
-    checkedAt: "2026-09-28T08:49:00+02:00",
+    checkedAt: "2026-09-28T10:21:00+02:00",
     status: "active",
   },
   "marrakesz": {
