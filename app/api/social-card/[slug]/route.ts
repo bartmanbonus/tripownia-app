@@ -12,7 +12,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
   const url = new URL(request.url);
   const raw = url.searchParams.get("format") || "feed";
   const format: SocialCardFormat = raw === "story" || raw === "tiktok" ? raw : "feed";
-  const size = format === "feed" ? { width: 1080, height: 1350 } : { width: 1080, height: 1920 };
+  const size = format === "feed" ? { width: 1080, height: 1350 } : format === "tiktok" ? { width: 864, height: 1080 } : { width: 1080, height: 1920 };
 
   return new ImageResponse(
     SocialCardImage({ offer, origin: url.origin, format }),
