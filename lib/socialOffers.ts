@@ -86,7 +86,7 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
     hotel: "Canifor 4★",
     partner: "exim",
     partnerLabel: "EXIM Tours",
-    affiliateUrl: "https://reklamy.exim.pl/click?p=334260&a=3487177&url=https%3A%2F%2Fwww.exim.pl%2Fkierunki%2Fmalta%2Fwyspa-malta",
+    affiliateUrl: "https://reklamy.exim.pl/click?p=334260&a=3487177&url=https%3A%2F%2Fwww.exim.pl%2Fkierunki%2Fmalta%2Fwyspa-malta%2Fqawra%2Fcanifor-hotel%3FDD%3D2026-12-12%26RD%3D2026-12-19%26NN%3D7",
     imageSrc: "/images/destinations/valletta.jpg",
     imageCountry: "Malta",
     checkedAt: "2026-09-28T11:47:00+02:00",
