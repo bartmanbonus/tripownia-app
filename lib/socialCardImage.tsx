@@ -13,7 +13,9 @@ function visualType(slug: string): VisualType {
     slug === "rodos-stamos-2116" ||
     slug === "teneryfa-alua-2841" ||
     slug === "sal-riu-funana-3927" ||
-    slug === "marsa-utopia-1970"
+    slug === "marsa-utopia-1970" ||
+    slug === "kreta-heronissos-1599" ||
+    slug === "teneryfa-suneo-2689"
   ) return "holiday";
   return "city";
 }
@@ -43,20 +45,20 @@ function imageUrl(offer: SocialOffer, origin: string) {
 }
 
 function dateShort(offer: SocialOffer) {
-  return offer.dates
-    .replace(" października ", ".10–")
-    .replace(" listopada ", ".11–")
-    .replace(" grudnia ", ".12–")
-    .replace(" stycznia ", ".01–")
-    .replace("26 października – 2 listopada 2026", "26.10–02.11 2026")
-    .replace("10–17 grudnia 2026", "10–17.12 2026")
-    .replace("14–21 grudnia 2026", "14–21.12 2026")
-    .replace("25–29 października 2026", "25–29.10 2026")
-    .replace("15–19 listopada 2026", "15–19.11 2026")
-    .replace("15–18 listopada 2026", "15–18.11 2026")
-    .replace("17–24 grudnia 2026", "17–24.12 2026")
-    .replace("4–12 grudnia 2026", "04–12.12 2026")
-    .replace("1–9 grudnia 2026", "01–09.12 2026");
+  const exact: Record<string, string> = {
+    "26 października – 2 listopada 2026": "26.10–02.11 2026",
+    "21–29 października 2026": "21–29.10 2026",
+    "25–29 października 2026": "25–29.10 2026",
+    "15–19 listopada 2026": "15–19.11 2026",
+    "15–18 listopada 2026": "15–18.11 2026",
+    "19–26 listopada 2026": "19–26.11 2026",
+    "10–17 grudnia 2026": "10–17.12 2026",
+    "14–21 grudnia 2026": "14–21.12 2026",
+    "17–24 grudnia 2026": "17–24.12 2026",
+    "4–12 grudnia 2026": "04–12.12 2026",
+    "1–9 grudnia 2026": "01–09.12 2026",
+  };
+  return exact[offer.dates] || offer.dates;
 }
 
 const wrap: React.CSSProperties = {
