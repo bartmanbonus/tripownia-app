@@ -128,7 +128,7 @@ export default function AccountPage() {
         } else {
           trackEvent("sign_up", { method: "password", confirmation_required: true });
           trackMetaCustomEvent("AccountCreated", { method: "password", confirmation_required: true });
-          setMessage("Konto utworzone. Sprawdź e-mail i potwierdź adres, a potem wróć tutaj i zaloguj się hasłem.");
+          setMessage("Jeśli to nowy adres, sprawdź e-mail i potwierdź konto. Jeśli konto na ten adres już istnieje, przejdź do logowania albo użyj jednorazowego linku e-mail.");
         }
       } else {
         const logged = await signInWithPassword(cleanEmail, password);
