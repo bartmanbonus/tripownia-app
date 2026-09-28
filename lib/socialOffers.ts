@@ -1,4 +1,4 @@
-export type SocialOfferPartner = "exim" | "tui" | "wakacje" | "booking" | "kiwi" | "getyourguide" | "tanilocik" | "other";
+export type SocialOfferPartner = "exim" | "tui" | "wakacje" | "booking" | "kiwi" | "getyourguide" | "other";
 
 export type SocialOffer = {
   slug: string;
@@ -39,8 +39,6 @@ const ALLOWED_PARTNER_HOSTS = [
   "www.getyourguide.pl",
   "getyourguide.com",
   "www.getyourguide.com",
-  "tanilocik.pl",
-  "www.tanilocik.pl",
 ];
 
 function normalize(value: string) {
@@ -76,22 +74,22 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
-  "rzym-529": {
-    slug: "rzym-529",
+  "rzym-artis-613": {
+    slug: "rzym-artis-613",
     city: "Rzym",
     country: "Włochy",
-    price: 529,
-    departure: "Warszawa–Modlin",
-    nights: 3,
-    dates: "30 listopada – 3 grudnia 2026",
+    price: 613,
+    departure: "Kraków",
+    nights: 2,
+    dates: "8–10 lutego 2027",
     board: "Bez wyżywienia",
-    hotel: "hu Roma Camping In Town",
-    partner: "tanilocik",
-    partnerLabel: "TaniLocik.pl",
-    affiliateUrl: "https://tanilocik.pl/Wakacje?place=ci-rom",
+    hotel: "Artis (Rzym)",
+    partner: "wakacje",
+    partnerLabel: "Wakacje.pl",
+    affiliateUrl: "https://www.wakacje.pl/oferty/wlochy/lazio/rzym/artis-rzym-758531.html?utm_source=travellead&utm_medium=cps&utm_campaign=3212-tripownia.pl&a_aid=3212&a_cid=tripownia",
     imageSrc: "/images/destinations/rzym.jpg",
     imageCountry: "Włochy",
-    checkedAt: "2026-09-28T10:21:00+02:00",
+    checkedAt: "2026-09-28T10:45:00+02:00",
     status: "active",
   },
   "marrakesz": {
