@@ -18,6 +18,7 @@ const PARTNERS = [
   { key: "exim", label: "EXIM Tours", hosts: ["exim.pl", "www.exim.pl", "reklamy.exim.pl"] },
   { key: "tui", label: "TUI", hosts: ["tui.pl", "www.tui.pl", "clk.tradedoubler.com"] },
   { key: "wakacje", label: "Wakacje.pl", hosts: ["wakacje.pl", "www.wakacje.pl"] },
+  { key: "fly", label: "Fly.pl", hosts: ["fly.pl", "www.fly.pl"] },
   { key: "kiwi", label: "Kiwi.com", hosts: ["kiwi.com", "www.kiwi.com", "kiwi.tpk.lv", "c111.travelpayouts.com"] },
   { key: "booking", label: "Booking.com", hosts: ["booking.com", "www.booking.com"] },
   { key: "getyourguide", label: "GetYourGuide", hosts: ["getyourguide.pl", "www.getyourguide.pl", "getyourguide.com", "www.getyourguide.com", "clk.tradedoubler.com"] },
