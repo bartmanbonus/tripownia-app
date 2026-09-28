@@ -74,6 +74,22 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "djerba-sun-beach-2349": {
+    slug: "djerba-sun-beach-2349",
+    city: "Djerba",
+    country: "Tunezja",
+    price: 2349,
+    departure: "Warszawa",
+    nights: 7,
+    dates: "19–26 listopada 2026",
+    board: "All Inclusive",
+    hotel: "Djerba Sun Beach 4★",
+    partner: "exim",
+    partnerLabel: "EXIM Tours",
+    affiliateUrl: "https://reklamy.exim.pl/click?p=334260&a=3487177&url=https%3A%2F%2Fwww.exim.pl%2Fkierunki%2Ftunezja%2Fdjerba%2Fmidnoun%2Fdjerba-sun-beach%3FD%3D63252%26DD%3D2026-11-19%26DF%3D2026-11-12%257C2026-12-10%26DI%3DGT06-AI%26DPR%3DEXIM%2BTOURS%2BPOLAND%26DS%3D1024%26ERM%3D0%26GIATA%3D3986%26HID%3D422817%26IFC%3DQ0hSfHwyMDI2LTExLTI2VDAwOjAw%26KEY%3DMjIwMzE4MHwzMjIxMzQzMDM5fDEyODk5OTk%253D%26MNN%3D7%257C8%257C9%257C10%26MT%3D5%26NN%3D7%26NNM%3D7%257C8%257C9%257C10%26OFC%3DQ0hSfDEwMTB8MjAyNi0xMS0xOVQwMDowMA--%26PC%3D7-2026-11-19%26PID%3D422817%26RD%3D2026-11-26%26TO%3D3850%26TT%3D1",
+    checkedAt: "2026-09-28T19:39:00+02:00",
+    status: "active",
+  },
   "teneryfa-casablanca-1831": {
     slug: "teneryfa-casablanca-1831",
     city: "Teneryfa",
