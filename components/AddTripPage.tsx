@@ -241,7 +241,10 @@ export default function AddTripPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    const owned = params.get("mode") === "owned";
+    const mode = params.get("mode");
+    const owned = mode === "owned";
+    const known = mode === "known";
+    const open = mode === "open";
     const editActive = params.get("edit") === "active";
     setOwnedMode(owned);
 
@@ -293,7 +296,16 @@ export default function AddTripPage() {
       return;
     }
 
-    if (owned) { setDestinationMode("known"); setDateMode("range"); }
+    if (owned) {
+      setDestinationMode("known");
+      setDateMode("range");
+    } else if (known) {
+      setDestinationMode("known");
+      setSkipDestinationChoice(false);
+    } else if (open) {
+      setDestinationMode("open");
+      setSkipDestinationChoice(false);
+    }
   }, []);
 
   useEffect(() => {
