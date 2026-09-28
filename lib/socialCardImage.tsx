@@ -134,11 +134,36 @@ function Story({ offer, origin }: { offer: SocialOffer; origin: string }) {
   );
 }
 
+function TikTokFull({ offer, origin }: { offer: SocialOffer; origin: string }) {
+  const type = visualType(offer.slug);
+  const c = colors(type);
+  const destination = displayDestination(offer);
+  const priceText = offer.price.toLocaleString("pl-PL").replace(/\u00A0/g, " ");
+  return (
+    <div style={{ ...wrap, width: 1080, height: 1920, background: c.bg, color: c.fg, padding: "75px 72px 0" }}>
+      <Wordmark fg={c.fg} />
+      <div style={{ display: "flex", marginTop: 40, fontSize: 28, letterSpacing: 10, borderBottom: `2px solid ${c.fg}`, paddingBottom: 16, width: "78%" }}>{category(type)}</div>
+      <div style={{ display: "flex", fontFamily: "Georgia, serif", fontWeight: 800, fontSize: destination.length > 9 ? 105 : 132, lineHeight: .95, marginTop: 28 }}>{destination}</div>
+      <div style={{ display: "flex", alignItems: "baseline", color: c.price, marginTop: 8 }}>
+        <div style={{ fontFamily: "Georgia, serif", fontSize: 112, fontWeight: 800 }}>{priceText}</div>
+        <div style={{ color: c.fg, fontSize: 30, fontWeight: 700, marginLeft: 15 }}>zł/os.</div>
+      </div>
+      <div style={{ display: "flex", marginTop: 22 }}><Meta offer={offer} fg={c.fg} /></div>
+      <div style={{ display: "flex", position: "absolute", left: 72, right: 72, top: 790, height: 850, borderRadius: 30, overflow: "hidden" }}>
+        <img src={imageUrl(offer, origin)} width="936" height="850" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </div>
+      <div style={{ display: "flex", position: "absolute", bottom: 95, left: 180, right: 180, justifyContent: "center", background: c.cta, color: "#fff", borderRadius: 44, padding: "24px 40px", fontSize: 33, fontWeight: 700 }}>
+        Sprawdź ofertę →
+      </div>
+    </div>
+  );
+}
+
 function TikTok({ offer, origin }: { offer: SocialOffer; origin: string }) {
   return (
-    <div style={{ ...wrap, width: 864, height: 1080, background: "#111", overflow: "hidden" }}>
-      <div style={{ display: "flex", width: 1080, height: 1350, transform: "scale(0.8)", transformOrigin: "top left" }}>
-        <CoreCard offer={offer} origin={origin} width={1080} height={1350} />
+    <div style={{ ...wrap, width: 608, height: 1080, overflow: "hidden" }}>
+      <div style={{ display: "flex", width: 1080, height: 1920, transform: "scale(0.562963)", transformOrigin: "top left" }}>
+        <TikTokFull offer={offer} origin={origin} />
       </div>
     </div>
   );
