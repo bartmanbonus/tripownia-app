@@ -1,4 +1,4 @@
-export type SocialOfferPartner = "exim" | "tui" | "wakacje" | "booking" | "kiwi" | "getyourguide" | "other";
+export type SocialOfferPartner = "exim" | "tui" | "wakacje" | "booking" | "kiwi" | "getyourguide" | "tanilocik" | "other";
 
 export type SocialOffer = {
   slug: string;
@@ -39,6 +39,8 @@ const ALLOWED_PARTNER_HOSTS = [
   "www.getyourguide.pl",
   "getyourguide.com",
   "www.getyourguide.com",
+  "tanilocik.pl",
+  "www.tanilocik.pl",
 ];
 
 function normalize(value: string) {
@@ -74,6 +76,24 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "rzym-529": {
+    slug: "rzym-529",
+    city: "Rzym",
+    country: "Włochy",
+    price: 529,
+    departure: "Warszawa–Modlin",
+    nights: 3,
+    dates: "16–19 listopada 2026",
+    board: "Bez wyżywienia",
+    hotel: "hu Roma Camping In Town",
+    partner: "tanilocik",
+    partnerLabel: "TaniLocik.pl",
+    affiliateUrl: "https://tanilocik.pl/Wakacje?place=ci-rom",
+    imageSrc: "/images/destinations/rzym.jpg",
+    imageCountry: "Włochy",
+    checkedAt: "2026-09-28T08:49:00+02:00",
+    status: "active",
+  },
   "marrakesz": {
     slug: "marrakesz",
     city: "Marrakesz",
