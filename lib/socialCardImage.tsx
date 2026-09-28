@@ -7,9 +7,14 @@ type VisualType = "city" | "holiday" | "exotic";
 const SAL_IMAGE = "https://r.cdn.redgalaxy.com/scale/o2/TUI/hotels/SID10006/S26/35351876.jpg?dstw=1200&dsth=644.0795159896282&srcw=1157&srch=621&srcx=1%2F2&srcy=1%2F2&srcmode=3&type=1&quality=80";
 
 function visualType(slug: string): VisualType {
-  if (slug === "marrakesz") return "exotic";
-  if (slug === "cypr") return "city";
-  if (slug === "rodos-stamos-2116" || slug === "teneryfa-alua-2841" || slug === "sal-riu-funana-3927") return "holiday";
+  if (slug === "marrakesz" || slug === "gambia-bamboo-2421" || slug === "kenia-voyager-4419") return "exotic";
+  if (slug === "cypr" || slug === "porto-trindade-1209" || slug === "madera-garajau-1599") return "city";
+  if (
+    slug === "rodos-stamos-2116" ||
+    slug === "teneryfa-alua-2841" ||
+    slug === "sal-riu-funana-3927" ||
+    slug === "marsa-utopia-1970"
+  ) return "holiday";
   return "city";
 }
 
@@ -47,7 +52,11 @@ function dateShort(offer: SocialOffer) {
     .replace("10–17 grudnia 2026", "10–17.12 2026")
     .replace("14–21 grudnia 2026", "14–21.12 2026")
     .replace("25–29 października 2026", "25–29.10 2026")
-    .replace("15–19 listopada 2026", "15–19.11 2026");
+    .replace("15–19 listopada 2026", "15–19.11 2026")
+    .replace("15–18 listopada 2026", "15–18.11 2026")
+    .replace("17–24 grudnia 2026", "17–24.12 2026")
+    .replace("4–12 grudnia 2026", "04–12.12 2026")
+    .replace("1–9 grudnia 2026", "01–09.12 2026");
 }
 
 const wrap: React.CSSProperties = {
