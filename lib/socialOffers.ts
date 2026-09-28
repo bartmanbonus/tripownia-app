@@ -74,14 +74,14 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
-  "rzym-artis-613": {
-    slug: "rzym-artis-613",
+  "rzym-artis-621": {
+    slug: "rzym-artis-621",
     city: "Rzym",
     country: "Włochy",
-    price: 613,
+    price: 621,
     departure: "Kraków",
     nights: 2,
-    dates: "8–10 lutego 2027",
+    dates: "27–29 stycznia 2027",
     board: "Bez wyżywienia",
     hotel: "Artis (Rzym)",
     partner: "wakacje",
@@ -89,7 +89,7 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
     affiliateUrl: "https://www.wakacje.pl/oferty/wlochy/lazio/rzym/artis-rzym-758531.html?utm_source=travellead&utm_medium=cps&utm_campaign=3212-tripownia.pl&a_aid=3212&a_cid=tripownia",
     imageSrc: "/images/destinations/rzym.jpg",
     imageCountry: "Włochy",
-    checkedAt: "2026-09-28T10:45:00+02:00",
+    checkedAt: "2026-09-28T09:49:00+02:00",
     status: "active",
   },
   "marrakesz": {
