@@ -160,10 +160,40 @@ function TikTokFull({ offer, origin }: { offer: SocialOffer; origin: string }) {
 }
 
 function TikTok({ offer, origin }: { offer: SocialOffer; origin: string }) {
+  const type = visualType(offer.slug);
+  const c = colors(type);
+  const destination = displayDestination(offer);
+  const priceText = offer.price.toLocaleString("pl-PL").replace(/\u00A0/g, " ");
+  const src = imageUrl(offer, origin);
+
   return (
-    <div style={{ ...wrap, width: 608, height: 1080, overflow: "hidden" }}>
-      <div style={{ display: "flex", width: 1080, height: 1920, transform: "scale(0.562963)", transformOrigin: "top left" }}>
-        <TikTokFull offer={offer} origin={origin} />
+    <div style={{ ...wrap, width: 608, height: 1080, background: c.bg, color: c.fg, padding: "34px 34px 0" }}>
+      <Wordmark fg={c.fg} />
+      <div style={{ display: "flex", marginTop: 20, fontSize: 15, letterSpacing: 5, fontWeight: 500, borderBottom: `1px solid ${c.fg}`, paddingBottom: 8, width: "82%" }}>
+        {category(type)}
+      </div>
+      <div style={{ display: "flex", fontFamily: "Georgia, serif", fontWeight: 800, fontSize: destination.length > 10 ? 52 : destination.length > 7 ? 58 : 66, lineHeight: 0.95, marginTop: 14, letterSpacing: -2 }}>
+        {destination}
+      </div>
+      <div style={{ display: "flex", alignItems: "baseline", marginTop: 4, color: c.price }}>
+        <div style={{ fontFamily: "Georgia, serif", fontWeight: 800, fontSize: 58, lineHeight: 1 }}>{priceText}</div>
+        <div style={{ color: c.fg, fontSize: 17, fontWeight: 700, marginLeft: 8 }}>zł/os.</div>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 7, marginTop: 14, color: c.fg, fontSize: 15, fontWeight: 700 }}>
+        <div style={{ display: "flex", gap: 16 }}>
+          <span>▦ {dateShort(offer)}</span>
+          <span>☾ {offer.nights} {offer.nights === 1 ? "noc" : "nocy"}</span>
+        </div>
+        <div style={{ display: "flex" }}>✈ Wylot z {offer.departure.replace("m.in. ", "")}</div>
+      </div>
+
+      <div style={{ display: "flex", position: "absolute", left: 0, right: 0, top: 430, height: 520 }}>
+        <img src={src} width="608" height="520" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </div>
+
+      <div style={{ display: "flex", position: "absolute", bottom: 34, left: "50%", transform: "translateX(-50%)", background: c.cta, color: "#fff", borderRadius: 28, padding: "14px 30px", fontSize: 20, fontWeight: 700, whiteSpace: "nowrap" }}>
+        Sprawdź ofertę →
       </div>
     </div>
   );
