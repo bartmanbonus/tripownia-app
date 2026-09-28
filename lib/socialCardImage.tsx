@@ -7,7 +7,7 @@ type VisualType = "city" | "holiday" | "exotic";
 const SAL_IMAGE = "https://r.cdn.redgalaxy.com/scale/o2/TUI/hotels/SID10006/S26/35351876.jpg?dstw=1200&dsth=644.0795159896282&srcw=1157&srch=621&srcx=1%2F2&srcy=1%2F2&srcmode=3&type=1&quality=80";
 
 function visualType(slug: string): VisualType {
-  if (slug === "marrakesz" || slug === "gambia-bamboo-2421" || slug === "kenia-voyager-4419") return "exotic";
+  if (slug === "marrakesz" || slug === "gambia-bamboo-2421" || slug === "kenia-voyager-4419" || slug === "gambia-holiday-beach-2463" || slug === "tajlandia-manhattan-4229" || slug === "dominikana-villa-taina-5763" || slug === "jamajka-samsara-6715" || slug === "malediwy-dhiguveli-6122") return "exotic";
   if (slug === "cypr" || slug === "porto-trindade-1209" || slug === "madera-garajau-1599") return "city";
   if (
     slug === "rodos-stamos-2116" ||
@@ -57,6 +57,10 @@ function dateShort(offer: SocialOffer) {
     "17–24 grudnia 2026": "17–24.12 2026",
     "4–12 grudnia 2026": "04–12.12 2026",
     "1–9 grudnia 2026": "01–09.12 2026",
+    "18–26 grudnia 2026": "18–26.12 2026",
+    "28 października – 5 listopada 2026": "28.10–05.11 2026",
+    "3–11 grudnia 2026": "03–11.12 2026",
+    "29 marca – 5 kwietnia 2027": "29.03–05.04 2027",
   };
   return exact[offer.dates] || offer.dates;
 }
