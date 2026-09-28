@@ -8,11 +8,41 @@ import SiteFooter from "@/components/SiteFooter";
 import AffiliateOfferLink from "@/components/AffiliateOfferLink";
 import { getSocialOffer } from "@/lib/socialOffers";
 
-export const metadata: Metadata = {
-  title: "Okazja podróżnicza | Tripownia.pl",
-  description: "Sprawdź szczegóły okazji znalezionej przez Tripownię.",
-  robots: { index: false, follow: true },
-};
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const offer = getSocialOffer(slug);
+  if (!offer) {
+    return {
+      title: "Okazja podróżnicza | Tripownia.pl",
+      description: "Sprawdź szczegóły okazji znalezionej przez Tripownię.",
+      robots: { index: false, follow: true },
+    };
+  }
+
+  const title = `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł/os. | Tripownia.pl`;
+  const description = `${offer.hotel} • ${offer.dates} • ${offer.nights} nocy • wylot: ${offer.departure}. Sprawdź konkretną ofertę na Tripowni.`;
+  const image = `/o/${offer.slug}/opengraph-image`;
+
+  return {
+    title,
+    description,
+    robots: { index: false, follow: true },
+    openGraph: {
+      type: "website",
+      siteName: "Tripownia",
+      locale: "pl_PL",
+      title,
+      description,
+      images: [{ url: image, width: 1200, height: 630, alt: "Tripownia.pl" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
+  };
+}
 
 export default async function ShortSocialOfferPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
