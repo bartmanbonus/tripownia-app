@@ -124,7 +124,10 @@ export function consumeAccountSessionFromUrl(): AccountSession | null {
 
 export async function requestMagicLink(email: string, redirectTo: string) {
   if (!isAccountAuthConfigured()) throw new Error("Logowanie nie jest jeszcze podłączone.");
-  const response = await fetch(`${authBaseUrl()}/auth/v1/otp?redirect_to=${encodeURIComponent(redirectTo)}`, {
+  const safeRedirect = redirectTo.startsWith("https://tripownia.pl/")
+    ? redirectTo
+    : "https://tripownia.pl/konto";
+  const response = await fetch(`${authBaseUrl()}/auth/v1/otp?redirect_to=${encodeURIComponent(safeRedirect)}`, {
     method: "POST",
     headers: publicHeaders(),
     body: JSON.stringify({ email, create_user: true, data: { product: "Tripownia" } }),
@@ -289,9 +292,12 @@ export async function signInWithPassword(email: string, password: string) {
   return session;
 }
 
-export async function signUpWithPassword(email: string, password: string) {
+export async function signUpWithPassword(email: string, password: string, redirectTo = "https://tripownia.pl/konto") {
   if (!isAccountAuthConfigured()) throw new Error("Rejestracja nie jest jeszcze podłączona.");
-  const response = await fetch(`${authBaseUrl()}/auth/v1/signup`, {
+  const safeRedirect = redirectTo.startsWith("https://tripownia.pl/")
+    ? redirectTo
+    : "https://tripownia.pl/konto";
+  const response = await fetch(`${authBaseUrl()}/auth/v1/signup?redirect_to=${encodeURIComponent(safeRedirect)}`, {
     method: "POST",
     headers: publicHeaders(),
     body: JSON.stringify({ email: email.trim(), password, data: { product: "Tripownia" } }),
