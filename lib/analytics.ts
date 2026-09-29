@@ -1,6 +1,7 @@
 export const GA_MEASUREMENT_ID = "G-GHST5CY5LL";
 export const ANALYTICS_CONSENT_KEY = "tripownia-consent-v1";
 export const ANALYTICS_CONSENT_EVENT = "tripownia-consent-updated";
+export const ATTRIBUTION_KEY = "tripownia-attribution-v1";
 
 export type AnalyticsConsent = "analytics" | "marketing" | "necessary" | null;
 export type AnalyticsParams = Record<string, string | number | boolean | undefined | null>;
@@ -94,10 +95,28 @@ export function bootstrapAnalytics() {
   return true;
 }
 
+function readAttributionContext(): AnalyticsParams {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.sessionStorage.getItem(ATTRIBUTION_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    return {
+      trip_source: typeof parsed.source === "string" ? parsed.source.slice(0, 100) : undefined,
+      trip_medium: typeof parsed.medium === "string" ? parsed.medium.slice(0, 100) : undefined,
+      trip_campaign: typeof parsed.campaign === "string" ? parsed.campaign.slice(0, 120) : undefined,
+      trip_content: typeof parsed.content === "string" ? parsed.content.slice(0, 120) : undefined,
+      trip_landing: typeof parsed.landing === "string" ? parsed.landing.slice(0, 180) : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
+
 export function trackEvent(name: string, params: AnalyticsParams = {}) {
   if (!bootstrapAnalytics()) return;
   const cleaned = Object.fromEntries(
-    Object.entries(params).filter(([, value]) => value !== undefined && value !== null)
+    Object.entries({ ...readAttributionContext(), ...params }).filter(([, value]) => value !== undefined && value !== null)
   );
   window.gtag?.("event", name, cleaned);
 }
