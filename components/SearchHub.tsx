@@ -691,19 +691,23 @@ export default function SearchHub({
       ])).filter((item) => !isTravelDestinationBlocked(item));
 
       const url = activeTab === "Loty"
-        ? standaloneFlightPartnerUrl(destinations, departures, {
-            adults: flightAdults,
-            cabin: flightCabin,
-            tripType: flightTripType,
-            outbound: dateFrom || undefined,
-            inbound: flightTripType === "round" ? (dateTo || undefined) : undefined,
-          })
+        ? (() => {
+            const params = new URLSearchParams();
+            if (destinations[0]) params.set("destination", destinations[0]);
+            if (departures[0]) params.set("origin", departures[0]);
+            if (dateFrom) params.set("outbound", dateFrom);
+            if (flightTripType === "round" && dateTo) params.set("inbound", dateTo);
+            params.set("adults", String(flightAdults));
+            params.set("cabin", flightCabin);
+            params.set("tripType", flightTripType);
+            return `/loty?${params.toString()}`;
+          })()
         : standaloneHotelPartnerUrl(destinations);
 
       setSearched(true);
       setResults([]);
       setNotice(activeTab === "Loty"
-        ? "Przechodzimy do wyszukiwania lotów przez partnera Tripowni."
+        ? "Otwieramy porównywarkę lotów Tripowni."
         : "Przechodzimy do wyszukiwania noclegów przez partnera Tripowni.");
       window.location.assign(url);
       return;
