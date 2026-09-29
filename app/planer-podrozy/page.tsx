@@ -5,8 +5,8 @@ import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import styles from "../conversion-pages.module.css";
 
-const title = "Darmowy planer podróży – plan wyjazdu krok po kroku";
-const description = "Zaplanuj wyjazd z Tripownią: lot, nocleg, atrakcje, plan dnia i checklista w jednym miejscu. Dodaj także podróż zarezerwowaną poza Tripownią.";
+const title = "Planer podróży online za darmo – zaplanuj cały wyjazd";
+const description = "Darmowy planer podróży online: lot, nocleg, atrakcje, transfer, plan dnia i checklista w jednym miejscu. Zaplanuj wyjazd krok po kroku z Tripownią.";
 
 export const metadata: Metadata = {
   title,
@@ -205,6 +205,19 @@ export default function TravelPlannerGuide() {
           <div className={styles.plannerCardActions}>
             <Link href="/konto">Zaloguj się lub utwórz konto</Link>
             <Link href="/profil">Ustaw preferencje</Link>
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.shell}>
+        <div className={styles.sectionCard}>
+          <div className={styles.kicker}>POMYSŁY NA WYJAZD</div>
+          <h2>Najpierw znajdź kierunek, potem ułóż go w planerze</h2>
+          <div className={styles.linkPills}>
+            <Link href="/city-break">City break lot + hotel</Link>
+            <Link href="/sylwester">Sylwester 2026/2027</Link>
+            <Link href="/wakacje">Wakacje</Link>
+            <Link href="/okazje">Okazje Tripowni</Link>
           </div>
         </div>
       </section>
