@@ -1,4 +1,4 @@
 import type { Metadata } from "next";
 import DepartureDealsPage from "@/components/DepartureDealsPage";
 export const metadata: Metadata = { title: { absolute: "Wyjazdy z Katowic — wakacje i loty z KTW | Tripownia.pl" }, description: "Wyjazdy z Katowic-Pyrzowic: aktualne wakacje, loty i oferty z KTW. Wybierz typ podróży albo przejdź do dedykowanej strony city break.", alternates: { canonical: "/z-katowic" } };
-export default function Page(){return <DepartureDealsPage city="Katowic" airportCodes={["KTW"]} intro="Szukaj aktualnych pakietów i krótkich wyjazdów z Katowic. Tripownia zbiera różne kierunki w jednej, łatwej do przejrzenia puli." cityBreakHref="/podroze/city-break-z-katowic"/>}
+export default function Page(){return <DepartureDealsPage city="Katowic" airportCodes={["KTW"]} intro="Szukaj aktualnych pakietów i krótkich wyjazdów z Katowic. Tripownia zbiera różne kierunki w jednej, łatwej do przejrzenia puli." cityBreakHref="/podroze/city-break-z-katowic" holidaysHref="/podroze/wakacje-z-katowic" lastMinuteHref="/podroze/last-minute-z-katowic" allInclusiveHref="/podroze/all-inclusive-z-katowic"/>}
