@@ -127,8 +127,8 @@ function diversifyOfferVariants(rows: any[], limit = 80, perDirection = 10) {
 
 function canonicalSearchDestination(value: string) {
   const normalized = value.trim();
-  if (/\bbergamo\b/i.test(normalized)) return "Mediolan, Włochy";
-  if (/\bmilan\b/i.test(normalized)) return "Mediolan, Włochy";
+  if (/\bbergamo\b/i.test(normalized)) return "Mediolan";
+  if (/\bmilan\b/i.test(normalized)) return "Mediolan";
   if (/\bsajgon\b/i.test(normalized)) return "Ho Chi Minh, Wietnam";
   return normalized;
 }
