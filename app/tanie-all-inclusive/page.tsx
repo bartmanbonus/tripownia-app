@@ -37,6 +37,23 @@ export default function CheapAllInclusivePage() {
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }} />
+    <section className="section shell">
+      <div className="section-heading">
+        <div>
+          <div className="kicker">ALL INCLUSIVE Z LOTNISKA</div>
+          <h2>Wybierz miasto wylotu</h2>
+          <p>Osobne strony zbierają aktualne pakiety All Inclusive z konkretnych polskich lotnisk.</p>
+        </div>
+      </div>
+      <div className="seo-related-links">
+        <a href="/podroze/all-inclusive-z-katowic">All Inclusive z Katowic →</a>
+        <a href="/podroze/all-inclusive-z-poznania">All Inclusive z Poznania →</a>
+        <a href="/podroze/all-inclusive-z-krakowa">All Inclusive z Krakowa →</a>
+        <a href="/podroze/all-inclusive-z-warszawy">All Inclusive z Warszawy →</a>
+        <a href="/podroze/all-inclusive-z-gdanska">All Inclusive z Gdańska →</a>
+        <a href="/podroze/all-inclusive-z-wroclawia">All Inclusive z Wrocławia →</a>
+      </div>
+    </section>
     <DealsPage
       dealType="allinclusive"
       kicker="TANIE ALL INCLUSIVE 🔥"
