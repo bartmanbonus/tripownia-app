@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Trash2, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import { airportOptions } from "@/lib/offers";
-import { WORLD_DESTINATIONS, destinationMatches } from "@/lib/worldDestinations";
+import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type WorldDestination } from "@/lib/worldDestinations";
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { partners } from "@/lib/partners";
@@ -122,7 +122,7 @@ function canonicalSearchDestination(value: string) {
   return normalized;
 }
 
-function cityBreakFallbackLinks(destination: string) {
+function destinationPartnerLinks(destination: string) {
   const query = destination.trim();
   if (!query) return null;
   const bookingBase = new URL("https://www.booking.com/searchresults.pl.html");
@@ -263,6 +263,7 @@ export default function SearchHub({
   const [board, setBoard] = useState("all");
   const [weekendOnly, setWeekendOnly] = useState(initialWeekendOnly);
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [remoteDestinations, setRemoteDestinations] = useState<WorldDestination[]>([]);
   const [results, setResults] = useState<any[]>([]);
   const [resultLocation, setResultLocation] = useState("");
   const [resultSort, setResultSort] = useState<"recommended" | "price" | "rating" | "nights">("recommended");
@@ -284,13 +285,46 @@ export default function SearchHub({
 
   const suggestions = useMemo(() => {
     const query = destination.trim();
-    if (!query) return WORLD_DESTINATIONS.filter((x) => isTravelDestinationAllowed(x.label, x.region)).slice(0, 8);
-    return WORLD_DESTINATIONS
+    const source = query ? [...WORLD_DESTINATIONS, ...remoteDestinations] : WORLD_DESTINATIONS;
+    const seen = new Set<string>();
+    return source
       .filter((x) => isTravelDestinationAllowed(x.label, x.region))
       .filter((x) => !selectedDestinations.includes(x.label))
-      .filter((x) => destinationMatches(query, x))
+      .filter((x) => !query || destinationMatches(query, x))
+      .filter((x) => {
+        const key = normalizeDestination(x.label);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
       .slice(0, 8);
-  }, [destination, selectedDestinations]);
+  }, [destination, selectedDestinations, remoteDestinations]);
+
+  useEffect(() => {
+    const query = destination.trim();
+    if (query.length < 2) {
+      setRemoteDestinations([]);
+      return;
+    }
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      try {
+        const response = await fetch(`/api/destination-search?q=${encodeURIComponent(query)}`, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        const data = await response.json();
+        if (!response.ok || data?.ok === false || !Array.isArray(data?.suggestions)) return;
+        setRemoteDestinations(data.suggestions);
+      } catch (error) {
+        if ((error as Error)?.name !== "AbortError") setRemoteDestinations([]);
+      }
+    }, 220);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [destination]);
 
   const resultLocations = useMemo(() => {
     const counts = new Map<string, number>();
@@ -391,7 +425,7 @@ export default function SearchHub({
     const runId = ++searchRunRef.current;
     const typed = (destinationOverride ?? destination).trim();
     const typedDestinations = typed
-      ? typed.split(/[,;\n]+/).map((item) => item.trim()).filter(Boolean)
+      ? typed.split(/[;\n]+/).map((item) => item.trim()).filter(Boolean)
       : [];
     const requestedRaw = destinationOverride
       ? [destinationOverride]
@@ -508,7 +542,7 @@ export default function SearchHub({
         setResults(rows);
       }
 
-      if (!rows.length && activeMode === "City break") {
+      if (!rows.length && activeMode === "City break" && !requested.length) {
         const broadParams = new URLSearchParams({ mode: "citybreak", broad: "1" });
         const broadResponse = await fetch(`/api/today-offers?${broadParams.toString()}`, { cache: "no-store" });
         const broadData = await broadResponse.json();
@@ -823,7 +857,7 @@ export default function SearchHub({
             {suggestionsOpen && (
               <div className="search-v3-suggestions" role="dialog" aria-label="Wybierz kierunki">
                 <div className="search-v3-panel-head">
-                  <div><strong>Wybierz kierunki</strong><small>Możesz dodać kilka i wyszukać je jednocześnie.</small></div>
+                  <div><strong>Wybierz kierunki</strong><small>Wpisz dowolne miasto lub kraj na świecie. Możesz dodać kilka.</small></div>
                   <button type="button" className="search-v3-panel-close" aria-label="Zamknij wybór kierunków" onClick={() => setSuggestionsOpen(false)}><X size={16}/></button>
                 </div>
 
@@ -841,7 +875,7 @@ export default function SearchHub({
                   <button type="button" className="search-v3-anywhere" onClick={() => { setSelectedDestinations([]); setDestination(""); setSuggestionsOpen(false); }}>
                     <MapPin size={15}/><span><strong>🌍 Gdziekolwiek</strong><small>Bez ograniczenia kierunku — pokaż najlepsze dostępne opcje</small></span>
                   </button>
-                  {suggestions.length > 0 ? suggestions.map((item) => (
+                  {suggestions.map((item) => (
                     <button key={item.label} type="button" onClick={() => {
                       const next = canonicalSearchDestination(item.label);
                       setSelectedDestinations((current) => Array.from(new Set([...current, next])));
@@ -849,12 +883,13 @@ export default function SearchHub({
                     }}>
                       <MapPin size={15}/><span><strong>{item.label}</strong><small>{item.region} · dodaj do wyboru</small></span>
                     </button>
-                  )) : destination.trim() && !isTravelDestinationBlocked(destination) ? (
+                  ))}
+                  {destination.trim() && !isTravelDestinationBlocked(destination) && (
                     <button type="button" onClick={() => {
                       setSelectedDestinations((current) => Array.from(new Set([...current, canonicalSearchDestination(destination.trim())])));
                       setDestination("");
-                    }}><Search size={15}/><span><strong>Dodaj „{destination.trim()}”</strong><small>Dodaj jako kolejny kierunek</small></span></button>
-                  ) : null}
+                    }}><Search size={15}/><span><strong>Użyj dokładnie „{destination.trim()}”</strong><small>Wyszukaj ten kierunek nawet, jeśli nie ma go na liście podpowiedzi</small></span></button>
+                  )}
                 </div>
 
                 <div className="search-v3-panel-footer">
@@ -1161,10 +1196,10 @@ export default function SearchHub({
             )}
             {!loading && results.length === 0 && !expanding && (() => {
               const fallbackDestination = selectedDestinations[0] || destination;
-              const fallback = activeTab === "City break" ? cityBreakFallbackLinks(fallbackDestination) : null;
+              const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination) : null;
               return <div className="search-v3-empty">
-                <strong>{fallback ? "Nie ma teraz gotowego pakietu — ale nadal możesz złożyć city break." : "Spróbuj trochę szerzej."}</strong>
-                <span>{fallback ? "Sprawdź lot i nocleg osobno u partnerów Tripowni albo zmień filtry pakietu." : "Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji."}</span>
+                <strong>{fallback ? `Nie mamy teraz gotowego pakietu dla „${fallbackDestination}” — ale ten kierunek nadal możesz wyszukać.` : "Spróbuj trochę szerzej."}</strong>
+                <span>{fallback ? "Sprawdź loty i noclegi dla dokładnie tego kierunku u partnerów Tripowni." : "Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji."}</span>
                 {fallback && <div className="search-v3-empty-actions">
                   <a href={fallback.kiwi} target="_blank" rel="sponsored noopener noreferrer">Sprawdź loty w Kiwi.com</a>
                   <a href={fallback.booking} target="_blank" rel="sponsored noopener noreferrer">Sprawdź noclegi w Booking.com</a>
