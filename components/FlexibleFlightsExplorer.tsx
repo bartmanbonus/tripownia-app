@@ -262,7 +262,7 @@ function ScriptSlot({ src, id, fallbackHref }: { src: string; id: string; fallba
       {status === "fallback" && (
         <div className="flight-hunt-widget-fallback">
           <strong>Nie udało się wyświetlić podglądu cen tutaj.</strong>
-          <span>Otwórz afiliacyjną wyszukiwarkę lotów Tripowni — tracking pozostaje aktywny.</span>
+          <span>Otwórz pełną wyszukiwarkę lotów Tripowni.</span>
           <a href={fallbackHref} rel="sponsored">Sprawdź loty</a>
         </div>
       )}
@@ -551,7 +551,7 @@ export default function FlexibleFlightsExplorer() {
           <div className="flight-hunt-empty-badges">
             <span>✓ elastyczne daty</span>
             <span>✓ wiele lotnisk</span>
-            <span>✓ afiliacyjne ceny</span>
+            <span>✓ aktualne ceny</span>
           </div>
         </div>
       )}
@@ -632,7 +632,7 @@ export default function FlexibleFlightsExplorer() {
 
                 {!dealsLoading && sortedDeals.length === 0 && (
                   <div className="flight-deals-empty">
-                    Lista cen chwilowo nie jest dostępna. Mapa powyżej nadal działa i prowadzi przez afiliację Tripowni.
+                    Lista cen chwilowo nie jest dostępna. Skorzystaj z mapy powyżej albo spróbuj ponownie za chwilę.
                   </div>
                 )}
               </section>
@@ -643,9 +643,7 @@ export default function FlexibleFlightsExplorer() {
         </div>
       )}
 
-      <div className="flight-hunt-note">
-        Ceny i przejścia do rezerwacji są afiliacyjne i przypisane do Tripowni.
-      </div>
+
     </section>
   );
 }
