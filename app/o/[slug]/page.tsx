@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { ArrowLeft, BadgeCheck, CalendarDays, ExternalLink, MapPin, Moon, Plane, Utensils } from "lucide-react";
+import { ArrowLeft, BadgeCheck, CalendarDays, MapPin, Moon, Plane, PlusCircle, Utensils } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AffiliateOfferLink from "@/components/AffiliateOfferLink";
@@ -121,7 +121,8 @@ export default async function ShortSocialOfferPage({ params }: { params: Promise
               <>
                 <div className="detail-source">Najpierw oglądasz szczegóły w Tripowni. Rezerwacja i płatność odbywają się bezpośrednio u partnera.</div>
                 <div className="detail-action-box">
-                  <AffiliateOfferLink href={offer.affiliateUrl} partner={offer.partnerLabel} slug={offer.slug} destination={`${offer.city}, ${offer.country}`} />
+                  <AffiliateOfferLink href={offer.affiliateUrl} partner={offer.partnerLabel} slug={offer.slug} destination={`${offer.city}, ${offer.country}`} tripKind={offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package"} />
+                  <Link className="btn secondary" href={`/dodaj-podroz?mode=owned&source=affiliate&city=${encodeURIComponent(offer.city)}&country=${encodeURIComponent(offer.country)}&kind=${offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package"}&partner=${encodeURIComponent(offer.partnerLabel)}&slug=${encodeURIComponent(offer.slug)}`}><PlusCircle size={17}/> Dodaj do planera</Link>
                   <small className="affiliate-note">Link partnerski. Możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.</small>
                 </div>
               </>
