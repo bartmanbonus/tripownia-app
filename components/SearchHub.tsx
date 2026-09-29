@@ -136,6 +136,22 @@ function destinationPartnerLinks(destination: string) {
   };
 }
 
+function standaloneFlightPartnerUrl(destinations: string[], departures: string[]) {
+  const target = destinations[0]?.trim() || "";
+  const kiwiBase = new URL("https://www.kiwi.com/pl/");
+  if (target) kiwiBase.searchParams.set("destination", target);
+  if (departures.length === 1) kiwiBase.searchParams.set("origin", departures[0]);
+  kiwiBase.searchParams.set("currency", "PLN");
+  return partners.kiwi.buildUrl(kiwiBase.toString());
+}
+
+function standaloneHotelPartnerUrl(destinations: string[]) {
+  const target = destinations[0]?.trim() || "";
+  const bookingBase = new URL("https://www.booking.com/searchresults.pl.html");
+  if (target) bookingBase.searchParams.set("ss", target);
+  return partners.booking.buildUrl(bookingBase.toString());
+}
+
 function cleanRows(rows: any[], query: string) {
   const cleaned = rows
     .filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()))
@@ -654,6 +670,27 @@ export default function SearchHub({
 
   function submitSearch(event: FormEvent) {
     event.preventDefault();
+
+    if (activeTab === "Same loty" || activeTab === "Same hotele") {
+      const typed = destination.trim();
+      const destinations = Array.from(new Set([
+        ...selectedDestinations,
+        ...(typed ? typed.split(/[;\n]+/).map((item) => canonicalSearchDestination(item.trim())).filter(Boolean) : []),
+      ])).filter((item) => !isTravelDestinationBlocked(item));
+
+      const url = activeTab === "Same loty"
+        ? standaloneFlightPartnerUrl(destinations, departures)
+        : standaloneHotelPartnerUrl(destinations);
+
+      setSearched(true);
+      setResults([]);
+      setNotice(activeTab === "Same loty"
+        ? "Otwieramy wyszukiwanie samych lotów w Kiwi.com przez link partnerski Tripowni."
+        : "Otwieramy wyszukiwanie samych hoteli w Booking.com przez link partnerski Tripowni.");
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
+    }
+
     void runSearch();
   }
 
@@ -829,7 +866,7 @@ export default function SearchHub({
         )}
 
         <div className="search-v3-tabs" role="group" aria-label="Rodzaj podróży">
-          {["Inspiracje", "City break", "Wakacje", "Last minute", "Lot + hotel"].map((tab) => (
+          {["Inspiracje", "City break", "Wakacje", "Last minute", "Lot + hotel", "Same loty", "Same hotele"].map((tab) => (
             <button key={tab} type="button" aria-pressed={activeTab === tab} className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
@@ -1145,7 +1182,7 @@ export default function SearchHub({
             </label>
           </div>
 
-          <button type="submit" className="search-v3-submit" disabled={loading || budgetInvalid}><Search size={18}/>{loading ? "Szukamy…" : budgetInvalid ? "Popraw budżet" : "Szukaj wyjazdu"}</button>
+          <button type="submit" className="search-v3-submit" disabled={loading || budgetInvalid}><Search size={18}/>{loading ? "Szukamy…" : budgetInvalid ? "Popraw budżet" : activeTab === "Same loty" ? "Szukaj lotów" : activeTab === "Same hotele" ? "Szukaj hoteli" : "Szukaj wyjazdu"}</button>
         </form>
 
         {!embedded && <div className="search-v3-quick">
