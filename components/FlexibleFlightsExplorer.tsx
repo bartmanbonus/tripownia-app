@@ -240,7 +240,7 @@ export default function FlexibleFlightsExplorer() {
   const [directOnly, setDirectOnly] = useState(false);
   const [activeRouteKey, setActiveRouteKey] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const marker = "695999.tripownia_flexible";
+  const marker = "695999.TRIPOWNIAPL";
 
   const effectiveOrigins = useMemo(
     () => (originAnywhere ? FLEXIBLE_ORIGINS : origins),
@@ -287,6 +287,7 @@ export default function FlexibleFlightsExplorer() {
     if (!activeRoute?.origin.code || !activeRoute.destination?.code) return "";
     const params = new URLSearchParams({
       marker,
+      shmarker: marker,
       origin: activeRoute.origin.code,
       destination: activeRoute.destination.code,
       currency: "pln",
