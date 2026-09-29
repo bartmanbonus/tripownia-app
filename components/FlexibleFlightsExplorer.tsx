@@ -4,6 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 type Place = { code: string; name: string; country: string; airport?: string; type?: string };
 type RouteChoice = { key: string; origin: Place; destination: Place | null };
+type FlightDeal = {
+  destination: string;
+  name: string;
+  country: string;
+  price: number;
+  departDate: string;
+  returnDate: string;
+  changes: number;
+  affiliateUrl: string;
+};
 
 const FLEXIBLE_ORIGINS: Place[] = [
   { code: "WAW", name: "Warszawa", country: "Polska" },
@@ -290,6 +300,9 @@ export default function FlexibleFlightsExplorer() {
   const [directOnly, setDirectOnly] = useState(false);
   const [activeRouteKey, setActiveRouteKey] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [deals, setDeals] = useState<FlightDeal[]>([]);
+  const [dealsLoading, setDealsLoading] = useState(false);
+  const [dealsSort, setDealsSort] = useState<"price" | "name">("price");
   const marker = "695999.TRIPOWNIAPL";
 
   const effectiveOrigins = useMemo(
@@ -384,6 +397,42 @@ export default function FlexibleFlightsExplorer() {
     });
     return "https://maps.tp.media/flights/?" + params.toString();
   }, [activeRoute, destinationAnywhere, directOnly]);
+
+  useEffect(() => {
+    if (!submitted || !destinationAnywhere || !activeRoute?.origin.code) {
+      setDeals([]);
+      return;
+    }
+
+    const controller = new AbortController();
+    setDealsLoading(true);
+
+    const params = new URLSearchParams({
+      origin: activeRoute.origin.code,
+      direct: directOnly ? "true" : "false",
+      minDays: String(Math.min(daysMin, daysMax)),
+      maxDays: String(Math.max(daysMin, daysMax)),
+    });
+
+    fetch("/api/flight-deals?" + params.toString(), {
+      signal: controller.signal,
+      cache: "no-store",
+    })
+      .then((response) => response.json())
+      .then((data) => setDeals(Array.isArray(data?.offers) ? data.offers : []))
+      .catch(() => setDeals([]))
+      .finally(() => setDealsLoading(false));
+
+    return () => controller.abort();
+  }, [submitted, destinationAnywhere, activeRoute?.origin.code, directOnly, daysMin, daysMax]);
+
+  const sortedDeals = useMemo(() => {
+    const rows = [...deals];
+    if (dealsSort === "name") {
+      return rows.sort((a, b) => a.name.localeCompare(b.name, "pl"));
+    }
+    return rows.sort((a, b) => a.price - b.price);
+  }, [deals, dealsSort]);
 
   function dirty() {
     setSubmitted(false);
@@ -542,9 +591,55 @@ export default function FlexibleFlightsExplorer() {
             </span>
           </div>
 
-          {destinationAnywhere
-            ? mapSrc && <LowPriceMapFrame key={activeRoute?.key + "-map"} src={mapSrc} />
-            : calendarSrc && <ScriptSlot key={activeRoute?.key + "-calendar"} id="tripownia-price-calendar" src={calendarSrc} fallbackHref={affiliateFallbackUrl} />}
+          {destinationAnywhere ? (
+            <>
+              {mapSrc && <LowPriceMapFrame key={activeRoute?.key + "-map"} src={mapSrc} />}
+
+              <section className="flight-deals-list" aria-label="Lista tanich lotów">
+                <div className="flight-deals-list-head">
+                  <div>
+                    <small>LISTA OFERT</small>
+                    <h3>Tanie kierunki z {activeRoute?.origin.name || "wybranego lotniska"}</h3>
+                  </div>
+                  <div className="flight-deals-sort" role="group" aria-label="Sortowanie listy lotów">
+                    <button type="button" className={dealsSort === "price" ? "active" : ""} onClick={() => setDealsSort("price")}>Najtańsze</button>
+                    <button type="button" className={dealsSort === "name" ? "active" : ""} onClick={() => setDealsSort("name")}>A–Z</button>
+                  </div>
+                </div>
+
+                {dealsLoading && <div className="flight-deals-loading">Pobieramy najtańsze kierunki…</div>}
+
+                {!dealsLoading && sortedDeals.length > 0 && (
+                  <div className="flight-deals-grid">
+                    {sortedDeals.slice(0, 36).map((deal) => (
+                      <a className="flight-deal-card" key={deal.destination} href={deal.affiliateUrl} rel="sponsored">
+                        <div className="flight-deal-main">
+                          <div>
+                            <strong>{deal.name}</strong>
+                            <span>{deal.country || deal.destination}</span>
+                          </div>
+                          <b>od {deal.price.toLocaleString("pl-PL")} zł</b>
+                        </div>
+                        <div className="flight-deal-meta">
+                          <span>{deal.departDate || "elastyczny termin"}{deal.returnDate ? " → " + deal.returnDate : ""}</span>
+                          <span>{deal.changes === 0 ? "bez przesiadek" : deal.changes + " przesiadka" + (deal.changes > 1 ? "i" : "")}</span>
+                          <em>Sprawdź lot</em>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                )}
+
+                {!dealsLoading && sortedDeals.length === 0 && (
+                  <div className="flight-deals-empty">
+                    Lista cen chwilowo nie jest dostępna. Mapa powyżej nadal działa i prowadzi przez afiliację Tripowni.
+                  </div>
+                )}
+              </section>
+            </>
+          ) : (
+            calendarSrc && <ScriptSlot key={activeRoute?.key + "-calendar"} id="tripownia-price-calendar" src={calendarSrc} fallbackHref={affiliateFallbackUrl} />
+          )}
         </div>
       )}
 
