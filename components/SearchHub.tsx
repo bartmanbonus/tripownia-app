@@ -496,6 +496,7 @@ export default function SearchHub({
       const combinations = targets.flatMap((target) => origins.map((origin) => ({ target, origin }))).slice(0, 20);
       const payloads = await Promise.all(combinations.map(async ({ target, origin }) => {
         const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });
+        if (activeMode === "All Inclusive") params.set("board", "allinclusive");
         if (activeMode === "Last minute") params.set("lastMinute", "1");
         if (target) params.set("q", target);
         else params.set("broad", "1");
@@ -685,9 +686,9 @@ export default function SearchHub({
       setSearched(true);
       setResults([]);
       setNotice(activeTab === "Loty"
-        ? "Otwieramy wyszukiwanie samych lotów w Kiwi.com przez link partnerski Tripowni."
-        : "Otwieramy wyszukiwanie samych hoteli w Booking.com przez link partnerski Tripowni.");
-      window.open(url, "_blank", "noopener,noreferrer");
+        ? "Przechodzimy do wyszukiwania lotów przez partnera Tripowni."
+        : "Przechodzimy do wyszukiwania noclegów przez partnera Tripowni.");
+      window.location.assign(url);
       return;
     }
 
@@ -866,7 +867,7 @@ export default function SearchHub({
         )}
 
         <div className="search-v3-tabs" role="group" aria-label="Rodzaj podróży">
-          {["Inspiracje", "City break", "Wakacje", "Last minute", "Lot + hotel", "Loty", "Hotele"].map((tab) => (
+          {["Loty", "Hotele", "All Inclusive", "City break", "Lot + hotel"].map((tab) => (
             <button key={tab} type="button" aria-pressed={activeTab === tab} className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
@@ -1238,8 +1239,8 @@ export default function SearchHub({
                 <strong>{fallback ? `Nie mamy teraz gotowego pakietu dla „${fallbackDestination}” — ale ten kierunek nadal możesz wyszukać.` : "Spróbuj trochę szerzej."}</strong>
                 <span>{fallback ? "Sprawdź loty i noclegi dla dokładnie tego kierunku u partnerów Tripowni." : "Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji."}</span>
                 {fallback && <div className="search-v3-empty-actions">
-                  <a href={fallback.kiwi} target="_blank" rel="sponsored noopener noreferrer">Sprawdź loty w Kiwi.com</a>
-                  <a href={fallback.booking} target="_blank" rel="sponsored noopener noreferrer">Sprawdź noclegi w Booking.com</a>
+                  <a href={fallback.kiwi} rel="sponsored">Sprawdź loty w Kiwi.com</a>
+                  <a href={fallback.booking} rel="sponsored">Sprawdź noclegi w Booking.com</a>
                 </div>}
               </div>;
             })()}
