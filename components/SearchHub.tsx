@@ -8,6 +8,8 @@ import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type Worl
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { partners } from "@/lib/partners";
+import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
+import TravelpayoutsFlightsWidget from "@/components/TravelpayoutsFlightsWidget";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 
@@ -911,6 +913,19 @@ export default function SearchHub({
           ))}
         </div>
 
+        {activeTab === "Loty" ? (
+          <div className="search-v3-flight-center">
+            <FlexibleFlightsExplorer />
+            <div className="search-v3-flight-exact">
+              <div className="search-v3-flight-exact-head">
+                <div className="kicker">MASZ KONKRETNY TERMIN?</div>
+                <h3>Porównaj konkretny lot</h3>
+                <p>Jeśli znasz dokładne daty, wyszukaj połączenia w naszej afiliacyjnej porównywarce.</p>
+              </div>
+              <TravelpayoutsFlightsWidget />
+            </div>
+          </div>
+        ) : (
         <form className="search-v3-form" onSubmit={submitSearch}>
           <div className={`search-v3-field search-v3-destination${suggestionsOpen ? " is-open" : ""}`} ref={destinationRef}>
             <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd? <small>wiele kierunków</small></label>
@@ -1260,8 +1275,9 @@ export default function SearchHub({
 
           <button type="submit" className="search-v3-submit" disabled={loading || budgetInvalid}><Search size={18}/>{loading ? "Szukamy…" : budgetInvalid ? "Popraw budżet" : activeTab === "Loty" ? "Porównaj loty" : activeTab === "Hotele" ? "Szukaj hoteli" : "Szukaj wyjazdu"}</button>
         </form>
+        )}
 
-        {!embedded && <div className="search-v3-quick">
+        {!embedded && activeTab !== "Loty" && <div className="search-v3-quick"
           <span>Szybki start</span>
           <div>{quickPicks.map(([destinationLabel, label, overrides]) => <button type="button" key={destinationLabel} onClick={() => quickSearch(destinationLabel, overrides)}>{label}</button>)}</div>
         </div>}
