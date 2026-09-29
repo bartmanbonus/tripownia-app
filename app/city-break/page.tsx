@@ -42,9 +42,10 @@ const cityBreakIdeas = [
 ];
 
 const seasonalCityBreaks = [
-  { href: "/podroze/city-break-pazdziernik-2026", label: "Październik 2026" },
-  { href: "/podroze/city-break-listopad-2026", label: "Listopad 2026" },
-  { href: "/podroze/city-break-grudzien-2026", label: "Grudzień 2026" },
+  { href: "/podroze/city-break-pazdziernik-2026", label: "City break październik 2026" },
+  { href: "/podroze/city-break-listopad-2026", label: "City break listopad 2026" },
+  { href: "/podroze/city-break-grudzien-2026", label: "City break grudzień 2026" },
+  { href: "/sylwester", label: "City break na Sylwestra 2026/2027" },
 ];
 
 const airportCityBreaks = [
