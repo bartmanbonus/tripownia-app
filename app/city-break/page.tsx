@@ -48,12 +48,19 @@ const seasonalCityBreaks = [
 ];
 
 const airportCityBreaks = [
-  { href: "/podroze/city-break-z-warszawy", label: "Z Warszawy" },
-  { href: "/podroze/city-break-z-krakowa", label: "Z Krakowa" },
-  { href: "/podroze/city-break-z-katowic", label: "Z Katowic" },
-  { href: "/podroze/city-break-z-gdanska", label: "Z Gdańska" },
-  { href: "/podroze/city-break-z-wroclawia", label: "Z Wrocławia" },
-  { href: "/podroze/city-break-z-poznania", label: "Z Poznania" },
+  { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
+  { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
+  { href: "/podroze/city-break-z-lublina", label: "City break z Lublina" },
+  { href: "/podroze/city-break-z-katowic", label: "City break z Katowic" },
+  { href: "/podroze/city-break-z-gdanska", label: "City break z Gdańska" },
+  { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa" },
+  { href: "/podroze/city-break-z-wroclawia", label: "City break z Wrocławia" },
+  { href: "/podroze/city-break-z-rzeszowa", label: "City break z Rzeszowa" },
+  { href: "/podroze/city-break-ze-szczecina", label: "City break ze Szczecina" },
+  { href: "/podroze/city-break-z-lodzi", label: "City break z Łodzi" },
+  { href: "/podroze/city-break-z-bydgoszczy", label: "City break z Bydgoszczy" },
+  { href: "/podroze/city-break-z-olsztyna-mazur", label: "City break z Olsztyna-Mazur" },
+  { href: "/podroze/city-break-z-modlina", label: "City break z Modlina" },
 ];
 
 export default function CityBreakPage() {
@@ -126,7 +133,8 @@ export default function CityBreakPage() {
     <section className={styles.shell}>
       <div className={styles.sectionCard}>
         <div className={styles.kicker}>SZUKAJ WG TERMINU LUB LOTNISKA</div>
-        <h2>Gotowe skróty, jeśli nie chcesz ustawiać wszystkiego od zera</h2>
+        <h2>City break z Warszawy, Poznania, Krakowa i innych lotnisk</h2>
+        <p>Wybierz lotnisko startowe i przejdź od razu do krótkich wyjazdów z tego miasta. Osobne strony pomagają znaleźć realne kierunki i porównać pełny koszt lotu + hotelu.</p>
         <div className={styles.linkPills}>
           {seasonalCityBreaks.map(item => <Link key={item.href} href={item.href}>{item.label}</Link>)}
           {airportCityBreaks.map(item => <Link key={item.href} href={item.href}>{item.label}</Link>)}
