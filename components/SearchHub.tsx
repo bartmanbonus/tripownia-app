@@ -8,6 +8,8 @@ import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type Worl
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { partners } from "@/lib/partners";
+import { trackEvent } from "@/lib/analytics";
+import { trackMetaCustomEvent } from "@/lib/metaPixel";
 
 type Props = {
   initialAirports?: string[];
@@ -700,6 +702,16 @@ export default function SearchHub({
           })
         : standaloneHotelPartnerUrl(destinations);
 
+      const partner = activeTab === "Loty" ? "kiwi" : "booking";
+      const outboundParams = {
+        partner,
+        mode: activeTab.toLowerCase(),
+        destination: destinations.join(" + ").slice(0, 160) || "dowolnie",
+        departure: departures.join(",").slice(0, 80) || "dowolnie",
+        placement: "searchhub",
+      };
+      trackEvent("outbound_partner_click", outboundParams);
+      trackMetaCustomEvent("PartnerOutboundClick", outboundParams);
       setSearched(true);
       setResults([]);
       setNotice(activeTab === "Loty"
@@ -1260,6 +1272,17 @@ export default function SearchHub({
 
             {!loading && results.length > 0 && (
               <>
+                <div className="search-v3-sales-trust" aria-label="Jak działa rezerwacja w Tripowni">
+                  <span>✓ Aktualne oferty partnerów</span>
+                  <span>✓ Klikasz bezpośrednio do EXIM / TUI</span>
+                  <span>✓ Rezerwacja i płatność odbywają się u partnera</span>
+                </div>
+                <div className="search-v3-sales-sort" aria-label="Szybkie sortowanie ofert">
+                  <button type="button" className={resultSort === "recommended" ? "active" : ""} onClick={() => { setResultSort("recommended"); setVisibleCount(12); }}>Polecane</button>
+                  <button type="button" className={resultSort === "price" ? "active" : ""} onClick={() => { setResultSort("price"); setVisibleCount(12); }}>Najtańsze</button>
+                  <button type="button" className={resultSort === "rating" ? "active" : ""} onClick={() => { setResultSort("rating"); setVisibleCount(12); }}>Najwyżej oceniane</button>
+                  <button type="button" className={resultSort === "nights" ? "active" : ""} onClick={() => { setResultSort("nights"); setVisibleCount(12); }}>Najkrótsze</button>
+                </div>
                 <div className="search-v3-results-toolbar">
                   {resultLocations.length > 1 && (
                     <div className="search-v3-result-filters" aria-label="Filtruj wyniki po miejscowości">
