@@ -12,13 +12,31 @@ const FLEXIBLE_ORIGINS: Place[] = [
   { code: "GDN", name: "Gdańsk", country: "Polska" },
   { code: "WRO", name: "Wrocław", country: "Polska" },
   { code: "POZ", name: "Poznań", country: "Polska" },
+  { code: "RZE", name: "Rzeszów", country: "Polska" },
+  { code: "SZZ", name: "Szczecin", country: "Polska" },
+  { code: "LUZ", name: "Lublin", country: "Polska" },
+];
+
+const POPULAR_DESTINATIONS: Place[] = [
+  { code: "ROM", name: "Rzym", country: "Włochy" },
+  { code: "MIL", name: "Mediolan", country: "Włochy" },
+  { code: "BCN", name: "Barcelona", country: "Hiszpania" },
+  { code: "LIS", name: "Lizbona", country: "Portugalia" },
+  { code: "PAR", name: "Paryż", country: "Francja" },
+  { code: "LON", name: "Londyn", country: "Wielka Brytania" },
+  { code: "ATH", name: "Ateny", country: "Grecja" },
+  { code: "PMI", name: "Majorka", country: "Hiszpania" },
+  { code: "TFS", name: "Teneryfa", country: "Hiszpania" },
+  { code: "IST", name: "Stambuł", country: "Turcja" },
+  { code: "DXB", name: "Dubaj", country: "ZEA" },
+  { code: "BKK", name: "Bangkok", country: "Tajlandia" },
 ];
 
 function placeLabel(place: Place) {
   return place.name + " (" + place.code + ")";
 }
 
-function TPMultiPlaceInput({
+function TPCheckboxPlacePicker({
   label,
   values,
   onChange,
@@ -26,6 +44,7 @@ function TPMultiPlaceInput({
   specialLabel,
   specialActive,
   onSpecialChange,
+  defaultOptions,
 }: {
   label: string;
   values: Place[];
@@ -34,10 +53,20 @@ function TPMultiPlaceInput({
   specialLabel: string;
   specialActive: boolean;
   onSpecialChange: (active: boolean) => void;
+  defaultOptions: Place[];
 }) {
   const [query, setQuery] = useState("");
   const [rows, setRows] = useState<Place[]>([]);
   const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onPointerDown = (event: PointerEvent) => {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, []);
 
   useEffect(() => {
     const raw = query.trim();
@@ -55,7 +84,6 @@ function TPMultiPlaceInput({
         });
         const data = await response.json();
         setRows(Array.isArray(data?.places) ? data.places : []);
-        setOpen(true);
       } catch {
         setRows([]);
       }
@@ -67,95 +95,114 @@ function TPMultiPlaceInput({
     };
   }, [query]);
 
-  function addPlace(place: Place) {
-    const alreadySelected = values.some((item) => item.code === place.code);
-    onSpecialChange(false);
-    if (!alreadySelected) onChange([...values, place]);
-    setQuery("");
-    setRows([]);
-    setOpen(false);
-  }
+  const visibleRows = query.trim().length >= 2 ? rows : defaultOptions;
 
-  function removePlace(code: string) {
-    onChange(values.filter((item) => item.code !== code));
+  function togglePlace(place: Place) {
+    const selected = values.some((item) => item.code === place.code);
+    onSpecialChange(false);
+    onChange(selected ? values.filter((item) => item.code !== place.code) : [...values, place]);
   }
 
   function chooseSpecial() {
     onChange([]);
-    onSpecialChange(true);
-    setQuery("");
-    setRows([]);
-    setOpen(false);
+    onSpecialChange(!specialActive);
   }
 
+  function clearAll() {
+    onChange([]);
+    onSpecialChange(false);
+    setQuery("");
+  }
+
+  const summary = specialActive
+    ? specialLabel
+    : values.length === 0
+      ? placeholder
+      : values.length === 1
+        ? placeLabel(values[0])
+        : values.length + " wybrane";
+
   return (
-    <div
-      className="flight-hunt-field flight-hunt-field-multi"
-      onFocusCapture={() => setOpen(true)}
-      onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false);
-      }}
-    >
+    <div className="flight-hunt-field flight-hunt-checkbox-picker" ref={rootRef}>
       <span>{label}</span>
-      <div className="flight-hunt-multi">
-        {specialActive && (
-          <span className="flight-hunt-chip special">
-            {specialLabel}
-            <button type="button" aria-label={"Usuń " + specialLabel} onClick={() => onSpecialChange(false)}>×</button>
-          </span>
-        )}
-        {!specialActive && values.map((place) => (
-          <span className="flight-hunt-chip" key={place.code}>
-            {placeLabel(place)}
-            <button type="button" aria-label={"Usuń " + placeLabel(place)} onClick={() => removePlace(place.code)}>×</button>
-          </span>
-        ))}
-        <input
-          value={query}
-          placeholder={specialActive || values.length > 0 ? "Dodaj kolejne…" : placeholder}
-          aria-label={label}
-          onFocus={() => setOpen(true)}
-          onChange={(event) => setQuery(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === "Backspace" && !query && !specialActive && values.length > 0) {
-              removePlace(values[values.length - 1].code);
-            }
-          }}
-        />
-      </div>
+
+      <button
+        type="button"
+        className={"flight-hunt-picker-trigger" + (open ? " open" : "")}
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <span className={values.length || specialActive ? "has-value" : ""}>{summary}</span>
+        <b>{open ? "▲" : "▼"}</b>
+      </button>
 
       {open && (
-        <div className="flight-hunt-suggestions">
+        <div className="flight-hunt-picker-menu" role="dialog" aria-label={label + " — wybór wielu miejsc"}>
+          <div className="flight-hunt-picker-search">
+            <span>⌕</span>
+            <input
+              autoFocus
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder={label === "Skąd" ? "Szukaj miasta lub lotniska" : "Szukaj miasta, kraju lub lotniska"}
+            />
+            {query && <button type="button" onClick={() => setQuery("")} aria-label="Wyczyść wyszukiwanie">×</button>}
+          </div>
+
           <button
             type="button"
-            className={"flight-hunt-special-option" + (specialActive ? " selected" : "")}
-            onMouseDown={(event) => event.preventDefault()}
+            className={"flight-hunt-check-row special" + (specialActive ? " selected" : "")}
             onClick={chooseSpecial}
           >
-            <strong>{specialLabel}</strong>
-            <small>{label === "Skąd?" ? "główne lotniska w Polsce" : "pokaż tanie kierunki bez wskazywania celu"}</small>
+            <span className="flight-hunt-checkbox">{specialActive ? "✓" : ""}</span>
+            <span>
+              <strong>{specialLabel}</strong>
+              <small>{label === "Skąd" ? "szukaj z głównych lotnisk w Polsce" : "nie ograniczaj kierunku"}</small>
+            </span>
           </button>
 
-          {rows.map((row) => {
-            const selected = values.some((item) => item.code === row.code);
-            return (
-              <button
-                type="button"
-                key={row.code + "-" + row.name}
-                disabled={selected}
-                className={selected ? "selected" : ""}
-                onMouseDown={(event) => event.preventDefault()}
-                onClick={() => addPlace(row)}
-              >
-                <strong>{row.name}</strong>
-                <small>
-                  {row.code}
-                  {row.country ? " · " + row.country : ""}
-                  {selected ? " · wybrane" : ""}
-                </small>
-              </button>
-            );
-          })}
+          <div className="flight-hunt-picker-section-label">
+            {query.trim().length >= 2 ? "WYNIKI WYSZUKIWANIA" : label === "Skąd" ? "LOTNISKA W POLSCE" : "POPULARNE KIERUNKI"}
+          </div>
+
+          <div className="flight-hunt-picker-list">
+            {visibleRows.map((row) => {
+              const selected = values.some((item) => item.code === row.code);
+              return (
+                <button
+                  type="button"
+                  className={"flight-hunt-check-row" + (selected ? " selected" : "")}
+                  key={row.code + "-" + row.name}
+                  onClick={() => togglePlace(row)}
+                >
+                  <span className="flight-hunt-checkbox">{selected ? "✓" : ""}</span>
+                  <span>
+                    <strong>{row.name}</strong>
+                    <small>{row.code}{row.country ? " · " + row.country : ""}</small>
+                  </span>
+                </button>
+              );
+            })}
+            {query.trim().length >= 2 && visibleRows.length === 0 && (
+              <div className="flight-hunt-picker-empty">Brak wyników. Spróbuj wpisać miasto albo kod lotniska.</div>
+            )}
+          </div>
+
+          <div className="flight-hunt-picker-footer">
+            <button type="button" className="clear" onClick={clearAll}>Wyczyść</button>
+            <span>{specialActive ? specialLabel : values.length ? "Wybrano: " + values.length : "Nic nie wybrano"}</span>
+            <button type="button" className="apply" onClick={() => setOpen(false)}>Gotowe</button>
+          </div>
+        </div>
+      )}
+
+      {!specialActive && values.length > 1 && (
+        <div className="flight-hunt-picked-chips">
+          {values.map((place) => (
+            <button type="button" key={place.code} onClick={() => togglePlace(place)}>
+              {place.name} <span>×</span>
+            </button>
+          ))}
         </div>
       )}
     </div>
@@ -312,7 +359,7 @@ export default function FlexibleFlightsExplorer() {
       </div>
 
       <div className="flight-hunt-controls-clean">
-        <TPMultiPlaceInput
+        <TPCheckboxPlacePicker
           label="Skąd"
           values={origins}
           onChange={(next) => { setOrigins(next); dirty(); }}
@@ -320,9 +367,10 @@ export default function FlexibleFlightsExplorer() {
           specialLabel="Skądkolwiek"
           specialActive={originAnywhere}
           onSpecialChange={(active) => { setOriginAnywhere(active); dirty(); }}
+          defaultOptions={FLEXIBLE_ORIGINS}
         />
 
-        <TPMultiPlaceInput
+        <TPCheckboxPlacePicker
           label="Dokąd"
           values={destinations}
           onChange={(next) => { setDestinations(next); dirty(); }}
@@ -330,6 +378,7 @@ export default function FlexibleFlightsExplorer() {
           specialLabel="Gdziekolwiek"
           specialActive={destinationAnywhere}
           onSpecialChange={(active) => { setDestinationAnywhere(active); dirty(); }}
+          defaultOptions={POPULAR_DESTINATIONS}
         />
 
         {!destinationAnywhere && (
