@@ -26,8 +26,12 @@ import {
   Palmtree,
   Building2,
   Zap,
+  Facebook,
+  Instagram,
+  Music2,
 } from "lucide-react";
 import { partners } from "@/lib/partners";
+import { trackEvent } from "@/lib/analytics";
 
 const primaryItems = [
   { href: "/#wyszukiwarka", label: "Znajdź wyjazd" },
@@ -60,6 +64,12 @@ const myTripowniaItems = [
   { href: "/alerty", label: "Alerty", icon: Bell },
   { href: "/profil", label: "Profil podróżnika", icon: UserRound },
   { href: "/konto", label: "Konto i logowanie", icon: UserRound },
+] as const;
+
+const socialItems = [
+  { href: "https://www.facebook.com/987707741084438", label: "Facebook", icon: Facebook, event: "facebook_follow_click" },
+  { href: "https://www.instagram.com/tripownia.pl/", label: "Instagram", icon: Instagram, event: "instagram_follow_click" },
+  { href: "https://www.tiktok.com/@tripownia.pl", label: "TikTok", icon: Music2, event: "tiktok_follow_click" },
 ] as const;
 
 const APP_PATHS = ["/app", "/dla-ciebie", "/moja-podroz", "/porownaj", "/ulubione", "/alerty", "/profil", "/konto"];
@@ -147,6 +157,12 @@ export default function SiteHeader() {
             <details className="trip-mobile-menu">
               <summary aria-label="Otwórz menu"><Menu size={20} strokeWidth={2.2} /><span>Menu</span></summary>
               <div className="trip-mobile-menu-panel">
+                <div className="trip-mobile-socials" aria-label="Obserwuj Tripownię">
+                  {socialItems.map((item) => {
+                    const Icon = item.icon;
+                    return <a key={item.label} className="trip-mobile-social" href={item.href} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent(item.event, { placement: "mobile_header_menu" })} aria-label={`Tripownia na ${item.label}`}><Icon size={18} strokeWidth={2}/><span>{item.label}</span></a>;
+                  })}
+                </div>
                 <div className="trip-mobile-menu-section">
                   <strong>Twoja Tripownia</strong>
                   <Link href="/dodaj-podroz"><Sparkles size={18} /><span>Ułóż plan za darmo</span></Link>
@@ -197,7 +213,13 @@ export default function SiteHeader() {
             <span className="trip-header-search-copy" style={{ minWidth: 0, overflow: "hidden" }}><strong>Znajdź wyjazd</strong><small>Wakacje, loty, hotele i atrakcje — planner ogarnie resztę</small></span>
             <span className="trip-header-search-cta" style={{ position: "static", width: 44, minWidth: 44, height: 44, padding: 0, transform: "none" }} aria-hidden="true"><Search size={24} strokeWidth={2.8} /></span>
           </Link>
-          <nav className="trip-header-actions" aria-label="Twoje konto">
+          <nav className="trip-header-actions" aria-label="Twoje konto i social media">
+            <div className="trip-header-socials" aria-label="Obserwuj Tripownię">
+              {socialItems.map((item) => {
+                const Icon = item.icon;
+                return <a key={item.label} className="trip-header-social" href={item.href} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent(item.event, { placement: "header" })} aria-label={`Tripownia na ${item.label}`} title={item.label}><Icon size={17} strokeWidth={2}/></a>;
+              })}
+            </div>
             <Link className="trip-header-action trip-header-action-primary" href="/dodaj-podroz" aria-label="Ułóż darmowy plan podróży"><Sparkles size={19} strokeWidth={2} /><span>Plan za 0 zł</span></Link>
             <Link className="trip-header-action" href="/konto" aria-label="Konto i logowanie"><UserRound size={19} strokeWidth={2} /><span>Konto</span></Link>
           </nav>
