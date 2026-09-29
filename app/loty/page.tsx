@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TravelpayoutsFlightsWidget from "@/components/TravelpayoutsFlightsWidget";
+import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
 
 export const metadata: Metadata = {
   title: "Porównywarka lotów – znajdź tanie loty",
@@ -23,6 +24,12 @@ export default function FlightsPage() {
     <main className="tpwl-tripownia-page">
       <SiteHeader />
       <div className="shell">
+        <section className="flight-search-modes-intro">
+          <div className="kicker">LOTY W TRIPOWNI</div>
+          <h1>Znajdź konkretny lot albo upoluj najlepszy termin.</h1>
+          <p>Masz dokładne daty? Użyj porównywarki. Jesteś elastyczna/y? Sprawdź kalendarz cen lub kierunki „gdziekolwiek”.</p>
+        </section>
+        <FlexibleFlightsExplorer />
         <TravelpayoutsFlightsWidget />
       </div>
       <SiteFooter />
