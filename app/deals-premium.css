@@ -276,3 +276,36 @@
   .deals-quick-filters::-webkit-scrollbar{display:none}
   .deals-quick-filters button{flex:0 0 auto}
 }
+
+
+/* Destination empty-state sales fallback */
+.deals-empty-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.deals-empty-actions a{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 14px;
+  border-radius:11px;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:900;
+}
+.deals-empty-actions a:first-child{
+  background:#f45b32;
+  color:#fff;
+}
+.deals-empty-actions a:last-child{
+  border:1px solid #dfd4cc;
+  background:#fff;
+  color:#302923;
+}
+@media(max-width:560px){
+  .deals-empty-actions{display:grid;grid-template-columns:1fr}
+  .deals-empty-actions a{width:100%}
+}
