@@ -240,6 +240,17 @@ export default function DealsPage({
         </div>
       ) : null}</>}
 
+      {dealType !== "allinclusive" && (
+        <div className="deals-ai-promo-strip">
+          <div>
+            <small>TANIE ALL INCLUSIVE 🔥</small>
+            <strong>Najtańsze pakiety z pełnym wyżywieniem</strong>
+            <span>Osobna lista live — sortowana od najniższej potwierdzonej ceny.</span>
+          </div>
+          <Link href="/tanie-all-inclusive" onClick={() => trackEvent("allinclusive_promo_click", { placement: "deals_page" })}>Zobacz Tanie All Inclusive →</Link>
+        </div>
+      )}
+
       {dealType === "allinclusive" && (
         <div className="deals-ai-promo-strip">
           <div><small>TANIE ALL INCLUSIVE 🔥</small><strong>Hotel + wyżywienie + przelot w jednej cenie</strong><span>Sortujemy od najniższej potwierdzonej ceny w live feedzie.</span></div>
