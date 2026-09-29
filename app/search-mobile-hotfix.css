@@ -1357,3 +1357,149 @@
     height:520px;
   }
 }
+
+
+/* Sortable flexible-flight deal list */
+.flight-deals-list{
+  margin-top:18px;
+  padding-top:16px;
+  border-top:1px solid #eee4de;
+}
+.flight-deals-list-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:12px;
+}
+.flight-deals-list-head small{
+  color:#d6522f;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.flight-deals-list-head h3{
+  margin:4px 0 0;
+  font-size:20px;
+  letter-spacing:-.02em;
+}
+.flight-deals-sort{
+  display:flex;
+  gap:7px;
+}
+.flight-deals-sort button{
+  min-height:36px;
+  padding:0 12px;
+  border:1px solid #dfd4cc;
+  border-radius:999px;
+  background:#fff;
+  color:#5c524c;
+  font-size:10px;
+  font-weight:850;
+  cursor:pointer;
+}
+.flight-deals-sort button.active{
+  border-color:#ff6325;
+  background:#fff0e9;
+  color:#c94726;
+}
+.flight-deals-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+.flight-deal-card{
+  display:grid;
+  gap:10px;
+  min-width:0;
+  padding:14px;
+  border:1px solid #e8ddd5;
+  border-radius:14px;
+  background:#fff;
+  color:inherit;
+  text-decoration:none;
+  transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.flight-deal-card:hover{
+  transform:translateY(-1px);
+  border-color:#efb49d;
+  box-shadow:0 10px 22px rgba(56,36,24,.08);
+}
+.flight-deal-main{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+}
+.flight-deal-main>div{
+  display:grid;
+  gap:2px;
+  min-width:0;
+}
+.flight-deal-main strong{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#2c2622;
+  font-size:14px;
+}
+.flight-deal-main span{
+  color:#8a7f78;
+  font-size:10px;
+}
+.flight-deal-main b{
+  flex:0 0 auto;
+  color:#ff6325;
+  font-size:14px;
+}
+.flight-deal-meta{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  align-items:center;
+  color:#776c65;
+  font-size:9px;
+}
+.flight-deal-meta span{
+  display:inline-flex;
+  align-items:center;
+  min-height:24px;
+  padding:0 7px;
+  border-radius:999px;
+  background:#f7f2ef;
+}
+.flight-deal-meta em{
+  margin-left:auto;
+  color:#c94726;
+  font-style:normal;
+  font-weight:900;
+}
+.flight-deals-loading,
+.flight-deals-empty{
+  padding:18px;
+  border:1px solid #eadfd8;
+  border-radius:14px;
+  background:#faf7f4;
+  color:#776c65;
+  font-size:11px;
+  text-align:center;
+}
+@media(max-width:980px){
+  .flight-deals-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+@media(max-width:640px){
+  .flight-deals-list-head{
+    display:block;
+  }
+  .flight-deals-sort{
+    margin-top:10px;
+  }
+  .flight-deals-grid{
+    grid-template-columns:1fr;
+  }
+  .flight-deal-main b{
+    font-size:13px;
+  }
+}
