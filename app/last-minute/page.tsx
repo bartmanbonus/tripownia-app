@@ -43,6 +43,16 @@ export default function LastMinuteOffersPage() {
         <p>Porównaj konkretne pakiety z ceną, terminem i kierunkiem. Tripownia pokazuje najtańsze sensowne opcje na początku i pozwala przeszukać szerszą bazę bez zamykania się na jednego partnera.</p>
       </div>
       <Link className="editorial-link" href="/magazyn-podrozniczy/last-minute-2026">📚 Jak kupować last minute — poradnik →</Link>
+      <div className="seo-related-links" style={{ marginTop: 16 }}>
+        <Link href="/podroze/last-minute-z-poznania">Last Minute z Poznania →</Link>
+        <Link href="/podroze/last-minute-z-krakowa">Last Minute z Krakowa →</Link>
+        <Link href="/podroze/last-minute-z-katowic">Last Minute z Katowic →</Link>
+        <Link href="/podroze/last-minute-z-gdanska">Last Minute z Gdańska →</Link>
+        <Link href="/podroze/last-minute-z-lublina">Last Minute z Lublina →</Link>
+        <Link href="/podroze/last-minute-z-rzeszowa">Last Minute z Rzeszowa →</Link>
+        <Link href="/podroze/last-minute-ze-szczecina">Last Minute ze Szczecina →</Link>
+        <Link href="/podroze/last-minute-z-warszawy">Last Minute z Warszawy →</Link>
+      </div>
     </section>
 
     <section className="section shell last-minute-live-section">
