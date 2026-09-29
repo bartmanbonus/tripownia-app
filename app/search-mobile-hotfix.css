@@ -1037,3 +1037,235 @@
     margin-top:10px;
   }
 }
+
+
+/* 2026-09-29 checkbox multi-select flight pickers */
+.flight-hunt-checkbox-picker{
+  position:relative;
+  z-index:4;
+}
+.flight-hunt-checkbox-picker:focus-within{
+  z-index:260;
+}
+.flight-hunt-picker-trigger{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  width:100%;
+  min-height:52px;
+  padding:0 14px;
+  border:1px solid #d9cec6;
+  border-radius:14px;
+  background:#fff;
+  color:#8a8079;
+  font-size:13px;
+  font-weight:750;
+  text-align:left;
+  cursor:pointer;
+}
+.flight-hunt-picker-trigger.open,
+.flight-hunt-picker-trigger:focus-visible{
+  border-color:#e39c80;
+  box-shadow:0 0 0 4px rgba(232,93,49,.08);
+  outline:0;
+}
+.flight-hunt-picker-trigger .has-value{
+  color:#2f2925;
+}
+.flight-hunt-picker-trigger b{
+  flex:0 0 auto;
+  color:#7c7068;
+  font-size:10px;
+}
+.flight-hunt-picker-menu{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:0;
+  width:min(430px,92vw);
+  max-height:480px;
+  overflow:hidden;
+  border:1px solid #ded2ca;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 22px 50px rgba(42,28,20,.18);
+  z-index:300;
+}
+.flight-hunt-picker-search{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:10px;
+  border-bottom:1px solid #eee5df;
+}
+.flight-hunt-picker-search>span{
+  color:#8a7d74;
+  font-size:18px;
+}
+.flight-hunt-picker-search input{
+  width:100%;
+  height:38px;
+  border:0!important;
+  box-shadow:none!important;
+  outline:0!important;
+  font-size:13px!important;
+  font-weight:650!important;
+}
+.flight-hunt-picker-search button{
+  width:30px;
+  height:30px;
+  border:0;
+  border-radius:50%;
+  background:#f5efeb;
+  color:#665c55;
+  cursor:pointer;
+}
+.flight-hunt-picker-section-label{
+  padding:9px 12px 5px;
+  color:#9b8f87;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.07em;
+}
+.flight-hunt-picker-list{
+  max-height:280px;
+  overflow:auto;
+  padding:0 7px 7px;
+}
+.flight-hunt-check-row{
+  display:grid;
+  grid-template-columns:22px 1fr;
+  gap:10px;
+  align-items:center;
+  width:100%;
+  min-height:52px;
+  padding:8px 10px;
+  border:0;
+  border-radius:10px;
+  background:#fff;
+  text-align:left;
+  cursor:pointer;
+}
+.flight-hunt-check-row:hover{
+  background:#fff7f3;
+}
+.flight-hunt-check-row.selected{
+  background:#fff4ee;
+}
+.flight-hunt-check-row.special{
+  margin:7px;
+  width:calc(100% - 14px);
+  border:1px solid #f0d2c6;
+  background:#fffaf7;
+}
+.flight-hunt-check-row.special.selected{
+  border-color:#efa98d;
+  background:#fff0e9;
+}
+.flight-hunt-checkbox{
+  display:grid;
+  place-items:center;
+  width:20px;
+  height:20px;
+  border:1px solid #cfc2ba;
+  border-radius:6px;
+  background:#fff;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+}
+.flight-hunt-check-row.selected .flight-hunt-checkbox{
+  border-color:#ff6325;
+  background:#ff6325;
+}
+.flight-hunt-check-row>span:last-child{
+  display:grid;
+  gap:2px;
+}
+.flight-hunt-check-row strong{
+  color:#302a26;
+  font-size:12px;
+}
+.flight-hunt-check-row small{
+  color:#887d76;
+  font-size:10px;
+}
+.flight-hunt-picker-empty{
+  padding:18px 12px;
+  color:#81766f;
+  font-size:11px;
+}
+.flight-hunt-picker-footer{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:10px;
+  align-items:center;
+  padding:10px;
+  border-top:1px solid #eee5df;
+  background:#fcfaf8;
+}
+.flight-hunt-picker-footer span{
+  color:#81766f;
+  font-size:10px;
+  text-align:center;
+}
+.flight-hunt-picker-footer button{
+  min-height:34px;
+  padding:0 11px;
+  border-radius:10px;
+  font-size:10px;
+  font-weight:850;
+  cursor:pointer;
+}
+.flight-hunt-picker-footer .clear{
+  border:1px solid #ded2ca;
+  background:#fff;
+  color:#5f554f;
+}
+.flight-hunt-picker-footer .apply{
+  border:0;
+  background:#ff6325;
+  color:#fff;
+}
+.flight-hunt-picked-chips{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  margin-top:6px;
+}
+.flight-hunt-picked-chips button{
+  min-height:26px;
+  padding:0 8px;
+  border:1px solid #e5d9d2;
+  border-radius:999px;
+  background:#f9f5f2;
+  color:#574d47;
+  font-size:9px;
+  font-weight:800;
+  cursor:pointer;
+}
+.flight-hunt-picked-chips button span{
+  margin-left:3px;
+  color:#a3573d;
+}
+@media(max-width:640px){
+  .flight-hunt-picker-menu{
+    position:fixed;
+    left:12px;
+    right:12px;
+    top:auto;
+    bottom:12px;
+    width:auto;
+    max-height:min(72vh,560px);
+    border-radius:20px;
+    z-index:2000;
+  }
+  .flight-hunt-picker-list{
+    max-height:45vh;
+  }
+  .flight-hunt-picker-footer{
+    position:sticky;
+    bottom:0;
+  }
+}
