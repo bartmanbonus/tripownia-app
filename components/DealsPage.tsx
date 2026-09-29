@@ -222,18 +222,22 @@ export default function DealsPage() {
         </div>
       </div>
 
-      <div className="deals-results-heading">
-        <div><span>DZISIAJ W TRIPOWNI</span><h2>5 okazji, które warto sprawdzić dziś</h2></div>
-        <p>{todayLoading && !todayRows.length ? "Szukamy dzisiejszych okazji…" : `Codzienna selekcja Tripowni${todayCheckedLabel ? ` · sprawdzone ${todayCheckedLabel}` : ""}. Te same kierunki wykorzystujemy w naszych publikacjach społecznościowych.`}</p>
-      </div>
-      {todayRows.length > 0 ? (
-        <div className="cards-grid deals-premium-grid">{todayRows.map((offer) => <OfferCard key={`today-${offer.id}`} offer={offer}/>)}</div>
-      ) : !todayLoading ? (
-        <div className="self-search-empty">
-          <strong>Dzisiejsza pula właśnie się odświeża.</strong>
-          <span>Wróć za chwilę — pokazujemy tylko oferty, które udało się potwierdzić w bieżącym feedzie.</span>
-        </div>
-      ) : null}
+      {!destination && (
+        <>
+          <div className="deals-results-heading">
+            <div><span>DZISIAJ W TRIPOWNI</span><h2>5 okazji, które warto sprawdzić dziś</h2></div>
+            <p>{todayLoading && !todayRows.length ? "Szukamy dzisiejszych okazji…" : `Codzienna selekcja Tripowni${todayCheckedLabel ? ` · sprawdzone ${todayCheckedLabel}` : ""}. Te same kierunki wykorzystujemy w naszych publikacjach społecznościowych.`}</p>
+          </div>
+          {todayRows.length > 0 ? (
+            <div className="cards-grid deals-premium-grid">{todayRows.map((offer) => <OfferCard key={`today-${offer.id}`} offer={offer}/>)}</div>
+          ) : !todayLoading ? (
+            <div className="self-search-empty">
+              <strong>Dzisiejsza pula właśnie się odświeża.</strong>
+              <span>Wróć za chwilę — pokazujemy tylko oferty, które udało się potwierdzić w bieżącym feedzie.</span>
+            </div>
+          ) : null}
+        </>
+      )}
 
       <div className="deals-quick-filters" aria-label="Szybkie filtry okazji">
         {([
