@@ -235,3 +235,44 @@
     margin-top: 0 !important;
   }
 }
+
+
+/* Flight search controls — compact metasearch-style UX */
+#wyszukiwarka .search-v3-flight-options{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  width:100%;
+}
+#wyszukiwarka .search-v3-flight-options button{
+  min-height:40px;
+  padding:0 14px;
+  border:1px solid #dfd4cc;
+  border-radius:999px;
+  background:#fff;
+  color:#4f4742;
+  font-size:12px;
+  font-weight:850;
+  cursor:pointer;
+}
+#wyszukiwarka .search-v3-flight-options button.active{
+  border-color:#e8aa92;
+  background:#fff0e9;
+  color:#c94726;
+  box-shadow:0 5px 14px rgba(201,71,38,.10);
+}
+@media(max-width:640px){
+  #wyszukiwarka .search-v3-flight-options{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+  #wyszukiwarka .search-v3-flight-options button{
+    width:100%;
+    min-width:0;
+    min-height:44px;
+    padding:8px 10px;
+    white-space:nowrap;
+  }
+}
