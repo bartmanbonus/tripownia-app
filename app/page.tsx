@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import HomePageV2 from "./HomePageV2";
+import HomePageClient from "./HomePageClient";
 
 export const metadata: Metadata = {
-  title: { absolute: "Tanie loty, wakacje i darmowy planer podróży | Tripownia.pl" },
-  description: "Znajdź aktualne okazje na tanie loty, city break i wakacje z polskich lotnisk. Oceń ofertę, ustaw alert i ułóż całą podróż w darmowym plannerze Tripowni.",
+  title: { absolute: "Tanie wakacje, city break i planer podróży | Tripownia.pl" },
+  description: "Znajdź tanie wakacje, city break, lot + hotel i aktualne okazje z polskich lotnisk. Potem zaplanuj wyjazd za darmo: lot, nocleg, atrakcje i checklistę.",
   alternates: { canonical: "/" },
 };
 
 export default function Page() {
-  return <HomePageV2 />;
+  return <HomePageClient />;
 }
