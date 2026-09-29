@@ -52,6 +52,10 @@ export default function AnalyticsInteractions() {
         if (rawHref.includes("/dodaj-podroz") || rawHref.includes("/planer-podrozy")) {
           trackEvent("planner_intent", params);
           trackMetaCustomEvent("PlannerIntent", params);
+        } else if (rawHref.startsWith("/loty")) {
+          trackEvent("flight_compare_intent", params);
+        } else if (rawHref === "/okazje" || rawHref.startsWith("/okazje?")) {
+          trackEvent("offers_intent", params);
         } else if (rawHref.includes("/konto")) {
           trackEvent("account_intent", params);
         } else if (rawHref.includes("#wyszukiwarka")) {
