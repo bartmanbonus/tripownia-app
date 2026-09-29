@@ -5,8 +5,8 @@ import SiteFooter from "@/components/SiteFooter";
 import NewYearOffers from "@/components/NewYearOffers";
 import SearchHub from "@/components/SearchHub";
 
-const title = "Sylwester 2026/2027 za granicą — city break, lot + hotel";
-const description = "Sylwester 2026/2027 za granicą: city break, lot + hotel, krótkie wyjazdy do Europy i ciepłe kierunki na przełom roku.";
+const title = "City break na Sylwestra 2026/2027 — lot + hotel za granicą";
+const description = "City break na Sylwestra 2026/2027: lot + hotel, krótkie wyjazdy do Europy i ciepłe kierunki na przełom roku. Porównaj aktualne terminy i oferty.";
 
 export const metadata: Metadata = {
   title,
@@ -42,9 +42,9 @@ export default async function Page({ searchParams }: PageProps) {
     <main>
       <SiteHeader />
       <section className="seasonal-hero shell newyear-hero-premium">
-        <div className="kicker">SYLWESTER 2026/2027</div>
-        <h1>Nie trzy pomysły. Cała mapa możliwości na przełom roku.</h1>
-        <p>Łączymy nasze wyselekcjonowane kierunki z aktualnymi pakietami. Krótkie city breaki, tydzień w cieple i dalsze wyjazdy — w jednym miejscu.</p>
+        <div className="kicker">CITY BREAK NA SYLWESTRA 2026/2027</div>
+        <h1>City break na Sylwestra: lot + hotel i krótkie wyjazdy za granicę.</h1>
+        <p>Porównaj krótkie city breaki, tydzień w cieple i dalsze wyjazdy na przełom roku. Najpierw realne terminy i ceny, potem wybór kierunku.</p>
         <div className="newyear-type-nav">
           <a href="#city-break">City break 3–6 nocy</a>
           <a href="#dluzsze">Dłuższe 7–12 nocy</a>
@@ -53,6 +53,9 @@ export default async function Page({ searchParams }: PageProps) {
           <Link href="/gdzie-na-sylwestra-2026-2027-15-kierunkow">Gdzie na Sylwestra? 15 kierunków →</Link>
           <Link href="/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok">Ciepłe kraje na Sylwestra →</Link>
           <Link href="/city-break">City break lot + hotel →</Link>
+          <Link href="/podroze/city-break-grudzien-2026">City break grudzień 2026 →</Link>
+          <Link href="/podroze/city-break-z-warszawy">City break z Warszawy →</Link>
+          <Link href="/podroze/city-break-z-poznania">City break z Poznania →</Link>
           <Link href="/planer-podrozy">Ułóż wyjazd w darmowym planerze →</Link>
         </div>
       </section>
