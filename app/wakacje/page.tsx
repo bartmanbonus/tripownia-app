@@ -42,7 +42,13 @@ export default function WakacjePage() {
         <Link href="/ferie-2027">Ferie zimowe 2027 →</Link>
         <Link href="/majowka-2027">Majówka 2027 →</Link>
         <Link href="/podroze/wakacje-z-warszawy">Wakacje z Warszawy →</Link>
+        <Link href="/podroze/wakacje-z-poznania">Wakacje z Poznania →</Link>
         <Link href="/podroze/wakacje-z-krakowa">Wakacje z Krakowa →</Link>
+        <Link href="/podroze/wakacje-z-katowic">Wakacje z Katowic →</Link>
+        <Link href="/podroze/wakacje-z-gdanska">Wakacje z Gdańska →</Link>
+        <Link href="/podroze/wakacje-z-wroclawia">Wakacje z Wrocławia →</Link>
+        <Link href="/podroze/wakacje-z-rzeszowa">Wakacje z Rzeszowa →</Link>
+        <Link href="/podroze/wakacje-z-lublina">Wakacje z Lublina →</Link>
         <Link href="/podroze/all-inclusive-z-warszawy">All Inclusive z Warszawy →</Link>
         <Link href="/podroze/last-minute-z-warszawy">Last Minute z Warszawy →</Link>
         <Link href="/podroze/cieple-wakacje-listopad-2026">Ciepłe wakacje w listopadzie →</Link>
