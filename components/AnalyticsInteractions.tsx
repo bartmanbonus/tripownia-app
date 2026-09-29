@@ -68,7 +68,15 @@ export default function AnalyticsInteractions() {
           try {
             partnerHost = new URL(anchor.href, window.location.origin).hostname;
           } catch {}
-          const outboundParams = { ...params, partner_host: partnerHost };
+          const outboundParams = {
+            ...params,
+            partner_host: partnerHost,
+            partner: anchor.dataset.salesPartner || undefined,
+            offer_id: anchor.dataset.salesOfferId ? Number(anchor.dataset.salesOfferId) : undefined,
+            destination: anchor.dataset.salesDestination || undefined,
+            price: anchor.dataset.salesPrice ? Number(anchor.dataset.salesPrice) : undefined,
+            sales_placement: anchor.dataset.salesPlacement || undefined,
+          };
           trackEvent("outbound_partner_click", outboundParams);
           trackMetaCustomEvent("PartnerOutboundClick", outboundParams);
         }
