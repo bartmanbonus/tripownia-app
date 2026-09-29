@@ -767,14 +767,6 @@ export default function Home() {
           <Link className="premium-action-main" href="#wyszukiwarka">Wyszukaj po swojemu <ArrowRight size={17}/></Link>
           <Link className="premium-action-secondary" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={17}/></Link>
         </div>
-        <div className="facebook-growth-strip">
-          <div>
-            <small>CODZIENNE OKAZJE NA FACEBOOKU</small>
-            <strong>Obserwuj Tripownię i łap nowe wyjazdy bez ciągłego sprawdzania strony.</strong>
-            <span>Publikujemy konkretne ceny, terminy i pomysły na wyjazd. Klikasz dopiero wtedy, gdy coś Cię zainteresuje.</span>
-          </div>
-          <a href="https://www.facebook.com/987707741084438" target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("facebook_follow_click", { placement: "homepage_daily" })}>Obserwuj Tripownię na Facebooku →</a>
-        </div>
       </section>
 
       <section className="section shell homepage-curated-trips" aria-labelledby="curated-trips-title">
