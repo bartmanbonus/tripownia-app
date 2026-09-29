@@ -2,9 +2,8 @@
 
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { ANALYTICS_CONSENT_EVENT, bootstrapAnalytics, trackEvent, trackPageView } from "@/lib/analytics";
+import { ANALYTICS_CONSENT_EVENT, ATTRIBUTION_KEY, bootstrapAnalytics, trackEvent, trackPageView } from "@/lib/analytics";
 
-const ATTRIBUTION_KEY = "tripownia-attribution-v1";
 
 function trackReferral(searchParams: URLSearchParams) {
   const source = (searchParams.get("utm_source") || "").toLowerCase();
