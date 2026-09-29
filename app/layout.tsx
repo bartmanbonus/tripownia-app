@@ -34,6 +34,7 @@ import "./contrast-guard.css";
 import "./affiliate-return.css";
 import "./homepage-focus.css";
 import "./ux-audit.css";
+import "./search-mobile-hotfix.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 import OfferRailDeduper from "@/components/OfferRailDeduper";
