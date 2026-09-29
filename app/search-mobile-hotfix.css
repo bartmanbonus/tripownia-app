@@ -1269,3 +1269,63 @@
     bottom:0;
   }
 }
+
+
+/* Flexible flight widget loading/fallback states */
+.flight-hunt-widget-shell{
+  position:relative;
+  min-height:220px;
+  border:1px solid #eee4de;
+  border-radius:16px;
+  background:#fff;
+  overflow:hidden;
+}
+.flight-hunt-widget-shell.loading{
+  display:grid;
+  place-items:center;
+}
+.flight-hunt-widget-loading{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  color:#756a63;
+  font-size:12px;
+  font-weight:800;
+  background:linear-gradient(90deg,#fff,#fbf6f2,#fff);
+  z-index:1;
+}
+.flight-hunt-widget-shell.ready .flight-hunt-widget-loading{display:none}
+.flight-hunt-widget-fallback{
+  min-height:220px;
+  display:grid;
+  place-items:center;
+  align-content:center;
+  gap:8px;
+  padding:24px;
+  text-align:center;
+  background:#fffaf7;
+}
+.flight-hunt-widget-fallback strong{
+  color:#2f2925;
+  font-size:16px;
+}
+.flight-hunt-widget-fallback span{
+  max-width:520px;
+  color:#756a63;
+  font-size:11px;
+  line-height:1.5;
+}
+.flight-hunt-widget-fallback a{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:0 16px;
+  border-radius:12px;
+  background:#ff6325;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  text-decoration:none;
+}
