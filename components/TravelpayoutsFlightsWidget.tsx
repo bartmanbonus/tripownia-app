@@ -26,11 +26,6 @@ export default function TravelpayoutsFlightsWidget() {
 
   return (
     <section className="tpwl-tripownia" aria-label="Porównywarka lotów Tripownia">
-      <div className="tpwl-tripownia-head">
-        <div className="kicker">LOTY · PORÓWNAJ CENY</div>
-        <h1>Znajdź lot bez wychodzenia z Tripowni</h1>
-        <p>Wpisz dowolne lotnisko lub miasto, wybierz daty i porównaj dostępne połączenia. Wyniki są obsługiwane przez White Label Travelpayouts przypisany do Tripowni.</p>
-      </div>
       <div id="tpwl-search" />
       <div id="tpwl-tickets" />
       <p className="tpwl-tripownia-disclosure">Linki rezerwacyjne są afiliacyjne. Tripownia może otrzymać prowizję od rezerwacji bez dodatkowego kosztu dla Ciebie.</p>
