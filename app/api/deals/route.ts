@@ -34,6 +34,16 @@ function normalize(value: string | undefined | null) {
     .trim();
 }
 
+function destinationMatches(offer: DealsOffer, destination: string) {
+  if (!destination) return true;
+  const query = normalize(destination);
+  if (!query) return true;
+  const city = normalize(offer.city);
+  const country = normalize(offer.country);
+  const haystack = normalize(`${offer.city || ""} ${offer.country || ""} ${offer.hotel || ""}`);
+  return haystack.includes(query) || query.includes(city) || query.includes(country) || city.includes(query) || country.includes(query);
+}
+
 function airportMatches(offer: DealsOffer, airport: string) {
   if (!airport) return true;
   const haystack = normalize(`${offer.departure || ""} ${offer.airportCode || ""}`);
@@ -124,6 +134,7 @@ async function loadSource(
 
 export async function GET(request: NextRequest) {
   const airport = (request.nextUrl.searchParams.get("from") || "").trim();
+  const destination = (request.nextUrl.searchParams.get("q") || request.nextUrl.searchParams.get("destination") || "").trim();
   const rawMonth = (request.nextUrl.searchParams.get("month") || "").trim();
   const rawYear = (request.nextUrl.searchParams.get("year") || "").trim();
   const month = /^(0[1-9]|1[0-2])$/.test(rawMonth) ? rawMonth : "";
@@ -133,15 +144,23 @@ export async function GET(request: NextRequest) {
   // from both providers are merged with short EXIM city breaks, then reduced
   // to the cheapest live option for every tourist destination.
   const results = await Promise.all([
-    loadSource(request, "exim-packages", { mode: "search", broad: "1", provider: "exim" }),
-    loadSource(request, "tui-packages", { mode: "search", broad: "1", provider: "tui" }),
-    loadSource(request, "exim-citybreaks", { mode: "citybreak", provider: "exim" }),
+    loadSource(request, "exim-packages", destination
+      ? { mode: "search", q: destination, provider: "exim" }
+      : { mode: "search", broad: "1", provider: "exim" }),
+    loadSource(request, "tui-packages", destination
+      ? { mode: "search", q: destination, provider: "tui" }
+      : { mode: "search", broad: "1", provider: "tui" }),
+    loadSource(request, "exim-citybreaks", destination
+      ? { mode: "citybreak", q: destination, provider: "exim" }
+      : { mode: "citybreak", provider: "exim" }),
   ]);
 
   const successful = results.filter((item) => item.response.ok);
   const unavailableSources = results.filter((item) => !item.response.ok).map((item) => item.label);
   if (!successful.length) {
-    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal);
+    const fallbackPool = (publishedOffers as DealsOffer[])
+      .filter(isUsableDeal)
+      .filter((offer) => destinationMatches(offer, destination));
     const fallbackExact = fallbackPool
       .filter((offer) => airportMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
@@ -163,7 +182,7 @@ export async function GET(request: NextRequest) {
           partial: true,
           sourceType: "published_fallback",
           matchMode: fallbackExact.length ? "fallback_exact" : "fallback_pool",
-          filters: { airport: airport || null, month: month || null, year: year || null },
+          filters: { destination: destination || null, airport: airport || null, month: month || null, year: year || null },
           notice: "Live feedy partnerów są chwilowo niedostępne. Pokazujemy ostatnią opublikowaną pulę Tripowni; cenę i dostępność potwierdź u partnera po kliknięciu.",
           offers: fallbackOffers,
           error,
@@ -186,9 +205,14 @@ export async function GET(request: NextRequest) {
     if (!current || Number(offer.price) < Number(current.price)) unique.set(offer.id, offer);
   }
   const sourceOffers = Array.from(unique.values());
+  const scopedSourceOffers = destination
+    ? sourceOffers.filter((offer) => destinationMatches(offer, destination))
+    : sourceOffers;
 
-  if (!sourceOffers.length) {
-    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal);
+  if (!scopedSourceOffers.length) {
+    const fallbackPool = (publishedOffers as DealsOffer[])
+      .filter(isUsableDeal)
+      .filter((offer) => destinationMatches(offer, destination));
     const fallbackExact = fallbackPool
       .filter((offer) => airportMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
@@ -209,7 +233,7 @@ export async function GET(request: NextRequest) {
           partial: true,
           sourceType: "published_fallback",
           matchMode: fallbackExact.length ? "fallback_exact" : "fallback_pool",
-          filters: { airport: airport || null, month: month || null, year: year || null },
+          filters: { destination: destination || null, airport: airport || null, month: month || null, year: year || null },
           notice: "Live feedy nie zwróciły teraz ofert. Pokazujemy ostatnią opublikowaną pulę Tripowni; cenę i dostępność potwierdź u partnera po kliknięciu.",
           offers: fallbackOffers,
         },
@@ -218,7 +242,7 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const exact = sourceOffers
+  const exact = scopedSourceOffers
     .filter((offer) => airportMatches(offer, airport))
     .filter((offer) => dateMatches(offer, month, year));
 
@@ -229,7 +253,7 @@ export async function GET(request: NextRequest) {
     : "";
 
   if (!offers.length && (month || year)) {
-    const sameDate = sourceOffers.filter((offer) => dateMatches(offer, month, year));
+    const sameDate = scopedSourceOffers.filter((offer) => dateMatches(offer, month, year));
     if (sameDate.length) {
       offers = lowestPriceDeals(sameDate);
       matchMode = "same_date_other_airport";
@@ -240,7 +264,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!offers.length && airport) {
-    const sameAirport = sourceOffers.filter((offer) => airportMatches(offer, airport));
+    const sameAirport = scopedSourceOffers.filter((offer) => airportMatches(offer, airport));
     if (sameAirport.length) {
       offers = closestCheapDeals(sameAirport, month, year);
       matchMode = "same_airport_nearby_date";
@@ -249,7 +273,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!offers.length && year) {
-    const sameYear = sourceOffers.filter((offer) => dateMatches(offer, "", year));
+    const sameYear = scopedSourceOffers.filter((offer) => dateMatches(offer, "", year));
     if (sameYear.length) {
       offers = closestCheapDeals(sameYear, month, year);
       matchMode = "same_year";
@@ -257,10 +281,17 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  if (!offers.length && sourceOffers.length) {
-    offers = lowestPriceDeals(sourceOffers);
+  if (!offers.length && scopedSourceOffers.length) {
+    offers = lowestPriceDeals(scopedSourceOffers);
     matchMode = "closest";
-    notice = "Brak dokładnej kombinacji filtrów. Pokazujemy najtańsze aktualne okazje z całej potwierdzonej puli.";
+    notice = destination
+      ? `Pokazujemy najtańsze potwierdzone oferty dla kierunku: ${destination}.`
+      : "Brak dokładnej kombinacji filtrów. Pokazujemy najtańsze aktualne okazje z całej potwierdzonej puli.";
+  }
+
+  if (destination && !offers.length) {
+    notice = `Nie mamy teraz potwierdzonego pakietu dla kierunku: ${destination}. Sprawdź loty albo noclegi — ceny pakietów odświeżają się na bieżąco.`;
+    matchMode = "destination_no_match";
   }
 
   if (unavailableSources.length) {
@@ -278,7 +309,7 @@ export async function GET(request: NextRequest) {
     {
       ok: true,
       checkedAt,
-      sourceCount: sourceOffers.length,
+      sourceCount: scopedSourceOffers.length,
       exactCount: exact.length,
       destinationCount: offers.length,
       sort: "price_asc",
@@ -288,7 +319,7 @@ export async function GET(request: NextRequest) {
       partial: unavailableSources.length > 0,
       sourceType: "live",
       matchMode,
-      filters: { airport: airport || null, month: month || null, year: year || null },
+      filters: { destination: destination || null, airport: airport || null, month: month || null, year: year || null },
       notice,
       offers,
     },
