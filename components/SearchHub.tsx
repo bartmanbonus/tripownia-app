@@ -1004,7 +1004,7 @@ export default function SearchHub({
           </div>
 
           <div className={`search-v3-field search-v3-date search-v3-smart-date${dateOpen ? " is-open" : ""}`} ref={dateRef}>
-            <span><CalendarDays size={15}/> Kiedy?</span>
+            <span><CalendarDays size={15}/> {activeTab === "Loty" ? (flightTripType === "round" ? "Wylot i powrót" : "Data wylotu") : "Kiedy?"}</span>
             <button type="button" className="search-v3-date-trigger" onClick={toggleDatePanel} aria-expanded={dateOpen}>
               <strong>{dateSummary}</strong><ChevronDown size={15}/>
             </button>
@@ -1017,8 +1017,8 @@ export default function SearchHub({
                     <strong>{dateSummary}</strong>
                   </button>
                   <div className="search-v3-esky-summary">
-                    <small>Na jak długo?</small>
-                    <strong>{duration === "all" ? "Dowolnie" : duration.replace("-", " – ") + (duration === "1-2" ? " noce" : " nocy")}</strong>
+                    <small>{activeTab === "Loty" ? "Podróż" : "Na jak długo?"}</small>
+                    <strong>{activeTab === "Loty" ? (flightTripType === "round" ? "W obie strony" : "W jedną stronę") : (duration === "all" ? "Dowolnie" : duration.replace("-", " – ") + (duration === "1-2" ? " noce" : " nocy"))}</strong>
                   </div>
                   <button
                     type="button"
@@ -1042,12 +1042,12 @@ export default function SearchHub({
 
                 {calendarView === "calendar" && <>
                   <div className="search-picker-modes" role="group" aria-label="Termin wylotu">
-                    <button type="button" aria-pressed={dateMode !== "range"} onClick={() => selectDateMode("exact")}>Konkretny dzień</button>
-                    <button type="button" aria-pressed={dateMode === "range"} onClick={() => { selectDateMode("range"); setDateFrom(""); setDateTo(""); }}>Zakres od–do</button>
+                    <button type="button" aria-pressed={dateMode !== "range"} onClick={() => { selectDateMode("exact"); if (activeTab === "Loty") { setFlightTripType("oneway"); setDateTo(""); } }}> {activeTab === "Loty" ? "W jedną stronę" : "Konkretny dzień"} </button>
+                    <button type="button" aria-pressed={dateMode === "range"} onClick={() => { selectDateMode("range"); setDateFrom(""); setDateTo(""); if (activeTab === "Loty") setFlightTripType("round"); }}>{activeTab === "Loty" ? "Wylot + powrót" : "Zakres od–do"}</button>
                   </div>
                   <div className="search-picker-nav">
                     <button type="button" aria-label="Poprzednie miesiące" disabled={visibleCalendarMonth <= localMonthKey()} onClick={() => setCalendarMonth(addMonths(visibleCalendarMonth, -1))}><ChevronLeft size={18}/></button>
-                    <span>{dateMode === "range" ? "Wybierz najwcześniejszy i najpóźniejszy wylot" : "Wybierz dzień wylotu"}</span>
+                    <span>{activeTab === "Loty" ? (dateMode === "range" ? "Wybierz datę wylotu, a potem powrotu" : "Wybierz datę wylotu") : (dateMode === "range" ? "Wybierz najwcześniejszy i najpóźniejszy wylot" : "Wybierz dzień wylotu")}</span>
                     <button type="button" aria-label="Następne miesiące" onClick={() => setCalendarMonth(addMonths(visibleCalendarMonth, 1))}><ChevronRight size={18}/></button>
                   </div>
                 </>}
@@ -1220,8 +1220,8 @@ export default function SearchHub({
           <div className="search-v3-options-row">
             {activeTab === "Loty" ? (
               <div className="search-v3-flight-options" role="group" aria-label="Typ podróży">
-                <button type="button" className={flightTripType === "round" ? "active" : ""} onClick={() => setFlightTripType("round")}>W obie strony</button>
-                <button type="button" className={flightTripType === "oneway" ? "active" : ""} onClick={() => setFlightTripType("oneway")}>W jedną stronę</button>
+                <button type="button" className={flightTripType === "round" ? "active" : ""} onClick={() => { setFlightTripType("round"); if (dateMode === "exact" && dateFrom) setDateMode("range"); }}>W obie strony</button>
+                <button type="button" className={flightTripType === "oneway" ? "active" : ""} onClick={() => { setFlightTripType("oneway"); setDateTo(""); if (dateMode === "range") setDateMode(dateFrom ? "exact" : "any"); }}>W jedną stronę</button>
               </div>
             ) : (
               <label className="search-v3-board">
