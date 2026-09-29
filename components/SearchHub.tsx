@@ -298,6 +298,7 @@ export default function SearchHub({
   const [flightAdults, setFlightAdults] = useState(1);
   const [flightCabin, setFlightCabin] = useState("ECONOMY");
   const [flightTripType, setFlightTripType] = useState<"round" | "oneway">("round");
+  const [flightSearchMode, setFlightSearchMode] = useState<"flex" | "exact">("flex");
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [remoteDestinations, setRemoteDestinations] = useState<WorldDestination[]>([]);
   const [results, setResults] = useState<any[]>([]);
@@ -869,6 +870,7 @@ export default function SearchHub({
     setFlightAdults(1);
     setFlightCabin("ECONOMY");
     setFlightTripType("round");
+    setFlightSearchMode("flex");
     setResults([]);
     setResultLocation("");
     setVisibleCount(18);
@@ -972,15 +974,41 @@ export default function SearchHub({
 
         {activeTab === "Loty" ? (
           <div className="search-v3-flight-center">
-            <FlexibleFlightsExplorer />
-            <div className="search-v3-flight-exact">
-              <div className="search-v3-flight-exact-head">
-                <div className="kicker">MASZ KONKRETNY TERMIN?</div>
-                <h3>Porównaj konkretny lot</h3>
-                <p>Jeśli znasz dokładne daty, wyszukaj połączenia w naszej afiliacyjnej porównywarce.</p>
-              </div>
-              <TravelpayoutsFlightsWidget />
+            <div className="search-v3-flight-mode-switch" role="tablist" aria-label="Sposób wyszukiwania lotów">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={flightSearchMode === "flex"}
+                className={flightSearchMode === "flex" ? "active" : ""}
+                onClick={() => setFlightSearchMode("flex")}
+              >
+                <strong>Szukam okazji</strong>
+                <span>Elastyczne daty i Gdziekolwiek</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={flightSearchMode === "exact"}
+                className={flightSearchMode === "exact" ? "active" : ""}
+                onClick={() => setFlightSearchMode("exact")}
+              >
+                <strong>Mam konkretne daty</strong>
+                <span>Porównaj dokładny lot</span>
+              </button>
             </div>
+
+            {flightSearchMode === "flex" ? (
+              <FlexibleFlightsExplorer />
+            ) : (
+              <div className="search-v3-flight-exact">
+                <div className="search-v3-flight-exact-head">
+                  <div className="kicker">KONKRETNY TERMIN</div>
+                  <h3>Porównaj loty dla wybranych dat</h3>
+                  <p>Wyszukaj dokładną trasę i termin w afiliacyjnej porównywarce Tripowni.</p>
+                </div>
+                <TravelpayoutsFlightsWidget />
+              </div>
+            )}
           </div>
         ) : (
         <form className="search-v3-form" onSubmit={submitSearch}>
