@@ -13,6 +13,7 @@ import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { useLiveOffers } from "@/lib/useLiveOffers";
 import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
 import { trackEvent } from "@/lib/analytics";
+import { partners } from "@/lib/partners";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -136,6 +137,12 @@ export default function DealsPage({ destination = "" }: { destination?: string }
     return sourceRows;
   }, [offers, quickFilter]);
   const rows = useMemo(() => cheapestUnique(quickFilteredOffers), [quickFilteredOffers]);
+  const destinationHotelHref = useMemo(() => {
+    if (!destination) return "";
+    const url = new URL("https://www.booking.com/searchresults.pl.html");
+    url.searchParams.set("ss", destination);
+    return partners.booking.buildUrl(url.toString());
+  }, [destination]);
   const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
   const poolHighlights = useMemo(() => buildPoolHighlights(rows), [rows]);
 
@@ -320,8 +327,14 @@ export default function DealsPage({ destination = "" }: { destination?: string }
         </>
       ) : !loading ? (
         <div className="self-search-empty">
-          <strong>Nie mamy teraz potwierdzonych okazji w tej puli.</strong>
-          <span>Spróbuj odświeżyć dane lub zmienić jeden filtr. Tripownia nie podmieni ceny na statyczną.</span>
+          <strong>{destination ? `Nie mamy teraz potwierdzonego pakietu: ${destination}.` : "Nie mamy teraz potwierdzonych okazji w tej puli."}</strong>
+          <span>{destination ? "Nie pokazujemy losowego kierunku zamiast tego, którego szukasz. Możesz od razu sprawdzić lot lub nocleg." : "Spróbuj odświeżyć dane lub zmienić jeden filtr. Tripownia nie podmieni ceny na statyczną."}</span>
+          {destination && (
+            <div className="deals-empty-actions">
+              <Link href={`/loty?destination=${encodeURIComponent(destination)}`}>✈️ Porównaj loty</Link>
+              <a href={destinationHotelHref} target="_blank" rel="sponsored noopener noreferrer">🏨 Sprawdź hotele</a>
+            </div>
+          )}
         </div>
       ) : null}
 
