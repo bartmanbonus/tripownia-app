@@ -73,7 +73,7 @@ function TPMultiPlaceInput({
     if (!alreadySelected) onChange([...values, place]);
     setQuery("");
     setRows([]);
-    setOpen(true);
+    setOpen(false);
   }
 
   function removePlace(code: string) {
@@ -101,25 +101,13 @@ function TPMultiPlaceInput({
         {specialActive && (
           <span className="flight-hunt-chip special">
             {specialLabel}
-            <button
-              type="button"
-              aria-label={"Usuń " + specialLabel}
-              onClick={() => onSpecialChange(false)}
-            >
-              ×
-            </button>
+            <button type="button" aria-label={"Usuń " + specialLabel} onClick={() => onSpecialChange(false)}>×</button>
           </span>
         )}
         {!specialActive && values.map((place) => (
           <span className="flight-hunt-chip" key={place.code}>
             {placeLabel(place)}
-            <button
-              type="button"
-              aria-label={"Usuń " + placeLabel(place)}
-              onClick={() => removePlace(place.code)}
-            >
-              ×
-            </button>
+            <button type="button" aria-label={"Usuń " + placeLabel(place)} onClick={() => removePlace(place.code)}>×</button>
           </span>
         ))}
         <input
@@ -145,7 +133,7 @@ function TPMultiPlaceInput({
             onClick={chooseSpecial}
           >
             <strong>{specialLabel}</strong>
-            <small>{label === "Skąd?" ? "bez sztywnego lotniska wylotu" : "pokaż najtańsze kierunki bez wskazywania celu"}</small>
+            <small>{label === "Skąd?" ? "główne lotniska w Polsce" : "pokaż tanie kierunki bez wskazywania celu"}</small>
           </button>
 
           {rows.map((row) => {
@@ -204,6 +192,7 @@ export default function FlexibleFlightsExplorer() {
   const [daysMax, setDaysMax] = useState(7);
   const [directOnly, setDirectOnly] = useState(false);
   const [activeRouteKey, setActiveRouteKey] = useState("");
+  const [submitted, setSubmitted] = useState(false);
   const marker = "695999.tripownia_flexible";
 
   const effectiveOrigins = useMemo(
@@ -279,120 +268,130 @@ export default function FlexibleFlightsExplorer() {
     return "https://www.travelpayouts.com/widgets/aframe.js?v=1&" + params.toString();
   }, [activeRoute, destinationAnywhere, directOnly]);
 
-  const emptyTitle = !effectiveOrigins.length
-    ? "Wybierz skąd chcesz lecieć."
-    : "Wybierz dokąd chcesz lecieć.";
+  function dirty() {
+    setSubmitted(false);
+  }
 
-  const emptyText = !effectiveOrigins.length
-    ? "Możesz wskazać jedno lub kilka miast i lotnisk albo wybrać opcję „Skądkolwiek”."
-    : "Dodaj jedno lub kilka miejsc albo wybierz „Gdziekolwiek”, jeśli kierunek ma pozostać otwarty.";
+  function setTripLength(min: number, max: number) {
+    setDaysMin(min);
+    setDaysMax(max);
+    dirty();
+  }
+
+  function setAnywhere() {
+    setDestinationAnywhere(true);
+    setDestinations([]);
+    dirty();
+  }
+
+  const canSearch = effectiveOrigins.length > 0 && (destinationAnywhere || destinations.length > 0);
 
   return (
-    <section className="flight-hunt">
-      <div className="flight-hunt-head">
+    <section className="flight-hunt flight-hunt-clean">
+      <div className="flight-hunt-modebar">
         <div>
-          <div className="kicker">POLUJ NA TANI LOT</div>
-          <h2>Nie znasz dat? To właśnie tutaj szukaj.</h2>
-          <p>
-            Skąd i dokąd może być elastyczne: wybierz jedno miejsce, kilka miejsc albo zostaw stronę trasy otwartą jako „Skądkolwiek” / „Gdziekolwiek”.
-          </p>
+          <div className="kicker">ELASTYCZNE LOTY</div>
+          <strong>Poluj na najtańszy termin</strong>
+          <span>Nie musisz znać dat. Wybierz trasę albo zostaw kierunek otwarty.</span>
         </div>
         <div className="flight-hunt-tabs" role="group" aria-label="Tryb elastycznego wyszukiwania lotów">
           <button
             type="button"
             className={!destinationAnywhere ? "active" : ""}
-            onClick={() => setDestinationAnywhere(false)}
-          >
-            Najtańsze daty
-          </button>
-          <button
-            type="button"
-            className={destinationAnywhere ? "active" : ""}
             onClick={() => {
-              setDestinationAnywhere(true);
-              setDestinations([]);
+              setDestinationAnywhere(false);
+              dirty();
             }}
           >
+            Mam kierunek
+          </button>
+          <button type="button" className={destinationAnywhere ? "active" : ""} onClick={setAnywhere}>
             Gdziekolwiek
           </button>
         </div>
       </div>
 
-      <div className={"flight-hunt-controls" + (destinationAnywhere ? " is-anywhere" : "")}>
+      <div className="flight-hunt-controls-clean">
         <TPMultiPlaceInput
-          label="Skąd?"
+          label="Skąd"
           values={origins}
-          onChange={setOrigins}
-          placeholder="Dodaj 1 lub kilka miast / lotnisk"
+          onChange={(next) => { setOrigins(next); dirty(); }}
+          placeholder="Miasto lub lotnisko"
           specialLabel="Skądkolwiek"
           specialActive={originAnywhere}
-          onSpecialChange={setOriginAnywhere}
+          onSpecialChange={(active) => { setOriginAnywhere(active); dirty(); }}
         />
 
         <TPMultiPlaceInput
-          label="Dokąd?"
+          label="Dokąd"
           values={destinations}
-          onChange={setDestinations}
-          placeholder="Dodaj 1 lub kilka miast / lotnisk"
+          onChange={(next) => { setDestinations(next); dirty(); }}
+          placeholder="Miasto, kraj lub lotnisko"
           specialLabel="Gdziekolwiek"
           specialActive={destinationAnywhere}
-          onSpecialChange={setDestinationAnywhere}
+          onSpecialChange={(active) => { setDestinationAnywhere(active); dirty(); }}
         />
 
         {!destinationAnywhere && (
-          <>
-            <label className="flight-hunt-field compact">
-              <span>Minimum dni</span>
-              <select value={daysMin} onChange={(event) => setDaysMin(Number(event.target.value))}>
-                {[2, 3, 4, 5, 6, 7, 8, 10, 12, 14].map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-            </label>
-            <label className="flight-hunt-field compact">
-              <span>Maksimum dni</span>
-              <select value={daysMax} onChange={(event) => setDaysMax(Number(event.target.value))}>
-                {[3, 4, 5, 6, 7, 8, 10, 12, 14, 21].map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-            </label>
-          </>
+          <div className="flight-hunt-stay">
+            <span>Na ile dni?</span>
+            <div className="flight-hunt-stay-pills">
+              <button type="button" className={daysMin === 2 && daysMax === 4 ? "active" : ""} onClick={() => setTripLength(2,4)}>2–4</button>
+              <button type="button" className={daysMin === 5 && daysMax === 7 ? "active" : ""} onClick={() => setTripLength(5,7)}>5–7</button>
+              <button type="button" className={daysMin === 8 && daysMax === 10 ? "active" : ""} onClick={() => setTripLength(8,10)}>8–10</button>
+              <button type="button" className={daysMin === 11 && daysMax === 14 ? "active" : ""} onClick={() => setTripLength(11,14)}>11–14</button>
+            </div>
+          </div>
         )}
 
         <label className="flight-hunt-direct">
           <input
             type="checkbox"
             checked={directOnly}
-            onChange={(event) => setDirectOnly(event.target.checked)}
+            onChange={(event) => {
+              setDirectOnly(event.target.checked);
+              dirty();
+            }}
           />
-          <span>Tylko bezpośrednie</span>
+          <span>Bez przesiadek</span>
         </label>
+
+        <button
+          type="button"
+          className="flight-hunt-submit"
+          disabled={!canSearch}
+          onClick={() => setSubmitted(true)}
+        >
+          {destinationAnywhere ? "Pokaż tanie kierunki" : "Pokaż najtańsze terminy"}
+        </button>
       </div>
 
-      {originAnywhere && (
-        <div className="flight-hunt-scope-note">
-          <strong>Skądkolwiek:</strong> porównujemy główne lotniska w Polsce: Warszawę, Kraków, Katowice, Gdańsk, Wrocław i Poznań.
+      <div className="flight-hunt-shortcuts" aria-label="Szybkie ustawienia lotów">
+        <span>Szybko:</span>
+        <button type="button" onClick={() => setTripLength(2,4)}>Weekend 2–4 dni</button>
+        <button type="button" onClick={() => setTripLength(5,7)}>Tydzień</button>
+        <button type="button" onClick={setAnywhere}>Gdziekolwiek</button>
+        <button type="button" onClick={() => { setDirectOnly(true); dirty(); }}>Tylko bezpośrednie</button>
+      </div>
+
+      {!submitted && (
+        <div className="flight-hunt-empty flight-hunt-empty-clean">
+          <div>
+            <strong>{canSearch ? "Gotowe do szukania." : "Wybierz kierunek albo kliknij „Gdziekolwiek”."}</strong>
+            <span>{canSearch ? "Kliknij pomarańczowy przycisk, a pokażemy najlepsze ceny w elastycznych terminach." : "Dat nie musisz podawać — Tripownia przeszuka elastyczne opcje."}</span>
+          </div>
+          <div className="flight-hunt-empty-badges">
+            <span>✓ elastyczne daty</span>
+            <span>✓ wiele lotnisk</span>
+            <span>✓ afiliacyjne ceny</span>
+          </div>
         </div>
       )}
 
-      {routes.length > 0 && (
-        <>
-          <div className="flight-hunt-selection-summary">
-            <strong>
-              {destinationAnywhere
-                ? "Elastyczny wylot: " + routes.length + " lotnisk → Gdziekolwiek"
-                : "Wybrane kombinacje: " + effectiveOrigins.length + " × " + destinations.length + " = " + routes.length + " tras"}
-            </strong>
-            <span>
-              {routes.length > 1
-                ? "Przełączaj trasy poniżej — wybory zostają zaznaczone, więc nie musisz wpisywać ich ponownie."
-                : "Masz jedną trasę. Dodaj kolejne miejsca, aby porównać więcej kombinacji."}
-            </span>
-          </div>
-
+      {submitted && routes.length > 0 && (
+        <div className="flight-hunt-results-shell">
           {routes.length > 1 && (
-            <div className="flight-hunt-route-tabs" role="tablist" aria-label="Wybrane kombinacje tras">
+            <div className="flight-hunt-route-tabs" role="tablist" aria-label="Wybrane trasy">
               {routes.map((route) => (
                 <button
                   type="button"
@@ -408,51 +407,30 @@ export default function FlexibleFlightsExplorer() {
             </div>
           )}
 
-          {destinationAnywhere ? (
-            <>
-              <div className="flight-hunt-copy">
-                <strong>{"Dokąd najtaniej z " + (activeRoute?.origin.name || "wybranego lotniska") + "?"}</strong>
-                <span>Przeglądaj kierunki po cenie zamiast zaczynać od konkretnego miejsca.</span>
-              </div>
-              {mapSrc && (
-                <ScriptSlot
-                  key={activeRoute?.key + "-map"}
-                  id="tripownia-low-price-map"
-                  src={mapSrc}
-                />
-              )}
-            </>
-          ) : (
-            <>
-              <div className="flight-hunt-copy">
-                <strong>
-                  {"Najtańsze terminy " + (activeRoute?.origin.name || "") + " → " + (activeRoute?.destination?.name || "")}
-                </strong>
-                <span>
-                  {"Porównujemy cały rok i długość pobytu " + Math.min(daysMin, daysMax) + "–" + Math.max(daysMin, daysMax) + " dni."}
-                </span>
-              </div>
-              {calendarSrc && (
-                <ScriptSlot
-                  key={activeRoute?.key + "-calendar"}
-                  id="tripownia-price-calendar"
-                  src={calendarSrc}
-                />
-              )}
-            </>
-          )}
-        </>
-      )}
+          <div className="flight-hunt-copy">
+            <div>
+              <small>{destinationAnywhere ? "NAJTAŃSZE KIERUNKI" : "NAJTAŃSZE DATY"}</small>
+              <strong>
+                {destinationAnywhere
+                  ? "Z " + (activeRoute?.origin.name || "wybranego lotniska") + " — dokąd warto lecieć?"
+                  : (activeRoute?.origin.name || "") + " → " + (activeRoute?.destination?.name || "")}
+              </strong>
+            </div>
+            <span>
+              {destinationAnywhere
+                ? "Porównuj kierunki po cenie."
+                : "Zakres pobytu: " + Math.min(daysMin, daysMax) + "–" + Math.max(daysMin, daysMax) + " dni."}
+            </span>
+          </div>
 
-      {routes.length === 0 && (
-        <div className="flight-hunt-empty">
-          <strong>{emptyTitle}</strong>
-          <span>{emptyText}</span>
+          {destinationAnywhere
+            ? mapSrc && <ScriptSlot key={activeRoute?.key + "-map"} id="tripownia-low-price-map" src={mapSrc} />
+            : calendarSrc && <ScriptSlot key={activeRoute?.key + "-calendar"} id="tripownia-price-calendar" src={calendarSrc} />}
         </div>
       )}
 
       <div className="flight-hunt-note">
-        Kalendarz Travelpayouts obsługuje jedną trasę naraz, dlatego przy wielu zaznaczeniach Tripownia tworzy wszystkie kombinacje i pozwala przełączać je jednym kliknięciem. Dane i przejścia rezerwacyjne są afiliacyjne.
+        Ceny i przejścia do rezerwacji są afiliacyjne i przypisane do Tripowni.
       </div>
     </section>
   );
