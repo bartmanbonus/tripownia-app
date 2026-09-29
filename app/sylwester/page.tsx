@@ -5,10 +5,23 @@ import SiteFooter from "@/components/SiteFooter";
 import NewYearOffers from "@/components/NewYearOffers";
 import SearchHub from "@/components/SearchHub";
 
+const title = "Sylwester 2026/2027 za granicą — city break, lot + hotel";
+const description = "Sylwester 2026/2027 za granicą: city break, lot + hotel, krótkie wyjazdy do Europy i ciepłe kierunki na przełom roku.";
+
 export const metadata: Metadata = {
-  title: "City break na Sylwestra 2026/2027 — aktualne oferty i lot + hotel",
-  description: "City break na Sylwestra 2026/2027: aktualne oferty na 3–6 nocy, lot + hotel, krótkie wyjazdy do Europy i opcje na przełom roku.",
+  title,
+  description,
   alternates: { canonical: "/sylwester" },
+  openGraph: {
+    type: "website",
+    locale: "pl_PL",
+    siteName: "Tripownia",
+    title,
+    description,
+    url: "/sylwester",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+  },
+  twitter: { card: "summary_large_image", title, description, images: ["/opengraph-image"] },
 };
 
 type PageProps = {
@@ -39,6 +52,8 @@ export default async function Page({ searchParams }: PageProps) {
         <div className="seo-related-links" style={{ marginTop: 16 }}>
           <Link href="/gdzie-na-sylwestra-2026-2027-15-kierunkow">Gdzie na Sylwestra? 15 kierunków →</Link>
           <Link href="/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok">Ciepłe kraje na Sylwestra →</Link>
+          <Link href="/city-break">City break lot + hotel →</Link>
+          <Link href="/planer-podrozy">Ułóż wyjazd w darmowym planerze →</Link>
         </div>
       </section>
 
