@@ -582,3 +582,201 @@
     font-size:38px;
   }
 }
+
+
+/* 2026-09-29 flexible multi-place flight selector */
+.flight-hunt-controls{
+  grid-template-columns:minmax(300px,1.25fr) minmax(300px,1.25fr) minmax(120px,.6fr) minmax(120px,.6fr) auto;
+}
+.flight-hunt-controls.is-anywhere{
+  grid-template-columns:minmax(300px,1fr) minmax(300px,1fr) auto;
+}
+.flight-hunt-field-multi{
+  z-index:3;
+}
+.flight-hunt-field-multi:focus-within{
+  z-index:220;
+}
+.flight-hunt-multi{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:6px;
+  width:100%;
+  min-height:52px;
+  padding:7px 8px;
+  border:1px solid #d9cec6;
+  border-radius:14px;
+  background:#fff;
+  transition:border-color .15s ease,box-shadow .15s ease;
+}
+.flight-hunt-multi:focus-within{
+  border-color:#e39c80;
+  box-shadow:0 0 0 4px rgba(232,93,49,.08);
+}
+.flight-hunt-multi input{
+  flex:1 1 145px;
+  width:auto!important;
+  min-width:120px!important;
+  height:34px!important;
+  padding:0 6px!important;
+  border:0!important;
+  border-radius:8px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  font-size:13px!important;
+  font-weight:650!important;
+}
+.flight-hunt-multi input:focus{
+  border:0!important;
+  box-shadow:none!important;
+}
+.flight-hunt-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  max-width:100%;
+  min-height:32px;
+  padding:5px 7px 5px 10px;
+  border:1px solid #eadfd7;
+  border-radius:999px;
+  background:#f8f3ef;
+  color:#332b27;
+  font-size:11px;
+  font-weight:850;
+  line-height:1.15;
+}
+.flight-hunt-chip.special{
+  border-color:#efb097;
+  background:#fff0e9;
+  color:#c94726;
+}
+.flight-hunt-chip button{
+  display:inline-grid;
+  place-items:center;
+  width:20px;
+  height:20px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:rgba(0,0,0,.06);
+  color:inherit;
+  font-size:15px;
+  line-height:1;
+  cursor:pointer;
+}
+.flight-hunt-chip button:hover{
+  background:rgba(0,0,0,.1);
+}
+.flight-hunt-suggestions .flight-hunt-special-option{
+  margin-bottom:5px;
+  border:1px solid #f0d2c6;
+  background:#fff8f4;
+}
+.flight-hunt-suggestions .flight-hunt-special-option:hover,
+.flight-hunt-suggestions .flight-hunt-special-option.selected{
+  background:#fff0e9;
+}
+.flight-hunt-suggestions button:disabled{
+  opacity:.52;
+  cursor:default;
+}
+.flight-hunt-scope-note{
+  margin:12px 0 0;
+  padding:10px 12px;
+  border:1px solid #f0d7cb;
+  border-radius:12px;
+  background:#fff7f2;
+  color:#675b54;
+  font-size:11px;
+  line-height:1.45;
+}
+.flight-hunt-scope-note strong{
+  color:#c94726;
+}
+.flight-hunt-selection-summary{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-end;
+  gap:18px;
+  margin:20px 0 10px;
+}
+.flight-hunt-selection-summary strong{
+  color:#29231f;
+  font-size:14px;
+}
+.flight-hunt-selection-summary span{
+  max-width:600px;
+  color:#7a6f68;
+  font-size:11px;
+  line-height:1.4;
+  text-align:right;
+}
+.flight-hunt-route-tabs{
+  display:flex;
+  gap:7px;
+  width:100%;
+  max-width:100%;
+  overflow-x:auto;
+  padding:2px 0 7px;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.flight-hunt-route-tabs::-webkit-scrollbar{
+  display:none;
+}
+.flight-hunt-route-tabs button{
+  flex:0 0 auto;
+  min-height:36px;
+  padding:0 12px;
+  border:1px solid #dfd4cc;
+  border-radius:999px;
+  background:#fff;
+  color:#504741;
+  font-size:10px;
+  font-weight:850;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.flight-hunt-route-tabs button.active{
+  border-color:#181512;
+  background:#181512;
+  color:#fff;
+}
+
+@media(max-width:1180px){
+  .flight-hunt-controls,
+  .flight-hunt-controls.is-anywhere{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .flight-hunt-direct{
+    grid-column:1/-1;
+    width:max-content;
+  }
+}
+@media(max-width:640px){
+  .flight-hunt-controls,
+  .flight-hunt-controls.is-anywhere{
+    grid-template-columns:1fr;
+  }
+  .flight-hunt-field-multi{
+    width:100%;
+  }
+  .flight-hunt-direct{
+    grid-column:auto;
+    width:100%;
+  }
+  .flight-hunt-selection-summary{
+    display:block;
+    margin-top:16px;
+  }
+  .flight-hunt-selection-summary span{
+    display:block;
+    margin-top:4px;
+    text-align:left;
+  }
+  .flight-hunt-route-tabs{
+    margin-right:-16px;
+    padding-right:16px;
+  }
+}
