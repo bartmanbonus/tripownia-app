@@ -21,6 +21,8 @@ type PriceHighlight = {
   detail: string;
 };
 
+type QuickFilter = "all" | "city" | "allinclusive" | "sun" | "under2000";
+
 const AIRPORTS = [
   { value: "any", label: "Wszystkie lotniska" },
   { value: "WAWA", label: "Warszawa (WAW + WMI)" },
@@ -111,6 +113,7 @@ export default function DealsPage() {
   const [year, setYear] = useState("any");
   const [historyVersion, setHistoryVersion] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
@@ -123,7 +126,15 @@ export default function DealsPage() {
 
   const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
   const { offers: todayOffers, loading: todayLoading, checkedAt: todayCheckedAt } = useLiveOffers("/api/today-offers");
-  const rows = useMemo(() => cheapestUnique(offers as DealsOffer[]), [offers]);
+  const quickFilteredOffers = useMemo(() => {
+    const sourceRows = offers as DealsOffer[];
+    if (quickFilter === "city") return sourceRows.filter((offer) => offer.category.includes("city") || offer.category.includes("weekend"));
+    if (quickFilter === "allinclusive") return sourceRows.filter((offer) => offer.category.includes("allinclusive"));
+    if (quickFilter === "sun") return sourceRows.filter((offer) => offer.category.includes("cieplo") || offer.category.includes("plaza"));
+    if (quickFilter === "under2000") return sourceRows.filter((offer) => Number(offer.price) <= 2000);
+    return sourceRows;
+  }, [offers, quickFilter]);
+  const rows = useMemo(() => cheapestUnique(quickFilteredOffers), [quickFilteredOffers]);
   const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
   const poolHighlights = useMemo(() => buildPoolHighlights(rows), [rows]);
 
@@ -217,6 +228,28 @@ export default function DealsPage() {
           <span>Wróć za chwilę — pokazujemy tylko oferty, które udało się potwierdzić w bieżącym feedzie.</span>
         </div>
       ) : null}
+
+      <div className="deals-quick-filters" aria-label="Szybkie filtry okazji">
+        {([
+          ["all", "Wszystkie"],
+          ["city", "City break"],
+          ["allinclusive", "All Inclusive"],
+          ["sun", "Ciepło"],
+          ["under2000", "Do 2000 zł"],
+        ] as Array<[QuickFilter, string]>).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            className={quickFilter === value ? "active" : ""}
+            onClick={() => {
+              setQuickFilter(value);
+              trackEvent("deals_quick_filter", { filter: value });
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
 
       <div className="deals-mobile-toolbar">
         <button
