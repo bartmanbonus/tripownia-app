@@ -136,11 +136,19 @@ function destinationPartnerLinks(destination: string) {
   };
 }
 
-function standaloneFlightPartnerUrl(destinations: string[], departures: string[]) {
+function standaloneFlightPartnerUrl(
+  destinations: string[],
+  departures: string[],
+  options: { adults: number; cabin: string; tripType: "round" | "oneway"; outbound?: string; inbound?: string },
+) {
   const target = destinations[0]?.trim() || "";
   const kiwiBase = new URL("https://www.kiwi.com/pl/");
   if (target) kiwiBase.searchParams.set("destination", target);
   if (departures.length === 1) kiwiBase.searchParams.set("origin", departures[0]);
+  if (options.outbound) kiwiBase.searchParams.set("outboundDate", options.outbound);
+  if (options.tripType === "round" && options.inbound) kiwiBase.searchParams.set("inboundDate", options.inbound);
+  kiwiBase.searchParams.set("adults", String(Math.max(1, options.adults)));
+  if (options.cabin !== "ECONOMY") kiwiBase.searchParams.set("cabinClass", options.cabin);
   kiwiBase.searchParams.set("currency", "PLN");
   return partners.kiwi.buildUrl(kiwiBase.toString());
 }
@@ -278,6 +286,9 @@ export default function SearchHub({
   const [customBudgetMax, setCustomBudgetMax] = useState("");
   const [board, setBoard] = useState("all");
   const [weekendOnly, setWeekendOnly] = useState(initialWeekendOnly);
+  const [flightAdults, setFlightAdults] = useState(1);
+  const [flightCabin, setFlightCabin] = useState("ECONOMY");
+  const [flightTripType, setFlightTripType] = useState<"round" | "oneway">("round");
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [remoteDestinations, setRemoteDestinations] = useState<WorldDestination[]>([]);
   const [results, setResults] = useState<any[]>([]);
@@ -680,7 +691,13 @@ export default function SearchHub({
       ])).filter((item) => !isTravelDestinationBlocked(item));
 
       const url = activeTab === "Loty"
-        ? standaloneFlightPartnerUrl(destinations, departures)
+        ? standaloneFlightPartnerUrl(destinations, departures, {
+            adults: flightAdults,
+            cabin: flightCabin,
+            tripType: flightTripType,
+            outbound: dateFrom || undefined,
+            inbound: flightTripType === "round" ? (dateTo || undefined) : undefined,
+          })
         : standaloneHotelPartnerUrl(destinations);
 
       setSearched(true);
@@ -771,6 +788,9 @@ export default function SearchHub({
     setBudget("all");
     setBoard("all");
     setWeekendOnly(false);
+    setFlightAdults(1);
+    setFlightCabin("ECONOMY");
+    setFlightTripType("round");
     setResults([]);
     setResultLocation("");
     setVisibleCount(12);
@@ -832,8 +852,8 @@ export default function SearchHub({
         <div className="search-v3-head">
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
-            {!embedded && <h2>Gdzie chcesz lecieć?</h2>}
-            {!embedded && <p>Wybierz kierunki i lotniska. Zostaw puste, jeśli chcesz szukać wszędzie.</p>}
+            {!embedded && <h2>{activeTab === "Loty" ? "Znajdź najlepszy lot" : "Gdzie chcesz lecieć?"}</h2>}
+            {!embedded && <p>{activeTab === "Loty" ? "Wpisz dowolny kierunek, wybierz lotnisko, daty i podróżnych. Porównanie zaczynasz w Tripowni." : "Wybierz kierunki i lotniska. Zostaw puste, jeśli chcesz szukać wszędzie."}</p>}
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
@@ -1122,41 +1142,66 @@ export default function SearchHub({
             )}
           </div>
 
-          <label className="search-v3-field search-v3-duration">
-            <span>Na ile?</span>
-            <select value={duration} onChange={(event) => setDuration(event.target.value)}>
-              <option value="all">Dowolnie</option>
-              <option value="1">1 noc</option><option value="2">2 noce</option><option value="3">3 noce</option><option value="4">4 noce</option>
-              <option value="1-2">1–2 noce</option>
-              <option value="3-4">3–4 noce</option>
-              <option value="5-7">5–7 nocy</option>
-              <option value="8-10">8–10 nocy</option>
-              <option value="11-14">11–14 nocy</option>
-              <option value="15+">15+ nocy</option>
-            </select>
-            <ChevronDown size={15} className="search-v3-chevron"/>
-          </label>
+          {activeTab === "Loty" ? (
+            <label className="search-v3-field search-v3-duration">
+              <span>Podróżni</span>
+              <select value={flightAdults} onChange={(event) => setFlightAdults(Number(event.target.value))}>
+                {Array.from({ length: 9 }, (_, index) => index + 1).map((value) => (
+                  <option key={value} value={value}>{value} {value === 1 ? "osoba" : value < 5 ? "osoby" : "osób"}</option>
+                ))}
+              </select>
+              <ChevronDown size={15} className="search-v3-chevron"/>
+            </label>
+          ) : (
+            <label className="search-v3-field search-v3-duration">
+              <span>Na ile?</span>
+              <select value={duration} onChange={(event) => setDuration(event.target.value)}>
+                <option value="all">Dowolnie</option>
+                <option value="1">1 noc</option><option value="2">2 noce</option><option value="3">3 noce</option><option value="4">4 noce</option>
+                <option value="1-2">1–2 noce</option>
+                <option value="3-4">3–4 noce</option>
+                <option value="5-7">5–7 nocy</option>
+                <option value="8-10">8–10 nocy</option>
+                <option value="11-14">11–14 nocy</option>
+                <option value="15+">15+ nocy</option>
+              </select>
+              <ChevronDown size={15} className="search-v3-chevron"/>
+            </label>
+          )}
 
-          <label className="search-v3-field search-v3-budget">
-            <span>Budżet / os.</span>
-            <select
-              value={budget}
-              onChange={(event) => {
-                const next = event.target.value;
-                setBudget(next);
-                if (next === "custom" && !customBudgetMin && !customBudgetMax) setCustomBudgetMax("3000");
-              }}
-            >
-              <option value="all">Dowolny</option>
-              <option value="750">do 750 zł</option><option value="1000">do 1 000 zł</option><option value="1500">do 1 500 zł</option>
-              <option value="2000">do 2 000 zł</option><option value="3000">do 3 000 zł</option><option value="5000">do 5 000 zł</option>
-              <option value="7500">do 7 500 zł</option><option value="10000">do 10 000 zł</option><option value="15000">do 15 000 zł</option>
-              <option value="custom">Własny zakres…</option>
-            </select>
-            <ChevronDown size={15} className="search-v3-chevron"/>
-          </label>
+          {activeTab === "Loty" ? (
+            <label className="search-v3-field search-v3-budget">
+              <span>Klasa</span>
+              <select value={flightCabin} onChange={(event) => setFlightCabin(event.target.value)}>
+                <option value="ECONOMY">Ekonomiczna</option>
+                <option value="PREMIUM_ECONOMY">Premium Economy</option>
+                <option value="BUSINESS">Business</option>
+                <option value="FIRST">First</option>
+              </select>
+              <ChevronDown size={15} className="search-v3-chevron"/>
+            </label>
+          ) : (
+            <label className="search-v3-field search-v3-budget">
+              <span>Budżet / os.</span>
+              <select
+                value={budget}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  setBudget(next);
+                  if (next === "custom" && !customBudgetMin && !customBudgetMax) setCustomBudgetMax("3000");
+                }}
+              >
+                <option value="all">Dowolny</option>
+                <option value="750">do 750 zł</option><option value="1000">do 1 000 zł</option><option value="1500">do 1 500 zł</option>
+                <option value="2000">do 2 000 zł</option><option value="3000">do 3 000 zł</option><option value="5000">do 5 000 zł</option>
+                <option value="7500">do 7 500 zł</option><option value="10000">do 10 000 zł</option><option value="15000">do 15 000 zł</option>
+                <option value="custom">Własny zakres…</option>
+              </select>
+              <ChevronDown size={15} className="search-v3-chevron"/>
+            </label>
+          )}
 
-          {budget === "custom" && (
+          {activeTab !== "Loty" && budget === "custom" && (
             <div className={`search-v3-budget-custom${budgetInvalid ? " is-invalid" : ""}`} aria-label="Własny zakres budżetu na osobę">
               <div className="search-v3-budget-inputs">
                 <label><span>Od</span><div><input type="number" inputMode="numeric" min="0" max="15000" step="50" value={customBudgetMin} onChange={(event) => setCustomBudgetMin(event.target.value.replace(/[^0-9]/g, ""))} placeholder="np. 1500"/><b>zł</b></div></label>
@@ -1173,21 +1218,28 @@ export default function SearchHub({
           )}
 
           <div className="search-v3-options-row">
-            <label className="search-v3-board">
-              <span>Wyżywienie</span>
-              <select value={board} onChange={(event) => setBoard(event.target.value)}>
-                <option value="all">Dowolne</option>
-                <option value="bez wyżywienia">Bez wyżywienia</option>
-                <option value="śniadanie">Śniadanie</option>
-                <option value="half board">Śniadanie i obiadokolacja</option>
-                <option value="full board">Trzy posiłki</option>
-                <option value="all inclusive">All Inclusive</option>
-                <option value="ultra all inclusive">Ultra All Inclusive</option>
-              </select>
-            </label>
+            {activeTab === "Loty" ? (
+              <div className="search-v3-flight-options" role="group" aria-label="Typ podróży">
+                <button type="button" className={flightTripType === "round" ? "active" : ""} onClick={() => setFlightTripType("round")}>W obie strony</button>
+                <button type="button" className={flightTripType === "oneway" ? "active" : ""} onClick={() => setFlightTripType("oneway")}>W jedną stronę</button>
+              </div>
+            ) : (
+              <label className="search-v3-board">
+                <span>Wyżywienie</span>
+                <select value={board} onChange={(event) => setBoard(event.target.value)}>
+                  <option value="all">Dowolne</option>
+                  <option value="bez wyżywienia">Bez wyżywienia</option>
+                  <option value="śniadanie">Śniadanie</option>
+                  <option value="half board">Śniadanie i obiadokolacja</option>
+                  <option value="full board">Trzy posiłki</option>
+                  <option value="all inclusive">All Inclusive</option>
+                  <option value="ultra all inclusive">Ultra All Inclusive</option>
+                </select>
+              </label>
+            )}
           </div>
 
-          <button type="submit" className="search-v3-submit" disabled={loading || budgetInvalid}><Search size={18}/>{loading ? "Szukamy…" : budgetInvalid ? "Popraw budżet" : activeTab === "Loty" ? "Szukaj lotów" : activeTab === "Hotele" ? "Szukaj hoteli" : "Szukaj wyjazdu"}</button>
+          <button type="submit" className="search-v3-submit" disabled={loading || budgetInvalid}><Search size={18}/>{loading ? "Szukamy…" : budgetInvalid ? "Popraw budżet" : activeTab === "Loty" ? "Porównaj loty" : activeTab === "Hotele" ? "Szukaj hoteli" : "Szukaj wyjazdu"}</button>
         </form>
 
         {!embedded && <div className="search-v3-quick">
