@@ -226,7 +226,7 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     title: "Maroko na wakacje — Agadir czy Marrakesz?",
     lead: "Agadir jest lepszy, jeśli priorytetem są plaża, hotel i spokojniejszy wypoczynek. Marrakesz wygrywa klimatem miasta, riadami, jedzeniem i zwiedzaniem. Na All Inclusive częściej zaczynaj od Agadiru, a na city break od Marrakeszu.",
     links: [
-      { href: "/wakacje", label: "Aktualne wakacje" },
+      { href: "/tanie-all-inclusive", label: "Tanie All Inclusive" },
       { href: "/city-break", label: "City break" },
       { href: "/last-minute", label: "Last minute" },
     ],
@@ -235,8 +235,8 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     title: "Egipt All Inclusive — Hurghada, Marsa Alam czy Sharm?",
     lead: "Hurghada daje największy wybór hoteli i łatwą logistykę, Marsa Alam jest spokojniejsze i mocne pod rafę, a Sharm el Sheikh łączy resorty z dobrym snorkelingiem i nurkowaniem. Porównuj konkretny hotel i długość transferu, nie tylko region.",
     links: [
+      { href: "/tanie-all-inclusive", label: "Tanie All Inclusive" },
       { href: "/podroze/egipt-listopad-2026", label: "Egipt — listopad 2026" },
-      { href: "/wakacje", label: "Aktualne wakacje" },
       { href: "/last-minute", label: "Last minute" },
     ],
   },
@@ -395,6 +395,11 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
     ],
   };
   if (airportLandingLinks[canonicalPath]) return airportLandingLinks[canonicalPath];
+  if (hay.includes("all inclusive") || hay.includes("all-inclusive")) return [
+    { href: "/tanie-all-inclusive", label: "Tanie All Inclusive" },
+    { href: "/last-minute", label: "Last minute" },
+    { href: "/wakacje", label: "Aktualne wakacje" },
+  ];
   if (hay.includes("limit") && hay.includes("płyn")) return [
     { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
     { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa" },
