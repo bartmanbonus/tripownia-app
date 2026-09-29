@@ -276,3 +276,39 @@
   .deals-quick-filters::-webkit-scrollbar{display:none}
   .deals-quick-filters button{flex:0 0 auto}
 }
+
+
+/* Cheap All Inclusive promo */
+.deals-ai-promo-strip{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin:12px 0 16px;
+  padding:16px 18px;
+  border:1px solid #f0d6c9;
+  border-radius:16px;
+  background:linear-gradient(135deg,#fff4ed,#fff);
+}
+.deals-ai-promo-strip>div{display:flex;flex-direction:column;gap:3px}
+.deals-ai-promo-strip small{font-size:10px;font-weight:950;letter-spacing:.08em;color:#d85b34}
+.deals-ai-promo-strip strong{font-size:16px;color:#302720}
+.deals-ai-promo-strip span{font-size:11px;color:#77685f}
+.deals-ai-promo-strip>a{
+  flex:0 0 auto;
+  min-height:40px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 14px;
+  border-radius:11px;
+  background:#f45b32;
+  color:#fff;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:900;
+}
+@media(max-width:700px){
+  .deals-ai-promo-strip{align-items:flex-start;flex-direction:column}
+  .deals-ai-promo-strip>a{width:100%}
+}
