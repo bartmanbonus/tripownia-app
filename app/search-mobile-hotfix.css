@@ -276,3 +276,20 @@
     white-space:nowrap;
   }
 }
+
+
+/* Travelpayouts White Label flights page */
+.tpwl-tripownia-page{background:#fffaf7;}
+.tpwl-tripownia{padding:34px 0 54px;}
+.tpwl-tripownia-head{max-width:820px;margin:0 0 22px;}
+.tpwl-tripownia-head h1{margin:8px 0 10px;font-size:clamp(34px,5vw,56px);line-height:1.02;letter-spacing:-.04em;color:#1d1916;}
+.tpwl-tripownia-head p{margin:0;color:#6f645d;font-size:16px;line-height:1.6;}
+.tpwl-tripownia #tpwl-search,
+.tpwl-tripownia #tpwl-tickets{width:100%;min-height:1px;}
+.tpwl-tripownia-disclosure{margin:16px 0 0;color:#81766f;font-size:12px;line-height:1.5;}
+@media(max-width:640px){
+  .tpwl-tripownia{padding:22px 0 38px;}
+  .tpwl-tripownia-head{padding:0 4px;}
+  .tpwl-tripownia-head h1{font-size:34px;}
+  .tpwl-tripownia-head p{font-size:14px;}
+}
