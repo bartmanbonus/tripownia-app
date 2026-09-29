@@ -260,6 +260,24 @@ function ScriptSlot({ src, id, fallbackHref }: { src: string; id: string; fallba
   );
 }
 
+
+function LowPriceMapFrame({ src }: { src: string }) {
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <div className={"flight-hunt-map-shell" + (loaded ? " ready" : " loading")}>
+      {!loaded && <div className="flight-hunt-widget-loading">Ładujemy mapę najtańszych kierunków…</div>}
+      <iframe
+        title="Mapa najtańszych lotów"
+        src={src}
+        loading="eager"
+        allow="geolocation"
+        onLoad={() => setLoaded(true)}
+      />
+    </div>
+  );
+}
+
 export default function FlexibleFlightsExplorer() {
   const [origins, setOrigins] = useState<Place[]>([
     { code: "WAW", name: "Warszawa", country: "Polska" },
@@ -328,10 +346,10 @@ export default function FlexibleFlightsExplorer() {
     if (!activeRoute?.origin.code || !activeRoute.destination?.code) return "";
     const params = new URLSearchParams({
       marker,
-      shmarker: marker,
       origin: activeRoute.origin.code,
       destination: activeRoute.destination.code,
       currency: "pln",
+      searchUrl: "hydra.aviasales.com",
       one_way: "false",
       only_direct: directOnly ? "true" : "false",
       locale: "pl",
@@ -346,15 +364,25 @@ export default function FlexibleFlightsExplorer() {
   const mapSrc = useMemo(() => {
     if (!activeRoute?.origin.code || !destinationAnywhere) return "";
     const params = new URLSearchParams({
+      redirect_on_click: "true",
+      hide_sidebar: "true",
+      hide_logo: "true",
+      zoom: "3",
+      cluster_manager: "TpWidgetClusterManager",
+      host: "www.aviasales.com",
+      show_tutorial: "false",
+      hide_reformal: "true",
       marker,
-      origin: activeRoute.origin.code,
-      currency: "pln",
+      small_spinner: "true",
+      direct: directOnly ? "true" : "false",
+      disable_googlemaps_ui: "true",
+      auto_fit_map: "true",
       locale: "pl",
-      one_way: "false",
-      only_direct: directOnly ? "true" : "false",
-      powered_by: "false",
+      show_filters_icon: "true",
+      lines_type: "TpLines",
+      origin_iata: activeRoute.origin.code,
     });
-    return "https://www.travelpayouts.com/widgets/aframe.js?v=1&" + params.toString();
+    return "https://maps.tp.media/flights/?" + params.toString();
   }, [activeRoute, destinationAnywhere, directOnly]);
 
   function dirty() {
@@ -515,7 +543,7 @@ export default function FlexibleFlightsExplorer() {
           </div>
 
           {destinationAnywhere
-            ? mapSrc && <ScriptSlot key={activeRoute?.key + "-map"} id="tripownia-low-price-map" src={mapSrc} fallbackHref={affiliateFallbackUrl} />
+            ? mapSrc && <LowPriceMapFrame key={activeRoute?.key + "-map"} src={mapSrc} />
             : calendarSrc && <ScriptSlot key={activeRoute?.key + "-calendar"} id="tripownia-price-calendar" src={calendarSrc} fallbackHref={affiliateFallbackUrl} />}
         </div>
       )}
