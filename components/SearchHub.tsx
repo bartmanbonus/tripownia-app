@@ -671,20 +671,20 @@ export default function SearchHub({
   function submitSearch(event: FormEvent) {
     event.preventDefault();
 
-    if (activeTab === "Same loty" || activeTab === "Same hotele") {
+    if (activeTab === "Loty" || activeTab === "Hotele") {
       const typed = destination.trim();
       const destinations = Array.from(new Set([
         ...selectedDestinations,
         ...(typed ? typed.split(/[;\n]+/).map((item) => canonicalSearchDestination(item.trim())).filter(Boolean) : []),
       ])).filter((item) => !isTravelDestinationBlocked(item));
 
-      const url = activeTab === "Same loty"
+      const url = activeTab === "Loty"
         ? standaloneFlightPartnerUrl(destinations, departures)
         : standaloneHotelPartnerUrl(destinations);
 
       setSearched(true);
       setResults([]);
-      setNotice(activeTab === "Same loty"
+      setNotice(activeTab === "Loty"
         ? "Otwieramy wyszukiwanie samych lotów w Kiwi.com przez link partnerski Tripowni."
         : "Otwieramy wyszukiwanie samych hoteli w Booking.com przez link partnerski Tripowni.");
       window.open(url, "_blank", "noopener,noreferrer");
@@ -866,7 +866,7 @@ export default function SearchHub({
         )}
 
         <div className="search-v3-tabs" role="group" aria-label="Rodzaj podróży">
-          {["Inspiracje", "City break", "Wakacje", "Last minute", "Lot + hotel", "Same loty", "Same hotele"].map((tab) => (
+          {["Inspiracje", "City break", "Wakacje", "Last minute", "Lot + hotel", "Loty", "Hotele"].map((tab) => (
             <button key={tab} type="button" aria-pressed={activeTab === tab} className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
@@ -1182,7 +1182,7 @@ export default function SearchHub({
             </label>
           </div>
 
-          <button type="submit" className="search-v3-submit" disabled={loading || budgetInvalid}><Search size={18}/>{loading ? "Szukamy…" : budgetInvalid ? "Popraw budżet" : activeTab === "Same loty" ? "Szukaj lotów" : activeTab === "Same hotele" ? "Szukaj hoteli" : "Szukaj wyjazdu"}</button>
+          <button type="submit" className="search-v3-submit" disabled={loading || budgetInvalid}><Search size={18}/>{loading ? "Szukamy…" : budgetInvalid ? "Popraw budżet" : activeTab === "Loty" ? "Szukaj lotów" : activeTab === "Hotele" ? "Szukaj hoteli" : "Szukaj wyjazdu"}</button>
         </form>
 
         {!embedded && <div className="search-v3-quick">
