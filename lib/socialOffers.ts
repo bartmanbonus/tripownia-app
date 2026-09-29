@@ -74,6 +74,22 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "sri-lanka-loty-2798": {
+    slug: "sri-lanka-loty-2798",
+    city: "Kolombo",
+    country: "Sri Lanka",
+    price: 2798,
+    departure: "Warszawa",
+    nights: 9,
+    dates: "21–30 listopada 2026",
+    board: "Lot RT • 1 przesiadka",
+    hotel: "Tylko lot",
+    partner: "kiwi",
+    partnerLabel: "Kiwi.com",
+    affiliateUrl: "https://c111.travelpayouts.com/click?shmarker=740301.TRIPOWNIAPL&promo_id=3791&source_type=customlink&type=click&custom_url=https%3A%2F%2Fwww.kiwi.com%2Fdeep%3Ffrom%3DWAW%26to%3DCMB%26departure%3D2026-11-21%26return%3D2026-11-30",
+    checkedAt: "2026-09-29T15:46:00+02:00",
+    status: "active",
+  },
   "malediwy-dhiguveli-6122": {
     slug: "malediwy-dhiguveli-6122",
     city: "Malediwy",
