@@ -258,7 +258,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
     : isLiveExact || isExactLink
-      ? `Sprawdź w ${compactPartnerName}`
+      ? `Sprawdź cenę w ${compactPartnerName}`
       : "Sprawdź aktualną cenę";
   const trustText = isExpired
     ? "Oferta wygasła"
@@ -328,6 +328,9 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
 
         <div className="price"><small>od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
         <div className="offer-trust-line"><Clock3 size={12} /> {trustText}</div>
+        {!isExpired && directAffiliate && (
+          <div className="offer-booking-assurance"><BadgeCheck size={13}/> Rezerwacja i płatność odbywają się bezpośrednio u {compactPartnerName}</div>
+        )}
 
         <div className="offer-date-line"><CalendarDays size={15} /> <strong>{offer.dates}</strong></div>
         <div className="meta">
