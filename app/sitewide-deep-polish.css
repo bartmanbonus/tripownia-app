@@ -53,11 +53,12 @@
 .experience-window{display:inline-flex!important;padding:7px 9px!important;border-radius:999px!important;background:#fff1eb!important;color:#c74420!important;font-size:9px!important}
 .experience-expanded-lead{padding:0 22px!important;color:#6d635d!important;font-size:12px!important;line-height:1.65!important}
 .experience-ideas{display:grid!important;gap:8px!important;padding:12px 22px 22px!important}
-.experience-idea{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:10px!important;align-items:center!important;padding:12px!important;border:1px solid #eee6e0!important;border-radius:16px!important;background:#fcfaf8!important}
+.experience-idea{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;padding:14px!important;border:1px solid #eee6e0!important;border-radius:16px!important;background:#fcfaf8!important}
 .experience-idea strong,.experience-idea small{display:block!important}
-.experience-idea small{margin-top:3px!important;color:#8a817b!important;font-size:9px!important}
-.experience-idea-actions{display:flex!important;gap:6px!important}
-.experience-idea-actions a{padding:8px 9px!important;border-radius:999px!important;background:#181512!important;color:#fff!important;font-size:8px!important;font-weight:850!important}
+.experience-idea strong{font-size:13px!important;line-height:1.25!important}
+.experience-idea small{margin-top:4px!important;color:#8a817b!important;font-size:10px!important;line-height:1.4!important}
+.experience-idea-actions{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;width:100%!important;margin-top:12px!important}
+.experience-idea-actions a{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:40px!important;box-sizing:border-box!important;padding:9px 12px!important;border-radius:12px!important;background:#181512!important;color:#fff!important;font-size:10px!important;line-height:1.2!important;font-weight:850!important;text-align:center!important;text-decoration:none!important;white-space:normal!important}
 .experience-idea-actions a+a{background:#fff!important;color:#2c241f!important;border:1px solid #e4dad3!important}
 
 /* SERVICE PAGES */
