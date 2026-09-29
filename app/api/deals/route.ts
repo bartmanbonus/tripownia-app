@@ -34,6 +34,15 @@ function normalize(value: string | undefined | null) {
     .trim();
 }
 
+function typeMatches(offer: DealsOffer, type: string) {
+  if (!type) return true;
+  if (type === "allinclusive") {
+    const categories = Array.isArray(offer.category) ? offer.category : [];
+    return categories.includes("allinclusive") || /all\s*inclusive/i.test(offer.board || "");
+  }
+  return true;
+}
+
 function airportMatches(offer: DealsOffer, airport: string) {
   if (!airport) return true;
   const haystack = normalize(`${offer.departure || ""} ${offer.airportCode || ""}`);
@@ -124,6 +133,7 @@ async function loadSource(
 
 export async function GET(request: NextRequest) {
   const airport = (request.nextUrl.searchParams.get("from") || "").trim();
+  const type = (request.nextUrl.searchParams.get("type") || "").trim().toLowerCase();
   const rawMonth = (request.nextUrl.searchParams.get("month") || "").trim();
   const rawYear = (request.nextUrl.searchParams.get("year") || "").trim();
   const month = /^(0[1-9]|1[0-2])$/.test(rawMonth) ? rawMonth : "";
@@ -141,7 +151,7 @@ export async function GET(request: NextRequest) {
   const successful = results.filter((item) => item.response.ok);
   const unavailableSources = results.filter((item) => !item.response.ok).map((item) => item.label);
   if (!successful.length) {
-    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal);
+    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal).filter((offer) => typeMatches(offer, type));
     const fallbackExact = fallbackPool
       .filter((offer) => airportMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
@@ -163,7 +173,7 @@ export async function GET(request: NextRequest) {
           partial: true,
           sourceType: "published_fallback",
           matchMode: fallbackExact.length ? "fallback_exact" : "fallback_pool",
-          filters: { airport: airport || null, month: month || null, year: year || null },
+          filters: { type: type || null, airport: airport || null, month: month || null, year: year || null },
           notice: "Live feedy partnerów są chwilowo niedostępne. Pokazujemy ostatnią opublikowaną pulę Tripowni; cenę i dostępność potwierdź u partnera po kliknięciu.",
           offers: fallbackOffers,
           error,
@@ -185,10 +195,10 @@ export async function GET(request: NextRequest) {
     const current = unique.get(offer.id);
     if (!current || Number(offer.price) < Number(current.price)) unique.set(offer.id, offer);
   }
-  const sourceOffers = Array.from(unique.values());
+  const sourceOffers = Array.from(unique.values()).filter((offer) => typeMatches(offer, type));
 
   if (!sourceOffers.length) {
-    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal);
+    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal).filter((offer) => typeMatches(offer, type));
     const fallbackExact = fallbackPool
       .filter((offer) => airportMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
@@ -209,7 +219,7 @@ export async function GET(request: NextRequest) {
           partial: true,
           sourceType: "published_fallback",
           matchMode: fallbackExact.length ? "fallback_exact" : "fallback_pool",
-          filters: { airport: airport || null, month: month || null, year: year || null },
+          filters: { type: type || null, airport: airport || null, month: month || null, year: year || null },
           notice: "Live feedy nie zwróciły teraz ofert. Pokazujemy ostatnią opublikowaną pulę Tripowni; cenę i dostępność potwierdź u partnera po kliknięciu.",
           offers: fallbackOffers,
         },
@@ -225,7 +235,9 @@ export async function GET(request: NextRequest) {
   let offers = lowestPriceDeals(exact);
   let matchMode = "exact";
   let notice = offers.length
-    ? "Najtańsze znalezione ceny są na górze. Dla każdego kierunku zostawiamy tylko najtańszą aktualną ofertę."
+    ? type === "allinclusive"
+      ? "Najtańsze aktualne All Inclusive są na górze. Dla każdego kierunku zostawiamy najtańszą potwierdzoną ofertę."
+      : "Najtańsze znalezione ceny są na górze. Dla każdego kierunku zostawiamy tylko najtańszą aktualną ofertę."
     : "";
 
   if (!offers.length && (month || year)) {
@@ -288,7 +300,7 @@ export async function GET(request: NextRequest) {
       partial: unavailableSources.length > 0,
       sourceType: "live",
       matchMode,
-      filters: { airport: airport || null, month: month || null, year: year || null },
+      filters: { type: type || null, airport: airport || null, month: month || null, year: year || null },
       notice,
       offers,
     },
