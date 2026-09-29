@@ -1277,7 +1277,7 @@ export default function SearchHub({
         </form>
         )}
 
-        {!embedded && activeTab !== "Loty" && <div className="search-v3-quick"
+        {!embedded && activeTab !== "Loty" && <div className="search-v3-quick">
           <span>Szybki start</span>
           <div>{quickPicks.map(([destinationLabel, label, overrides]) => <button type="button" key={destinationLabel} onClick={() => quickSearch(destinationLabel, overrides)}>{label}</button>)}</div>
         </div>}
