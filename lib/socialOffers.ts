@@ -74,6 +74,22 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "majorka-ilusion-2759": {
+    slug: "majorka-ilusion-2759",
+    city: "Majorka",
+    country: "Hiszpania",
+    price: 2759,
+    departure: "Warszawa–Modlin",
+    nights: 7,
+    dates: "7–14 października 2026",
+    board: "All Inclusive",
+    hotel: "Ilusion Vista Blava 3★",
+    partner: "exim",
+    partnerLabel: "EXIM Tours",
+    affiliateUrl: "https://reklamy.exim.pl/click?p=334260&a=3487177&url=https%3A%2F%2Fwww.exim.pl%2Fkierunki%2Fhiszpania%2Fmajorka%2Fcala-millor%2Filusion-vista-blava%3FKEY%3DMTg0NDE1OHwyMTk1MDgxMDc3fDExMTAxNjg%253D%26DS%3D1024%26GIATA%3D3186%26D%3D63350%26HID%3D422267%26MT%3D5%26DI%3DGT06-AI%26NN%3D7%26MNN%3D7%257C8%257C9%257C10%26NNM%3D7%257C8%257C9%257C10%26DF%3D2026-09-30%257C2026-10-28%26RD%3D2026-10-14%26DD%3D2026-10-07%26ERM%3D0%26TO%3D298%26TT%3D1%26PID%3D422267%26DPR%3DEXIM%2BTOURS%2BPOLAND%26PC%3D7-2026-10-07%26IFC%3DRlJ8WFhYfDIwMjYtMTAtMTRUMDA6MDA-%26OFC%3DRlJ8WFhYfDIwMjYtMTAtMDdUMDA6MDA-",
+    checkedAt: "2026-09-29T21:12:00+02:00",
+    status: "active",
+  },
   "marbella-bluebay-1219": {
     slug: "marbella-bluebay-1219",
     city: "Marbella",
