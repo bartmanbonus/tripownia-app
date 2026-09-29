@@ -120,6 +120,41 @@
   gap: 2px;
 }
 
+.trip-header-socials {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-right: 4px;
+  padding-right: 7px;
+  border-right: 1px solid #eee9e5;
+}
+
+.trip-header-social {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ebe4df;
+  border-radius: 10px;
+  background: #fff;
+  color: #6d6762;
+  text-decoration: none;
+  transition: transform .16s ease, border-color .16s ease, background .16s ease, color .16s ease;
+}
+
+.trip-header-social:hover {
+  transform: translateY(-1px);
+  border-color: #ddd2ca;
+  background: #faf7f4;
+  color: #ed542d;
+}
+
+.trip-header-social svg {
+  width: 17px;
+  height: 17px;
+}
+
 .trip-header-action {
   min-height: 40px;
   display: inline-flex;
@@ -418,8 +453,19 @@
     min-height: 36px;
   }
 
-  .trip-header-action:nth-child(1) {
+  .trip-header-action-primary {
     display: none;
+  }
+
+  .trip-header-socials {
+    gap: 2px;
+    margin-right: 2px;
+    padding-right: 4px;
+  }
+
+  .trip-header-social {
+    width: 30px;
+    height: 30px;
   }
 
   .trip-header-nav-wrap {
@@ -458,7 +504,7 @@
     height: 17px;
   }
 
-  .trip-header-action:nth-child(2) {
+  .trip-header-action:last-child {
     display: none;
   }
 }
