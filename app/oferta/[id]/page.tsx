@@ -138,7 +138,17 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
           ) : (
             <div className="detail-action-box">
-              <a className="primary-cta" href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
+              <a
+                className="primary-cta"
+                href={detailAffiliateUrl}
+                target="_blank"
+                rel="sponsored noopener noreferrer"
+                data-sales-partner={o.partner}
+                data-sales-offer-id={o.id}
+                data-sales-destination={o.city}
+                data-sales-price={o.price}
+                data-sales-placement="offer_detail_primary"
+              >
                 {o.partner === "exim" || o.partner === "tui" ? "Zobacz konkretną ofertę" : "Sprawdź aktualną cenę"} <ExternalLink size={18}/>
               </a>
               <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Cena i dostępność mogą się zmieniać. Finalne warunki zobaczysz przed rezerwacją." : "Cena i dostępność są potwierdzane po kliknięciu."}</small>
@@ -154,7 +164,16 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
       {o.availabilityStatus !== "expired" && <div className="mobile-booking-bar">
         <div>{o.partner === "exim" ? <><small>Cena od</small><strong>{o.price} zł / os.</strong></> : <><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></>}</div>
-        <a href={detailAffiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
+        <a
+          href={detailAffiliateUrl}
+          target="_blank"
+          rel="sponsored noopener noreferrer"
+          data-sales-partner={o.partner}
+          data-sales-offer-id={o.id}
+          data-sales-destination={o.city}
+          data-sales-price={o.price}
+          data-sales-placement="offer_detail_mobile_bar"
+        >
           Sprawdź, czy jest taniej <ExternalLink size={16}/>
         </a>
       </div>}
