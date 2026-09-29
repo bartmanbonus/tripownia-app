@@ -230,3 +230,14 @@
   font-size:8px!important;
   font-weight:800!important;
 }
+
+
+/* 2026-09-29 conversion pass */
+.offer-card-clean .offer-booking-assurance{
+  display:flex!important;align-items:center!important;gap:6px!important;
+  margin:-5px 0 10px!important;color:#6e625a!important;font-size:9px!important;
+  line-height:1.35!important;font-weight:800!important;
+}
+.offer-card-clean .offer-booking-assurance svg{flex:0 0 auto!important;color:#d95a34!important}
+.offer-card-clean .card-cta{box-shadow:0 10px 20px rgba(244,81,44,.18)!important}
+.offer-card-clean .card-cta:hover{transform:translateY(-1px)!important}
