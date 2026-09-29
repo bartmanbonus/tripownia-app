@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ArrowRight, CalendarDays, MapPin, RefreshCw, Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -104,6 +105,8 @@ function buildPoolHighlights(rows: DealsOffer[]) {
 }
 
 export default function DealsPage() {
+  const searchParams = useSearchParams();
+  const destination = (searchParams.get("q") || searchParams.get("destination") || "").trim();
   const now = useMemo(() => new Date(), []);
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
@@ -117,12 +120,13 @@ export default function DealsPage() {
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
+    if (destination) params.set("q", destination);
     if (airport !== "any") params.set("from", airport);
     if (month !== "any") params.set("month", month);
     if (year !== "any") params.set("year", year);
     const query = params.toString();
     return query ? `/api/deals?${query}` : "/api/deals";
-  }, [airport, month, year]);
+  }, [destination, airport, month, year]);
 
   const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
   const { offers: todayOffers, loading: todayLoading, checkedAt: todayCheckedAt } = useLiveOffers("/api/today-offers");
@@ -207,11 +211,13 @@ export default function DealsPage() {
       <div className="deals-hub-hero">
         <div>
           <div className="kicker">OKAZJE TRIPOWNI</div>
-          <h1>Najpierw cena. Potem kierunek.</h1>
-          <p className="hub-lead">Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność pochodzą z bieżącego feedu partnera.</p>
+          <h1>{destination ? `Oferty: ${destination}` : "Najpierw cena. Potem kierunek."}</h1>
+          <p className="hub-lead">{destination
+            ? `Pokazujemy tylko aktualne, potwierdzone oferty dla kierunku ${destination}. Jeśli pakietu teraz nie ma, nie podstawiamy losowych kierunków.`
+            : "Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność pochodzą z bieżącego feedu partnera."}</p>
         </div>
         <div className="deals-hub-actions">
-          <Link className="primary-cta" href="/#wyszukiwarka"><Search size={16}/> Dokładne wyszukiwanie</Link>
+          <Link className="primary-cta" href={destination ? `/#wyszukiwarka` : "/#wyszukiwarka"}><Search size={16}/> Dokładne wyszukiwanie</Link>
           <button className="secondary-cta" type="button" onClick={refresh} disabled={loading}><RefreshCw size={15}/>{loading ? "Odświeżamy…" : "Odśwież"}</button>
         </div>
       </div>
