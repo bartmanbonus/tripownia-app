@@ -11,6 +11,7 @@ import DestinationLandingPanel, { hasDestinationLanding } from "@/components/Des
 import type { LegacyItem } from "@/lib/legacy";
 import { legacyCanonicalPath } from "@/lib/legacy";
 import { offers } from "@/lib/offers";
+import { partners } from "@/lib/partners";
 import { getArticleContext, type ArticleContext } from "@/lib/articleContext";
 import { getArticleDeepDive } from "@/lib/articleDeepDive";
 import { getArticleDeepDiveWave7 } from "@/lib/articleDeepDiveWave7";
