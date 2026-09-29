@@ -408,7 +408,7 @@ export default function SearchHub({
     const focusable = () => Array.from(panel.querySelectorAll<HTMLElement>('button:not(:disabled), input, select, a[href], [tabindex="0"]')).filter(node => node.getClientRects().length > 0);
     if (!suggestionsOpen) focusable()[0]?.focus({ preventScroll: true });
     const previousOverflow = document.body.style.overflow;
-    const fullscreen = window.matchMedia('(max-width: 640px)').matches;
+    const fullscreen = window.matchMedia('(max-width: 640px)').matches && (dateOpen || departureOpen);
     if (fullscreen) document.body.style.overflow = 'hidden';
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -895,7 +895,7 @@ export default function SearchHub({
             {suggestionsOpen && (
               <div className="search-v3-suggestions" role="dialog" aria-label="Wybierz kierunki">
                 <div className="search-v3-panel-head">
-                  <div><strong>Wybierz kierunki</strong><small>Wpisz dowolne miasto lub kraj na świecie. Możesz dodać kilka.</small></div>
+                  <div><strong>Wpisz kierunek</strong><small>Możesz wpisać dowolne miasto lub kraj na świecie — np. Ljubljana.</small></div>
                   <button type="button" className="search-v3-panel-close" aria-label="Zamknij wybór kierunków" onClick={() => setSuggestionsOpen(false)}><X size={16}/></button>
                 </div>
 
@@ -910,24 +910,28 @@ export default function SearchHub({
                 )}
 
                 <div className="search-v3-panel-scroll">
-                  <button type="button" className="search-v3-anywhere" onClick={() => { setSelectedDestinations([]); setDestination(""); setSuggestionsOpen(false); }}>
-                    <MapPin size={15}/><span><strong>🌍 Gdziekolwiek</strong><small>Bez ograniczenia kierunku — pokaż najlepsze dostępne opcje</small></span>
-                  </button>
+                  {destination.trim() && !isTravelDestinationBlocked(destination) && (
+                    <button type="button" className="search-v3-use-exact" onClick={() => {
+                      setSelectedDestinations((current) => Array.from(new Set([...current, canonicalSearchDestination(destination.trim())])));
+                      setDestination("");
+                      setSuggestionsOpen(false);
+                    }}><Search size={15}/><span><strong>Szukaj: „{destination.trim()}”</strong><small>Dowolne miasto lub kraj — nie musi być na liście</small></span></button>
+                  )}
+                  {!destination.trim() && (
+                    <button type="button" className="search-v3-anywhere" onClick={() => { setSelectedDestinations([]); setDestination(""); setSuggestionsOpen(false); }}>
+                      <MapPin size={15}/><span><strong>🌍 Gdziekolwiek</strong><small>Bez ograniczenia kierunku — pokaż najlepsze dostępne opcje</small></span>
+                    </button>
+                  )}
                   {suggestions.map((item) => (
                     <button key={item.label} type="button" onClick={() => {
                       const next = canonicalSearchDestination(item.label);
                       setSelectedDestinations((current) => Array.from(new Set([...current, next])));
                       setDestination("");
+                      setSuggestionsOpen(false);
                     }}>
-                      <MapPin size={15}/><span><strong>{item.label}</strong><small>{item.region} · dodaj do wyboru</small></span>
+                      <MapPin size={15}/><span><strong>{item.label}</strong><small>{item.region} · wybierz kierunek</small></span>
                     </button>
                   ))}
-                  {destination.trim() && !isTravelDestinationBlocked(destination) && (
-                    <button type="button" onClick={() => {
-                      setSelectedDestinations((current) => Array.from(new Set([...current, canonicalSearchDestination(destination.trim())])));
-                      setDestination("");
-                    }}><Search size={15}/><span><strong>Użyj dokładnie „{destination.trim()}”</strong><small>Wyszukaj ten kierunek nawet, jeśli nie ma go na liście podpowiedzi</small></span></button>
-                  )}
                 </div>
 
                 <div className="search-v3-panel-footer">
