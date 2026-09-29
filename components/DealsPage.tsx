@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { ArrowRight, CalendarDays, MapPin, RefreshCw, Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -104,9 +103,7 @@ function buildPoolHighlights(rows: DealsOffer[]) {
   return highlights;
 }
 
-export default function DealsPage() {
-  const searchParams = useSearchParams();
-  const destination = (searchParams.get("q") || searchParams.get("destination") || "").trim();
+export default function DealsPage({ destination = "" }: { destination?: string }) {
   const now = useMemo(() => new Date(), []);
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
