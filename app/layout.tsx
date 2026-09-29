@@ -31,6 +31,7 @@ import "./country-checklist.css";
 import "./account.css";
 import "./planner-builder.css";
 import "./contrast-guard.css";
+import "./affiliate-return.css";
 import "./homepage-focus.css";
 import "./ux-audit.css";
 import PWARegister from "@/components/PWARegister";
@@ -47,6 +48,7 @@ import OrganizerQuickLink from "@/components/OrganizerQuickLink";
 import AccountCloudSync from "@/components/AccountCloudSync";
 import NativeAppBridge from "@/components/NativeAppBridge";
 import CompareTray from "@/components/CompareTray";
+import AffiliateReturnPrompt from "@/components/AffiliateReturnPrompt";
 
 const HOME_TITLE = "Tanie wakacje, city break i planer podróży | Tripownia.pl";
 const HOME_DESCRIPTION = "Znajdź tanie wakacje, city break, lot + hotel i aktualne okazje z polskich lotnisk. Potem zaplanuj wyjazd za darmo: lot, nocleg, atrakcje i checklistę.";
@@ -100,6 +102,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <NativeAppBridge />
         <OrganizerQuickLink />
         <CompareTray />
+        <AffiliateReturnPrompt />
         <MobileAppControls />
         <Suspense fallback={null}><AnalyticsClient /></Suspense>
         <Suspense fallback={null}><MetaPixelClient /></Suspense>
