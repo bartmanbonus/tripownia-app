@@ -11,6 +11,7 @@ import DestinationLandingPanel, { hasDestinationLanding } from "@/components/Des
 import type { LegacyItem } from "@/lib/legacy";
 import { legacyCanonicalPath } from "@/lib/legacy";
 import { offers } from "@/lib/offers";
+import { partners } from "@/lib/partners";
 import { getArticleContext, type ArticleContext } from "@/lib/articleContext";
 import { getArticleDeepDive } from "@/lib/articleDeepDive";
 import { getArticleDeepDiveWave7 } from "@/lib/articleDeepDiveWave7";
@@ -516,6 +517,11 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     ? getArticleDeepDiveWave9(deepDiveLookupPath) || getArticleDeepDiveWave8(deepDiveLookupPath) || getArticleDeepDiveWave7(deepDiveLookupPath) || getArticleDeepDive(deepDiveLookupPath)
     : undefined;
   const effectiveDestination = context.destination || deepDive?.searchPresets?.[0];
+  const salesDestination = (effectiveDestination || "").trim();
+  const articleFlightHref = salesDestination ? `/loty?destination=${encodeURIComponent(salesDestination)}` : "/loty";
+  const articleHotelBase = new URL("https://www.booking.com/searchresults.pl.html");
+  if (salesDestination) articleHotelBase.searchParams.set("ss", salesDestination);
+  const articleHotelHref = partners.booking.buildUrl(articleHotelBase.toString());
   const related = relatedOffers(context, effectiveDestination);
   const shouldRenderSearch = item.type === "post"
     && !deepDive?.hideSearch
@@ -591,6 +597,21 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         )}
         <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
       </article>
+
+      {item.type === "post" && (
+        <section className="article-sales-bridge" aria-label="Przejdź od poradnika do rezerwacji">
+          <div className="article-sales-copy">
+            <div className="kicker">Z PORADNIKA DO WYJAZDU</div>
+            <h2>{salesDestination ? `Chcesz polecieć do: ${salesDestination}?` : "Chcesz przejść od czytania do konkretnego wyjazdu?"}</h2>
+            <p>Sprawdź aktualne oferty, porównaj loty albo od razu zobacz noclegi. Tripownia nie pobiera płatności — finalna rezerwacja odbywa się u partnera.</p>
+          </div>
+          <div className="article-sales-actions">
+            <Link className="article-sales-primary" href="/okazje">🔥 Aktualne oferty</Link>
+            <Link className="article-sales-secondary" href={articleFlightHref}>✈️ Porównaj loty</Link>
+            <a className="article-sales-secondary" href={articleHotelHref} target="_blank" rel="sponsored noopener noreferrer">🏨 Sprawdź hotele</a>
+          </div>
+        </section>
+      )}
 
       {deepDive && <ArticleDeepDiveBlock deepDive={deepDive} />}
 
