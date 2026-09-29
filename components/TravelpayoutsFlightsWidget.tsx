@@ -28,7 +28,7 @@ export default function TravelpayoutsFlightsWidget() {
     <section className="tpwl-tripownia" aria-label="Porównywarka lotów Tripownia">
       <div id="tpwl-search" />
       <div id="tpwl-tickets" />
-      <p className="tpwl-tripownia-disclosure">Linki rezerwacyjne są afiliacyjne. Tripownia może otrzymać prowizję od rezerwacji bez dodatkowego kosztu dla Ciebie.</p>
+
     </section>
   );
 }
