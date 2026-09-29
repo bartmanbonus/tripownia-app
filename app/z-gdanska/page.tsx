@@ -1,4 +1,4 @@
 import type { Metadata } from "next";
 import DepartureDealsPage from "@/components/DepartureDealsPage";
-export const metadata: Metadata = { title: { absolute: "Wakacje i city break z Gdańska | Tripownia.pl" }, description: "Aktualne kierunki z Gdańska — krótkie wyjazdy i wakacyjne pakiety z konkretnymi cenami, terminami i linkami do partnerów.", alternates: { canonical: "/z-gdanska" } };
+export const metadata: Metadata = { title: { absolute: "Wyjazdy z Gdańska — wakacje i loty z GDN | Tripownia.pl" }, description: "Wyjazdy z Gdańska: aktualne wakacje, loty i oferty z GDN. Wybierz typ podróży albo przejdź do dedykowanej strony city break.", alternates: { canonical: "/z-gdanska" } };
 export default function Page(){return <DepartureDealsPage city="Gdańska" airportCodes={["GDN"]} intro="Aktualne kierunki z Gdańska — krótkie wyjazdy i wakacyjne pakiety z konkretnymi cenami, terminami i linkami do partnerów." cityBreakHref="/podroze/city-break-z-gdanska"/>}
