@@ -1329,3 +1329,31 @@
   font-weight:900;
   text-decoration:none;
 }
+
+
+/* Travelpayouts low-price map iframe */
+.flight-hunt-map-shell{
+  position:relative;
+  width:100%;
+  min-height:420px;
+  overflow:hidden;
+  border:1px solid #eee4de;
+  border-radius:16px;
+  background:#fff;
+}
+.flight-hunt-map-shell iframe{
+  width:100%;
+  height:420px;
+  border:0;
+  display:block;
+}
+.flight-hunt-map-shell.loading .flight-hunt-widget-loading{
+  z-index:2;
+}
+@media(max-width:640px){
+  .flight-hunt-map-shell,
+  .flight-hunt-map-shell iframe{
+    min-height:520px;
+    height:520px;
+  }
+}
