@@ -209,23 +209,55 @@ function TPCheckboxPlacePicker({
   );
 }
 
-function ScriptSlot({ src, id }: { src: string; id: string }) {
+function ScriptSlot({ src, id, fallbackHref }: { src: string; id: string; fallbackHref: string }) {
   const host = useRef<HTMLDivElement>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "fallback">("loading");
 
   useEffect(() => {
     if (!host.current) return;
+    setStatus("loading");
     host.current.innerHTML = "";
+
     const script = document.createElement("script");
     script.async = true;
     script.src = src;
     script.charset = "UTF-8";
+    script.onload = () => {
+      window.setTimeout(() => {
+        const hasContent = Boolean(
+          host.current?.querySelector("iframe, table, .map, [class*='widget'], [class*='ticket']")
+          || (host.current?.textContent || "").trim().length > 20
+        );
+        setStatus(hasContent ? "ready" : "fallback");
+      }, 1400);
+    };
+    script.onerror = () => setStatus("fallback");
     host.current.appendChild(script);
+
+    const timeout = window.setTimeout(() => {
+      const hasContent = Boolean(host.current?.querySelector("iframe, table, .map, [class*='widget'], [class*='ticket']"));
+      if (!hasContent) setStatus("fallback");
+    }, 5000);
+
     return () => {
+      window.clearTimeout(timeout);
       if (host.current) host.current.innerHTML = "";
     };
   }, [src]);
 
-  return <div className="flight-hunt-widget" id={id} ref={host} />;
+  return (
+    <div className={"flight-hunt-widget-shell " + status}>
+      {status === "loading" && <div className="flight-hunt-widget-loading">Sprawdzamy aktualne ceny…</div>}
+      <div className="flight-hunt-widget" id={id} ref={host} />
+      {status === "fallback" && (
+        <div className="flight-hunt-widget-fallback">
+          <strong>Nie udało się wyświetlić podglądu cen tutaj.</strong>
+          <span>Otwórz afiliacyjną wyszukiwarkę lotów Tripowni — tracking pozostaje aktywny.</span>
+          <a href={fallbackHref} rel="sponsored">Sprawdź loty</a>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function FlexibleFlightsExplorer() {
@@ -282,6 +314,15 @@ export default function FlexibleFlightsExplorer() {
   }, [routes]);
 
   const activeRoute = routes.find((route) => route.key === activeRouteKey) || routes[0] || null;
+
+  const affiliateFallbackUrl = useMemo(() => {
+    const url = new URL("https://www.aviasales.com/");
+    url.searchParams.set("marker", "695999.TRIPOWNIAPL");
+    url.searchParams.set("shmarker", "695999.TRIPOWNIAPL");
+    if (activeRoute?.origin.code) url.searchParams.set("origin", activeRoute.origin.code);
+    if (activeRoute?.destination?.code) url.searchParams.set("destination", activeRoute.destination.code);
+    return url.toString();
+  }, [activeRoute]);
 
   const calendarSrc = useMemo(() => {
     if (!activeRoute?.origin.code || !activeRoute.destination?.code) return "";
@@ -474,8 +515,8 @@ export default function FlexibleFlightsExplorer() {
           </div>
 
           {destinationAnywhere
-            ? mapSrc && <ScriptSlot key={activeRoute?.key + "-map"} id="tripownia-low-price-map" src={mapSrc} />
-            : calendarSrc && <ScriptSlot key={activeRoute?.key + "-calendar"} id="tripownia-price-calendar" src={calendarSrc} />}
+            ? mapSrc && <ScriptSlot key={activeRoute?.key + "-map"} id="tripownia-low-price-map" src={mapSrc} fallbackHref={affiliateFallbackUrl} />
+            : calendarSrc && <ScriptSlot key={activeRoute?.key + "-calendar"} id="tripownia-price-calendar" src={calendarSrc} fallbackHref={affiliateFallbackUrl} />}
         </div>
       )}
 
