@@ -1,4 +1,4 @@
 import type { Metadata } from "next";
 import DepartureDealsPage from "@/components/DepartureDealsPage";
-export const metadata: Metadata = { title: { absolute: "Wakacje i city break z Poznania | Tripownia.pl" }, description: "Szukaj wyjazdów z Poznania bez przeglądania wielu serwisów. Tripownia zbiera aktualne kierunki i prowadzi dalej do sprawdzonych partnerów.", alternates: { canonical: "/z-poznania" } };
+export const metadata: Metadata = { title: { absolute: "Wyjazdy z Poznania — wakacje i loty z POZ | Tripownia.pl" }, description: "Wyjazdy z Poznania-Ławicy: aktualne wakacje, loty i oferty z POZ. Wybierz typ podróży albo przejdź do dedykowanej strony city break.", alternates: { canonical: "/z-poznania" } };
 export default function Page(){return <DepartureDealsPage city="Poznania" airportCodes={["POZ"]} intro="Szukaj wyjazdów z Poznania bez przeglądania wielu serwisów. Tripownia zbiera aktualne kierunki i prowadzi dalej do sprawdzonych partnerów." cityBreakHref="/podroze/city-break-z-poznania"/>}
