@@ -248,6 +248,35 @@ export default function AddTripPage() {
     const editActive = params.get("edit") === "active";
     setOwnedMode(owned);
 
+    if (params.get("source") === "affiliate") {
+      const affiliateCity = (params.get("city") || "").trim();
+      const affiliateCountry = (params.get("country") || "").trim();
+      const affiliateKind = (params.get("kind") || "package").trim();
+      const affiliatePartner = (params.get("partner") || "").trim();
+
+      setDestinationMode("known");
+      setSkipDestinationChoice(false);
+      setCity(affiliateCity);
+      setCountry(affiliateCountry);
+      setOwnedMode(true);
+      setDateMode("range");
+      setPieces({
+        flight: affiliateKind === "flight" || affiliateKind === "package",
+        hotel: affiliateKind === "hotel" || affiliateKind === "package",
+        transfer: false,
+        attractions: false,
+        esim: false,
+        parking: false,
+      });
+      if (affiliatePartner) {
+        setSelectedProvider({
+          flight: affiliateKind === "flight" || affiliateKind === "package" ? affiliatePartner : undefined,
+          hotel: affiliateKind === "hotel" || affiliateKind === "package" ? affiliatePartner : undefined,
+        });
+      }
+      setNotes(affiliatePartner ? `Rezerwacja rozpoczęta przez Tripownię · ${affiliatePartner}` : "Rezerwacja rozpoczęta przez Tripownię");
+    }
+
     if (editActive) {
       try {
         const saved = JSON.parse(localStorage.getItem(ACTIVE_TRIP_KEY) || "null") as EditableTrip | null;
