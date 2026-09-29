@@ -103,7 +103,17 @@ function buildPoolHighlights(rows: DealsOffer[]) {
   return highlights;
 }
 
-export default function DealsPage() {
+export default function DealsPage({
+  dealType = "",
+  pageTitle = "Najpierw cena. Potem kierunek.",
+  pageLead = "Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność pochodzą z bieżącego feedu partnera.",
+  kicker = "OKAZJE TRIPOWNI",
+}: {
+  dealType?: "" | "allinclusive";
+  pageTitle?: string;
+  pageLead?: string;
+  kicker?: string;
+}) {
   const now = useMemo(() => new Date(), []);
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
@@ -113,16 +123,17 @@ export default function DealsPage() {
   const [year, setYear] = useState("any");
   const [historyVersion, setHistoryVersion] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>(dealType === "allinclusive" ? "allinclusive" : "all");
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
+    if (dealType) params.set("type", dealType);
     if (airport !== "any") params.set("from", airport);
     if (month !== "any") params.set("month", month);
     if (year !== "any") params.set("year", year);
     const query = params.toString();
     return query ? `/api/deals?${query}` : "/api/deals";
-  }, [airport, month, year]);
+  }, [dealType, airport, month, year]);
 
   const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
   const { offers: todayOffers, loading: todayLoading, checkedAt: todayCheckedAt } = useLiveOffers("/api/today-offers");
@@ -206,9 +217,9 @@ export default function DealsPage() {
     <section className="shell hub-page deals-hub-page">
       <div className="deals-hub-hero">
         <div>
-          <div className="kicker">OKAZJE TRIPOWNI</div>
-          <h1>Najpierw cena. Potem kierunek.</h1>
-          <p className="hub-lead">Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność pochodzą z bieżącego feedu partnera.</p>
+          <div className="kicker">{kicker}</div>
+          <h1>{pageTitle}</h1>
+          <p className="hub-lead">{pageLead}</p>
         </div>
         <div className="deals-hub-actions">
           <Link className="primary-cta" href="/#wyszukiwarka"><Search size={16}/> Dokładne wyszukiwanie</Link>
@@ -216,7 +227,7 @@ export default function DealsPage() {
         </div>
       </div>
 
-      <div className="deals-results-heading">
+      {dealType !== "allinclusive" && <><div className="deals-results-heading">
         <div><span>DZISIAJ W TRIPOWNI</span><h2>5 okazji, które warto sprawdzić dziś</h2></div>
         <p>{todayLoading && !todayRows.length ? "Szukamy dzisiejszych okazji…" : `Codzienna selekcja Tripowni${todayCheckedLabel ? ` · sprawdzone ${todayCheckedLabel}` : ""}. Te same kierunki wykorzystujemy w naszych publikacjach społecznościowych.`}</p>
       </div>
@@ -227,13 +238,31 @@ export default function DealsPage() {
           <strong>Dzisiejsza pula właśnie się odświeża.</strong>
           <span>Wróć za chwilę — pokazujemy tylko oferty, które udało się potwierdzić w bieżącym feedzie.</span>
         </div>
-      ) : null}
+      ) : null}</>}
+
+      {dealType !== "allinclusive" && (
+        <div className="deals-ai-promo-strip">
+          <div>
+            <small>TANIE ALL INCLUSIVE 🔥</small>
+            <strong>Najtańsze pakiety z pełnym wyżywieniem</strong>
+            <span>Osobna lista live — sortowana od najniższej potwierdzonej ceny.</span>
+          </div>
+          <Link href="/tanie-all-inclusive" onClick={() => trackEvent("allinclusive_promo_click", { placement: "deals_page" })}>Zobacz Tanie All Inclusive →</Link>
+        </div>
+      )}
+
+      {dealType === "allinclusive" && (
+        <div className="deals-ai-promo-strip">
+          <div><small>TANIE ALL INCLUSIVE 🔥</small><strong>Hotel + wyżywienie + przelot w jednej cenie</strong><span>Sortujemy od najniższej potwierdzonej ceny w live feedzie.</span></div>
+          <Link href="/okazje">Zobacz też wszystkie okazje →</Link>
+        </div>
+      )}
 
       <div className="deals-quick-filters" aria-label="Szybkie filtry okazji">
         {([
           ["all", "Wszystkie"],
           ["city", "City break"],
-          ["allinclusive", "All Inclusive"],
+          ["allinclusive", dealType === "allinclusive" ? "Tanie All Inclusive 🔥" : "Tanie All Inclusive"],
           ["sun", "Ciepło"],
           ["under2000", "Do 2000 zł"],
         ] as Array<[QuickFilter, string]>).map(([value, label]) => (
