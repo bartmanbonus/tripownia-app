@@ -489,12 +489,25 @@ function candidateMatchesSingleQuery(offer: LiveCandidate, query: string) {
 }
 
 function candidateMatchesQuery(offer: LiveCandidate, query: string) {
-  const queries = query
+  const parts = query
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
-  if (!queries.length) return true;
-  return queries.some((item) => candidateMatchesSingleQuery(offer, item));
+
+  if (!parts.length) return true;
+
+  // Labels such as "Mediolan, Włochy" describe one destination, not two
+  // independent alternatives. The previous OR logic let any offer from
+  // Italy through, which is why searches for Milan/Bergamo returned Calabria.
+  const [primary, ...context] = parts;
+  if (!candidateMatchesSingleQuery(offer, primary)) return false;
+  if (!context.length) return true;
+
+  const haystack = normalize(`${offer.city} ${offer.country} ${offer.hotel}`);
+  return context.every((item) => {
+    const normalized = normalize(item);
+    return !normalized || haystack.includes(normalized) || normalize(offer.country) === normalized;
+  });
 }
 
 function safeIsoDate(value: string | null) {
