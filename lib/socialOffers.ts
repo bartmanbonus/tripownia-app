@@ -74,6 +74,38 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "marbella-bluebay-1219": {
+    slug: "marbella-bluebay-1219",
+    city: "Marbella",
+    country: "Hiszpania",
+    price: 1219,
+    departure: "Warszawa",
+    nights: 3,
+    dates: "16–19 listopada 2026",
+    board: "Śniadanie",
+    hotel: "BlueBay Banús 4★",
+    partner: "exim",
+    partnerLabel: "EXIM Tours",
+    affiliateUrl: "https://reklamy.exim.pl/click?p=334260&a=3487177&url=https%3A%2F%2Fwww.exim.pl%2Fkierunki%2Fhiszpania%2Fcosta-del-sol%2Fmarbella%2Fbluebay-banus%3FD%3D63213%26DD%3D2026-11-16%26DF%3D2026-11-09%257C2026-12-03%26DI%3DGT06-BB%26DPR%3DEXIM%2BTOURS%2BPOLAND%26DS%3D1024%26ERM%3D0%26GIATA%3D2421%26HID%3D429113%26IFC%3DRlJ8MTM5NnwyMDI2LTExLTE5VDA2OjQ1%26KEY%3DMjM3MDc3M3wzNTM4MTIyMDY2fDEzMjc2MjA%253D%26MNN%3D3%26MT%3D1%26NN%3D3%26NNM%3D3%26OFC%3DRlJ8MTM5N3wyMDI2LTExLTE2VDEyOjMw%26PC%3D3-2026-11-16%26PID%3D429113%26RD%3D2026-11-19%26TO%3D3850%26TT%3D1",
+    checkedAt: "2026-09-29T18:39:00+02:00",
+    status: "active",
+  },
+  "fuerteventura-royal-suite-2769": {
+    slug: "fuerteventura-royal-suite-2769",
+    city: "Fuerteventura",
+    country: "Hiszpania",
+    price: 2769,
+    departure: "Katowice",
+    nights: 7,
+    dates: "14–21 grudnia 2026",
+    board: "All Inclusive",
+    hotel: "Royal Suite 3★",
+    partner: "exim",
+    partnerLabel: "EXIM Tours",
+    affiliateUrl: "https://reklamy.exim.pl/click?p=334260&a=3487177&url=https%3A%2F%2Fwww.exim.pl%2Fkierunki%2Fhiszpania%2Ffuerteventura%2Fcosta-calma%2Fhotel-royal-suite%3FD%3D74459%26DD%3D2026-12-14%26DF%3D2026-12-07%257C2027-01-04%26DI%3DGT06-AI%26DPR%3DEXIM%2BTOURS%2BPOLAND%26DS%3D1024%26ERM%3D0%26GIATA%3D12016%26HID%3D421105%26IFC%3DVzZ8MTA4NHwyMDI2LTEyLTIxVDEyOjMw%26KEY%3DMjE5MDUwOXwzMTM1NTc3MzMyfDEyNDgyMDE%253D%26MNN%3D7%257C8%257C9%257C10%26MT%3D5%26NN%3D7%26NNM%3D7%257C8%257C9%257C10%26OFC%3DVzZ8MTA4M3wyMDI2LTEyLTE0VDA3OjEw%26PC%3D7-2026-12-14%26PID%3D421105%26RD%3D2026-12-21%26TO%3D1862%26TT%3D1",
+    checkedAt: "2026-09-29T18:39:00+02:00",
+    status: "active",
+  },
   "sri-lanka-loty-2798": {
     slug: "sri-lanka-loty-2798",
     city: "Kolombo",
