@@ -6,7 +6,7 @@ import type { Offer } from "@/lib/offers";
 
 type SeasonalOffer = Offer & { startDateISO?: string; endDateISO?: string };
 type Props = { query: string; departure?: string; minNights?: number; maxNights?: number; maxPrice?: number; startDate?: string; endDate?: string };
-type ApiResponse = { ok?: boolean; offers?: SeasonalOffer[]; checkedAt?: string };
+type ApiResponse = { ok?: boolean; offers?: SeasonalOffer[]; checkedAt?: string; notice?: string; matchMode?: string };
 
 const FALLBACKS: Record<string, string[]> = {
   malta: ["Malta"], rzym: ["Rzym", "Włochy"], barcelona: ["Barcelona", "Costa Brava", "Hiszpania"],
@@ -87,6 +87,29 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     let cancelled = false;
 
     async function fetchFor(term: string, from?: string) {
+      const normalizedTerm = normalize(term);
+
+      if (GENERIC_TERMS.has(normalizedTerm) && from) {
+        if (normalizedTerm === "city break") {
+          const params = new URLSearchParams({ mode: "citybreak", provider: "exim", from });
+          const response = await fetch(`/api/today-offers?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
+          if (!response.ok) return [] as SeasonalOffer[];
+          const data = (await response.json()) as ApiResponse;
+          return Array.isArray(data.offers)
+            ? data.offers.filter((offer) => offer.partner === "exim" && termMatchesOffer(term, offer))
+            : [];
+        }
+
+        const params = new URLSearchParams({ from, strict: "1" });
+        if (normalizedTerm === "all inclusive") params.set("type", "allinclusive");
+        const response = await fetch(`/api/deals?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) return [] as SeasonalOffer[];
+        const data = (await response.json()) as ApiResponse;
+        return Array.isArray(data.offers)
+          ? data.offers.filter((offer) => termMatchesOffer(term, offer))
+          : [];
+      }
+
       const params = new URLSearchParams({ mode: "search", provider: "exim", q: term });
       if (from) params.set("from", from);
       const response = await fetch(`/api/today-offers?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
@@ -123,6 +146,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
         for (const term of queries) {
           gathered.push(...(await fetchFor(term, from || undefined)));
           if (strictFilter(uniqByProduct(gathered)).length >= 6) break;
+          if (GENERIC_TERMS.has(normalize(query)) && from) break;
         }
 
         const unique = uniqByProduct(gathered).sort((a, b) => a.price - b.price);
@@ -159,7 +183,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   }
 
   return <>
-    {relaxed && <div className="seo-live-note">Kierunek, lotnisko i termin się zgadzają. Pokazujemy najbliższe aktualne propozycje — cena lub długość pobytu może różnić się od dodatkowego filtra strony.</div>}
+    {relaxed && <div className="seo-live-note">Lotnisko i główny typ wyjazdu się zgadzają. Pokazujemy najbliższe aktualne propozycje — cena lub długość pobytu może różnić się od dodatkowego filtra strony.</div>}
     <div className="cards-grid seo-live-offers-grid">{offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} />)}</div>
   </>;
 }
