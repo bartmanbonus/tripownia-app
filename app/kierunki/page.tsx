@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import DirectionsExplorer from "@/components/DirectionsExplorer";
+import DirectionsLiveDeals from "@/components/DirectionsLiveDeals";
 
 export const metadata: Metadata = {
   title: "Kierunki podróży – gdzie pojechać na wakacje i city break?",
@@ -341,6 +342,7 @@ export default function KierunkiPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }} />
 
+      <DirectionsLiveDeals/>
       <section className="shell directions-v188-shell">
         <header className="directions-v188-hero">
           <div>
