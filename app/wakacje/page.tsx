@@ -3,9 +3,8 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
-import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { offers, isOfferExpired } from "@/lib/offers";
+import LiveSalesRail from "@/components/LiveSalesRail";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
 export const metadata: Metadata = {
@@ -21,7 +20,6 @@ export const metadata: Metadata = {
 };
 
 export default function WakacjePage() {
-  const holidayOffers = offers.filter(o => !isOfferExpired(o) && !o.category.includes("city")).slice(0, 12);
   return <main><SiteHeader/>
     <SalesCollectionSchema name="Tanie wakacje 2026" description="Tanie wakacje 2026, All Inclusive, last minute i lot + hotel z polskich lotnisk." path="/wakacje" about={["tanie wakacje","All Inclusive","last minute","lot + hotel"]} />
     <section className="shopping-hero shell">
@@ -31,7 +29,7 @@ export default function WakacjePage() {
     </section>
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">WYBRANE PRZEZ NAS</div><h2>Aktualne wakacje warte sprawdzenia</h2><p>Porównuj nie tylko cenę startową, ale też termin, liczbę nocy, wyżywienie i koszt całej podróży.</p></div></div>
-      <div className="city-shopping-row">{holidayOffers.map(o => <OfferCard key={o.id} offer={o}/>)}</div>
+      <LiveSalesRail mode="vacation" limit={10}/>
       <div className="single-partner-search-wrap"><SearchHub embedded initialTab="Wakacje" /></div>
     </section>
     <section className="shell seo-related-block">
