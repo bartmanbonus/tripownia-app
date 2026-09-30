@@ -522,7 +522,10 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     ? getArticleDeepDiveWave9(deepDiveLookupPath) || getArticleDeepDiveWave8(deepDiveLookupPath) || getArticleDeepDiveWave7(deepDiveLookupPath) || getArticleDeepDive(deepDiveLookupPath)
     : undefined;
   const effectiveDestination = context.destination || deepDive?.searchPresets?.[0];
-  const salesDestination = (effectiveDestination || "").trim();
+  const comparisonDestinations = canonicalPath === "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje"
+    ? ["Alicante", "Malaga"]
+    : [];
+  const salesDestination = comparisonDestinations.length ? "" : (effectiveDestination || "").trim();
   const articleDealsHref = salesDestination ? `/okazje?q=${encodeURIComponent(salesDestination)}` : "/okazje";
   const articleFlightHref = salesDestination ? `/loty?destination=${encodeURIComponent(salesDestination)}` : "/loty";
   const articleHotelBase = new URL("https://www.booking.com/searchresults.pl.html");
@@ -608,11 +611,19 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         <section className="article-sales-bridge" aria-label="Przejdź od poradnika do rezerwacji">
           <div className="article-sales-copy">
             <div className="kicker">Z PORADNIKA DO WYJAZDU</div>
-            <h2>{salesDestination ? `Chcesz polecieć do: ${salesDestination}?` : "Chcesz przejść od czytania do konkretnego wyjazdu?"}</h2>
+            <h2>{comparisonDestinations.length
+              ? "Porównaj aktualne oferty: Alicante i Malaga"
+              : salesDestination
+                ? `Chcesz polecieć do: ${salesDestination}?`
+                : "Chcesz przejść od czytania do konkretnego wyjazdu?"}</h2>
             <p>Sprawdź aktualne oferty, porównaj loty albo od razu zobacz noclegi. Tripownia nie pobiera płatności — finalna rezerwacja odbywa się u partnera.</p>
           </div>
           <div className="article-sales-actions">
-            <Link className="article-sales-primary" href={articleDealsHref}>🔥 Aktualne oferty</Link>
+            {comparisonDestinations.length ? comparisonDestinations.map((destination) => (
+              <Link key={destination} className="article-sales-primary" href={`/okazje?q=${encodeURIComponent(destination)}`}>🔥 Oferty {destination}</Link>
+            )) : (
+              <Link className="article-sales-primary" href={articleDealsHref}>🔥 Aktualne oferty</Link>
+            )}
             <Link className="article-sales-secondary" href={articleFlightHref}>✈️ Porównaj loty</Link>
             <a className="article-sales-secondary" href={articleHotelHref} target="_blank" rel="sponsored noopener noreferrer"
               data-sales-partner="booking" data-sales-destination={salesDestination || undefined} data-sales-placement="article_sales_bridge">🏨 Sprawdź hotele</a>
