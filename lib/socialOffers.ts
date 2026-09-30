@@ -74,6 +74,24 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "agadir-borjs-899": {
+    slug: "agadir-borjs-899",
+    city: "Agadir",
+    country: "Maroko",
+    price: 899,
+    departure: "Wrocław",
+    nights: 3,
+    dates: "3–6 listopada 2026",
+    board: "Śniadanie",
+    hotel: "Borjs Hotel Suites & Spa",
+    partner: "exim",
+    partnerLabel: "EXIM Tours",
+    affiliateUrl: "https://reklamy.exim.pl/click?a(3487177)p(334260)product(103442-1327017_1327088)ttid(19)url(https%3A%2F%2Fwww.exim.pl%2Fkierunki%2Fmaroko%2Fwybrzeze-atlantyku%2Fagadir%2Fborjs-hotel-suites-a-spa%3FKEY%3DMjM5MDMxN3wzNTU5NTAwNzU0fDEzMjcwODg%26DS%3D1024%26GIATA%3D874882%26D%3D63707%26HID%3D424573%26MT%3D1%26DI%3DGT06-BB%26NN%3D3%26MNN%3D0%257C1%257C2%257C3%257C4%257C5%257C6%257C7%257C8%257C9%257C10%257C11%257C12%257C13%257C14%257C15%257C16%257C17%257C18%257C19%257C20%257C21%26NNM%3D0%257C1%257C2%257C3%257C4%257C5%257C6%257C7%257C8%257C9%257C10%257C11%257C12%257C13%257C14%257C15%257C16%257C17%257C18%257C19%257C20%257C21%26DF%3D2026-10-27%257C2026-11-20%26RD%3D2026-11-06%26DD%3D2026-11-03%26ERM%3D0%26AC1%3D2%26KC1%3D0%26IC1%3D0%26TO%3D3911%26TT%3D1%26PID%3D424573%26DPR%3DEXIM%2BTOURS%2BPOLAND%26PC%3D3-2026-11-03%26IFC%3DRlJ8ODE3NnwyMDI2LTExLTA2VDEwOjQw%26OFC%3DRlJ8ODE3N3wyMDI2LTExLTAzVDA2OjU1%26utm_term%3Dfeed)",
+    imageSrc: "https://img.exim.pl/hotels/720/maroko/atlantske-pobrezi/agadir/borjs-hotel-suites-a-spa/2735/6a7d2227e1d0939ab0a07-244.jpg",
+    imageCountry: "Maroko",
+    checkedAt: "2026-09-30T17:16:32+02:00",
+    status: "active",
+  },
   "zakynthos-alexander-1859": {
     slug: "zakynthos-alexander-1859",
     city: "Zakynthos",
