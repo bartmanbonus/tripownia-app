@@ -637,7 +637,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         )}
       </article>
 
-      {item.type === "post" && (
+      {item.type === "post" && !isAirportLiquidsGuide && (
         <section className="article-sales-bridge" aria-label="Przejdź od poradnika do rezerwacji">
           <div className="article-sales-copy">
             <div className="kicker">Z PORADNIKA DO WYJAZDU</div>
@@ -664,16 +664,64 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         </section>
       )}
 
+      {isAirportLiquidsGuide && (
+        <>
+          <section className="airport-guide-next" aria-label="Co dalej po sprawdzeniu zasad płynów">
+            <div className="kicker">CO DALEJ?</div>
+            <h2>Masz zasady. Teraz przygotuj konkretny lot.</h2>
+            <p>Nie musisz przeklikiwać kilku sekcji. Wybierz kolejny krok i przejdź od razu do tego, czego potrzebujesz przed podróżą.</p>
+            <div className="airport-guide-next-grid">
+              <Link href="/tanie-loty">
+                <span aria-hidden="true">✈️</span>
+                <strong>Sprawdź tanie loty</strong>
+                <small>Porównaj kierunki i ceny z polskich lotnisk.</small>
+              </Link>
+              <Link href="/city-break">
+                <span aria-hidden="true">🏙️</span>
+                <strong>Znajdź city break</strong>
+                <small>Krótki wyjazd z dobrymi godzinami lotów.</small>
+              </Link>
+              <Link href="/przed-wyjazdem">
+                <span aria-hidden="true">✓</span>
+                <strong>Checklista przed wylotem</strong>
+                <small>Dokumenty, bagaż i rzeczy do sprawdzenia przed lotniskiem.</small>
+              </Link>
+            </div>
+          </section>
+
+          <section className="airport-guide-related" aria-label="Powiązane poradniki przed lotem">
+            <div>
+              <div className="kicker">PRZED WYLOTEM</div>
+              <h2>Sprawdź jeszcze te 3 rzeczy</h2>
+            </div>
+            <div className="airport-guide-related-links">
+              <Link href="/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych">
+                <strong>Ile bagażu podręcznego możesz zabrać?</strong>
+                <span>Limity sztuk, wymiarów i wagi →</span>
+              </Link>
+              <Link href="/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad">
+                <strong>Jedzenie w samolocie</strong>
+                <span>Co przejdzie przez kontrolę bezpieczeństwa →</span>
+              </Link>
+              <Link href="/czy-trzeba-drukowac-karte-pokladowa-odprawa-online-krok-po-kroku">
+                <strong>Karta pokładowa i odprawa online</strong>
+                <span>Kiedy telefon wystarczy, a kiedy warto mieć wydruk →</span>
+              </Link>
+            </div>
+          </section>
+        </>
+      )}
+
       {deepDive && !isAirportLiquidsGuide && <ArticleDeepDiveBlock deepDive={deepDive} />}
 
-      {seoOpportunity && <section className="legacy-internal-links">
+      {seoOpportunity && !isAirportLiquidsGuide && <section className="legacy-internal-links">
         <div className="kicker">POD FRAZĘ, KTÓREJ SZUKASZ</div>
         <h2>{seoOpportunity.title}</h2>
         <p>{seoOpportunity.lead}</p>
         <div>{seoOpportunity.links.map(link => <Link key={link.href} href={link.href}>{link.label} →</Link>)}</div>
       </section>}
 
-      {(item.type === "post" || isDestination) && <RelatedTravelGuides path={canonicalPath} title={item.title} isDestination={isDestination} />}
+      {(item.type === "post" || isDestination) && !isAirportLiquidsGuide && <RelatedTravelGuides path={canonicalPath} title={item.title} isDestination={isDestination} />}
 
       {shouldRenderSearch && <>
         <section className="legacy-internal-links">
@@ -696,10 +744,10 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         </section>
       </>}
 
-      {(item.type === "post" || isDestination) && <section className="legacy-internal-links"><h2>Sprawdź dalej w tym temacie</h2><div>{growthLinks.map(link=><Link key={link.href} href={link.href}>{link.label} →</Link>)}</div></section>}
+      {(item.type === "post" || isDestination) && !isAirportLiquidsGuide && <section className="legacy-internal-links"><h2>Sprawdź dalej w tym temacie</h2><div>{growthLinks.map(link=><Link key={link.href} href={link.href}>{link.label} →</Link>)}</div></section>}
 
       {related.length > 0 && <section className="legacy-offers"><div className="section-heading"><div><div className="kicker">DOPASOWANE WYNIKI TRIPOWNI</div><h2>{effectiveDestination ? `Aktualne propozycje: ${effectiveDestination}` : "Aktualne propozycje pasujące do artykułu"}</h2></div><Link href="/okazje">Wszystkie okazje →</Link></div><div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>}
 
-      <section className="legacy-internal-links"><h2>Zostań na Tripowni</h2><div><Link href="/kierunki">Kierunki</Link><Link href="/city-break">City break</Link><Link href="/last-minute">Last minute</Link><Link href="/poradniki">Poradniki</Link><Link href="/alerty">Alerty</Link></div></section>
+      {!isAirportLiquidsGuide && <section className="legacy-internal-links"><h2>Zostań na Tripowni</h2><div><Link href="/kierunki">Kierunki</Link><Link href="/city-break">City break</Link><Link href="/last-minute">Last minute</Link><Link href="/poradniki">Poradniki</Link><Link href="/alerty">Alerty</Link></div></section>}
     </div><SiteFooter/></main>;
 }
