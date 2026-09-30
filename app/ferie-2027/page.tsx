@@ -120,6 +120,8 @@ export default function Ferie2027Page() {
           <Link href="/gdzie-jest-cieplo-zima-bez-dalekiego-lotu">Ciepło zimą →</Link>
           <Link href="/city-break">City break →</Link>
           <Link href="/podroze">Więcej inspiracji →</Link>
+          <Link href="/podroze/ferie-2027-all-inclusive">Ferie 2027 All Inclusive →</Link>
+          <Link href="/podroze/ferie-2027-egipt">Egipt na ferie 2027 →</Link>
         </div>
       </div>
     </section>
