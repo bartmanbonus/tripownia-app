@@ -14,7 +14,7 @@ export const seoBudgetLandings: SeoLanding[] = [
       "Przy budżecie do 1000 zł największą różnicę robi elastyczny termin, lotnisko wylotu i długość pobytu. Zamiast zaczynać od jednego miasta, warto porównać kilka kierunków dla tych samych dni.",
       "Tripownia pokazuje aktualne propozycje i prowadzi do partnera dopiero po wyborze konkretnej oferty. Przed rezerwacją sprawdź końcową cenę, bagaż, transfer i warunki noclegu."
     ],
-  },,
+  },
   {
     slug: "city-break-do-1500-zl",
     title: "City break do 1500 zł — lot + hotel i tanie weekendy",
