@@ -34,13 +34,14 @@ const breadcrumbSchema = {
   ],
 };
 
-export default async function DealsRoute({ searchParams }:{ searchParams: Promise<{ q?: string; destination?: string }> }){
+export default async function DealsRoute({ searchParams }:{ searchParams: Promise<{ q?: string; destination?: string; type?: string }> }){
   const params = await searchParams;
   const destination = (params.q || params.destination || "").trim();
+  const dealType = params.type === "allinclusive" ? "allinclusive" : "";
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }} />
-    <DealsPage destination={destination}/>
+    <DealsPage destination={destination} dealType={dealType}/>
     <div className="shell" style={{paddingBottom:24}}><Link href="/radar-tripowni">Nie chcesz przeglądać wszystkiego? Zobacz 5 wyborów w Radarze Tripowni →</Link></div>
   </>;
 }
