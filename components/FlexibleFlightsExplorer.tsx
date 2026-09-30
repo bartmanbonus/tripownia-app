@@ -386,6 +386,7 @@ export default function FlexibleFlightsExplorer() {
       show_tutorial: "false",
       hide_reformal: "true",
       marker,
+      currency: "pln",
       small_spinner: "true",
       direct: directOnly ? "true" : "false",
       disable_googlemaps_ui: "true",
@@ -460,21 +461,6 @@ export default function FlexibleFlightsExplorer() {
           <strong>Poluj na najtańszy termin</strong>
           <span>Nie musisz znać dat. Wybierz trasę albo zostaw kierunek otwarty.</span>
         </div>
-        <div className="flight-hunt-tabs" role="group" aria-label="Tryb elastycznego wyszukiwania lotów">
-          <button
-            type="button"
-            className={!destinationAnywhere ? "active" : ""}
-            onClick={() => {
-              setDestinationAnywhere(false);
-              dirty();
-            }}
-          >
-            Mam kierunek
-          </button>
-          <button type="button" className={destinationAnywhere ? "active" : ""} onClick={setAnywhere}>
-            Gdziekolwiek
-          </button>
-        </div>
       </div>
 
       <div className="flight-hunt-controls-clean">
@@ -500,17 +486,15 @@ export default function FlexibleFlightsExplorer() {
           defaultOptions={POPULAR_DESTINATIONS}
         />
 
-        {!destinationAnywhere && (
-          <div className="flight-hunt-stay">
-            <span>Na ile dni?</span>
-            <div className="flight-hunt-stay-pills">
-              <button type="button" className={daysMin === 2 && daysMax === 4 ? "active" : ""} onClick={() => setTripLength(2,4)}>2–4</button>
-              <button type="button" className={daysMin === 5 && daysMax === 7 ? "active" : ""} onClick={() => setTripLength(5,7)}>5–7</button>
-              <button type="button" className={daysMin === 8 && daysMax === 10 ? "active" : ""} onClick={() => setTripLength(8,10)}>8–10</button>
-              <button type="button" className={daysMin === 11 && daysMax === 14 ? "active" : ""} onClick={() => setTripLength(11,14)}>11–14</button>
-            </div>
+        <div className="flight-hunt-stay">
+          <span>Na ile dni?</span>
+          <div className="flight-hunt-stay-pills">
+            <button type="button" className={daysMin === 2 && daysMax === 4 ? "active" : ""} onClick={() => setTripLength(2,4)}>2–4</button>
+            <button type="button" className={daysMin === 5 && daysMax === 7 ? "active" : ""} onClick={() => setTripLength(5,7)}>5–7</button>
+            <button type="button" className={daysMin === 8 && daysMax === 10 ? "active" : ""} onClick={() => setTripLength(8,10)}>8–10</button>
+            <button type="button" className={daysMin === 11 && daysMax === 14 ? "active" : ""} onClick={() => setTripLength(11,14)}>11–14</button>
           </div>
-        )}
+        </div>
 
         <label className="flight-hunt-direct">
           <input
@@ -532,14 +516,6 @@ export default function FlexibleFlightsExplorer() {
         >
           {destinationAnywhere ? "Pokaż tanie kierunki" : "Pokaż najtańsze terminy"}
         </button>
-      </div>
-
-      <div className="flight-hunt-shortcuts" aria-label="Szybkie ustawienia lotów">
-        <span>Szybko:</span>
-        <button type="button" onClick={() => setTripLength(2,4)}>Weekend 2–4 dni</button>
-        <button type="button" onClick={() => setTripLength(5,7)}>Tydzień</button>
-        <button type="button" onClick={setAnywhere}>Gdziekolwiek</button>
-        <button type="button" onClick={() => { setDirectOnly(true); dirty(); }}>Tylko bezpośrednie</button>
       </div>
 
       {!submitted && (
@@ -595,6 +571,7 @@ export default function FlexibleFlightsExplorer() {
             <>
               {mapSrc && <LowPriceMapFrame key={activeRoute?.key + "-map"} src={mapSrc} />}
 
+              {(dealsLoading || sortedDeals.length > 0) && (
               <section className="flight-deals-list" aria-label="Lista tanich lotów">
                 <div className="flight-deals-list-head">
                   <div>
@@ -630,12 +607,8 @@ export default function FlexibleFlightsExplorer() {
                   </div>
                 )}
 
-                {!dealsLoading && sortedDeals.length === 0 && (
-                  <div className="flight-deals-empty">
-                    Lista cen chwilowo nie jest dostępna. Skorzystaj z mapy powyżej albo spróbuj ponownie za chwilę.
-                  </div>
-                )}
               </section>
+              )}
             </>
           ) : (
             calendarSrc && <ScriptSlot key={activeRoute?.key + "-calendar"} id="tripownia-price-calendar" src={calendarSrc} fallbackHref={affiliateFallbackUrl} />
