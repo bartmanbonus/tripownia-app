@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { trackEvent } from "@/lib/analytics";
+import { trackMetaCustomEvent } from "@/lib/metaPixel";
 
 type Partner =
   | "wakacje"
@@ -207,12 +208,23 @@ export default function AffiliateClickBridge() {
       if (event.type === "pointerdown" && isTrackedLiveHref(anchor)) {
         try {
           const tracked = new URL(anchor.href, window.location.origin);
+          const partner = tracked.searchParams.get("partner") || "unknown";
+          const source = tracked.searchParams.get("source") || sourceFor(anchor);
+          const destination = tracked.searchParams.get("destination") || destinationFor(anchor);
+          const outboundHost = (() => { try { return new URL(before).hostname; } catch { return ""; } })();
           trackEvent("affiliate_click", {
-            partner: tracked.searchParams.get("partner") || "unknown",
-            source: tracked.searchParams.get("source") || sourceFor(anchor),
-            destination: tracked.searchParams.get("destination") || destinationFor(anchor),
+            partner,
+            source,
+            destination,
             page: window.location.pathname,
-            outbound_host: (() => { try { return new URL(before).hostname; } catch { return ""; } })(),
+            outbound_host: outboundHost,
+          });
+          trackMetaCustomEvent("AffiliateClick", {
+            partner,
+            source,
+            destination,
+            page: window.location.pathname,
+            outbound_host: outboundHost,
           });
         } catch {}
       }
