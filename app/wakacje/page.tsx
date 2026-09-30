@@ -63,6 +63,11 @@ export default function WakacjePage() {
         <Link href="/podroze/turcja-z-katowic">Turcja z Katowic →</Link>
         <Link href="/podroze/grecja-z-warszawy">Grecja z Warszawy →</Link>
         <Link href="/podroze/grecja-z-katowic">Grecja z Katowic →</Link>
+        <Link href="/podroze/egipt-all-inclusive-z-warszawy">Egipt All Inclusive z Warszawy →</Link>
+        <Link href="/podroze/egipt-all-inclusive-z-katowic">Egipt All Inclusive z Katowic →</Link>
+        <Link href="/podroze/turcja-all-inclusive-z-warszawy">Turcja All Inclusive z Warszawy →</Link>
+        <Link href="/podroze/turcja-all-inclusive-z-katowic">Turcja All Inclusive z Katowic →</Link>
+        <Link href="/podroze/wakacje-7-dni-do-2500-zl">Wakacje 7 dni do 2500 zł →</Link>
       </div>
     </section>
     <section className="section shell"><FacebookFollowCTA placement="wakacje" compact /></section>
