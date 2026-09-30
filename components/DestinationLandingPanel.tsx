@@ -501,7 +501,7 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
                 : "Nie pokazujemy losowych kart. Przejdź bezpośrednio do wyszukiwania dla tego kierunku."}
             </p>
           </div>
-          <Link href="/okazje">Wszystkie okazje →</Link>
+          <Link href={`/okazje?q=${encodeURIComponent(config.searchDestination)}`}>Oferty: {config.searchDestination} →</Link>
         </div>
         {matchedOffers.length > 0 && (
           <div className="cards-grid">
@@ -511,6 +511,11 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
       </section>
 
       <section className={styles.partnerShortcuts} aria-label="Szybkie przejścia do partnerów">
+        <Link href={`/loty?destination=${encodeURIComponent(config.searchDestination)}`}>
+          <span>✈️</span>
+          <div><strong>Porównaj loty</strong><small>Kierunek ustawiony: {config.searchDestination}</small></div>
+          <b>Sprawdź →</b>
+        </Link>
         <a href={wakacjeUrl} target="_blank" rel="sponsored noopener noreferrer">
           <span>🏖️</span>
           <div><strong>Wakacje i All Inclusive</strong><small>Wakacje.pl · link afiliacyjny Tripowni</small></div>
