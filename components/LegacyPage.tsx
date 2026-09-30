@@ -283,6 +283,7 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
       { href: "/sylwester", label: "City break na Sylwestra" },
       { href: "/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok", label: "Ciepłe kraje na Sylwestra" },
       { href: "/okazje", label: "Aktualne okazje" },
+      { href: "/planer-podrozy", label: "Ułóż wyjazd w darmowym planerze" },
     ],
   },
   "/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok": {
@@ -413,11 +414,13 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
     { href: "/podroze/wyspy-kanaryjskie-listopad-2026", label: "Wyspy Kanaryjskie — listopad" },
     { href: "/podroze/egipt-listopad-2026", label: "Egipt — listopad 2026" },
     { href: "/podroze/malta-listopad-2026", label: "Malta — listopad 2026" },
+    { href: "/planer-podrozy", label: "Ułóż plan ciepłego wyjazdu" },
   ];
   if (hay.includes("październik") || hay.includes("pazdziernik")) return [
     { href: "/podroze/city-break-pazdziernik-2026", label: "City break — październik 2026" },
     { href: "/podroze/teneryfa-z-warszawy", label: "Teneryfa z Warszawy" },
     { href: "/podroze/wakacje-do-2500-zl", label: "Wakacje do 2500 zł" },
+    { href: "/planer-podrozy", label: "Zaplanuj październikowy wyjazd" },
   ];
   if (hay.includes("grecj")) return [
     { href: "/podroze/wakacje-do-2500-zl", label: "Wakacje do 2500 zł" },
