@@ -86,6 +86,8 @@ export default async function Page({ searchParams }: PageProps) {
           <Link href="/podroze/city-break-grudzien-2026">City break grudzień 2026 →</Link>
           <Link href="/podroze/city-break-z-warszawy">City break z Warszawy →</Link>
           <Link href="/podroze/city-break-z-poznania">City break z Poznania →</Link>
+          <Link href="/podroze/sylwester-z-warszawy-do-2000-zl">Sylwester z Warszawy do 2000 zł →</Link>
+          <Link href="/podroze/grudzien-2026-all-inclusive-do-3000-zl">All Inclusive w grudniu do 3000 zł →</Link>
           <Link href="/planer-podrozy">Ułóż wyjazd w darmowym planerze →</Link>
         </div>
       </section>
