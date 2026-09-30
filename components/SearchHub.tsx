@@ -172,6 +172,12 @@ function standaloneHotelPartnerUrl(destinations: string[]) {
   return partners.booking.buildUrl(bookingBase.toString());
 }
 
+const PACKAGE_DISCOVERY_TARGETS = [
+  "Malta", "Cypr", "Egipt", "Tunezja", "Hiszpania", "Grecja",
+  "Turcja", "Maroko", "Albania", "Portugalia", "Wyspy Kanaryjskie",
+  "Djerba", "Marsa Alam", "Hurghada", "Zanzibar", "Dubaj",
+];
+
 function cleanRows(rows: any[], query: string) {
   const cleaned = rows
     .filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()))
@@ -568,6 +574,43 @@ export default function SearchHub({
       };
     };
 
+    const fetchDiscoveryPool = async ({
+      includeDates = true,
+      includeDepartures = true,
+    }: {
+      includeDates?: boolean;
+      includeDepartures?: boolean;
+    } = {}) => {
+      const collected: any[] = [];
+      const targets = PACKAGE_DISCOVERY_TARGETS;
+      const chunkSize = 4;
+
+      for (let index = 0; index < targets.length; index += chunkSize) {
+        const chunk = targets.slice(index, index + chunkSize);
+        const payloads = await Promise.all(chunk.map(async (target) => {
+          const params = new URLSearchParams({ mode: "search", q: target });
+          if (includeDepartures && departures.length) params.set("from", departures.join(","));
+          if (activeMinBudget > 0) params.set("minPrice", String(activeMinBudget));
+          if (activeMaxBudget > 0) params.set("maxPrice", String(activeMaxBudget));
+          if (includeDates) {
+            if (apiDates.start) params.set("start", apiDates.start);
+            if (apiDates.end) params.set("end", apiDates.end);
+            if (apiDates.start || apiDates.end) params.set("dateKind", "departure");
+          }
+          try {
+            const response = await fetch(`/api/today-offers?${params.toString()}`, { cache: "no-store" });
+            const data = await response.json();
+            return response.ok && data?.ok !== false && Array.isArray(data?.offers) ? data.offers : [];
+          } catch {
+            return [];
+          }
+        }));
+        collected.push(...payloads.flat());
+      }
+
+      return collected;
+    };
+
     try {
       const exact = await fetchBatch();
       if (runId !== searchRunRef.current) return;
@@ -602,23 +645,54 @@ export default function SearchHub({
         setResults(rows);
       }
 
-      // When the exact scope is still too small, add a large pool of real
-      // partner offers. The original matches stay first; additions are sorted
-      // toward the user's preferred date instead of inventing unavailable deals.
+      // If "Gdziekolwiek" is still sparse, fan out across concrete destinations.
+      // Individual destination feeds are much more reliable than one giant broad feed.
       if (rows.length < 48) {
         setExpanding(true);
-        const broader = await fetchBatch({
-          includeFilters: false,
-          includeDates: false,
-          includeDepartures: false,
-        });
-        if (runId !== searchRunRef.current) return;
         const previousCount = rows.length;
-        const broaderRows = prioritizeByDate(
-          cleanRows(broader.offers, requested.length ? "multi" : ""),
-          datePreference
-        ).rows;
-        rows = diversifyOfferVariants([...rows, ...broaderRows], 80, perDirection);
+
+        if (!requested.length) {
+          const sameDateAlternatives = await fetchDiscoveryPool({
+            includeDates: true,
+            includeDepartures: false,
+          });
+          if (runId !== searchRunRef.current) return;
+
+          let discoveryRows = prioritizeByDate(
+            cleanRows(sameDateAlternatives, ""),
+            datePreference
+          ).rows;
+
+          rows = diversifyOfferVariants([...rows, ...discoveryRows], 80, 12);
+
+          if (rows.length < 36) {
+            const wideAlternatives = await fetchDiscoveryPool({
+              includeDates: false,
+              includeDepartures: false,
+            });
+            if (runId !== searchRunRef.current) return;
+
+            discoveryRows = prioritizeByDate(
+              cleanRows(wideAlternatives, ""),
+              datePreference
+            ).rows;
+
+            rows = diversifyOfferVariants([...rows, ...discoveryRows], 80, 12);
+          }
+        } else {
+          const broader = await fetchBatch({
+            includeFilters: false,
+            includeDates: false,
+            includeDepartures: false,
+          });
+          if (runId !== searchRunRef.current) return;
+          const broaderRows = prioritizeByDate(
+            cleanRows(broader.offers, "multi"),
+            datePreference
+          ).rows;
+          rows = diversifyOfferVariants([...rows, ...broaderRows], 80, perDirection);
+        }
+
         expandedScope = rows.length > previousCount;
         setResults(rows);
       }
@@ -650,7 +724,7 @@ export default function SearchHub({
       if (rows.length) {
         const prefix = bergamoMapped ? "Bergamo wyszukujemy jako Mediolan, żeby pokazać realne oferty dla tego obszaru. " : "";
         const expansionNotice = expandedScope
-          ? `Dokładnych dopasowań: ${exactCount}. Żeby nie kończyć na kilku kartach, niżej pokazujemy też najbliższe realne terminy i oferty z innych lotnisk. Wszystkie prowadzą do aktualnych ofert partnerów.`
+          ? `Dokładnych dopasowań: ${exactCount}. Dalej pokazujemy najbliższe dostępne alternatywy, żeby nie kończyć wyszukiwania na kilku kartach.`
           : "";
         setNotice([
           prefix,
