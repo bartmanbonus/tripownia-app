@@ -5,7 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Tanie loty z Polski — okazje lotnicze i city breaki",
-  description: "Tanie loty z Warszawy, Krakowa, Katowic, Gdańska i Wrocławia. Tripownia codziennie szuka okazji lotniczych i łączy je z pomysłami na city break i wakacje.",
+  description: "Tanie loty z Warszawy, Krakowa, Katowic, Gdańska, Wrocławia i Poznania. Sprawdź okazje lotnicze z polskich lotnisk i pomysły na city break oraz wakacje.",
   alternates: { canonical: "/tanie-loty" },
   openGraph: {
     title: "Tanie loty z Polski | Tripownia.pl",
@@ -14,6 +14,17 @@ export const metadata: Metadata = {
     url: "/tanie-loty",
   },
 };
+
+const airportLinks = [
+  ["Tanie loty z Warszawy", "/podroze/tanie-loty-z-warszawy"],
+  ["Tanie loty z Krakowa", "/podroze/tanie-loty-z-krakowa"],
+  ["Tanie loty z Katowic", "/podroze/tanie-loty-z-katowic"],
+  ["Tanie loty z Gdańska", "/podroze/tanie-loty-z-gdanska"],
+  ["Tanie loty z Wrocławia", "/podroze/tanie-loty-z-wroclawia"],
+  ["Tanie loty z Poznania", "/podroze/tanie-loty-z-poznania"],
+  ["Tanie loty z Lublina", "/podroze/tanie-loty-z-lublina"],
+  ["Tanie loty z Modlina", "/podroze/tanie-loty-z-modlina"],
+];
 
 const links = [
   ["Malta z Warszawy", "/podroze/malta-z-warszawy"],
@@ -66,6 +77,14 @@ export default function CheapFlightsPage() {
           Codziennie rano sprawdzamy nowe wyniki. Jeżeli danego dnia nie ma naprawdę dobrej ceny,
           nie oznaczamy zwykłego biletu jako okazji na siłę.
         </p>
+      </section>
+
+      <section className="shell seo-related-block">
+        <div className="kicker">TANIE LOTY Z LOTNISKA</div>
+        <h2>Wybierz miasto wylotu</h2>
+        <div className="seo-related-links">
+          {airportLinks.map(([label, href]) => <Link key={href} href={href}>{label} →</Link>)}
+        </div>
       </section>
 
       <section className="shell seo-related-block">
