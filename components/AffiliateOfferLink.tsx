@@ -34,7 +34,8 @@ export default function AffiliateOfferLink({ href, partner, slug, destination, t
     <a
       className="primary-cta"
       href={href}
-      rel="sponsored"
+      target="_blank"
+      rel="sponsored noopener noreferrer"
       onClick={rememberTripContext}
     >
       Sprawdź ofertę w {partner} <ArrowRight size={18}/>
