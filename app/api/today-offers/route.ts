@@ -66,6 +66,16 @@ const BROAD_SEARCH_TERMS = [
   "Kuba", "Tajlandia", "Wietnam", "Bali", "Malediwy", "Dubaj", "Wyspy Zielonego Przylądka"
 ];
 
+// A wide "Gdziekolwiek" search used to launch 100+ TradeDoubler requests at once.
+// That intermittently exhausted the feed and collapsed broad searches to just a few
+// results. Country/region queries already return large product pages, so a smaller
+// core gives much better coverage with far fewer calls.
+const BROAD_CORE_TERMS = [
+  "Grecja", "Hiszpania", "Cypr", "Turcja", "Tunezja", "Egipt", "Bułgaria", "Albania",
+  "Portugalia", "Włochy", "Maroko", "Malta", "Wyspy Kanaryjskie", "Djerba", "Hurghada",
+  "Marsa Alam", "Dubaj", "Zanzibar", "Kenia", "Dominikana", "Tajlandia", "Malediwy"
+];
+
 const NEW_YEAR_SEARCH_TERMS = [
   "Rzym", "Praga", "Budapeszt", "Wiedeń", "Stambuł", "Malta", "Cypr",
   "Marrakesz", "Teneryfa", "Fuerteventura", "Egipt", "Hurghada", "Marsa Alam",
@@ -674,7 +684,7 @@ export async function GET(request: NextRequest) {
       : mode === "search" && query
       ? searchTerms
       : mode === "search" && broadSearch
-        ? BROAD_SEARCH_TERMS
+        ? BROAD_CORE_TERMS
       : mode === "citybreak"
         ? (query ? searchTerms : shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 20))
         : mode === "surprise"
@@ -682,25 +692,32 @@ export async function GET(request: NextRequest) {
           : mode === "newyear"
             ? NEW_YEAR_SEARCH_TERMS
           : mode === "search"
-            ? BROAD_SEARCH_TERMS
+            ? BROAD_CORE_TERMS
             : [
                 ...shuffle(EUROPE_SEARCH_TERMS, `terms-eu:${key}`).slice(0, 7),
                 ...shuffle(EXOTIC_SEARCH_TERMS, `terms-exotic:${key}`).slice(0, 11),
               ];
-    const jobs: Promise<{ provider: Provider; products: TdProduct[] }>[] = [];
+    const jobs: Array<() => Promise<{ provider: Provider; products: TdProduct[] }>> = [];
 
     for (const term of terms) {
-      if (eximToken && providerOnly !== "tui") jobs.push(fetchProducts("exim", term, eximToken).then((products) => ({ provider: "exim" as const, products })));
-      if (mode !== "citybreak" && mode !== "newyear" && tuiToken && providerOnly !== "exim") jobs.push(fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
+      if (eximToken && providerOnly !== "tui") {
+        jobs.push(() => fetchProducts("exim", term, eximToken).then((products) => ({ provider: "exim" as const, products })));
+      }
+      if (mode !== "citybreak" && mode !== "newyear" && tuiToken && providerOnly !== "exim") {
+        jobs.push(() => fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
+      }
     }
 
-    const settled = await Promise.allSettled(jobs);
     const candidates: LiveCandidate[] = [];
-    for (const item of settled) {
-      if (item.status !== "fulfilled") continue;
-      for (const product of item.value.products) {
-        const candidate = item.value.provider === "exim" ? fromExim(product) : fromTui(product);
-        if (candidate) candidates.push(candidate);
+    const batchSize = broadSearch || rescueMode ? 6 : 10;
+    for (let index = 0; index < jobs.length; index += batchSize) {
+      const settled = await Promise.allSettled(jobs.slice(index, index + batchSize).map((job) => job()));
+      for (const item of settled) {
+        if (item.status !== "fulfilled") continue;
+        for (const product of item.value.products) {
+          const candidate = item.value.provider === "exim" ? fromExim(product) : fromTui(product);
+          if (candidate) candidates.push(candidate);
+        }
       }
     }
 
@@ -898,7 +915,7 @@ export async function GET(request: NextRequest) {
                 : 0;
               return dateDelta || (a.price !== b.price ? a.price - b.price : b.score - a.score);
             })
-            .slice(0, 36)
+            .slice(0, 80)
         : mode === "surprise"
           ? cheapestDestinations
               .filter((offer) => offer.price <= budget)
