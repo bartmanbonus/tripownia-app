@@ -55,6 +55,8 @@ export default function WakacjePage() {
         <Link href="/podroze/all-inclusive-z-warszawy">All Inclusive z Warszawy →</Link>
         <Link href="/podroze/last-minute-z-warszawy">Last Minute z Warszawy →</Link>
         <Link href="/podroze/cieple-wakacje-listopad-2026">Ciepłe wakacje w listopadzie →</Link>
+        <Link href="/podroze/egipt-listopad-z-warszawy">Egipt w listopadzie z Warszawy →</Link>
+        <Link href="/podroze/all-inclusive-listopad-do-2500-zl">All Inclusive w listopadzie do 2500 zł →</Link>
         <Link href="/podroze/cieple-wakacje-grudzien-2026">Ciepłe wakacje w grudniu →</Link>
         <Link href="/podroze/egipt-z-warszawy">Egipt z Warszawy →</Link>
         <Link href="/podroze/egipt-z-katowic">Egipt z Katowic →</Link>
