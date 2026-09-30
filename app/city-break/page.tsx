@@ -141,6 +141,7 @@ export default function CityBreakPage() {
           {airportCityBreaks.map(item => <Link key={item.href} href={item.href}>{item.label}</Link>)}
           <Link href="/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych">Bagaż podręczny</Link>
           <Link href="/sylwester">City break na Sylwestra 2026/2027</Link>
+          <Link href="/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem">Lot + hotel</Link>
           <Link href="/planer-podrozy">Darmowy planer podróży</Link>
         </div>
       </div>
