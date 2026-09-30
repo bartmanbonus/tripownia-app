@@ -1,0 +1,87 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import OfferCard from "@/components/OfferCard";
+import type { Offer } from "@/lib/offers";
+
+type LiveOffer = Offer & { startDateISO?: string };
+type Mode = "citybreak" | "vacation" | "lastminute";
+type ApiResponse = { ok?: boolean; offers?: LiveOffer[]; checkedAt?: string; notice?: string };
+
+function uniqueOffers(items: LiveOffer[]) {
+  const seen = new Set<string>();
+  return items.filter((offer) => {
+    const key = `${offer.affiliateUrl}|${offer.hotel}|${offer.dates}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function matchesMode(offer: LiveOffer, mode: Mode) {
+  const categories = offer.category || [];
+  if (mode === "citybreak") {
+    return offer.nights <= 5 || categories.includes("city") || categories.includes("weekend");
+  }
+  if (mode === "vacation") {
+    return offer.nights >= 5 || categories.some((item) => /wakacje|allinclusive|plaza|cieplo/i.test(item));
+  }
+
+  if (!offer.startDateISO) return false;
+  const start = new Date(`${offer.startDateISO}T00:00:00Z`);
+  if (Number.isNaN(start.getTime())) return false;
+  const now = new Date();
+  const max = new Date(now);
+  max.setUTCDate(max.getUTCDate() + 45);
+  return start >= new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+    && start <= max
+    && (offer.nights >= 5 || categories.some((item) => /wakacje|allinclusive|plaza|cieplo/i.test(item)));
+}
+
+export default function LiveSalesRail({ mode, limit = 8 }: { mode: Mode; limit?: number }) {
+  const [pool, setPool] = useState<LiveOffer[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/deals?refresh=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) throw new Error("live deals unavailable");
+        const data = (await response.json()) as ApiResponse;
+        if (!cancelled) setPool(Array.isArray(data.offers) ? data.offers : []);
+      } catch {
+        if (!cancelled) setPool([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    void load();
+    const timer = window.setInterval(load, 10 * 60 * 1000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  const offers = useMemo(
+    () => uniqueOffers(pool.filter((offer) => matchesMode(offer, mode)))
+      .sort((a, b) => Number(a.price) - Number(b.price))
+      .slice(0, limit),
+    [pool, mode, limit]
+  );
+
+  if (loading) {
+    return <div className="seo-live-status"><span className="seo-live-pulse" /><strong>Sprawdzamy aktualne ceny…</strong></div>;
+  }
+  if (!offers.length) return null;
+
+  return (
+    <div className="cards-grid seo-live-offers-grid">
+      {offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} />)}
+    </div>
+  );
+}

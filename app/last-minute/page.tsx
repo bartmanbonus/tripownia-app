@@ -3,11 +3,9 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
-import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { offers, isOfferExpired } from "@/lib/offers";
+import LiveSalesRail from "@/components/LiveSalesRail";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
-import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
 export const metadata: Metadata = {
   title: "Last Minute 2026 — aktualne wakacje i All Inclusive",
@@ -22,19 +20,6 @@ export const metadata: Metadata = {
 };
 
 export default function LastMinuteOffersPage() {
-  const active = offers
-    .filter(o => !isOfferExpired(o))
-    .filter(o => isTravelDestinationAllowed(o.city,o.country));
-
-  const vacationPool = active
-    .filter(o => o.partner !== "esky")
-    .filter(o => (o.category||[]).some(c=>/wakacje|allinclusive|plaza|cieplo/i.test(c)) || Number(o.nights||0)>=5)
-    .sort((a,b)=>Number(a.price||0)-Number(b.price||0));
-
-  const featured = vacationPool.slice(0,12);
-  const featuredIds = new Set(featured.map(o=>o.id));
-  const more = vacationPool.filter(o=>!featuredIds.has(o.id)).slice(0,12);
-
   return <main>
     <SiteHeader/>
     <SalesCollectionSchema name="Last Minute 2026" description="Aktualne Last Minute 2026, wakacje i All Inclusive z polskich lotnisk." path="/last-minute" about={["last minute","wakacje","All Inclusive","pakiety wakacyjne"]} />
@@ -59,7 +44,7 @@ export default function LastMinuteOffersPage() {
 
     <section className="section shell last-minute-live-section">
       <div className="section-heading"><div><div className="kicker">WYBRANE PRZEZ TRIPOWNIĘ</div><h2>Aktualne oferty Last Minute</h2><p>Sortujemy od najniższej ceny. Sprawdź termin, liczbę nocy, wyżywienie i lotnisko wylotu przed przejściem do rezerwacji.</p></div></div>
-      <div className="last-minute-offer-rail">{featured.map(o=><OfferCard key={o.id} offer={o}/>)}</div>
+      <LiveSalesRail mode="lastminute" limit={10}/>
     </section>
 
     <section className="section shell partner-search-shopping">
@@ -67,8 +52,7 @@ export default function LastMinuteOffersPage() {
     </section>
 
     <section className="section shell">
-      <div className="section-heading"><div><div className="kicker">WIĘCEJ OKAZJI</div><h2>Kolejne Last Minute do sprawdzenia</h2></div></div>
-      <div className="last-minute-offer-rail">{more.map(o=><OfferCard key={o.id} offer={o}/>)}</div>
+      <div className="section-heading"><div><div className="kicker">NIE MA NIC NA JUŻ?</div><h2>Sprawdź szerszą bazę i sąsiednie terminy</h2><p>Nie oznaczamy zwykłych wakacji jako Last Minute. Jeśli nie ma wyjazdu w najbliższych 45 dniach, użyj wyszukiwarki powyżej.</p></div></div>
     </section>
     <section className="section shell"><FacebookFollowCTA placement="last_minute" compact /></section>
     <SiteFooter/>
