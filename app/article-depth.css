@@ -160,3 +160,94 @@
 @media(max-width:420px){
   .article-action-rail-links{grid-template-columns:1fr}
 }
+
+
+/* 2026-09-30 airport liquids guide bottom UX */
+.airport-guide-next,
+.airport-guide-related{
+  max-width:900px;
+  margin:26px auto 0;
+}
+.airport-guide-next{
+  padding:28px;
+  border:1px solid #eadfd7;
+  border-radius:24px;
+  background:linear-gradient(180deg,#fffaf7,#fff);
+}
+.airport-guide-next h2,
+.airport-guide-related h2{
+  margin:8px 0 10px;
+  font-size:clamp(26px,3vw,38px);
+  line-height:1.08;
+  letter-spacing:-.03em;
+}
+.airport-guide-next>p{
+  margin:0;
+  color:#6e625c;
+  line-height:1.6;
+}
+.airport-guide-next-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-top:20px;
+}
+.airport-guide-next-grid a{
+  display:grid;
+  gap:7px;
+  padding:18px;
+  border:1px solid #e9ddd5;
+  border-radius:16px;
+  background:#fff;
+  color:#2f2925;
+  text-decoration:none;
+}
+.airport-guide-next-grid a:first-child{
+  border-color:#f45b32;
+  box-shadow:0 10px 24px rgba(244,91,50,.12);
+}
+.airport-guide-next-grid span{
+  font-size:22px;
+}
+.airport-guide-next-grid strong{
+  font-size:16px;
+  line-height:1.25;
+}
+.airport-guide-next-grid small{
+  color:#756962;
+  font-size:12px;
+  line-height:1.45;
+}
+.airport-guide-related{
+  padding:26px 0 0;
+}
+.airport-guide-related-links{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-top:16px;
+}
+.airport-guide-related-links a{
+  display:grid;
+  gap:7px;
+  padding:18px;
+  border:1px solid #e7e7e7;
+  border-radius:16px;
+  background:#fff;
+  color:#2e2a27;
+  text-decoration:none;
+}
+.airport-guide-related-links strong{
+  font-size:15px;
+  line-height:1.35;
+}
+.airport-guide-related-links span{
+  color:#746a65;
+  font-size:12px;
+  line-height:1.45;
+}
+@media(max-width:760px){
+  .airport-guide-next{padding:20px;border-radius:20px}
+  .airport-guide-next-grid,
+  .airport-guide-related-links{grid-template-columns:1fr}
+}
