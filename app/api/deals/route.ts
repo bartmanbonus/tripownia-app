@@ -62,6 +62,13 @@ function airportMatches(offer: DealsOffer, airport: string) {
   if (code === "GDN") return /gdansk|rebiechowo|\bgdn\b/.test(haystack);
   if (code === "WRO") return /wroclaw|strachowice|\bwro\b/.test(haystack);
   if (code === "POZ") return /poznan|lawica|\bpoz\b/.test(haystack);
+  if (code === "RZE") return /rzeszow|jasionka|\brze\b/.test(haystack);
+  if (code === "LUZ") return /lublin|swidnik|\bluz\b/.test(haystack);
+  if (code === "SZZ") return /szczecin|goleniow|\bszz\b/.test(haystack);
+  if (code === "LCJ") return /lodz|lublinek|\blcj\b/.test(haystack);
+  if (code === "BZG") return /bydgoszcz|\bbzg\b/.test(haystack);
+  if (code === "SZY") return /olsztyn|mazur|szymany|\bszy\b/.test(haystack);
+  if (code === "WMI") return /modlin|\bwmi\b/.test(haystack);
   return false;
 }
 
