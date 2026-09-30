@@ -39,6 +39,8 @@ export default function LastMinuteOffersPage() {
         <Link href="/podroze/last-minute-z-rzeszowa">Last Minute z Rzeszowa →</Link>
         <Link href="/podroze/last-minute-ze-szczecina">Last Minute ze Szczecina →</Link>
         <Link href="/podroze/last-minute-z-warszawy">Last Minute z Warszawy →</Link>
+        <Link href="/podroze/last-minute-do-2000-zl">Last Minute do 2000 zł →</Link>
+        <Link href="/podroze/last-minute-do-2500-zl">Last Minute do 2500 zł →</Link>
       </div>
     </section>
 
