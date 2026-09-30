@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
 import { offers, isOfferExpired } from "@/lib/offers";
@@ -22,6 +23,7 @@ export const metadata: Metadata = {
 export default function WakacjePage() {
   const holidayOffers = offers.filter(o => !isOfferExpired(o) && !o.category.includes("city")).slice(0, 12);
   return <main><SiteHeader/>
+    <SalesCollectionSchema name="Tanie wakacje 2026" description="Tanie wakacje 2026, All Inclusive, last minute i lot + hotel z polskich lotnisk." path="/wakacje" about={["tanie wakacje","All Inclusive","last minute","lot + hotel"]} />
     <section className="shopping-hero shell">
       <div className="kicker">WAKACJE 2026 — PEŁNA OFERTA</div>
       <h1>Tanie wakacje 2026: All Inclusive, last minute i lot + hotel.</h1>

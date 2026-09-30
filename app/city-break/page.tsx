@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
 import { offers, isOfferExpired } from "@/lib/offers";
@@ -68,6 +69,7 @@ export default function CityBreakPage() {
   const cityOffers = offers.filter(o => !isOfferExpired(o) && o.partner !== "esky" && (o.category.includes("city") || o.category.includes("weekend"))).slice(0, 6);
   return <main className={styles.page}>
     <SiteHeader/>
+    <SalesCollectionSchema name="City break 2026" description="City break lot + hotel, loty z noclegiem i krótkie wyjazdy na 2–5 dni." path="/city-break" about={["city break","lot + hotel","tani weekend","loty z noclegiem"]} />
 
     <section className={styles.hero}>
       <div className={styles.heroGrid}>

@@ -44,6 +44,11 @@ export default function SiteFooter() {
 
             <div className="footer-v2-column">
               <h3>Rezerwuj</h3>
+              <Link href="/city-break">City break</Link>
+              <Link href="/last-minute">Last Minute</Link>
+              <Link href="/tanie-all-inclusive">Tanie All Inclusive</Link>
+              <Link href="/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem">Lot + hotel</Link>
+              <Link href="/tanie-loty">Tanie loty</Link>
               <Link href="/wakacje">Wakacje</Link>
               <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Hotele</a>
               <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Loty</a>

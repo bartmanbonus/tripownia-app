@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import DirectionsExplorer from "@/components/DirectionsExplorer";
+import DirectionsLiveDeals from "@/components/DirectionsLiveDeals";
 
 export const metadata: Metadata = {
   title: "Kierunki podróży – gdzie pojechać na wakacje i city break?",
@@ -300,6 +301,32 @@ const directions = [
   }
 ];
 
+const collectionSchema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Kierunki podróży – Tripownia",
+  description: "Kolekcja kierunków na wakacje, city break, All Inclusive i dalsze podróże z linkami do aktualnych ofert oraz planowania wyjazdu.",
+  url: "https://tripownia.pl/kierunki",
+  mainEntity: {
+    "@type": "ItemList",
+    itemListElement: directions.slice(0, 24).map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.title,
+      url: `https://tripownia.pl${item.href}`,
+    })),
+  },
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Tripownia", item: "https://tripownia.pl/" },
+    { "@type": "ListItem", position: 2, name: "Kierunki", item: "https://tripownia.pl/kierunki" },
+  ],
+};
+
 const filters = [
   { key: "all", label: "🌍 Wszystkie" },
   { key: "wakacje", label: "☀️ Wakacje" },
@@ -312,7 +339,10 @@ export default function KierunkiPage() {
   return (
     <main className="directions-page-v188">
       <SiteHeader/>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }} />
 
+      <DirectionsLiveDeals/>
       <section className="shell directions-v188-shell">
         <header className="directions-v188-hero">
           <div>
