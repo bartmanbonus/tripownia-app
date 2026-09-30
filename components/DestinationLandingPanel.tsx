@@ -1,7 +1,6 @@
 import Link from "next/link";
-import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { offers } from "@/lib/offers";
+import DestinationLiveOffers from "@/components/DestinationLiveOffers";
 import { partners } from "@/lib/partners";
 import styles from "./DestinationLandingPanel.module.css";
 
@@ -434,21 +433,6 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
   const config = DESTINATIONS[path];
   if (!config) return null;
 
-  const matchedOffers = offers
-    .filter((offer) => offer.availabilityStatus !== "expired")
-    .filter((offer) => {
-      const haystack = normalize([
-        offer.city,
-        offer.country,
-        offer.hotel,
-        offer.board,
-        offer.reason,
-        ...offer.category,
-      ].join(" "));
-      return config.matchingTerms.some((term) => haystack.includes(normalize(term)));
-    })
-    .slice(0, 6);
-
   const wakacjeUrl = partners.wakacje.buildUrl(config.wakacjeUrl);
   const bookingUrl = partners.booking.buildUrl(
     `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(config.bookingQuery)}`,
@@ -507,20 +491,15 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
         <div className={styles.sectionHead}>
           <div>
             <span>KONKRETNE PROPOZYCJE</span>
-            <h2>{matchedOffers.length ? "Aktualne propozycje Tripowni" : "Sprawdź aktualną dostępność"}</h2>
-            <p>
-              {matchedOffers.length
-                ? "Najpierw pokazujemy dopasowane aktywne oferty. Finalną cenę i dostępność zawsze potwierdzasz u partnera."
-                : "Nie pokazujemy losowych kart. Przejdź bezpośrednio do wyszukiwania dla tego kierunku."}
-            </p>
+            <h2>Aktualne oferty: {config.searchDestination}</h2>
+            <p>Pokazujemy live oferty dopasowane do kierunku. Finalną cenę i dostępność zawsze potwierdzasz u partnera.</p>
           </div>
-          <Link href={`/okazje?q=${encodeURIComponent(config.searchDestination)}`}>Oferty: {config.searchDestination} →</Link>
+          <Link href={`/okazje?q=${encodeURIComponent(config.searchDestination)}${config.preferredBoard === "all inclusive" ? "&type=allinclusive" : ""}`}>Wszystkie oferty →</Link>
         </div>
-        {matchedOffers.length > 0 && (
-          <div className="cards-grid">
-            {matchedOffers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
-          </div>
-        )}
+        <DestinationLiveOffers
+          destination={config.searchDestination}
+          allInclusive={config.preferredBoard === "all inclusive"}
+        />
       </section>
 
       <section className={styles.partnerShortcuts} aria-label="Szybkie przejścia do partnerów">
