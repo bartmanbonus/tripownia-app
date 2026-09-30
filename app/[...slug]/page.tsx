@@ -137,8 +137,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Malaga czy Alicante? Alicante nie leży w Andaluzji. Porównaj region, plaże, pogodę, zwiedzanie i wybierz lepszą bazę dla swojego wyjazdu.",
   },
   "/wyspy-zielonego-przyladka": {
-    title: "Wyspy Zielonego Przylądka – Sal czy Boa Vista? Wakacje 2026 | Tripownia",
-    description: "Wyspy Zielonego Przylądka: Sal czy Boa Vista? Porównaj plaże, hotele, pogodę, All Inclusive i styl wakacji, zanim wybierzesz konkretną wyspę.",
+    title: "Wyspy Zielonego Przylądka wakacje 2026 – Sal, Boa Vista, All Inclusive | Tripownia",
+    description: "Wyspy Zielonego Przylądka wakacje 2026: porównaj Sal i Boa Vista, All Inclusive, plaże, hotele i aktualne oferty. Sprawdź ceny przed wyborem wyspy.",
   },
   "/jak-tanio-podrozowac-po-europie-10-sposobow-na-tansze-wyjazdy": {
     title: "Tanie podróżowanie po Europie – 10 sposobów na tańszy wyjazd | Tripownia",
