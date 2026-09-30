@@ -8,6 +8,35 @@ import SearchHub from "@/components/SearchHub";
 const title = "City break na Sylwestra 2026/2027 — lot + hotel za granicą";
 const description = "City break na Sylwestra 2026/2027: lot + hotel, krótkie wyjazdy do Europy i ciepłe kierunki na przełom roku. Porównaj aktualne terminy i oferty.";
 
+const faqItems = [
+  {
+    question: "Gdzie polecieć na Sylwestra 2026/2027 za granicę?",
+    answer: "Na krótki city break warto porównywać miasta z dobrymi godzinami lotów, a na ciepły wyjazd kierunki takie jak Egipt, Wyspy Kanaryjskie, Malta, Cypr czy Maroko. Najlepszy wybór zależy od długości pobytu i budżetu.",
+  },
+  {
+    question: "Kiedy rezerwować city break na Sylwestra 2026/2027?",
+    answer: "Im bliżej przełomu roku, tym mniej elastyczne bywają loty i noclegi. Warto porównywać kilka kierunków i sąsiednie daty, zamiast czekać wyłącznie na last minute.",
+  },
+  {
+    question: "City break czy All Inclusive na Sylwestra?",
+    answer: "City break lepiej sprawdza się przy 3–5 dniach i zwiedzaniu miasta. All Inclusive ma większy sens przy tygodniowym wyjeździe nastawionym na pogodę, hotel i wypoczynek.",
+  },
+  {
+    question: "Jakie daty sprawdzić na Sylwestra 2026/2027?",
+    answer: "Dobrym punktem startowym jest zakres 27 grudnia 2026 – 3 stycznia 2027, ale przesunięcie wylotu lub powrotu o 1–2 dni może znacząco zmienić cenę.",
+  },
+];
+
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqItems.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: { "@type": "Answer", text: item.answer },
+  })),
+};
+
 export const metadata: Metadata = {
   title,
   description,
@@ -41,6 +70,7 @@ export default async function Page({ searchParams }: PageProps) {
   return (
     <main>
       <SiteHeader />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
       <section className="seasonal-hero shell newyear-hero-premium">
         <div className="kicker">CITY BREAK NA SYLWESTRA 2026/2027</div>
         <h1>City break na Sylwestra: lot + hotel i krótkie wyjazdy za granicę.</h1>
@@ -50,8 +80,8 @@ export default async function Page({ searchParams }: PageProps) {
           <a href="#dluzsze">Dłuższe 7–12 nocy</a>
         </div>
         <div className="seo-related-links" style={{ marginTop: 16 }}>
-          <Link href="/gdzie-na-sylwestra-2026-2027-15-kierunkow">Gdzie na Sylwestra? 15 kierunków →</Link>
-          <Link href="/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok">Ciepłe kraje na Sylwestra →</Link>
+          <Link href="/sylwester-all-inclusive-2026-2027-egipt-czy-wyspy-kanaryjskie">Sylwester All Inclusive: Egipt czy Kanary? →</Link>
+          <Link href="/podroze/cieple-wakacje-grudzien-2026">Ciepłe wakacje w grudniu 2026 →</Link>
           <Link href="/city-break">City break lot + hotel →</Link>
           <Link href="/podroze/city-break-grudzien-2026">City break grudzień 2026 →</Link>
           <Link href="/podroze/city-break-z-warszawy">City break z Warszawy →</Link>
@@ -83,6 +113,24 @@ export default async function Page({ searchParams }: PageProps) {
       </section>
 
       <NewYearOffers />
+
+      <section className="section shell">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">SYLWESTER — PYTANIA</div>
+            <h2>Najczęstsze pytania przed rezerwacją</h2>
+          </div>
+        </div>
+        <div style={{ display: "grid", gap: 12, maxWidth: 980 }}>
+          {faqItems.map((item) => (
+            <details key={item.question} style={{ background: "#fff", border: "1px solid var(--line)", borderRadius: 15, padding: "15px 18px" }}>
+              <summary style={{ cursor: "pointer", fontWeight: 900 }}>{item.question}</summary>
+              <p style={{ color: "var(--muted)", lineHeight: 1.65, margin: "10px 0 0" }}>{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
       <SiteFooter />
     </main>
   );
