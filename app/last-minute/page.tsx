@@ -41,6 +41,8 @@ export default function LastMinuteOffersPage() {
         <Link href="/podroze/last-minute-z-warszawy">Last Minute z Warszawy →</Link>
         <Link href="/podroze/last-minute-do-2000-zl">Last Minute do 2000 zł →</Link>
         <Link href="/podroze/last-minute-do-2500-zl">Last Minute do 2500 zł →</Link>
+        <Link href="/podroze/last-minute-z-warszawy-do-2000-zl">Last Minute z Warszawy do 2000 zł →</Link>
+        <Link href="/podroze/last-minute-z-katowic-do-2000-zl">Last Minute z Katowic do 2000 zł →</Link>
       </div>
     </section>
 
