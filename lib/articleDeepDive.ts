@@ -34,8 +34,8 @@ const details: Record<string, ArticleDeepDive> = {
   "/lotniska-w-polsce-bez-limitu-100-ml-plynow": {
     kicker: "AKTUALNE ZASADY 2026",
     title: "Gdzie w Polsce naprawdę nie obowiązuje już limit 100 ml?",
-    quickAnswer: "Nie ma jednej zasady dla wszystkich polskich lotnisk. Kraków, Poznań i Rzeszów oficjalnie dopuszczają płyny w opakowaniach do 2 litrów. W Gdańsku nowe linie ze skanerami C3 pozwalają na opakowania do 2 litrów, ale wdrożenie nadal jest etapowe. Wrocław i Katowice nadal publikują zasadę 100 ml.",
-    checkedAt: "26.09.2026",
+    quickAnswer: "Stan na 30.09.2026: Kraków, Poznań i Rzeszów oficjalnie dopuszczają płyny w opakowaniach do 2 litrów. W Gdańsku opakowania do 2 litrów są dozwolone na nowych liniach ze skanerami C3, a wdrożenie kolejnych urządzeń jest etapowe. Wrocław i Katowice nadal publikują zasadę 100 ml. Zawsze sprawdź też zasady lotniska powrotnego i ewentualnej przesiadki.",
+    checkedAt: "30.09.2026",
     sections: [
       {
         title: "Potwierdzone ułatwienia na polskich lotniskach",
@@ -83,7 +83,7 @@ const details: Record<string, ArticleDeepDive> = {
       { label: "Rzeszów-Jasionka — skanery C3", url: "https://www.rzeszowairport.pl/pl/lotnisko/aktualnosci/326/oficjalne-otwarcie-zmodernizowanego-punktu-kontroli-bezpieczenstwa" },
       { label: "Gdańsk Airport — skanery 3D", url: "https://www.airport.gdansk.pl/aktualnosci/skanery-3d-juz-pracuja-w-gdansku" },
       { label: "Port Lotniczy Wrocław — poradnik przed odlotem", url: "https://airport.wroclaw.pl/pasazer/odlatuje/poradnik-przed-odlotem/" },
-      { label: "Katowice Airport — bagaż i płyny", url: "https://www.katowice-airport.com/pl/dla-pasazera/przed-podroza/bagaz" },
+      { label: "Katowice Airport — FAQ o płynach", url: "https://www.katowice-airport.com/pl/dla-pasazera/faq" },
     ],
   },
 
