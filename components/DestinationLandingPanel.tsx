@@ -24,8 +24,8 @@ const DESTINATIONS: Record<string, DestinationLandingConfig> = {
   "/wyspy-kanaryjskie-wakacje-all-inclusive-i-last-minute": {
     flag: "🇪🇸",
     eyebrow: "WYSPY KANARYJSKIE",
-    title: "Wyspy Kanaryjskie: wakacje, All Inclusive i wybór wyspy",
-    lead: "Szukasz wakacji na Wyspach Kanaryjskich? Wybierz Teneryfę, Gran Canarię, Fuerteventurę lub Lanzarote, ustaw daty i porównaj aktualne oferty All Inclusive, lot + hotel i noclegi.",
+    title: "Wyspy Kanaryjskie All Inclusive: Teneryfa, Gran Canaria, Fuerteventura czy Lanzarote?",
+    lead: "Szukasz All Inclusive na Wyspach Kanaryjskich? Porównaj Teneryfę, Gran Canarię, Fuerteventurę i Lanzarote, sprawdź aktualne pakiety i dopiero potem wybierz wyspę pod plaże, pogodę i budżet.",
     searchDestination: "Wyspy Kanaryjskie",
     image: "/images/destinations/teneryfa.jpg",
     popular: ["Teneryfa", "Gran Canaria", "Fuerteventura", "Lanzarote"],
