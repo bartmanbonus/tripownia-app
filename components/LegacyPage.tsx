@@ -614,7 +614,8 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
           <div className="article-sales-actions">
             <Link className="article-sales-primary" href={articleDealsHref}>🔥 Aktualne oferty</Link>
             <Link className="article-sales-secondary" href={articleFlightHref}>✈️ Porównaj loty</Link>
-            <a className="article-sales-secondary" href={articleHotelHref} target="_blank" rel="sponsored noopener noreferrer">🏨 Sprawdź hotele</a>
+            <a className="article-sales-secondary" href={articleHotelHref} target="_blank" rel="sponsored noopener noreferrer"
+              data-sales-partner="booking" data-sales-destination={salesDestination || undefined} data-sales-placement="article_sales_bridge">🏨 Sprawdź hotele</a>
           </div>
         </section>
       )}
