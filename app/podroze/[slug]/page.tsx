@@ -7,6 +7,7 @@ import SeoEximOffers from "@/components/SeoEximOffers";
 import { partners } from "@/lib/partners";
 import { allSeoLandings, getAllSeoLanding } from "@/lib/allSeoLandings";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -446,6 +447,8 @@ export default async function SeoLandingPage({ params }: PageProps) {
           <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏨</span><strong>Noclegi</strong><small>Noclegi w wybranym miejscu</small><b>Sprawdź hotele →</b></a>
         </div>
       </section>
+
+      <section className="section shell"><FacebookFollowCTA placement="seo_landing" compact /></section>
 
       <section className="shell seo-related-block">
         <div className="kicker">MOŻE CIĘ TEŻ ZAINTERESOWAĆ</div>
