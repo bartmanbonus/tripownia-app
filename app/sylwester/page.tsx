@@ -50,8 +50,8 @@ export default async function Page({ searchParams }: PageProps) {
           <a href="#dluzsze">Dłuższe 7–12 nocy</a>
         </div>
         <div className="seo-related-links" style={{ marginTop: 16 }}>
-          <Link href="/gdzie-na-sylwestra-2026-2027-15-kierunkow">Gdzie na Sylwestra? 15 kierunków →</Link>
-          <Link href="/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok">Ciepłe kraje na Sylwestra →</Link>
+          <Link href="/sylwester-all-inclusive-2026-2027-egipt-czy-wyspy-kanaryjskie">Sylwester All Inclusive: Egipt czy Kanary? →</Link>
+          <Link href="/podroze/cieple-wakacje-grudzien-2026">Ciepłe wakacje w grudniu 2026 →</Link>
           <Link href="/city-break">City break lot + hotel →</Link>
           <Link href="/podroze/city-break-grudzien-2026">City break grudzień 2026 →</Link>
           <Link href="/podroze/city-break-z-warszawy">City break z Warszawy →</Link>
