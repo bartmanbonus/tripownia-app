@@ -237,8 +237,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: `${page.title} | Tripownia.pl`,
       description: page.lead,
       type: "website",
+      locale: "pl_PL",
+      siteName: "Tripownia",
       url: `/podroze/${page.slug}`,
-      images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: page.title }],
+      images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${page.title} — Tripownia.pl` }],
     },
     twitter: {
       card: "summary_large_image",
