@@ -95,6 +95,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
     .filter(x => x.id !== o.id && x.availabilityStatus !== "expired" && (x.country === o.country || x.category.some(c => o.category.includes(c))))
     .sort((a,b) => Math.abs(a.price - o.price) - Math.abs(b.price - o.price))
     .slice(0,3);
+  const comparisonOffers = similar.slice(0, 2);
   return <main>
     <SiteHeader/>
     <BreadcrumbSchema items={[
@@ -135,7 +136,23 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <span><Sun/> <b>{o.weather}</b></span><span><Utensils/> <b>{o.board}</b></span>
             <span><MapPin/> <b>{o.hotel}</b></span><span>📅 <b>{o.dates}</b></span>
           </div>
-          <div className="detail-source">Tripownia sprawdza cenę i dostępność przed przekierowaniem do rezerwacji.</div>
+
+          <div className="booking-summary" aria-label="Najważniejsze elementy oferty">
+            <div><small>Wylot</small><strong>{o.departure}</strong></div>
+            <div><small>Termin</small><strong>{o.dates}</strong></div>
+            <div><small>Pobyt</small><strong>{o.nights} nocy</strong></div>
+            <div><small>Wyżywienie</small><strong>{o.board}</strong></div>
+            <div><small>Hotel</small><strong>{o.hotel}</strong></div>
+            <div><small>Transfer</small><strong>{o.transferIncluded ? "W cenie oferty" : "Sprawdź u partnera"}</strong></div>
+          </div>
+
+          <div className="offer-decision-box">
+            <small>DLACZEGO WARTO TO SPRAWDZIĆ</small>
+            <strong>{o.reason}</strong>
+            <span>Przed płatnością potwierdź u partnera finalną cenę, bagaż, warunki zmiany lub anulacji i dokładny zakres świadczeń.</span>
+          </div>
+
+          <div className="detail-source">Kliknięcie otworzy stronę partnera. Finalna cena i dostępność są potwierdzane przed rezerwacją.</div>
           {o.availabilityStatus === "expired" ? (
             <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
           ) : (
@@ -151,7 +168,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               >
                 {o.partner === "exim" || o.partner === "tui" ? "Zobacz konkretną ofertę" : "Sprawdź aktualną cenę"} <ExternalLink size={18}/>
               </TrackedPartnerLink>
-              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Cena i dostępność mogą się zmieniać. Finalne warunki zobaczysz przed rezerwacją." : "Cena i dostępność są potwierdzane po kliknięciu."}</small>
+              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Otwieramy partnera w nowej karcie. Tripownia nie dolicza opłaty; finalne warunki zobaczysz przed rezerwacją." : "Otwieramy partnera w nowej karcie. Tripownia nie dolicza opłaty; cena i dostępność są potwierdzane przed rezerwacją."}</small>
             </div>
           )}
           <SocialShare
@@ -162,6 +179,34 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
         </div>
       </section>
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
+
+      {o.availabilityStatus !== "expired" && comparisonOffers.length > 0 && (
+        <section className="similar-offers offer-comparison-section">
+          <div className="section-heading">
+            <div>
+              <div className="kicker">PORÓWNAJ PRZED REZERWACJĄ</div>
+              <h2>2 podobne opcje, zanim klikniesz „kupuję”</h2>
+              <p>Jeśli różnica w cenie jest niewielka, porównaj też termin, wyżywienie, lotnisko i hotel — nie tylko kwotę.</p>
+            </div>
+          </div>
+          <div className="cards-grid">
+            {comparisonOffers.map(item => {
+              const delta = Number(o.price) - Number(item.price);
+              return <OfferCard
+                key={item.id}
+                offer={item}
+                priceHighlight={delta > 0
+                  ? { label: "TAŃSZA ALTERNATYWA", detail: `${delta.toLocaleString("pl-PL")} zł mniej / os.` }
+                  : { label: "PODOBNA OPCJA", detail: "Porównaj zakres i termin" }}
+              />;
+            })}
+          </div>
+          <div className="offer-comparison-back">
+            <Link href="/okazje">Zobacz wszystkie aktualne okazje →</Link>
+          </div>
+        </section>
+      )}
+
       {o.availabilityStatus !== "expired" && <div className="mobile-booking-bar">
         <div>{o.partner === "exim" ? <><small>Cena od</small><strong>{o.price} zł / os.</strong></> : <><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></>}</div>
         <TrackedPartnerLink
@@ -172,7 +217,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           price={o.price}
           placement="offer_detail_mobile_bar"
         >
-          Sprawdź, czy jest taniej <ExternalLink size={16}/>
+          Sprawdź aktualną cenę <ExternalLink size={16}/>
         </TrackedPartnerLink>
       </div>}
       <CompleteTripSales city={o.city} country={o.country} source="offer_detail" />

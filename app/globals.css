@@ -13533,3 +13533,92 @@ img{
   .newyear-more-wrap{align-items:stretch;flex-direction:column}
   .newyear-more-button{width:100%}
 }
+
+
+/* 2026-09-30 offer detail conversion */
+.offer-decision-box{
+  display:grid;
+  gap:5px;
+  margin:14px 0;
+  padding:14px 15px;
+  border:1px solid #f0d6c9;
+  border-radius:14px;
+  background:linear-gradient(135deg,#fff5ef,#fff);
+}
+.offer-decision-box small{
+  color:#d85a34;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.offer-decision-box strong{
+  color:#2d2520;
+  font-size:13px;
+  line-height:1.45;
+}
+.offer-decision-box span{
+  color:#85776f;
+  font-size:10px;
+  line-height:1.45;
+}
+.detail-action-box{
+  position:sticky;
+  bottom:18px;
+  z-index:18;
+  padding:14px;
+  border:1px solid #f0d2c4;
+  border-radius:16px;
+  background:rgba(255,255,255,.96);
+  backdrop-filter:blur(10px);
+  box-shadow:0 12px 32px rgba(55,35,24,.12);
+}
+.detail-action-box .primary-cta{
+  width:100%;
+  min-height:52px;
+  justify-content:center;
+  font-size:13px;
+  font-weight:950;
+  box-shadow:0 10px 24px rgba(244,91,50,.22);
+}
+.detail-action-box .affiliate-note{
+  display:block;
+  margin-top:8px;
+  color:#8b7d75;
+  font-size:9px;
+  line-height:1.45;
+}
+.offer-comparison-section{
+  margin-top:14px;
+  padding-top:22px;
+  border-top:1px solid #eee4de;
+}
+.offer-comparison-section .section-heading p{
+  max-width:720px;
+  margin:7px 0 0;
+  color:#7b6f68;
+  font-size:11px;
+  line-height:1.5;
+}
+.offer-comparison-back{
+  margin-top:12px;
+  text-align:right;
+}
+.offer-comparison-back a{
+  color:#4d443e;
+  font-size:10px;
+  font-weight:900;
+  text-decoration:none;
+}
+@media(max-width:700px){
+  .detail-action-box{
+    position:static;
+    padding:12px;
+    box-shadow:none;
+  }
+  .detail-action-box .primary-cta{
+    min-height:48px;
+  }
+  .mobile-booking-bar a{
+    box-shadow:0 8px 20px rgba(244,91,50,.22);
+  }
+}
