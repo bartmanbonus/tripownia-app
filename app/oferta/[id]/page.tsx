@@ -12,6 +12,7 @@ import OfferCard from "@/components/OfferCard";
 import SocialShare from "@/components/SocialShare";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import EximLivePrice from "@/components/EximLivePrice";
+import CompleteTripSales from "@/components/CompleteTripSales";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
@@ -177,6 +178,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           Sprawdź, czy jest taniej <ExternalLink size={16}/>
         </a>
       </div>}
+      <CompleteTripSales city={o.city} country={o.country} source="offer_detail" />
       <BeforeYouGo city={o.city} country={o.country} transferIncluded={o.transferIncluded}/>
     </div>
     <SiteFooter/>
