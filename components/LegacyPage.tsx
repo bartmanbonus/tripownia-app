@@ -528,6 +528,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const deepDive = item.type === "post"
     ? getArticleDeepDiveWave9(deepDiveLookupPath) || getArticleDeepDiveWave8(deepDiveLookupPath) || getArticleDeepDiveWave7(deepDiveLookupPath) || getArticleDeepDive(deepDiveLookupPath)
     : undefined;
+  const isAirportLiquidsGuide = canonicalPath === "/lotniska-w-polsce-bez-limitu-100-ml-plynow";
   const effectiveDestination = context.destination || deepDive?.searchPresets?.[0];
   const comparisonDestinations = canonicalPath === "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje"
     ? ["Alicante", "Malaga"]
@@ -629,7 +630,11 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
             </nav>
           </section>
         )}
-        <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
+        {isAirportLiquidsGuide && deepDive ? (
+          <ArticleDeepDiveBlock deepDive={deepDive} />
+        ) : (
+          <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
+        )}
       </article>
 
       {item.type === "post" && (
@@ -659,7 +664,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         </section>
       )}
 
-      {deepDive && <ArticleDeepDiveBlock deepDive={deepDive} />}
+      {deepDive && !isAirportLiquidsGuide && <ArticleDeepDiveBlock deepDive={deepDive} />}
 
       {seoOpportunity && <section className="legacy-internal-links">
         <div className="kicker">POD FRAZĘ, KTÓREJ SZUKASZ</div>
