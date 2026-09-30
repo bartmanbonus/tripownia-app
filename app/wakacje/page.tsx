@@ -56,6 +56,13 @@ export default function WakacjePage() {
         <Link href="/podroze/last-minute-z-warszawy">Last Minute z Warszawy →</Link>
         <Link href="/podroze/cieple-wakacje-listopad-2026">Ciepłe wakacje w listopadzie →</Link>
         <Link href="/podroze/cieple-wakacje-grudzien-2026">Ciepłe wakacje w grudniu →</Link>
+        <Link href="/podroze/egipt-z-warszawy">Egipt z Warszawy →</Link>
+        <Link href="/podroze/egipt-z-katowic">Egipt z Katowic →</Link>
+        <Link href="/podroze/egipt-z-poznania">Egipt z Poznania →</Link>
+        <Link href="/podroze/turcja-z-warszawy">Turcja z Warszawy →</Link>
+        <Link href="/podroze/turcja-z-katowic">Turcja z Katowic →</Link>
+        <Link href="/podroze/grecja-z-warszawy">Grecja z Warszawy →</Link>
+        <Link href="/podroze/grecja-z-katowic">Grecja z Katowic →</Link>
       </div>
     </section>
     <section className="section shell"><FacebookFollowCTA placement="wakacje" compact /></section>
