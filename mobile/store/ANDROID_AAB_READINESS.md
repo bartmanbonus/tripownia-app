@@ -85,6 +85,8 @@ Potwierdzono historyczny udany build Androida oraz zbadano rzeczywisty stary AAB
 
 Nie wykonano pełnej nowej kompilacji Gradle ani testu na Androidzie; środowisko audytu nie ma Android SDK. Nie użyto prawdziwego klucza upload ani nie wgrano wersji do Play Console. Obecność klucza, status aplikacji i rodzaj konta Play wymagają sprawdzenia po stronie właścicielki konta.
 
+Po otwarciu szkicu PR CI potwierdziło poprawny build produkcyjny Next.js i HTTP 200 dla wszystkich 27 sprawdzanych tras. Cały job pozostaje czerwony: smoke test przerywa się przy sprawdzaniu tekstów planera. Ten sam problem występuje na bazowym `main` przed tym diffem; w aktualnym kodzie planera nie ma oczekiwanej przez CI frazy `Utwórz darmowy plan`. To istniejąca rozbieżność testu z interfejsem, którą należy uzgodnić przed przyjęciem zmian. Dowody: [CI bazowego main](https://github.com/bartmanbonus/tripownia-app/actions/runs/36712834031), [CI szkicu PR](https://github.com/bartmanbonus/tripownia-app/actions/runs/36715943384).
+
 Aktualne wymagania sprawdzono w źródłach pierwotnych:
 
 - [Google Play: target API, od 31.08.2026 wymagany Android 16 / API 36](https://developer.android.com/google/play/requirements/target-sdk)
