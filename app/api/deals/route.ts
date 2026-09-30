@@ -202,6 +202,32 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    if (strict) {
+      return NextResponse.json(
+        {
+          ok: true,
+          offers: [],
+          checkedAt: new Date().toISOString(),
+          sourceCount: 0,
+          exactCount: 0,
+          destinationCount: 0,
+          sort: "price_asc",
+          selection: "cheapest_per_destination",
+          sources: [],
+          unavailableSources: results.map((item) => item.label),
+          partial: true,
+          sourceType: "live_unavailable",
+          matchMode: "strict_no_match",
+          filters: { destination: destination || null, type: type || null, airport: airport || null, month: month || null, year: year || null, strict },
+          notice: airport
+            ? "Nie mamy teraz potwierdzonej oferty z wybranego lotniska. Nie pokazujemy ofert z innego miasta."
+            : "Nie mamy teraz potwierdzonej oferty spełniającej te filtry.",
+          error,
+        },
+        { headers: { "Cache-Control": "no-store" } }
+      );
+    }
+
     return NextResponse.json(
       { ok: false, offers: [], error },
       { status: 502, headers: { "Cache-Control": "no-store" } }
