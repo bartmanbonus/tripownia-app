@@ -460,7 +460,8 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
           <p>{config.lead}</p>
           <div className={styles.heroActions}>
             <a href="#szukaj-kierunku" className={styles.primaryAction}>Ustaw daty i szukaj</a>
-            <a href={wakacjeUrl} target="_blank" rel="sponsored noopener noreferrer" className={styles.secondaryAction}>
+            <a href={wakacjeUrl} target="_blank" rel="sponsored noopener noreferrer" className={styles.secondaryAction}
+              data-sales-partner="wakacje" data-sales-destination={config.searchDestination} data-sales-placement="destination_hero_wakacje">
               Sprawdź gotowe wakacje
             </a>
           </div>
@@ -516,12 +517,14 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
           <div><strong>Porównaj loty</strong><small>Kierunek ustawiony: {config.searchDestination}</small></div>
           <b>Sprawdź →</b>
         </Link>
-        <a href={wakacjeUrl} target="_blank" rel="sponsored noopener noreferrer">
+        <a href={wakacjeUrl} target="_blank" rel="sponsored noopener noreferrer"
+          data-sales-partner="wakacje" data-sales-destination={config.searchDestination} data-sales-placement="destination_shortcut_wakacje">
           <span>🏖️</span>
           <div><strong>Wakacje i All Inclusive</strong><small>Wakacje.pl · link afiliacyjny Tripowni</small></div>
           <b>Sprawdź →</b>
         </a>
-        <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer">
+        <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer"
+          data-sales-partner="booking" data-sales-destination={config.searchDestination} data-sales-placement="destination_shortcut_booking">
           <span>🏨</span>
           <div><strong>Noclegi</strong><small>Booking.com · kierunek już ustawiony</small></div>
           <b>Sprawdź →</b>
