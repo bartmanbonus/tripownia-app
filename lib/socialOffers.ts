@@ -74,6 +74,24 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "ateny-marina-1099": {
+    slug: "ateny-marina-1099",
+    city: "Ateny",
+    country: "Grecja",
+    price: 1099,
+    departure: "Katowice",
+    nights: 4,
+    dates: "23–28 listopada 2026",
+    board: "Śniadanie",
+    hotel: "Marina Athens Hotel",
+    partner: "exim",
+    partnerLabel: "EXIM Tours",
+    affiliateUrl: "https://reklamy.exim.pl/click?a(3487177)p(334260)product(103442-1249540_1249469)ttid(19)url(https%3A%2F%2Fwww.exim.pl%2Fkierunki%2Fgrecja%2Fateny-i-okolice%2Fateny%2Fmarina-athens-hotel%3FKEY%3DMjE5MDkxMHwzMTM5MjM1Mjc3fDEyNDk0Njk%26DS%3D1024%26GIATA%3D51969%26D%3D63219%26HID%3D420740%26MT%3D1%26DI%3DGT06-BB%26NN%3D4%26MNN%3D0%257C1%257C2%257C3%257C4%257C5%257C6%257C7%257C8%257C9%257C10%257C11%257C12%257C13%257C14%257C15%257C16%257C17%257C18%257C19%257C20%257C21%26NNM%3D0%257C1%257C2%257C3%257C4%257C5%257C6%257C7%257C8%257C9%257C10%257C11%257C12%257C13%257C14%257C15%257C16%257C17%257C18%257C19%257C20%257C21%26DF%3D2026-11-16%257C2026-12-12%26RD%3D2026-11-28%26DD%3D2026-11-23%26ERM%3D0%26AC1%3D2%26KC1%3D0%26IC1%3D0%26TO%3D1862%26TT%3D1%26PID%3D420740%26DPR%3DEXIM%2BTOURS%2BPOLAND%26PC%3D4-2026-11-23%26IFC%3DVzZ8MTEyMnwyMDI2LTExLTI3VDIzOjM1%26OFC%3DVzZ8MTEyMXwyMDI2LTExLTIzVDA1OjMw%26utm_term%3Dfeed)",
+    imageSrc: "https://img.exim.pl/hotels/720/recko/ateny/ateny/marina-athens-hotel-pl/7964/ba1d1ac3a9f8bd2e09b18cd4943db999_marina-244.jpg",
+    imageCountry: "Grecja",
+    checkedAt: "2026-09-30T21:12:52+02:00",
+    status: "active",
+  },
   "kalabria-sciaron-1289": {
     slug: "kalabria-sciaron-1289",
     city: "Kalabria",
