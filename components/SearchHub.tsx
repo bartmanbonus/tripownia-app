@@ -19,6 +19,7 @@ type Props = {
   initialDuration?: string;
   searchRequest?: number;
   initialTab?: string;
+  initialBoard?: string;
   initialDateMode?: "any" | "exact" | "month" | "range";
   initialDateFrom?: string;
   initialDateTo?: string;
@@ -268,6 +269,7 @@ export default function SearchHub({
   initialDuration = "all",
   searchRequest = 0,
   initialTab = "Inspiracje",
+  initialBoard = "all",
   initialDateMode = "any",
   initialDateFrom = "",
   initialDateTo = "",
@@ -293,7 +295,7 @@ export default function SearchHub({
   const [budget, setBudget] = useState("all");
   const [customBudgetMin, setCustomBudgetMin] = useState("");
   const [customBudgetMax, setCustomBudgetMax] = useState("");
-  const [board, setBoard] = useState("all");
+  const [board, setBoard] = useState(initialBoard);
   const [weekendOnly, setWeekendOnly] = useState(initialWeekendOnly);
   const [flightAdults, setFlightAdults] = useState(1);
   const [flightCabin, setFlightCabin] = useState("ECONOMY");
@@ -392,6 +394,7 @@ export default function SearchHub({
     setDepartures(initialAirports);
     setDuration(initialDuration || "all");
     setActiveTab(initialTab);
+    setBoard(initialBoard);
     setDateMode(initialDateMode);
     setDateFrom(initialDateFrom);
     setDateTo(initialDateTo);
@@ -403,6 +406,7 @@ export default function SearchHub({
     initialDestinations.join("|"),
     initialDuration,
     initialTab,
+    initialBoard,
     initialDateMode,
     initialDateFrom,
     initialDateTo,
