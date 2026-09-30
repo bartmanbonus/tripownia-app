@@ -143,6 +143,7 @@ export default function CityBreakPage() {
           <Link href="/sylwester">City break na Sylwestra 2026/2027</Link>
           <Link href="/podroze/city-break-do-1000-zl">City break do 1000 zł</Link>
           <Link href="/podroze/city-break-do-1500-zl">City break do 1500 zł</Link>
+          <Link href="/podroze/city-break-z-warszawy-do-1500-zl">City break z Warszawy do 1500 zł</Link>
           <Link href="/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem">Lot + hotel</Link>
           <Link href="/planer-podrozy">Darmowy planer podróży</Link>
         </div>
