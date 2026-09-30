@@ -4,7 +4,6 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
-import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
