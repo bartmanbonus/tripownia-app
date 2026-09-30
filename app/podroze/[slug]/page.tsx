@@ -314,6 +314,17 @@ export default async function SeoLandingPage({ params }: PageProps) {
         .slice(0, 8)
     : [];
 
+  const commercialSiblingLinks = allSeoLandings
+    .filter((item) => item.slug !== page.slug)
+    .filter((item) => {
+      const sameDeparture = Boolean(page.departure && item.departure === page.departure);
+      const sameQuery = item.query === page.query;
+      const sameCountryFamily = ["Egipt","Turcja","Grecja","Cypr"].includes(page.query) && item.query === page.query;
+      const bothBudget = Boolean(page.maxPrice && item.maxPrice);
+      return sameDeparture && (sameQuery || sameCountryFamily || bothBudget);
+    })
+    .slice(0, 5);
+
   const related = allSeoLandings
     .filter((item) => item.slug !== page.slug && !airportCluster.some((cluster) => cluster.slug === item.slug))
     .sort((a, b) => {
@@ -451,6 +462,16 @@ export default async function SeoLandingPage({ params }: PageProps) {
       </section>
 
       <section className="section shell"><FacebookFollowCTA placement="seo_landing" compact /></section>
+
+      {commercialSiblingLinks.length > 0 && (
+        <section className="shell seo-related-block">
+          <div className="kicker">PORÓWNAJ PODOBNE OFERTY</div>
+          <h2>Sprawdź też podobne warianty</h2>
+          <div className="seo-related-links">
+            {commercialSiblingLinks.map((item) => <Link key={item.slug} href={`/podroze/${item.slug}`}>{item.title} →</Link>)}
+          </div>
+        </section>
+      )}
 
       <section className="shell seo-related-block">
         <div className="kicker">MOŻE CIĘ TEŻ ZAINTERESOWAĆ</div>
