@@ -6,7 +6,7 @@ import SearchHub from "@/components/SearchHub";
 import styles from "../conversion-pages.module.css";
 
 export const metadata: Metadata = {
-  title: "Lot + hotel 2026 — loty z hotelem i noclegiem | Tripownia.pl",
+  title: { absolute: "Lot + hotel 2026 — loty z hotelem i noclegiem | Tripownia.pl" },
   description: "Znajdź lot + hotel w jednym wyszukiwaniu. Porównaj loty z hotelem, loty z noclegiem, city break i krótkie wakacje z polskich lotnisk.",
   alternates: { canonical: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem" },
   openGraph: {
