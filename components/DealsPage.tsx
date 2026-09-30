@@ -179,6 +179,15 @@ export default function DealsPage({
     return result;
   }, [rows, poolHighlights, historyVersion]);
 
+  const featuredDeal = rows[0];
+  const featuredDealExternal = Boolean(featuredDeal && /^https?:\/\//.test(featuredDeal.affiliateUrl || ""));
+  const featuredDealHref = featuredDeal
+    ? featuredDealExternal ? featuredDeal.affiliateUrl : `/oferta/${featuredDeal.id}`
+    : "";
+  const featuredDealPartner = featuredDeal
+    ? (partners[featuredDeal.partner]?.name || "partnera")
+    : "";
+
   const historicalCount = useMemo(() => {
     let count = 0;
     rows.forEach((offer) => {
@@ -341,6 +350,47 @@ export default function DealsPage({
       </div>
 
       {notice && <div className="deals-filter-notice">{notice}</div>}
+
+      {featuredDeal && (
+        <section className="deals-buy-now" aria-label="Najtańsza aktualna oferta">
+          <div className="deals-buy-now-copy">
+            <small>NAJTAŃSZA Z AKTUALNYCH WYNIKÓW</small>
+            <strong>{featuredDeal.flag} {featuredDeal.city} — od {Number(featuredDeal.price).toLocaleString("pl-PL")} zł / os.</strong>
+            <span>{featuredDeal.departure} · {featuredDeal.dates} · {featuredDeal.nights} nocy · {featuredDeal.board}</span>
+          </div>
+          <div className="deals-buy-now-actions">
+            {featuredDeal.id < 1_000_000 && (
+              <Link
+                className="deals-buy-now-details"
+                href={`/oferta/${featuredDeal.id}`}
+                onClick={() => trackEvent("featured_offer_detail_click", { offer_id: featuredDeal.id, destination: featuredDeal.city, price: featuredDeal.price })}
+              >
+                Szczegóły w Tripowni
+              </Link>
+            )}
+            {featuredDealExternal ? (
+              <a
+                className="deals-buy-now-primary"
+                href={featuredDealHref}
+                target="_blank"
+                rel="sponsored noopener noreferrer"
+                onClick={() => trackEvent("featured_offer_outbound_click", { offer_id: featuredDeal.id, destination: featuredDeal.city, price: featuredDeal.price, partner: featuredDeal.partner })}
+              >
+                Sprawdź cenę w {featuredDealPartner} <ArrowRight size={16}/>
+              </a>
+            ) : (
+              <Link
+                className="deals-buy-now-primary"
+                href={featuredDealHref}
+                onClick={() => trackEvent("featured_offer_open_click", { offer_id: featuredDeal.id, destination: featuredDeal.city, price: featuredDeal.price })}
+              >
+                Sprawdź ofertę <ArrowRight size={16}/>
+              </Link>
+            )}
+          </div>
+          <p>Finalną cenę i dostępność potwierdza partner. Tripownia nie dolicza dodatkowej opłaty do rezerwacji.</p>
+        </section>
+      )}
 
       {rows.length > 0 ? (
         <>

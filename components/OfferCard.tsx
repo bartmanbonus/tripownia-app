@@ -233,8 +233,8 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
-  function trackOfferClick(placement: "image" | "card_cta") {
-    const outbound = !isExpired && hasExternalAffiliateUrl;
+  function trackOfferClick(placement: "image" | "card_cta", outboundOverride?: boolean) {
+    const outbound = outboundOverride ?? (!isExpired && hasExternalAffiliateUrl);
     const params = { ...eventBase, placement };
     trackEvent(outbound ? "outbound_partner_click" : "offer_open", params);
     trackMetaCustomEvent(outbound ? "PartnerOutboundClick" : "OfferOpen", params);
@@ -249,6 +249,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       ? "/okazje"
       : `/oferta/${offer.id}`;
   const buyHref = cardHref;
+  const detailHref = isLiveOffer ? cardHref : `/oferta/${offer.id}`;
   const partnerName = partners[offer.partner]?.name || "partnera";
   const compactPartnerName = partnerName
     .replace(/\s+Tours?\b/gi, "")
@@ -278,12 +279,12 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       data-offer-price={displayPrice}
       data-offer-partner={offer.partner}
     >
-      {directAffiliate ? (
+      {directAffiliate && isLiveOffer ? (
         <a
           href={cardHref}
           target="_blank"
           rel="sponsored noopener noreferrer"
-          onClick={() => trackOfferClick("image")}
+          onClick={() => trackOfferClick("image", true)}
           className="offer-image"
           aria-label={`Otwórz ofertę ${offer.city} u partnera`}
         >
@@ -292,7 +293,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
           {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
         </a>
       ) : (
-        <Link href={cardHref} onClick={() => trackOfferClick("image")} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city}`}>
+        <Link href={detailHref} onClick={() => trackOfferClick("image", false)} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city} w Tripowni`}>
           <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
           <span className={`badge ${deal.verdict === "BIERZ" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : deal.verdict}</span>
           {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
@@ -329,7 +330,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
         <div className="price"><small>od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
         <div className="offer-trust-line"><Clock3 size={12} /> {trustText}</div>
         {!isExpired && directAffiliate && (
-          <div className="offer-booking-assurance"><BadgeCheck size={13}/> Rezerwacja i płatność odbywają się bezpośrednio u {compactPartnerName}</div>
+          <div className="offer-booking-assurance"><BadgeCheck size={13}/> Bez dodatkowej opłaty Tripowni · rezerwacja bezpośrednio u {compactPartnerName}</div>
         )}
 
         <div className="offer-date-line"><CalendarDays size={15} /> <strong>{offer.dates}</strong></div>
