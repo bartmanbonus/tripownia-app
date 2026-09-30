@@ -12,6 +12,8 @@ export type SeoLanding = {
   maxPrice?: number;
   minNights?: number;
   maxNights?: number;
+  startDate?: string;
+  endDate?: string;
   paragraphs: string[];
 };
 
