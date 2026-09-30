@@ -19,16 +19,16 @@ export const LEGACY_CATEGORY_REDIRECTS: Record<string, string> = {
 };
 
 export const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
-  "/wakacje-z-gdanska-2": "/podroze/wakacje-z-gdanska",
+  "/wakacje-z-gdanska-2": "/z-gdanska",
   "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-rzeszowa",
   "/wakacje-ze-szczecina-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-szczecina",
   "/lublin-wakacje-city-break": "/podroze/city-break-z-lublina",
-  "/wakacje-z-poznania": "/podroze/wakacje-z-poznania",
+  "/wakacje-z-poznania": "/z-poznania",
   "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-olsztyna-mazur",
   "/wroclaw": "/z-wroclawia",
   "/krakow": "/z-krakowa",
   "/katowice": "/z-katowic",
-  "/city-break-2": "/city-break",
+  "/city-break-2": "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem",
   "/aletry-todroznicze": "/alerty",
   "/moj-planner": "/moja-podroz",
   "/planner": "/planer-podrozy",
