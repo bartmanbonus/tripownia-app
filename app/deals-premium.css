@@ -319,3 +319,49 @@
 .deals-empty-actions a:first-child{background:#f45b32;color:#fff}
 .deals-empty-actions a:last-child{border:1px solid #dfd4cc;background:#fff;color:#302923}
 @media(max-width:560px){.deals-empty-actions{display:grid;grid-template-columns:1fr}.deals-empty-actions a{width:100%}}
+
+
+/* 2026-09-30 conversion focus: one clear offer above the grid */
+.deals-buy-now{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:14px 22px;
+  align-items:center;
+  margin:0 0 18px;
+  padding:18px 20px;
+  border:1px solid #efcdbf;
+  border-radius:18px;
+  background:linear-gradient(135deg,#fff3ed,#fff);
+  box-shadow:0 12px 28px rgba(81,49,34,.07);
+}
+.deals-buy-now-copy{display:flex;min-width:0;flex-direction:column;gap:3px}
+.deals-buy-now-copy small{color:#d85531;font-size:9px;font-weight:950;letter-spacing:.09em}
+.deals-buy-now-copy strong{color:#261f1b;font-size:20px;line-height:1.1;letter-spacing:-.025em}
+.deals-buy-now-copy span{color:#77685f;font-size:10px;line-height:1.45}
+.deals-buy-now-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+.deals-buy-now-actions a{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:0 14px;
+  border-radius:11px;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.deals-buy-now-primary{background:#f45b32;color:#fff;box-shadow:0 9px 20px rgba(244,91,50,.2)}
+.deals-buy-now-details{border:1px solid #e1d4cc;background:#fff;color:#443b35}
+.deals-buy-now>p{grid-column:1/-1;margin:-3px 0 0;color:#98877c;font-size:9px;line-height:1.4}
+@media(max-width:760px){
+  .deals-buy-now{grid-template-columns:1fr;padding:16px}
+  .deals-buy-now-actions{justify-content:flex-start}
+}
+@media(max-width:560px){
+  .deals-buy-now{margin:0 0 14px;border-radius:16px}
+  .deals-buy-now-copy strong{font-size:18px}
+  .deals-buy-now-actions{display:grid;grid-template-columns:1fr}
+  .deals-buy-now-actions a{width:100%}
+}
