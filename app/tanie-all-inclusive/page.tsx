@@ -52,6 +52,7 @@ export default function CheapAllInclusivePage() {
         <a href="/podroze/all-inclusive-z-warszawy">All Inclusive z Warszawy →</a>
         <a href="/podroze/all-inclusive-z-gdanska">All Inclusive z Gdańska →</a>
         <a href="/podroze/all-inclusive-z-wroclawia">All Inclusive z Wrocławia →</a>
+        <a href="/podroze/all-inclusive-do-2000-zl">All Inclusive do 2000 zł →</a>
         <a href="/podroze/all-inclusive-do-2500-zl">All Inclusive do 2500 zł →</a>
         <a href="/podroze/all-inclusive-do-3000-zl">All Inclusive do 3000 zł →</a>
       </div>
