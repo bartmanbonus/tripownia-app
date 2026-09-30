@@ -6,7 +6,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { offers, isOfferExpired } from "@/lib/offers";
+import LiveSalesRail from "@/components/LiveSalesRail";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import styles from "../conversion-pages.module.css";
 
@@ -66,7 +66,6 @@ const airportCityBreaks = [
 ];
 
 export default function CityBreakPage() {
-  const cityOffers = offers.filter(o => !isOfferExpired(o) && o.partner !== "esky" && (o.category.includes("city") || o.category.includes("weekend"))).slice(0, 6);
   return <main className={styles.page}>
     <SiteHeader/>
     <SalesCollectionSchema name="City break 2026" description="City break lot + hotel, loty z noclegiem i krótkie wyjazdy na 2–5 dni." path="/city-break" about={["city break","lot + hotel","tani weekend","loty z noclegiem"]} />
@@ -113,13 +112,13 @@ export default function CityBreakPage() {
       </div>
     </section>
 
-    {cityOffers.length > 0 && <section className={[styles.shell, styles.section].join(" ")}>
+    <section className={[styles.shell, styles.section].join(" ")}>
       <div className={styles.sectionHead}>
-        <div><div className={styles.kicker}>AKTUALNE PROPOZYCJE</div><h2>Na początek kilka sprawdzanych kierunków</h2><p>Ceny i dostępność potwierdzasz u partnera. Nie pokazujemy archiwalnych ofert jako aktualnych.</p></div>
+        <div><div className={styles.kicker}>AKTUALNE PROPOZYCJE</div><h2>Najtańsze city breaki teraz</h2><p>Live ceny z bieżących feedów. Sortujemy od najniższej ceny i pokazujemy krótkie wyjazdy.</p></div>
         <Link href="/okazje">Wszystkie okazje →</Link>
       </div>
-      <div className={styles.offerRow}>{cityOffers.map(o => <OfferCard key={o.id} offer={o}/>)}</div>
-    </section>}
+      <LiveSalesRail mode="citybreak" limit={8}/>
+    </section>
 
     <section className={[styles.shell, styles.section].join(" ")}>
       <div className={styles.sectionHead}><div><div className={styles.kicker}>WIĘCEJ POMYSŁÓW</div><h2>Nie ograniczamy city breaku do aktualnych kart</h2><p>Te kierunki służą jako szybki start do własnego wyszukiwania.</p></div></div>
