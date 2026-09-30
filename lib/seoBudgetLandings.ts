@@ -84,5 +84,47 @@ export const seoBudgetLandings: SeoLanding[] = [
       "Budżet do 3000 zł daje większy wybór hoteli i tygodniowych pobytów. W tej półce warto bardziej patrzeć na jakość hotelu, plażę, transfer i godziny lotów niż na samą różnicę kilkudziesięciu złotych.",
       "Porównuj kilka krajów dla tego samego tygodnia i sprawdzaj końcową cenę u partnera. Dostępność oraz ceny pakietów mogą zmieniać się dynamicznie."
     ],
+  },
+  {
+    slug: "last-minute-do-2000-zl",
+    title: "Last Minute do 2000 zł — tanie wakacje z Polski",
+    eyebrow: "LAST MINUTE DO 2000 ZŁ",
+    lead: "Last Minute do 2000 zł za osobę: aktualne pakiety z lotem i hotelem z polskich lotnisk. Porównaj kierunki, terminy i pełny koszt wyjazdu.",
+    query: "Last Minute",
+    categoryKeywords: ["lastminute", "wakacje", "tanio", "plaza"],
+    maxPrice: 2000,
+    minNights: 4,
+    paragraphs: [
+      "Przy Last Minute do 2000 zł warto być elastycznym co do kierunku i lotniska wylotu. Najlepsze ceny pojawiają się często w konkretnych terminach i szybko znikają.",
+      "Przed rezerwacją sprawdź bagaż, transfer, standard hotelu, wyżywienie i godziny lotów. To pozwala ocenić realny koszt całego wyjazdu."
+    ],
+  },
+  {
+    slug: "last-minute-do-2500-zl",
+    title: "Last Minute do 2500 zł — wakacje z lotem i hotelem",
+    eyebrow: "LAST MINUTE DO 2500 ZŁ",
+    lead: "Last Minute do 2500 zł za osobę: tanie wakacje z lotem, hotelem i opcją wyżywienia. Sprawdź aktualne oferty z polskich lotnisk.",
+    query: "Last Minute",
+    categoryKeywords: ["lastminute", "wakacje", "plaza", "allinclusive"],
+    maxPrice: 2500,
+    minNights: 5,
+    paragraphs: [
+      "Budżet do 2500 zł daje większy wybór hoteli i terminów niż najtańsze oferty. Warto porównać kilka kierunków dla tego samego tygodnia.",
+      "Sprawdź pełny zakres pakietu i końcową cenę u partnera, bo dostępność ofert Last Minute zmienia się bardzo dynamicznie."
+    ],
+  },
+  {
+    slug: "all-inclusive-do-2000-zl",
+    title: "All Inclusive do 2000 zł — najtańsze pakiety z Polski",
+    eyebrow: "ALL INCLUSIVE DO 2000 ZŁ",
+    lead: "All Inclusive do 2000 zł za osobę: najtańsze pakiety z lotem, hotelem i wyżywieniem z polskich lotnisk. Porównaj aktualne oferty.",
+    query: "All Inclusive",
+    categoryKeywords: ["allinclusive", "wakacje", "tanio", "plaza"],
+    maxPrice: 2000,
+    minNights: 4,
+    paragraphs: [
+      "Przy budżecie do 2000 zł największą różnicę robi termin, lotnisko wylotu i elastyczność kierunku. Warto porównywać kilka krajów jednocześnie.",
+      "Sprawdź zakres wyżywienia, transfer i bagaż. Najtańsza cena startowa nie zawsze oznacza najtańszy cały wyjazd."
+    ],
   }
 ];
