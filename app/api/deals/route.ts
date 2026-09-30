@@ -34,6 +34,14 @@ function normalize(value: string | undefined | null) {
     .trim();
 }
 
+function destinationMatches(offer: DealsOffer, destination: string) {
+  if (!destination) return true;
+  const query = normalize(destination);
+  if (!query) return true;
+  const haystack = normalize(`${offer.city || ""} ${offer.country || ""} ${offer.hotel || ""} ${offer.reason || ""}`);
+  return haystack.includes(query) || query.includes(normalize(offer.city)) || query.includes(normalize(offer.country));
+}
+
 function typeMatches(offer: DealsOffer, type: string) {
   if (!type) return true;
   if (type === "allinclusive") {
@@ -133,6 +141,7 @@ async function loadSource(
 
 export async function GET(request: NextRequest) {
   const airport = (request.nextUrl.searchParams.get("from") || "").trim();
+  const destination = (request.nextUrl.searchParams.get("q") || request.nextUrl.searchParams.get("destination") || "").trim();
   const type = (request.nextUrl.searchParams.get("type") || "").trim().toLowerCase();
   const rawMonth = (request.nextUrl.searchParams.get("month") || "").trim();
   const rawYear = (request.nextUrl.searchParams.get("year") || "").trim();
@@ -151,7 +160,7 @@ export async function GET(request: NextRequest) {
   const successful = results.filter((item) => item.response.ok);
   const unavailableSources = results.filter((item) => !item.response.ok).map((item) => item.label);
   if (!successful.length) {
-    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal).filter((offer) => typeMatches(offer, type));
+    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal).filter((offer) => typeMatches(offer, type)).filter((offer) => destinationMatches(offer, destination));
     const fallbackExact = fallbackPool
       .filter((offer) => airportMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
@@ -173,7 +182,7 @@ export async function GET(request: NextRequest) {
           partial: true,
           sourceType: "published_fallback",
           matchMode: fallbackExact.length ? "fallback_exact" : "fallback_pool",
-          filters: { type: type || null, airport: airport || null, month: month || null, year: year || null },
+          filters: { destination: destination || null, type: type || null, airport: airport || null, month: month || null, year: year || null },
           notice: "Live feedy partnerów są chwilowo niedostępne. Pokazujemy ostatnią opublikowaną pulę Tripowni; cenę i dostępność potwierdź u partnera po kliknięciu.",
           offers: fallbackOffers,
           error,
@@ -195,10 +204,10 @@ export async function GET(request: NextRequest) {
     const current = unique.get(offer.id);
     if (!current || Number(offer.price) < Number(current.price)) unique.set(offer.id, offer);
   }
-  const sourceOffers = Array.from(unique.values()).filter((offer) => typeMatches(offer, type));
+  const sourceOffers = Array.from(unique.values()).filter((offer) => typeMatches(offer, type)).filter((offer) => destinationMatches(offer, destination));
 
   if (!sourceOffers.length) {
-    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal).filter((offer) => typeMatches(offer, type));
+    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal).filter((offer) => typeMatches(offer, type)).filter((offer) => destinationMatches(offer, destination));
     const fallbackExact = fallbackPool
       .filter((offer) => airportMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
@@ -219,7 +228,7 @@ export async function GET(request: NextRequest) {
           partial: true,
           sourceType: "published_fallback",
           matchMode: fallbackExact.length ? "fallback_exact" : "fallback_pool",
-          filters: { type: type || null, airport: airport || null, month: month || null, year: year || null },
+          filters: { destination: destination || null, type: type || null, airport: airport || null, month: month || null, year: year || null },
           notice: "Live feedy nie zwróciły teraz ofert. Pokazujemy ostatnią opublikowaną pulę Tripowni; cenę i dostępność potwierdź u partnera po kliknięciu.",
           offers: fallbackOffers,
         },
@@ -272,7 +281,9 @@ export async function GET(request: NextRequest) {
   if (!offers.length && sourceOffers.length) {
     offers = lowestPriceDeals(sourceOffers);
     matchMode = "closest";
-    notice = "Brak dokładnej kombinacji filtrów. Pokazujemy najtańsze aktualne okazje z całej potwierdzonej puli.";
+    notice = destination
+      ? `Pokazujemy najtańsze aktualne oferty dla kierunku: ${destination}.`
+      : "Brak dokładnej kombinacji filtrów. Pokazujemy najtańsze aktualne okazje z całej potwierdzonej puli.";
   }
 
   if (unavailableSources.length) {
@@ -300,7 +311,7 @@ export async function GET(request: NextRequest) {
       partial: unavailableSources.length > 0,
       sourceType: "live",
       matchMode,
-      filters: { type: type || null, airport: airport || null, month: month || null, year: year || null },
+      filters: { destination: destination || null, type: type || null, airport: airport || null, month: month || null, year: year || null },
       notice,
       offers,
     },
