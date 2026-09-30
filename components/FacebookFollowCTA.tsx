@@ -1,6 +1,7 @@
 "use client";
 
 import { trackEvent } from "@/lib/analytics";
+import { trackMetaCustomEvent } from "@/lib/metaPixel";
 
 export default function FacebookFollowCTA({
   placement,
@@ -20,7 +21,7 @@ export default function FacebookFollowCTA({
         href="https://www.facebook.com/987707741084438"
         target="_blank"
         rel="noopener noreferrer"
-        onClick={() => trackEvent("facebook_follow_click", { placement })}
+        onClick={() => { trackEvent("facebook_follow_click", { placement }); trackMetaCustomEvent("FacebookFollowClick", { placement }); }}
       >
         Obserwuj Tripownię na Facebooku →
       </a>
