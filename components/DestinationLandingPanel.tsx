@@ -1,7 +1,6 @@
 import Link from "next/link";
-import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { offers } from "@/lib/offers";
+import DestinationLiveOffers from "@/components/DestinationLiveOffers";
 import { partners } from "@/lib/partners";
 import styles from "./DestinationLandingPanel.module.css";
 
@@ -59,9 +58,10 @@ const DESTINATIONS: Record<string, DestinationLandingConfig> = {
   "/hiszpania": {
     flag: "🇪🇸",
     eyebrow: "HISZPANIA",
-    title: "Hiszpania: południowe wybrzeże, All Inclusive i wyspy",
-    lead: "Porównaj Costa del Sol, Costa Blanca, Majorkę i Wyspy Kanaryjskie. Ustaw własny termin, lotnisko i długość pobytu, a potem sprawdź wakacje, All Inclusive i lot + hotel.",
+    title: "Hiszpania All Inclusive: Costa del Sol, Majorka i Wyspy Kanaryjskie",
+    lead: "Porównaj aktualne pakiety All Inclusive na Costa del Sol, Costa Blanca, Majorce i Wyspach Kanaryjskich. Ustaw termin, lotnisko i budżet.",
     searchDestination: "Hiszpania",
+    preferredBoard: "all inclusive",
     image: "/images/destinations/malaga.jpg",
     popular: ["Costa del Sol", "Costa Blanca", "Majorka", "Wyspy Kanaryjskie"],
     matchingTerms: ["hiszpania", "malaga", "alicante", "majorka", "teneryfa", "gran canaria", "fuerteventura"],
@@ -94,8 +94,8 @@ const DESTINATIONS: Record<string, DestinationLandingConfig> = {
   "/cypr": {
     flag: "🇨🇾",
     eyebrow: "CYPR",
-    title: "Cypr: wakacje, plaże i wybór regionu",
-    lead: "Porównaj Pafos, Larnakę, Ayia Napę i Protaras, ustaw termin oraz lotnisko wylotu, a potem sprawdź aktualne wakacje, All Inclusive i noclegi.",
+    title: "Cypr: wakacje, All Inclusive i wybór regionu",
+    lead: "Porównaj Pafos, Larnakę, Ayia Napę i Protaras, ustaw termin oraz lotnisko wylotu, a potem sprawdź aktualne wakacje, pakiety All Inclusive i noclegi.",
     searchDestination: "Cypr",
     image: "/images/destinations/pafos.jpg",
     popular: ["Pafos", "Larnaka", "Ayia Napa", "Protaras"],
@@ -300,9 +300,10 @@ const DESTINATIONS: Record<string, DestinationLandingConfig> = {
   "/bulgaria": {
     flag: "🇧🇬",
     eyebrow: "BUŁGARIA",
-    title: "Bułgaria: Słoneczny Brzeg, Nessebar i wakacje nad morzem",
-    lead: "Porównaj Słoneczny Brzeg, Nessebar, Złote Piaski i Sozopol. Ustaw termin oraz lotnisko, a potem sprawdź aktualne wakacje.",
+    title: "Bułgaria: tanie wakacje All Inclusive, Słoneczny Brzeg i Nessebar",
+    lead: "Porównaj aktualne All Inclusive, Słoneczny Brzeg, Nessebar i Złote Piaski. Ustaw termin oraz lotnisko i sprawdź realne ceny pakietów.",
     searchDestination: "Bułgaria",
+    preferredBoard: "all inclusive",
     image: "/images/destinations/sloneczny-brzeg.jpg",
     popular: ["Słoneczny Brzeg", "Nessebar", "Złote Piaski", "Sozopol"],
     matchingTerms: ["bulgaria", "bułgaria", "sloneczny brzeg", "słoneczny brzeg", "nessebar", "zlote piaski", "złote piaski", "sozopol"],
@@ -420,10 +421,6 @@ const DESTINATIONS: Record<string, DestinationLandingConfig> = {
   },
 };
 
-function normalize(value: string) {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pl");
-}
-
 export function hasDestinationLanding(path: string) {
   return Boolean(DESTINATIONS[path]);
 }
@@ -431,21 +428,6 @@ export function hasDestinationLanding(path: string) {
 export default function DestinationLandingPanel({ path }: { path: string }) {
   const config = DESTINATIONS[path];
   if (!config) return null;
-
-  const matchedOffers = offers
-    .filter((offer) => offer.availabilityStatus !== "expired")
-    .filter((offer) => {
-      const haystack = normalize([
-        offer.city,
-        offer.country,
-        offer.hotel,
-        offer.board,
-        offer.reason,
-        ...offer.category,
-      ].join(" "));
-      return config.matchingTerms.some((term) => haystack.includes(normalize(term)));
-    })
-    .slice(0, 6);
 
   const wakacjeUrl = partners.wakacje.buildUrl(config.wakacjeUrl);
   const bookingUrl = partners.booking.buildUrl(
@@ -505,20 +487,15 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
         <div className={styles.sectionHead}>
           <div>
             <span>KONKRETNE PROPOZYCJE</span>
-            <h2>{matchedOffers.length ? "Aktualne propozycje Tripowni" : "Sprawdź aktualną dostępność"}</h2>
-            <p>
-              {matchedOffers.length
-                ? "Najpierw pokazujemy dopasowane aktywne oferty. Finalną cenę i dostępność zawsze potwierdzasz u partnera."
-                : "Nie pokazujemy losowych kart. Przejdź bezpośrednio do wyszukiwania dla tego kierunku."}
-            </p>
+            <h2>Aktualne oferty: {config.searchDestination}</h2>
+            <p>Pokazujemy live oferty dopasowane do kierunku. Finalną cenę i dostępność zawsze potwierdzasz u partnera.</p>
           </div>
-          <Link href={`/okazje?q=${encodeURIComponent(config.searchDestination)}`}>Oferty: {config.searchDestination} →</Link>
+          <Link href={`/okazje?q=${encodeURIComponent(config.searchDestination)}${config.preferredBoard === "all inclusive" ? "&type=allinclusive" : ""}`}>Wszystkie oferty →</Link>
         </div>
-        {matchedOffers.length > 0 && (
-          <div className="cards-grid">
-            {matchedOffers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}
-          </div>
-        )}
+        <DestinationLiveOffers
+          destination={config.searchDestination}
+          allInclusive={config.preferredBoard === "all inclusive"}
+        />
       </section>
 
       <section className={styles.partnerShortcuts} aria-label="Szybkie przejścia do partnerów">
