@@ -523,6 +523,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     : undefined;
   const effectiveDestination = context.destination || deepDive?.searchPresets?.[0];
   const salesDestination = (effectiveDestination || "").trim();
+  const articleDealsHref = salesDestination ? `/okazje?q=${encodeURIComponent(salesDestination)}` : "/okazje";
   const articleFlightHref = salesDestination ? `/loty?destination=${encodeURIComponent(salesDestination)}` : "/loty";
   const articleHotelBase = new URL("https://www.booking.com/searchresults.pl.html");
   if (salesDestination) articleHotelBase.searchParams.set("ss", salesDestination);
@@ -611,7 +612,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
             <p>Sprawdź aktualne oferty, porównaj loty albo od razu zobacz noclegi. Tripownia nie pobiera płatności — finalna rezerwacja odbywa się u partnera.</p>
           </div>
           <div className="article-sales-actions">
-            <Link className="article-sales-primary" href="/okazje">🔥 Aktualne oferty</Link>
+            <Link className="article-sales-primary" href={articleDealsHref}>🔥 Aktualne oferty</Link>
             <Link className="article-sales-secondary" href={articleFlightHref}>✈️ Porównaj loty</Link>
             <a className="article-sales-secondary" href={articleHotelHref} target="_blank" rel="sponsored noopener noreferrer">🏨 Sprawdź hotele</a>
           </div>
