@@ -421,10 +421,6 @@ const DESTINATIONS: Record<string, DestinationLandingConfig> = {
   },
 };
 
-function normalize(value: string) {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("pl");
-}
-
 export function hasDestinationLanding(path: string) {
   return Boolean(DESTINATIONS[path]);
 }
