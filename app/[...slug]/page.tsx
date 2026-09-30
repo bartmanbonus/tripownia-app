@@ -80,8 +80,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Indywidualne planowanie podróży krok po kroku: kierunek, lot, nocleg, atrakcje, transfer i checklista. Zobacz, jak zorganizować wakacje bez biura podróży.",
   },
   "/bulgaria": {
-    title: "Bułgaria wakacje 2026 – Słoneczny Brzeg, Złote Piaski czy Nessebar? | Tripownia",
-    description: "Wyjazd do Bułgarii: porównaj Słoneczny Brzeg, Złote Piaski, Nessebar i Warnę. Sprawdź plaże, pogodę, All Inclusive i wybierz region na lato.",
+    title: "Bułgaria wakacje 2026 – tanie All Inclusive, Słoneczny Brzeg i Nessebar | Tripownia",
+    description: "Bułgaria wakacje 2026: sprawdź tanie All Inclusive, Słoneczny Brzeg, Złote Piaski i Nessebar. Porównaj aktualne oferty, hotele i ceny pakietów.",
   },
   "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": {
     title: "Last minute z Rzeszowa – loty, wakacje i All Inclusive z Jasionki | Tripownia",
@@ -209,16 +209,16 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Sylwester 2026/2027 za granicą: city break, ciepłe kraje i dalsze kierunki. Porównaj pomysły na Nowy Rok i wybierz wyjazd dopasowany do terminu.",
   },
   "/hiszpania": {
-    title: "Południowe wybrzeże Hiszpanii – gdzie jechać? Costa del Sol, Costa Blanca i wyspy | Tripownia",
-    description: "Gdzie na wakacje w Hiszpanii? Porównaj Costa del Sol, Costa Blanca, Majorkę i Wyspy Kanaryjskie pod kątem plaż, pogody, zwiedzania i dojazdu.",
+    title: "Hiszpania All Inclusive 2026 – Costa del Sol, Majorka i wakacje | Tripownia",
+    description: "Hiszpania All Inclusive 2026: porównaj Costa del Sol, Costa Blanca, Majorkę i Wyspy Kanaryjskie. Sprawdź aktualne pakiety, hotele i ceny wakacji.",
   },
   "/wietnam": {
     title: "Wietnam 2026 – Hanoi, Da Nang czy Phu Quoc? Gdzie na plażę i zwiedzanie | Tripownia",
     description: "Planujesz Wietnam? Sprawdź różnice między Hanoi, Da Nang, Hoi An, Ho Chi Minh City i Phu Quoc. Dowiedz się, gdzie szukać plaż i jak połączyć regiony.",
   },
   "/cypr": {
-    title: "Cypr wakacje 2026 – Pafos, Larnaka, Ayia Napa i plaże | Tripownia",
-    description: "Cypr na wakacje: porównaj Pafos, Larnakę, Ayia Napę, Protaras i Limassol. Sprawdź plaże, pogodę, All Inclusive i wybierz najlepszą bazę.",
+    title: "Cypr wakacje 2026 – Pafos, Larnaka, All Inclusive i plaże | Tripownia",
+    description: "Cypr wakacje 2026: porównaj Pafos, Larnakę, Ayia Napę i Protaras. Sprawdź aktualne oferty, All Inclusive, hotele i ceny pakietów.",
   },
   "/albania": {
     title: "Albania kurorty 2026 – Saranda, Ksamil, Vlora czy Durrës? | Tripownia",
