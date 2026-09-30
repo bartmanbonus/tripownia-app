@@ -2,6 +2,8 @@
 
 This directory contains the release checklist and store metadata for Tripownia mobile apps.
 
+Android audit and signed-AAB instructions: [ANDROID_AAB_READINESS.md](ANDROID_AAB_READINESS.md).
+
 ## App identity
 
 - App name: Tripownia
