@@ -534,6 +534,9 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     : [];
   const salesDestination = comparisonDestinations.length ? "" : (effectiveDestination || "").trim();
   const articleDealsHref = salesDestination ? `/okazje?q=${encodeURIComponent(salesDestination)}` : "/okazje";
+  const articleSearchHref = "/#wyszukiwarka";
+  const articleCityBreakHref = "/city-break";
+  const articleCheapFlightsHref = "/tanie-loty";
   const articleFlightHref = salesDestination ? `/loty?destination=${encodeURIComponent(salesDestination)}` : "/loty";
   const articleHotelBase = new URL("https://www.booking.com/searchresults.pl.html");
   if (salesDestination) articleHotelBase.searchParams.set("ss", salesDestination);
@@ -611,6 +614,21 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
             <div>{growthLinks.map(link=><Link key={link.href} href={link.href}>{link.label} →</Link>)}</div>
           </section>
         )}
+        {item.type === "post" && (
+          <section className="article-action-rail" aria-label="Szybkie przejście od poradnika do wyszukiwania ofert">
+            <div className="article-action-rail-copy">
+              <div className="kicker">SPRAWDŹ TO W PRAKTYCE</div>
+              <strong>{salesDestination ? `Szukasz wyjazdu do: ${salesDestination}?` : "Masz już pomysł? Przejdź od razu do ofert."}</strong>
+              <span>Nie musisz kończyć artykułu, żeby zacząć porównywać. Wybierz sposób szukania.</span>
+            </div>
+            <nav className="article-action-rail-links" aria-label="Wyszukiwanie podróży">
+              <Link className="article-action-rail-primary" href={articleSearchHref} data-article-cta="search">🔎 Wyszukiwarka</Link>
+              <Link href={articleCityBreakHref} data-article-cta="city_break">🏙️ City break</Link>
+              <Link href={articleCheapFlightsHref} data-article-cta="cheap_flights">✈️ Tanie loty</Link>
+              <Link href={articleDealsHref} data-article-cta="offers">🔥 Aktualne okazje</Link>
+            </nav>
+          </section>
+        )}
         <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
       </article>
 
@@ -623,7 +641,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
               : salesDestination
                 ? `Chcesz polecieć do: ${salesDestination}?`
                 : "Chcesz przejść od czytania do konkretnego wyjazdu?"}</h2>
-            <p>Sprawdź aktualne oferty, porównaj loty albo od razu zobacz noclegi. Tripownia nie pobiera płatności — finalna rezerwacja odbywa się u partnera.</p>
+            <p>Zostań najpierw w Tripowni: wyszukaj wyjazd, sprawdź city breaki, tanie loty i aktualne okazje. Do partnera przechodzisz dopiero wtedy, gdy chcesz zobaczyć dostępność lub rezerwować.</p>
           </div>
           <div className="article-sales-actions">
             {comparisonDestinations.length ? comparisonDestinations.map((destination) => (
@@ -631,9 +649,12 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
             )) : (
               <Link className="article-sales-primary" href={articleDealsHref}>🔥 Aktualne oferty</Link>
             )}
-            <Link className="article-sales-secondary" href={articleFlightHref}>✈️ Porównaj loty</Link>
+            <Link className="article-sales-secondary" href={articleSearchHref}>🔎 Wyszukiwarka</Link>
+            <Link className="article-sales-secondary" href={articleCityBreakHref}>🏙️ City break</Link>
+            <Link className="article-sales-secondary" href={articleCheapFlightsHref}>✈️ Tanie loty</Link>
+            <Link className="article-sales-secondary" href={articleFlightHref}>🛫 Porównaj loty</Link>
             <a className="article-sales-secondary" href={articleHotelHref} target="_blank" rel="sponsored noopener noreferrer"
-              data-sales-partner="booking" data-sales-destination={salesDestination || undefined} data-sales-placement="article_sales_bridge">🏨 Sprawdź hotele</a>
+              data-sales-partner="booking" data-sales-destination={salesDestination || undefined} data-sales-placement="article_sales_bridge">🏨 Hotele u partnera</a>
           </div>
         </section>
       )}
