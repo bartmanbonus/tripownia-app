@@ -13,6 +13,7 @@ import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { useLiveOffers } from "@/lib/useLiveOffers";
 import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
 import { trackEvent } from "@/lib/analytics";
+import { partners } from "@/lib/partners";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -104,11 +105,13 @@ function buildPoolHighlights(rows: DealsOffer[]) {
 }
 
 export default function DealsPage({
+  destination = "",
   dealType = "",
   pageTitle = "Najpierw cena. Potem kierunek.",
   pageLead = "Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność pochodzą z bieżącego feedu partnera.",
   kicker = "OKAZJE TRIPOWNI",
 }: {
+  destination?: string;
   dealType?: "" | "allinclusive";
   pageTitle?: string;
   pageLead?: string;
@@ -127,13 +130,14 @@ export default function DealsPage({
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
+    if (destination) params.set("q", destination);
     if (dealType) params.set("type", dealType);
     if (airport !== "any") params.set("from", airport);
     if (month !== "any") params.set("month", month);
     if (year !== "any") params.set("year", year);
     const query = params.toString();
     return query ? `/api/deals?${query}` : "/api/deals";
-  }, [dealType, airport, month, year]);
+  }, [destination, dealType, airport, month, year]);
 
   const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
   const { offers: todayOffers, loading: todayLoading, checkedAt: todayCheckedAt } = useLiveOffers("/api/today-offers");
@@ -146,6 +150,12 @@ export default function DealsPage({
     return sourceRows;
   }, [offers, quickFilter]);
   const rows = useMemo(() => cheapestUnique(quickFilteredOffers), [quickFilteredOffers]);
+  const destinationHotelHref = useMemo(() => {
+    if (!destination) return "";
+    const url = new URL("https://www.booking.com/searchresults.pl.html");
+    url.searchParams.set("ss", destination);
+    return partners.booking.buildUrl(url.toString());
+  }, [destination]);
   const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
   const poolHighlights = useMemo(() => buildPoolHighlights(rows), [rows]);
 
@@ -218,8 +228,8 @@ export default function DealsPage({
       <div className="deals-hub-hero">
         <div>
           <div className="kicker">{kicker}</div>
-          <h1>{pageTitle}</h1>
-          <p className="hub-lead">{pageLead}</p>
+          <h1>{destination ? `Oferty: ${destination}` : pageTitle}</h1>
+          <p className="hub-lead">{destination ? `Aktualne, potwierdzone oferty dla kierunku ${destination}. Nie pokazujemy losowych krajów zamiast tego, którego szukasz.` : pageLead}</p>
         </div>
         <div className="deals-hub-actions">
           <Link className="primary-cta" href="/#wyszukiwarka"><Search size={16}/> Dokładne wyszukiwanie</Link>
@@ -227,7 +237,7 @@ export default function DealsPage({
         </div>
       </div>
 
-      {dealType !== "allinclusive" && <><div className="deals-results-heading">
+      {!destination && dealType !== "allinclusive" && <><div className="deals-results-heading">
         <div><span>DZISIAJ W TRIPOWNI</span><h2>5 okazji, które warto sprawdzić dziś</h2></div>
         <p>{todayLoading && !todayRows.length ? "Szukamy dzisiejszych okazji…" : `Codzienna selekcja Tripowni${todayCheckedLabel ? ` · sprawdzone ${todayCheckedLabel}` : ""}. Te same kierunki wykorzystujemy w naszych publikacjach społecznościowych.`}</p>
       </div>
@@ -240,7 +250,7 @@ export default function DealsPage({
         </div>
       ) : null}</>}
 
-      {dealType !== "allinclusive" && (
+      {!destination && dealType !== "allinclusive" && (
         <div className="deals-ai-promo-strip">
           <div>
             <small>TANIE ALL INCLUSIVE 🔥</small>
@@ -251,7 +261,7 @@ export default function DealsPage({
         </div>
       )}
 
-      {dealType === "allinclusive" && (
+      {!destination && dealType === "allinclusive" && (
         <div className="deals-ai-promo-strip">
           <div><small>TANIE ALL INCLUSIVE 🔥</small><strong>Hotel + wyżywienie + przelot w jednej cenie</strong><span>Sortujemy od najniższej potwierdzonej ceny w live feedzie.</span></div>
           <Link href="/okazje">Zobacz też wszystkie okazje →</Link>
@@ -342,8 +352,14 @@ export default function DealsPage({
         </>
       ) : !loading ? (
         <div className="self-search-empty">
-          <strong>Nie mamy teraz potwierdzonych okazji w tej puli.</strong>
-          <span>Spróbuj odświeżyć dane lub zmienić jeden filtr. Tripownia nie podmieni ceny na statyczną.</span>
+          <strong>{destination ? `Nie mamy teraz potwierdzonego pakietu: ${destination}.` : "Nie mamy teraz potwierdzonych okazji w tej puli."}</strong>
+          <span>{destination ? "Nie pokazujemy losowego kierunku zamiast tego, którego szukasz. Sprawdź loty albo noclegi dla tego samego miejsca." : "Spróbuj odświeżyć dane lub zmienić jeden filtr. Tripownia nie podmieni ceny na statyczną."}</span>
+          {destination && (
+            <div className="deals-empty-actions">
+              <Link href={`/loty?destination=${encodeURIComponent(destination)}`}>✈️ Porównaj loty</Link>
+              <a href={destinationHotelHref} target="_blank" rel="sponsored noopener noreferrer">🏨 Sprawdź hotele</a>
+            </div>
+          )}
         </div>
       ) : null}
 
