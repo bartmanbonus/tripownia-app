@@ -461,7 +461,11 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
           <h1>{config.title}</h1>
           <p>{config.lead}</p>
           <div className={styles.heroActions}>
-            <a href="#szukaj-kierunku" className={styles.primaryAction}>Ustaw daty i szukaj</a>
+            {config.preferredBoard === "all inclusive" ? (
+              <Link href={`/okazje?q=${encodeURIComponent(config.searchDestination)}&type=allinclusive`} className={styles.primaryAction}>Sprawdź All Inclusive</Link>
+            ) : (
+              <a href="#szukaj-kierunku" className={styles.primaryAction}>Ustaw daty i szukaj</a>
+            )}
             <a href={wakacjeUrl} target="_blank" rel="sponsored noopener noreferrer" className={styles.secondaryAction}
               data-sales-partner="wakacje" data-sales-destination={config.searchDestination} data-sales-placement="destination_hero_wakacje">
               Sprawdź gotowe wakacje
