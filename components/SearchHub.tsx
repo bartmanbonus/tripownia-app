@@ -1384,11 +1384,6 @@ export default function SearchHub({
 
             {!loading && results.length > 0 && (
               <>
-                <div className="search-v3-sales-trust" aria-label="Jak działa rezerwacja w Tripowni">
-                  <span>✓ Aktualne oferty partnerów</span>
-                  <span>✓ Klikasz bezpośrednio do EXIM / TUI</span>
-                  <span>✓ Rezerwacja i płatność odbywają się u partnera</span>
-                </div>
                 <div className="search-v3-sales-sort" aria-label="Szybkie sortowanie ofert">
                   <button type="button" className={resultSort === "recommended" ? "active" : ""} onClick={() => { setResultSort("recommended"); setVisibleCount(18); }}>Polecane</button>
                   <button type="button" className={resultSort === "price" ? "active" : ""} onClick={() => { setResultSort("price"); setVisibleCount(18); }}>Najtańsze</button>
