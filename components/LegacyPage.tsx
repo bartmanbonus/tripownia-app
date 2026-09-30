@@ -241,21 +241,25 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     ],
   },
   "/lotniska-w-polsce-bez-limitu-100-ml-plynow": {
-    title: "Które lotniska w Polsce zniosły limit płynów?",
-    lead: "Zasady zależą od lotniska i zastosowanej kontroli bezpieczeństwa. Przed wylotem sprawdź aktualną informację dla konkretnego portu, zamiast zakładać, że jedna zasada obowiązuje w całej Polsce.",
+    title: "Lecisz z Polski? Przejdź od zasad do konkretnego wyjazdu",
+    lead: "Ten poradnik zbiera zasady kontroli bezpieczeństwa, ale jeśli lotnisko masz już wybrane, możesz od razu przejść do city breaków i tanich lotów z konkretnego miasta. To skraca drogę od informacji do rezerwacji i pomaga porównać pełny koszt wyjazdu.",
     links: [
+      { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
+      { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa" },
+      { href: "/podroze/city-break-z-gdanska", label: "City break z Gdańska" },
+      { href: "/podroze/city-break-z-rzeszowa", label: "City break z Rzeszowa" },
+      { href: "/tanie-loty", label: "Porównaj tanie loty" },
       { href: "/przed-wyjazdem", label: "Checklista przed wylotem" },
-      { href: "/tanie-loty", label: "Tanie loty" },
-      { href: "/poradniki", label: "Poradniki podróżnicze" },
     ],
   },
   "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych": {
-    title: "Ile bagażu podręcznego można zabrać do samolotu?",
-    lead: "Nie ma jednej liczby dla wszystkich biletów. Linie mogą sprawdzać wagę i wymiary, a liczba bezpłatnych sztuk zależy od przewoźnika, taryfy oraz wykupionych dodatków. Przed lotem sprawdź dokładne zasady przypisane do swojego biletu.",
+    title: "Masz już zasady bagażu? Sprawdź teraz konkretny lot lub city break",
+    lead: "Po sprawdzeniu limitów bagażu przejdź od razu do ceny całej podróży. Porównaj loty i city breaki, pamiętając, że dopłata za bagaż może zmienić pozornie najtańszą ofertę.",
     links: [
+      { href: "/tanie-loty", label: "Porównaj tanie loty" },
+      { href: "/city-break", label: "Znajdź city break" },
+      { href: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem", label: "Lot + hotel" },
       { href: "/przed-wyjazdem", label: "Checklista przed wylotem" },
-      { href: "/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad", label: "Jedzenie w bagażu podręcznym" },
-      { href: "/poradniki", label: "Więcej poradników" },
     ],
   },
   "/jak-dojechac-z-lotniska-do-centrum-miasta-najtansze-opcje-transportu": {
