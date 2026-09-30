@@ -152,9 +152,9 @@ export async function GET(request: NextRequest) {
   // from both providers are merged with short EXIM city breaks, then reduced
   // to the cheapest live option for every tourist destination.
   const results = await Promise.all([
-    loadSource(request, "exim-packages", { mode: "search", broad: "1", provider: "exim" }),
-    loadSource(request, "tui-packages", { mode: "search", broad: "1", provider: "tui" }),
-    loadSource(request, "exim-citybreaks", { mode: "citybreak", provider: "exim" }),
+    loadSource(request, "exim-packages", destination ? { mode: "search", q: destination, provider: "exim" } : { mode: "search", broad: "1", provider: "exim" }),
+    loadSource(request, "tui-packages", destination ? { mode: "search", q: destination, provider: "tui" } : { mode: "search", broad: "1", provider: "tui" }),
+    loadSource(request, "exim-citybreaks", destination ? { mode: "citybreak", q: destination, provider: "exim" } : { mode: "citybreak", provider: "exim" }),
   ]);
 
   const successful = results.filter((item) => item.response.ok);
