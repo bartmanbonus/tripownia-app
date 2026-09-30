@@ -28,7 +28,7 @@ export const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/wroclaw": "/z-wroclawia",
   "/krakow": "/z-krakowa",
   "/katowice": "/z-katowic",
-  "/city-break-2": "/city-break",
+  "/city-break-2": "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem",
   "/aletry-todroznicze": "/alerty",
   "/moj-planner": "/moja-podroz",
   "/planner": "/planer-podrozy",
