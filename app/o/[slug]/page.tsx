@@ -111,9 +111,9 @@ export default async function ShortSocialOfferPage({ params }: { params: Promise
               <span><Utensils/> <b>{offer.board}</b></span>
               <span><MapPin/> <b>{offer.city}, {offer.country}</b></span>
             </div>
-            {offer.expired ? (
+            {(offer.expired || offer.status === "expired") ? (
               <>
-                <div className="detail-source"><strong>Ta konkretna oferta 529 zł/os. na 30.11–03.12.2026 nie jest już dostępna.</strong> Nie przekierowujemy jej do innego terminu ani innej ceny.</div>
+                <div className="detail-source"><strong>Ta konkretna oferta {offer.price.toLocaleString("pl-PL")} zł/os. na {offer.dates} nie jest już dostępna w potwierdzonej cenie.</strong> Nie przekierowujemy jej do innego terminu ani wyższej ceny. Zobacz aktualne okazje poniżej.</div>
                 <div className="detail-action-box">
                   <Link className="btn primary" href="/okazje">Zobacz aktualne okazje</Link>
                 </div>
