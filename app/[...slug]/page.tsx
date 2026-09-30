@@ -221,8 +221,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Najpopularniejsze kurorty w Albanii: porównaj Sarandę, Ksamil, Vlorę, Durrës i Himarë pod kątem plaż, transferu, rodzin i zwiedzania.",
   },
   "/malta": {
-    title: "City break Malta 2026 – lot + hotel, wakacje i plaże | Tripownia",
-    description: "City break na Malcie i wakacje: porównaj Vallettę, Sliemę, St. Julian’s, Mellieħę i Gozo. Sprawdź lot + hotel i najlepszą bazę na 3–7 dni.",
+    title: "Malta wakacje 2026 – city break, lot + hotel i plaże | Tripownia",
+    description: "Malta wakacje 2026: porównaj city break, lot + hotel, Vallettę, Sliemę, St. Julian’s, Mellieħę i Gozo. Sprawdź aktualne oferty na 3–7 dni.",
   },
   "/maroko": {
     title: "Maroko All Inclusive 2026 – Agadir, Marrakesz i wakacje | Tripownia",
