@@ -105,8 +105,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Sagrada Familia osiągnęła 172,5 m wysokości. Sprawdź, kiedy świątynia osiągnęła najwyższy punkt i jak wysoka jest wieża Jezusa Chrystusa.",
   },
   "/wakacje-z-poznania": {
-    title: "City break z Poznania, last minute i wakacje – lot + hotel | Tripownia",
-    description: "City break z Poznania, last minute i wakacje z Ławicy. Sprawdź krótkie wyjazdy na 2–5 dni, lot + hotel i aktualne kierunki z POZ.",
+    title: "Wakacje z Poznania 2026 – last minute, All Inclusive i lot + hotel | Tripownia",
+    description: "Wakacje z Poznania-Ławicy (POZ): last minute, All Inclusive, lot + hotel i aktualne kierunki. Porównaj pełny koszt wyjazdu z Poznania.",
   },
   "/krakow": {
     title: "City break z Krakowa, last minute i wakacje – lot + hotel | Tripownia",
@@ -160,13 +160,17 @@ const seoOverrides: Record<string, Metadata> = {
     title: "Czy można wnieść jedzenie do samolotu? Co wolno zabrać w 2026 | Tripownia",
     description: "Czy można zabrać jedzenie do samolotu? Sprawdź kanapki, napoje, jedzenie dla dzieci, płyny i zasady bagażu podręcznego przed kontrolą bezpieczeństwa.",
   },
+  "/gdzie-jest-cieplo-w-pazdzierniku-12-kierunkow-na-wakacje": {
+    title: "Gdzie jest ciepło w październiku 2026? 12 kierunków na wakacje | Tripownia",
+    description: "Gdzie lecieć w październiku po słońce? Porównaj Egipt, Wyspy Kanaryjskie, Cypr, Maltę i Maroko pod kątem pogody, lotu i budżetu.",
+  },
   "/gdzie-jest-cieplo-w-listopadzie": {
-    title: "Gdzie jest ciepło w listopadzie 2026? 12 kierunków na słońce | Tripownia",
-    description: "Gdzie polecieć w listopadzie po słońce? Porównaj Egipt, Kanary, Maroko, Cypr, Maltę i dalsze kierunki oraz wybierz pogodę pod swój budżet i długość lotu.",
+    title: "Gdzie jest ciepło w listopadzie 2026? 12 kierunków na wakacje | Tripownia",
+    description: "Gdzie lecieć w listopadzie na ciepłe wakacje? Porównaj Egipt, Kanary, Maroko, Cypr i Maltę: pogodę, długość lotu i budżet.",
   },
   "/gdzie-na-sylwestra-2026-2027-15-kierunkow": {
-    title: "Gdzie na Sylwestra 2026/2027? 15 kierunków za granicę | Tripownia",
-    description: "Gdzie polecieć na Sylwestra 2026/2027? Zobacz 15 kierunków na city break, Europę i dalszy wyjazd oraz wybierz opcję pod pogodę, budżet i długość lotu.",
+    title: "Gdzie na Sylwestra 2026/2027 za granicę? 15 kierunków | Tripownia",
+    description: "Gdzie polecieć na Sylwestra 2026/2027? 15 kierunków: city break, ciepłe kraje i dalsze wyjazdy. Porównaj pogodę, budżet i długość lotu.",
   },
   "/gdzie-na-wakacje-we-wrzesniu": {
     title: "Ciepłe wakacje we wrześniu 2026 – gdzie lecieć? | Tripownia",
