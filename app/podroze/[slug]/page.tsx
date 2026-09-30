@@ -132,6 +132,86 @@ function getPracticalGuide(query: string): PracticalGuide {
   };
 }
 
+function landingFaq(query: string, departure?: string) {
+  const from = departure ? ` z ${departure}` : "";
+  const normalized = query.toLowerCase();
+
+  if (normalized.includes("city break")) return [
+    {
+      question: `Jak znaleźć tani city break${from}?`,
+      answer: "Porównaj kilka kierunków dla tych samych dat, godziny lotów, bagaż, transfer z lotniska i lokalizację hotelu. Przy 2–4 dniach dobry rozkład lotów często jest ważniejszy niż najniższa cena biletu.",
+    },
+    {
+      question: `Na ile dni najlepiej lecieć na city break${from}?`,
+      answer: "Najczęściej sprawdzają się 2–5 dni. Przy krótkim pobycie warto wybierać loty, które nie zabierają całego pierwszego ani ostatniego dnia.",
+    },
+    {
+      question: "Czy lepiej kupić lot i hotel razem czy osobno?",
+      answer: "Warto porównać oba warianty dla tego samego terminu. Liczy się pełny koszt z bagażem, transferem, podatkami i warunkami anulowania.",
+    },
+  ];
+
+  if (normalized.includes("last minute")) return [
+    {
+      question: `Kiedy sprawdzać Last Minute${from}?`,
+      answer: "Największą wartość daje elastyczność kierunku i terminu. Porównuj kilka krajów na ten sam tydzień i sprawdzaj pełny zakres pakietu, nie tylko cenę wejściową.",
+    },
+    {
+      question: "Czy Last Minute zawsze jest najtańsze?",
+      answer: "Nie. Cena zależy od dostępności miejsc, terminu, lotniska, hotelu i wyżywienia. Dlatego Last Minute warto porównywać z normalnymi ofertami i sąsiednimi datami.",
+    },
+    {
+      question: "Co sprawdzić przed rezerwacją Last Minute?",
+      answer: "Godziny lotów, bagaż, transfer, standard pokoju, wyżywienie, zasady anulowania i faktyczną liczbę pełnych dni na miejscu.",
+    },
+  ];
+
+  if (normalized.includes("all inclusive")) return [
+    {
+      question: `Co obejmuje All Inclusive${from}?`,
+      answer: "Zakres różni się między hotelami. Przed rezerwacją sprawdź posiłki, napoje, godziny działania restauracji i barów, przekąski oraz usługi dodatkowo płatne.",
+    },
+    {
+      question: "Czy najtańsze All Inclusive oznacza najlepszą ofertę?",
+      answer: "Nie zawsze. Porównaj opinie o hotelu, plażę, transfer, standard pokoju, godziny lotów i zakres wyżywienia. Niewielka dopłata może dać znacznie lepszy pobyt.",
+    },
+    {
+      question: "Jak porównywać oferty All Inclusive?",
+      answer: "Porównuj ten sam termin, podobny standard hotelu, bagaż, transfer i realną liczbę dni na miejscu. Dopiero wtedy cena jest porównywalna.",
+    },
+  ];
+
+  if (normalized.includes("wakacje")) return [
+    {
+      question: `Jak znaleźć tanie wakacje${from}?`,
+      answer: "Porównaj kilka kierunków i terminów, sprawdź lotniska wylotu oraz pełny koszt pakietu z bagażem, transferem i wyżywieniem.",
+    },
+    {
+      question: "Czy warto porównywać sąsiednie terminy?",
+      answer: "Tak. Przesunięcie wyjazdu o kilka dni może znacząco zmienić cenę lotu lub pakietu, zwłaszcza poza ścisłym szczytem sezonu.",
+    },
+    {
+      question: "Na co patrzeć poza ceną wakacji?",
+      answer: "Na standard hotelu, lokalizację, wyżywienie, bagaż, transfer, godziny lotów i warunki anulowania.",
+    },
+  ];
+
+  return [
+    {
+      question: `Jak porównywać oferty: ${query}?`,
+      answer: "Sprawdź pełny koszt, termin, liczbę nocy, godziny podróży, bagaż, transfer oraz warunki rezerwacji.",
+    },
+    {
+      question: "Czy ceny ofert mogą się zmieniać?",
+      answer: "Tak. Ceny i dostępność zależą od bieżącego feedu partnera i mogą zmienić się do momentu finalnej rezerwacji.",
+    },
+    {
+      question: "Gdzie odbywa się finalna rezerwacja?",
+      answer: "Tripownia pomaga znaleźć i porównać ofertę, a finalna rezerwacja i płatność odbywają się bezpośrednio u partnera.",
+    },
+  ];
+}
+
 function formatDate(value?: string) {
   if (!value) return null;
   return new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "long", year: "numeric" }).format(new Date(`${value}T12:00:00Z`));
@@ -178,6 +258,16 @@ export default async function SeoLandingPage({ params }: PageProps) {
   const startDate = typeof rawStartDate === "string" ? rawStartDate : undefined;
   const endDate = typeof rawEndDate === "string" ? rawEndDate : undefined;
   const guide = getPracticalGuide(page.query);
+  const faqItems = landingFaq(page.query, page.departure);
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  };
 
   const dateRange = startDate || endDate
     ? [formatDate(startDate), formatDate(endDate)].filter(Boolean).join(" – ")
@@ -247,6 +337,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
         { name: "Pomysły na podróże", url: "https://tripownia.pl/podroze" },
         { name: page.title, url: `https://tripownia.pl/podroze/${page.slug}` },
       ]}/>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
 
       <section className="seo-landing-hero" style={{ padding: "44px 0 40px" }}>
         <div className="shell">
@@ -327,6 +418,19 @@ export default async function SeoLandingPage({ params }: PageProps) {
 
         <div style={{ marginTop: 26 }}>
           {page.paragraphs.map((text) => <p key={text} style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: 16 }}>{text}</p>)}
+        </div>
+      </section>
+
+      <section className="shell" style={{ padding: "0 0 44px", maxWidth: 980 }}>
+        <div className="kicker">PYTANIA I ODPOWIEDZI</div>
+        <h2 style={{ margin: "7px 0 18px", fontSize: "clamp(27px,3vw,38px)", letterSpacing: "-1.3px" }}>{page.query}{page.departure ? ` z ${page.departure}` : ""} — najczęstsze pytania</h2>
+        <div style={{ display: "grid", gap: 12 }}>
+          {faqItems.map((item) => (
+            <details key={item.question} style={{ background: "#fff", border: "1px solid var(--line)", borderRadius: 15, padding: "15px 18px" }}>
+              <summary style={{ cursor: "pointer", fontWeight: 900, fontSize: 16 }}>{item.question}</summary>
+              <p style={{ color: "var(--muted)", lineHeight: 1.65, margin: "10px 0 0" }}>{item.answer}</p>
+            </details>
+          ))}
         </div>
       </section>
 
