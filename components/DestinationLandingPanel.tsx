@@ -17,20 +17,22 @@ type DestinationLandingConfig = {
   wakacjeUrl: string;
   bookingQuery: string;
   highlights: Array<{ label: string; value: string }>;
+  preferredBoard?: string;
 };
 
 const DESTINATIONS: Record<string, DestinationLandingConfig> = {
   "/wyspy-kanaryjskie-wakacje-all-inclusive-i-last-minute": {
     flag: "🇪🇸",
     eyebrow: "WYSPY KANARYJSKIE",
-    title: "Wyspy Kanaryjskie: wakacje, All Inclusive i wybór wyspy",
-    lead: "Szukasz wakacji na Wyspach Kanaryjskich? Wybierz Teneryfę, Gran Canarię, Fuerteventurę lub Lanzarote, ustaw daty i porównaj aktualne oferty All Inclusive, lot + hotel i noclegi.",
+    title: "Wyspy Kanaryjskie All Inclusive: Teneryfa, Gran Canaria, Fuerteventura czy Lanzarote?",
+    lead: "Szukasz All Inclusive na Wyspach Kanaryjskich? Porównaj Teneryfę, Gran Canarię, Fuerteventurę i Lanzarote, sprawdź aktualne pakiety i dopiero potem wybierz wyspę pod plaże, pogodę i budżet.",
     searchDestination: "Wyspy Kanaryjskie",
     image: "/images/destinations/teneryfa.jpg",
     popular: ["Teneryfa", "Gran Canaria", "Fuerteventura", "Lanzarote"],
     matchingTerms: ["teneryfa", "fuerteventura", "gran canaria", "lanzarote", "wyspy kanaryjskie"],
     wakacjeUrl: "https://www.wakacje.pl/wczasy/wyspy-kanaryjskie/",
     bookingQuery: "Canary Islands",
+    preferredBoard: "all inclusive",
     highlights: [
       { label: "Najbardziej uniwersalna", value: "Teneryfa" },
       { label: "Plaże", value: "Fuerteventura" },
@@ -459,7 +461,11 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
           <h1>{config.title}</h1>
           <p>{config.lead}</p>
           <div className={styles.heroActions}>
-            <a href="#szukaj-kierunku" className={styles.primaryAction}>Ustaw daty i szukaj</a>
+            {config.preferredBoard === "all inclusive" ? (
+              <Link href={`/okazje?q=${encodeURIComponent(config.searchDestination)}&type=allinclusive`} className={styles.primaryAction}>Sprawdź All Inclusive</Link>
+            ) : (
+              <a href="#szukaj-kierunku" className={styles.primaryAction}>Ustaw daty i szukaj</a>
+            )}
             <a href={wakacjeUrl} target="_blank" rel="sponsored noopener noreferrer" className={styles.secondaryAction}
               data-sales-partner="wakacje" data-sales-destination={config.searchDestination} data-sales-placement="destination_hero_wakacje">
               Sprawdź gotowe wakacje
@@ -488,7 +494,7 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
             <p>Kierunek jest już uzupełniony. Zmień tylko to, co ma znaczenie dla Twojego wyjazdu.</p>
           </div>
         </div>
-        <SearchHub embedded initialTab="Wakacje" initialDestinations={[config.searchDestination]} destinationQuickPicks={config.popular} />
+        <SearchHub embedded initialTab="Wakacje" initialBoard={config.preferredBoard || "all"} initialDestinations={[config.searchDestination]} destinationQuickPicks={config.popular} />
       </section>
 
       <section className={styles.offersSection}>

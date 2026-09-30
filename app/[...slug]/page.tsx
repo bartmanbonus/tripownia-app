@@ -241,8 +241,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Najlepsze aplikacje do zwiedzania miast i podróżowania: mapy, atrakcje, transport, planowanie i rezerwacje. Zobacz 10 praktycznych aplikacji na wyjazd.",
   },
   "/wyspy-kanaryjskie-wakacje-all-inclusive-i-last-minute": {
-    title: "Wyspy Kanaryjskie All Inclusive 2026 – wakacje i last minute | Tripownia",
-    description: "Wyspy Kanaryjskie All Inclusive: porównaj Teneryfę, Gran Canarię, Fuerteventurę i Lanzarote. Sprawdź wakacje, last minute, plaże i pogodę.",
+    title: "Wyspy Kanaryjskie All Inclusive 2026 – tanie wakacje | Tripownia",
+    description: "Wyspy Kanaryjskie All Inclusive 2026: porównaj Teneryfę, Gran Canarię, Fuerteventurę i Lanzarote. Sprawdź aktualne pakiety, ceny, plaże i pogodę.",
   },
   "/riwiera-turecka-czy-egejska-co-wybrac": {
     title: "Riwiera Turecka czy Egejska? Antalya, Side, Bodrum czy Marmaris | Tripownia",
