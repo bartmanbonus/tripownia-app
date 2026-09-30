@@ -74,6 +74,24 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "kalabria-sciaron-1289": {
+    slug: "kalabria-sciaron-1289",
+    city: "Kalabria",
+    country: "Włochy",
+    price: 1289,
+    departure: "Kraków",
+    nights: 3,
+    dates: "18–21 października 2026",
+    board: "2 posiłki",
+    hotel: "Sciaron",
+    partner: "exim",
+    partnerLabel: "EXIM Tours",
+    affiliateUrl: "https://reklamy.exim.pl/click?a(3487177)p(334260)product(103442-1187889_1187825)ttid(19)url(https%3A%2F%2Fwww.exim.pl%2Fkierunki%2Fwlochy%2Fcalabria%2Fricadi-capo-vaticano%2Fsciaron%3FKEY%3DMTg4MTU3OXwyNDIyMzQ5NzczfDExODc4MjU%26DS%3D1024%26GIATA%3D1513%26D%3D63296%26HID%3D426015%26MT%3D2%26DI%3DGT06-HB%26NN%3D3%26MNN%3D0%257C1%257C2%257C3%257C4%257C5%257C6%257C7%257C8%257C9%257C10%257C11%257C12%257C13%257C14%257C15%257C16%257C17%257C18%257C19%257C20%257C21%26NNM%3D0%257C1%257C2%257C3%257C4%257C5%257C6%257C7%257C8%257C9%257C10%257C11%257C12%257C13%257C14%257C15%257C16%257C17%257C18%257C19%257C20%257C21%26DF%3D2026-10-11%257C2026-11-04%26RD%3D2026-10-21%26DD%3D2026-10-18%26ERM%3D0%26AC1%3D2%26KC1%3D0%26IC1%3D0%26TO%3D1825%26TT%3D1%26PID%3D426015%26DPR%3DEXIM%2BTOURS%2BPOLAND%26PC%3D3-2026-10-18%26IFC%3DRlJ8NTE0NHwyMDI2LTEwLTIxVDEyOjU1%26OFC%3DRlJ8NTE0NXwyMDI2LTEwLTE4VDExOjI1%26utm_term%3Dfeed)",
+    imageSrc: "https://img.exim.pl/hotels/720/italie/kalabrie/ricadi-capo-vaticano/sciaron/dbad6a6f218f9dfbf55dd393ce94d233_215844472.jpg",
+    imageCountry: "Włochy",
+    checkedAt: "2026-09-30T20:33:00+02:00",
+    status: "active",
+  },
   "agadir-borjs-899": {
     slug: "agadir-borjs-899",
     city: "Agadir",
