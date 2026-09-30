@@ -14,6 +14,7 @@ import { seoAirportWave25 } from "@/lib/seoAirportWave25";
 import { seoAirportWave26 } from "@/lib/seoAirportWave26";
 import { seoAirportWave27 } from "@/lib/seoAirportWave27";
 import { seoDestinationAirportLandings } from "@/lib/seoDestinationAirportLandings";
+import { seoCommercialIntentLandings } from "@/lib/seoCommercialIntentLandings";
 
 type SeasonalSeoLanding = SeoLanding & {
   startDate?: string;
@@ -42,6 +43,7 @@ export const allSeoLandings = [
   ...baseLandings.map((item) => seoOverrides.get(item.slug) || item),
   ...supplementalOverrides,
   ...seoDestinationAirportLandings,
+  ...seoCommercialIntentLandings,
 ];
 
 export function getAllSeoLanding(slug: string) {
