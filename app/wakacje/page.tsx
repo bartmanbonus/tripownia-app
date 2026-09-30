@@ -36,6 +36,7 @@ export default function WakacjePage() {
       <div className="kicker">SZUKAJ DOKŁADNIEJ</div>
       <h2>Wakacje według lotniska i terminu</h2>
       <div className="seo-related-links">
+        <Link href="/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem">Lot + hotel →</Link>
         <Link href="/wakacje-2027">Wakacje 2027 →</Link>
         <Link href="/wakacje-z-dziecmi">Wakacje z dziećmi →</Link>
         <Link href="/gdzie-jest-cieplo-zima-bez-dalekiego-lotu">Gdzie jest ciepło zimą →</Link>
