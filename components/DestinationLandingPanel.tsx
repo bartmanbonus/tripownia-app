@@ -76,10 +76,11 @@ const DESTINATIONS: Record<string, DestinationLandingConfig> = {
   "/wyspy-zielonego-przyladka": {
     flag: "🇨🇻",
     eyebrow: "CABO VERDE",
-    title: "Wyspy Zielonego Przylądka: Sal czy Boa Vista?",
-    lead: "Porównaj Sal i Boa Vista, ustaw termin i lotnisko wylotu, a potem sprawdź aktualne wakacje, All Inclusive i noclegi na Cabo Verde.",
+    title: "Wyspy Zielonego Przylądka: wakacje All Inclusive na Sal czy Boa Vista?",
+    lead: "Porównaj Sal i Boa Vista, sprawdź aktualne pakiety All Inclusive, ustaw termin i lotnisko wylotu, a potem wybierz wyspę pod plaże, hotel i budżet.",
     searchDestination: "Wyspy Zielonego Przylądka",
     image: "/images/destinations/cabo-verde.jpg",
+    preferredBoard: "all inclusive",
     popular: ["Sal", "Boa Vista", "Santa Maria"],
     matchingTerms: ["cabo verde", "wyspy zielonego przylądka", "sal", "boa vista", "santa maria"],
     wakacjeUrl: "https://www.wakacje.pl/wczasy/wyspy-zielonego-przyladka/",
