@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url:`${BASE_URL}/radar-tripowni`,changeFrequency:"daily",priority:.94 },
     { url:`${BASE_URL}/dane-tripowni`,changeFrequency:"daily",priority:.93 },
     { url:`${BASE_URL}/tanie-loty`,changeFrequency:"daily",priority:.95 },
+    { url:`${BASE_URL}/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem`,changeFrequency:"daily",priority:.96 },
     { url:`${BASE_URL}/tanie-all-inclusive`,changeFrequency:"daily",priority:.96 },
     { url:`${BASE_URL}/weekend-bez-urlopu`,changeFrequency:"daily",priority:.93 },
     { url:`${BASE_URL}/z-warszawy`,changeFrequency:"daily",priority:.9 },
