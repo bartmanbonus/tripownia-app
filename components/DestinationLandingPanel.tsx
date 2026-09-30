@@ -17,6 +17,7 @@ type DestinationLandingConfig = {
   wakacjeUrl: string;
   bookingQuery: string;
   highlights: Array<{ label: string; value: string }>;
+  preferredBoard?: string;
 };
 
 const DESTINATIONS: Record<string, DestinationLandingConfig> = {
@@ -31,6 +32,7 @@ const DESTINATIONS: Record<string, DestinationLandingConfig> = {
     matchingTerms: ["teneryfa", "fuerteventura", "gran canaria", "lanzarote", "wyspy kanaryjskie"],
     wakacjeUrl: "https://www.wakacje.pl/wczasy/wyspy-kanaryjskie/",
     bookingQuery: "Canary Islands",
+    preferredBoard: "all inclusive",
     highlights: [
       { label: "Najbardziej uniwersalna", value: "Teneryfa" },
       { label: "Plaże", value: "Fuerteventura" },
@@ -488,7 +490,7 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
             <p>Kierunek jest już uzupełniony. Zmień tylko to, co ma znaczenie dla Twojego wyjazdu.</p>
           </div>
         </div>
-        <SearchHub embedded initialTab="Wakacje" initialDestinations={[config.searchDestination]} destinationQuickPicks={config.popular} />
+        <SearchHub embedded initialTab="Wakacje" initialBoard={config.preferredBoard || "all"} initialDestinations={[config.searchDestination]} destinationQuickPicks={config.popular} />
       </section>
 
       <section className={styles.offersSection}>
