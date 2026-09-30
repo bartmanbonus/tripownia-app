@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
 import { offers, isOfferExpired } from "@/lib/offers";
@@ -36,6 +37,7 @@ export default function LastMinuteOffersPage() {
 
   return <main>
     <SiteHeader/>
+    <SalesCollectionSchema name="Last Minute 2026" description="Aktualne Last Minute 2026, wakacje i All Inclusive z polskich lotnisk." path="/last-minute" about={["last minute","wakacje","All Inclusive","pakiety wakacyjne"]} />
     <section className="shopping-hero shell last-minute-shopping-hero">
       <div>
         <div className="kicker">⚡ LAST MINUTE 2026</div>
