@@ -104,11 +104,13 @@ function buildPoolHighlights(rows: DealsOffer[]) {
 }
 
 export default function DealsPage({
+  destination = "",
   dealType = "",
   pageTitle = "Najpierw cena. Potem kierunek.",
   pageLead = "Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność pochodzą z bieżącego feedu partnera.",
   kicker = "OKAZJE TRIPOWNI",
 }: {
+  destination?: string;
   dealType?: "" | "allinclusive";
   pageTitle?: string;
   pageLead?: string;
@@ -127,13 +129,14 @@ export default function DealsPage({
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
+    if (destination) params.set("q", destination);
     if (dealType) params.set("type", dealType);
     if (airport !== "any") params.set("from", airport);
     if (month !== "any") params.set("month", month);
     if (year !== "any") params.set("year", year);
     const query = params.toString();
     return query ? `/api/deals?${query}` : "/api/deals";
-  }, [dealType, airport, month, year]);
+  }, [destination, dealType, airport, month, year]);
 
   const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
   const { offers: todayOffers, loading: todayLoading, checkedAt: todayCheckedAt } = useLiveOffers("/api/today-offers");
@@ -218,8 +221,8 @@ export default function DealsPage({
       <div className="deals-hub-hero">
         <div>
           <div className="kicker">{kicker}</div>
-          <h1>{pageTitle}</h1>
-          <p className="hub-lead">{pageLead}</p>
+          <h1>{destination ? `Oferty: ${destination}` : pageTitle}</h1>
+          <p className="hub-lead">{destination ? `Aktualne, potwierdzone oferty dla kierunku ${destination}. Nie pokazujemy losowych krajów zamiast tego, którego szukasz.` : pageLead}</p>
         </div>
         <div className="deals-hub-actions">
           <Link className="primary-cta" href="/#wyszukiwarka"><Search size={16}/> Dokładne wyszukiwanie</Link>
@@ -227,7 +230,7 @@ export default function DealsPage({
         </div>
       </div>
 
-      {dealType !== "allinclusive" && <><div className="deals-results-heading">
+      {!destination && dealType !== "allinclusive" && <><div className="deals-results-heading">
         <div><span>DZISIAJ W TRIPOWNI</span><h2>5 okazji, które warto sprawdzić dziś</h2></div>
         <p>{todayLoading && !todayRows.length ? "Szukamy dzisiejszych okazji…" : `Codzienna selekcja Tripowni${todayCheckedLabel ? ` · sprawdzone ${todayCheckedLabel}` : ""}. Te same kierunki wykorzystujemy w naszych publikacjach społecznościowych.`}</p>
       </div>
