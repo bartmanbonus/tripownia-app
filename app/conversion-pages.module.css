@@ -10,7 +10,7 @@
   border: 1px solid #e8e3de;
   border-radius: 30px;
   background: #fff;
-  box-shadow: 0 20px 55px rgba(40, 31, 24, .08);
+  box-shadow: none;
 }
 
 .heroGrid {
@@ -119,7 +119,7 @@
   border: 1px solid #e8e3de;
   border-radius: 26px;
   background: #fff;
-  box-shadow: 0 12px 34px rgba(40, 31, 24, .05);
+  box-shadow: none;
 }
 
 .sectionHead {
@@ -200,7 +200,7 @@
   background: #fff;
   color: inherit;
   text-decoration: none;
-  box-shadow: 0 8px 24px rgba(40,31,24,.04);
+  box-shadow: none;
 }
 
 .imageWrap {
@@ -606,7 +606,7 @@
   border: 1px solid #e8e3de;
   border-radius: 28px;
   background: #fff;
-  box-shadow: 0 18px 46px rgba(40, 31, 24, .06);
+  box-shadow: none;
 }
 
 .plannerIntro {
@@ -705,13 +705,13 @@
   background: #fff;
   color: inherit;
   text-decoration: none;
-  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  transition: transform .18s ease, border-color .18s ease;
 }
 
 .plannerStartOption:hover {
   transform: translateY(-1px);
   border-color: #cfc1b6;
-  box-shadow: 0 10px 24px rgba(40, 31, 24, .07);
+  box-shadow: none;
 }
 
 .plannerStartOption:first-child {
