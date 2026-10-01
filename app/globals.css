@@ -13867,3 +13867,476 @@ img{
     text-align:center!important;
   }
 }
+
+
+/* V206 — /tanie-loty premium UX */
+.cheap-flights-v2{
+  background:
+    radial-gradient(circle at 82% 0%,rgba(255,111,64,.08),transparent 28%),
+    #fbf8f5;
+}
+.cheap-flights-hero{
+  padding:74px 0 50px;
+  border-bottom:1px solid #eadfd8;
+  background:
+    radial-gradient(circle at 85% 18%,rgba(255,98,46,.13),transparent 31%),
+    linear-gradient(180deg,#fff 0%,#fbf7f4 100%);
+}
+.cheap-flights-hero-shell{
+  display:grid;
+  grid-template-columns:minmax(0,1.35fr) minmax(330px,.65fr);
+  gap:56px;
+  align-items:center;
+}
+.cheap-flights-hero-copy{min-width:0}
+.cheap-flights-eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 11px;
+  border:1px solid #efd4c7;
+  border-radius:999px;
+  background:#fff6f0;
+  color:#df542f;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.09em;
+}
+.cheap-flights-hero h1{
+  max-width:830px;
+  margin:18px 0 16px;
+  font-size:clamp(48px,5.4vw,76px);
+  line-height:.94;
+  letter-spacing:-.058em;
+}
+.cheap-flights-hero h1 span{color:#e85a32}
+.cheap-flights-hero-copy>p{
+  max-width:720px;
+  margin:0;
+  color:#71675f;
+  font-size:16px;
+  line-height:1.65;
+}
+.cheap-flights-hero-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:24px;
+}
+.cheap-flights-primary,
+.cheap-flights-secondary{
+  min-height:48px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:0 17px;
+  border-radius:14px;
+  text-decoration:none;
+  font-size:11px;
+  font-weight:900;
+}
+.cheap-flights-primary{
+  background:#f45b32;
+  color:#fff;
+  box-shadow:0 12px 26px rgba(244,91,50,.2);
+}
+.cheap-flights-secondary{
+  border:1px solid #e0d5ce;
+  background:#fff;
+  color:#342e2a;
+}
+.cheap-flights-benefits{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 16px;
+  margin-top:18px;
+  color:#746a63;
+  font-size:10px;
+  font-weight:800;
+}
+.cheap-flights-benefits span{display:inline-flex;align-items:center;gap:5px}
+.cheap-flights-benefits svg{color:#e85a32}
+
+.cheap-flights-hero-panel{
+  padding:16px;
+  border:1px solid #eadfd8;
+  border-radius:24px;
+  background:rgba(255,255,255,.93);
+  box-shadow:0 20px 52px rgba(50,34,24,.08);
+  backdrop-filter:blur(12px);
+}
+.cheap-flights-hero-panel-top{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  padding:4px 4px 12px;
+}
+.cheap-flights-hero-panel-top span{
+  color:#e85a32;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.1em;
+}
+.cheap-flights-hero-panel-top strong{font-size:19px}
+.cheap-flights-hero-panel>a{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:11px;
+  min-height:72px;
+  padding:11px 12px;
+  border-top:1px solid #eee5df;
+  color:#201b18;
+  text-decoration:none;
+  transition:.16s ease;
+}
+.cheap-flights-hero-panel>a:hover{
+  margin-inline:-3px;
+  padding-inline:15px;
+  border-radius:15px;
+  background:#fff7f2;
+}
+.cheap-flights-path-icon{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:#f8f3f0;
+  color:#e85a32;
+}
+.cheap-flights-hero-panel>a>span:nth-child(2){
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.cheap-flights-hero-panel>a strong{font-size:12px}
+.cheap-flights-hero-panel>a small{color:#8b8078;font-size:9px}
+
+.cheap-flights-search-section{
+  padding-top:58px;
+  scroll-margin-top:110px;
+}
+.cheap-flights-section-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:30px;
+  margin-bottom:18px;
+}
+.cheap-flights-section-head>div:first-child{max-width:760px}
+.cheap-flights-section-head h2{
+  margin:5px 0 8px;
+  font-size:clamp(30px,3.3vw,46px);
+  line-height:1;
+  letter-spacing:-.045em;
+}
+.cheap-flights-section-head p{
+  max-width:690px;
+  margin:0;
+  color:#7c7169;
+  font-size:11px;
+  line-height:1.55;
+}
+.cheap-flights-section-head.compact{align-items:center}
+.cheap-flights-section-head.compact>a{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:#4d4540;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.cheap-flights-section-tip{
+  max-width:330px;
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  padding:12px 13px;
+  border:1px solid #ecdcd3;
+  border-radius:14px;
+  background:#fff;
+  color:#6f6259;
+  font-size:9px;
+  line-height:1.45;
+}
+.cheap-flights-section-tip svg{flex:0 0 auto;color:#e85a32}
+.cheap-flights-section-tip strong{color:#28211d}
+.cheap-flights-search-shell{
+  padding:6px;
+  border:1px solid #e6dad2;
+  border-radius:26px;
+  background:#fff;
+  box-shadow:0 18px 45px rgba(51,35,24,.065);
+  overflow:hidden;
+}
+.cheap-flights-search-shell .flight-hunt{
+  margin:0!important;
+  border:0!important;
+  box-shadow:none!important;
+  border-radius:20px!important;
+  background:#fff!important;
+}
+.cheap-flights-search-shell .flight-hunt-modebar{
+  padding-top:20px!important;
+}
+
+.cheap-flights-airports,
+.cheap-flights-inspiration,
+.cheap-flights-method{
+  padding-top:58px;
+}
+.cheap-flights-airport-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.cheap-flights-airport-grid>a{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  min-height:92px;
+  padding:14px;
+  border:1px solid #e7ddd7;
+  border-radius:17px;
+  background:#fff;
+  color:#211c19;
+  text-decoration:none;
+  box-shadow:0 7px 20px rgba(50,34,24,.035);
+  transition:.16s ease;
+}
+.cheap-flights-airport-grid>a:hover{
+  transform:translateY(-2px);
+  border-color:#efb49f;
+  box-shadow:0 13px 28px rgba(50,34,24,.075);
+}
+.cheap-flights-airport-icon{
+  width:38px;
+  height:38px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:#fff3ed;
+  color:#e85a32;
+}
+.cheap-flights-airport-copy{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.cheap-flights-airport-copy small{
+  color:#e85a32;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.cheap-flights-airport-copy strong{font-size:14px}
+.cheap-flights-airport-copy em{
+  color:#93877f;
+  font-size:8.5px;
+  font-style:normal;
+}
+
+.cheap-flights-inspiration-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+}
+.cheap-flights-inspiration-grid>a{
+  min-height:190px;
+  display:flex;
+  flex-direction:column;
+  padding:18px;
+  border:1px solid #e9ddd5;
+  border-radius:19px;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(244,91,50,.09),transparent 35%),
+    #fff;
+  color:#231d19;
+  text-decoration:none;
+  transition:.16s ease;
+}
+.cheap-flights-inspiration-grid>a:hover{
+  transform:translateY(-3px);
+  box-shadow:0 14px 30px rgba(50,34,24,.07);
+}
+.cheap-flights-inspiration-grid small{
+  color:#e85a32;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.1em;
+}
+.cheap-flights-inspiration-grid strong{
+  margin-top:9px;
+  font-size:25px;
+  letter-spacing:-.035em;
+}
+.cheap-flights-inspiration-grid span{
+  max-width:220px;
+  margin-top:7px;
+  color:#80746c;
+  font-size:10px;
+  line-height:1.45;
+}
+.cheap-flights-inspiration-grid b{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-top:auto;
+  padding-top:16px;
+  font-size:9px;
+}
+
+.cheap-flights-method{
+  display:grid;
+  grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);
+  gap:40px;
+  align-items:center;
+}
+.cheap-flights-method-copy h2{
+  margin:5px 0 10px;
+  font-size:clamp(30px,3vw,42px);
+  line-height:1;
+  letter-spacing:-.04em;
+}
+.cheap-flights-method-copy p{
+  margin:0;
+  color:#7c7169;
+  font-size:11px;
+  line-height:1.6;
+}
+.cheap-flights-method-grid{
+  display:grid;
+  gap:8px;
+}
+.cheap-flights-method-grid>div{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr);
+  gap:10px;
+  align-items:center;
+  padding:12px 14px;
+  border:1px solid #e8ddd6;
+  border-radius:14px;
+  background:#fff;
+}
+.cheap-flights-method-grid>div>strong{
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  background:#1e1a17;
+  color:#fff;
+  font-size:11px;
+}
+.cheap-flights-method-grid span{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+.cheap-flights-method-grid b{font-size:11px}
+.cheap-flights-method-grid small{
+  color:#8b7f77;
+  font-size:9px;
+}
+
+.cheap-flights-bottom-cta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  margin-top:58px;
+  margin-bottom:72px;
+  padding:22px 24px;
+  border-radius:22px;
+  background:#1b1816;
+  color:#fff;
+}
+.cheap-flights-bottom-cta>div{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.cheap-flights-bottom-cta small{
+  color:#f28a67;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.1em;
+}
+.cheap-flights-bottom-cta strong{font-size:17px}
+.cheap-flights-bottom-cta span{
+  color:#bbb2ac;
+  font-size:9px;
+}
+.cheap-flights-bottom-cta>a{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:0 14px;
+  border-radius:12px;
+  background:#fff;
+  color:#211b18;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+@media(max-width:1050px){
+  .cheap-flights-hero-shell{grid-template-columns:1fr;gap:28px}
+  .cheap-flights-hero-panel{max-width:720px}
+  .cheap-flights-airport-grid,
+  .cheap-flights-inspiration-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .cheap-flights-hero{padding:42px 0 34px}
+  .cheap-flights-hero h1{font-size:clamp(40px,11vw,56px)}
+  .cheap-flights-section-head{align-items:flex-start;flex-direction:column;gap:12px}
+  .cheap-flights-section-tip{max-width:none}
+  .cheap-flights-method{grid-template-columns:1fr;gap:18px}
+  .cheap-flights-bottom-cta{align-items:flex-start;flex-direction:column}
+  .cheap-flights-bottom-cta>a{width:100%}
+}
+@media(max-width:560px){
+  .cheap-flights-hero{padding:30px 0 26px}
+  .cheap-flights-hero-shell{gap:20px}
+  .cheap-flights-eyebrow{font-size:9px}
+  .cheap-flights-hero h1{
+    margin:14px 0 12px;
+    font-size:clamp(36px,11.5vw,48px);
+  }
+  .cheap-flights-hero-copy>p{font-size:14px}
+  .cheap-flights-hero-actions{
+    display:grid;
+    grid-template-columns:1fr;
+    width:100%;
+  }
+  .cheap-flights-primary,
+  .cheap-flights-secondary{width:100%}
+  .cheap-flights-benefits{gap:7px 12px}
+  .cheap-flights-hero-panel{padding:12px;border-radius:19px}
+  .cheap-flights-search-section,
+  .cheap-flights-airports,
+  .cheap-flights-inspiration,
+  .cheap-flights-method{padding-top:40px}
+  .cheap-flights-section-head h2{font-size:31px}
+  .cheap-flights-search-shell{margin-inline:-2px;padding:2px;border-radius:20px}
+  .cheap-flights-airport-grid,
+  .cheap-flights-inspiration-grid{grid-template-columns:1fr}
+  .cheap-flights-airport-grid>a{min-height:82px}
+  .cheap-flights-inspiration-grid>a{min-height:155px}
+  .cheap-flights-bottom-cta{
+    margin-top:42px;
+    margin-bottom:48px;
+    padding:18px;
+    border-radius:18px;
+  }
+}
