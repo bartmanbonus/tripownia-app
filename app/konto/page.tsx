@@ -180,7 +180,7 @@ export default function AccountPage() {
       setCloudState(saved);
       setSynced((value) => value + 1);
       trackEvent("account_sync", { action: "save_to_cloud" });
-      setMessage("Zapisano w chmurze. Profil, ulubione, porównania, podróże, alerty i planner są przypisane do konta.");
+      setMessage("Zapisano w chmurze. Profil, ulubione, porównania, podróże, alerty i planer są przypisane do konta.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Nie udało się zsynchronizować danych.");
     } finally {
