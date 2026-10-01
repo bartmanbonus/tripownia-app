@@ -274,7 +274,7 @@ export default function AddTripPage() {
           hotel: affiliateKind === "hotel" || affiliateKind === "package" ? affiliatePartner : undefined,
         });
       }
-      setNotes(affiliatePartner ? `Rezerwacja rozpoczęta przez Tripownię · ${affiliatePartner}` : "Rezerwacja rozpoczęta przez Tripownię");
+      setNotes("Rezerwacja rozpoczęta przez Tripownię");
     }
 
     if (editActive) {
@@ -594,7 +594,7 @@ export default function AddTripPage() {
           <div><Sparkles size={18}/><span><strong>Gotowe podpowiedzi</strong><small>nie musisz szukać każdej rzeczy osobno</small></span></div>
           <div><ListChecks size={18}/><span><strong>Pomijamy to, co już masz</strong><small>nie sprzedajemy drugi raz tej samej usługi</small></span></div>
           <div><Ticket size={18}/><span><strong>Cały wyjazd w jednym planie</strong><small>lot, nocleg, transfer, atrakcje i przygotowanie</small></span></div>
-          <div><ShieldCheck size={18}/><span><strong>0 zł za planner</strong><small>Tripownia zarabia na afiliacji partnerów</small></span></div>
+          <div><ShieldCheck size={18}/><span><strong>0 zł za planner</strong><small>plan możesz ułożyć bez opłat i bez obowiązkowego konta</small></span></div>
         </div>
 
         <form className="add-trip-form" onSubmit={submit}>
@@ -697,9 +697,9 @@ export default function AddTripPage() {
                 {!pieces.flight && (
                   <article className={`trip-plan-option${selectedProvider.flight ? " selected" : ""}`}>
                     <Plane size={22}/>
-                    <div><small>LOT</small><h3>Kiwi.com</h3><p>Lot dopasowany do kierunku i terminu. Otwieramy gotowe wyszukiwanie.</p></div>
+                    <div><small>LOT</small><h3>Loty</h3><p>Sprawdź połączenia dopasowane do kierunku i terminu bez ustawiania wyszukiwania od zera.</p></div>
                     <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("flight", "Kiwi.com")}>{selectedProvider.flight ? "Wybrane ✓" : "Wybieram"}</button>
+                      <button type="button" onClick={() => chooseProvider("flight", "flight-search")}>{selectedProvider.flight ? "Wybrane ✓" : "Dodaj do planu"}</button>
                       <a href={suggestions.flight} target="_blank" rel="sponsored noopener noreferrer">Sprawdź loty <ExternalLink size={14}/></a>
                     </div>
                   </article>
@@ -708,9 +708,9 @@ export default function AddTripPage() {
                 {!pieces.hotel && (
                   <article className={`trip-plan-option${selectedProvider.hotel ? " selected" : ""}`}>
                     <BedDouble size={22}/>
-                    <div><small>NOCLEG</small><h3>Booking.com</h3><p>Noclegi w Twoim kierunku i terminie. Nie musisz zaczynać wyszukiwania od zera.</p></div>
+                    <div><small>NOCLEG</small><h3>Noclegi</h3><p>Sprawdź dostępne noclegi dla Twojego kierunku i terminu bez ponownego wpisywania całej podróży.</p></div>
                     <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("hotel", "Booking.com")}>{selectedProvider.hotel ? "Wybrane ✓" : "Wybieram"}</button>
+                      <button type="button" onClick={() => chooseProvider("hotel", "hotel-search")}>{selectedProvider.hotel ? "Wybrane ✓" : "Dodaj do planu"}</button>
                       <a href={suggestions.hotel} target="_blank" rel="sponsored noopener noreferrer">Sprawdź noclegi <ExternalLink size={14}/></a>
                     </div>
                   </article>
@@ -719,11 +719,11 @@ export default function AddTripPage() {
                 {!pieces.transfer && (
                   <article className={`trip-plan-option${selectedProvider.transfer ? " selected" : ""}`}>
                     <Car size={22}/>
-                    <div><small>TRANSFER</small><h3>Kiwitaxi / GetTransfer</h3><p>Jeśli transferu nie ma w pakiecie, wybierz dojazd z lotniska do noclegu.</p></div>
+                    <div><small>TRANSFER</small><h3>Transfer z lotniska</h3><p>Jeśli transferu nie ma w pakiecie, porównaj dojazd z lotniska do noclegu.</p></div>
                     <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("transfer", "Kiwitaxi")}>{selectedProvider.transfer ? "Wybrane ✓" : "Wybieram Kiwitaxi"}</button>
-                      <a href={suggestions.transfer} target="_blank" rel="sponsored noopener noreferrer">Kiwitaxi <ExternalLink size={14}/></a>
-                      <a href={suggestions.transferAlt} target="_blank" rel="sponsored noopener noreferrer">GetTransfer <ExternalLink size={14}/></a>
+                      <button type="button" onClick={() => chooseProvider("transfer", "transfer-search")}>{selectedProvider.transfer ? "Wybrane ✓" : "Dodaj do planu"}</button>
+                      <a href={suggestions.transfer} target="_blank" rel="sponsored noopener noreferrer">Sprawdź transfery <ExternalLink size={14}/></a>
+                      <a href={suggestions.transferAlt} target="_blank" rel="sponsored noopener noreferrer">Porównaj inną opcję <ExternalLink size={14}/></a>
                     </div>
                   </article>
                 )}
@@ -731,9 +731,9 @@ export default function AddTripPage() {
                 {!pieces.attractions && (
                   <article className={`trip-plan-option${selectedProvider.attractions ? " selected" : ""}`}>
                     <Ticket size={22}/>
-                    <div><small>ATRAKCJE</small><h3>GetYourGuide</h3><p>Najpopularniejsze bilety i wycieczki dla wybranego miejsca. Dodajesz tylko te, które chcesz.</p></div>
+                    <div><small>ATRAKCJE</small><h3>Atrakcje i bilety</h3><p>Sprawdź bilety i wycieczki dla wybranego miejsca. Dodajesz tylko to, czego naprawdę potrzebujesz.</p></div>
                     <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("attractions", "GetYourGuide")}>{selectedProvider.attractions ? "Wybrane ✓" : "Wybieram"}</button>
+                      <button type="button" onClick={() => chooseProvider("attractions", "attractions-search")}>{selectedProvider.attractions ? "Wybrane ✓" : "Dodaj do planu"}</button>
                       <a href={suggestions.attractions} target="_blank" rel="sponsored noopener noreferrer">Sprawdź atrakcje <ExternalLink size={14}/></a>
                     </div>
                   </article>
@@ -742,9 +742,9 @@ export default function AddTripPage() {
                 {!pieces.esim && (
                   <article className={`trip-plan-option${selectedProvider.esim ? " selected" : ""}`}>
                     <Smartphone size={22}/>
-                    <div><small>INTERNET / eSIM</small><h3>Fonia eSIM</h3><p>Internet na wyjazd bez szukania lokalnej karty SIM po przylocie.</p></div>
+                    <div><small>INTERNET / eSIM</small><h3>Internet na wyjazd</h3><p>Przygotuj internet jeszcze przed podróżą, bez szukania lokalnej karty SIM po przylocie.</p></div>
                     <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("esim", "Fonia eSIM")}>{selectedProvider.esim ? "Wybrane ✓" : "Wybieram"}</button>
+                      <button type="button" onClick={() => chooseProvider("esim", "esim-search")}>{selectedProvider.esim ? "Wybrane ✓" : "Dodaj do planu"}</button>
                       <a href={suggestions.esim} target="_blank" rel="sponsored noopener noreferrer">Sprawdź eSIM <ExternalLink size={14}/></a>
                     </div>
                   </article>
@@ -753,9 +753,9 @@ export default function AddTripPage() {
                 {!pieces.parking && (
                   <article className={`trip-plan-option${selectedProvider.parking ? " selected" : ""}`}>
                     <ParkingCircle size={22}/>
-                    <div><small>PARKING</small><h3>Parklot.pl</h3><p>Parking przy lotnisku wylotu — przydatny, jeśli jedziesz na lotnisko samochodem.</p></div>
+                    <div><small>PARKING</small><h3>Parking przy lotnisku</h3><p>Sprawdź parking przy lotnisku wylotu, jeśli jedziesz na lotnisko samochodem.</p></div>
                     <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("parking", "Parklot.pl")}>{selectedProvider.parking ? "Wybrane ✓" : "Wybieram"}</button>
+                      <button type="button" onClick={() => chooseProvider("parking", "parking-search")}>{selectedProvider.parking ? "Wybrane ✓" : "Dodaj do planu"}</button>
                       <a href={suggestions.parking} target="_blank" rel="sponsored noopener noreferrer">Sprawdź parking <ExternalLink size={14}/></a>
                     </div>
                   </article>
