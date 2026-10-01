@@ -1262,3 +1262,21 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .my-trip-loading-grid span{width:92%;height:12px}
 .my-trip-loading-grid span:last-child{width:70%}
 @media(max-width:760px){.my-trip-loading-grid{grid-template-columns:1fr}.my-trip-loading-grid>div:nth-child(n+3){display:none}}
+
+/* Mobile menu takes priority over the app bottom bar. */
+@media(max-width:560px){
+  body:has(.trip-mobile-menu[open]) .mobile-app-controls{
+    transform:translateY(calc(100% + 28px))!important;
+    opacity:0!important;
+    pointer-events:none!important;
+  }
+  .trip-mobile-menu[open] .trip-mobile-menu-panel{
+    max-height:calc(100dvh - 76px)!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain!important;
+    scrollbar-width:none!important;
+  }
+  .trip-mobile-menu[open] .trip-mobile-menu-panel::-webkit-scrollbar{display:none!important}
+  .trip-mobile-menu-section{padding-block:10px!important}
+  .trip-mobile-menu-section+ .trip-mobile-menu-section{border-top:1px solid #eee6e0!important}
+}
