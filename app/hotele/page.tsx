@@ -10,7 +10,22 @@ export const metadata: Metadata = {
   alternates: { canonical: "/hotele" },
 };
 
-export default function HotelsPage() {
+type Props = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function first(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] || "" : value || "";
+}
+
+export default async function HotelsPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const destination = first(params.q || params.destination).trim();
+  const origin = first(params.origin).trim();
+  const from = first(params.from).trim();
+  const to = first(params.to).trim();
+  const hasRange = /^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to);
+
   return (
     <main>
       <SiteHeader />
@@ -28,7 +43,7 @@ export default function HotelsPage() {
         </div>
 
         <div className="service-search-shell">
-          <SearchHub embedded initialTab="Hotele" />
+          <SearchHub embedded initialTab="Hotele" initialDestinations={destination ? [destination] : []} initialAirports={origin ? [origin] : []} initialDateMode={hasRange ? "range" : "any"} initialDateFrom={hasRange ? from : ""} initialDateTo={hasRange ? to : ""} />
         </div>
       </section>
       <SiteFooter />
