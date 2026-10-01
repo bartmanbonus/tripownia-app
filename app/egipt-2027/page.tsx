@@ -42,7 +42,7 @@ export default function Egipt2027Page() {
     </section>
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">AKTUALNE OFERTY</div><h2>Sprawdź Egipt 2027</h2></div></div>
-      <div className="single-partner-search-wrap"><SearchHub embedded initialTab="Wakacje" initialDestinations={["Egipt"]} /></div>
+      <div className="single-partner-search-wrap"><SearchHub embedded initialTab="All Inclusive" initialDestinations={["Egipt"]} /></div>
     </section>
     <SiteFooter/>
   </main>;
