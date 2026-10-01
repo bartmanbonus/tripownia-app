@@ -627,7 +627,7 @@ export default function AddTripPage() {
                       </div>
                       <div className="trip-plan-option-actions">
                         <button type="button" onClick={() => chooseOpenOffer(offer)}>Wybieram ten kierunek</button>
-                        <a href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Sprawdź ofertę <ExternalLink size={14}/></a>
+                        <Link href={`/oferta/${offer.id}`}>Zobacz ofertę w Tripowni <ArrowRight size={14}/></Link>
                       </div>
                     </article>
                   ))}
