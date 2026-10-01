@@ -354,7 +354,8 @@ export default function FlexibleFlightsExplorer() {
     url.searchParams.set("marker", "695999.TRIPOWNIAPL");
     url.searchParams.set("shmarker", "695999.TRIPOWNIAPL");
     if (activeRoute?.origin.code) url.searchParams.set("origin", activeRoute.origin.code);
-    if (activeRoute?.destination?.code) url.searchParams.set("destination", activeRoute.destination.code);
+    const fallbackDestination = activeRoute?.destination?.searchCode || activeRoute?.destination?.code;
+    if (fallbackDestination) url.searchParams.set("destination", fallbackDestination);
     return url.toString();
   }, [activeRoute]);
 
