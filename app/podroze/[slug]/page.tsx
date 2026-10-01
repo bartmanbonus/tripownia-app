@@ -343,8 +343,12 @@ export default async function SeoLandingPage({ params }: PageProps) {
     { label: "BUDŻET", value: budgetLabel },
   ];
 
+  const discoveryLinks = [...airportCluster, ...commercialSiblingLinks, ...related]
+    .filter((item, index, items) => items.findIndex((candidate) => candidate.slug === item.slug) === index)
+    .slice(0, 8);
+
   return (
-    <main className="seo-travel-landing-v2">
+    <main className="seo-travel-landing-v3">
       <SiteHeader />
       <BreadcrumbSchema items={[
         { name: "Tripownia", url: "https://tripownia.pl/" },
@@ -353,57 +357,42 @@ export default async function SeoLandingPage({ params }: PageProps) {
       ]}/>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
 
-      <section className="seo-landing-hero" style={{ padding: "44px 0 40px" }}>
-        <div className="shell">
-          <div className="kicker">{page.eyebrow}</div>
-          <h1 style={{ fontSize: "clamp(38px,4.8vw,58px)", lineHeight: 1.02, letterSpacing: "-2.4px", maxWidth: 900, margin: "12px 0 14px" }}>{page.title}</h1>
-          <p style={{ maxWidth: 760, fontSize: 17, lineHeight: 1.55, margin: 0 }}>{page.lead}</p>
-          <div className="seo-hero-actions" style={{ marginTop: 18 }}>
-            <Link className="primary-cta" href="/#wyszukiwarka">Ustaw własne parametry →</Link>
-            <a className="secondary-cta" href="#aktualne-oferty">Zobacz oferty</a>
-            <Link className="secondary-cta" href={`/alerty?${alertParams.toString()}`}>Ustaw alert →</Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="shell seo-quick-facts-section">
-        <div className="kicker">NA SZYBKO</div>
-        <div className="seo-landing-section-head">
-          <div>
-            <h2>Najważniejsze informacje przed szukaniem oferty</h2>
-            <p>Najpierw sprawdź ramy wyjazdu. Później zobacz aktualne opcje i ewentualnie poszerz zakres.</p>
-          </div>
-        </div>
-        <div className="seo-quick-facts-grid">
-          {quickFacts.map((fact) => (
-            <div key={fact.label} className="seo-quick-fact-card">
-              <small>{fact.label}</small>
-              <strong>{fact.value}</strong>
+      <section className="seo-intent-hero">
+        <div className="shell seo-intent-hero-inner">
+          <div className="seo-intent-copy">
+            <div className="kicker">{page.eyebrow}</div>
+            <h1>{page.title}</h1>
+            <p>{page.lead}</p>
+            <div className="seo-hero-actions">
+              <a className="primary-cta" href="#aktualne-oferty">Zobacz aktualne oferty ↓</a>
+              <Link className="secondary-cta" href="/#wyszukiwarka">Zmień parametry</Link>
+              <Link className="secondary-cta" href={`/alerty?${alertParams.toString()}`}>Ustaw alert</Link>
             </div>
-          ))}
-        </div>
-      </section>
+          </div>
 
-      {airportCluster.length > 0 && (
-        <section className="shell seo-related-block" aria-label={`Więcej wyjazdów z ${page.departure}`}>
-          <div className="kicker">WIĘCEJ Z TEGO LOTNISKA</div>
-          <h2>Sprawdź inne typy wyjazdów z {page.departure}</h2>
-          <div className="seo-related-links">
-            {airportCluster.map((item) => (
-              <Link key={item.slug} href={`/podroze/${item.slug}`}>{item.title} →</Link>
+          <div className="seo-intent-facts" aria-label="Parametry wyjazdu">
+            {quickFacts.map((fact) => (
+              <div key={fact.label}>
+                <small>{fact.label}</small>
+                <strong>{fact.value}</strong>
+              </div>
             ))}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
 
-      <section className="shell seo-offer-section seo-offer-section-v2" id="aktualne-oferty">
-        <div className="seo-landing-section-head">
+      <section className="shell seo-primary-offers" id="aktualne-oferty">
+        <div className="seo-landing-section-head seo-primary-offers-head">
           <div>
             <div className="kicker">AKTUALNE OFERTY</div>
-            <h2>Najlepsze dostępne propozycje dla tego wyszukiwania</h2>
-            <p>{startDate || endDate ? "Filtrujemy również realną datę wylotu — nie pokazujemy przypadkowych ofert z innego miesiąca." : "Pobieramy bieżące ceny i terminy automatycznie."}</p>
+            <h2>Najpierw konkrety</h2>
+            <p>{startDate || endDate
+              ? "Pokazujemy propozycje zgodne z okresem tej strony. Jeśli nie ma dobrego dopasowania, nie podmieniamy terminu na przypadkowy."
+              : "Pokazujemy bieżące propozycje dla tych parametrów i aktualnej dostępności."}</p>
           </div>
+          <Link href="/#wyszukiwarka">Wyszukaj po swojemu →</Link>
         </div>
+
         <SeoEximOffers
           query={page.query}
           departure={page.departure}
@@ -415,81 +404,110 @@ export default async function SeoLandingPage({ params }: PageProps) {
         />
       </section>
 
-      <section className="shell" style={{ padding: "10px 0 48px", maxWidth: 980 }}>
-        <div className="kicker">PRAKTYCZNIE</div>
-        <h2 style={{ margin: "7px 0 12px", fontSize: "clamp(28px,3.4vw,40px)", letterSpacing: "-1.5px" }}>{guide.heading}</h2>
-        <p style={{ color: "var(--muted)", fontSize: 17, lineHeight: 1.65, maxWidth: 850 }}>{guide.summary}</p>
+      <section className="shell seo-decision-section">
+        <div className="seo-decision-head">
+          <div className="kicker">ZANIM ZAREZERWUJESZ</div>
+          <h2>{guide.heading}</h2>
+          <p>{guide.summary}</p>
+        </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 18, marginTop: 22 }}>
-          <div style={{ background: "#fff", border: "1px solid var(--line)", borderRadius: 18, padding: 22 }}>
-            <h3 style={{ margin: "0 0 12px", fontSize: 20 }}>Co ma największe znaczenie</h3>
-            <ul style={{ margin: 0, paddingLeft: 20, color: "var(--muted)", lineHeight: 1.65 }}>
-              {guide.bullets.map((item) => <li key={item} style={{ marginBottom: 8 }}>{item}</li>)}
-            </ul>
+        <div className="seo-decision-grid">
+          <article>
+            <span>01</span>
+            <h3>Co ma największe znaczenie</h3>
+            <ul>{guide.bullets.map((item) => <li key={item}>{item}</li>)}</ul>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Sprawdź przed rezerwacją</h3>
+            <ul>{guide.checklist.map((item) => <li key={item}>{item}</li>)}</ul>
+          </article>
+        </div>
+
+        {page.paragraphs.length > 0 && (
+          <div className="seo-editorial-note">
+            <strong>Warto wiedzieć</strong>
+            {page.paragraphs.map((text) => <p key={text}>{text}</p>)}
           </div>
-          <div style={{ background: "#fff8f3", border: "1px solid #f2ded2", borderRadius: 18, padding: 22 }}>
-            <h3 style={{ margin: "0 0 12px", fontSize: 20 }}>Sprawdź przed rezerwacją</h3>
-            <ul style={{ margin: 0, paddingLeft: 20, color: "#5f5955", lineHeight: 1.65 }}>
-              {guide.checklist.map((item) => <li key={item} style={{ marginBottom: 8 }}>{item}</li>)}
-            </ul>
+        )}
+      </section>
+
+      <section className="shell seo-search-wider">
+        <div className="seo-landing-section-head">
+          <div>
+            <div className="kicker">NIE PASUJE?</div>
+            <h2>Poszerz wyszukiwanie, ale zachowaj kontrolę nad budżetem</h2>
+            <p>Sprawdź osobno loty i noclegi albo zmień parametry w wyszukiwarce Tripowni.</p>
           </div>
         </div>
 
-        <div style={{ marginTop: 26 }}>
-          {page.paragraphs.map((text) => <p key={text} style={{ color: "var(--muted)", lineHeight: 1.7, fontSize: 16 }}>{text}</p>)}
+        <div className="seo-search-wider-grid">
+          <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer">
+            <span>✈️</span>
+            <strong>Porównaj loty</strong>
+            <small>{page.departure ? `Wylot: ${page.departure}` : "Wybierz lotnisko i kierunek"}</small>
+            <b>Sprawdź →</b>
+          </a>
+          <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer">
+            <span>🏨</span>
+            <strong>Sprawdź noclegi</strong>
+            <small>Porównaj koszt hotelu osobno</small>
+            <b>Sprawdź →</b>
+          </a>
+          <Link href="/#wyszukiwarka">
+            <span>🔎</span>
+            <strong>Zmień parametry</strong>
+            <small>Termin, kierunek, lotnisko lub budżet</small>
+            <b>Wyszukaj →</b>
+          </Link>
+          <Link href={`/alerty?${alertParams.toString()}`}>
+            <span>🔔</span>
+            <strong>Ustaw alert</strong>
+            <small>Wróć do tematu, gdy pojawi się lepsza opcja</small>
+            <b>Ustaw →</b>
+          </Link>
         </div>
       </section>
 
-      <section className="shell" style={{ padding: "0 0 44px", maxWidth: 980 }}>
+      <section className="shell seo-faq-section">
         <div className="kicker">PYTANIA I ODPOWIEDZI</div>
-        <h2 style={{ margin: "7px 0 18px", fontSize: "clamp(27px,3vw,38px)", letterSpacing: "-1.3px" }}>{page.query}{page.departure ? ` z ${page.departure}` : ""} — najczęstsze pytania</h2>
-        <div style={{ display: "grid", gap: 12 }}>
+        <h2>{page.query}{page.departure ? ` z ${page.departure}` : ""} — najczęstsze pytania</h2>
+        <div className="seo-faq-list">
           {faqItems.map((item) => (
-            <details key={item.question} style={{ background: "#fff", border: "1px solid var(--line)", borderRadius: 15, padding: "15px 18px" }}>
-              <summary style={{ cursor: "pointer", fontWeight: 900, fontSize: 16 }}>{item.question}</summary>
-              <p style={{ color: "var(--muted)", lineHeight: 1.65, margin: "10px 0 0" }}>{item.answer}</p>
+            <details key={item.question}>
+              <summary>{item.question}</summary>
+              <p>{item.answer}</p>
             </details>
           ))}
         </div>
       </section>
 
-      <section className="shell seo-partners-section">
-        <div className="seo-landing-section-head">
-          <div>
-            <div className="kicker">SZUKAJ SZERZEJ</div>
-            <h2>Porównaj aktualne ceny</h2>
+      {discoveryLinks.length > 0 && (
+        <section className="shell seo-discovery-section">
+          <div className="seo-landing-section-head">
+            <div>
+              <div className="kicker">PODOBNE WYSZUKIWANIA</div>
+              <h2>Jeśli chcesz porównać inne warianty</h2>
+              <p>Najbardziej zbliżone strony z tym samym lotniskiem, budżetem, terminem lub typem wyjazdu.</p>
+            </div>
           </div>
-        </div>
-        <div className="big-partner-grid">
-          <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🛫</span><strong>Loty</strong><small>Porównaj ceny</small><b>Porównaj →</b></a>
-          <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer"><span>🏨</span><strong>Noclegi</strong><small>Noclegi w wybranym miejscu</small><b>Sprawdź hotele →</b></a>
-        </div>
-      </section>
-
-      <section className="section shell"><FacebookFollowCTA placement="seo_landing" compact /></section>
-
-      {commercialSiblingLinks.length > 0 && (
-        <section className="shell seo-related-block">
-          <div className="kicker">PORÓWNAJ PODOBNE OFERTY</div>
-          <h2>Sprawdź też podobne warianty</h2>
-          <div className="seo-related-links">
-            {commercialSiblingLinks.map((item) => <Link key={item.slug} href={`/podroze/${item.slug}`}>{item.title} →</Link>)}
+          <div className="seo-discovery-grid">
+            {discoveryLinks.map((item) => (
+              <Link key={item.slug} href={`/podroze/${item.slug}`}>
+                <strong>{item.title}</strong>
+                <span>Sprawdź →</span>
+              </Link>
+            ))}
+          </div>
+          <div className="seo-discovery-footer">
+            <Link href="/podroze">Wszystkie pomysły na podróże</Link>
+            <Link href="/okazje">Aktualne okazje</Link>
+            <Link href="/planer-podrozy">Darmowy planer podróży</Link>
           </div>
         </section>
       )}
 
-      <section className="shell seo-related-block">
-        <div className="kicker">MOŻE CIĘ TEŻ ZAINTERESOWAĆ</div>
-        <div className="seo-related-links">
-          {related.map((item) => <Link key={item.slug} href={`/podroze/${item.slug}`}>{item.title} →</Link>)}
-        </div>
-        <div className="seo-related">
-          <Link href="/podroze">← Wszystkie pomysły na podróże</Link>
-          <Link href="/kierunki">Zobacz wszystkie kierunki →</Link>
-          <Link href="/okazje">Najtańsze okazje teraz →</Link>
-          <Link href="/planer-podrozy">Ułóż darmowy plan podróży →</Link>
-        </div>
-      </section>
+      <section className="section shell seo-social-footer"><FacebookFollowCTA placement="seo_landing" compact /></section>
 
       <SiteFooter />
     </main>
