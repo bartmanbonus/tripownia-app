@@ -14744,3 +14744,310 @@ img{
     scroll-snap-align:start;
   }
 }
+
+
+/* 2026-10-01 SEO travel landings UX v4 */
+.seo-travel-landing-v3{
+  background:#fbf8f5;
+}
+.seo-travel-landing-v3 .seo-intent-hero{
+  padding:42px 0 34px;
+  background:
+    radial-gradient(circle at 86% 18%,rgba(255,111,72,.12),transparent 31%),
+    linear-gradient(135deg,#fff9f5 0%,#fbf8f5 58%,#f7fbff 100%);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.seo-travel-landing-v3 .seo-intent-hero-inner{
+  display:grid;
+  grid-template-columns:minmax(0,1.42fr) minmax(360px,.58fr);
+  gap:34px;
+  align-items:center;
+}
+.seo-travel-landing-v3 .seo-intent-copy{
+  max-width:920px;
+}
+.seo-travel-landing-v3 .seo-intent-copy h1{
+  max-width:900px;
+  margin:10px 0 14px;
+  font-size:clamp(38px,4.7vw,62px);
+  line-height:1.01;
+  letter-spacing:-2.7px;
+}
+.seo-travel-landing-v3 .seo-intent-copy>p{
+  max-width:780px;
+  margin:0;
+  color:var(--muted);
+  font-size:17px;
+  line-height:1.58;
+}
+.seo-travel-landing-v3 .seo-hero-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  margin-top:22px;
+}
+.seo-travel-landing-v3 .seo-hero-actions .primary-cta{
+  min-height:52px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 20px;
+  border-radius:14px;
+  box-shadow:0 12px 28px rgba(255,83,47,.2);
+}
+.seo-travel-landing-v3 .seo-hero-actions .secondary-cta{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  padding:0 6px;
+  color:#3a312c;
+  font-weight:800;
+  text-decoration:none;
+  border-bottom:1px solid #b9ada5;
+}
+.seo-travel-landing-v3 .seo-intent-facts{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.seo-travel-landing-v3 .seo-intent-facts>div{
+  min-height:102px;
+  padding:16px;
+  border:1px solid #eadfd8;
+  border-radius:18px;
+  background:rgba(255,255,255,.9);
+  box-shadow:0 10px 28px rgba(58,38,27,.05);
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.seo-travel-landing-v3 .seo-intent-facts small{
+  color:#8a7a70;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.09em;
+}
+.seo-travel-landing-v3 .seo-intent-facts strong{
+  font-size:16px;
+  line-height:1.28;
+}
+.seo-travel-landing-v3 .seo-primary-offers{
+  padding:34px 0 42px;
+}
+.seo-travel-landing-v3 .seo-primary-offers-head{
+  align-items:flex-end;
+  margin-bottom:18px;
+}
+.seo-travel-landing-v3 .seo-primary-offers-head h2,
+.seo-travel-landing-v3 .seo-decision-head h2,
+.seo-travel-landing-v3 .seo-search-wider h2,
+.seo-travel-landing-v3 .seo-faq-section h2,
+.seo-travel-landing-v3 .seo-discovery-section h2{
+  margin:7px 0 8px;
+  font-size:clamp(30px,3.4vw,42px);
+  line-height:1.05;
+  letter-spacing:-1.6px;
+}
+.seo-travel-landing-v3 .seo-landing-section-head p,
+.seo-travel-landing-v3 .seo-decision-head>p,
+.seo-travel-landing-v3 .seo-search-wider p,
+.seo-travel-landing-v3 .seo-discovery-section p{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.55;
+}
+.seo-travel-landing-v3 .seo-primary-offers-head>a{
+  margin-bottom:4px;
+  color:#6f2aa8;
+  font-weight:850;
+  white-space:nowrap;
+}
+.seo-travel-landing-v3 .seo-live-status{
+  min-height:84px;
+  padding:18px 20px;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 10px 28px rgba(58,38,27,.04);
+}
+.seo-travel-landing-v3 .cards-grid.seo-live-offers-grid{
+  gap:16px;
+}
+.seo-travel-landing-v3 .seo-decision-section,
+.seo-travel-landing-v3 .seo-search-wider,
+.seo-travel-landing-v3 .seo-faq-section,
+.seo-travel-landing-v3 .seo-discovery-section{
+  padding:22px 0 46px;
+}
+.seo-travel-landing-v3 .seo-decision-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:18px;
+}
+.seo-travel-landing-v3 .seo-decision-grid article{
+  padding:22px;
+  border:1px solid #e9dfd8;
+  border-radius:20px;
+  background:#fff;
+  box-shadow:0 8px 24px rgba(58,38,27,.035);
+}
+.seo-travel-landing-v3 .seo-decision-grid article:nth-child(2){
+  background:#fff7f1;
+  border-color:#f0ddd1;
+}
+.seo-travel-landing-v3 .seo-decision-grid article>span{
+  display:inline-flex;
+  width:30px;
+  height:30px;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:12px;
+  border-radius:999px;
+  background:#fff0e8;
+  color:var(--accent);
+  font-size:11px;
+  font-weight:950;
+}
+.seo-travel-landing-v3 .seo-decision-grid h3{
+  margin:0 0 12px;
+  font-size:20px;
+}
+.seo-travel-landing-v3 .seo-decision-grid ul{
+  margin:0;
+  padding-left:20px;
+  color:#625a55;
+  line-height:1.62;
+}
+.seo-travel-landing-v3 .seo-decision-grid li+li{
+  margin-top:7px;
+}
+.seo-travel-landing-v3 .seo-editorial-note{
+  margin-top:14px;
+  padding:18px 20px;
+  border:1px solid #eadfd8;
+  border-left:4px solid #f45b32;
+  border-radius:16px;
+  background:#fff;
+}
+.seo-travel-landing-v3 .seo-editorial-note strong{display:block;margin-bottom:6px}
+.seo-travel-landing-v3 .seo-editorial-note p{
+  margin:6px 0 0;
+  color:var(--muted);
+  line-height:1.6;
+}
+.seo-travel-landing-v3 .seo-search-wider-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin-top:18px;
+}
+.seo-travel-landing-v3 .seo-search-wider-grid>a{
+  min-height:158px;
+  padding:19px;
+  border:1px solid #e8ded7;
+  border-radius:18px;
+  background:#fff;
+  color:var(--ink);
+  text-decoration:none;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 8px 22px rgba(58,38,27,.03);
+  transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease;
+}
+.seo-travel-landing-v3 .seo-search-wider-grid>a:hover{
+  transform:translateY(-2px);
+  border-color:#f0c9b7;
+  box-shadow:0 12px 28px rgba(58,38,27,.07);
+}
+.seo-travel-landing-v3 .seo-search-wider-grid>a>span{font-size:25px}
+.seo-travel-landing-v3 .seo-search-wider-grid strong{font-size:17px;margin:10px 0 6px}
+.seo-travel-landing-v3 .seo-search-wider-grid small{color:var(--muted);line-height:1.45}
+.seo-travel-landing-v3 .seo-search-wider-grid b{margin-top:auto;padding-top:16px;color:var(--accent)}
+.seo-travel-landing-v3 .seo-faq-list{
+  display:grid;
+  gap:10px;
+  max-width:920px;
+}
+.seo-travel-landing-v3 .seo-faq-list details{
+  padding:15px 18px;
+  border:1px solid #e8ded7;
+  border-radius:15px;
+  background:#fff;
+}
+.seo-travel-landing-v3 .seo-faq-list summary{
+  cursor:pointer;
+  font-weight:900;
+}
+.seo-travel-landing-v3 .seo-faq-list p{
+  margin:10px 0 0;
+  color:var(--muted);
+  line-height:1.65;
+}
+.seo-travel-landing-v3 .seo-discovery-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+  margin-top:18px;
+}
+.seo-travel-landing-v3 .seo-discovery-grid a{
+  min-height:110px;
+  padding:16px;
+  border:1px solid #e8ded7;
+  border-radius:16px;
+  background:#fff;
+  color:var(--ink);
+  text-decoration:none;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.seo-travel-landing-v3 .seo-discovery-grid strong{
+  font-size:14px;
+  line-height:1.35;
+}
+.seo-travel-landing-v3 .seo-discovery-grid span{
+  color:var(--accent);
+  font-size:12px;
+  font-weight:900;
+}
+.seo-travel-landing-v3 .seo-discovery-footer{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:14px;
+}
+.seo-travel-landing-v3 .seo-discovery-footer a{
+  padding:9px 12px;
+  border-radius:999px;
+  background:#fff7f1;
+  border:1px solid #f2ded2;
+  color:var(--ink);
+  text-decoration:none;
+  font-size:12px;
+  font-weight:800;
+}
+.seo-travel-landing-v3 .seo-social-footer{
+  padding-top:4px;
+}
+@media(max-width:980px){
+  .seo-travel-landing-v3 .seo-intent-hero-inner{grid-template-columns:1fr}
+  .seo-travel-landing-v3 .seo-intent-facts{max-width:760px}
+  .seo-travel-landing-v3 .seo-search-wider-grid,
+  .seo-travel-landing-v3 .seo-discovery-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:700px){
+  .seo-travel-landing-v3 .seo-intent-hero{padding:28px 0 28px}
+  .seo-travel-landing-v3 .seo-intent-copy h1{font-size:36px;letter-spacing:-1.7px}
+  .seo-travel-landing-v3 .seo-intent-copy>p{font-size:15px}
+  .seo-travel-landing-v3 .seo-intent-facts{grid-template-columns:1fr 1fr}
+  .seo-travel-landing-v3 .seo-intent-facts>div{min-height:86px;padding:13px}
+  .seo-travel-landing-v3 .seo-decision-grid,
+  .seo-travel-landing-v3 .seo-search-wider-grid,
+  .seo-travel-landing-v3 .seo-discovery-grid{grid-template-columns:1fr}
+  .seo-travel-landing-v3 .seo-hero-actions{display:grid;grid-template-columns:1fr}
+  .seo-travel-landing-v3 .seo-hero-actions a{width:100%;justify-content:center}
+  .seo-travel-landing-v3 .seo-primary-offers-head{align-items:flex-start;flex-direction:column}
+  .seo-travel-landing-v3 .seo-primary-offers-head>a{margin:0}
+}
