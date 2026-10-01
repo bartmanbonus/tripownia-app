@@ -1215,3 +1215,25 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   .seo-live-skeleton-card:nth-child(n+3){display:none}
   .progressive-link-cloud summary{width:100%;justify-content:center}
 }
+
+/* Deals page readability — sales controls should never look like admin UI. */
+.deals-hub-actions .primary-cta,
+.deals-hub-actions .secondary-cta{font-size:12px!important}
+.deals-quick-filters button{font-size:11px!important}
+.deals-ai-promo-strip small{font-size:10px!important}
+.deals-ai-promo-strip span{font-size:12px!important;line-height:1.45!important}
+.deals-ai-promo-strip>a{font-size:11px!important}
+.deals-buy-now-copy small{font-size:10px!important}
+.deals-buy-now-copy strong{font-size:20px!important}
+.deals-buy-now-copy span{font-size:12px!important}
+.deals-buy-now-actions a{font-size:12px!important}
+.deals-buy-now>p{font-size:10.5px!important}
+.deals-empty-actions a{font-size:11px!important}
+.facebook-growth-strip span{font-size:12px!important;line-height:1.45!important}
+.facebook-growth-strip a{font-size:11px!important}
+@media(max-width:560px){
+  .deals-filter-toggle strong{font-size:13px!important}
+  .deals-filter-toggle small{font-size:11px!important}
+  .deals-trust-source{font-size:9.5px!important}
+  .deals-results-heading p{font-size:11px!important}
+}
