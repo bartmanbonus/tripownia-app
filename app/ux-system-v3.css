@@ -1307,3 +1307,29 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     grid-column:auto!important;
   }
 }
+
+/* Active trip: missing essentials should be actionable, not hidden in text fields. */
+.my-trip-card-action{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  margin-top:10px;
+  padding:0 12px;
+  border:1px solid #f0c4b5;
+  border-radius:11px;
+  background:#fff4ef;
+  color:#bd4929;
+  font-size:12px;
+  font-weight:900;
+  text-decoration:none;
+}
+.my-trip-card-action:hover{
+  border-color:#e79b84;
+  background:#ffebe3;
+  color:#a93e22;
+}
+@media(max-width:560px){
+  .my-trip-card-action{width:100%;min-height:44px}
+}
