@@ -80,7 +80,7 @@ function readTrip() {
   }
 }
 
-export default function OfferCard({ offer, priceHighlight }: { offer: Offer; priceHighlight?: PriceHighlight }) {
+export default function OfferCard({ offer, priceHighlight, sourceSurface }: { offer: Offer; priceHighlight?: PriceHighlight; sourceSurface?: string }) {
   const [liked, setLiked] = useState(false);
   const [compared, setCompared] = useState(false);
   const [compareCount, setCompareCount] = useState(0);
@@ -152,6 +152,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
     live_offer: isLiveOffer,
     live_exact: isLiveExact,
     exact_link: isExactLink,
+    source_surface: sourceSurface,
   };
 
   useEffect(() => {
@@ -189,7 +190,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       observer?.disconnect();
       window.removeEventListener(ANALYTICS_CONSENT_EVENT, handleConsent as EventListener);
     };
-  }, [offer.id, offer.city, offer.country, offer.partner, displayPrice, isLiveOffer, isLiveExact, isExactLink]);
+  }, [offer.id, offer.city, offer.country, offer.partner, displayPrice, isLiveOffer, isLiveExact, isExactLink, sourceSurface]);
 
   function toggleLike() {
     const ids = readNumberArray("tripownia-favorites");
