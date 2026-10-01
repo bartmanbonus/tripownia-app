@@ -39,11 +39,10 @@ export default function AffiliateReturnPrompt() {
     if (!context) return "/dodaj-podroz?mode=owned";
     const params = new URLSearchParams({
       mode: "owned",
-      source: "affiliate",
+      source: "external",
       city: context.city || "",
       country: context.country || "",
       kind: context.tripKind || "package",
-      partner: context.partner || "",
       slug: context.slug || "",
     });
     return `/dodaj-podroz?${params.toString()}`;
