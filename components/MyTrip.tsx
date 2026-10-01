@@ -325,7 +325,7 @@ export default function MyTrip() {
           <>
             <section className="trip-mode-grid">
               <div className="trip-mode-card trip-mode-reminder">
-                <div className="trip-mode-title"><BellRing size={20}/><strong>Co teraz?</strong></div>
+                <div className="trip-mode-title"><BellRing size={20}/><strong>Przed wylotem</strong></div>
                 <p>{reminder}</p>
                 <label><span>Data i godzina wylotu</span><input type="datetime-local" value={trip.departureAt || ""} onChange={(e) => save({ ...trip, departureAt: e.target.value })} /></label>
                 <button className="trip-reminder-button" onClick={enableReminders}><BellRing size={16}/>{trip.remindersEnabled ? "Przypomnienia włączone" : "Włącz przypomnienia"}</button>
@@ -338,9 +338,18 @@ export default function MyTrip() {
               </div>
 
               <div className="trip-mode-card">
-                <div className="trip-mode-title"><Plane size={20}/><strong>Status lotu</strong></div>
-                <input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="np. FR 1234" />
-                {trip.flight?.trim() ? <a href={`https://www.google.com/search?q=${encodeURIComponent(`${trip.flight} flight status`)}`} target="_blank" rel="noopener noreferrer">Sprawdź status lotu <ExternalLink size={15}/></a> : <small>Dodaj numer rejsu, aby szybko sprawdzić aktualny status.</small>}
+                <div className="trip-mode-title"><Plane size={20}/><strong>Lot</strong></div>
+                {trip.flight?.trim() ? (
+                  <>
+                    <p><strong>{trip.flight}</strong></p>
+                    <a href={`https://www.google.com/search?q=${encodeURIComponent(`${trip.flight} flight status`)}`} target="_blank" rel="noopener noreferrer">Sprawdź aktualny status <ExternalLink size={15}/></a>
+                  </>
+                ) : (
+                  <>
+                    <p>Nie masz jeszcze dodanego numeru lotu.</p>
+                    <a href="#transport">Dodaj lot w szczegółach podróży <ArrowRight size={15}/></a>
+                  </>
+                )}
               </div>
             </section>
 
@@ -372,7 +381,7 @@ export default function MyTrip() {
             {reminders.length > 0 && <section className="trip-reminders-strip">{reminders.map((item) => <div key={item.label} className={item.active ? "active" : ""}><span>{item.due}</span><strong>{item.label}</strong>{item.active && <em>TERAZ</em>}</div>)}</section>}
 
             <div className="my-trip-grid">
-              <section className="my-trip-card"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p><strong>{offer.departure}</strong> → {destinationPending ? "kierunek do wyboru" : offer.city}</p><input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="Dodaj numer lotu / godzinę" />{!flightReady && <Link className="my-trip-card-action" href={trip.suggestedLinks?.flight || "/loty"}>Znajdź lot dla tej podróży <ArrowRight size={15}/></Link>}</section>
+              <section className="my-trip-card" id="transport"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p><strong>{offer.departure}</strong> → {destinationPending ? "kierunek do wyboru" : offer.city}</p><input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="Dodaj numer lotu / godzinę" />{!flightReady && <Link className="my-trip-card-action" href={trip.suggestedLinks?.flight || "/loty"}>Znajdź lot dla tej podróży <ArrowRight size={15}/></Link>}</section>
               <section className="my-trip-card"><div className="my-trip-card-head"><BedDouble size={20}/><h2>Nocleg</h2></div><p><strong>{offer.hotel}</strong>{offer.board ? ` · ${offer.board}` : ""}</p><input value={trip.hotel || ""} onChange={(e) => save({ ...trip, hotel: e.target.value })} placeholder="Dodaj nazwę / numer rezerwacji" />{!hotelReady && <Link className="my-trip-card-action" href={trip.suggestedLinks?.hotel || "/hotele"}>Znajdź nocleg dla tej podróży <ArrowRight size={15}/></Link>}</section>
               <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet</h2></div>{offer.manual || offer.id < 0 ? <p>Własny wyjazd — dodawaj koszty poniżej w sekcji wydatków.</p> : <><div className="my-trip-budget"><span>Oferta</span><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong></div>{cost && <div className="my-trip-budget total"><span>Szacowany pełny koszt</span><strong>{cost.total.toLocaleString("pl-PL")} zł / os.</strong></div>}<Link href="/porownaj">Porównaj z innymi ofertami →</Link></>}</section>
               <section className="my-trip-card"><div className="my-trip-card-head"><Ticket size={20}/><h2>Co ogarnąć</h2></div><div className="my-trip-checklist">{checklistItems.map((item) => { const checked = Boolean(trip.checklist?.[item]); return <button key={item} onClick={() => toggleChecklist(item)}>{checked ? <CheckCircle2 size={18}/> : <Circle size={18}/>}<span>{item}</span></button>; })}</div></section>
