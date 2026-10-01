@@ -290,14 +290,14 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
           aria-label={`Sprawdź ofertę ${offer.city}`}
         >
           <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
-          <span className={`badge ${deal.verdict === "BIERZ" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : deal.verdict}</span>
-          {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
+          {isExpired && <span className="badge">WYGASŁA</span>}
+          {isFeatured && !isExpired && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
         </a>
       ) : (
         <Link href={detailHref} onClick={() => trackOfferClick("image", false)} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city} w Tripowni`}>
           <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
-          <span className={`badge ${deal.verdict === "BIERZ" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : deal.verdict}</span>
-          {isFeatured && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
+          {isExpired && <span className="badge">WYGASŁA</span>}
+          {isFeatured && !isExpired && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
         </Link>
       )}
 
@@ -314,7 +314,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
         {!isExpired && (
           <div className={`deal-score deal-score-compact deal-score-${deal.verdict === "BIERZ" ? "buy" : deal.verdict === "DOBRA OPCJA" ? "good" : "check"}`} title={`Pewność oceny: ${deal.confidence}${stalePrice ? " · cena może być nieaktualna" : ""}`}>
             <BadgeCheck size={15} />
-            <span>Deal Score</span>
+            <span>Ocena okazji</span>
             <strong>{deal.score}/100</strong>
             <em>{deal.verdict}</em>
           </div>
