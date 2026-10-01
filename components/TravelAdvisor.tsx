@@ -46,6 +46,9 @@ export default function TravelAdvisor() {
   const [climate, setClimate] = useState("dowolnie");
   const [style, setStyle] = useState("dowolnie");
   const [submitted, setSubmitted] = useState(false);
+
+  const budgetSummary = `${minBudget.toLocaleString("pl-PL")}–${budget.toLocaleString("pl-PL")} zł`;
+  const nightsSummary = `${minNights}–${maxNights} ${maxNights === 1 ? "noc" : maxNights >= 2 && maxNights <= 4 ? "noce" : "nocy"}`;
   const { offers, source, loading, checkedAt, refresh } = useLiveOffers("/api/today-offers?mode=search&broad=1");
 
   const recommendations = useMemo(() => {
@@ -93,36 +96,56 @@ export default function TravelAdvisor() {
         </div>
 
         <div className="advisor-controls">
-          <div className="advisor-choice">
-            <span><WalletCards size={17}/> Budżet na osobę</span>
+          <div className="advisor-range-card">
+            <div className="advisor-card-head">
+              <span className="advisor-card-icon"><WalletCards size={18}/></span>
+              <div>
+                <small>BUDŻET NA OSOBĘ</small>
+                <strong>{budgetSummary}</strong>
+              </div>
+            </div>
             <RangeBounds label="Budżet na osobę" min={0} max={6000} step={100} lower={minBudget} upper={budget} unit="zł" onLower={setMinBudget} onUpper={setBudget} />
           </div>
 
-          <div className="advisor-choice">
-            <span><Moon size={17}/> Liczba nocy</span>
+          <div className="advisor-range-card">
+            <div className="advisor-card-head">
+              <span className="advisor-card-icon"><Moon size={18}/></span>
+              <div>
+                <small>DŁUGOŚĆ WYJAZDU</small>
+                <strong>{nightsSummary}</strong>
+              </div>
+            </div>
             <RangeBounds label="Liczba nocy" min={1} max={14} step={1} lower={minNights} upper={maxNights} unit="" onLower={setMinNights} onUpper={setMaxNights} />
           </div>
 
-          <div className="advisor-choice">
-            <span><Sun size={17}/> Klimat</span>
-            <div className="profile-chips">
-              {climates.map((item) => <button key={item.key} type="button" className={`profile-chip ${climate === item.key ? "active" : ""}`} onClick={() => setClimate(item.key)}>{item.label}</button>)}
+          <div className="advisor-preferences-card">
+            <div className="advisor-choice">
+              <span><Sun size={17}/> Klimat</span>
+              <div className="profile-chips">
+                {climates.map((item) => <button key={item.key} type="button" className={`profile-chip ${climate === item.key ? "active" : ""}`} onClick={() => setClimate(item.key)}>{item.label}</button>)}
+              </div>
+            </div>
+
+            <div className="advisor-choice">
+              <span><Sparkles size={17}/> Styl wyjazdu</span>
+              <div className="profile-chips">
+                {styles.map((item) => <button key={item.key} type="button" className={`profile-chip ${style === item.key ? "active" : ""}`} onClick={() => setStyle(item.key)}>{item.label}</button>)}
+              </div>
             </div>
           </div>
 
-          <div className="advisor-choice">
-            <span><Sparkles size={17}/> Styl wyjazdu</span>
-            <div className="profile-chips">
-              {styles.map((item) => <button key={item.key} type="button" className={`profile-chip ${style === item.key ? "active" : ""}`} onClick={() => setStyle(item.key)}>{item.label}</button>)}
+          <div className="advisor-actions">
+            <div className="advisor-status">
+              <span className={`advisor-status-dot ${source === "live" ? "is-live" : ""}`} aria-hidden="true" />
+              <span>{freshness}</span>
+              <button type="button" onClick={refresh} disabled={loading}>
+                <RefreshCw size={15} className={loading ? "is-spinning" : ""}/> {loading ? "Odświeżam…" : "Odśwież"}
+              </button>
             </div>
+            <button className="primary-cta advisor-submit" onClick={() => setSubmitted(true)}>
+              <Sparkles size={18}/> Znajdź kierunki dla mnie
+            </button>
           </div>
-
-          <div className="advisor-next" style={{ justifyContent: "space-between" }}>
-            <span>{freshness}</span>
-            <button type="button" className="app-secondary-button" onClick={refresh}><RefreshCw size={16}/> {loading ? "Odświeżam…" : "Odśwież oferty"}</button>
-          </div>
-
-          <button className="primary-cta advisor-submit" onClick={() => setSubmitted(true)}><Sparkles size={18}/> Pokaż moje kierunki i oferty</button>
         </div>
 
         {submitted && (
@@ -154,20 +177,32 @@ function RangeBounds({ label, min, max, step, lower, upper, unit, onLower, onUpp
   onLower: (value: number) => void; onUpper: (value: number) => void;
 }) {
   return (
-    <div role="group" aria-label={label} style={{ display: "grid", gap: 8, marginTop: 12, minWidth: 0 }}>
-      <label style={{ display: "grid", gap: 4, minWidth: 0 }}>
-        <span>Od <strong>{lower.toLocaleString("pl-PL")} {unit}</strong></span>
-        <input type="range" aria-label={label + " od"} aria-valuetext={lower + " " + unit}
-          min={min} max={max} step={step} value={lower}
+    <div className="advisor-range-stack" role="group" aria-label={label}>
+      <label className="advisor-range-control">
+        <span><small>OD</small><strong>{lower.toLocaleString("pl-PL")} {unit}</strong></span>
+        <input
+          type="range"
+          aria-label={label + " od"}
+          aria-valuetext={lower + " " + unit}
+          min={min}
+          max={max}
+          step={step}
+          value={lower}
           onChange={(event) => onLower(Math.min(Number(event.target.value), upper))}
-          style={{ width: "100%", minWidth: 0, height: 44, margin: 0, accentColor: "#ff602e" }} />
+        />
       </label>
-      <label style={{ display: "grid", gap: 4, minWidth: 0 }}>
-        <span>Do <strong>{upper.toLocaleString("pl-PL")} {unit}</strong></span>
-        <input type="range" aria-label={label + " do"} aria-valuetext={upper + " " + unit}
-          min={min} max={max} step={step} value={upper}
+      <label className="advisor-range-control">
+        <span><small>DO</small><strong>{upper.toLocaleString("pl-PL")} {unit}</strong></span>
+        <input
+          type="range"
+          aria-label={label + " do"}
+          aria-valuetext={upper + " " + unit}
+          min={min}
+          max={max}
+          step={step}
+          value={upper}
           onChange={(event) => onUpper(Math.max(Number(event.target.value), lower))}
-          style={{ width: "100%", minWidth: 0, height: 44, margin: 0, accentColor: "#ff602e" }} />
+        />
       </label>
     </div>
   );
