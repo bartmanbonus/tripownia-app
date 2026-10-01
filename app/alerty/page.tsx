@@ -108,7 +108,7 @@ async function showMatchNotification(settings: AlertSettings, matches: Offer[]) 
 
   const best = matches[0];
   const body = best
-    ? `${best.city} z ${best.departure} od ${best.price} zł/os. Otwórz Tripownię i potwierdź aktualną cenę u partnera.`
+    ? `${best.city} z ${best.departure} od ${best.price} zł/os. Otwórz Tripownię i sprawdź aktualną cenę przed rezerwacją.`
     : "Na razie nie mamy nowej potwierdzonej oferty pasującej do Twojego alertu.";
 
   await registration.showNotification(
@@ -257,13 +257,13 @@ export default function AlertsPage() {
 
   const freshness = source === "live"
     ? checkedAt
-      ? `Live · ${new Date(checkedAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}`
-      : "Live"
+      ? `Aktualne · ${new Date(checkedAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })}`
+      : "Aktualne"
     : offers.length
       ? checkedAt
-        ? `Ostatnia poprawna pula · ${new Date(checkedAt).toLocaleString("pl-PL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`
-        : "Ostatnia poprawna pula"
-      : "Brak potwierdzonej puli";
+        ? `Ostatnio sprawdzone · ${new Date(checkedAt).toLocaleString("pl-PL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}`
+        : "Ostatnio sprawdzone"
+      : "Brak aktualnych ofert";
 
   const matchesCopy = source === "live"
     ? "To aktualne propozycje pasujące do Twoich ustawień."
