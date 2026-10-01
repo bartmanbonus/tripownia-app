@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import HomePageClient from "@/app/HomePageClient";
+import AppHomePage from "@/components/AppHomePage";
 
 export const metadata: Metadata = {
   title: "Tripownia — wyszukiwarka i planer podróży",
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <HomePageClient />;
+  return <AppHomePage />;
 }
