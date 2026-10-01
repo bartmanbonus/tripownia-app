@@ -1438,8 +1438,8 @@ export default function SearchHub({
                   <button type="button" className={resultSort === "rating" ? "active" : ""} onClick={() => { setResultSort("rating"); setVisibleCount(18); }}>Najwyżej oceniane</button>
                   <button type="button" className={resultSort === "nights" ? "active" : ""} onClick={() => { setResultSort("nights"); setVisibleCount(18); }}>Najkrótsze</button>
                 </div>
-                <div className="search-v3-results-toolbar">
-                  {resultLocations.length > 1 && (
+                {resultLocations.length > 1 && (
+                  <div className="search-v3-results-toolbar">
                     <div className="search-v3-result-filters" aria-label="Filtruj wyniki po miejscowości">
                       <span>Miejscowość</span>
                       <button type="button" className={!resultLocation ? "active" : ""} onClick={() => { setResultLocation(""); setVisibleCount(18); }}>
@@ -1451,17 +1451,8 @@ export default function SearchHub({
                         </button>
                       ))}
                     </div>
-                  )}
-                  <label className="search-v3-sort">
-                    <span>Sortuj</span>
-                    <select value={resultSort} onChange={(event) => { setResultSort(event.target.value as typeof resultSort); setVisibleCount(18); }}>
-                      <option value="recommended">Polecane</option>
-                      <option value="price">Najtańsze</option>
-                      <option value="rating">Najwyżej oceniane</option>
-                      <option value="nights">Najkrótszy wyjazd</option>
-                    </select>
-                  </label>
-                </div>
+                  </div>
+                )}
                 <div className="search-v3-results-grid">{visibleResults.slice(0, visibleCount).map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
                 {visibleResults.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(visibleResults.length, count + 12))}>Pokaż kolejne oferty ({visibleResults.length - visibleCount})</button>}
               </>
