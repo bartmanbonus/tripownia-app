@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
+import { getDestinationImageRule } from "@/lib/destinationImages";
 
 type Props = {
   city: string;
@@ -30,7 +31,8 @@ function slugify(value: string) {
 
 export default function TravelImage({ city, country, alt, className = "", overrideSrc }: Props) {
   const cacheKey = `${city}|${country}`;
-  const localCandidate = useMemo(() => `/images/destinations/${slugify(city)}.jpg`, [city]);
+  const rule = useMemo(() => getDestinationImageRule(city, country), [city, country]);
+  const localCandidate = rule.localPath || "";
   const [src, setSrc] = useState<string>(() => overrideSrc || memoryCache.get(cacheKey) || localCandidate);
   const [triedLocal, setTriedLocal] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -50,10 +52,31 @@ export default function TravelImage({ city, country, alt, className = "", overri
       return;
     }
 
-    setSrc(localCandidate);
-    setTriedLocal(false);
+    if (localCandidate) {
+      setSrc(localCandidate);
+      setTriedLocal(false);
+      setFailed(false);
+      return;
+    }
+
+    setSrc("");
+    setTriedLocal(true);
     setFailed(false);
-  }, [cacheKey, localCandidate, overrideSrc]);
+    const controller = new AbortController();
+    fetch(`/api/destination-image?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`, {
+      signal: controller.signal,
+    })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((data: ApiResponse) => {
+        const url = data.image?.url;
+        if (!url) throw new Error("No destination image");
+        memoryCache.set(cacheKey, url);
+        setSrc(url);
+      })
+      .catch(() => setFailed(true));
+
+    return () => controller.abort();
+  }, [cacheKey, localCandidate, overrideSrc, city, country]);
 
   function loadDynamicFallback() {
     if (triedLocal) {
@@ -75,6 +98,18 @@ export default function TravelImage({ city, country, alt, className = "", overri
         setFailed(false);
       })
       .catch(() => setFailed(true));
+  }
+
+  if (!src && !failed) {
+    return (
+      <div className={`tripownia-image-empty tripownia-image-loading ${className}`} role="img" aria-label={alt}>
+        <div className="tripownia-image-empty-inner">
+          <span className="tripownia-image-mark">✈</span>
+          <strong>{city}</strong>
+          <small>Ładujemy zdjęcie…</small>
+        </div>
+      </div>
+    );
   }
 
   if (failed) {
