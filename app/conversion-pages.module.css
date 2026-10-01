@@ -274,12 +274,12 @@
 
 .searchPanel {
   scroll-margin-top: 120px;
-  margin: 20px 0;
-  padding: 26px;
-  border: 1px solid #e6ded8;
-  border-radius: 26px;
-  background: #fff;
-  box-shadow: 0 14px 38px rgba(40, 31, 24, .06);
+  margin: 26px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .searchPanelHead {
@@ -546,10 +546,14 @@
     padding: 24px 0;
   }
 
-  .sectionCard,
-  .searchPanel {
+  .sectionCard {
     padding: 18px 14px;
     border-radius: 20px;
+  }
+
+  .searchPanel {
+    padding: 0;
+    border-radius: 0;
   }
 
   .sectionHead {
