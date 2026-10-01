@@ -11,7 +11,6 @@ import DestinationLandingPanel, { hasDestinationLanding } from "@/components/Des
 import type { LegacyItem } from "@/lib/legacy";
 import { legacyCanonicalPath } from "@/lib/legacy";
 import { offers } from "@/lib/offers";
-import { partners } from "@/lib/partners";
 import { getArticleContext, type ArticleContext } from "@/lib/articleContext";
 import { getArticleDeepDive } from "@/lib/articleDeepDive";
 import { getArticleDeepDiveWave7 } from "@/lib/articleDeepDiveWave7";
@@ -528,6 +527,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const deepDive = item.type === "post"
     ? getArticleDeepDiveWave9(deepDiveLookupPath) || getArticleDeepDiveWave8(deepDiveLookupPath) || getArticleDeepDiveWave7(deepDiveLookupPath) || getArticleDeepDive(deepDiveLookupPath)
     : undefined;
+  const isPost = item.type === "post";
   const isAirportLiquidsGuide = canonicalPath === "/lotniska-w-polsce-bez-limitu-100-ml-plynow";
   const effectiveDestination = context.destination || deepDive?.searchPresets?.[0];
   const comparisonDestinations = canonicalPath === "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje"
@@ -538,11 +538,8 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const articleSearchHref = "/#wyszukiwarka";
   const articleCityBreakHref = "/city-break";
   const articleCheapFlightsHref = "/tanie-loty";
-  const articleFlightHref = salesDestination ? `/loty?destination=${encodeURIComponent(salesDestination)}` : "/loty";
-  const articleHotelBase = new URL("https://www.booking.com/searchresults.pl.html");
-  if (salesDestination) articleHotelBase.searchParams.set("ss", salesDestination);
-  const articleHotelHref = partners.booking.buildUrl(articleHotelBase.toString());
   const related = relatedOffers(context, effectiveDestination);
+  const nextLinks = growthLinks.slice(0, 3);
   const shouldRenderSearch = item.type === "post"
     && !deepDive?.hideSearch
     && (context.hasUsefulSearchContext || Boolean(deepDive?.searchPresets?.length));
@@ -588,18 +585,22 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
       <div className="legacy-breadcrumb"><Link href="/">Tripownia</Link><span>›</span><Link href={parent.href}>{parent.name}</Link><span>›</span><span aria-current="page">{item.title}</span></div>
       {archived && <div className="archive-banner"><strong>Oferta archiwalna</strong><span>Cena i dostępność mogły się zmienić. Na dole znajdziesz aktualne propozycje.</span></div>}
       {hasConversionPanel && <DestinationLandingPanel path={canonicalPath} />}
-      <article className="legacy-article">
-        {!hasConversionPanel && <header>
-          <div className="kicker">{archived ? "ARCHIWUM OFERT" : item.type === "post" ? "MAGAZYN TRIPOWNI" : "TRIPOWNIA"}</div>
+
+      <article className={`legacy-article${isPost ? " legacy-article-post" : ""}`}>
+        {!hasConversionPanel && <header className="article-hero">
+          <div className="kicker">{archived ? "ARCHIWUM OFERT" : isPost ? "MAGAZYN TRIPOWNI" : "TRIPOWNIA"}</div>
           <h1>{item.title}</h1>
-          {item.type === "post" && <div className="article-publisher-note">
+          {isPost && item.description && <p className="article-lead">{item.description}</p>}
+          {isPost && <div className="article-publisher-note">
             <span>Redakcja Tripowni</span>
             {dateModified && <span>Zweryfikowano: {dateModified}</span>}
-            <Link href="/standardy-redakcyjne">Jak tworzymy i aktualizujemy treści →</Link>
+            <Link href="/standardy-redakcyjne">Standardy redakcyjne →</Link>
             <ArticleShare title={item.title} />
           </div>}
         </header>}
+
         {hasConversionPanel && <div className="kicker" style={{marginBottom:12}}>PRZEWODNIK PO KIERUNKU</div>}
+
         {[
           "/wakacje-z-poznania",
           "/krakow",
@@ -610,127 +611,62 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
           "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel",
           "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel",
         ].includes(canonicalPath) && (
-          <section className="legacy-internal-links" style={{ marginBottom: 20 }}>
+          <section className="legacy-internal-links article-best-match" style={{ marginBottom: 20 }}>
             <div className="kicker">NAJLEPSZE DOPASOWANIE</div>
             <div>{growthLinks.map(link=><Link key={link.href} href={link.href}>{link.label} →</Link>)}</div>
           </section>
         )}
-        {item.type === "post" && (
+
+        {isPost && (
           <section className="article-action-rail" aria-label="Szybkie przejście od poradnika do wyszukiwania ofert">
             <div className="article-action-rail-copy">
               <div className="kicker">SPRAWDŹ TO W PRAKTYCE</div>
-              <strong>{salesDestination ? `Szukasz wyjazdu do: ${salesDestination}?` : "Masz już pomysł? Przejdź od razu do ofert."}</strong>
-              <span>Nie musisz kończyć artykułu, żeby zacząć porównywać. Wybierz sposób szukania.</span>
+              <strong>{salesDestination ? `Szukasz wyjazdu do: ${salesDestination}?` : "Masz już pomysł na wyjazd?"}</strong>
+              <span>Przejdź od poradnika do konkretów bez szukania po całym serwisie.</span>
             </div>
             <nav className="article-action-rail-links" aria-label="Wyszukiwanie podróży">
               <Link className="article-action-rail-primary" href={articleSearchHref} data-article-cta="search">🔎 Wyszukiwarka</Link>
-              <Link href={articleCityBreakHref} data-article-cta="city_break">🏙️ City break</Link>
               <Link href={articleCheapFlightsHref} data-article-cta="cheap_flights">✈️ Tanie loty</Link>
-              <Link href={articleDealsHref} data-article-cta="offers">🔥 Aktualne okazje</Link>
+              <Link href={articleCityBreakHref} data-article-cta="city_break">🏙️ City break</Link>
+              <Link href={articleDealsHref} data-article-cta="offers">🔥 Okazje</Link>
             </nav>
           </section>
         )}
-        {isAirportLiquidsGuide && deepDive ? (
-          <ArticleDeepDiveBlock deepDive={deepDive} />
-        ) : (
-          <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
+
+        {isPost && deepDive && (
+          <section className="article-top-answer" aria-label="Najważniejsza odpowiedź">
+            <div className="kicker">{deepDive.kicker}</div>
+            <strong>W skrócie</strong>
+            <p>{deepDive.quickAnswer}</p>
+            {deepDive.checkedAt && <small>Sprawdzone: {deepDive.checkedAt}</small>}
+          </section>
+        )}
+
+        {!isAirportLiquidsGuide && (
+          <section className={`article-longform${deepDive ? " article-longform-after-answer" : ""}`}>
+            {deepDive && <div className="article-longform-label">PEŁNY PORADNIK</div>}
+            <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
+          </section>
         )}
       </article>
 
-      {item.type === "post" && !isAirportLiquidsGuide && (
-        <section className="article-sales-bridge" aria-label="Przejdź od poradnika do rezerwacji">
-          <div className="article-sales-copy">
-            <div className="kicker">Z PORADNIKA DO WYJAZDU</div>
-            <h2>{comparisonDestinations.length
-              ? "Porównaj aktualne oferty: Alicante i Malaga"
-              : salesDestination
-                ? `Chcesz polecieć do: ${salesDestination}?`
-                : "Chcesz przejść od czytania do konkretnego wyjazdu?"}</h2>
-            <p>Zostań najpierw w Tripowni: wyszukaj wyjazd, sprawdź city breaki, tanie loty i aktualne okazje. Do partnera przechodzisz dopiero wtedy, gdy chcesz zobaczyć dostępność lub rezerwować.</p>
-          </div>
-          <div className="article-sales-actions">
-            {comparisonDestinations.length ? comparisonDestinations.map((destination) => (
-              <Link key={destination} className="article-sales-primary" href={`/okazje?q=${encodeURIComponent(destination)}`}>🔥 Oferty {destination}</Link>
-            )) : (
-              <Link className="article-sales-primary" href={articleDealsHref}>🔥 Aktualne oferty</Link>
-            )}
-            <Link className="article-sales-secondary" href={articleSearchHref}>🔎 Wyszukiwarka</Link>
-            <Link className="article-sales-secondary" href={articleCityBreakHref}>🏙️ City break</Link>
-            <Link className="article-sales-secondary" href={articleCheapFlightsHref}>✈️ Tanie loty</Link>
-            <Link className="article-sales-secondary" href={articleFlightHref}>🛫 Porównaj loty</Link>
-            <a className="article-sales-secondary" href={articleHotelHref} target="_blank" rel="sponsored noopener noreferrer"
-              data-sales-partner="booking" data-sales-destination={salesDestination || undefined} data-sales-placement="article_sales_bridge">🏨 Hotele u partnera</a>
-          </div>
-        </section>
-      )}
+      {deepDive && <ArticleDeepDiveBlock deepDive={deepDive} hideIntro />}
 
-      {isAirportLiquidsGuide && (
-        <>
-          <section className="airport-guide-next" aria-label="Co dalej po sprawdzeniu zasad płynów">
-            <div className="kicker">CO DALEJ?</div>
-            <h2>Masz zasady. Teraz przygotuj konkretny lot.</h2>
-            <p>Nie musisz przeklikiwać kilku sekcji. Wybierz kolejny krok i przejdź od razu do tego, czego potrzebujesz przed podróżą.</p>
-            <div className="airport-guide-next-grid">
-              <Link href="/tanie-loty">
-                <span aria-hidden="true">✈️</span>
-                <strong>Sprawdź tanie loty</strong>
-                <small>Porównaj kierunki i ceny z polskich lotnisk.</small>
-              </Link>
-              <Link href="/city-break">
-                <span aria-hidden="true">🏙️</span>
-                <strong>Znajdź city break</strong>
-                <small>Krótki wyjazd z dobrymi godzinami lotów.</small>
-              </Link>
-              <Link href="/przed-wyjazdem">
-                <span aria-hidden="true">✓</span>
-                <strong>Checklista przed wylotem</strong>
-                <small>Dokumenty, bagaż i rzeczy do sprawdzenia przed lotniskiem.</small>
-              </Link>
-            </div>
-          </section>
-
-          <section className="airport-guide-related" aria-label="Powiązane poradniki przed lotem">
-            <div>
-              <div className="kicker">PRZED WYLOTEM</div>
-              <h2>Sprawdź jeszcze te 3 rzeczy</h2>
-            </div>
-            <div className="airport-guide-related-links">
-              <Link href="/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych">
-                <strong>Ile bagażu podręcznego możesz zabrać?</strong>
-                <span>Limity sztuk, wymiarów i wagi →</span>
-              </Link>
-              <Link href="/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad">
-                <strong>Jedzenie w samolocie</strong>
-                <span>Co przejdzie przez kontrolę bezpieczeństwa →</span>
-              </Link>
-              <Link href="/czy-trzeba-drukowac-karte-pokladowa-odprawa-online-krok-po-kroku">
-                <strong>Karta pokładowa i odprawa online</strong>
-                <span>Kiedy telefon wystarczy, a kiedy warto mieć wydruk →</span>
-              </Link>
-            </div>
-          </section>
-        </>
-      )}
-
-      {deepDive && !isAirportLiquidsGuide && <ArticleDeepDiveBlock deepDive={deepDive} />}
-
-      {seoOpportunity && !isAirportLiquidsGuide && <section className="legacy-internal-links">
-        <div className="kicker">POD FRAZĘ, KTÓREJ SZUKASZ</div>
+      {seoOpportunity && !isAirportLiquidsGuide && <section className="article-context-card">
+        <div className="kicker">NAJWAŻNIEJSZE W TYM TEMACIE</div>
         <h2>{seoOpportunity.title}</h2>
         <p>{seoOpportunity.lead}</p>
-        <div>{seoOpportunity.links.map(link => <Link key={link.href} href={link.href}>{link.label} →</Link>)}</div>
+        <div className="article-context-links">{seoOpportunity.links.slice(0, 4).map(link => <Link key={link.href} href={link.href}>{link.label} →</Link>)}</div>
       </section>}
 
-      {(item.type === "post" || isDestination) && !isAirportLiquidsGuide && <RelatedTravelGuides path={canonicalPath} title={item.title} isDestination={isDestination} />}
-
-      {shouldRenderSearch && <>
-        <section className="legacy-internal-links">
-          <div className="kicker">KONKRET DLA TEGO ARTYKUŁU</div>
-          <h2>{effectiveDestination && !context.destination ? `${effectiveDestination}: sprawdź aktualne możliwości` : context.focusTitle}</h2>
-          <ul>{context.focusPoints.map((point) => <li key={point}>{point}</li>)}</ul>
-        </section>
-        <section className="legacy-article-search">
-          <div className="section-heading"><div><div className="kicker">WYSZUKIWANIE USTAWIONE POD ARTYKUŁ</div><h2>{effectiveDestination ? `Sprawdź aktualne wyjazdy: ${effectiveDestination}` : context.searchTitle}</h2><p>{effectiveDestination && !context.destination ? `Ustawiliśmy wyszukiwarkę pod ${effectiveDestination}. Wszystkie pola możesz zmienić.` : context.searchLead}</p></div></div>
+      {shouldRenderSearch && (
+        <section className="legacy-article-search article-search-section">
+          <div className="article-search-intro">
+            <div className="kicker">SPRAWDŹ AKTUALNE OPCJE</div>
+            <h2>{effectiveDestination ? `Wyjazdy: ${effectiveDestination}` : context.searchTitle}</h2>
+            <p>{effectiveDestination && !context.destination ? `Kierunek jest już ustawiony na ${effectiveDestination}. Daty, lotnisko i pozostałe pola możesz zmienić.` : context.searchLead}</p>
+            {context.focusPoints.length > 0 && <ul>{context.focusPoints.slice(0, 3).map((point) => <li key={point}>{point}</li>)}</ul>}
+          </div>
           <ArticlePartnerSearch
             mode={deepDive?.searchMode || context.mode}
             initialDestination={effectiveDestination || ""}
@@ -742,12 +678,29 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
             presets={deepDive?.searchPresets}
           />
         </section>
-      </>}
+      )}
 
-      {(item.type === "post" || isDestination) && !isAirportLiquidsGuide && <section className="legacy-internal-links"><h2>Sprawdź dalej w tym temacie</h2><div>{growthLinks.map(link=><Link key={link.href} href={link.href}>{link.label} →</Link>)}</div></section>}
+      {related.length > 0 && <section className="legacy-offers article-related-offers">
+        <div className="section-heading"><div><div className="kicker">AKTUALNE PROPOZYCJE</div><h2>{effectiveDestination ? `Sprawdź: ${effectiveDestination}` : "Oferty pasujące do tego poradnika"}</h2></div><Link href="/okazje">Wszystkie okazje →</Link></div>
+        <div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o}/>)}</div>
+      </section>}
 
-      {related.length > 0 && <section className="legacy-offers"><div className="section-heading"><div><div className="kicker">DOPASOWANE WYNIKI TRIPOWNI</div><h2>{effectiveDestination ? `Aktualne propozycje: ${effectiveDestination}` : "Aktualne propozycje pasujące do artykułu"}</h2></div><Link href="/okazje">Wszystkie okazje →</Link></div><div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o}/>)}</div></section>}
+      {isPost && <section className="article-next-steps" aria-label="Co dalej">
+        <div className="kicker">CO DALEJ?</div>
+        <h2>Przejdź do następnego kroku</h2>
+        <p>Wybraliśmy tylko najważniejsze przejścia związane z tym poradnikiem.</p>
+        <div className="article-next-grid">
+          {nextLinks.map((link, index) => (
+            <Link key={link.href} href={link.href} className={index === 0 ? "article-next-primary" : undefined}>
+              <strong>{link.label}</strong>
+              <span>Przejdź dalej →</span>
+            </Link>
+          ))}
+        </div>
+      </section>}
 
-      {!isAirportLiquidsGuide && <section className="legacy-internal-links"><h2>Zostań na Tripowni</h2><div><Link href="/kierunki">Kierunki</Link><Link href="/city-break">City break</Link><Link href="/last-minute">Last minute</Link><Link href="/poradniki">Poradniki</Link><Link href="/alerty">Alerty</Link></div></section>}
-    </div><SiteFooter/></main>;
+      {(isPost || isDestination) && <RelatedTravelGuides path={canonicalPath} title={item.title} isDestination={isDestination} />}
+    </div>
+    <SiteFooter/>
+  </main>;
 }
