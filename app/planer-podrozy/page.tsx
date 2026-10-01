@@ -41,7 +41,7 @@ const features = [
 ] as const;
 
 const questions = [
-  ["Czy planer podróży jest darmowy?", "Korzystanie z planera Tripowni jest bezpłatne. Loty, noclegi, bilety i inne usługi rezerwujesz osobno u dostawców. Część odnośników to linki afiliacyjne, z których Tripownia może otrzymać prowizję."],
+  ["Czy planer podróży jest darmowy?", "Tak. Korzystanie z planera Tripowni jest bezpłatne. Loty, noclegi, bilety i inne usługi rezerwujesz osobno dopiero wtedy, gdy zdecydujesz się na konkretną opcję."],
   ["Czy mogę dodać wyjazd kupiony gdzie indziej?", "Tak. Możesz dodać własną podróż, nawet jeśli lot lub hotel został kupiony poza Tripownią. Planer pomoże zebrać wszystko w jednym miejscu i uzupełnić brakujące elementy."],
   ["Czy muszę mieć konto?", "Nie. Możesz zacząć bez konta. Konto przydaje się później, gdy chcesz synchronizować zapisane podróże i wracać do nich na innych urządzeniach."],
   ["Czy planer zastępuje bilety i potwierdzenia rezerwacji?", "Nie. Organizer pomaga uporządkować podróż. Oryginalne bilety, potwierdzenia i dokumenty od dostawców zachowaj także poza Tripownią."],
