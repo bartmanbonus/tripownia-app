@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import TravelImage from "@/components/TravelImage";
 import { ACTIVE_TRIP_KEY, upsertTripArchive } from "@/lib/tripArchive";
 import { ensureFreshAccountSession, readAccountSession, saveTripowniaUserState, type AccountSession } from "@/lib/accountAuth";
 import { collectLocalAccountState } from "@/lib/accountState";
@@ -232,7 +233,7 @@ export default function AddTripPage() {
     () => [...offers]
       .filter((offer) => offer.availabilityStatus !== "expired")
       .sort((a, b) => (b.score - a.score) || (a.price - b.price))
-      .slice(0, 6),
+      .slice(0, 4),
     [],
   );
   const missingCount = Object.values(pieces).filter((value) => !value).length;
@@ -587,7 +588,7 @@ export default function AddTripPage() {
 
         <div className="add-trip-promise">
           <div><Sparkles size={18}/><span><strong>Gotowe podpowiedzi</strong><small>nie musisz szukać każdej rzeczy osobno</small></span></div>
-          <div><ListChecks size={18}/><span><strong>Pomijamy to, co już masz</strong><small>nie sprzedajemy drugi raz tej samej usługi</small></span></div>
+          <div><ListChecks size={18}/><span><strong>Pomijamy to, co już masz</strong><small>nie pytamy drugi raz o to, co już masz</small></span></div>
           <div><Ticket size={18}/><span><strong>Cały wyjazd w jednym planie</strong><small>lot, nocleg, transfer, atrakcje i przygotowanie</small></span></div>
           <div><ShieldCheck size={18}/><span><strong>0 zł za planer</strong><small>plan możesz ułożyć bez opłat i bez obowiązkowego konta</small></span></div>
         </div>
@@ -613,7 +614,7 @@ export default function AddTripPage() {
                     <article className="trip-plan-option" key={`open-${offer.id}`}>
                       <MapPinned size={22}/>
                       <div>
-                        <img className="trip-plan-option-image" src={offer.image} alt="" loading="lazy" />
+                        <TravelImage className="trip-plan-option-image" city={offer.city} country={offer.country} overrideSrc={offer.image} alt={`${offer.city}, ${offer.country}`} />
                         <small>{offer.flag} {offer.country}</small>
                         <h3>{offer.city}</h3>
                         <p>{offer.hotel} · {offer.dates} · od {offer.price.toLocaleString("pl-PL")} zł/os.</p>
