@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import MyTripResolver from "@/components/MyTripResolver";
 
 export const metadata: Metadata = {
@@ -9,12 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return (
-    <>
-      <div className="shell" style={{ paddingTop: 18, paddingBottom: 4, textAlign: "right" }}>
-        <Link href="/moje-podroze" style={{ fontSize: 13, fontWeight: 800, textDecoration: "none" }}>Moje podróże →</Link>
-      </div>
-      <MyTripResolver />
-    </>
-  );
+  return <MyTripResolver />;
 }
