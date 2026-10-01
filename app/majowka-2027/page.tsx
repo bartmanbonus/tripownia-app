@@ -44,6 +44,7 @@ export default function Majowka2027Page() {
         <Link href="/malta">Malta →</Link>
         <Link href="/grecja">Grecja →</Link>
         <Link href="/cypr">Cypr →</Link>
+        <Link href="/podroze/majowka-2027-do-2500-zl">Majówka 2027 do 2500 zł →</Link>
       </div>
     </section>
 
