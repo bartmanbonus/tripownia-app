@@ -75,6 +75,29 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
 }
 
 export function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  const normalizedPath = pathname.toLowerCase();
+
+  // Broken dynamic values must never become public 404 URLs.
+  if (
+    normalizedPath === "/null" ||
+    normalizedPath === "/undefined" ||
+    normalizedPath === "/podroze/null" ||
+    normalizedPath === "/podroze/undefined" ||
+    normalizedPath === "/oferta/null" ||
+    normalizedPath === "/oferta/undefined"
+  ) {
+    return permanentRedirect(request, pathname.startsWith("/podroze/") ? "/podroze" : pathname.startsWith("/oferta/") ? "/okazje" : "/");
+  }
+
+  // iOS and older browsers request these conventional icon paths automatically.
+  if (normalizedPath === "/apple-touch-icon.png" || normalizedPath === "/apple-touch-icon-precomposed.png") {
+    const target = request.nextUrl.clone();
+    target.pathname = "/tripownia-app-icon-v2.png";
+    target.search = "";
+    return NextResponse.redirect(target, 307);
+  }
+
   // Keep one public hostname for SEO. Old links and bookmarks may still use www.
   const host = request.headers.get("host")?.toLowerCase() || "";
   if (host === "www.tripownia.pl") {
