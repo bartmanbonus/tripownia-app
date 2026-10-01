@@ -344,7 +344,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
   ];
 
   return (
-    <main>
+    <main className="seo-travel-landing-v2">
       <SiteHeader />
       <BreadcrumbSchema items={[
         { name: "Tripownia", url: "https://tripownia.pl/" },
@@ -366,14 +366,19 @@ export default async function SeoLandingPage({ params }: PageProps) {
         </div>
       </section>
 
-      <section className="shell" style={{ padding: "30px 0 8px" }}>
+      <section className="shell seo-quick-facts-section">
         <div className="kicker">NA SZYBKO</div>
-        <h2 style={{ margin: "7px 0 16px", fontSize: "clamp(25px,3vw,34px)", letterSpacing: "-1.2px" }}>Najważniejsze informacje przed szukaniem oferty</h2>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(190px,1fr))", gap: 12 }}>
+        <div className="seo-landing-section-head">
+          <div>
+            <h2>Najważniejsze informacje przed szukaniem oferty</h2>
+            <p>Najpierw sprawdź ramy wyjazdu. Później zobacz aktualne opcje i ewentualnie poszerz zakres.</p>
+          </div>
+        </div>
+        <div className="seo-quick-facts-grid">
           {quickFacts.map((fact) => (
-            <div key={fact.label} style={{ background: "#fff", border: "1px solid var(--line)", borderRadius: 16, padding: "16px 18px", minHeight: 92 }}>
-              <div style={{ fontSize: 10, letterSpacing: "1.2px", fontWeight: 900, color: "var(--accent)", marginBottom: 7 }}>{fact.label}</div>
-              <strong style={{ display: "block", fontSize: 16, lineHeight: 1.35 }}>{fact.value}</strong>
+            <div key={fact.label} className="seo-quick-fact-card">
+              <small>{fact.label}</small>
+              <strong>{fact.value}</strong>
             </div>
           ))}
         </div>
@@ -391,12 +396,12 @@ export default async function SeoLandingPage({ params }: PageProps) {
         </section>
       )}
 
-      <section className="shell seo-offer-section" id="aktualne-oferty">
-        <div className="section-heading">
+      <section className="shell seo-offer-section seo-offer-section-v2" id="aktualne-oferty">
+        <div className="seo-landing-section-head">
           <div>
             <div className="kicker">AKTUALNE OFERTY</div>
             <h2>Najlepsze dostępne propozycje dla tego wyszukiwania</h2>
-            <p>{startDate || endDate ? "Filtrujemy również realną datę wylotu — nie podstawiamy ofert z innego miesiąca." : "Pobieramy bieżące produkty, ceny i terminy automatycznie. Każda karta prowadzi do konkretnej oferty."}</p>
+            <p>{startDate || endDate ? "Filtrujemy również realną datę wylotu — nie pokazujemy przypadkowych ofert z innego miesiąca." : "Pobieramy bieżące ceny i terminy automatycznie."}</p>
           </div>
         </div>
         <SeoEximOffers
@@ -449,7 +454,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
       </section>
 
       <section className="shell seo-partners-section">
-        <div className="section-heading">
+        <div className="seo-landing-section-head">
           <div>
             <div className="kicker">SZUKAJ SZERZEJ</div>
             <h2>Porównaj aktualne ceny</h2>
