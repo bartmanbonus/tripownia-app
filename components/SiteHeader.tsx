@@ -30,7 +30,6 @@ import {
   Instagram,
   Music2,
 } from "lucide-react";
-import { partners } from "@/lib/partners";
 import { trackEvent } from "@/lib/analytics";
 
 const primaryItems = [
@@ -42,10 +41,10 @@ const primaryItems = [
 ] as const;
 
 const bookingItems = [
-  { href: partners.booking.buildUrl(), label: "Hotele", icon: BedDouble, external: true },
-  { href: partners.kiwi.buildUrl(), label: "Loty", icon: Plane, external: true },
+  { href: "/hotele", label: "Hotele", icon: BedDouble },
+  { href: "/loty", label: "Loty", icon: Plane },
   { href: "/wynajem-auta", label: "Wynajem auta", icon: Car },
-  { href: partners.getyourguide.buildUrl("https://www.getyourguide.pl/"), label: "Atrakcje", icon: Building2, external: true },
+  { href: "/atrakcje", label: "Atrakcje", icon: Building2 },
 ] as const;
 
 const moreItems = [
@@ -133,7 +132,7 @@ export default function SiteHeader() {
     if (href === "/okazje") return pathname === "/okazje" || pathname.startsWith("/oferta/");
     return pathname === href || pathname.startsWith(`${href}/`);
   };
-  const bookingActive = pathname.startsWith("/wynajem-auta") || pathname.startsWith("/transfery") || pathname.startsWith("/parkingi") || pathname.startsWith("/esim") || pathname.startsWith("/ubezpieczenia");
+  const bookingActive = pathname.startsWith("/hotele") || pathname.startsWith("/loty") || pathname.startsWith("/atrakcje") || pathname.startsWith("/wynajem-auta") || pathname.startsWith("/transfery") || pathname.startsWith("/parkingi") || pathname.startsWith("/esim") || pathname.startsWith("/ubezpieczenia");
   const moreActive = ["/z-warszawy", "/z-krakowa", "/podroze-po-przezycia", "/dalekie-podroze", "/sylwester", "/inspiracje"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
 
   const siteSchema = {
@@ -191,10 +190,10 @@ export default function SiteHeader() {
                 </div>
                 <div className="trip-mobile-menu-section">
                   <strong>Rezerwuj</strong>
-                  <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><BedDouble size={18} /><span>Hotele</span></a>
-                  <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer"><Plane size={18} /><span>Loty</span></a>
+                  <Link href="/hotele"><BedDouble size={18} /><span>Hotele</span></Link>
+                  <Link href="/loty"><Plane size={18} /><span>Loty</span></Link>
                   <Link href="/wynajem-auta"><Car size={18} /><span>Wynajem auta</span></Link>
-                  <a href={partners.getyourguide.buildUrl("https://www.getyourguide.pl/")} target="_blank" rel="sponsored noopener noreferrer"><Building2 size={18} /><span>Atrakcje</span></a>
+                  <Link href="/atrakcje"><Building2 size={18} /><span>Atrakcje</span></Link>
                 </div>
                 <div className="trip-mobile-menu-section">
                   <strong>Inspiracje</strong>
@@ -242,7 +241,6 @@ export default function SiteHeader() {
               <div className="trip-header-popover">
                 {bookingItems.map((item) => {
                   const Icon = item.icon;
-                  if ("external" in item && item.external) return <a key={item.label} href={item.href} target="_blank" rel="sponsored noopener noreferrer"><Icon size={18} strokeWidth={2}/><span>{item.label}</span></a>;
                   return <Link key={item.label} href={item.href}><Icon size={18} strokeWidth={2}/><span>{item.label}</span></Link>;
                 })}
               </div>
