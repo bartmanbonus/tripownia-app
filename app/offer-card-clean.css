@@ -237,3 +237,24 @@
 .offer-card-clean .offer-booking-assurance svg{flex:0 0 auto!important;color:#d95a34!important}
 .offer-card-clean .card-cta{box-shadow:0 10px 20px rgba(244,81,44,.18)!important}
 .offer-card-clean .card-cta:hover{transform:translateY(-1px)!important}
+
+
+/* 2026-10-01 offer card UX: simpler customer-facing hierarchy */
+.offer-card-clean .offer-booking-assurance{display:none!important}
+.offer-card-clean .offer-trust-line{
+  margin:2px 0 9px!important;
+  color:#8b817a!important;
+  font-size:9px!important;
+}
+.offer-card-clean .why-now{
+  background:#fff8f4!important;
+  border:1px solid #f2dfd4!important;
+}
+.offer-card-clean .card-cta{
+  font-size:11px!important;
+  letter-spacing:-.01em!important;
+}
+@media(min-width:900px){
+  .offer-card-clean .offer-body{padding:14px!important}
+  .offer-card-clean .offer-hotel-name{min-height:2.8em}
+}
