@@ -8,7 +8,6 @@ import {
   CalendarDays,
   Car,
   CheckCircle2,
-  ExternalLink,
   ListChecks,
   MapPinned,
   NotebookPen,
@@ -25,7 +24,6 @@ import SiteFooter from "@/components/SiteFooter";
 import { ACTIVE_TRIP_KEY, upsertTripArchive } from "@/lib/tripArchive";
 import { ensureFreshAccountSession, readAccountSession, saveTripowniaUserState, type AccountSession } from "@/lib/accountAuth";
 import { collectLocalAccountState } from "@/lib/accountState";
-import { partners } from "@/lib/partners";
 import { offers, type Offer } from "@/lib/offers";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
@@ -130,47 +128,51 @@ type EditableTrip = {
   };
 };
 
-function kiwiOrigin(value: string): string | null {
+function originIata(value: string): string {
   const n = norm(value);
-  if (n.includes("krak")) return "krakow-polska";
-  if (n.includes("katow")) return "katowice-polska";
-  if (n.includes("gdansk")) return "gdansk-polska";
-  if (n.includes("wrocl")) return "wroclaw-polska";
-  if (n.includes("poznan")) return "poznan-polska";
-  if (n.includes("warsz") || n.includes("chopin") || n.includes("modlin")) return "warszawa-polska";
-  return null;
+  if (n.includes("krak")) return "KRK";
+  if (n.includes("katow")) return "KTW";
+  if (n.includes("gdansk")) return "GDN";
+  if (n.includes("wrocl")) return "WRO";
+  if (n.includes("poznan")) return "POZ";
+  if (n.includes("rzesz")) return "RZE";
+  if (n.includes("lublin")) return "LUZ";
+  if (n.includes("szczec")) return "SZZ";
+  if (n.includes("lodz") || n.includes("łodz") || n.includes("łódź")) return "LCJ";
+  if (n.includes("warsz") || n.includes("chopin") || n.includes("modlin")) return "WAW";
+  return "WAW";
 }
 
 function buildSuggestions(city: string, country: string, start: string, end: string, departure: string) {
   const place = [city.trim(), country.trim()].filter(Boolean).join(", ");
+  const origin = originIata(departure);
 
-  const kiwi = new URL("https://www.kiwi.com/pl/");
-  const origin = kiwiOrigin(departure);
-  if (origin) kiwi.searchParams.set("origin", origin);
-  if (city.trim() || country.trim()) kiwi.searchParams.set("destination", slug(city || country));
-  if (start) kiwi.searchParams.set("outboundDate", start);
-  if (end) kiwi.searchParams.set("inboundDate", end);
-  kiwi.searchParams.set("adults", "2");
-  kiwi.searchParams.set("currency", "PLN");
+  const flight = new URLSearchParams();
+  if (place) flight.set("destination", place);
+  if (origin) flight.set("origin", origin);
+  if (start) flight.set("outbound", start);
+  if (end) flight.set("inbound", end);
 
-  const booking = new URL("https://www.booking.com/searchresults.pl.html");
-  if (place) booking.searchParams.set("ss", place);
-  if (start) booking.searchParams.set("checkin", start);
-  if (end) booking.searchParams.set("checkout", end);
-  booking.searchParams.set("group_adults", "2");
-  booking.searchParams.set("no_rooms", "1");
+  const hotel = new URLSearchParams();
+  if (place) hotel.set("q", place);
+  if (origin) hotel.set("origin", origin);
+  if (start) hotel.set("from", start);
+  if (end) hotel.set("to", end);
 
-  const attractions = new URL("https://www.getyourguide.pl/s/");
-  if (place) attractions.searchParams.set("q", `${place} atrakcje`);
+  const attractions = new URLSearchParams();
+  if (place) attractions.set("q", place);
+
+  const transfer = new URLSearchParams();
+  if (place) transfer.set("destination", place);
 
   return {
-    flight: partners.kiwi.buildUrl(kiwi.toString()),
-    hotel: partners.booking.buildUrl(booking.toString()),
-    attractions: partners.getyourguide.buildUrl(attractions.toString()),
-    transfer: partners.kiwitaxi.buildUrl(),
-    transferAlt: partners.gettransfer.buildUrl(),
-    esim: partners.fonia.buildUrl(),
-    parking: partners.parklot.buildUrl(),
+    flight: `/loty?${flight.toString()}`,
+    hotel: `/hotele?${hotel.toString()}`,
+    attractions: `/atrakcje?${attractions.toString()}`,
+    transfer: `/transfery?${transfer.toString()}`,
+    transferAlt: `/transfery?${transfer.toString()}`,
+    esim: "/esim",
+    parking: "/parkingi",
   };
 }
 
@@ -700,7 +702,7 @@ export default function AddTripPage() {
                     <div><small>LOT</small><h3>Loty</h3><p>Sprawdź połączenia dopasowane do kierunku i terminu bez ustawiania wyszukiwania od zera.</p></div>
                     <div className="trip-plan-option-actions">
                       <button type="button" onClick={() => chooseProvider("flight", "flight-search")}>{selectedProvider.flight ? "Wybrane ✓" : "Dodaj do planu"}</button>
-                      <a href={suggestions.flight} target="_blank" rel="sponsored noopener noreferrer">Sprawdź loty <ExternalLink size={14}/></a>
+                      <a href={suggestions.flight}>Sprawdź loty <ArrowRight size={14}/></a>
                     </div>
                   </article>
                 )}
@@ -711,7 +713,7 @@ export default function AddTripPage() {
                     <div><small>NOCLEG</small><h3>Noclegi</h3><p>Sprawdź dostępne noclegi dla Twojego kierunku i terminu bez ponownego wpisywania całej podróży.</p></div>
                     <div className="trip-plan-option-actions">
                       <button type="button" onClick={() => chooseProvider("hotel", "hotel-search")}>{selectedProvider.hotel ? "Wybrane ✓" : "Dodaj do planu"}</button>
-                      <a href={suggestions.hotel} target="_blank" rel="sponsored noopener noreferrer">Sprawdź noclegi <ExternalLink size={14}/></a>
+                      <a href={suggestions.hotel}>Sprawdź noclegi <ArrowRight size={14}/></a>
                     </div>
                   </article>
                 )}
@@ -722,8 +724,8 @@ export default function AddTripPage() {
                     <div><small>TRANSFER</small><h3>Transfer z lotniska</h3><p>Jeśli transferu nie ma w pakiecie, porównaj dojazd z lotniska do noclegu.</p></div>
                     <div className="trip-plan-option-actions">
                       <button type="button" onClick={() => chooseProvider("transfer", "transfer-search")}>{selectedProvider.transfer ? "Wybrane ✓" : "Dodaj do planu"}</button>
-                      <a href={suggestions.transfer} target="_blank" rel="sponsored noopener noreferrer">Sprawdź transfery <ExternalLink size={14}/></a>
-                      <a href={suggestions.transferAlt} target="_blank" rel="sponsored noopener noreferrer">Porównaj inną opcję <ExternalLink size={14}/></a>
+                      <a href={suggestions.transfer}>Sprawdź transfery <ArrowRight size={14}/></a>
+                      <a href={suggestions.transferAlt}>Porównaj opcje <ArrowRight size={14}/></a>
                     </div>
                   </article>
                 )}
@@ -734,7 +736,7 @@ export default function AddTripPage() {
                     <div><small>ATRAKCJE</small><h3>Atrakcje i bilety</h3><p>Sprawdź bilety i wycieczki dla wybranego miejsca. Dodajesz tylko to, czego naprawdę potrzebujesz.</p></div>
                     <div className="trip-plan-option-actions">
                       <button type="button" onClick={() => chooseProvider("attractions", "attractions-search")}>{selectedProvider.attractions ? "Wybrane ✓" : "Dodaj do planu"}</button>
-                      <a href={suggestions.attractions} target="_blank" rel="sponsored noopener noreferrer">Sprawdź atrakcje <ExternalLink size={14}/></a>
+                      <a href={suggestions.attractions}>Sprawdź atrakcje <ArrowRight size={14}/></a>
                     </div>
                   </article>
                 )}
@@ -745,7 +747,7 @@ export default function AddTripPage() {
                     <div><small>INTERNET / eSIM</small><h3>Internet na wyjazd</h3><p>Przygotuj internet jeszcze przed podróżą, bez szukania lokalnej karty SIM po przylocie.</p></div>
                     <div className="trip-plan-option-actions">
                       <button type="button" onClick={() => chooseProvider("esim", "esim-search")}>{selectedProvider.esim ? "Wybrane ✓" : "Dodaj do planu"}</button>
-                      <a href={suggestions.esim} target="_blank" rel="sponsored noopener noreferrer">Sprawdź eSIM <ExternalLink size={14}/></a>
+                      <a href={suggestions.esim}>Sprawdź eSIM <ArrowRight size={14}/></a>
                     </div>
                   </article>
                 )}
@@ -756,7 +758,7 @@ export default function AddTripPage() {
                     <div><small>PARKING</small><h3>Parking przy lotnisku</h3><p>Sprawdź parking przy lotnisku wylotu, jeśli jedziesz na lotnisko samochodem.</p></div>
                     <div className="trip-plan-option-actions">
                       <button type="button" onClick={() => chooseProvider("parking", "parking-search")}>{selectedProvider.parking ? "Wybrane ✓" : "Dodaj do planu"}</button>
-                      <a href={suggestions.parking} target="_blank" rel="sponsored noopener noreferrer">Sprawdź parking <ExternalLink size={14}/></a>
+                      <a href={suggestions.parking}>Sprawdź parking <ArrowRight size={14}/></a>
                     </div>
                   </article>
                 )}
