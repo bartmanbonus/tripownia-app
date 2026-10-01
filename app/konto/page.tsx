@@ -83,7 +83,7 @@ export default function AccountPage() {
           setUser(accountUser);
           setCloudState(remote);
           const next = safeNextPath();
-          if (next) window.setTimeout(() => window.location.replace(next), 250);
+          if (fromUrl || next) window.setTimeout(() => window.location.replace(next || "/app"), 250);
         }
       } catch {
         if (!cancelled) setMessage("Konto jest zalogowane, ale nie udało się teraz pobrać wszystkich danych.");
@@ -124,7 +124,9 @@ export default function AccountPage() {
           setUser(accountUser);
           trackEvent("sign_up", { method: "password", confirmation_required: false });
           trackMetaCustomEvent("AccountCreated", { method: "password" });
-          setMessage("Konto utworzone. Twoje dane Tripowni są teraz przypisane do konta.");
+          setMessage("Konto utworzone. Otwieramy Twoją Tripownię…");
+          const next = safeNextPath();
+          window.setTimeout(() => window.location.replace(next || "/app"), 350);
         } else {
           trackEvent("sign_up", { method: "password", confirmation_required: true });
           trackMetaCustomEvent("AccountCreated", { method: "password", confirmation_required: true });
@@ -142,9 +144,9 @@ export default function AccountPage() {
         if (remote) applyCloudAccountState(remote);
         else if (collectLocalAccountState()) await saveTripowniaUserState(logged, collectLocalAccountState());
         trackEvent("login", { method: "password" });
-        setMessage("Zalogowano. Wczytaliśmy Twoją Tripownię.");
+        setMessage("Zalogowano. Otwieramy Twoją Tripownię…");
         const next = safeNextPath();
-        if (next) window.setTimeout(() => window.location.replace(next), 350);
+        window.setTimeout(() => window.location.replace(next || "/app"), 350);
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Nie udało się zalogować.");
