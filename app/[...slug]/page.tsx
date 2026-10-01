@@ -360,6 +360,8 @@ export default async function RoutePage({ params }: { params: Promise<{ slug: st
     "/5047-2": "/gdzie-na-wakacje-we-wrzesniu",
     "/5049-2": "/gdzie-na-wakacje-we-wrzesniu",
     "/tripownia-pl/okazje-tripownia": "/okazje",
+    "/category/podroze": "/podroze",
+    "/🇨🇳-chiny-otwarte-na-turystow-30-dni-bez-wizy-w-2026": "/dalekie-podroze",
     "/krakow": "/z-krakowa",
   };
   if (legacyRedirects[path]) permanentRedirect(legacyRedirects[path]);
