@@ -76,6 +76,15 @@ const BROAD_CORE_TERMS = [
   "Marsa Alam", "Dubaj", "Zanzibar", "Kenia", "Dominikana", "Tajlandia", "Malediwy"
 ];
 
+// Curated commercial coverage for airport hub pages. A smaller, stable set of
+// country queries gives much better departure-airport coverage than the generic
+// daily pool without launching the full 50+ term rescue search.
+const AIRPORT_HUB_TERMS = [
+  "Turcja", "Hiszpania", "Włochy", "Albania", "Malta",
+  "Grecja", "Cypr", "Egipt", "Tunezja", "Bułgaria",
+  "Portugalia", "Maroko", "Wyspy Kanaryjskie"
+];
+
 const NEW_YEAR_SEARCH_TERMS = [
   "Rzym", "Praga", "Budapeszt", "Wiedeń", "Stambuł", "Malta", "Cypr",
   "Marrakesz", "Teneryfa", "Fuerteventura", "Egipt", "Hurghada", "Marsa Alam",
@@ -656,6 +665,7 @@ export async function GET(request: NextRequest) {
   const query = (request.nextUrl.searchParams.get("q") || "").trim().slice(0, 80);
   const budget = Math.max(500, Math.min(10000, Number(request.nextUrl.searchParams.get("budget") || 2500)));
   const broadSearch = request.nextUrl.searchParams.get("broad") === "1";
+  const airportHub = request.nextUrl.searchParams.get("hub") === "1";
   const providerParam = request.nextUrl.searchParams.get("provider");
   const providerOnly: Provider | null = providerParam === "exim" || providerParam === "tui" ? providerParam : null;
   const departureFilter = (request.nextUrl.searchParams.get("from") || "").trim();
@@ -692,6 +702,8 @@ export async function GET(request: NextRequest) {
         ? BROAD_SEARCH_TERMS.slice(0, 18)
       : mode === "search" && query
       ? searchTerms
+      : mode === "search" && airportHub
+        ? AIRPORT_HUB_TERMS
       : mode === "search" && broadSearch
         ? BROAD_CORE_TERMS
       : mode === "citybreak"
@@ -718,7 +730,7 @@ export async function GET(request: NextRequest) {
     }
 
     const candidates: LiveCandidate[] = [];
-    const batchSize = broadSearch || rescueMode ? 6 : 10;
+    const batchSize = broadSearch || airportHub || rescueMode ? 6 : 10;
     for (let index = 0; index < jobs.length; index += batchSize) {
       const settled = await Promise.allSettled(jobs.slice(index, index + batchSize).map((job) => job()));
       for (const item of settled) {
