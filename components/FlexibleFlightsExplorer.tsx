@@ -695,6 +695,14 @@ export default function FlexibleFlightsExplorer({
 
               </section>
               )}
+
+              {!dealsLoading && sortedDeals.length === 0 && (
+                <div className="flight-deals-empty">
+                  <strong>Lista cen chwilowo nie odpowiada.</strong>
+                  <span>Mapa kierunków powyżej nadal może działać. Możesz też otworzyć pełne wyszukiwanie dla wybranego lotniska.</span>
+                  <div style={{ marginTop: 10 }}><a href={affiliateFallbackUrl} rel="sponsored">Sprawdź wszystkie loty →</a></div>
+                </div>
+              )}
             </>
           ) : travelMonth ? (
             <section className="flight-month-results" aria-label="Najtańsze terminy w wybranym miesiącu">
