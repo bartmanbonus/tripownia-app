@@ -282,7 +282,7 @@ export default function AlertsPage() {
           </div>
         </div>
 
-        <div className="app-alerts-grid">
+        <div className={`app-alerts-grid${settings.enabled ? "" : " is-single"}`}>
           <form className="app-alerts-card" onSubmit={save}>
             <label>
               <span><Plane size={17} /> Wylot z</span>
@@ -304,9 +304,10 @@ export default function AlertsPage() {
               {saved ? <><CheckCircle2 size={18} /> Zapisano</> : !signedIn ? "Zaloguj się i zapisz alert" : settings.enabled ? "Aktualizuj alert" : "Zapisz alert"}
             </button>
             {settings.enabled && <button className="app-secondary-button" type="button" onClick={disableAlert}>Wyłącz alert</button>}
-            <small>{authReady && signedIn ? "Alert jest przypisany do Twojego konta. Powiadomienia działają na urządzeniu, na którym je włączysz." : "Możesz ustawić parametry bez logowania, ale zapis alertu wymaga konta."}</small>
+            <small>{authReady && signedIn ? (settings.enabled ? "Alert jest zapisany. Jeśli chcesz, w kolejnym kroku włącz powiadomienia na tym urządzeniu." : "Najpierw zapisz alert. Powiadomienia włączysz osobno po zapisaniu.") : "Możesz ustawić parametry bez logowania, ale zapis alertu wymaga konta."}</small>
           </form>
 
+          {settings.enabled && (
           <aside className="app-alerts-card app-alerts-notification-card">
             <div className="kicker">NIE MUSISZ SPRAWDZAĆ CO CHWILĘ</div>
             <h2>Tripownia przypomni Ci o dobrym trafieniu.</h2>
@@ -322,6 +323,8 @@ export default function AlertsPage() {
             )}
             <p className="app-alerts-note">Ustawienia alertu zapisujemy na Twoim koncie. Zgoda na powiadomienia jest osobna dla każdej przeglądarki i urządzenia.</p>
           </aside>
+          )}
+
         </div>
 
         {hydrated && settings.enabled && (
