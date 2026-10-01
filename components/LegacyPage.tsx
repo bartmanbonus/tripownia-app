@@ -617,6 +617,15 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
           </section>
         )}
 
+        {isPost && deepDive && (
+          <section className="article-top-answer" aria-label="Najważniejsza odpowiedź">
+            <div className="kicker">{deepDive.kicker}</div>
+            <strong>W skrócie</strong>
+            <p>{deepDive.quickAnswer}</p>
+            {deepDive.checkedAt && <small>Sprawdzone: {deepDive.checkedAt}</small>}
+          </section>
+        )}
+
         {isPost && (
           <section className="article-action-rail" aria-label="Szybkie przejście od poradnika do wyszukiwania ofert">
             <div className="article-action-rail-copy">
@@ -630,15 +639,6 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
               <Link href={articleCityBreakHref} data-article-cta="city_break">🏙️ City break</Link>
               <Link href={articleDealsHref} data-article-cta="offers">🔥 Okazje</Link>
             </nav>
-          </section>
-        )}
-
-        {isPost && deepDive && (
-          <section className="article-top-answer" aria-label="Najważniejsza odpowiedź">
-            <div className="kicker">{deepDive.kicker}</div>
-            <strong>W skrócie</strong>
-            <p>{deepDive.quickAnswer}</p>
-            {deepDive.checkedAt && <small>Sprawdzone: {deepDive.checkedAt}</small>}
           </section>
         )}
 
