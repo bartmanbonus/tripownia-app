@@ -13,6 +13,7 @@ import { partners } from "@/lib/partners";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { LONG_HAUL_IMAGES } from "@/lib/longHaulImages";
 import { trackEvent } from "@/lib/analytics";
+import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 const DAILY_CACHE_MAX_AGE_MS = 48 * 60 * 60 * 1000;
 
@@ -69,34 +70,7 @@ function normalizeKey(value: string) {
 }
 
 function destinationGroupKey(offer: { city: string; country: string }) {
-  const text = `${normalizeKey(offer.city)} ${normalizeKey(offer.country)}`;
-  const groups: Array<[RegExp, string]> = [
-    [/zanzibar|kiwengwa|matemwe|mangapwani|nungwi|kendwa|paje|jambiani|makunduchi/, "zanzibar"],
-    [/durres|durrës|golem|shkembi|riwiera albanska|albania/, "riwiera-albanska"],
-    [/malta|mellieha|sliema|st julian|saint julian|bugibba|qawra|valletta/, "malta"],
-    [/teneryf|tenerife|costa adeje|playa de las americas|puerto de la cruz/, "teneryfa"],
-    [/fuerteventura|corralejo|costa calma|morro jable|caleta de fuste/, "fuerteventura"],
-    [/gran canaria|maspalomas|playa del ingles|puerto rico/, "gran-canaria"],
-    [/lanzarote|puerto del carmen|playa blanca|costa teguise/, "lanzarote"],
-    [/djerba|midoun|zarzis/, "djerba"],
-    [/hammamet|yasmine hammamet/, "hammamet"],
-    [/hurghada|makadi bay|soma bay|sahl hasheesh/, "hurghada"],
-    [/marsa alam|port ghalib|el quseir/, "marsa-alam"],
-    [/sharm el sheikh|sharm|nabq bay/, "sharm-el-sheikh"],
-    [/rodos|rhodes|faliraki|kolymbia|lindos/, "rodos"],
-    [/kreta|crete|heraklion|hersonissos|malia|rethymno|chania/, "kreta"],
-    [/majorka|mallorca|palma de mallorca|alcudia|magaluf/, "majorka"],
-    [/cypr|cyprus|pafos|paphos|larnaka|larnaca|ayia napa|protaras/, "cypr"],
-    [/mauritius/, "mauritius"],
-    [/malediw|maldives/, "malediwy"],
-    [/seszel|seychelles/, "seszele"],
-  ];
-
-  for (const [pattern, key] of groups) {
-    if (pattern.test(text)) return key;
-  }
-
-  return `${normalizeKey(offer.city)}|${normalizeKey(offer.country)}`;
+  return touristDestinationKey(offer);
 }
 
 function cheapestPerDirection<T extends { city: string; country: string; price: number }>(rows: T[]) {
@@ -592,9 +566,11 @@ export default function Home() {
       const addRemaining = (rows: TripOffer[]) => {
         for (const offer of rows) {
           if (result.length >= limit) break;
-          if (usedIds.has(offer.id)) continue;
+          const destination = destinationGroupKey(offer);
+          if (usedIds.has(offer.id) || usedDestinations.has(destination)) continue;
           result.push(offer);
           usedIds.add(offer.id);
+          usedDestinations.add(destination);
         }
       };
 
@@ -627,7 +603,9 @@ export default function Home() {
       12,
       o => o.nights >= 5 && o.nights <= 10
     );
-    const budgetFriendly = [...pool].sort((a,b) => a.price - b.price).slice(0, 12);
+    const budgetFriendly = cheapestPerDirection([...pool])
+      .sort((a,b) => a.price - b.price)
+      .slice(0, 12);
     const premium = buildRail(
       o => o.price >= 2500 || /malediw|mauritius|seszel|zanzibar|dubaj|dominik|meksyk|tajland|wietnam/i.test(`${o.city} ${o.country}`),
       12
