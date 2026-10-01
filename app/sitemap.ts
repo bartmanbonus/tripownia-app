@@ -96,6 +96,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/grecja-2",
     "/indywidualne-planowanie-podrozy-bez-ukrytych-kosztow",
     "/tripownia-pl/okazje-tripownia",
+    "/krakow",
     "/czy-mozna-miec-dwa-bagaze-podreczne-samolocie-zasady-w-liniach-lotniczych",
   ]);
 
