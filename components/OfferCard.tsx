@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, BadgeCheck, Scale, MapPinned, BadgePercent } from "lucide-react";
-import { partners } from "@/lib/partners";
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import TravelImage from "@/components/TravelImage";
@@ -250,26 +249,15 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
       : `/oferta/${offer.id}`;
   const buyHref = cardHref;
   const detailHref = isLiveOffer ? cardHref : `/oferta/${offer.id}`;
-  const partnerName = partners[offer.partner]?.name || "partnera";
-  const compactPartnerName = partnerName
-    .replace(/\s+Tours?\b/gi, "")
-    .replace(/\s+Polska\b/gi, "")
-    .trim();
   const nightsLabel = offer.nights === 1 ? "noc" : offer.nights % 10 >= 2 && offer.nights % 10 <= 4 && !(offer.nights % 100 >= 12 && offer.nights % 100 <= 14) ? "noce" : "nocy";
-  const ctaText = isExpired
-    ? "Zobacz podobne oferty"
-    : isLiveExact || isExactLink
-      ? `Sprawdź cenę w ${compactPartnerName}`
-      : "Sprawdź aktualną cenę";
+  const ctaText = isExpired ? "Zobacz podobne oferty" : "Sprawdź aktualną cenę";
   const trustText = isExpired
     ? "Oferta wygasła"
-    : isLiveExact
-      ? checkedAt ? `Aktualizacja oferty: ${checkedAt}` : "Cena przekazana przez organizatora"
-      : isExactLink
-        ? "Dokładny link do oferty · finalna cena u partnera"
-        : isLiveOffer
-          ? "Cena przekazana przez organizatora"
-          : "Cena orientacyjna · finalna cena u partnera";
+    : checkedAt
+      ? `Cena sprawdzona: ${checkedAt}`
+      : isLiveOffer || isExactLink
+        ? "Aktualna cena może się zmienić do momentu rezerwacji"
+        : "Cena orientacyjna · sprawdź aktualną przed rezerwacją";
 
   return (
     <article
@@ -286,7 +274,7 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
           rel="sponsored noopener noreferrer"
           onClick={() => trackOfferClick("image", true)}
           className="offer-image"
-          aria-label={`Otwórz ofertę ${offer.city} u partnera`}
+          aria-label={`Sprawdź ofertę ${offer.city}`}
         >
           <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
           <span className={`badge ${deal.verdict === "BIERZ" ? "hot" : ""}`}>{isExpired ? "WYGASŁA" : deal.verdict}</span>
@@ -329,10 +317,6 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
 
         <div className="price"><small>od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
         <div className="offer-trust-line"><Clock3 size={12} /> {trustText}</div>
-        {!isExpired && directAffiliate && (
-          <div className="offer-booking-assurance"><BadgeCheck size={13}/> Bez dodatkowej opłaty Tripowni · rezerwacja bezpośrednio u {compactPartnerName}</div>
-        )}
-
         <div className="offer-date-line"><CalendarDays size={15} /> <strong>{offer.dates}</strong></div>
         <div className="meta">
           <span><Plane size={15} /> {offer.departure}</span>
