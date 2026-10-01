@@ -13,7 +13,6 @@ import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { useLiveOffers } from "@/lib/useLiveOffers";
 import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
 import { trackEvent } from "@/lib/analytics";
-import { partners } from "@/lib/partners";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -150,12 +149,10 @@ export default function DealsPage({
     return sourceRows;
   }, [offers, quickFilter]);
   const rows = useMemo(() => cheapestUnique(quickFilteredOffers), [quickFilteredOffers]);
-  const destinationHotelHref = useMemo(() => {
-    if (!destination) return "";
-    const url = new URL("https://www.booking.com/searchresults.pl.html");
-    url.searchParams.set("ss", destination);
-    return partners.booking.buildUrl(url.toString());
-  }, [destination]);
+  const destinationHotelHref = useMemo(
+    () => destination ? `/hotele?q=${encodeURIComponent(destination)}` : "",
+    [destination]
+  );
   const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
   const poolHighlights = useMemo(() => buildPoolHighlights(rows), [rows]);
 
@@ -179,11 +176,28 @@ export default function DealsPage({
     return result;
   }, [rows, poolHighlights, historyVersion]);
 
-  const featuredDeal = rows[0];
+  const isGenericDealsPage = !destination && dealType !== "allinclusive";
+  const todayDirectionKeys = useMemo(
+    () => new Set(todayRows.map((offer) => touristDestinationKey(offer))),
+    [todayRows]
+  );
+  const featuredDeal = useMemo(() => {
+    if (!rows.length) return undefined;
+    if (!isGenericDealsPage) return rows[0];
+    return rows.find((offer) => !todayDirectionKeys.has(touristDestinationKey(offer)));
+  }, [rows, isGenericDealsPage, todayDirectionKeys]);
   const featuredDealExternal = Boolean(featuredDeal && /^https?:\/\//.test(featuredDeal.affiliateUrl || ""));
   const featuredDealHref = featuredDeal
     ? featuredDealExternal ? featuredDeal.affiliateUrl : `/oferta/${featuredDeal.id}`
     : "";
+  const displayRows = useMemo(
+    () => rows.filter((offer) => {
+      if (featuredDeal?.id === offer.id) return false;
+      if (isGenericDealsPage && todayDirectionKeys.has(touristDestinationKey(offer))) return false;
+      return true;
+    }),
+    [rows, featuredDeal?.id, isGenericDealsPage, todayDirectionKeys]
+  );
 
   const historicalCount = useMemo(() => {
     let count = 0;
@@ -391,11 +405,13 @@ export default function DealsPage({
 
       {rows.length > 0 ? (
         <>
+          {displayRows.length > 0 && <>
           <div className="deals-results-heading">
             <div><span>AKTUALNE OFERTY</span><h2>{filtering ? "Najlepsze dopasowania" : "Więcej najlepszych cen"}</h2></div>
             <p>{source === "live" ? "Kliknij ofertę, aby sprawdzić aktualną cenę i dostępność." : "Pokazujemy ostatnią opublikowaną pulę Tripowni. Aktualną cenę i dostępność sprawdzisz po kliknięciu."}</p>
           </div>
-          <div className="cards-grid deals-premium-grid">{rows.map((offer) => <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>)}</div>
+          <div className="cards-grid deals-premium-grid">{displayRows.map((offer) => <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>)}</div>
+          </>}
         </>
       ) : !loading ? (
         <div className="self-search-empty">
@@ -404,7 +420,7 @@ export default function DealsPage({
           {destination && (
             <div className="deals-empty-actions">
               <Link href={`/loty?destination=${encodeURIComponent(destination)}`}>✈️ Porównaj loty</Link>
-              <a href={destinationHotelHref} target="_blank" rel="sponsored noopener noreferrer">🏨 Sprawdź hotele</a>
+              <Link href={destinationHotelHref}>🏨 Sprawdź hotele</Link>
             </div>
           )}
         </div>
