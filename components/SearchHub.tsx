@@ -1179,7 +1179,7 @@ export default function SearchHub({
           )}
 
           <div className={`search-v3-field search-v3-date search-v3-smart-date${dateOpen ? " is-open" : ""}`} ref={dateRef}>
-            <span><CalendarDays size={15}/> {activeTab === "Loty" ? (flightTripType === "round" ? "Wylot i powrót" : "Data wylotu") : "Kiedy?"}</span>
+            <span><CalendarDays size={15}/> {activeTab === "Loty" ? (flightTripType === "round" ? "Wylot i powrót" : "Data wylotu") : activeTab === "Hotele" ? "Pobyt" : "Kiedy?"}</span>
             <button type="button" className="search-v3-date-trigger" onClick={toggleDatePanel} aria-expanded={dateOpen}>
               <strong>{dateSummary}</strong><ChevronDown size={15}/>
             </button>
