@@ -1237,3 +1237,28 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   .deals-trust-source{font-size:9.5px!important}
   .deals-results-heading p{font-size:11px!important}
 }
+
+.my-trip-loading{min-height:54vh;padding:54px 0 84px!important}
+.my-trip-loading-head{
+  display:grid;
+  gap:12px;
+  max-width:620px;
+  margin-bottom:24px;
+}
+.my-trip-loading-head span,
+.my-trip-loading-head strong,
+.my-trip-loading-grid strong,
+.my-trip-loading-grid span{
+  display:block;
+  border-radius:999px;
+  background:#f0ebe7;
+}
+.my-trip-loading-head span:first-child{width:130px;height:11px}
+.my-trip-loading-head strong{width:min(520px,88%);height:42px}
+.my-trip-loading-head span:last-child{width:min(600px,100%);height:14px}
+.my-trip-loading-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.my-trip-loading-grid>div{display:grid;gap:10px;min-height:150px;padding:18px;border:1px solid var(--ux-line);border-radius:16px;background:#fff}
+.my-trip-loading-grid strong{width:64%;height:20px}
+.my-trip-loading-grid span{width:92%;height:12px}
+.my-trip-loading-grid span:last-child{width:70%}
+@media(max-width:760px){.my-trip-loading-grid{grid-template-columns:1fr}.my-trip-loading-grid>div:nth-child(n+3){display:none}}
