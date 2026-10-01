@@ -41,7 +41,7 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
       day: "2-digit",
     }).format(new Date());
 
-    const params = new URLSearchParams({ key, mode: "search" });
+    const params = new URLSearchParams({ key, mode: "search", hub: "1" });
     if (airportParam) params.set("from", airportParam);
 
     fetch("/api/today-offers?" + params.toString(), { cache: "no-store", signal: controller.signal })
@@ -66,11 +66,11 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
       .filter((offer) => offer && offer.id && offer.price > 0 && offer.affiliateUrl)
       .filter((offer) => !isOfferExpired(offer))
       .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
-      .filter((offer) => !airportCodes.length || airportCodes.includes(offer.airportCode))
+      .filter((offer) => status === "live" || !airportCodes.length || airportCodes.includes(offer.airportCode))
       .filter((offer) => !weekendOnly || (offer.nights >= 2 && offer.nights <= 4));
 
     return uniqueDirections(result);
-  }, [rows, airportParam, weekendOnly]);
+  }, [rows, airportParam, weekendOnly, status]);
 
   const counts = useMemo(() => ({
     best: available.length,
