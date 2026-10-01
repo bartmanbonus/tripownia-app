@@ -165,11 +165,11 @@ export default function AlertsPage() {
 
     setPermission("Notification" in window ? Notification.permission : "unsupported");
 
-    void ensureFreshAccountSession(readAccountSession()).then((session) => {
+    void ensureFreshAccountSession(readAccountSession()).then(async (session) => {
       const logged = Boolean(session);
       setSignedIn(logged);
       setAuthReady(true);
-      if (!logged) return;
+      if (!session) return;
 
       try {
         const pendingRaw = sessionStorage.getItem("tripownia-pending-alert-v1");
@@ -180,6 +180,13 @@ export default function AlertsPage() {
           localStorage.setItem("tripownia-alert-settings", JSON.stringify(restored));
           window.dispatchEvent(new Event("tripownia-alerts-updated"));
           sessionStorage.removeItem("tripownia-pending-alert-v1");
+          setSyncNotice("Zapisujemy alert na Twoim koncie…");
+          try {
+            await saveTripowniaUserState(session, collectLocalAccountState());
+            setSyncNotice("Alert jest zapisany na koncie i na tym urządzeniu.");
+          } catch {
+            setSyncNotice("Alert jest zapisany na tym urządzeniu. Synchronizacja konta chwilowo się nie udała.");
+          }
         }
       } catch {
         sessionStorage.removeItem("tripownia-pending-alert-v1");
@@ -268,7 +275,7 @@ export default function AlertsPage() {
       } else {
         const registration = await navigator.serviceWorker.ready;
         await registration.showNotification("Tripownia — powiadomienia włączone", {
-          body: "Zapisz alert, a Tripownia będzie sprawdzać aktualne oferty na tym urządzeniu.",
+          body: "Po otwarciu alertu Tripownia sprawdzi aktualne oferty i pokaże pasujące trafienia.",
           icon: "/tripownia-app-icon-v2.png",
           badge: "/tripownia-app-icon-v2.png",
           data: { url: "/alerty" },
@@ -332,7 +339,7 @@ export default function AlertsPage() {
 
           {settings.enabled && (
           <aside className="app-alerts-card app-alerts-notification-card">
-            <div className="kicker">NIE MUSISZ SPRAWDZAĆ CO CHWILĘ</div>
+            <div className="kicker">POWIADOMIENIA NA TYM URZĄDZENIU</div>
             <h2>Włącz powiadomienia na tym urządzeniu.</h2>
             <p>Gdy sprawdzasz alert w Tripowni i pojawi się nowe trafienie, możemy wyświetlić powiadomienie na tym urządzeniu.</p>
             {permission === "granted" ? (
