@@ -588,7 +588,7 @@ export default function AddTripPage() {
           <div>
             <div className="kicker">{editingTrip ? "EDYTUJ PODRÓŻ" : ownedMode ? "MASZ JUŻ WYJAZD" : "TWÓJ PLAN — 0 ZŁ"}</div>
             <h1>{editingTrip ? "Uzupełnij swój plan bez zaczynania od zera." : ownedMode ? "Dodaj to, co już masz. Resztę ułożymy wokół Twojej podróży." : "My układamy. Ty tylko wybierasz."}</h1>
-            <p>{ownedMode ? "Nie szukamy Ci nowego wyjazdu. Wpisz kierunek, termin i elementy, które masz już kupione — lot, hotel lub oba. Tripownia zbuduje planner, checklistę i podpowie tylko brakujące rzeczy." : "Tak jak w płatnych planach podróży — tylko u nas za darmo. Podajesz kierunek i termin, zaznaczasz co już masz, a Tripownia pokazuje brakujące elementy i gotowe miejsca, gdzie możesz je dobrać."}</p>
+            <p>{ownedMode ? "Nie szukamy Ci nowego wyjazdu. Wpisz kierunek, termin i elementy, które masz już kupione — lot, hotel lub oba. Tripownia zbuduje planer, checklistę i podpowie tylko brakujące rzeczy." : "Tak jak w płatnych planach podróży — tylko u nas za darmo. Podajesz kierunek i termin, zaznaczasz co już masz, a Tripownia pokazuje brakujące elementy i gotowe miejsca, gdzie możesz je dobrać."}</p>
           </div>
         </header>
 
@@ -596,7 +596,7 @@ export default function AddTripPage() {
           <div><Sparkles size={18}/><span><strong>Gotowe podpowiedzi</strong><small>nie musisz szukać każdej rzeczy osobno</small></span></div>
           <div><ListChecks size={18}/><span><strong>Pomijamy to, co już masz</strong><small>nie sprzedajemy drugi raz tej samej usługi</small></span></div>
           <div><Ticket size={18}/><span><strong>Cały wyjazd w jednym planie</strong><small>lot, nocleg, transfer, atrakcje i przygotowanie</small></span></div>
-          <div><ShieldCheck size={18}/><span><strong>0 zł za planner</strong><small>plan możesz ułożyć bez opłat i bez obowiązkowego konta</small></span></div>
+          <div><ShieldCheck size={18}/><span><strong>0 zł za planer</strong><small>plan możesz ułożyć bez opłat i bez obowiązkowego konta</small></span></div>
         </div>
 
         <form className="add-trip-form" onSubmit={submit}>
