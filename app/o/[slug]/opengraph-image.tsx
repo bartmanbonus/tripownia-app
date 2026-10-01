@@ -23,19 +23,24 @@ export default function OpenGraphImage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            width: 760,
-            height: 360,
-            borderRadius: 40,
+            gap: 34,
+            width: 820,
+            height: 330,
+            borderRadius: 36,
             background: "#fffaf5",
             border: "2px solid #f1e7de",
           }}
         >
           <img
-            src="https://tripownia.pl/tripownia-logo.webp"
-            width="560"
-            height="220"
+            src="https://tripownia.pl/tripownia-app-icon-v2.png"
+            width="154"
+            height="154"
             style={{ objectFit: "contain" }}
           />
+          <div style={{ display: "flex", flexDirection: "column", color: "#211d1a" }}>
+            <div style={{ fontSize: 68, fontWeight: 800, letterSpacing: "-3px" }}>Tripownia.pl</div>
+            <div style={{ marginTop: 10, fontSize: 26, color: "#6f645e" }}>Znajdź wyjazd. Zaplanuj całą podróż.</div>
+          </div>
         </div>
       </div>
     ),
