@@ -734,8 +734,10 @@ export async function GET(request: NextRequest) {
       : rawCandidates;
 
     const departureMatches = (offer: LiveCandidate) => {
-      if (!departureFilter) return true;
       const haystack = normalize(`${offer.departure} ${offer.airportCode}`);
+      if (!departureFilter) {
+        return /polska|warszawa|chopin|okecie|modlin|radom|krakow|balice|katowice|pyrzowice|gdansk|rebiechowo|wroclaw|strachowice|poznan|lawica|rzeszow|jasionka|lodz|lublinek|lublin|swidnik|szczecin|goleniow|bydgoszcz|zielona gora|babimost|olsztyn|mazury|szymany|\bwaw\b|\bwmi\b|\brdo\b|\bkrk\b|\bktw\b|\bgdn\b|\bwro\b|\bpoz\b|\brze\b|\blcj\b|\bluz\b|\bszz\b|\bbzg\b|\bieg\b|\bszy\b/.test(haystack);
+      }
       const codes = departureFilter
         .split(",")
         .map((item) => item.trim().toUpperCase())
