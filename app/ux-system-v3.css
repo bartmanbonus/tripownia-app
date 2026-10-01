@@ -78,7 +78,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   z-index:120!important;
   border-bottom:1px solid rgba(231,221,214,.92)!important;
   background:rgba(255,255,255,.96)!important;
-  box-shadow:0 5px 20px rgba(42,31,24,.045)!important;
+  box-shadow:none!important;
   backdrop-filter:blur(16px)!important;
   -webkit-backdrop-filter:blur(16px)!important;
 }
@@ -168,7 +168,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   padding:14px!important;
   border:1px solid rgba(255,255,255,.12)!important;
   border-radius:20px!important;
-  box-shadow:0 18px 40px rgba(26,20,17,.16)!important;
+  box-shadow:none!important;
 }
 .dream-hero-card>a{
   min-height:62px!important;
@@ -192,7 +192,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   border:1px solid var(--ux-line)!important;
   border-radius:22px!important;
   background:#fff!important;
-  box-shadow:var(--ux-shadow)!important;
+  box-shadow:none!important;
 }
 #wyszukiwarka .search-v3-head{
   padding:24px 24px 14px!important;
@@ -436,7 +436,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   box-shadow:none!important;
   overflow:hidden!important;
 }
-.offer-card:hover{border-color:#d7c9c0!important;box-shadow:var(--ux-shadow-hover)!important;transform:translateY(-2px)!important}
+.offer-card:hover{border-color:#d7c9c0!important;box-shadow:none!important;transform:none!important}
 .offer-card .offer-image{aspect-ratio:16/10!important}
 .offer-card .offer-body{min-height:0!important;padding:16px!important}
 .offer-card .offer-topline{gap:10px!important}
@@ -756,7 +756,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   #wyszukiwarka .search-v3{
     overflow:hidden!important;
     border-radius:18px!important;
-    box-shadow:0 10px 26px rgba(43,30,21,.08)!important;
+    box-shadow:none!important;
   }
   #wyszukiwarka .search-v3-head{padding:18px 16px 12px!important}
   #wyszukiwarka .search-v3-head h2{font-size:28px!important}
@@ -868,4 +868,27 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
+}
+
+/* Flat visual language — Tripownia uses borders and spacing, not floating cards. */
+.deals-premium-grid .offer-card,
+.account-card,
+.account-auth-tabs button.active,
+.app-home-tile,
+.app-pretrip-grid a,
+.trip-plan-option,
+.trip-piece-toggle.active,
+.article-deep-dive,
+.deals-filter-panel,
+.deals-trust-bar,
+.deals-buy-now,
+.deals-filter-toggle,
+.deals-mobile-refresh{
+  box-shadow:none!important;
+}
+.account-email-form button,
+.account-primary-button,
+.account-password-form button,
+.deals-buy-now-primary{
+  box-shadow:none!important;
 }
