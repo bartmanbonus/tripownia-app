@@ -3,7 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
-import { getDailyOffers, linkPromiseLabel } from "@/lib/offers";
+import { getDailyOffers } from "@/lib/offers";
 
 const title = "Radar Tripowni – codzienny wybór okazji podróżniczych";
 const description = "Radar Tripowni: krótka codzienna selekcja ciekawych wyjazdów z Polski. City break, ciepło, All Inclusive i tanie podróże bez ściany przypadkowych ofert.";
@@ -67,8 +67,8 @@ export default function RadarTripowniPage() {
           <h2>{offer.flag} {offer.city}, {offer.country}</h2>
           <p><strong>od {offer.price.toLocaleString("pl-PL")} zł/os.</strong> · {offer.nights} nocy · wylot: {offer.departure}</p>
           <p>{offer.reason}</p>
-          <p><small>{offer.dates} · {offer.board} · link: {linkPromiseLabel(offer)}</small></p>
-          <a href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Sprawdź u partnera →</a>
+          <p><small>{offer.dates} · {offer.board}</small></p>
+          <a href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Sprawdź aktualną cenę →</a>
         </section>)}
       </section>
 
@@ -76,7 +76,7 @@ export default function RadarTripowniPage() {
         <div>
           <div className="kicker">JAK CZYTAĆ RADAR</div>
           <h2>To inspiracja, nie obietnica ceny.</h2>
-          <p>Ceny i dostępność w turystyce zmieniają się dynamicznie. Przed rezerwacją zawsze sprawdź finalną cenę, termin, bagaż i warunki bezpośrednio u partnera. Jeśli oferta zniknęła, przejdź do pełnej listy okazji i sprawdź aktualne alternatywy.</p>
+          <p>Ceny i dostępność w turystyce zmieniają się dynamicznie. Przed rezerwacją zawsze sprawdź finalną cenę, termin, bagaż i warunki na stronie rezerwacji. Jeśli oferta zniknęła, przejdź do pełnej listy okazji i sprawdź aktualne alternatywy.</p>
         </div>
         <div className="guides-checklist-actions">
           <Link className="primary-cta" href="/okazje">Wszystkie okazje Tripowni →</Link>
