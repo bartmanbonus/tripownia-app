@@ -684,7 +684,7 @@ export default function Home() {
       : "Sprawdzamy dzisiejszą pulę. Nie pokazujemy archiwalnych cen w zastępstwie aktualnych danych.";
 
   return (
-    <main>
+    <main className="homepage-visual-v2">
       <SiteHeader />
 
       <section className="dream-hero">
@@ -692,7 +692,7 @@ export default function Home() {
           <div className="dream-hero-copy">
             <div className="dream-eyebrow"><Sparkles size={16}/> Wyszukiwanie i darmowy planner w jednym miejscu</div>
             <h1>Znajdź wyjazd.<br/><span>Zaplanuj całą podróż za 0 zł.</span></h1>
-            <p>Najpierw wybierz wyjazd. Potem Tripownia pomoże Ci ogarnąć lot, hotel, dokumenty, transfer, atrakcje, eSIM i checklistę — także jeśli rezerwujesz gdzie indziej.</p>
+            <p>Znajdź wyjazd, a potem ogarnij całą podróż w jednym miejscu.</p>
             <div className="dream-hero-actions">
               <Link className="dream-primary" href="#wyszukiwarka" onClick={() => trackEvent("home_primary_cta", { action: "search" })}>Znajdź wyjazd <ArrowRight size={18}/></Link>
               <Link className="dream-secondary" href="/dodaj-podroz?mode=owned" onClick={() => trackEvent("home_primary_cta", { action: "add_owned_trip" })}>Dodaj kupiony wyjazd</Link>
@@ -722,7 +722,7 @@ export default function Home() {
         <div className="section-heading">
           <div>
             <div className="kicker">DZISIEJSZA SELEKCJA</div>
-            <h2>Nie wiesz gdzie? Zacznij od tego, co dziś ma sens cenowo.</h2>
+            <h2>Co dziś ma sens cenowo?</h2>
             <p>{dailyCopy}</p>
           </div>
           <Link className="section-premium-link" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={16}/></Link>
@@ -753,8 +753,7 @@ export default function Home() {
         <div className="section-heading">
           <div>
             <div className="kicker">GOTOWE WYJAZDY</div>
-            <h2 id="curated-trips-title">Konkretne pomysły, które możesz zarezerwować.</h2>
-            <p>Nie tylko inspiracje. Tu pokazujemy realne, aktualne opcje z terminem i ceną.</p>
+            <h2 id="curated-trips-title">Gotowe wyjazdy z ceną i terminem.</h2>
           </div>
           <Link className="section-premium-link" href="/okazje">Zobacz wszystkie wyjazdy <ArrowRight size={16}/></Link>
         </div>
@@ -784,8 +783,7 @@ export default function Home() {
         <div className="section-heading homepage-trip-types-heading">
           <div>
             <div className="kicker">WYBIERZ SWÓJ WYJAZD</div>
-            <h2 id="homepage-trip-types-title">Wszystkie najważniejsze typy podróży w jednym miejscu.</h2>
-            <p>Nie chowamy kategorii po podstronach. Wybierz to, czego szukasz, i od razu przejdź do odpowiedniej puli.</p>
+            <h2 id="homepage-trip-types-title">Wybierz typ podróży.</h2>
           </div>
           <Link className="section-premium-link" href="/kierunki">Wszystkie kierunki <ArrowRight size={16}/></Link>
         </div>
@@ -804,8 +802,7 @@ export default function Home() {
         <div className="section-heading">
           <div>
             <div className="kicker">WYJAZDY NA WYDARZENIA</div>
-            <h2 id="homepage-events-title">Czasem najlepszym powodem do wyjazdu jest konkretne wydarzenie.</h2>
-            <p>Najpierw wybierasz wydarzenie. Potem Tripownia pomaga złożyć wokół niego cały wyjazd.</p>
+            <h2 id="homepage-events-title">Jedź na wydarzenie.</h2>
           </div>
           <Link className="section-premium-link" href="/wydarzenia">Zobacz wydarzenia <ArrowRight size={16}/></Link>
         </div>
@@ -830,8 +827,7 @@ export default function Home() {
         <div className="section-heading">
           <div>
             <div className="kicker">ZJAWISKA I SEZON</div>
-            <h2 id="homepage-phenomena-title">Niektóre podróże mają sens tylko w dobrym momencie.</h2>
-            <p>Zorza, sakura, safari czy jarmarki — termin jest tu równie ważny jak kierunek.</p>
+            <h2 id="homepage-phenomena-title">Podróże, na które warto trafić w dobrym momencie.</h2>
           </div>
           <Link className="section-premium-link" href="/podroze-po-przezycia">Zobacz pełny kalendarz <ArrowRight size={16}/></Link>
         </div>
@@ -858,7 +854,7 @@ export default function Home() {
         <div className="dream-free-plan-copy">
           <div className="kicker">DARMOWY PERSONALIZOWANY PLAN PODRÓŻY</div>
           <h2>Powiedz nam tylko <span>dokąd i kiedy jedziesz.</span><br/>Resztę pomożemy Ci ogarnąć.</h2>
-          <p>Tripownia zbiera w jednym miejscu rzeczy, które zwykle masz w notatkach, mailach, mapach i dziesięciu zakładkach. Nie musisz wiedzieć od czego zacząć — dostajesz kolejne kroki.</p>
+          <p>Plan, rezerwacje, checklista i wydatki — razem.</p>
           <div className="dream-free-plan-actions">
             <Link href="/dodaj-podroz" onClick={() => trackEvent("planner_cta_click", { placement: "homepage_free_plan" })}>Stwórz mój plan — 0 zł <ArrowRight size={18}/></Link>
             <Link href="/app">Zobacz moją Tripownię</Link>
@@ -889,7 +885,7 @@ export default function Home() {
           <div>
             <div className="kicker">MARKETPLACE PODRÓŻY</div>
             <h2>Wszystko do podróży.<br/><span>W kolejności, w której naprawdę tego potrzebujesz.</span></h2>
-            <p>Nie szukasz po dziesięciu stronach. Wybierasz etap podróży i od razu przechodzisz do właściwej usługi.</p>
+
           </div>
           <Link className="dream-marketplace-all" href="/dodaj-podroz?mode=owned" onClick={() => trackEvent("planner_cta_click", { placement: "homepage_marketplace_owned" })}>Mam już wyjazd — dodaj go do planera <ArrowRight size={17}/></Link>
         </div>
@@ -951,7 +947,7 @@ export default function Home() {
         <div>
           <small>DOPASOWANE DO CIEBIE</small>
           <h2>Ustaw swoje preferencje.<br/>Tripownia dopasuje do nich podróże.</h2>
-          <p>Na podstawie preferencji, które samodzielnie ustawisz — bez zgadywania, czego potrzebujesz.</p>
+
         </div>
         <div className="dream-personalization-chips">
           <span>✈️ Warszawa</span><span>💰 Twój budżet</span><span>🌡️ Ciepło</span><span>🗓️ Twój urlop</span><span>🏨 Twój standard</span><span>❤️ Twój styl</span>
@@ -963,7 +959,7 @@ export default function Home() {
       </section>
 
       <section className="section shell streaming-discovery streaming-offers visual-chapter chapter-streaming" aria-label="Odkrywaj oferty Tripowni">
-        <div className="section-heading"><div><div className="kicker">PODRÓŻE DOPASOWANE DO NASTROJU</div><h2>Nie wiesz jeszcze gdzie? Zacznij od tego, czego potrzebujesz.</h2><p>Różne nastroje, budżety i konkretne kierunki — z tej samej potwierdzonej puli.</p></div></div>
+        <div className="section-heading"><div><div className="kicker">PODRÓŻE DOPASOWANE DO NASTROJU</div><h2>Na co masz dziś ochotę?</h2></div></div>
         <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety z aktualnego feedu i konkretnymi terminami." items={themedRails.city}/>
         <OfferRail kicker="☀️ SŁOŃCE / ALL INCLUSIVE" title="Jeszcze trochę lata" description="Plaża, ciepło i gotowe wakacje — od krótkiego resetu po pełny tydzień." items={themedRails.sun}/>
         <OfferRail kicker="✨ UKRYTE PEREŁKI" title="Nie kolejny Rzym i Barcelona" description="Mniej oczywiste kierunki wybrane z aktualnej lub ostatniej poprawnej puli." items={themedRails.unusual}/>
