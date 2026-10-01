@@ -857,9 +857,28 @@
   gap:10px;
   align-items:end;
 }
+.flight-hunt-month,
 .flight-hunt-stay{
   display:grid;
   gap:6px;
+}
+.flight-hunt-month>span,
+.flight-hunt-month select{
+  width:100%;
+  min-height:52px;
+  padding:0 12px;
+  border:1px solid #ddd1c9;
+  border-radius:12px;
+  background:#fff;
+  color:#554c46;
+  font:inherit;
+  font-size:11px;
+  font-weight:850;
+  outline:0;
+}
+.flight-hunt-month select:focus{
+  border-color:#efad94;
+  box-shadow:0 0 0 4px rgba(232,93,49,.08);
 }
 .flight-hunt-stay>span{
   color:#746a63;
@@ -1000,6 +1019,7 @@
   .flight-hunt-controls-clean{
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
+  .flight-hunt-month,
   .flight-hunt-stay,
   .flight-hunt-direct,
   .flight-hunt-submit{
@@ -1502,4 +1522,23 @@
   .flight-deal-main b{
     font-size:13px;
   }
+}
+
+
+/* 2026-10-01 monthly flexible flight search */
+.flight-month-results{
+  margin-top:4px;
+  padding-top:4px;
+}
+.flight-month-results .flight-deals-empty a{
+  display:inline-flex;
+  min-height:38px;
+  align-items:center;
+  justify-content:center;
+  padding:0 12px;
+  border-radius:10px;
+  background:#ff6325;
+  color:#fff;
+  font-weight:900;
+  text-decoration:none;
 }
