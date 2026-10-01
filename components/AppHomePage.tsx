@@ -60,7 +60,7 @@ export default function AppHomePage() {
 
   const tiles = [
     { href: "/moje-podroze", icon: MapPinned, title: "Moje podróże", text: "Aktywne i zapisane plany w jednym miejscu." },
-    { href: activeTrip ? "/moja-podroz" : "/dodaj-podroz", icon: CheckCircle2, title: "Mój planner", text: activeTrip ? "Otwórz plan, checklistę i organizer wyjazdu." : "Dodaj pierwszy wyjazd i utwórz plan." },
+    { href: activeTrip ? "/moja-podroz" : "/dodaj-podroz", icon: CheckCircle2, title: "Mój planer", text: activeTrip ? "Otwórz plan, checklistę i organizer wyjazdu." : "Dodaj pierwszy wyjazd i utwórz plan." },
     { href: "/dla-ciebie", icon: Compass, title: "Dla Ciebie", text: "Kierunki i oferty dopasowane do Twoich preferencji." },
     { href: "/ulubione", icon: Heart, title: "Ulubione", text: "Wróć do ofert zapisanych do późniejszej decyzji." },
     { href: "/alerty", icon: Bell, title: "Alerty", text: "Ustaw warunki i wracaj do obserwowanych wyjazdów." },
@@ -93,7 +93,7 @@ export default function AppHomePage() {
             </div>
             <div className="app-trip-now-status">
               <span><CheckCircle2 size={16}/> {progress} odhaczonych zadań</span>
-              <Link href="/moja-podroz">Otwórz planner <ArrowRight size={15}/></Link>
+              <Link href="/moja-podroz">Otwórz planer <ArrowRight size={15}/></Link>
             </div>
           </section>
         ) : (
