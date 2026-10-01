@@ -22,8 +22,9 @@ let mode='normal'; const calls=[];
 const product=(id,price)=>({name:`Hotel ${id}`,fields:[{name:'Country',value:'Cypr'},{name:'Region',value:'Pafos'},{name:'DepartureCity',value:'Warszawa'},{name:'DepartureDate',value:'2027-12-01'},{name:'Duration',value:'7'},{name:'ServiceDescription',value:'All Inclusive'}],offers:[{productUrl:`https://www.tui.pl/oferta/${id}`,sourceProductId:String(id),priceHistory:[{price:{value:String(price)}}]}]});
 const route=load('app/api/today-offers/route.ts',{'@/lib/searchOfferRanking':ranking,'@/lib/destinationGrouping':grouping,'next/server':{NextResponse:{json:(body,opts)=>({body,status:opts?.status||200})}}},{process:{env:{TRADEDOUBLER_TUI_TOKEN:'test-only'}},fetch:async(url)=>{
  calls.push(url); if(mode==='error') throw new Error('offline');
+ const radom = product(4,999); radom.fields.find(field => field.name === 'DepartureCity').value='Warszawa - Radom';
  const page=Number(url.match(/;page=(\d+)/)[1]);
- return {ok:true,json:async()=>({products:page===0?[product(1,900)]:page===1?[product(2,1100)]:[product(3,1300)]})};
+ return {ok:true,json:async()=>({products:page===0?[product(1,900),radom]:page===1?[product(2,1100)]:[product(3,1300)]})};
 }});
 (async()=>{
  let res=await route.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=search&q=Cypr&from=WAW&maxPrice=1200&strict=1')});
