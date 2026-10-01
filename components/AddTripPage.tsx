@@ -228,9 +228,6 @@ export default function AddTripPage() {
     () => buildSuggestions(city, country, startDate, endDate, departure),
     [city, country, startDate, endDate, departure],
   );
-  const hasSpecificDestination = Boolean(city.trim() || country.trim());
-  const hasDates = dateMode === "flexible" || (dateMode === "month" ? Boolean(travelMonth) : Boolean(startDate && endDate));
-  const basicsReady = hasSpecificDestination && hasDates;
   const openOfferSuggestions = useMemo(
     () => [...offers]
       .filter((offer) => offer.availabilityStatus !== "expired")
@@ -466,10 +463,6 @@ export default function AddTripPage() {
     });
   }
 
-  function chooseProvider(key: PieceKey, provider: string) {
-    setSelectedProvider((current) => ({ ...current, [key]: provider }));
-  }
-
   async function submit(event: FormEvent) {
     event.preventDefault();
     setError("");
@@ -689,89 +682,8 @@ export default function AddTripPage() {
             )}
           </section>
 
-          <section className="add-trip-section trip-plan-suggestions">
-            <div className="add-trip-section-title"><Sparkles size={20}/><div><strong>3. Tripownia uzupełnia brakujące elementy <em>(opcjonalnie)</em></strong><span>{basicsReady ? `Brakuje ${missingCount} z 6 elementów. Wybierz propozycję albo pomiń — możesz wrócić później.` : hasSpecificDestination ? "Ustaw termin albo zostaw go elastyczny, a pokażemy dopasowane propozycje." : "Pominęłaś kierunek. Nie będziemy zgadywać lotu ani hotelu — możesz zapisać plan i dodać miejsce później."}</span></div></div>
-
-            {!basicsReady ? (
-              <div className="trip-plan-waiting">{hasSpecificDestination ? "Uzupełnij termin lub zostaw go elastyczny — wtedy pokażemy gotowe propozycje." : "Dodaj kierunek, kiedy będziesz gotowa. Do tego czasu ten krok pozostaje pominięty."}</div>
-            ) : (
-              <div className="trip-plan-option-grid">
-                {!pieces.flight && (
-                  <article className={`trip-plan-option${selectedProvider.flight ? " selected" : ""}`}>
-                    <Plane size={22}/>
-                    <div><small>LOT</small><h3>Loty</h3><p>Sprawdź połączenia dopasowane do kierunku i terminu bez ustawiania wyszukiwania od zera.</p></div>
-                    <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("flight", "flight-search")}>{selectedProvider.flight ? "Wybrane ✓" : "Dodaj do planu"}</button>
-                      <a href={suggestions.flight}>Sprawdź loty <ArrowRight size={14}/></a>
-                    </div>
-                  </article>
-                )}
-
-                {!pieces.hotel && (
-                  <article className={`trip-plan-option${selectedProvider.hotel ? " selected" : ""}`}>
-                    <BedDouble size={22}/>
-                    <div><small>NOCLEG</small><h3>Noclegi</h3><p>Sprawdź dostępne noclegi dla Twojego kierunku i terminu bez ponownego wpisywania całej podróży.</p></div>
-                    <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("hotel", "hotel-search")}>{selectedProvider.hotel ? "Wybrane ✓" : "Dodaj do planu"}</button>
-                      <a href={suggestions.hotel}>Sprawdź noclegi <ArrowRight size={14}/></a>
-                    </div>
-                  </article>
-                )}
-
-                {!pieces.transfer && (
-                  <article className={`trip-plan-option${selectedProvider.transfer ? " selected" : ""}`}>
-                    <Car size={22}/>
-                    <div><small>TRANSFER</small><h3>Transfer z lotniska</h3><p>Jeśli transferu nie ma w pakiecie, porównaj dojazd z lotniska do noclegu.</p></div>
-                    <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("transfer", "transfer-search")}>{selectedProvider.transfer ? "Wybrane ✓" : "Dodaj do planu"}</button>
-                      <a href={suggestions.transfer}>Sprawdź transfery <ArrowRight size={14}/></a>
-                      <a href={suggestions.transferAlt}>Porównaj opcje <ArrowRight size={14}/></a>
-                    </div>
-                  </article>
-                )}
-
-                {!pieces.attractions && (
-                  <article className={`trip-plan-option${selectedProvider.attractions ? " selected" : ""}`}>
-                    <Ticket size={22}/>
-                    <div><small>ATRAKCJE</small><h3>Atrakcje i bilety</h3><p>Sprawdź bilety i wycieczki dla wybranego miejsca. Dodajesz tylko to, czego naprawdę potrzebujesz.</p></div>
-                    <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("attractions", "attractions-search")}>{selectedProvider.attractions ? "Wybrane ✓" : "Dodaj do planu"}</button>
-                      <a href={suggestions.attractions}>Sprawdź atrakcje <ArrowRight size={14}/></a>
-                    </div>
-                  </article>
-                )}
-
-                {!pieces.esim && (
-                  <article className={`trip-plan-option${selectedProvider.esim ? " selected" : ""}`}>
-                    <Smartphone size={22}/>
-                    <div><small>INTERNET / eSIM</small><h3>Internet na wyjazd</h3><p>Przygotuj internet jeszcze przed podróżą, bez szukania lokalnej karty SIM po przylocie.</p></div>
-                    <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("esim", "esim-search")}>{selectedProvider.esim ? "Wybrane ✓" : "Dodaj do planu"}</button>
-                      <a href={suggestions.esim}>Sprawdź eSIM <ArrowRight size={14}/></a>
-                    </div>
-                  </article>
-                )}
-
-                {!pieces.parking && (
-                  <article className={`trip-plan-option${selectedProvider.parking ? " selected" : ""}`}>
-                    <ParkingCircle size={22}/>
-                    <div><small>PARKING</small><h3>Parking przy lotnisku</h3><p>Sprawdź parking przy lotnisku wylotu, jeśli jedziesz na lotnisko samochodem.</p></div>
-                    <div className="trip-plan-option-actions">
-                      <button type="button" onClick={() => chooseProvider("parking", "parking-search")}>{selectedProvider.parking ? "Wybrane ✓" : "Dodaj do planu"}</button>
-                      <a href={suggestions.parking}>Sprawdź parking <ArrowRight size={14}/></a>
-                    </div>
-                  </article>
-                )}
-
-                {missingCount === 0 && (
-                  <div className="trip-plan-complete"><CheckCircle2 size={22}/><div><strong>Masz już komplet podstaw.</strong><span>Przechodzimy dalej do dokumentów, pogody, planu dnia, checklisty i informacji na miejscu.</span></div></div>
-                )}
-              </div>
-            )}
-          </section>
-
           <section className="add-trip-section">
-            <div className="add-trip-section-title"><NotebookPen size={20}/><div><strong>4. Co jeszcze zapamiętać? <em>(opcjonalnie)</em></strong><span>Nie musisz nic wpisywać. Notatkę możesz dodać teraz albo później w swoim planie.</span></div></div>
+            <div className="add-trip-section-title"><NotebookPen size={20}/><div><strong>3. Co jeszcze zapamiętać? <em>(opcjonalnie)</em></strong><span>Nie musisz nic wpisywać. Notatkę możesz dodać teraz albo później w swoim planie.</span></div></div>
             <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="np. późny przylot, dziecko w podróży, chcemy dużo zwiedzać..." rows={4} />
           </section>
 
