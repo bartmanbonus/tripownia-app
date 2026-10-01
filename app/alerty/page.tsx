@@ -11,7 +11,8 @@ import { trackEvent } from "@/lib/analytics";
 import { useLiveOffers } from "@/lib/useLiveOffers";
 import { recommendationScore } from "@/lib/offerQuality";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
-import { ensureFreshAccountSession, readAccountSession } from "@/lib/accountAuth";
+import { ensureFreshAccountSession, readAccountSession, saveTripowniaUserState } from "@/lib/accountAuth";
+import { collectLocalAccountState } from "@/lib/accountState";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type AlertSettings = {
@@ -134,6 +135,7 @@ export default function AlertsPage() {
   const [permission, setPermission] = useState<NotificationPermission | "unsupported">("default");
   const [authReady, setAuthReady] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
+  const [syncNotice, setSyncNotice] = useState("");
   const { offers, source, loading, checkedAt, refresh } = useLiveOffers("/api/today-offers?mode=search&broad=1", 3 * 60 * 1000);
   const matchingOffers = useMemo(() => findMatchingOffers(settings, offers), [settings, offers]);
 
@@ -194,10 +196,11 @@ export default function AlertsPage() {
     showMatchNotification(settings, matchingOffers).catch(() => {});
   }, [hydrated, matchingOffers, permission, settings, loading, source]);
 
-  function save(event: FormEvent) {
+  async function save(event: FormEvent) {
     event.preventDefault();
 
-    if (!signedIn) {
+    const session = await ensureFreshAccountSession(readAccountSession());
+    if (!session) {
       try {
         sessionStorage.setItem("tripownia-pending-alert-v1", JSON.stringify({ ...settings, enabled: true }));
       } catch {}
@@ -210,6 +213,9 @@ export default function AlertsPage() {
     setSettings(next);
     localStorage.setItem("tripownia-alert-settings", JSON.stringify(next));
     window.dispatchEvent(new Event("tripownia-alerts-updated"));
+    setSignedIn(true);
+    setSaved(true);
+    setSyncNotice("Zapisujemy alert na Twoim koncie…");
     trackEvent("alert_created", {
       departure: next.departure.trim().slice(0, 80),
       destinations: next.destinations.trim().slice(0, 120),
@@ -217,17 +223,33 @@ export default function AlertsPage() {
       match_count: matches.length,
       offer_source: source,
     });
-    setSaved(true);
+
+    try {
+      await saveTripowniaUserState(session, collectLocalAccountState());
+      setSyncNotice("Alert jest zapisany na koncie i na tym urządzeniu.");
+    } catch {
+      setSyncNotice("Alert jest zapisany na tym urządzeniu. Synchronizacja konta chwilowo się nie udała.");
+    }
+
     window.setTimeout(() => setSaved(false), 2500);
   }
 
-  function disableAlert() {
+  async function disableAlert() {
     const next = { ...settings, enabled: false };
     setSettings(next);
     localStorage.setItem("tripownia-alert-settings", JSON.stringify(next));
     localStorage.removeItem("tripownia-alert-last-notified");
     window.dispatchEvent(new Event("tripownia-alerts-updated"));
     trackEvent("alert_disabled");
+
+    const session = await ensureFreshAccountSession(readAccountSession());
+    if (!session) return;
+    try {
+      await saveTripowniaUserState(session, collectLocalAccountState());
+      setSyncNotice("Alert został wyłączony także na Twoim koncie.");
+    } catch {
+      setSyncNotice("Alert jest wyłączony na tym urządzeniu. Synchronizacja konta chwilowo się nie udała.");
+    }
   }
 
   async function enableNotifications() {
@@ -305,13 +327,14 @@ export default function AlertsPage() {
             </button>
             {settings.enabled && <button className="app-secondary-button" type="button" onClick={disableAlert}>Wyłącz alert</button>}
             <small>{authReady && signedIn ? (settings.enabled ? "Alert jest zapisany. Jeśli chcesz, w kolejnym kroku włącz powiadomienia na tym urządzeniu." : "Najpierw zapisz alert. Powiadomienia włączysz osobno po zapisaniu.") : "Możesz ustawić parametry bez logowania, ale zapis alertu wymaga konta."}</small>
+            {syncNotice && <small className="app-alerts-sync-notice" role="status">{syncNotice}</small>
           </form>
 
           {settings.enabled && (
           <aside className="app-alerts-card app-alerts-notification-card">
             <div className="kicker">NIE MUSISZ SPRAWDZAĆ CO CHWILĘ</div>
-            <h2>Tripownia przypomni Ci o dobrym trafieniu.</h2>
-            <p>Włącz powiadomienia, żeby łatwiej wrócić do ofert pasujących do Twoich ustawień.</p>
+            <h2>Włącz powiadomienia na tym urządzeniu.</h2>
+            <p>Gdy sprawdzasz alert w Tripowni i pojawi się nowe trafienie, możemy wyświetlić powiadomienie na tym urządzeniu.</p>
             {permission === "granted" ? (
               <div className="app-alerts-status success"><CheckCircle2 size={18} /> Powiadomienia są włączone</div>
             ) : permission === "denied" ? (
@@ -321,7 +344,7 @@ export default function AlertsPage() {
             ) : (
               <button className="app-secondary-button" onClick={enableNotifications}><Bell size={18} /> Włącz powiadomienia</button>
             )}
-            <p className="app-alerts-note">Ustawienia alertu zapisujemy na Twoim koncie. Zgoda na powiadomienia jest osobna dla każdej przeglądarki i urządzenia.</p>
+            <p className="app-alerts-note">Kryteria alertu zapisujemy na Twoim koncie. Powiadomienia przeglądarki działają osobno na każdym urządzeniu.</p>
           </aside>
           )}
 
