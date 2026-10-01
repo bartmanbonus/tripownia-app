@@ -16,6 +16,8 @@ import { readAccountSession } from "@/lib/accountAuth";
 import {
   COMPARE_OFFER_SNAPSHOTS_KEY,
   FAVORITE_OFFER_SNAPSHOTS_KEY,
+  RECENT_OFFER_IDS_KEY,
+  RECENT_OFFER_SNAPSHOTS_KEY,
   pruneOfferSnapshots,
   removeOfferSnapshot,
   saveOfferSnapshot,
@@ -232,7 +234,17 @@ export default function OfferCard({ offer, priceHighlight }: { offer: Offer; pri
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
+  function rememberRecentOffer() {
+    const current = readNumberArray(RECENT_OFFER_IDS_KEY).filter((id) => id !== offer.id);
+    const next = [offer.id, ...current].slice(0, 8);
+    localStorage.setItem(RECENT_OFFER_IDS_KEY, JSON.stringify(next));
+    saveOfferSnapshot(RECENT_OFFER_SNAPSHOTS_KEY, offerSnapshot);
+    pruneOfferSnapshots(RECENT_OFFER_SNAPSHOTS_KEY, next);
+    window.dispatchEvent(new Event("tripownia-recent-offers-updated"));
+  }
+
   function trackOfferClick(placement: "image" | "card_cta", outboundOverride?: boolean) {
+    rememberRecentOffer();
     const outbound = outboundOverride ?? (!isExpired && hasExternalAffiliateUrl);
     const params = { ...eventBase, placement };
     trackEvent(outbound ? "outbound_partner_click" : "offer_open", params);
