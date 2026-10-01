@@ -13,6 +13,7 @@ import { getDealScore } from "@/lib/dealScore";
 import { ANALYTICS_CONSENT_EVENT, getAnalyticsConsent, trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { readAccountSession } from "@/lib/accountAuth";
+import { customerDealVerdict, customerOfferReason } from "@/lib/customerOfferCopy";
 import {
   COMPARE_OFFER_SNAPSHOTS_KEY,
   FAVORITE_OFFER_SNAPSHOTS_KEY,
@@ -133,6 +134,8 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
   const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
   const stalePrice = !isExpired && priceStale;
   const deal = getDealScore(offer, displayPrice, isLiveExact);
+  const customerReason = customerOfferReason(override.note || publishedOverride.note || offer.reason);
+  const customerVerdict = customerDealVerdict(deal.verdict);
 
   const offerSnapshot: Offer = {
     ...offer,
@@ -316,7 +319,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
             <BadgeCheck size={15} />
             <span>Ocena okazji</span>
             <strong>{deal.score}/100</strong>
-            <em>{deal.verdict}</em>
+            <em>{customerVerdict}</em>
           </div>
         )}
 
@@ -337,7 +340,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
           <span><Utensils size={15} /> {offer.board}</span>
         </div>
 
-        <div className="why-now"><span>DLACZEGO WARTO</span><strong>{override.note || publishedOverride.note || offer.reason}</strong></div>
+        <div className="why-now"><span>DLACZEGO WARTO</span><strong>{customerReason}</strong></div>
 
         <a
           className="card-cta"
