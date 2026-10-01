@@ -156,12 +156,11 @@ export async function GET(request: NextRequest) {
   const month = /^(0[1-9]|1[0-2])$/.test(rawMonth) ? rawMonth : "";
   const year = /^20\d{2}$/.test(rawYear) ? rawYear : "";
 
-  // Okazje use a wider price pool than the homepage daily ranking. Packages
-  // from both providers are merged with short EXIM city breaks, then reduced
-  // to the cheapest live option for every tourist destination.
+  // Okazje use one combined live package pool across available providers plus
+  // short EXIM city breaks. We deduplicate only after the combined pool is loaded,
+  // so a temporarily partial provider response cannot be mistaken for the cheapest deal.
   const results = await Promise.all([
-    loadSource(request, "exim-packages", destination ? { mode: "search", q: destination, provider: "exim" } : { mode: "search", broad: "1", provider: "exim" }),
-    loadSource(request, "tui-packages", destination ? { mode: "search", q: destination, provider: "tui" } : { mode: "search", broad: "1", provider: "tui" }),
+    loadSource(request, "combined-packages", destination ? { mode: "search", q: destination } : { mode: "search", broad: "1" }),
     loadSource(request, "exim-citybreaks", destination ? { mode: "citybreak", q: destination, provider: "exim" } : { mode: "citybreak", provider: "exim" }),
   ]);
 
