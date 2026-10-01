@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
+import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 
 type Partner =
   | "wakacje"
@@ -212,6 +213,15 @@ export default function AffiliateClickBridge() {
           const source = tracked.searchParams.get("source") || sourceFor(anchor);
           const destination = tracked.searchParams.get("destination") || destinationFor(anchor);
           const outboundHost = (() => { try { return new URL(before).hostname; } catch { return ""; } })();
+          const offerId = tracked.searchParams.get("offer") || "";
+          const price = tracked.searchParams.get("price") || "";
+          saveAffiliateReturnContext({
+            partner,
+            destination,
+            source,
+            offerId,
+            price,
+          });
           trackEvent("affiliate_click", {
             partner,
             source,

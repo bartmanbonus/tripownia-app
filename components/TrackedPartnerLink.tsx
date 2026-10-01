@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
+import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 
 type Props = {
   href: string;
@@ -33,6 +34,13 @@ export default function TrackedPartnerLink({
       price,
       placement,
     };
+    saveAffiliateReturnContext({
+      partner,
+      destination,
+      source: placement,
+      offerId,
+      price,
+    });
     trackEvent("outbound_partner_click", params);
     trackMetaCustomEvent("PartnerOutboundClick", params);
   }
