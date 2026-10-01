@@ -49,6 +49,8 @@ const bookingItems = [
 ] as const;
 
 const moreItems = [
+  { href: "/z-warszawy", label: "Wyloty z Warszawy", icon: Plane },
+  { href: "/z-krakowa", label: "Wyloty z Krakowa", icon: Plane },
   { href: "/podroze-po-przezycia", label: "Podróże po przeżycia", icon: Sparkles },
   { href: "/dalekie-podroze", label: "Dalekie podróże", icon: Palmtree },
   { href: "/sylwester", label: "Sylwester", icon: Zap },
@@ -132,7 +134,7 @@ export default function SiteHeader() {
     return pathname === href || pathname.startsWith(`${href}/`);
   };
   const bookingActive = pathname.startsWith("/wynajem-auta") || pathname.startsWith("/transfery") || pathname.startsWith("/parkingi") || pathname.startsWith("/esim") || pathname.startsWith("/ubezpieczenia");
-  const moreActive = ["/podroze-po-przezycia", "/dalekie-podroze", "/sylwester", "/inspiracje"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  const moreActive = ["/z-warszawy", "/z-krakowa", "/podroze-po-przezycia", "/dalekie-podroze", "/sylwester", "/inspiracje"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
 
   const siteSchema = {
     "@context": "https://schema.org",
@@ -182,6 +184,8 @@ export default function SiteHeader() {
                   <Link href="/wakacje"><Palmtree size={18} /><span>Wakacje</span></Link>
                   <Link href="/city-break"><Building2 size={18} /><span>City break</span></Link>
                   <Link href="/last-minute"><Zap size={18} /><span>Last minute</span></Link>
+                  <Link href="/z-warszawy"><Plane size={18} /><span>Wyloty z Warszawy</span></Link>
+                  <Link href="/z-krakowa"><Plane size={18} /><span>Wyloty z Krakowa</span></Link>
                   <Link href="/kierunki"><Compass size={18} /><span>Kierunki</span></Link>
                   <Link href="/poradniki"><BookOpen size={18} /><span>Poradniki</span></Link>
                 </div>
