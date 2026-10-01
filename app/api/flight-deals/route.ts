@@ -35,7 +35,20 @@ async function fetchJson(urls: string[]) {
         lastError = new Error("HTTP " + response.status);
         continue;
       }
-      return await response.json();
+
+      const contentType = response.headers.get("content-type") || "";
+      const body = await response.text();
+      const trimmed = body.trim();
+      if (!contentType.includes("json") && !trimmed.startsWith("{") && !trimmed.startsWith("[")) {
+        lastError = new Error("flight_data_non_json");
+        continue;
+      }
+
+      try {
+        return JSON.parse(trimmed);
+      } catch {
+        lastError = new Error("flight_data_invalid_json");
+      }
     } catch (error) {
       lastError = error;
     }
@@ -134,7 +147,7 @@ export async function GET(request: NextRequest) {
       { headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=900" } },
     );
   } catch (error) {
-    console.error("[flight_deals_error]", error);
+    console.warn("[flight_deals_unavailable]", error instanceof Error ? error.message : "unknown");
     return NextResponse.json(
       { ok: false, origin, direct, offers: [], error: "flight_deals_unavailable" },
       { status: 200, headers: { "Cache-Control": "no-store" } },
