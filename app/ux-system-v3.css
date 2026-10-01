@@ -1035,3 +1035,36 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     font-size:11px!important;
   }
 }
+
+.system-state-page{
+  min-height:52vh;
+  max-width:760px!important;
+  padding:72px 0 96px!important;
+}
+.system-state-page h1{
+  margin:8px 0 12px;
+  font-size:clamp(40px,6vw,62px);
+  line-height:1;
+  letter-spacing:-.045em;
+}
+.system-state-page p{
+  max-width:620px;
+  margin:0;
+  color:var(--ux-muted);
+  font-size:16px;
+  line-height:1.65;
+}
+.system-state-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:24px;
+}
+.system-state-actions button,
+.system-state-actions a{min-height:46px}
+@media(max-width:560px){
+  .system-state-page{padding:42px 0 70px!important}
+  .system-state-actions{display:grid;grid-template-columns:1fr}
+  .system-state-actions button,
+  .system-state-actions a{width:100%;justify-content:center}
+}
