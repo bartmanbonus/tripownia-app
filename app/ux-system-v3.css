@@ -1280,3 +1280,29 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   .trip-mobile-menu-section{padding-block:10px!important}
   .trip-mobile-menu-section+ .trip-mobile-menu-section{border-top:1px solid #eee6e0!important}
 }
+
+/* Hotel mode: only destination, stay dates and the submit action. */
+#wyszukiwarka .search-v3-form.is-hotels .search-picker-modes,
+#wyszukiwarka .search-v3-form.is-hotels .search-v3-esky-tabs,
+#wyszukiwarka .search-v3-form.is-hotels .search-v3-esky-weekend,
+#wyszukiwarka .search-v3-form.is-hotels .search-v3-esky-nights{
+  display:none!important;
+}
+@media(min-width:1101px){
+  #wyszukiwarka .search-v3-form.is-hotels{
+    grid-template-columns:minmax(320px,1.55fr) minmax(260px,1fr) minmax(170px,.62fr)!important;
+  }
+  #wyszukiwarka .search-v3-form.is-hotels .search-v3-destination,
+  #wyszukiwarka .search-v3-form.is-hotels .search-v3-submit{
+    grid-column:auto!important;
+  }
+}
+@media(min-width:821px) and (max-width:1100px){
+  #wyszukiwarka .search-v3-form.is-hotels{
+    grid-template-columns:minmax(280px,1.45fr) minmax(230px,1fr) minmax(160px,.65fr)!important;
+  }
+  #wyszukiwarka .search-v3-form.is-hotels .search-v3-destination,
+  #wyszukiwarka .search-v3-form.is-hotels .search-v3-submit{
+    grid-column:auto!important;
+  }
+}
