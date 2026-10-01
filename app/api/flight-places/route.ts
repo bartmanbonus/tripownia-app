@@ -22,12 +22,21 @@ type Place = {
 };
 
 const QUERY_ALIASES: Record<string, string> = {
-  rpa: "Republika Południowej Afryki",
-  "afryka poludniowa": "Republika Południowej Afryki",
-  "republika poludniowej afryki": "Republika Południowej Afryki",
-  "south africa": "Republika Południowej Afryki",
-  zea: "Zjednoczone Emiraty Arabskie",
-  usa: "Stany Zjednoczone",
+  rpa: "South Africa",
+  "afryka poludniowa": "South Africa",
+  "republika poludniowej afryki": "South Africa",
+  "south africa": "South Africa",
+  kapsztad: "Cape Town",
+  "cape town": "Cape Town",
+  kenia: "Kenya",
+  kenya: "Kenya",
+  gambia: "Gambia",
+  banjul: "Banjul",
+  maskat: "Muscat",
+  muscat: "Muscat",
+  oman: "Oman",
+  zea: "United Arab Emirates",
+  usa: "United States",
 };
 
 function normalized(value: string) {
