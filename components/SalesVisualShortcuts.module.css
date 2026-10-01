@@ -82,8 +82,8 @@
   color:#fff;
   text-decoration:none;
   isolation:isolate;
-  box-shadow:0 11px 28px rgba(44,31,23,.07);
-  transition:transform .18s ease,box-shadow .18s ease;
+  box-shadow:none;
+  transition:transform .18s ease;
 }
 
 .airportCard{
@@ -101,8 +101,8 @@
 .airportCard:hover,
 .budgetCard:hover,
 .seasonalCard:hover{
-  transform:translateY(-3px);
-  box-shadow:0 17px 36px rgba(44,31,23,.13);
+  transform:translateY(-1px);
+  box-shadow:none;
 }
 
 .image{
