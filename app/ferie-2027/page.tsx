@@ -122,6 +122,8 @@ export default function Ferie2027Page() {
           <Link href="/podroze">Więcej inspiracji →</Link>
           <Link href="/podroze/ferie-2027-all-inclusive">Ferie 2027 All Inclusive →</Link>
           <Link href="/podroze/ferie-2027-egipt">Egipt na ferie 2027 →</Link>
+          <Link href="/podroze/ferie-2027-z-warszawy-all-inclusive">Ferie z Warszawy All Inclusive →</Link>
+          <Link href="/podroze/ferie-2027-z-katowic-all-inclusive">Ferie z Katowic All Inclusive →</Link>
         </div>
       </div>
     </section>
