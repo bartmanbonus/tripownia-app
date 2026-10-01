@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { ArrowRight, Bell, CalendarRange, Search } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import type { Offer } from "@/lib/offers";
 
@@ -177,9 +179,50 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     return () => { cancelled = true; window.clearInterval(timer); };
   }, [queries, departure, minNights, maxNights, maxPrice, startDate, endDate]);
 
-  if (loading) return <div className="seo-live-status"><span className="seo-live-pulse" /><strong>Sprawdzamy teraz aktualne oferty…</strong></div>;
+  if (loading) {
+    return (
+      <div className="seo-live-status seo-live-status-loading">
+        <span className="seo-live-pulse" />
+        <div>
+          <strong>Sprawdzamy teraz aktualne oferty…</strong>
+          <span>To może potrwać kilka sekund.</span>
+        </div>
+      </div>
+    );
+  }
+
   if (error || offers.length === 0) {
-    return <div className="seo-live-status seo-live-status-warning"><strong>Nie znaleźliśmy teraz pasującej oferty dla tego lotniska i terminu.</strong><span>Nie podstawiamy ofert z innego kierunku, lotniska ani miesiąca tylko po to, żeby zapełnić stronę. Sprawdź ponownie później albo ustaw alert.</span></div>;
+    const alertParams = new URLSearchParams({ destination: query });
+    if (departure) alertParams.set("departure", departure);
+    if (maxPrice) alertParams.set("maxPrice", String(maxPrice));
+
+    return (
+      <div className="seo-empty-offers">
+        <div className="seo-empty-offers-copy">
+          <div className="seo-empty-offers-icon"><Search size={24}/></div>
+          <div>
+            <small>NIC NA SIŁĘ</small>
+            <h3>Nie ma teraz dobrej oferty dla tych parametrów.</h3>
+            <p>
+              Nie podmieniamy lotniska, miesiąca ani kierunku tylko po to, żeby zapełnić stronę.
+              Najszybciej zwiększysz szansę, rozszerzając termin albo wyszukując podobny wariant.
+            </p>
+          </div>
+        </div>
+
+        <div className="seo-empty-offers-actions">
+          <Link href="/#wyszukiwarka" className="seo-empty-primary">
+            <CalendarRange size={17}/> Zmień termin lub parametry <ArrowRight size={16}/>
+          </Link>
+          <Link href="/gdzie-leciec" className="seo-empty-secondary">
+            <Search size={17}/> Pokaż podobne kierunki
+          </Link>
+          <Link href={`/alerty?${alertParams.toString()}`} className="seo-empty-secondary">
+            <Bell size={17}/> Ustaw alert
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return <>
