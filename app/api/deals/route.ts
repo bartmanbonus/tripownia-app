@@ -206,7 +206,7 @@ export async function GET(request: NextRequest) {
           matchMode: fallbackExact.length ? "fallback_exact" : "fallback_pool",
           filters: { destination: destination || null, type: type || null, airport: airport || null, month: month || null, year: year || null, strict },
 
-          notice: "Live feedy partnerów są chwilowo niedostępne. Pokazujemy ostatnią opublikowaną pulę Tripowni; cenę i dostępność potwierdź u partnera po kliknięciu.",
+          notice: "Część aktualnych danych jest chwilowo niedostępna. Pokazujemy ostatnio sprawdzone oferty Tripowni; cenę i dostępność potwierdź przy rezerwacji.",
           offers: fallbackOffers,
           error,
         },
@@ -283,7 +283,7 @@ export async function GET(request: NextRequest) {
           sourceType: "published_fallback",
           matchMode: fallbackExact.length ? "fallback_exact" : "fallback_pool",
           filters: { destination: destination || null, type: type || null, airport: airport || null, month: month || null, year: year || null, strict },
-          notice: "Live feedy nie zwróciły teraz ofert. Pokazujemy ostatnią opublikowaną pulę Tripowni; cenę i dostępność potwierdź u partnera po kliknięciu.",
+          notice: "Nie znaleźliśmy teraz nowszych ofert. Pokazujemy ostatnio sprawdzone propozycje Tripowni; cenę i dostępność potwierdź przy rezerwacji.",
           offers: fallbackOffers,
         },
         { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } }
@@ -348,7 +348,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (unavailableSources.length) {
-    const providerNotice = `Część źródeł jest chwilowo niedostępna (${unavailableSources.join(", ")}). Pokazujemy tylko oferty potwierdzone przez działające źródła.`;
+    const providerNotice = `Część danych jest chwilowo niedostępna. Pokazujemy tylko oferty, które udało się teraz potwierdzić.`;
     notice = notice ? `${notice} ${providerNotice}` : providerNotice;
   }
 
