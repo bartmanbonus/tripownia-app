@@ -218,10 +218,10 @@ export default function DealsPage({
   const sourceCopy = loading && !offers.length
     ? "Sprawdzamy aktualne ceny…"
     : source === "live"
-      ? `Aktualny feed${checkedLabel ? ` · ${checkedLabel}` : ""}`
+      ? `Aktualne${checkedLabel ? ` · ${checkedLabel}` : ""}`
       : offers.length
-        ? "Ostatnia opublikowana pula · sprawdź aktualną cenę"
-        : "Nie udało się potwierdzić aktualnej puli";
+        ? "Ostatnio sprawdzone · potwierdź cenę przed rezerwacją"
+        : "Brak aktualnych danych";
 
   const airportLabel = AIRPORTS.find((item) => item.value === airport)?.label || "Wszystkie lotniska";
   const monthLabel = MONTH_OPTIONS.find((item) => item.value === month)?.label || "dowolny miesiąc";
@@ -266,7 +266,7 @@ export default function DealsPage({
       ) : !todayLoading ? (
         <div className="self-search-empty">
           <strong>Dzisiejsza pula właśnie się odświeża.</strong>
-          <span>Wróć za chwilę — pokazujemy tylko oferty, które udało się potwierdzić w bieżącym feedzie.</span>
+          <span>Wróć za chwilę — pokazujemy tylko oferty, których cenę i dostępność udało się teraz potwierdzić.</span>
         </div>
       ) : null}</>}
 
@@ -275,7 +275,7 @@ export default function DealsPage({
           <div>
             <small>TANIE ALL INCLUSIVE 🔥</small>
             <strong>Najtańsze pakiety z pełnym wyżywieniem</strong>
-            <span>Osobna lista live — sortowana od najniższej potwierdzonej ceny.</span>
+            <span>Aktualizowana lista — sortowana od najniższej potwierdzonej ceny.</span>
           </div>
           <Link href="/tanie-all-inclusive" onClick={() => trackEvent("allinclusive_promo_click", { placement: "deals_page" })}>Zobacz Tanie All Inclusive →</Link>
         </div>
@@ -283,7 +283,7 @@ export default function DealsPage({
 
       {!destination && dealType === "allinclusive" && (
         <div className="deals-ai-promo-strip">
-          <div><small>TANIE ALL INCLUSIVE 🔥</small><strong>Hotel + wyżywienie + przelot w jednej cenie</strong><span>Sortujemy od najniższej potwierdzonej ceny w live feedzie.</span></div>
+          <div><small>TANIE ALL INCLUSIVE 🔥</small><strong>Hotel + wyżywienie + przelot w jednej cenie</strong><span>Sortujemy od najniższej potwierdzonej ceny.</span></div>
           <Link href="/okazje">Zobacz też wszystkie okazje →</Link>
         </div>
       )}
@@ -351,9 +351,19 @@ export default function DealsPage({
           </select>
         </label>
         {filtering && <button type="button" className="deals-clear-filters" onClick={clearFilters}>Wyczyść filtry</button>}
+        <button
+          type="button"
+          className="deals-filter-apply"
+          onClick={() => {
+            setFiltersOpen(false);
+            window.setTimeout(() => document.getElementById("deals-results-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+          }}
+        >
+          Pokaż wyniki
+        </button>
       </div>
 
-      <div className="deals-trust-bar">
+      <div className="deals-trust-bar" id="deals-results-anchor">
         <span className="deals-trust-primary"><Sparkles size={15}/><strong>{loading && !rows.length ? "Sprawdzamy oferty…" : `${rows.length} ${rows.length === 1 ? "kierunek" : "kierunków"}`}</strong></span>
         <span className="deals-trust-detail">{historicalCount ? `${historicalCount} historycznych minimów` : priceHighlights.size ? `${priceHighlights.size} cen wyraźnie poniżej mediany puli` : "Oferty od najniższej ceny"}</span>
         <span className="deals-trust-detail">{filtering ? `${airportLabel} · ${monthLabel} · ${yearLabel}` : "Wszystkie dostępne lotniska i terminy"}</span>
@@ -408,7 +418,7 @@ export default function DealsPage({
           {displayRows.length > 0 && <>
           <div className="deals-results-heading">
             <div><span>AKTUALNE OFERTY</span><h2>{filtering ? "Najlepsze dopasowania" : "Więcej najlepszych cen"}</h2></div>
-            <p>{source === "live" ? "Kliknij ofertę, aby sprawdzić aktualną cenę i dostępność." : "Pokazujemy ostatnią opublikowaną pulę Tripowni. Aktualną cenę i dostępność sprawdzisz po kliknięciu."}</p>
+            <p>{source === "live" ? "Kliknij ofertę, aby sprawdzić aktualną cenę i dostępność." : "Pokazujemy ostatnio sprawdzone oferty Tripowni. Aktualną cenę i dostępność potwierdzisz po kliknięciu."}</p>
           </div>
           <div className="cards-grid deals-premium-grid">{displayRows.map((offer) => <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>)}</div>
           </>}
