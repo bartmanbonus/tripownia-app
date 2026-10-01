@@ -27,8 +27,8 @@ type TripState = {
   checklist?: Record<string, boolean>;
   dayPlan?: DayPlanItem[];
   remindersEnabled?: boolean;
-  journeyPieces?: Partial<Record<"flight" | "hotel" | "transfer" | "attractions", { status?: "owned" | "selected" | "missing"; provider?: string }>>;
-  suggestedLinks?: Partial<Record<"flight" | "hotel" | "transfer" | "transferAlt" | "attractions", string>>;
+  journeyPieces?: Partial<Record<"flight" | "hotel" | "transfer" | "attractions" | "esim" | "parking", { status?: "owned" | "selected" | "missing"; provider?: string }>>;
+  suggestedLinks?: Partial<Record<"flight" | "hotel" | "transfer" | "transferAlt" | "attractions" | "esim" | "parking", string>>;
 };
 
 const LEGACY_TOOLKIT_KEY = "tripownia-trip-toolkit";
@@ -168,6 +168,26 @@ export default function MyTrip() {
     return Boolean(offer?.transferIncluded || status === "owned" || status === "selected" || trip.checklist?.["Sprawdź transfer z lotniska i taxi na miejscu"]);
   }, [offer?.transferIncluded, trip.journeyPieces, trip.checklist]);
 
+  const flightReady = useMemo(() => {
+    const status = trip.journeyPieces?.flight?.status;
+    return Boolean(
+      trip.flight?.trim() ||
+      status === "owned" ||
+      status === "selected" ||
+      (offer && !offer.manual && offer.departure)
+    );
+  }, [trip.flight, trip.journeyPieces, offer]);
+
+  const hotelReady = useMemo(() => {
+    const status = trip.journeyPieces?.hotel?.status;
+    return Boolean(
+      trip.hotel?.trim() ||
+      status === "owned" ||
+      status === "selected" ||
+      (offer && !offer.manual && offer.hotel)
+    );
+  }, [trip.hotel, trip.journeyPieces, offer]);
+
   const attractionsReady = useMemo(() => {
     const status = trip.journeyPieces?.attractions?.status;
     return Boolean(status === "owned" || status === "selected" || trip.checklist?.["Zarezerwuj najważniejsze atrakcje"]);
@@ -175,8 +195,8 @@ export default function MyTrip() {
 
   const readiness = useMemo(() => {
     const checks = [
-      Boolean(trip.flight?.trim()),
-      Boolean(trip.hotel?.trim()),
+      flightReady,
+      hotelReady,
       Boolean(trip.departureAt),
       Boolean((trip.dayPlan || []).length),
       Boolean(trip.checklist?.["Sprawdź dokumenty i wymagania wjazdowe"]),
@@ -188,9 +208,11 @@ export default function MyTrip() {
     ];
     const done = checks.filter(Boolean).length;
     return { done, total: checks.length, percent: Math.round((done / checks.length) * 100) };
-  }, [trip.flight, trip.hotel, trip.departureAt, trip.dayPlan, trip.checklist, transferReady, attractionsReady]);
+  }, [flightReady, hotelReady, trip.departureAt, trip.dayPlan, trip.checklist, transferReady, attractionsReady]);
   const nextSteps = useMemo(() => {
     const steps = [
+      { done: flightReady, label: "Znajdź lub dodaj lot", href: trip.suggestedLinks?.flight || "/loty", icon: Plane },
+      { done: hotelReady, label: "Znajdź lub dodaj nocleg", href: trip.suggestedLinks?.hotel || "/hotele", icon: BedDouble },
       { done: Boolean(trip.checklist?.["Sprawdź dokumenty i wymagania wjazdowe"]), label: "Sprawdź dokumenty i wymagania wjazdowe", href: "/przed-wyjazdem", icon: FileCheck2 },
       { done: Boolean(trip.checklist?.["Dodaj ubezpieczenie"]), label: "Uzupełnij ubezpieczenie", href: "/ubezpieczenia", icon: ShieldCheck },
       { done: transferReady, label: "Sprawdź transfer i taxi", href: "/transfery", icon: Car },
@@ -199,7 +221,7 @@ export default function MyTrip() {
       { done: Boolean((trip.dayPlan || []).length), label: "Dodaj pierwszy punkt planu dnia", href: "#plan-dnia", icon: MapPinned },
     ];
     return steps.filter((step) => !step.done).slice(0, 4);
-  }, [trip.checklist, trip.dayPlan, transferReady, attractionsReady]);
+  }, [trip.checklist, trip.dayPlan, trip.suggestedLinks, flightReady, hotelReady, transferReady, attractionsReady]);
 
   useEffect(() => {
     if (!offer?.city) {
@@ -328,6 +350,12 @@ export default function MyTrip() {
                 <span>Twój plan zostaje w Tripowni</span>
               </div>
               <div className="trip-essentials-grid">
+                {flightReady
+                  ? <div className="trip-essential-done"><Plane size={20}/><span><strong>Lot</strong><small>Już dodany / w wybranym wyjeździe ✓</small></span><CheckCircle2 size={15}/></div>
+                  : <Link href={trip.suggestedLinks?.flight || "/loty"}><Plane size={20}/><span><strong>Lot</strong><small>Znajdź połączenie do tego planu</small></span><ArrowRight size={15}/></Link>}
+                {hotelReady
+                  ? <div className="trip-essential-done"><BedDouble size={20}/><span><strong>Nocleg</strong><small>Już dodany / w wybranym wyjeździe ✓</small></span><CheckCircle2 size={15}/></div>
+                  : <Link href={trip.suggestedLinks?.hotel || "/hotele"}><BedDouble size={20}/><span><strong>Nocleg</strong><small>Znajdź nocleg do tego planu</small></span><ArrowRight size={15}/></Link>}
                 <Link href="/ubezpieczenia"><ShieldCheck size={20}/><span><strong>Ubezpieczenie</strong><small>Sprawdź przed wyjazdem</small></span><ArrowRight size={15}/></Link>
                 <Link href="/esim"><Wifi size={20}/><span><strong>eSIM</strong><small>Internet na miejscu</small></span><ArrowRight size={15}/></Link>
                 {transferReady
@@ -344,8 +372,8 @@ export default function MyTrip() {
             {reminders.length > 0 && <section className="trip-reminders-strip">{reminders.map((item) => <div key={item.label} className={item.active ? "active" : ""}><span>{item.due}</span><strong>{item.label}</strong>{item.active && <em>TERAZ</em>}</div>)}</section>}
 
             <div className="my-trip-grid">
-              <section className="my-trip-card"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p><strong>{offer.departure}</strong> → {destinationPending ? "kierunek do wyboru" : offer.city}</p><input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="Dodaj numer lotu / godzinę" /></section>
-              <section className="my-trip-card"><div className="my-trip-card-head"><BedDouble size={20}/><h2>Hotel</h2></div><p><strong>{offer.hotel}</strong> · {offer.board}</p><input value={trip.hotel || ""} onChange={(e) => save({ ...trip, hotel: e.target.value })} placeholder="Dodaj numer rezerwacji / adres" /></section>
+              <section className="my-trip-card"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p><strong>{offer.departure}</strong> → {destinationPending ? "kierunek do wyboru" : offer.city}</p><input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="Dodaj numer lotu / godzinę" />{!flightReady && <Link className="my-trip-card-action" href={trip.suggestedLinks?.flight || "/loty"}>Znajdź lot dla tej podróży <ArrowRight size={15}/></Link>}</section>
+              <section className="my-trip-card"><div className="my-trip-card-head"><BedDouble size={20}/><h2>Nocleg</h2></div><p><strong>{offer.hotel}</strong>{offer.board ? ` · ${offer.board}` : ""}</p><input value={trip.hotel || ""} onChange={(e) => save({ ...trip, hotel: e.target.value })} placeholder="Dodaj nazwę / numer rezerwacji" />{!hotelReady && <Link className="my-trip-card-action" href={trip.suggestedLinks?.hotel || "/hotele"}>Znajdź nocleg dla tej podróży <ArrowRight size={15}/></Link>}</section>
               <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet</h2></div>{offer.manual || offer.id < 0 ? <p>Własny wyjazd — dodawaj koszty poniżej w sekcji wydatków.</p> : <><div className="my-trip-budget"><span>Oferta</span><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong></div>{cost && <div className="my-trip-budget total"><span>Szacowany pełny koszt</span><strong>{cost.total.toLocaleString("pl-PL")} zł / os.</strong></div>}<Link href="/porownaj">Porównaj z innymi ofertami →</Link></>}</section>
               <section className="my-trip-card"><div className="my-trip-card-head"><Ticket size={20}/><h2>Co ogarnąć</h2></div><div className="my-trip-checklist">{checklistItems.map((item) => { const checked = Boolean(trip.checklist?.[item]); return <button key={item} onClick={() => toggleChecklist(item)}>{checked ? <CheckCircle2 size={18}/> : <Circle size={18}/>}<span>{item}</span></button>; })}</div></section>
             </div>
