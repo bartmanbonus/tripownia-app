@@ -488,7 +488,7 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
           <div>
             <span>KONKRETNE PROPOZYCJE</span>
             <h2>Aktualne oferty: {config.searchDestination}</h2>
-            <p>Pokazujemy live oferty dopasowane do kierunku. Finalną cenę i dostępność zawsze potwierdzasz u partnera.</p>
+            <p>Pokazujemy aktualne oferty dopasowane do kierunku. Cenę i dostępność potwierdzasz przy przejściu do rezerwacji.</p>
           </div>
           <Link href={`/okazje?q=${encodeURIComponent(config.searchDestination)}${config.preferredBoard === "all inclusive" ? "&type=allinclusive" : ""}`}>Wszystkie oferty →</Link>
         </div>
@@ -498,7 +498,7 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
         />
       </section>
 
-      <section className={styles.partnerShortcuts} aria-label="Szybkie przejścia do partnerów">
+      <section className={styles.partnerShortcuts} aria-label="Szybkie przejścia do rezerwacji">
         <Link href={`/loty?destination=${encodeURIComponent(config.searchDestination)}`}>
           <span>✈️</span>
           <div><strong>Porównaj loty</strong><small>Kierunek ustawiony: {config.searchDestination}</small></div>
@@ -507,13 +507,13 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
         <a href={wakacjeUrl} target="_blank" rel="sponsored noopener noreferrer"
           data-sales-partner="wakacje" data-sales-destination={config.searchDestination} data-sales-placement="destination_shortcut_wakacje">
           <span>🏖️</span>
-          <div><strong>Wakacje i All Inclusive</strong><small>Wakacje.pl · link afiliacyjny Tripowni</small></div>
+          <div><strong>Wakacje i All Inclusive</strong><small>Gotowe pakiety na wybrany kierunek</small></div>
           <b>Sprawdź →</b>
         </a>
         <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer"
           data-sales-partner="booking" data-sales-destination={config.searchDestination} data-sales-placement="destination_shortcut_booking">
           <span>🏨</span>
-          <div><strong>Noclegi</strong><small>Booking.com · kierunek już ustawiony</small></div>
+          <div><strong>Noclegi</strong><small>Kierunek jest już ustawiony</small></div>
           <b>Sprawdź →</b>
         </a>
         <Link href="/planer-podrozy">
@@ -523,7 +523,7 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
         </Link>
       </section>
 
-      <p className={styles.disclaimer}>Ceny i dostępność zmieniają się dynamicznie. Tripownia pokazuje punkt startowy i kieruje do partnera, gdzie widzisz finalne warunki rezerwacji.</p>
+      <p className={styles.disclaimer}>Ceny i dostępność zmieniają się dynamicznie. Tripownia pomaga znaleźć wyjazd i przejść do finalnych warunków rezerwacji.</p>
     </div>
   );
 }
