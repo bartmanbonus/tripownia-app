@@ -1472,3 +1472,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   .flights-mode-switch button{min-height:56px}
   .flights-exact-panel{padding:14px;border-radius:16px}
 }
+
+/* Alerts: configure first, ask for notification permission second. */
+.app-alerts-grid.is-single{
+  grid-template-columns:minmax(0,760px)!important;
+}
+.app-alerts-grid.is-single .app-alerts-card{
+  width:100%;
+}
