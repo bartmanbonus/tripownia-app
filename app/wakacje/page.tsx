@@ -6,6 +6,7 @@ import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
+import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 
 export const metadata: Metadata = {
   title: "Tanie wakacje 2026 — All Inclusive, last minute i lot + hotel",
@@ -25,7 +26,7 @@ export default function WakacjePage() {
     <section className="shopping-hero shell">
       <div className="kicker">WAKACJE 2026 — PEŁNA OFERTA</div>
       <h1>Tanie wakacje 2026: All Inclusive, last minute i lot + hotel.</h1>
-      <p>Porównaj All Inclusive, rodzinne wakacje, plażę, egzotykę i klasyczne pakiety. Tripownia pokazuje wybrane oferty i pozwala sprawdzić szerszą bazę u partnerów — bez ograniczania się do jednego źródła.</p>
+      <p>Porównaj All Inclusive, rodzinne wakacje, plażę, egzotykę i klasyczne pakiety. Tripownia pokazuje wybrane oferty i pozwala przejść do aktualnej dostępności — bez przekopywania wielu osobnych serwisów.</p>
     </section>
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">WYBRANE PRZEZ NAS</div><h2>Aktualne wakacje warte sprawdzenia</h2><p>Porównuj nie tylko cenę startową, ale też termin, liczbę nocy, wyżywienie i koszt całej podróży.</p></div></div>
@@ -34,47 +35,51 @@ export default function WakacjePage() {
     </section>
     <section className="shell seo-related-block">
       <div className="kicker">SZUKAJ DOKŁADNIEJ</div>
-      <h2>Wakacje według lotniska i terminu</h2>
-      <div className="seo-related-links">
-        <Link href="/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem">Lot + hotel →</Link>
-        <Link href="/podroze/wakacje-do-2000-zl">Wakacje do 2000 zł →</Link>
-        <Link href="/podroze/wakacje-do-2500-zl">Wakacje do 2500 zł →</Link>
-        <Link href="/wakacje-2027">Wakacje 2027 →</Link>
-        <Link href="/wakacje-z-dziecmi">Wakacje z dziećmi →</Link>
-        <Link href="/gdzie-jest-cieplo-zima-bez-dalekiego-lotu">Gdzie jest ciepło zimą →</Link>
-        <Link href="/ferie-2027">Ferie zimowe 2027 →</Link>
-        <Link href="/majowka-2027">Majówka 2027 →</Link>
-        <Link href="/podroze/wakacje-z-warszawy">Wakacje z Warszawy →</Link>
-        <Link href="/podroze/wakacje-z-poznania">Wakacje z Poznania →</Link>
-        <Link href="/podroze/wakacje-z-krakowa">Wakacje z Krakowa →</Link>
-        <Link href="/podroze/wakacje-z-katowic">Wakacje z Katowic →</Link>
-        <Link href="/podroze/wakacje-z-gdanska">Wakacje z Gdańska →</Link>
-        <Link href="/podroze/wakacje-z-wroclawia">Wakacje z Wrocławia →</Link>
-        <Link href="/podroze/wakacje-z-rzeszowa">Wakacje z Rzeszowa →</Link>
-        <Link href="/podroze/wakacje-z-lublina">Wakacje z Lublina →</Link>
-        <Link href="/podroze/all-inclusive-z-warszawy">All Inclusive z Warszawy →</Link>
-        <Link href="/podroze/last-minute-z-warszawy">Last Minute z Warszawy →</Link>
-        <Link href="/podroze/cieple-wakacje-listopad-2026">Ciepłe wakacje w listopadzie →</Link>
-        <Link href="/podroze/egipt-listopad-z-warszawy">Egipt w listopadzie z Warszawy →</Link>
-        <Link href="/podroze/all-inclusive-listopad-do-2500-zl">All Inclusive w listopadzie do 2500 zł →</Link>
-        <Link href="/podroze/cieple-wakacje-grudzien-2026">Ciepłe wakacje w grudniu →</Link>
-        <Link href="/podroze/egipt-grudzien-2026-z-warszawy">Egipt w grudniu z Warszawy →</Link>
-        <Link href="/podroze/wyspy-kanaryjskie-listopad-2026">Wyspy Kanaryjskie w listopadzie →</Link>
-        <Link href="/podroze/wyspy-kanaryjskie-grudzien-2026">Wyspy Kanaryjskie w grudniu →</Link>
-        <Link href="/podroze/cieple-wakacje-z-warszawy-do-3000-zl">Ciepłe wakacje z Warszawy do 3000 zł →</Link>
-        <Link href="/podroze/egipt-z-warszawy">Egipt z Warszawy →</Link>
-        <Link href="/podroze/egipt-z-katowic">Egipt z Katowic →</Link>
-        <Link href="/podroze/egipt-z-poznania">Egipt z Poznania →</Link>
-        <Link href="/podroze/turcja-z-warszawy">Turcja z Warszawy →</Link>
-        <Link href="/podroze/turcja-z-katowic">Turcja z Katowic →</Link>
-        <Link href="/podroze/grecja-z-warszawy">Grecja z Warszawy →</Link>
-        <Link href="/podroze/grecja-z-katowic">Grecja z Katowic →</Link>
-        <Link href="/podroze/egipt-all-inclusive-z-warszawy">Egipt All Inclusive z Warszawy →</Link>
-        <Link href="/podroze/egipt-all-inclusive-z-katowic">Egipt All Inclusive z Katowic →</Link>
-        <Link href="/podroze/turcja-all-inclusive-z-warszawy">Turcja All Inclusive z Warszawy →</Link>
-        <Link href="/podroze/turcja-all-inclusive-z-katowic">Turcja All Inclusive z Katowic →</Link>
-        <Link href="/podroze/wakacje-7-dni-do-2500-zl">Wakacje 7 dni do 2500 zł →</Link>
-      </div>
+      <h2>Wakacje według budżetu, lotniska i terminu</h2>
+      <p className="seo-related-intro">Najpierw najczęstsze ścieżki. Pozostałe filtry możesz rozwinąć, jeśli ich potrzebujesz.</p>
+      <ProgressiveLinkCloud
+        visible={8}
+        items={[
+          { href: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem", label: "Lot + hotel" },
+          { href: "/podroze/wakacje-do-2000-zl", label: "Wakacje do 2000 zł" },
+          { href: "/podroze/wakacje-do-2500-zl", label: "Wakacje do 2500 zł" },
+          { href: "/wakacje-2027", label: "Wakacje 2027" },
+          { href: "/wakacje-z-dziecmi", label: "Wakacje z dziećmi" },
+          { href: "/gdzie-jest-cieplo-zima-bez-dalekiego-lotu", label: "Gdzie jest ciepło zimą" },
+          { href: "/podroze/wakacje-z-warszawy", label: "Wakacje z Warszawy" },
+          { href: "/podroze/wakacje-z-krakowa", label: "Wakacje z Krakowa" },
+          { href: "/ferie-2027", label: "Ferie zimowe 2027" },
+          { href: "/majowka-2027", label: "Majówka 2027" },
+          { href: "/podroze/wakacje-z-poznania", label: "Wakacje z Poznania" },
+          { href: "/podroze/wakacje-z-katowic", label: "Wakacje z Katowic" },
+          { href: "/podroze/wakacje-z-gdanska", label: "Wakacje z Gdańska" },
+          { href: "/podroze/wakacje-z-wroclawia", label: "Wakacje z Wrocławia" },
+          { href: "/podroze/wakacje-z-rzeszowa", label: "Wakacje z Rzeszowa" },
+          { href: "/podroze/wakacje-z-lublina", label: "Wakacje z Lublina" },
+          { href: "/podroze/all-inclusive-z-warszawy", label: "All Inclusive z Warszawy" },
+          { href: "/podroze/last-minute-z-warszawy", label: "Last Minute z Warszawy" },
+          { href: "/podroze/cieple-wakacje-listopad-2026", label: "Ciepłe wakacje w listopadzie" },
+          { href: "/podroze/egipt-listopad-z-warszawy", label: "Egipt w listopadzie z Warszawy" },
+          { href: "/podroze/all-inclusive-listopad-do-2500-zl", label: "All Inclusive w listopadzie do 2500 zł" },
+          { href: "/podroze/cieple-wakacje-grudzien-2026", label: "Ciepłe wakacje w grudniu" },
+          { href: "/podroze/egipt-grudzien-2026-z-warszawy", label: "Egipt w grudniu z Warszawy" },
+          { href: "/podroze/wyspy-kanaryjskie-listopad-2026", label: "Wyspy Kanaryjskie w listopadzie" },
+          { href: "/podroze/wyspy-kanaryjskie-grudzien-2026", label: "Wyspy Kanaryjskie w grudniu" },
+          { href: "/podroze/cieple-wakacje-z-warszawy-do-3000-zl", label: "Ciepłe wakacje z Warszawy do 3000 zł" },
+          { href: "/podroze/egipt-z-warszawy", label: "Egipt z Warszawy" },
+          { href: "/podroze/egipt-z-katowic", label: "Egipt z Katowic" },
+          { href: "/podroze/egipt-z-poznania", label: "Egipt z Poznania" },
+          { href: "/podroze/turcja-z-warszawy", label: "Turcja z Warszawy" },
+          { href: "/podroze/turcja-z-katowic", label: "Turcja z Katowic" },
+          { href: "/podroze/grecja-z-warszawy", label: "Grecja z Warszawy" },
+          { href: "/podroze/grecja-z-katowic", label: "Grecja z Katowic" },
+          { href: "/podroze/egipt-all-inclusive-z-warszawy", label: "Egipt All Inclusive z Warszawy" },
+          { href: "/podroze/egipt-all-inclusive-z-katowic", label: "Egipt All Inclusive z Katowic" },
+          { href: "/podroze/turcja-all-inclusive-z-warszawy", label: "Turcja All Inclusive z Warszawy" },
+          { href: "/podroze/turcja-all-inclusive-z-katowic", label: "Turcja All Inclusive z Katowic" },
+          { href: "/podroze/wakacje-7-dni-do-2500-zl", label: "Wakacje 7 dni do 2500 zł" },
+        ]}
+      />
     </section>
     <section className="section shell"><FacebookFollowCTA placement="wakacje" compact /></section>
     <SiteFooter/>
