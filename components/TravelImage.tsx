@@ -19,16 +19,6 @@ type ApiResponse = {
 
 const memoryCache = new Map<string, string>();
 
-function slugify(value: string) {
-  return value
-    .toLocaleLowerCase("pl")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/ł/g, "l")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
 export default function TravelImage({ city, country, alt, className = "", overrideSrc }: Props) {
   const cacheKey = `${city}|${country}`;
   const rule = useMemo(() => getDestinationImageRule(city, country), [city, country]);
