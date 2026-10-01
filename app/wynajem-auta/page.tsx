@@ -6,7 +6,7 @@ import { partners } from "@/lib/partners";
 
 export const metadata: Metadata = {
   title: "Wynajem auta na wakacje",
-  description: "Sprawdź wynajem samochodu po wyborze kierunku i noclegu. Tripownia kieruje do sprawdzonego partnera i przypomina, co porównać przed rezerwacją.",
+  description: "Sprawdź wynajem samochodu po wyborze kierunku i noclegu. Tripownia przypomina, co porównać przed rezerwacją.",
   alternates: { canonical: "/wynajem-auta" },
 };
 
@@ -34,8 +34,8 @@ export default function CarRentalPage() {
 
           <div className="service-cta">
             <ShieldCheck size={24} />
-            <strong>Sprawdź auta u partnera Tripowni</strong>
-            <p>Przechodzisz przez centralny link afiliacyjny Tripowni. Cena i dostępność są potwierdzane u partnera przed rezerwacją.</p>
+            <strong>Sprawdź dostępne auta</strong>
+            <p>Porównaj cenę, warunki wynajmu, depozyt i zakres ubezpieczenia przed rezerwacją.</p>
             <a href={partners.rentacar.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">
               Porównaj samochody <ExternalLink size={16} />
             </a>
