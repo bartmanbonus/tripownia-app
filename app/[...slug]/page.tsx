@@ -360,6 +360,7 @@ export default async function RoutePage({ params }: { params: Promise<{ slug: st
     "/5047-2": "/gdzie-na-wakacje-we-wrzesniu",
     "/5049-2": "/gdzie-na-wakacje-we-wrzesniu",
     "/tripownia-pl/okazje-tripownia": "/okazje",
+    "/krakow": "/z-krakowa",
   };
   if (legacyRedirects[path]) permanentRedirect(legacyRedirects[path]);
 
