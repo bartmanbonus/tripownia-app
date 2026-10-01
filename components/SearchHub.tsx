@@ -769,6 +769,14 @@ export default function SearchHub({
         ...(typed ? typed.split(/[;\n]+/).map((item) => canonicalSearchDestination(item.trim())).filter(Boolean) : []),
       ])).filter((item) => !isTravelDestinationBlocked(item));
 
+      if (activeTab === "Hotele" && !destinations.length) {
+        setSearched(false);
+        setResults([]);
+        setNotice("Wybierz miasto lub kraj, żeby wyszukać nocleg.");
+        setSuggestionsOpen(true);
+        return;
+      }
+
       const conversionContext = {
         mode: activeTab.toLowerCase(),
         destination: destinations.join(" + ").slice(0, 160) || "dowolnie",
@@ -1109,7 +1117,7 @@ export default function SearchHub({
                       setSuggestionsOpen(false);
                     }}><Search size={15}/><span><strong>Szukaj: „{destination.trim()}”</strong><small>Dowolne miasto lub kraj — nie musi być na liście</small></span></button>
                   )}
-                  {!destination.trim() && (
+                  {!destination.trim() && activeTab !== "Hotele" && (
                     <button type="button" className="search-v3-anywhere" onClick={() => { setSelectedDestinations([]); setDestination(""); setSuggestionsOpen(false); }}>
                       <MapPin size={15}/><span><strong>🌍 Gdziekolwiek</strong><small>Bez ograniczenia kierunku — pokaż najlepsze dostępne opcje</small></span>
                     </button>
@@ -1222,7 +1230,7 @@ export default function SearchHub({
                   </div>
                   <div className="search-picker-nav">
                     <button type="button" aria-label="Poprzednie miesiące" disabled={visibleCalendarMonth <= localMonthKey()} onClick={() => setCalendarMonth(addMonths(visibleCalendarMonth, -1))}><ChevronLeft size={18}/></button>
-                    <span>{activeTab === "Loty" ? (dateMode === "range" ? "Wybierz datę wylotu, a potem powrotu" : "Wybierz datę wylotu") : (dateMode === "range" ? "Wybierz najwcześniejszy i najpóźniejszy wylot" : "Wybierz dzień wylotu")}</span>
+                    <span>{activeTab === "Loty" ? (dateMode === "range" ? "Wybierz datę wylotu, a potem powrotu" : "Wybierz datę wylotu") : activeTab === "Hotele" ? "Wybierz zameldowanie, a potem wymeldowanie" : (dateMode === "range" ? "Wybierz najwcześniejszy i najpóźniejszy wylot" : "Wybierz dzień wylotu")}</span>
                     <button type="button" aria-label="Następne miesiące" onClick={() => setCalendarMonth(addMonths(visibleCalendarMonth, 1))}><ChevronRight size={18}/></button>
                   </div>
                 </>}
