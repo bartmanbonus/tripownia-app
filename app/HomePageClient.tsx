@@ -8,6 +8,7 @@ import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5, Plane, Globe2, P
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
 import GoogleIntentGateway from "@/components/GoogleIntentGateway";
+import SalesVisualShortcuts from "@/components/SalesVisualShortcuts";
 import { offers, isOfferExpired } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
@@ -717,6 +718,7 @@ export default function Home() {
 
       <SearchHub />
       <GoogleIntentGateway />
+      <SalesVisualShortcuts />
 
       <section className="section shell visual-chapter chapter-daily" id="okazje">
         <div className="section-heading">

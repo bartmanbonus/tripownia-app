@@ -1,0 +1,205 @@
+.section{
+  padding:0 0 58px;
+}
+
+.shell{
+  width:min(1180px,calc(100% - 32px));
+  margin:0 auto;
+}
+
+.rowHead,
+.rowHeadSecondary{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:22px;
+  margin-bottom:14px;
+}
+
+.rowHead small,
+.rowHeadSecondary small{
+  color:#e85a32;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.11em;
+}
+
+.rowHead h2,
+.rowHeadSecondary h3{
+  margin:5px 0 0;
+  line-height:1;
+  letter-spacing:-.04em;
+}
+
+.rowHead h2{
+  font-size:clamp(28px,3vw,40px);
+}
+
+.rowHeadSecondary{
+  margin-top:26px;
+}
+
+.rowHeadSecondary h3{
+  font-size:clamp(22px,2.3vw,30px);
+}
+
+.rowHead>a{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  color:#312a26;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.budgetGrid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+
+.seasonalGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+
+.budgetCard,
+.seasonalCard{
+  position:relative;
+  overflow:hidden;
+  border-radius:20px;
+  color:#fff;
+  text-decoration:none;
+  isolation:isolate;
+  box-shadow:0 11px 28px rgba(44,31,23,.07);
+  transition:transform .18s ease,box-shadow .18s ease;
+}
+
+.budgetCard{
+  min-height:190px;
+}
+
+.seasonalCard{
+  min-height:150px;
+}
+
+.budgetCard:hover,
+.seasonalCard:hover{
+  transform:translateY(-3px);
+  box-shadow:0 17px 36px rgba(44,31,23,.13);
+}
+
+.image{
+  object-fit:cover;
+  transition:transform .35s ease;
+}
+
+.budgetCard:hover .image,
+.seasonalCard:hover .image{
+  transform:scale(1.035);
+}
+
+.scrim{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:
+    linear-gradient(180deg,rgba(0,0,0,.02) 20%,rgba(0,0,0,.18) 55%,rgba(0,0,0,.76) 100%);
+}
+
+.cardCopy{
+  position:absolute;
+  z-index:2;
+  inset:auto 16px 15px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.cardCopy small{
+  margin-bottom:4px;
+  color:rgba(255,255,255,.8);
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.1em;
+}
+
+.cardCopy strong{
+  max-width:92%;
+  font-size:20px;
+  line-height:1.05;
+  letter-spacing:-.03em;
+  text-shadow:0 2px 16px rgba(0,0,0,.24);
+}
+
+.seasonalCard .cardCopy strong{
+  font-size:18px;
+}
+
+.cardCopy b{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  margin-top:9px;
+  font-size:9px;
+  font-weight:900;
+}
+
+@media(max-width:900px){
+  .budgetGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .seasonalGrid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .seasonalCard:last-child{
+    grid-column:1/-1;
+  }
+}
+
+@media(max-width:620px){
+  .section{
+    padding-bottom:42px;
+  }
+
+  .rowHead,
+  .rowHeadSecondary{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:7px;
+  }
+
+  .budgetGrid,
+  .seasonalGrid{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+    margin-inline:-16px;
+    padding:0 16px 4px;
+  }
+
+  .budgetGrid::-webkit-scrollbar,
+  .seasonalGrid::-webkit-scrollbar{
+    display:none;
+  }
+
+  .budgetCard,
+  .seasonalCard,
+  .seasonalCard:last-child{
+    flex:0 0 76vw;
+    min-height:180px;
+    grid-column:auto;
+    scroll-snap-align:start;
+  }
+
+  .seasonalCard{
+    min-height:150px;
+  }
+}
