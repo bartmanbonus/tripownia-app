@@ -583,15 +583,32 @@ export default function Home() {
       return result.slice(0, limit);
     };
 
-    const city = buildRail(
+    const usedAcrossRails = new Set<string>();
+    const takeAcrossRails = (rows: TripOffer[], limit: number) => {
+      const result: TripOffer[] = [];
+      for (const offer of rows) {
+        const destination = destinationGroupKey(offer);
+        if (usedAcrossRails.has(destination)) continue;
+        usedAcrossRails.add(destination);
+        result.push(offer);
+        if (result.length >= limit) break;
+      }
+      return result;
+    };
+
+    const cityCandidates = buildRail(
       o => o.nights >= 2 && o.nights <= 5,
-      12,
+      24,
       o => o.nights >= 2 && o.nights <= 6
     );
-    const sun = buildRail(
-      o => (o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c)) || /egipt|turcj|grecj|hiszp|cypr|tunez|zanzibar|malediw|mauritius|dominik/i.test(`${o.city} ${o.country}`),
-      12
+    const city = takeAcrossRails(cityCandidates, 8);
+
+    const sunCandidates = buildRail(
+      o => ((o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c)) || /egipt|turcj|grecj|hiszp|cypr|tunez|zanzibar|malediw|mauritius|dominik/i.test(`${o.city} ${o.country}`)) && o.nights >= 5,
+      24,
+      o => o.nights >= 5
     );
+    const sun = takeAcrossRails(sunCandidates, 8);
     const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
     const unusual = buildRail(o => unusualNames.test(o.city), 12);
     const weekend = buildRail(
@@ -604,9 +621,10 @@ export default function Home() {
       12,
       o => o.nights >= 5 && o.nights <= 10
     );
-    const budgetFriendly = cheapestPerDirection([...pool])
-      .sort((a,b) => a.price - b.price)
-      .slice(0, 12);
+    const budgetFriendly = takeAcrossRails(
+      cheapestPerDirection([...pool]).sort((a,b) => a.price - b.price),
+      8
+    );
     const premium = buildRail(
       o => o.price >= 2500 || /malediw|mauritius|seszel|zanzibar|dubaj|dominik|meksyk|tajland|wietnam/i.test(`${o.city} ${o.country}`),
       12
@@ -759,12 +777,12 @@ export default function Home() {
           </div>
           <Link className="section-premium-link" href="/okazje">Zobacz wszystkie wyjazdy <ArrowRight size={16}/></Link>
         </div>
-        <OfferRail kicker="🏙 CITY BREAK" title="Gotowe na kilka dni" description="Krótkie wyjazdy z konkretnym terminem i aktualną ceną." items={themedRails.city.slice(0, 12)}/>
-        <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun.slice(0, 12)}/>
+        <OfferRail kicker="🏙 CITY BREAK" title="Gotowe na kilka dni" description="Krótkie wyjazdy z konkretnym terminem i aktualną ceną." items={themedRails.city}/>
+        <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun}/>
         <div className="homepage-offer-more">
           <section className="homepage-offer-group">
             <div className="homepage-offer-group-head"><span><b>💸 Najtaniej teraz</b><small>od najniższej ceny</small></span></div>
-            <OfferRail kicker="DOBRY BUDŻET" title="Dużo podróży za mniej" description="Najtańsze aktualne kierunki z dzisiejszej puli." items={themedRails.budgetFriendly.slice(0, 12)}/>
+            <OfferRail kicker="DOBRY BUDŻET" title="Dużo podróży za mniej" description="Najtańsze aktualne kierunki z dzisiejszej puli." items={themedRails.budgetFriendly}/>
           </section>
         </div>
       </section>
