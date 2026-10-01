@@ -15051,3 +15051,88 @@ img{
   .seo-travel-landing-v3 .seo-primary-offers-head{align-items:flex-start;flex-direction:column}
   .seo-travel-landing-v3 .seo-primary-offers-head>a{margin:0}
 }
+
+
+/* 2026-10-01 SEO offer loading skeleton */
+.seo-travel-landing-v3 .seo-offers-loading{
+  display:grid;
+  gap:16px;
+}
+.seo-travel-landing-v3 .seo-offers-loading-head{
+  min-height:72px;
+  padding:16px 18px;
+  border:1px solid #e9dfd8;
+  border-radius:18px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.seo-travel-landing-v3 .seo-offers-loading-head>div{
+  display:grid;
+  gap:3px;
+}
+.seo-travel-landing-v3 .seo-offers-loading-head strong{
+  font-size:14px;
+}
+.seo-travel-landing-v3 .seo-offers-loading-head span{
+  color:var(--muted);
+  font-size:12px;
+}
+.seo-travel-landing-v3 .seo-offers-skeleton-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:16px;
+}
+.seo-travel-landing-v3 .seo-offer-skeleton{
+  overflow:hidden;
+  border:1px solid #e8ded7;
+  border-radius:20px;
+  background:#fff;
+}
+.seo-travel-landing-v3 .seo-offer-skeleton-media{
+  aspect-ratio:1.28/1;
+  background:linear-gradient(100deg,#f1ece8 18%,#faf7f4 38%,#f1ece8 58%);
+  background-size:200% 100%;
+  animation:seoSkeleton 1.35s linear infinite;
+}
+.seo-travel-landing-v3 .seo-offer-skeleton-body{
+  padding:16px;
+}
+.seo-travel-landing-v3 .seo-skeleton-line,
+.seo-travel-landing-v3 .seo-skeleton-price,
+.seo-travel-landing-v3 .seo-skeleton-button{
+  display:block;
+  border-radius:999px;
+  background:linear-gradient(100deg,#eee7e2 18%,#f8f4f1 38%,#eee7e2 58%);
+  background-size:200% 100%;
+  animation:seoSkeleton 1.35s linear infinite;
+}
+.seo-travel-landing-v3 .seo-skeleton-line{
+  width:100%;
+  height:10px;
+  margin-top:10px;
+}
+.seo-travel-landing-v3 .seo-skeleton-line-short{width:28%;height:8px;margin-top:0}
+.seo-travel-landing-v3 .seo-skeleton-line-title{width:62%;height:18px;margin-top:12px}
+.seo-travel-landing-v3 .seo-offer-skeleton-bottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-top:18px;
+}
+.seo-travel-landing-v3 .seo-skeleton-price{width:34%;height:20px}
+.seo-travel-landing-v3 .seo-skeleton-button{width:34%;height:36px}
+@keyframes seoSkeleton{
+  0%{background-position:180% 0}
+  100%{background-position:-20% 0}
+}
+@media(max-width:900px){
+  .seo-travel-landing-v3 .seo-offers-skeleton-grid{grid-template-columns:1fr 1fr}
+  .seo-travel-landing-v3 .seo-offer-skeleton:nth-child(3){display:none}
+}
+@media(max-width:620px){
+  .seo-travel-landing-v3 .seo-offers-skeleton-grid{grid-template-columns:1fr}
+  .seo-travel-landing-v3 .seo-offer-skeleton:nth-child(2){display:none}
+}
