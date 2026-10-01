@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Trash2, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import { airportOptions } from "@/lib/offers";
@@ -140,10 +141,14 @@ function standaloneFlightPartnerUrl(
   return partners.kiwi.buildUrl(kiwiBase.toString());
 }
 
-function standaloneHotelPartnerUrl(destinations: string[]) {
+function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: string) {
   const target = destinations[0]?.trim() || "";
   const bookingBase = new URL("https://www.booking.com/searchresults.pl.html");
   if (target) bookingBase.searchParams.set("ss", target);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(from || "") && /^\d{4}-\d{2}-\d{2}$/.test(to || "") && String(to) > String(from)) {
+    bookingBase.searchParams.set("checkin", String(from));
+    bookingBase.searchParams.set("checkout", String(to));
+  }
   return partners.booking.buildUrl(bookingBase.toString());
 }
 
@@ -255,6 +260,7 @@ export default function SearchHub({
   embedded = false,
   destinationQuickPicks = [],
 }: Props) {
+  const pathname = usePathname();
   const [activeTab, setActiveTab] = useState(initialTab);
   const [destination, setDestination] = useState("");
   const [selectedDestinations, setSelectedDestinations] = useState<string[]>(initialDestinations);
@@ -763,39 +769,51 @@ export default function SearchHub({
         ...(typed ? typed.split(/[;\n]+/).map((item) => canonicalSearchDestination(item.trim())).filter(Boolean) : []),
       ])).filter((item) => !isTravelDestinationBlocked(item));
 
-      const url = activeTab === "Loty"
-        ? (() => {
-            const params = new URLSearchParams();
-            if (destinations[0]) params.set("destination", destinations[0]);
-            if (departures[0]) params.set("origin", departures[0]);
-            if (dateFrom) params.set("outbound", dateFrom);
-            if (flightTripType === "round" && dateTo) params.set("inbound", dateTo);
-            params.set("adults", String(flightAdults));
-            params.set("cabin", flightCabin);
-            params.set("tripType", flightTripType);
-            return `/loty?${params.toString()}`;
-          })()
-        : standaloneHotelPartnerUrl(destinations);
-
       const conversionContext = {
         mode: activeTab.toLowerCase(),
         destination: destinations.join(" + ").slice(0, 160) || "dowolnie",
         departure: departures.join(",").slice(0, 80) || "dowolnie",
         placement: "searchhub",
       };
+
       if (activeTab === "Loty") {
+        const params = new URLSearchParams();
+        if (destinations[0]) params.set("destination", destinations[0]);
+        if (departures[0]) params.set("origin", departures[0]);
+        if (dateFrom) params.set("outbound", dateFrom);
+        if (flightTripType === "round" && dateTo) params.set("inbound", dateTo);
+        params.set("adults", String(flightAdults));
+        params.set("cabin", flightCabin);
+        params.set("tripType", flightTripType);
         trackEvent("flight_compare_intent", conversionContext);
-      } else {
-        const outboundParams = { ...conversionContext, partner: "booking" };
-        trackEvent("outbound_partner_click", outboundParams);
-        trackMetaCustomEvent("PartnerOutboundClick", outboundParams);
+        setSearched(true);
+        setResults([]);
+        setNotice("Otwieramy porównywarkę lotów Tripowni.");
+        window.location.assign(`/loty?${params.toString()}`);
+        return;
       }
+
+      if (pathname !== "/hotele") {
+        const params = new URLSearchParams();
+        if (destinations[0]) params.set("destination", destinations[0]);
+        if (departures[0]) params.set("origin", departures[0]);
+        if (dateFrom) params.set("from", dateFrom);
+        if (dateTo) params.set("to", dateTo);
+        trackEvent("hotel_search_intent", conversionContext);
+        setSearched(true);
+        setResults([]);
+        setNotice("Otwieramy wyszukiwarkę noclegów Tripowni.");
+        window.location.assign(`/hotele?${params.toString()}`);
+        return;
+      }
+
+      const outboundParams = { ...conversionContext, partner: "booking" };
+      trackEvent("outbound_partner_click", outboundParams);
+      trackMetaCustomEvent("PartnerOutboundClick", outboundParams);
       setSearched(true);
       setResults([]);
-      setNotice(activeTab === "Loty"
-        ? "Otwieramy porównywarkę lotów Tripowni."
-        : "Otwieramy wyszukiwanie noclegów.");
-      window.location.assign(url);
+      setNotice("Sprawdzamy aktualną dostępność noclegów.");
+      window.location.assign(standaloneHotelPartnerUrl(destinations, dateFrom, dateTo));
       return;
     }
 
