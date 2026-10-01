@@ -870,7 +870,7 @@ export default function SearchHub({
     setDepartureOpen(false);
     setDateOpen(false);
     setActiveTab(tab);
-    if (tab === "Hotele") { setDateMode("range"); setMonth(""); }
+    if (tab === "Hotele") { setDateMode("range"); setMonth(""); setSelectedDestinations((current) => current.slice(0, 1)); }
     setDuration("all");
     setBudget("all");
     setCustomBudgetMin("");
@@ -1074,7 +1074,7 @@ export default function SearchHub({
         ) : (
         <form className={`search-v3-form${activeTab === "Hotele" ? " is-hotels" : ""}`} onSubmit={submitSearch}>
           <div className={`search-v3-field search-v3-destination${suggestionsOpen ? " is-open" : ""}`} ref={destinationRef}>
-            <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd? <small>wiele kierunków</small></label>
+            <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd? <small>{activeTab === "Hotele" ? "miasto lub kraj" : "wiele kierunków"}</small></label>
             {selectedDestinations.length > 0 && (
               <div className="search-v3-selected">
                 {selectedDestinations.map((item) => <button type="button" key={item} onClick={() => setSelectedDestinations((current) => current.filter((x) => x !== item))}>{item}<X size={12}/></button>)}
@@ -1112,7 +1112,7 @@ export default function SearchHub({
                 <div className="search-v3-panel-scroll">
                   {destination.trim() && !isTravelDestinationBlocked(destination) && (
                     <button type="button" className="search-v3-use-exact" onClick={() => {
-                      setSelectedDestinations((current) => Array.from(new Set([...current, canonicalSearchDestination(destination.trim())])));
+                      setSelectedDestinations((current) => activeTab === "Hotele" ? [canonicalSearchDestination(destination.trim())] : Array.from(new Set([...current, canonicalSearchDestination(destination.trim())])));
                       setDestination("");
                       setSuggestionsOpen(false);
                     }}><Search size={15}/><span><strong>Szukaj: „{destination.trim()}”</strong><small>Dowolne miasto lub kraj — nie musi być na liście</small></span></button>
@@ -1125,7 +1125,7 @@ export default function SearchHub({
                   {suggestions.map((item) => (
                     <button key={item.label} type="button" onClick={() => {
                       const next = canonicalSearchDestination(item.label);
-                      setSelectedDestinations((current) => Array.from(new Set([...current, next])));
+                      setSelectedDestinations((current) => activeTab === "Hotele" ? [next] : Array.from(new Set([...current, next])));
                       setDestination("");
                       setSuggestionsOpen(false);
                     }}>
