@@ -134,7 +134,7 @@ export default function Ferie2027Page() {
         <h2>Sprawdź aktualne wakacje na ferie</h2>
         <p>Wybierz kierunek, lotnisko i zakres dat. Pokażemy tylko oferty, które rzeczywiście pasują do ustawionych parametrów.</p>
       </div>
-      <div className="ferie-search-wrap"><SearchHub embedded initialTab="Wakacje" /></div>
+      <div className="ferie-search-wrap"><SearchHub embedded initialTab="Lot + hotel" /></div>
     </section>
 
     <SiteFooter/>
