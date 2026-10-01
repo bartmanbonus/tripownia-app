@@ -916,3 +916,35 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     height:52px!important;
   }
 }
+
+/* Readability pass for utility screens. */
+.account-card{padding:20px!important;border-radius:18px!important}
+.account-card-title small{font-size:10px!important}
+.account-card-title strong{font-size:18px!important}
+.account-card>p{font-size:13px!important;line-height:1.55!important}
+.account-auth-tabs button{min-height:42px!important;font-size:12px!important}
+.account-password-form input,
+.account-email-form input{font-size:16px!important}
+.account-password-form button,
+.account-email-form button,
+.account-primary-button,
+.account-social-button,
+.account-magic-form button{min-height:46px!important;font-size:12px!important}
+.account-footnote{font-size:11px!important;line-height:1.5!important}
+.account-local-stats span{font-size:10px!important}
+.account-hub-links a{min-height:44px!important;font-size:11px!important}
+.account-message{font-size:12px!important}
+.deals-filter-panel label>span{font-size:11px!important}
+.deals-filter-panel select{font-size:13px!important}
+.deals-clear-filters,
+.deals-quick-filters button{font-size:11px!important}
+.deals-trust-bar{font-size:10px!important}
+.deals-trust-bar strong{font-size:11px!important}
+.deals-results-heading p{font-size:12px!important;line-height:1.5!important}
+.deals-end-cta span{font-size:11px!important}
+.deals-end-cta a{font-size:11px!important}
+.app-home-hero p{font-size:16px!important}
+.app-home-tile span,
+.app-pretrip-grid span{font-size:12px!important;line-height:1.5!important}
+.app-home-tile strong,
+.app-pretrip-grid strong{font-size:15px!important}
