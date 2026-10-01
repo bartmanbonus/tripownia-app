@@ -6,10 +6,11 @@ import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
+import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 
 export const metadata: Metadata = {
   title: "Last Minute 2026 — aktualne wakacje i All Inclusive",
-  description: "Sprawdź aktualne Last Minute 2026: wakacje, All Inclusive i pakiety z polskich lotnisk. Porównaj kierunki, terminy i przejdź do rezerwacji u partnera.",
+  description: "Sprawdź aktualne Last Minute 2026: wakacje, All Inclusive i pakiety z polskich lotnisk. Porównaj kierunki, terminy i przejdź do aktualnej rezerwacji.",
   alternates: { canonical: "/last-minute" },
   openGraph: {
     type: "website",
@@ -27,23 +28,9 @@ export default function LastMinuteOffersPage() {
       <div>
         <div className="kicker">⚡ LAST MINUTE 2026</div>
         <h1>Last Minute 2026: aktualne wakacje i All Inclusive do sprawdzenia teraz.</h1>
-        <p>Porównaj konkretne pakiety z ceną, terminem i kierunkiem. Tripownia pokazuje najtańsze sensowne opcje na początku i pozwala przeszukać szerszą bazę bez zamykania się na jednego partnera.</p>
+        <p>Porównaj konkretne pakiety z ceną, terminem i kierunkiem. Tripownia pokazuje najtańsze sensowne opcje na początku i pozwala przeszukać szerszą bazę bez skakania między wieloma stronami.</p>
       </div>
       <Link className="editorial-link" href="/magazyn-podrozniczy/last-minute-2026">📚 Jak kupować last minute — poradnik →</Link>
-      <div className="seo-related-links" style={{ marginTop: 16 }}>
-        <Link href="/podroze/last-minute-z-poznania">Last Minute z Poznania →</Link>
-        <Link href="/podroze/last-minute-z-krakowa">Last Minute z Krakowa →</Link>
-        <Link href="/podroze/last-minute-z-katowic">Last Minute z Katowic →</Link>
-        <Link href="/podroze/last-minute-z-gdanska">Last Minute z Gdańska →</Link>
-        <Link href="/podroze/last-minute-z-lublina">Last Minute z Lublina →</Link>
-        <Link href="/podroze/last-minute-z-rzeszowa">Last Minute z Rzeszowa →</Link>
-        <Link href="/podroze/last-minute-ze-szczecina">Last Minute ze Szczecina →</Link>
-        <Link href="/podroze/last-minute-z-warszawy">Last Minute z Warszawy →</Link>
-        <Link href="/podroze/last-minute-do-2000-zl">Last Minute do 2000 zł →</Link>
-        <Link href="/podroze/last-minute-do-2500-zl">Last Minute do 2500 zł →</Link>
-        <Link href="/podroze/last-minute-z-warszawy-do-2000-zl">Last Minute z Warszawy do 2000 zł →</Link>
-        <Link href="/podroze/last-minute-z-katowic-do-2000-zl">Last Minute z Katowic do 2000 zł →</Link>
-      </div>
     </section>
 
     <section className="section shell last-minute-live-section">
@@ -57,6 +44,27 @@ export default function LastMinuteOffersPage() {
 
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">NIE MA NIC NA JUŻ?</div><h2>Sprawdź szerszą bazę i sąsiednie terminy</h2><p>Nie oznaczamy zwykłych wakacji jako Last Minute. Jeśli nie ma wyjazdu w najbliższych 45 dniach, użyj wyszukiwarki powyżej.</p></div></div>
+    </section>
+    <section className="shell seo-related-block">
+      <div className="kicker">SZUKAJ DOKŁADNIEJ</div>
+      <h2>Last Minute według lotniska i budżetu</h2>
+      <ProgressiveLinkCloud
+        visible={6}
+        items={[
+          { href: "/podroze/last-minute-z-warszawy", label: "Last Minute z Warszawy" },
+          { href: "/podroze/last-minute-z-krakowa", label: "Last Minute z Krakowa" },
+          { href: "/podroze/last-minute-z-katowic", label: "Last Minute z Katowic" },
+          { href: "/podroze/last-minute-do-2000-zl", label: "Last Minute do 2000 zł" },
+          { href: "/podroze/last-minute-do-2500-zl", label: "Last Minute do 2500 zł" },
+          { href: "/podroze/last-minute-z-poznania", label: "Last Minute z Poznania" },
+          { href: "/podroze/last-minute-z-gdanska", label: "Last Minute z Gdańska" },
+          { href: "/podroze/last-minute-z-lublina", label: "Last Minute z Lublina" },
+          { href: "/podroze/last-minute-z-rzeszowa", label: "Last Minute z Rzeszowa" },
+          { href: "/podroze/last-minute-ze-szczecina", label: "Last Minute ze Szczecina" },
+          { href: "/podroze/last-minute-z-warszawy-do-2000-zl", label: "Z Warszawy do 2000 zł" },
+          { href: "/podroze/last-minute-z-katowic-do-2000-zl", label: "Z Katowic do 2000 zł" },
+        ]}
+      />
     </section>
     <section className="section shell"><FacebookFollowCTA placement="last_minute" compact /></section>
     <SiteFooter/>
