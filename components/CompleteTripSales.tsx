@@ -12,11 +12,11 @@ export default function CompleteTripSales({ city, country, source }: { city: str
   const carUrl = partners.rentacar.buildUrl();
 
   const items = [
-    { key: "hotel", icon: BedDouble, label: "Nocleg", text: `Hotele w: ${city}`, href: bookingUrl, partner: "Booking.com" },
-    { key: "attractions", icon: TicketCheck, label: "Atrakcje", text: `Bilety i wycieczki: ${city}`, href: attractionsUrl, partner: "GetYourGuide" },
-    { key: "transfer", icon: MapPinned, label: "Transfer", text: "Dojazd z lotniska do hotelu", href: transferUrl, partner: "Kiwitaxi" },
-    { key: "esim", icon: Smartphone, label: "eSIM", text: "Internet na wyjazd", href: esimUrl, partner: "Fonia eSIM" },
-    { key: "car", icon: Car, label: "Auto", text: "Wynajem auta na miejscu", href: carUrl, partner: "GetRentACar" },
+    { key: "hotel", icon: BedDouble, label: "Nocleg", text: `Hotele w: ${city}`, href: bookingUrl },
+    { key: "attractions", icon: TicketCheck, label: "Atrakcje", text: `Bilety i wycieczki: ${city}`, href: attractionsUrl },
+    { key: "transfer", icon: MapPinned, label: "Transfer", text: "Dojazd z lotniska do hotelu", href: transferUrl },
+    { key: "esim", icon: Smartphone, label: "eSIM", text: "Internet na wyjazd", href: esimUrl },
+    { key: "car", icon: Car, label: "Auto", text: "Wynajem auta na miejscu", href: carUrl },
   ];
 
   return (
@@ -39,7 +39,6 @@ export default function CompleteTripSales({ city, country, source }: { city: str
               rel="sponsored noopener noreferrer"
               onClick={() => trackEvent("trip_addon_click", {
                 addon: item.key,
-                partner: item.partner,
                 destination: city,
                 country,
                 source,
@@ -53,7 +52,6 @@ export default function CompleteTripSales({ city, country, source }: { city: str
           );
         })}
       </div>
-      <p className="affiliate-note">Linki partnerskie. Rezerwacja i płatność odbywają się bezpośrednio u partnera.</p>
     </section>
   );
 }
