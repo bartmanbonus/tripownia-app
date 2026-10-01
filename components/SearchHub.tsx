@@ -172,12 +172,6 @@ function standaloneHotelPartnerUrl(destinations: string[]) {
   return partners.booking.buildUrl(bookingBase.toString());
 }
 
-const PACKAGE_DISCOVERY_TARGETS = [
-  "Malta", "Cypr", "Egipt", "Tunezja", "Hiszpania", "Grecja",
-  "Turcja", "Maroko", "Albania", "Portugalia", "Wyspy Kanaryjskie",
-  "Djerba", "Marsa Alam", "Hurghada", "Zanzibar", "Dubaj",
-];
-
 function cleanRows(rows: any[], query: string) {
   const cleaned = rows
     .filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()))
@@ -529,10 +523,12 @@ export default function SearchHub({
       includeFilters = true,
       includeDates = true,
       includeDepartures = true,
+      rescue,
     }: {
       includeFilters?: boolean;
       includeDates?: boolean;
       includeDepartures?: boolean;
+      rescue?: "1" | "full";
     } = {}) => {
       const batchOrigins = includeDepartures ? origins : [""];
       const combinations = targets.flatMap((target) => batchOrigins.map((origin) => ({ target, origin }))).slice(0, 20);
@@ -542,6 +538,7 @@ export default function SearchHub({
         if (activeMode === "Last minute") params.set("lastMinute", "1");
         if (target) params.set("q", target);
         else params.set("broad", "1");
+        if (rescue) params.set("rescue", rescue);
         if (origin) params.set("from", origin);
         if (activeMinBudget > 0) params.set("minPrice", String(activeMinBudget));
         if (activeMaxBudget > 0) params.set("maxPrice", String(activeMaxBudget));
@@ -574,43 +571,6 @@ export default function SearchHub({
       };
     };
 
-    const fetchDiscoveryPool = async ({
-      includeDates = true,
-      includeDepartures = true,
-    }: {
-      includeDates?: boolean;
-      includeDepartures?: boolean;
-    } = {}) => {
-      const collected: any[] = [];
-      const targets = PACKAGE_DISCOVERY_TARGETS;
-      const chunkSize = 4;
-
-      for (let index = 0; index < targets.length; index += chunkSize) {
-        const chunk = targets.slice(index, index + chunkSize);
-        const payloads = await Promise.all(chunk.map(async (target) => {
-          const params = new URLSearchParams({ mode: "search", q: target });
-          if (includeDepartures && departures.length) params.set("from", departures.join(","));
-          if (activeMinBudget > 0) params.set("minPrice", String(activeMinBudget));
-          if (activeMaxBudget > 0) params.set("maxPrice", String(activeMaxBudget));
-          if (includeDates) {
-            if (apiDates.start) params.set("start", apiDates.start);
-            if (apiDates.end) params.set("end", apiDates.end);
-            if (apiDates.start || apiDates.end) params.set("dateKind", "departure");
-          }
-          try {
-            const response = await fetch(`/api/today-offers?${params.toString()}`, { cache: "no-store" });
-            const data = await response.json();
-            return response.ok && data?.ok !== false && Array.isArray(data?.offers) ? data.offers : [];
-          } catch {
-            return [];
-          }
-        }));
-        collected.push(...payloads.flat());
-      }
-
-      return collected;
-    };
-
     try {
       const exact = await fetchBatch();
       if (runId !== searchRunRef.current) return;
@@ -629,6 +589,7 @@ export default function SearchHub({
 
       let relaxedFilters = false;
       let expandedScope = false;
+      let usedRescue = false;
 
       // Keep the chosen date and airports first, but relax secondary filters
       // so one strict setting does not collapse the whole result set.
@@ -652,33 +613,21 @@ export default function SearchHub({
         const previousCount = rows.length;
 
         if (!requested.length) {
-          const sameDateAlternatives = await fetchDiscoveryPool({
+          const rescued = await fetchBatch({
+            includeFilters: false,
             includeDates: true,
             includeDepartures: false,
+            rescue: "1",
           });
           if (runId !== searchRunRef.current) return;
 
-          let discoveryRows = prioritizeByDate(
-            cleanRows(sameDateAlternatives, ""),
+          const rescuedRows = prioritizeByDate(
+            cleanRows(rescued.offers, ""),
             datePreference
           ).rows;
 
-          rows = diversifyOfferVariants([...rows, ...discoveryRows], 80, 12);
-
-          if (rows.length < 36) {
-            const wideAlternatives = await fetchDiscoveryPool({
-              includeDates: false,
-              includeDepartures: false,
-            });
-            if (runId !== searchRunRef.current) return;
-
-            discoveryRows = prioritizeByDate(
-              cleanRows(wideAlternatives, ""),
-              datePreference
-            ).rows;
-
-            rows = diversifyOfferVariants([...rows, ...discoveryRows], 80, 12);
-          }
+          rows = diversifyOfferVariants([...rows, ...rescuedRows], 80, 12);
+          usedRescue = rescuedRows.length > 0;
         } else {
           const broader = await fetchBatch({
             includeFilters: false,
@@ -723,15 +672,17 @@ export default function SearchHub({
 
       if (rows.length) {
         const prefix = bergamoMapped ? "Bergamo wyszukujemy jako Mediolan, żeby pokazać realne oferty dla tego obszaru. " : "";
-        const expansionNotice = expandedScope
-          ? `Dokładnych dopasowań: ${exactCount}. Dalej pokazujemy najbliższe dostępne alternatywy, żeby nie kończyć wyszukiwania na kilku kartach.`
-          : "";
+        const expansionNotice = usedRescue
+          ? "Nie ma teraz potwierdzonych ofert dokładnie w wybranym terminie. Pokazujemy najbliższe dostępne daty — każda karta ma rzeczywistą cenę i termin."
+          : expandedScope
+            ? `Dokładnych dopasowań: ${exactCount}. Dalej pokazujemy najbliższe dostępne alternatywy, żeby nie kończyć wyszukiwania na kilku kartach.`
+            : "";
         setNotice([
           prefix,
           `Zakres: ${scope}.`,
           relaxedFilters ? "Część propozycji ma inną długość pobytu, wyżywienie lub nie obejmuje weekendu." : "",
           expansionNotice,
-          !expandedScope ? datePass.notice : "",
+          !expandedScope && !usedRescue ? datePass.notice : "",
         ].filter(Boolean).join(" "));
       } else {
         setNotice(bergamoMapped
@@ -867,6 +818,29 @@ export default function SearchHub({
     }
 
     void runSearch();
+  }
+
+  function searchNearestDates() {
+    setDateMode("any");
+    setMonth("");
+    setDateFrom("");
+    setDateTo("");
+    void runSearch(undefined, { dateMode: "any", month: "", dateFrom: "", dateTo: "" });
+  }
+
+  function relaxSearchFilters() {
+    setDuration("all");
+    setBudget("all");
+    setCustomBudgetMin("");
+    setCustomBudgetMax("");
+    setBoard("all");
+    setWeekendOnly(false);
+    void runSearch(undefined, {
+      duration: "all",
+      budget: "all",
+      board: "all",
+      weekendOnly: false,
+    });
   }
 
   function chooseTab(tab: string) {
@@ -1452,7 +1426,7 @@ export default function SearchHub({
               <span>{departures.length ? departures.length === 1 ? "1 wybrane lotnisko" : `${departures.length} wybrane lotniska` : "Wszystkie lotniska"} · {dateSummary} · {budgetSummary}</span>
             </div>
             <div className="search-v3-results-head" role="status" aria-live="polite">
-              <div><small>WYNIKI</small><h3>{loading ? "Sprawdzamy aktualne oferty…" : results.length ? `Znalezione oferty: ${results.length}` : "Brak potwierdzonego dopasowania"}</h3></div>
+              <div><small>WYNIKI</small><h3>{expanding ? (results.length ? `Mamy ${results.length} opcji — szukamy jeszcze szerzej…` : "Szukamy szerzej…") : loading ? "Sprawdzamy aktualne oferty…" : results.length ? `Znalezione oferty: ${results.length}` : "Brak dokładnego dopasowania"}</h3></div>
               {notice && <p>{notice}</p>}
             </div>
 
@@ -1496,12 +1470,14 @@ export default function SearchHub({
               const fallbackDestination = selectedDestinations[0] || destination;
               const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination) : null;
               return <div className="search-v3-empty">
-                <strong>{fallback ? `Nie mamy teraz gotowego pakietu dla „${fallbackDestination}” — ale ten kierunek nadal możesz wyszukać.` : "Spróbuj trochę szerzej."}</strong>
-                <span>{fallback ? "Sprawdź loty i noclegi dla dokładnie tego kierunku." : "Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji."}</span>
-                {fallback && <div className="search-v3-empty-actions">
-                  <a href={fallback.kiwi} rel="sponsored">Sprawdź loty</a>
-                  <a href={fallback.booking} rel="sponsored">Sprawdź noclegi</a>
-                </div>}
+                <strong>{fallback ? `Nie mamy teraz gotowego pakietu dla „${fallbackDestination}”.` : "Nie znaleźliśmy dokładnego wariantu dla tych ustawień."}</strong>
+                <span>{fallback ? "Możesz sprawdzić loty i noclegi dla tego kierunku albo od razu poszerzyć termin." : "Poszerz termin lub zdejmij dodatkowe filtry — bez wpisywania wyszukiwania od nowa."}</span>
+                <div className="search-v3-empty-actions">
+                  <button type="button" onClick={searchNearestDates}>Pokaż inne terminy</button>
+                  <button type="button" onClick={relaxSearchFilters}>Usuń dodatkowe filtry</button>
+                  {fallback && <a href={fallback.kiwi} rel="sponsored">Sprawdź loty</a>}
+                  {fallback && <a href={fallback.booking} rel="sponsored">Sprawdź noclegi</a>}
+                </div>
               </div>;
             })()}
           </div>
