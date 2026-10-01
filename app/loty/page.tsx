@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import TravelpayoutsFlightsWidget from "@/components/TravelpayoutsFlightsWidget";
-import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
+import FlightsPageClient from "@/components/FlightsPageClient";
 
 export const metadata: Metadata = {
   title: "Porównywarka lotów – znajdź tanie loty",
@@ -32,6 +31,7 @@ export default async function FlightsPage({ searchParams }: FlightsPageProps) {
   const destination = firstParam(params.destination);
   const origin = firstParam(params.origin) || "WAW";
   const outbound = firstParam(params.outbound);
+  const inbound = firstParam(params.inbound);
   const initialMonth = /^\d{4}-\d{2}-\d{2}$/.test(outbound) ? outbound.slice(0, 7) : "";
 
   return (
@@ -41,14 +41,15 @@ export default async function FlightsPage({ searchParams }: FlightsPageProps) {
         <section className="flight-search-modes-intro">
           <div className="kicker">LOTY W TRIPOWNI</div>
           <h1>Znajdź konkretny lot albo upoluj najlepszy termin.</h1>
-          <p>Masz dokładne daty? Użyj porównywarki. Jesteś elastyczna/y? Sprawdź kalendarz cen lub kierunki „gdziekolwiek”.</p>
+          <p>Masz dokładne daty? Użyj porównywarki. Masz elastyczny termin? Sprawdź kalendarz cen albo wybierz „Gdziekolwiek”.</p>
         </section>
-        <FlexibleFlightsExplorer
+        <FlightsPageClient
           initialDestination={destination}
           initialOrigin={origin}
           initialMonth={initialMonth}
+          initialOutbound={outbound}
+          initialInbound={inbound}
         />
-        <TravelpayoutsFlightsWidget />
       </div>
       <SiteFooter />
     </main>
