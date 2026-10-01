@@ -40,7 +40,7 @@ export default function DirectionsLiveDeals() {
         <div>
           <div className="kicker">NAJTAŃSZE KIERUNKI TERAZ</div>
           <h2>Zobacz, co jest aktualnie najtańsze</h2>
-          <p>Live ceny z bieżących feedów partnerów. Finalną cenę i dostępność potwierdzasz po przejściu do oferty.</p>
+          <p>Aktualne ceny z dostępnych źródeł. Finalną cenę i dostępność potwierdzasz przy przejściu do rezerwacji.</p>
         </div>
         <Link href="/okazje">Wszystkie okazje →</Link>
       </div>
