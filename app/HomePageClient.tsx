@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5, Plane, Globe2, Palmtree, Building2, BadgePercent, ShieldCheck, Compass } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
+import GoogleIntentGateway from "@/components/GoogleIntentGateway";
 import { offers, isOfferExpired } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
@@ -737,6 +738,7 @@ export default function Home() {
       </section>
 
       <SearchHub />
+      <GoogleIntentGateway />
 
       <section className="section shell visual-chapter chapter-daily" id="okazje">
         <div className="section-heading">
