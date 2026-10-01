@@ -141,20 +141,6 @@ function publicationKey(now = new Date()) {
   return current.toISOString().slice(0, 10);
 }
 
-function hashSeed(text: string) {
-  let h = 2166136261;
-  for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
-  return h >>> 0;
-}
-
-function seededShuffle<T>(items: T[], seedText: string) {
-  let seed = hashSeed(seedText) || 1;
-  const out = [...items];
-  const rnd = () => { seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5; return (seed >>> 0) / 4294967296; };
-  for (let i = out.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; }
-  return out;
-}
-
 const longHaulCards = [
   { href: "/dalekie-podroze#wietnam", region: "azja", label: "WIETNAM", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam", imageCountry: "Wietnam", fallbackImage: LONG_HAUL_IMAGES.wietnam },
   { href: "/dalekie-podroze#pekin", region: "azja", label: "CHINY", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin", imageCountry: "Chiny", fallbackImage: LONG_HAUL_IMAGES.pekin },
@@ -389,31 +375,6 @@ function ExperienceTeaserImage({ city, country, title, fallbackSrc }: { city: st
   );
 }
 
-function OfferRail({ kicker, title, description, items, moreHref = "/okazje" }: { kicker: string; title: string; description: string; items: typeof offers; moreHref?: string }) {
-  const railRef = useRef<HTMLDivElement>(null);
-  const move = (direction: -1 | 1) => {
-    const rail = railRef.current;
-    if (!rail) return;
-    const card = rail.querySelector<HTMLElement>(".offer-card");
-    const step = card ? card.getBoundingClientRect().width + 18 : 360;
-    rail.scrollBy({ left: direction * step * 2, behavior: "smooth" });
-  };
-  if (!items.length) return null;
-  return <section className="offer-stream-row">
-    <div className="offer-stream-head">
-      <div><div className="kicker">{kicker}</div><h3>{title}</h3><p>{description}</p></div>
-      <Link className="offer-stream-more-link" href={moreHref}>Zobacz więcej <ArrowRight size={15}/></Link>
-    </div>
-    <div className="offer-stream-rail-wrap">
-      <div className="offer-stream-controls"><button type="button" onClick={()=>move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button><button type="button" onClick={()=>move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button></div>
-      <div className="offer-stream-rail" ref={railRef} tabIndex={0} onWheel={(e)=>{const rail=railRef.current;if(!rail)return;if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){e.preventDefault();rail.scrollBy({left:e.deltaY,behavior:"smooth"});}}}>
-        {items.map(o=><div className="offer-stream-item" key={`${title}-${o.id}`}><OfferCard offer={o}/></div>)}
-        <div className="offer-stream-item offer-stream-more-card"><Link href={moreHref}><small>WIĘCEJ OFERT</small><strong>Zobacz pełną pulę</strong><span>Przejdź do wszystkich aktualnych propozycji i wybierz kolejne kierunki.</span><em>Zobacz więcej <ArrowRight size={15}/></em></Link></div>
-      </div>
-    </div>
-  </section>;
-}
-
 export default function Home() {
   const [dailyKey, setDailyKey] = useState(() => publicationKey());
 
@@ -429,7 +390,6 @@ export default function Home() {
 
   const [liveOffers, setLiveOffers] = useState<TripOffer[]>([]);
   const [liveOffersStatus, setLiveOffersStatus] = useState<"loading" | "live" | "fallback">("loading");
-  const [eximCityBreaks, setEximCityBreaks] = useState<TripOffer[]>([]);
   const [liveRefreshTick, setLiveRefreshTick] = useState(0);
   const [lastLiveCheckedAt, setLastLiveCheckedAt] = useState<string | null>(null);
 
@@ -499,21 +459,6 @@ export default function Home() {
     };
   }, [dailyKey, liveRefreshTick]);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch(`/api/today-offers?mode=citybreak&key=${encodeURIComponent(dailyKey)}&refresh=${liveRefreshTick}`, { signal: controller.signal, cache: "no-store" })
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error("citybreak-exim")))
-      .then((data) => {
-        const rows = Array.isArray(data?.offers) ? data.offers : [];
-        setEximCityBreaks(rows
-          .filter((offer: TripOffer) => offer?.partner === "exim" && offer.nights >= 2 && offer.nights <= 5 && offer.price > 0 && offer.affiliateUrl)
-          .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country))
-          .slice(0, 24));
-      })
-      .catch(() => setEximCityBreaks([]));
-    return () => controller.abort();
-  }, [dailyKey, liveRefreshTick]);
-
   const todaysOffers = useMemo(() =>
     cheapestPerDirection(liveOffers.map(offerForDisplay))
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity))
@@ -531,106 +476,6 @@ export default function Home() {
       : "w trakcie";
     return { last, next: "ceny sprawdzamy ponownie automatycznie co 10 min" };
   }, [lastLiveCheckedAt]);
-
-  const themedRails = useMemo(() => {
-    const key = dailyKey;
-    const reserveOffers = offers
-      .filter((offer) => !isOfferExpired(offer))
-      .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
-      .map(offerForDisplay);
-
-    const mergedById = new Map<number, TripOffer>();
-    for (const offer of reserveOffers) mergedById.set(offer.id, offer);
-    for (const offer of liveOffers.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay)) mergedById.set(offer.id, offer);
-    for (const offer of eximCityBreaks.filter(o => isTravelDestinationAllowed(o.city, o.country)).map(offerForDisplay)) mergedById.set(offer.id, offer);
-
-    const pool = seededShuffle<TripOffer>(Array.from(mergedById.values()), `tripownia-rails:${key}`);
-
-    const buildRail = (match: (o: TripOffer) => boolean, limit = 12, fallbackMatch?: (o: TripOffer) => boolean) => {
-      const matching = pool.filter(match);
-      const fallback = fallbackMatch ? pool.filter(fallbackMatch) : [];
-      const result: TripOffer[] = [];
-      const usedIds = new Set<number>();
-      const usedDestinations = new Set<string>();
-
-      const addUniqueDestinations = (rows: TripOffer[]) => {
-        for (const offer of rows) {
-          if (result.length >= limit) break;
-          const destination = destinationGroupKey(offer);
-          if (usedIds.has(offer.id) || usedDestinations.has(destination)) continue;
-          result.push(offer);
-          usedIds.add(offer.id);
-          usedDestinations.add(destination);
-        }
-      };
-
-      const addRemaining = (rows: TripOffer[]) => {
-        for (const offer of rows) {
-          if (result.length >= limit) break;
-          const destination = destinationGroupKey(offer);
-          if (usedIds.has(offer.id) || usedDestinations.has(destination)) continue;
-          result.push(offer);
-          usedIds.add(offer.id);
-          usedDestinations.add(destination);
-        }
-      };
-
-      addUniqueDestinations(matching);
-      addUniqueDestinations(fallback);
-      addRemaining(matching);
-      addRemaining(fallback);
-      if (result.length < limit) addRemaining(pool);
-      return result.slice(0, limit);
-    };
-
-    const usedAcrossRails = new Set<string>();
-    const takeAcrossRails = (rows: TripOffer[], limit: number) => {
-      const result: TripOffer[] = [];
-      for (const offer of rows) {
-        const destination = destinationGroupKey(offer);
-        if (usedAcrossRails.has(destination)) continue;
-        usedAcrossRails.add(destination);
-        result.push(offer);
-        if (result.length >= limit) break;
-      }
-      return result;
-    };
-
-    const cityCandidates = buildRail(
-      o => o.nights >= 2 && o.nights <= 5,
-      24,
-      o => o.nights >= 2 && o.nights <= 6
-    );
-    const city = takeAcrossRails(cityCandidates, 8);
-
-    const sunCandidates = buildRail(
-      o => ((o.category || []).some(c => /plaza|cieplo|allinclusive/i.test(c)) || /egipt|turcj|grecj|hiszp|cypr|tunez|zanzibar|malediw|mauritius|dominik/i.test(`${o.city} ${o.country}`)) && o.nights >= 5,
-      24,
-      o => o.nights >= 5
-    );
-    const sun = takeAcrossRails(sunCandidates, 8);
-    const unusualNames = /Marrakesz|Pafos|Riwiera Albańska|Marsa Alam|Bodrum|Sycylia|Madera|Djerba|Hammamet|Rodos|Fuerteventura/i;
-    const unusual = buildRail(o => unusualNames.test(o.city), 12);
-    const weekend = buildRail(
-      o => o.nights >= 2 && o.nights <= 4,
-      12,
-      o => o.nights >= 2 && o.nights <= 5
-    );
-    const week = buildRail(
-      o => o.nights >= 6 && o.nights <= 9,
-      12,
-      o => o.nights >= 5 && o.nights <= 10
-    );
-    const budgetFriendly = takeAcrossRails(
-      cheapestPerDirection([...pool]).sort((a,b) => a.price - b.price),
-      8
-    );
-    const premium = buildRail(
-      o => o.price >= 2500 || /malediw|mauritius|seszel|zanzibar|dubaj|dominik|meksyk|tajland|wietnam/i.test(`${o.city} ${o.country}`),
-      12
-    );
-    return { city, sun, unusual, weekend, week, budgetFriendly, premium };
-  }, [dailyKey, liveOffers, eximCityBreaks]);
 
   const offersRailRef = useRef<HTMLDivElement>(null);
   const [budget, setBudget] = useState(2500);
@@ -768,76 +613,6 @@ export default function Home() {
           <Link className="premium-action-secondary" href="/okazje">Zobacz wszystkie okazje <ArrowRight size={17}/></Link>
         </div>
       </section>
-
-      <section className="section shell homepage-curated-trips" aria-labelledby="curated-trips-title">
-        <div className="section-heading">
-          <div>
-            <div className="kicker">GOTOWE WYJAZDY</div>
-            <h2 id="curated-trips-title">Gotowe wyjazdy z ceną i terminem.</h2>
-          </div>
-          <Link className="section-premium-link" href="/okazje">Zobacz wszystkie wyjazdy <ArrowRight size={16}/></Link>
-        </div>
-        <OfferRail kicker="🏙 CITY BREAK" title="Gotowe na kilka dni" description="Krótkie wyjazdy z konkretnym terminem i aktualną ceną." items={themedRails.city}/>
-        <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun}/>
-        <div className="homepage-offer-more">
-          <section className="homepage-offer-group">
-            <div className="homepage-offer-group-head"><span><b>💸 Najtaniej teraz</b><small>od najniższej ceny</small></span></div>
-            <OfferRail kicker="DOBRY BUDŻET" title="Dużo podróży za mniej" description="Najtańsze aktualne kierunki z dzisiejszej puli." items={themedRails.budgetFriendly}/>
-          </section>
-        </div>
-      </section>
-
-      <section className="section shell homepage-events" aria-labelledby="homepage-events-title">
-        <div className="section-heading">
-          <div>
-            <div className="kicker">WYJAZDY NA WYDARZENIA</div>
-            <h2 id="homepage-events-title">Jedź na wydarzenie.</h2>
-          </div>
-          <Link className="section-premium-link" href="/wydarzenia">Zobacz wydarzenia <ArrowRight size={16}/></Link>
-        </div>
-
-        <Link href="/wydarzenia" className="homepage-football-package">
-          <div className="homepage-football-copy">
-            <small>⚽ OSOBNY PAKIET</small>
-            <h3>Piłka nożna + city break</h3>
-            <p>Wybierz konkretny mecz. Tripownia dopasuje termin, lot, nocleg i plan pobytu wokół wydarzenia.</p>
-            <strong>Wybierz mecz i zbuduj wyjazd <ArrowRight size={17}/></strong>
-          </div>
-          <div className="homepage-football-steps" aria-label="Co obejmuje pakiet piłkarski">
-            <span><b>1</b> Mecz</span>
-            <span><b>2</b> Lot</span>
-            <span><b>3</b> Nocleg</span>
-            <span><b>4</b> City break</span>
-          </div>
-        </Link>
-      </section>
-
-      <section className="section shell homepage-phenomena" aria-labelledby="homepage-phenomena-title">
-        <div className="section-heading">
-          <div>
-            <div className="kicker">ZJAWISKA I SEZON</div>
-            <h2 id="homepage-phenomena-title">Podróże, na które warto trafić w dobrym momencie.</h2>
-          </div>
-          <Link className="section-premium-link" href="/podroze-po-przezycia">Zobacz pełny kalendarz <ArrowRight size={16}/></Link>
-        </div>
-        <div className="homepage-phenomena-grid">
-          {[...experienceCards,
-            { href: "/sylwester", season: "29 GRUDNIA–2 STYCZNIA", title: "🥂 Sylwester za granicą", text: "Gotowy city break na przełom roku — lot, nocleg i miasto, w którym północ naprawdę jest wydarzeniem.", imageCity: "sylwester praga noc fajerwerki", imageCountry: "Czechy", fallbackImage: "/images/destinations/praga.jpg" }
-          ].map(card => (
-            <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
-              <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={"fallbackImage" in card && typeof card.fallbackImage === "string" ? card.fallbackImage : undefined} />
-              <div className="experience-teaser-copy">
-                <small>{card.season}</small>
-                <strong>{card.title}</strong>
-                <span>{card.text}</span>
-                <em>Zobacz najlepszy moment →</em>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-
 
       <section className="section shell dream-free-plan">
         <div className="dream-free-plan-copy">
