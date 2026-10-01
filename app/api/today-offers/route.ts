@@ -129,6 +129,15 @@ const SEARCH_ALIASES: Record<string, string[]> = {
   zanzibar: ["Zanzibar", "Tanzania"],
   dubaj: ["Dubaj", "Dubai", "ZEA", "UAE", "United Arab Emirates"],
   bali: ["Bali", "Indonezja", "Indonesia"],
+  gambia: ["Gambia", "The Gambia", "Banjul"],
+  kenia: ["Kenia", "Kenya", "Mombasa", "Nairobi"],
+  kenya: ["Kenya", "Kenia", "Mombasa", "Nairobi"],
+  rpa: ["RPA", "Republika Południowej Afryki", "South Africa", "Kapsztad", "Cape Town"],
+  republika_poludniowej_afryki: ["Republika Południowej Afryki", "South Africa", "RPA", "Kapsztad", "Cape Town"],
+  south_africa: ["South Africa", "Republika Południowej Afryki", "RPA", "Cape Town", "Kapsztad"],
+  oman: ["Oman", "Maskat", "Muscat"],
+  maskat: ["Maskat", "Muscat", "Oman"],
+  muscat: ["Muscat", "Maskat", "Oman"],
 };
 
 function expandSearchTerms(rawTerms: string[]) {
