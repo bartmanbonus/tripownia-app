@@ -302,6 +302,11 @@ export default async function SeoLandingPage({ params }: PageProps) {
   if (page.departure) alertParams.set("departure", page.departure);
   if (page.maxPrice) alertParams.set("maxPrice", String(page.maxPrice));
 
+  const departureHubHref =
+    page.departure === "Warszawa" ? "/z-warszawy" :
+    page.departure === "Kraków" ? "/z-krakowa" :
+    undefined;
+
   const airportCluster = page.departure
     ? allSeoLandings
         .filter((item) => item.slug !== page.slug && item.departure === page.departure)
@@ -367,6 +372,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
               <a className="primary-cta" href="#aktualne-oferty">Zobacz aktualne oferty ↓</a>
               <Link className="secondary-cta" href="/#wyszukiwarka">Zmień parametry</Link>
               <Link className="secondary-cta" href={`/alerty?${alertParams.toString()}`}>Ustaw alert</Link>
+              {departureHubHref && <Link className="secondary-cta" href={departureHubHref}>Wszystkie wyjazdy z {page.departure}</Link>}
             </div>
           </div>
 
@@ -503,6 +509,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
             <Link href="/podroze">Wszystkie pomysły na podróże</Link>
             <Link href="/okazje">Aktualne okazje</Link>
             <Link href="/planer-podrozy">Darmowy planer podróży</Link>
+            {departureHubHref && <Link href={departureHubHref}>Wszystkie wyjazdy z {page.departure}</Link>}
           </div>
         </section>
       )}

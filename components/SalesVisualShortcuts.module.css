@@ -54,6 +54,13 @@
   white-space:nowrap;
 }
 
+.airportGrid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:28px;
+}
+
 .budgetGrid{
   display:grid;
   grid-template-columns:repeat(4,minmax(0,1fr));
@@ -66,6 +73,7 @@
   gap:10px;
 }
 
+.airportCard,
 .budgetCard,
 .seasonalCard{
   position:relative;
@@ -78,6 +86,10 @@
   transition:transform .18s ease,box-shadow .18s ease;
 }
 
+.airportCard{
+  min-height:220px;
+}
+
 .budgetCard{
   min-height:190px;
 }
@@ -86,6 +98,7 @@
   min-height:150px;
 }
 
+.airportCard:hover,
 .budgetCard:hover,
 .seasonalCard:hover{
   transform:translateY(-3px);
@@ -97,6 +110,7 @@
   transition:transform .35s ease;
 }
 
+.airportCard:hover .image,
 .budgetCard:hover .image,
 .seasonalCard:hover .image{
   transform:scale(1.035);
@@ -135,6 +149,18 @@
   text-shadow:0 2px 16px rgba(0,0,0,.24);
 }
 
+.airportCard .cardCopy strong{
+  font-size:clamp(24px,2.7vw,34px);
+}
+
+.airportText{
+  max-width:90%;
+  margin-top:6px;
+  color:rgba(255,255,255,.86);
+  font-size:12px;
+  line-height:1.35;
+}
+
 .seasonalCard .cardCopy strong{
   font-size:18px;
 }
@@ -149,6 +175,7 @@
 }
 
 @media(max-width:900px){
+  .airportGrid,
   .budgetGrid{
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
@@ -174,6 +201,7 @@
     gap:7px;
   }
 
+  .airportGrid,
   .budgetGrid,
   .seasonalGrid{
     display:flex;
@@ -185,11 +213,13 @@
     padding:0 16px 4px;
   }
 
+  .airportGrid::-webkit-scrollbar,
   .budgetGrid::-webkit-scrollbar,
   .seasonalGrid::-webkit-scrollbar{
     display:none;
   }
 
+  .airportCard,
   .budgetCard,
   .seasonalCard,
   .seasonalCard:last-child{

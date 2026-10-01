@@ -6,6 +6,23 @@ import { ArrowRight } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import styles from "./SalesVisualShortcuts.module.css";
 
+const airportCards = [
+  {
+    href: "/z-warszawy",
+    label: "WAW + WMI",
+    title: "Wyjazdy z Warszawy",
+    text: "City break, wakacje, Last Minute i All Inclusive",
+    image: "/images/destinations/rzym.jpg",
+  },
+  {
+    href: "/z-krakowa",
+    label: "KRK",
+    title: "Wyjazdy z Krakowa",
+    text: "City break, wakacje, Last Minute i All Inclusive",
+    image: "/images/destinations/madera.jpg",
+  },
+];
+
 const budgetCards = [
   {
     href: "/podroze/wyjazdy-do-1000-zl",
@@ -55,13 +72,41 @@ const seasonalCards = [
 ];
 
 export default function SalesVisualShortcuts() {
-  function track(kind: "budget" | "seasonal", href: string) {
+  function track(kind: "airport" | "budget" | "seasonal", href: string) {
     trackEvent("homepage_sales_shortcut_click", { kind, href });
   }
 
   return (
     <section className={styles.section} aria-label="Szybkie skróty do ofert">
       <div className={styles.shell}>
+        <div className={styles.rowHead}>
+          <div>
+            <small>NAJWIĘCEJ MOŻLIWOŚCI WYLOTU</small>
+            <h2>Zacznij od lotniska.</h2>
+          </div>
+          <Link href="/podroze">Wszystkie opcje <ArrowRight size={15}/></Link>
+        </div>
+
+        <div className={styles.airportGrid}>
+          {airportCards.map((card) => (
+            <Link
+              key={card.href}
+              href={card.href}
+              className={styles.airportCard}
+              onClick={() => track("airport", card.href)}
+            >
+              <Image src={card.image} alt="" fill sizes="(max-width: 620px) 84vw, 50vw" className={styles.image}/>
+              <span className={styles.scrim} aria-hidden="true"/>
+              <div className={styles.cardCopy}>
+                <small>{card.label}</small>
+                <strong>{card.title}</strong>
+                <span className={styles.airportText}>{card.text}</span>
+                <b>Zobacz oferty <ArrowRight size={14}/></b>
+              </div>
+            </Link>
+          ))}
+        </div>
+
         <div className={styles.rowHead}>
           <div>
             <small>SZYBKA DECYZJA</small>
