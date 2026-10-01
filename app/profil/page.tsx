@@ -134,25 +134,6 @@ export default function ProfilePage() {
             </select>
           </div>
 
-          <details className="profile-details profile-countries">
-            <summary>
-              <span><strong>Odwiedzone kraje i wykluczenia</strong><small>opcjonalnie · żeby nie podpowiadać ciągle tych samych miejsc</small></span>
-              <span aria-hidden="true">+</span>
-            </summary>
-            <div className="profile-details-body">
-          <CountryChecklist
-            visited={profile.visitedCountries}
-            excluded={profile.excludedVisitedCountries}
-            onChange={({ visited, excluded }) => setProfile((current) => ({
-              ...current,
-              visitedCountries: visited,
-              excludedVisitedCountries: excluded,
-            }))}
-          />
-
-            </div>
-          </details>
-
           <div className="profile-field">
             <strong>Z kim najczęściej podróżujesz?</strong>
             <select value={profile.companion} onChange={(e) => setProfile({ ...profile, companion: e.target.value as TravelProfile["companion"] })}>
@@ -177,6 +158,24 @@ export default function ProfilePage() {
             </div>
           </details>
 
+          <details className="profile-details profile-countries">
+            <summary>
+              <span><strong>Odwiedzone kraje i wykluczenia</strong><small>opcjonalnie · żeby nie podpowiadać ciągle tych samych miejsc</small></span>
+              <span aria-hidden="true">+</span>
+            </summary>
+            <div className="profile-details-body">
+          <CountryChecklist
+            visited={profile.visitedCountries}
+            excluded={profile.excludedVisitedCountries}
+            onChange={({ visited, excluded }) => setProfile((current) => ({
+              ...current,
+              visitedCountries: visited,
+              excludedVisitedCountries: excluded,
+            }))}
+          />
+
+            </div>
+          </details>
 
           <button className="primary-cta app-alerts-save" type="submit">{saved ? <><CheckCircle2 size={18} /> Zapisano</> : "Zapisz mój profil"}</button>
           <small>Bez logowania profil zostaje na tym urządzeniu. Po zalogowaniu synchronizujemy go z Twoim kontem, żeby wracał na webie i w aplikacji.</small>
