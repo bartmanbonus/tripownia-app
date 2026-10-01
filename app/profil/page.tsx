@@ -80,15 +80,29 @@ export default function ProfilePage() {
             </select>
           </div>
 
-          {profile.scheduleMode !== "any" && profile.scheduleMode !== "weekend" && (
-            <div className="profile-field">
-              <strong>Maksymalnie dni roboczych poza pracą</strong>
-              <select value={profile.maxLeaveDays} onChange={(e) => setProfile({ ...profile, maxLeaveDays: Number(e.target.value) })}>
-                {[1,2,3,4,5,7,10,14].map((item) => <option key={item} value={item}>{item}</option>)}
-              </select>
+          <div className="profile-field">
+            <strong>Co lubisz najbardziej?</strong>
+            <div className="profile-chips">
+              {styleOptions.map(([value, label]) => (
+                <button key={value} type="button" className={profile.styles.includes(value) ? "profile-chip active" : "profile-chip"} onClick={() => toggleStyle(value)}>{label}</button>
+              ))}
             </div>
-          )}
+          </div>
 
+          <details className="profile-details">
+            <summary>
+              <span><strong>Doprecyzuj rekomendacje</strong><small>opcjonalnie · długość, cel wyjazdu, standard i przesiadki</small></span>
+              <span aria-hidden="true">+</span>
+            </summary>
+            <div className="profile-details-body">
+              {profile.scheduleMode !== "any" && profile.scheduleMode !== "weekend" && (
+                <div className="profile-field">
+                  <strong>Maksymalnie dni roboczych poza pracą</strong>
+                  <select value={profile.maxLeaveDays} onChange={(e) => setProfile({ ...profile, maxLeaveDays: Number(e.target.value) })}>
+                    {[1,2,3,4,5,7,10,14].map((item) => <option key={item} value={item}>{item}</option>)}
+                  </select>
+                </div>
+              )}
           <div className="profile-field">
             <strong>Po co najczęściej szukasz wyjazdu?</strong>
             <select value={profile.tripIntent} onChange={(e) => setProfile({ ...profile, tripIntent: e.target.value as TravelProfile["tripIntent"] })}>
@@ -120,15 +134,12 @@ export default function ProfilePage() {
             </select>
           </div>
 
-          <div className="profile-field">
-            <strong>Co lubisz najbardziej?</strong>
-            <div className="profile-chips">
-              {styleOptions.map(([value, label]) => (
-                <button key={value} type="button" className={profile.styles.includes(value) ? "profile-chip active" : "profile-chip"} onClick={() => toggleStyle(value)}>{label}</button>
-              ))}
-            </div>
-          </div>
-
+          <details className="profile-details profile-countries">
+            <summary>
+              <span><strong>Odwiedzone kraje i wykluczenia</strong><small>opcjonalnie · żeby nie podpowiadać ciągle tych samych miejsc</small></span>
+              <span aria-hidden="true">+</span>
+            </summary>
+            <div className="profile-details-body">
           <CountryChecklist
             visited={profile.visitedCountries}
             excluded={profile.excludedVisitedCountries}
@@ -138,6 +149,9 @@ export default function ProfilePage() {
               excludedVisitedCountries: excluded,
             }))}
           />
+
+            </div>
+          </details>
 
           <div className="profile-field">
             <strong>Z kim najczęściej podróżujesz?</strong>
@@ -160,6 +174,9 @@ export default function ProfilePage() {
 
           <label className="profile-checkbox"><input type="checkbox" checked={profile.avoidTransfers} onChange={(e) => setProfile({ ...profile, avoidTransfers: e.target.checked })} /> Wolę podróże bez przesiadek</label>
           <label className="profile-checkbox"><input type="checkbox" checked={profile.warmOnly} onChange={(e) => setProfile({ ...profile, warmOnly: e.target.checked })} /> Najczęściej szukam ciepła</label>
+            </div>
+          </details>
+
 
           <button className="primary-cta app-alerts-save" type="submit">{saved ? <><CheckCircle2 size={18} /> Zapisano</> : "Zapisz mój profil"}</button>
           <small>Bez logowania profil zostaje na tym urządzeniu. Po zalogowaniu synchronizujemy go z Twoim kontem, żeby wracał na webie i w aplikacji.</small>
