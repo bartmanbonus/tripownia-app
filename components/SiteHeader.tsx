@@ -37,7 +37,7 @@ const primaryItems = [
   { href: "/okazje", label: "Okazje" },
   { href: "/kierunki", label: "Kierunki" },
   { href: "/wydarzenia", label: "Mecze i eventy" },
-  { href: "/planer-podrozy", label: "Planner" },
+  { href: "/planer-podrozy", label: "Planer" },
 ] as const;
 
 const bookingItems = [
@@ -60,7 +60,7 @@ const myTripowniaItems = [
   { href: "/app", label: "Panel główny", icon: LayoutDashboard },
   { href: "/gdzie-leciec", label: "Gdzie lecieć?", icon: Compass },
   { href: "/dla-ciebie", label: "Dla Ciebie", icon: Sparkles },
-  { href: "/moja-podroz", label: "Mój planner", icon: MapPinned },
+  { href: "/moja-podroz", label: "Mój planer", icon: MapPinned },
   { href: "/ulubione", label: "Ulubione", icon: Heart },
   { href: "/alerty", label: "Alerty", icon: Bell },
   { href: "/profil", label: "Profil podróżnika", icon: UserRound },
@@ -167,7 +167,7 @@ export default function SiteHeader() {
                 <div className="trip-mobile-menu-section">
                   <strong>Twoja Tripownia</strong>
                   <Link href="/dodaj-podroz"><Sparkles size={18} /><span>Ułóż plan za darmo</span></Link>
-                  <Link href="/moja-podroz"><MapPinned size={18} /><span>Mój planner</span></Link>
+                  <Link href="/moja-podroz"><MapPinned size={18} /><span>Mój planer</span></Link>
                   <Link href="/app"><LayoutDashboard size={18} /><span>Start</span></Link>
                   <Link href="/ulubione"><Heart size={18} /><span>Ulubione</span></Link>
                   <Link href="/alerty"><Bell size={18} /><span>Alerty</span></Link>
@@ -213,7 +213,7 @@ export default function SiteHeader() {
           </Link>
           <Link className="trip-header-search" href={searchHref} aria-label="Przejdź do wyszukiwarki wyjazdów">
             <Search size={20} strokeWidth={2.3} />
-            <span className="trip-header-search-copy"><strong>Znajdź wyjazd</strong><small>Wakacje, loty, hotele i atrakcje — planner ogarnie resztę</small></span>
+            <span className="trip-header-search-copy"><strong>Znajdź wyjazd</strong><small>Wakacje, loty, hotele i atrakcje — planer ogarnie resztę</small></span>
             <span className="trip-header-search-cta" aria-hidden="true"><Search size={24} strokeWidth={2.8} /></span>
           </Link>
           <nav className="trip-header-actions" aria-label="Twoje konto i social media">
