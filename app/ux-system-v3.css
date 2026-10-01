@@ -1285,7 +1285,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 #wyszukiwarka .search-v3-form.is-hotels .search-picker-modes,
 #wyszukiwarka .search-v3-form.is-hotels .search-v3-esky-tabs,
 #wyszukiwarka .search-v3-form.is-hotels .search-v3-esky-weekend,
-#wyszukiwarka .search-v3-form.is-hotels .search-v3-esky-nights{
+#wyszukiwarka .search-v3-form.is-hotels .search-v3-esky-nights,
+#wyszukiwarka .search-v3-form.is-hotels .search-v3-esky-top > div.search-v3-esky-summary{
   display:none!important;
 }
 @media(min-width:1101px){
