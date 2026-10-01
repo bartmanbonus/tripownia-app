@@ -1480,3 +1480,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .app-alerts-grid.is-single .app-alerts-card{
   width:100%;
 }
+
+/* Cloud sync notices should be visible without becoming another card. */
+.profile-sync-notice,
+.app-alerts-sync-notice{
+  display:block!important;
+  margin-top:8px!important;
+  padding:8px 10px!important;
+  border-radius:9px!important;
+  background:#f7f4f1!important;
+  color:#625851!important;
+  font-size:10.5px!important;
+  line-height:1.4!important;
+}
