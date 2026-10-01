@@ -861,7 +861,7 @@ export default function SearchHub({
       setResults([]);
       setNotice(activeTab === "Loty"
         ? "Otwieramy porównywarkę lotów Tripowni."
-        : "Przechodzimy do wyszukiwania noclegów przez partnera Tripowni.");
+        : "Otwieramy wyszukiwanie noclegów.");
       window.location.assign(url);
       return;
     }
@@ -1082,7 +1082,7 @@ export default function SearchHub({
                 <div className="search-v3-flight-exact-head">
                   <div className="kicker">KONKRETNY TERMIN</div>
                   <h3>Porównaj loty dla wybranych dat</h3>
-                  <p>Wyszukaj dokładną trasę i termin w afiliacyjnej porównywarce Tripowni.</p>
+                  <p>Wyszukaj dokładną trasę i termin w porównywarce Tripowni.</p>
                 </div>
                 <TravelpayoutsFlightsWidget />
               </div>
@@ -1497,10 +1497,10 @@ export default function SearchHub({
               const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination) : null;
               return <div className="search-v3-empty">
                 <strong>{fallback ? `Nie mamy teraz gotowego pakietu dla „${fallbackDestination}” — ale ten kierunek nadal możesz wyszukać.` : "Spróbuj trochę szerzej."}</strong>
-                <span>{fallback ? "Sprawdź loty i noclegi dla dokładnie tego kierunku u partnerów Tripowni." : "Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji."}</span>
+                <span>{fallback ? "Sprawdź loty i noclegi dla dokładnie tego kierunku." : "Usuń jeden filtr lub wybierz Inspiracje — Tripownia spróbuje znaleźć więcej aktualnych opcji."}</span>
                 {fallback && <div className="search-v3-empty-actions">
-                  <a href={fallback.kiwi} rel="sponsored">Sprawdź loty w Kiwi.com</a>
-                  <a href={fallback.booking} rel="sponsored">Sprawdź noclegi w Booking.com</a>
+                  <a href={fallback.kiwi} rel="sponsored">Sprawdź loty</a>
+                  <a href={fallback.booking} rel="sponsored">Sprawdź noclegi</a>
                 </div>}
               </div>;
             })()}

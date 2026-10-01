@@ -143,16 +143,16 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <div><small>Pobyt</small><strong>{o.nights} nocy</strong></div>
             <div><small>Wyżywienie</small><strong>{o.board}</strong></div>
             <div><small>Hotel</small><strong>{o.hotel}</strong></div>
-            <div><small>Transfer</small><strong>{o.transferIncluded ? "W cenie oferty" : "Sprawdź u partnera"}</strong></div>
+            <div><small>Transfer</small><strong>{o.transferIncluded ? "W cenie oferty" : "Do sprawdzenia"}</strong></div>
           </div>
 
           <div className="offer-decision-box">
             <small>DLACZEGO WARTO TO SPRAWDZIĆ</small>
             <strong>{o.reason}</strong>
-            <span>Przed płatnością potwierdź u partnera finalną cenę, bagaż, warunki zmiany lub anulacji i dokładny zakres świadczeń.</span>
+            <span>Przed płatnością sprawdź finalną cenę, bagaż, warunki zmiany lub anulacji i dokładny zakres świadczeń.</span>
           </div>
 
-          <div className="detail-source">Kliknięcie otworzy stronę partnera. Finalna cena i dostępność są potwierdzane przed rezerwacją.</div>
+          <div className="detail-source">Po kliknięciu sprawdzisz finalną cenę, dostępność i warunki rezerwacji.</div>
           {o.availabilityStatus === "expired" ? (
             <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
           ) : (
@@ -168,7 +168,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               >
                 {o.partner === "exim" || o.partner === "tui" ? "Zobacz konkretną ofertę" : "Sprawdź aktualną cenę"} <ExternalLink size={18}/>
               </TrackedPartnerLink>
-              <small className="affiliate-note">{o.partner === "exim" || o.partner === "tui" ? "Otwieramy partnera w nowej karcie. Tripownia nie dolicza opłaty; finalne warunki zobaczysz przed rezerwacją." : "Otwieramy partnera w nowej karcie. Tripownia nie dolicza opłaty; cena i dostępność są potwierdzane przed rezerwacją."}</small>
+              <small className="booking-note">Cena i dostępność mogą zmienić się do momentu rezerwacji. Sprawdź finalne warunki przed płatnością.</small>
             </div>
           )}
           <SocialShare
