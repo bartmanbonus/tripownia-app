@@ -258,3 +258,39 @@
   .offer-card-clean .offer-body{padding:14px!important}
   .offer-card-clean .offer-hotel-name{min-height:2.8em}
 }
+
+
+/* 2026-10-01 keep secondary offer actions inside the card */
+.offer-card-clean .offer-actions-row{
+  min-width:0!important;
+  width:100%!important;
+}
+.offer-card-clean .offer-actions-row button{
+  min-width:0!important;
+  max-width:100%!important;
+  width:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:4px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.offer-card-clean .offer-actions-row button svg{
+  flex:0 0 12px!important;
+}
+@media(max-width:1100px){
+  .offer-card-clean .offer-actions-row button{
+    padding:0 6px!important;
+    font-size:7.5px!important;
+  }
+}
+@media(max-width:760px){
+  .offer-card-clean .offer-actions-row{
+    grid-template-columns:1fr!important;
+  }
+  .offer-card-clean .offer-actions-row button{
+    min-height:36px!important;
+    font-size:9px!important;
+  }
+}
