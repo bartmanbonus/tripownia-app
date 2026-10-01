@@ -480,7 +480,7 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
             <p>Kierunek jest już uzupełniony. Zmień tylko to, co ma znaczenie dla Twojego wyjazdu.</p>
           </div>
         </div>
-        <SearchHub embedded initialTab="Wakacje" initialBoard={config.preferredBoard || "all"} initialDestinations={[config.searchDestination]} destinationQuickPicks={config.popular} />
+        <SearchHub embedded initialTab={config.preferredBoard === "all inclusive" ? "All Inclusive" : "Lot + hotel"} initialBoard={config.preferredBoard || "all"} initialDestinations={[config.searchDestination]} destinationQuickPicks={config.popular} />
       </section>
 
       <section className={styles.offersSection}>
