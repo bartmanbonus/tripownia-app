@@ -181,11 +181,29 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
 
   if (loading) {
     return (
-      <div className="seo-live-status seo-live-status-loading">
-        <span className="seo-live-pulse" />
-        <div>
-          <strong>Sprawdzamy teraz aktualne oferty…</strong>
-          <span>To może potrwać kilka sekund.</span>
+      <div className="seo-offers-loading" aria-live="polite" aria-busy="true">
+        <div className="seo-offers-loading-head">
+          <span className="seo-live-pulse" />
+          <div>
+            <strong>Szukamy najlepszych dopasowań…</strong>
+            <span>Sprawdzamy ceny i dostępność dla tych parametrów.</span>
+          </div>
+        </div>
+        <div className="seo-offers-skeleton-grid" aria-hidden="true">
+          {[0, 1, 2].map((item) => (
+            <div className="seo-offer-skeleton" key={item}>
+              <div className="seo-offer-skeleton-media" />
+              <div className="seo-offer-skeleton-body">
+                <span className="seo-skeleton-line seo-skeleton-line-short" />
+                <span className="seo-skeleton-line seo-skeleton-line-title" />
+                <span className="seo-skeleton-line" />
+                <div className="seo-offer-skeleton-bottom">
+                  <span className="seo-skeleton-price" />
+                  <span className="seo-skeleton-button" />
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
