@@ -392,10 +392,10 @@ export default function DealsPage({
       {rows.length > 0 ? (
         <>
           <div className="deals-results-heading">
-            <div><span>AKTUALNE OFERTY</span><h2>{filtering ? "Najlepsze dopasowania" : "Najlepsze ceny teraz"}</h2></div>
+            <div><span>AKTUALNE OFERTY</span><h2>{filtering ? "Najlepsze dopasowania" : "Więcej najlepszych cen"}</h2></div>
             <p>{source === "live" ? "Kliknij ofertę, aby sprawdzić aktualną cenę i dostępność." : "Pokazujemy ostatnią opublikowaną pulę Tripowni. Aktualną cenę i dostępność sprawdzisz po kliknięciu."}</p>
           </div>
-          <div className="cards-grid deals-premium-grid">{rows.map((offer) => <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>)}</div>
+          <div className="cards-grid deals-premium-grid">{visibleRows.map((offer) => <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>)}</div>
         </>
       ) : !loading ? (
         <div className="self-search-empty">
