@@ -441,7 +441,7 @@ function departurePriority(offer: LiveCandidate) {
 }
 
 function destinationKey(offer: LiveCandidate) {
-  return normalize(`${offer.city}|${offer.country}`);
+  return touristDestinationKey(offer);
 }
 
 function countryLimit(offer: LiveCandidate) {
