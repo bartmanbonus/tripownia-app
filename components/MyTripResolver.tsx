@@ -88,7 +88,16 @@ export default function MyTripResolver() {
     };
   }, []);
 
-  if (!ready) return null;
+  if (!ready) return <main>
+    <SiteHeader/>
+    <section className="shell my-trip-loading" aria-label="Ładowanie Twojej podróży">
+      <div className="my-trip-loading-head"><span/><strong/><span/></div>
+      <div className="my-trip-loading-grid">
+        {[0,1,2].map((item) => <div key={item}><strong/><span/><span/></div>)}
+      </div>
+    </section>
+    <SiteFooter/>
+  </main>;
   if (tripKey === "static") return <PlannerEmptyState signedIn={signedIn}/>;
   return <MyTrip key={tripKey}/>;
 }
