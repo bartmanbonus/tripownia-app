@@ -159,7 +159,7 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
   return <>
     <div className={styles.toolbar}>
       <div className={styles.status}>
-        <strong>{status === "live" ? "● aktualny feed" : "ostatnia bezpieczna pula"}</strong>
+        <strong>{status === "live" ? "● aktualne oferty" : "ostatnio sprawdzone oferty"}</strong>
         <span>{available.length} kierunków · od {cheapest.toLocaleString("pl-PL")} zł/os.</span>
       </div>
 
