@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const origin = safeCode(params.get("origin"), "WAW");
   const destination = safeCode(params.get("destination"));
+  const fallbackDestination = safeCode(params.get("fallback"));
   const month = safeMonth(params.get("month"));
   const minDays = Math.max(1, Math.min(30, Number(params.get("minDays") || 5)));
   const maxDays = Math.max(minDays, Math.min(30, Number(params.get("maxDays") || 7)));
@@ -51,27 +52,40 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ ok: false, results: [], error: "invalid_parameters" }, { status: 400 });
   }
 
-  const upstream = new URL("https://suggest.apistp.com/uaca/v1/get_data_forward");
-  upstream.searchParams.set("service", "calendar_aviasales_month");
-  upstream.searchParams.set("origin_iata", origin);
-  upstream.searchParams.set("currency", "pln");
-  upstream.searchParams.set("destination_iata", destination);
-  upstream.searchParams.set("one_way", "false");
-  upstream.searchParams.set("min_trip_duration", String(minDays));
-  upstream.searchParams.set("max_trip_duration", String(maxDays));
-  upstream.searchParams.set("only_direct", direct ? "true" : "false");
-  upstream.searchParams.set("month", month);
-  upstream.searchParams.set("host", "hydra.aviasales.com");
+  function upstreamUrl(target: string) {
+    const upstream = new URL("https://suggest.apistp.com/uaca/v1/get_data_forward");
+    upstream.searchParams.set("service", "calendar_aviasales_month");
+    upstream.searchParams.set("origin_iata", origin);
+    upstream.searchParams.set("currency", "pln");
+    upstream.searchParams.set("destination_iata", target);
+    upstream.searchParams.set("one_way", "false");
+    upstream.searchParams.set("min_trip_duration", String(minDays));
+    upstream.searchParams.set("max_trip_duration", String(maxDays));
+    upstream.searchParams.set("only_direct", direct ? "true" : "false");
+    upstream.searchParams.set("month", month);
+    upstream.searchParams.set("host", "hydra.aviasales.com");
+    return upstream;
+  }
 
-  try {
-    const response = await fetch(upstream.toString(), {
+  async function readCalendar(target: string) {
+    const response = await fetch(upstreamUrl(target).toString(), {
       headers: { Accept: "application/json" },
       next: { revalidate: 900 },
     });
     if (!response.ok) throw new Error("calendar HTTP " + response.status);
-
     const data = await response.json() as { month?: Record<string, CalendarRow> };
-    const rows = Object.values(data?.month || {})
+    return Object.values(data?.month || {});
+  }
+
+  try {
+    let sourceDestination = destination;
+    let calendarRows = await readCalendar(destination);
+    if (!calendarRows.some((row) => Number(row.value || 0) > 0) && fallbackDestination && fallbackDestination !== destination) {
+      sourceDestination = fallbackDestination;
+      calendarRows = await readCalendar(fallbackDestination);
+    }
+
+    const rows = calendarRows
       .filter((row) => Number(row.value || 0) > 0 && row.depart_date)
       .map((row) => ({
         price: Math.round(Number(row.value || 0)),
@@ -81,7 +95,7 @@ export async function GET(request: NextRequest) {
         returnStops: Number(row.return_stops || 0),
         affiliateUrl: searchUrl(
           origin,
-          String(row.destination || destination),
+          String(row.destination || sourceDestination),
           String(row.depart_date || ""),
           String(row.return_date || ""),
         ),
@@ -89,7 +103,7 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => a.price - b.price);
 
     return NextResponse.json(
-      { ok: true, origin, destination, month, results: rows },
+      { ok: true, origin, destination, resolvedDestination: sourceDestination, month, results: rows },
       { headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=900" } },
     );
   } catch (error) {
