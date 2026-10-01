@@ -329,12 +329,14 @@ export default function AccountPage() {
         )}
 
         {message && <div className="account-message" role="status">{message}</div>}
-        <div className="account-local-stats account-bottom-stats">
-          <span><b>{localStats.visited}</b> krajów na tym urządzeniu</span>
-          <span><b>{localStats.favorites}</b> ulubionych</span>
-          <span><b>{localStats.compare}</b> porównywanych</span>
-          <span><Link href="/profil">Edytuj profil →</Link></span>
-        </div>
+        {!session && (
+          <div className="account-local-stats account-bottom-stats">
+            <span><b>{localStats.visited}</b> krajów na tym urządzeniu</span>
+            <span><b>{localStats.favorites}</b> ulubionych</span>
+            <span><b>{localStats.compare}</b> porównywanych</span>
+            <span><Link href="/profil">Edytuj profil →</Link></span>
+          </div>
+        )}
       </section>
       <SiteFooter />
     </main>
