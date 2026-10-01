@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import styles from "./GoogleIntentGateway.module.css";
 
@@ -6,37 +7,37 @@ const intentLinks = [
     href: "/gdzie-leciec",
     kicker: "NIE WIEM GDZIE",
     title: "Gdzie lecieć?",
-    text: "Dobierz kierunek do budżetu, terminu i stylu wyjazdu.",
+    image: "/images/destinations/madera.jpg",
   },
   {
     href: "/tanie-loty",
     kicker: "NAJTANIEJ",
-    title: "Tanie loty z Polski",
-    text: "Sprawdź okazje lotnicze i lotniska wylotu.",
+    title: "Tanie loty",
+    image: "/images/destinations/barcelona.jpg",
   },
   {
     href: "/city-break",
     kicker: "2–5 DNI",
     title: "City break",
-    text: "Lot + hotel, krótki weekend i konkretne terminy.",
+    image: "/images/destinations/rzym.jpg",
   },
   {
     href: "/gdzie-jest-cieplo-zima-bez-dalekiego-lotu",
     kicker: "SŁOŃCE",
-    title: "Gdzie jest ciepło zimą?",
-    text: "Porównaj ciepłe kierunki bez bardzo długiego lotu.",
+    title: "Ciepło zimą",
+    image: "/images/destinations/teneryfa.jpg",
   },
   {
     href: "/podroze/wakacje-do-2500-zl",
     kicker: "BUDŻET",
     title: "Wakacje do 2500 zł",
-    text: "Zobacz wyjazdy dopasowane do konkretnego budżetu.",
+    image: "/images/destinations/djerba.jpg",
   },
   {
     href: "/tanie-all-inclusive",
     kicker: "PAKIET",
     title: "Tanie All Inclusive",
-    text: "Porównaj pełne pakiety, hotele, wyżywienie i terminy.",
+    image: "/images/destinations/marsa-alam.jpg",
   },
 ];
 
@@ -46,23 +47,28 @@ export default function GoogleIntentGateway() {
       <div className={styles.shell}>
         <div className={styles.head}>
           <div>
-            <div className={styles.kicker}>SZUKAJ TAK, JAK W GOOGLE</div>
-            <h2 id="google-intent-title">Od pytania do konkretnego wyjazdu.</h2>
-            <p>
-              Wybierz to, czego naprawdę szukasz. Tripownia prowadzi od inspiracji do aktualnych ofert,
-              lotów, hoteli i gotowych pakietów.
-            </p>
+            <div className={styles.kicker}>WYBIERZ SZYBKO</div>
+            <h2 id="google-intent-title">Czego dziś szukasz?</h2>
           </div>
-          <Link href="/podroze" className={styles.allLink}>Zobacz wszystkie pomysły →</Link>
+          <Link href="/podroze" className={styles.allLink}>Wszystkie pomysły →</Link>
         </div>
 
         <div className={styles.grid}>
           {intentLinks.map((item) => (
             <Link key={item.href} href={item.href} className={styles.card}>
-              <small>{item.kicker}</small>
-              <strong>{item.title}</strong>
-              <span>{item.text}</span>
-              <b>Sprawdź →</b>
+              <Image
+                src={item.image}
+                alt=""
+                fill
+                sizes="(max-width: 620px) 90vw, (max-width: 980px) 46vw, 31vw"
+                className={styles.image}
+              />
+              <span className={styles.scrim} aria-hidden="true" />
+              <div className={styles.cardCopy}>
+                <small>{item.kicker}</small>
+                <strong>{item.title}</strong>
+                <b>Sprawdź →</b>
+              </div>
             </Link>
           ))}
         </div>
