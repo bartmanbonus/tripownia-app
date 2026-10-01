@@ -1,6 +1,6 @@
 import type { ArticleDeepDive } from "@/lib/articleDeepDive";
 
-export default function ArticleDeepDiveBlock({ deepDive }: { deepDive: ArticleDeepDive }) {
+export default function ArticleDeepDiveBlock({ deepDive, hideIntro = false }: { deepDive: ArticleDeepDive; hideIntro?: boolean }) {
   const faqJsonLd = deepDive.faq?.length ? {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -12,9 +12,9 @@ export default function ArticleDeepDiveBlock({ deepDive }: { deepDive: ArticleDe
   } : null;
 
   return (
-    <section className="article-deep-dive">
+    <section className={`article-deep-dive${hideIntro ? " article-deep-dive-details-only" : ""}`}>
       {faqJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, "\\u003c") }} />}
-      <div className="article-deep-dive-head">
+      {!hideIntro && (      <div className="article-deep-dive-head">
         <div className="kicker">{deepDive.kicker}</div>
         <h2>{deepDive.title}</h2>
         <div className="article-quick-answer">
@@ -22,7 +22,7 @@ export default function ArticleDeepDiveBlock({ deepDive }: { deepDive: ArticleDe
           <p>{deepDive.quickAnswer}</p>
           {deepDive.checkedAt && <small>Sprawdzone: {deepDive.checkedAt}</small>}
         </div>
-      </div>
+      </div>)}
 
       <div className="article-deep-dive-sections">
         {deepDive.sections.map((section) => (
