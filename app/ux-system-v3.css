@@ -1333,3 +1333,59 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 @media(max-width:560px){
   .my-trip-card-action{width:100%;min-height:44px}
 }
+
+/* Profile: keep the first screen short and progressively disclose optional preferences. */
+.profile-details{
+  margin:0 0 14px;
+  border:1px solid var(--ux-line);
+  border-radius:14px;
+  background:#fff;
+  overflow:hidden;
+}
+.profile-details>summary{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:12px 14px;
+  cursor:pointer;
+  list-style:none;
+}
+.profile-details>summary::-webkit-details-marker{display:none}
+.profile-details>summary>span:first-child{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+.profile-details>summary strong{
+  color:var(--ux-ink);
+  font-size:13px;
+}
+.profile-details>summary small{
+  color:var(--ux-muted);
+  font-size:10.5px;
+  line-height:1.35;
+}
+.profile-details>summary>span:last-child{
+  width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:var(--ux-surface-soft);
+  color:#695f58;
+  font-size:18px;
+  transition:transform .16s ease;
+}
+.profile-details[open]>summary>span:last-child{transform:rotate(45deg)}
+.profile-details-body{
+  padding:4px 14px 14px;
+  border-top:1px solid #f1ebe7;
+}
+.profile-details-body>.profile-field:first-child{margin-top:14px}
+.profile-countries .profile-details-body{padding-top:14px}
+@media(max-width:560px){
+  .profile-details>summary{min-height:56px;padding:11px 12px}
+  .profile-details-body{padding:4px 12px 12px}
+}
