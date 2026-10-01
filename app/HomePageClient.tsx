@@ -697,9 +697,9 @@ export default function Home() {
   }
 
   const dailyCopy = liveOffersStatus === "live"
-    ? "Dzisiejsza pula pochodzi z aktualnego feedu. Status ceny i dokładność linku oznaczamy na każdej karcie."
+    ? "Dzisiejsze oferty są aktualizowane na bieżąco. Przy każdej karcie pokazujemy status ceny i dostępności."
     : hasOffers
-      ? "Aktualne dane są chwilowo niedostępne. Pokazujemy ostatnią opublikowaną pulę Tripowni — cenę i dostępność sprawdzisz po kliknięciu."
+      ? "Część aktualnych danych jest chwilowo niedostępna. Pokazujemy ostatnio sprawdzone oferty Tripowni — cenę i dostępność potwierdzisz przy rezerwacji."
       : "Sprawdzamy dzisiejszą pulę. Nie pokazujemy archiwalnych cen w zastępstwie aktualnych danych.";
 
   return (
