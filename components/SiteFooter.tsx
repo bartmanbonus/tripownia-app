@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Mail, MapPin } from "lucide-react";
 import OfferRailDeduper from "@/components/OfferRailDeduper";
 import { trackEvent } from "@/lib/analytics";
-import { partners } from "@/lib/partners";
 
 export default function SiteFooter() {
   return (
@@ -52,9 +51,9 @@ export default function SiteFooter() {
               <Link href="/wakacje">Wakacje</Link>
               <Link href="/z-warszawy">Wyloty z Warszawy</Link>
               <Link href="/z-krakowa">Wyloty z Krakowa</Link>
-              <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Hotele</a>
-              <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Loty</a>
-              <a href={partners.getyourguide.buildUrl("https://www.getyourguide.pl/")} target="_blank" rel="sponsored noopener noreferrer">Atrakcje</a>
+              <Link href="/hotele">Hotele</Link>
+              <Link href="/loty">Loty</Link>
+              <Link href="/atrakcje">Atrakcje</Link>
               <Link href="/wynajem-auta">Wynajem auta</Link>
               <Link href="/transfery">Transfery</Link>
               <Link href="/parkingi">Parkingi</Link>
