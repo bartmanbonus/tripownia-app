@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-type Place = { code: string; name: string; country: string; airport?: string; type?: string };
+type Place = { code: string; name: string; country: string; airport?: string; type?: string; searchCode?: string };
 type RouteChoice = { key: string; origin: Place; destination: Place | null };
 type FlightDeal = {
   destination: string;
@@ -298,6 +298,9 @@ export default function FlexibleFlightsExplorer() {
   const [daysMin, setDaysMin] = useState(3);
   const [daysMax, setDaysMax] = useState(7);
   const [directOnly, setDirectOnly] = useState(false);
+  const [travelMonth, setTravelMonth] = useState("");
+  const [calendarResults, setCalendarResults] = useState<Array<{ price:number; departDate:string; returnDate:string; outboundStops:number; returnStops:number; affiliateUrl:string }>>([]);
+  const [calendarLoading, setCalendarLoading] = useState(false);
   const [activeRouteKey, setActiveRouteKey] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [deals, setDeals] = useState<FlightDeal[]>([]);
@@ -355,12 +358,15 @@ export default function FlexibleFlightsExplorer() {
     return url.toString();
   }, [activeRoute]);
 
+  const effectiveDestinationCode = activeRoute?.destination?.code || "";
+  const fallbackDestinationCode = activeRoute?.destination?.searchCode || "";
+
   const calendarSrc = useMemo(() => {
-    if (!activeRoute?.origin.code || !activeRoute.destination?.code) return "";
+    if (!activeRoute?.origin.code || !effectiveDestinationCode) return "";
     const params = new URLSearchParams({
       marker,
       origin: activeRoute.origin.code,
-      destination: activeRoute.destination.code,
+      destination: effectiveDestinationCode,
       currency: "pln",
       searchUrl: "hydra.aviasales.com",
       one_way: "false",
@@ -372,7 +378,37 @@ export default function FlexibleFlightsExplorer() {
       width: "100%",
     });
     return "https://www.travelpayouts.com/calendar_widget/iframe.js?" + params.toString();
-  }, [activeRoute, daysMin, daysMax, directOnly]);
+  }, [activeRoute, effectiveDestinationCode, daysMin, daysMax, directOnly]);
+
+  useEffect(() => {
+    if (!submitted || destinationAnywhere || !travelMonth || !activeRoute?.origin.code || !effectiveDestinationCode) {
+      setCalendarResults([]);
+      setCalendarLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setCalendarLoading(true);
+    const params = new URLSearchParams({
+      origin: activeRoute.origin.code,
+      destination: effectiveDestinationCode,
+      month: travelMonth,
+      minDays: String(Math.min(daysMin, daysMax)),
+      maxDays: String(Math.max(daysMin, daysMax)),
+      direct: directOnly ? "true" : "false",
+    });
+    if (fallbackDestinationCode && fallbackDestinationCode !== effectiveDestinationCode) {
+      params.set("fallback", fallbackDestinationCode);
+    }
+
+    fetch("/api/flight-calendar?" + params.toString(), { signal: controller.signal, cache: "no-store" })
+      .then((response) => response.json())
+      .then((data) => setCalendarResults(Array.isArray(data?.results) ? data.results : []))
+      .catch(() => setCalendarResults([]))
+      .finally(() => setCalendarLoading(false));
+
+    return () => controller.abort();
+  }, [submitted, destinationAnywhere, travelMonth, activeRoute?.origin.code, effectiveDestinationCode, fallbackDestinationCode, daysMin, daysMax, directOnly]);
 
   const mapSrc = useMemo(() => {
     if (!activeRoute?.origin.code || !destinationAnywhere) return "";
@@ -485,6 +521,25 @@ export default function FlexibleFlightsExplorer() {
           onSpecialChange={(active) => { setDestinationAnywhere(active); dirty(); }}
           defaultOptions={POPULAR_DESTINATIONS}
         />
+
+        <div className="flight-hunt-month">
+          <span>Kiedy?</span>
+          <select value={travelMonth} onChange={(event) => { setTravelMonth(event.target.value); dirty(); }}>
+            <option value="">Dowolny miesiąc</option>
+            <option value="2026-10">Październik 2026</option>
+            <option value="2026-11">Listopad 2026</option>
+            <option value="2026-12">Grudzień 2026</option>
+            <option value="2027-01">Styczeń 2027</option>
+            <option value="2027-02">Luty 2027</option>
+            <option value="2027-03">Marzec 2027</option>
+            <option value="2027-04">Kwiecień 2027</option>
+            <option value="2027-05">Maj 2027</option>
+            <option value="2027-06">Czerwiec 2027</option>
+            <option value="2027-07">Lipiec 2027</option>
+            <option value="2027-08">Sierpień 2027</option>
+            <option value="2027-09">Wrzesień 2027</option>
+          </select>
+        </div>
 
         <div className="flight-hunt-stay">
           <span>Na ile dni?</span>
@@ -610,6 +665,44 @@ export default function FlexibleFlightsExplorer() {
               </section>
               )}
             </>
+          ) : travelMonth ? (
+            <section className="flight-month-results" aria-label="Najtańsze terminy w wybranym miesiącu">
+              {calendarLoading ? (
+                <div className="flight-deals-loading">Sprawdzamy ceny w wybranym miesiącu…</div>
+              ) : calendarResults.length ? (
+                <>
+                  <div className="flight-deals-list-head">
+                    <div>
+                      <small>NAJTAŃSZE TERMINY</small>
+                      <h3>{activeRoute?.origin.name} → {activeRoute?.destination?.name} · {travelMonth}</h3>
+                    </div>
+                  </div>
+                  <div className="flight-deals-grid">
+                    {calendarResults.slice(0, 18).map((deal) => (
+                      <a className="flight-deal-card" key={deal.departDate + "-" + deal.returnDate} href={deal.affiliateUrl} rel="sponsored">
+                        <div className="flight-deal-main">
+                          <div>
+                            <strong>{deal.departDate} → {deal.returnDate}</strong>
+                            <span>{activeRoute?.destination?.country || activeRoute?.destination?.name}</span>
+                          </div>
+                          <b>od {deal.price.toLocaleString("pl-PL")} zł</b>
+                        </div>
+                        <div className="flight-deal-meta">
+                          <span>tam: {deal.outboundStops === 0 ? "bez przesiadek" : deal.outboundStops + " przesiadki"}</span>
+                          <span>powrót: {deal.returnStops === 0 ? "bez przesiadek" : deal.returnStops + " przesiadki"}</span>
+                          <em>Sprawdź lot</em>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="flight-deals-empty">
+                  Nie mamy ceny zapisanej dla tego kierunku i miesiąca. Zamiast udawać brak lotów, otwórz pełne wyszukiwanie tej trasy.
+                  <div style={{marginTop:10}}><a href={affiliateFallbackUrl} rel="sponsored">Sprawdź loty dla tej trasy →</a></div>
+                </div>
+              )}
+            </section>
           ) : (
             calendarSrc && <ScriptSlot key={activeRoute?.key + "-calendar"} id="tripownia-price-calendar" src={calendarSrc} fallbackHref={affiliateFallbackUrl} />
           )}
