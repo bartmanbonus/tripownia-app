@@ -20,6 +20,21 @@ function uniqueDirections(rows: Offer[]) {
   });
 }
 
+function normalizeAirportText(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function matchesAirport(offer: Offer, codes: string[]) {
+  if (!codes.length) return true;
+  const haystack = normalizeAirportText(`${offer.departure || ""} ${offer.airportCode || ""}`);
+  return codes.some((code) => {
+    if (code === "WAW") return /warszawa|chopin|okecie|\bwaw\b/.test(haystack) && !/modlin/.test(haystack);
+    if (code === "WMI") return /modlin|\bwmi\b/.test(haystack);
+    if (code === "KRK") return /krakow|balice|\bkrk\b/.test(haystack);
+    return haystack.includes(code.toLowerCase());
+  });
+}
+
 export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = false, limit = 18 }: Props) {
   const [rows, setRows] = useState<Offer[]>([]);
   const [status, setStatus] = useState<"loading" | "live" | "fallback">("loading");
@@ -48,9 +63,28 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
       .then(async (response) => {
         const data = await response.json();
         const result = Array.isArray(data?.offers) ? data.offers as Offer[] : [];
-        if (!response.ok || data?.ok === false || !result.length) throw new Error("today-offers");
-        setRows(result);
-        setStatus("live");
+        if (response.ok && data?.ok !== false && result.length) {
+          setRows(result);
+          setStatus("live");
+          return;
+        }
+
+        // Some partner feeds temporarily return no results for a broad airport query
+        // even though the daily pool still contains a verified departure from that airport.
+        const dailyResponse = await fetch(`/api/today-offers?key=${encodeURIComponent(key)}`, {
+          cache: "no-store",
+          signal: controller.signal,
+        });
+        const dailyData = await dailyResponse.json();
+        const dailyRows = Array.isArray(dailyData?.offers) ? dailyData.offers as Offer[] : [];
+        const airportRows = dailyRows.filter((offer) => matchesAirport(offer, airportCodes));
+        if (dailyResponse.ok && airportRows.length) {
+          setRows(airportRows);
+          setStatus("live");
+          return;
+        }
+
+        throw new Error("today-offers");
       })
       .catch(() => {
         if (controller.signal.aborted) return;
@@ -66,7 +100,7 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
       .filter((offer) => offer && offer.id && offer.price > 0 && offer.affiliateUrl)
       .filter((offer) => !isOfferExpired(offer))
       .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
-      .filter((offer) => status === "live" || !airportCodes.length || airportCodes.includes(offer.airportCode))
+      .filter((offer) => matchesAirport(offer, airportCodes))
       .filter((offer) => !weekendOnly || (offer.nights >= 2 && offer.nights <= 4));
 
     return uniqueDirections(result);
