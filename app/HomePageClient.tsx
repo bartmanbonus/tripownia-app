@@ -323,7 +323,7 @@ function LongHaulHomeSection() {
 
       <div className="long-haul-trust">
         <div><span><Globe2 size={19}/></span><p><strong>Wybrane kierunki</strong><small>Kierunki z przydatnymi informacjami i ofertami</small></p></div>
-        <div><span><BadgePercent size={19}/></span><p><strong>Dobre ceny</strong><small>Oferty z zaufanych partnerów</small></p></div>
+        <div><span><BadgePercent size={19}/></span><p><strong>Dobre ceny</strong><small>Aktualne propozycje w jednym miejscu</small></p></div>
         <div><span><ShieldCheck size={19}/></span><p><strong>Praktyczne przygotowanie</strong><small>Dokumenty, logistyka i rzeczy do sprawdzenia</small></p></div>
         <div><span><Compass size={19}/></span><p><strong>Inspiracje na cały rok</strong><small>Weekend, wakacje i wielkie podróże</small></p></div>
       </div>
@@ -702,7 +702,7 @@ export default function Home() {
   const dailyCopy = liveOffersStatus === "live"
     ? "Dzisiejsza pula pochodzi z aktualnego feedu. Status ceny i dokładność linku oznaczamy na każdej karcie."
     : hasOffers
-      ? "Live feed jest chwilowo niedostępny. Pokazujemy ostatnią opublikowaną pulę Tripowni — aktualną cenę i dostępność potwierdzisz po kliknięciu u partnera."
+      ? "Aktualne dane są chwilowo niedostępne. Pokazujemy ostatnią opublikowaną pulę Tripowni — cenę i dostępność sprawdzisz po kliknięciu."
       : "Sprawdzamy dzisiejszą pulę. Nie pokazujemy archiwalnych cen w zastępstwie aktualnych danych.";
 
   return (
