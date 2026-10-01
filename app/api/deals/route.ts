@@ -72,6 +72,15 @@ function airportMatches(offer: DealsOffer, airport: string) {
   return false;
 }
 
+function polishDepartureMatches(offer: DealsOffer) {
+  const haystack = normalize(`${offer.departure || ""} ${offer.airportCode || ""}`);
+  return /polska|warszawa|chopin|modlin|radom|krakow|balice|katowice|pyrzowice|gdansk|rebiechowo|wroclaw|strachowice|poznan|lawica|rzeszow|jasionka|lublin|swidnik|szczecin|goleniow|lodz|lublinek|bydgoszcz|zielona gora|babimost|olsztyn|mazury|szymany|\bwaw\b|\bwmi\b|\brdo\b|\bkrk\b|\bktw\b|\bgdn\b|\bwro\b|\bpoz\b|\brze\b|\bluz\b|\bszz\b|\blcj\b|\bbzg\b|\bieg\b|\bszy\b/.test(haystack);
+}
+
+function requestedDepartureMatches(offer: DealsOffer, airport: string) {
+  return airport ? airportMatches(offer, airport) : polishDepartureMatches(offer);
+}
+
 function dateParts(offer: DealsOffer) {
   if (!offer.startDateISO || !/^20\d{2}-\d{2}-\d{2}$/.test(offer.startDateISO)) return null;
   const [year, month] = offer.startDateISO.split("-");
@@ -167,9 +176,13 @@ export async function GET(request: NextRequest) {
   const successful = results.filter((item) => item.response.ok);
   const unavailableSources = results.filter((item) => !item.response.ok).map((item) => item.label);
   if (!successful.length) {
-    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal).filter((offer) => typeMatches(offer, type)).filter((offer) => destinationMatches(offer, destination));
+    const fallbackPool = (publishedOffers as DealsOffer[])
+      .filter(isUsableDeal)
+      .filter(polishDepartureMatches)
+      .filter((offer) => typeMatches(offer, type))
+      .filter((offer) => destinationMatches(offer, destination));
     const fallbackExact = fallbackPool
-      .filter((offer) => airportMatches(offer, airport))
+      .filter((offer) => requestedDepartureMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
     const fallbackOffers = lowestPriceDeals(
       fallbackExact.length ? fallbackExact : strict && (airport || month || year) ? [] : fallbackPool
@@ -240,12 +253,15 @@ export async function GET(request: NextRequest) {
     const current = unique.get(offer.id);
     if (!current || Number(offer.price) < Number(current.price)) unique.set(offer.id, offer);
   }
-  const sourceOffers = Array.from(unique.values()).filter((offer) => typeMatches(offer, type)).filter((offer) => destinationMatches(offer, destination));
+  const sourceOffers = Array.from(unique.values())
+    .filter(polishDepartureMatches)
+    .filter((offer) => typeMatches(offer, type))
+    .filter((offer) => destinationMatches(offer, destination));
 
   if (!sourceOffers.length) {
     const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal).filter((offer) => typeMatches(offer, type)).filter((offer) => destinationMatches(offer, destination));
     const fallbackExact = fallbackPool
-      .filter((offer) => airportMatches(offer, airport))
+      .filter((offer) => requestedDepartureMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
     const fallbackOffers = lowestPriceDeals(
       fallbackExact.length ? fallbackExact : strict && (airport || month || year) ? [] : fallbackPool
@@ -276,7 +292,7 @@ export async function GET(request: NextRequest) {
   }
 
   const exact = sourceOffers
-    .filter((offer) => airportMatches(offer, airport))
+    .filter((offer) => requestedDepartureMatches(offer, airport))
     .filter((offer) => dateMatches(offer, month, year));
 
   let offers = lowestPriceDeals(exact);
@@ -284,7 +300,7 @@ export async function GET(request: NextRequest) {
   let notice = offers.length
     ? type === "allinclusive"
       ? "Najtańsze aktualne All Inclusive są na górze. Dla każdego kierunku zostawiamy najtańszą potwierdzoną ofertę."
-      : "Najtańsze znalezione ceny są na górze. Dla każdego kierunku zostawiamy tylko najtańszą aktualną ofertę."
+      : "Najtańsze znalezione ceny z polskich lotnisk są na górze. Dla każdego kierunku zostawiamy tylko najtańszą aktualną ofertę."
     : "";
 
   if (!strict && !offers.length && (month || year)) {
