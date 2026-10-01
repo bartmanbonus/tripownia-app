@@ -7,6 +7,7 @@ import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
+import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 import styles from "../conversion-pages.module.css";
 
 export const metadata: Metadata = {
@@ -113,7 +114,7 @@ export default function CityBreakPage() {
 
     <section className={[styles.shell, styles.section].join(" ")}>
       <div className={styles.sectionHead}>
-        <div><div className={styles.kicker}>AKTUALNE PROPOZYCJE</div><h2>Najtańsze city breaki teraz</h2><p>Live ceny z bieżących feedów. Sortujemy od najniższej ceny i pokazujemy krótkie wyjazdy.</p></div>
+        <div><div className={styles.kicker}>AKTUALNE PROPOZYCJE</div><h2>Najtańsze city breaki teraz</h2><p>Aktualne ceny z bieżących źródeł. Sortujemy od najniższej ceny i pokazujemy krótkie wyjazdy.</p></div>
         <Link href="/okazje">Wszystkie okazje →</Link>
       </div>
       <LiveSalesRail mode="citybreak" limit={8}/>
@@ -136,17 +137,20 @@ export default function CityBreakPage() {
         <div className={styles.kicker}>SZUKAJ WG TERMINU LUB LOTNISKA</div>
         <h2>City break z Warszawy, Poznania, Krakowa i innych lotnisk</h2>
         <p>Wybierz lotnisko startowe i przejdź od razu do krótkich wyjazdów z tego miasta. Osobne strony pomagają znaleźć realne kierunki i porównać pełny koszt lotu + hotelu.</p>
-        <div className={styles.linkPills}>
-          {seasonalCityBreaks.map(item => <Link key={item.href} href={item.href}>{item.label}</Link>)}
-          {airportCityBreaks.map(item => <Link key={item.href} href={item.href}>{item.label}</Link>)}
-          <Link href="/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych">Bagaż podręczny</Link>
-          <Link href="/sylwester">City break na Sylwestra 2026/2027</Link>
-          <Link href="/podroze/city-break-do-1000-zl">City break do 1000 zł</Link>
-          <Link href="/podroze/city-break-do-1500-zl">City break do 1500 zł</Link>
-          <Link href="/podroze/city-break-z-warszawy-do-1500-zl">City break z Warszawy do 1500 zł</Link>
-          <Link href="/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem">Lot + hotel</Link>
-          <Link href="/planer-podrozy">Darmowy planer podróży</Link>
-        </div>
+        <ProgressiveLinkCloud
+          visible={8}
+          items={[
+            ...seasonalCityBreaks,
+            ...airportCityBreaks,
+            { href: "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych", label: "Bagaż podręczny" },
+            { href: "/sylwester", label: "City break na Sylwestra 2026/2027" },
+            { href: "/podroze/city-break-do-1000-zl", label: "City break do 1000 zł" },
+            { href: "/podroze/city-break-do-1500-zl", label: "City break do 1500 zł" },
+            { href: "/podroze/city-break-z-warszawy-do-1500-zl", label: "City break z Warszawy do 1500 zł" },
+            { href: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem", label: "Lot + hotel" },
+            { href: "/planer-podrozy", label: "Darmowy planer podróży" },
+          ]}
+        />
       </div>
     </section>
 
