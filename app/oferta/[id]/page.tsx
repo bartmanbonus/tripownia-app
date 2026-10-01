@@ -14,6 +14,7 @@ import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import EximLivePrice from "@/components/EximLivePrice";
 import CompleteTripSales from "@/components/CompleteTripSales";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
+import { customerOfferReason } from "@/lib/customerOfferCopy";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
@@ -25,7 +26,7 @@ export async function generateMetadata({params}:{params:Promise<{id:string}>}):P
     : `${o.city} z ${o.departure} — ostatnio znaleźliśmy od ${o.price} zł | Tripownia`;
   const description = o.partner === "exim"
     ? `${o.city}, ${o.nights} nocy, ${o.board}. Sprawdź aktualną cenę i dostępność wyjazdu.`
-    : `${o.city}, ${o.nights} nocy, ${o.board}. ${o.reason}`;
+    : `${o.city}, ${o.nights} nocy, ${o.board}. ${customerOfferReason(o.reason)}`;
   return {
     title,
     description,
@@ -76,11 +77,12 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
   void isExact;
   void isParameterized;
   const checkedAt = formatPriceCheckedAt(o.priceCheckedAt);
+  const customerReason = customerOfferReason(o.reason);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: `${o.city} — ${o.nights} nocy`,
-    description: o.reason,
+    description: customerReason,
     image: o.image,
     brand: { "@type": "Brand", name: "Tripownia" },
     offers: {
@@ -109,7 +111,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       <section className="detail-hero">
         <div className="detail-image">
           <TravelImage city={o.city} country={o.country} alt={`${o.city}, ${o.country}`} className="detail-photo-img" overrideSrc={o.image}/>
-          <span className={`badge ${o.partner !== "exim" && o.tag==='BIERZEMY'?'hot':''}`}>{o.partner === "exim" ? "WYBRANE PRZEZ TRIPOWNIĘ" : o.tag}</span>
+          <span className={`badge ${o.partner !== "exim" && o.tag==='BIERZEMY'?'hot':''}`}>{o.partner === "exim" ? "WYBRANE PRZEZ TRIPOWNIĘ" : o.tag === "BIERZEMY" ? "OKAZJA TRIPOWNI" : o.tag}</span>
         </div>
         <div className="detail-copy">
           <div className="eyebrow">{o.flag} {o.country}</div>
@@ -130,7 +132,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               </>
             )}
           </div>
-          <p className="detail-lead">{o.reason}</p>
+          <p className="detail-lead">{customerReason}</p>
           <div className="detail-meta">
             <span><Plane/> <b>{o.departure}</b></span><span><Moon/> <b>{o.nights} nocy</b></span>
             <span><Sun/> <b>{o.weather}</b></span><span><Utensils/> <b>{o.board}</b></span>
@@ -148,7 +150,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
 
           <div className="offer-decision-box">
             <small>DLACZEGO WARTO TO SPRAWDZIĆ</small>
-            <strong>{o.reason}</strong>
+            <strong>{customerReason}</strong>
             <span>Przed płatnością sprawdź finalną cenę, bagaż, warunki zmiany lub anulacji i dokładny zakres świadczeń.</span>
           </div>
 
