@@ -267,7 +267,7 @@ export default function SearchHub({
   const [departures, setDepartures] = useState<string[]>(initialAirports);
   const [departureOpen, setDepartureOpen] = useState(false);
   const [departureQuery, setDepartureQuery] = useState("");
-  const [dateMode, setDateMode] = useState<DateMode>(initialDateMode);
+  const [dateMode, setDateMode] = useState<DateMode>(initialTab === "Hotele" && initialDateMode === "any" ? "range" : initialDateMode);
   const [dateOpen, setDateOpen] = useState(false);
   const [month, setMonth] = useState(initialMonth);
   const [calendarMonth, setCalendarMonth] = useState(initialMonth || initialDateFrom.slice(0, 7));
@@ -862,6 +862,7 @@ export default function SearchHub({
     setDepartureOpen(false);
     setDateOpen(false);
     setActiveTab(tab);
+    if (tab === "Hotele") { setDateMode("range"); setMonth(""); }
     setDuration("all");
     setBudget("all");
     setCustomBudgetMin("");
@@ -1063,7 +1064,7 @@ export default function SearchHub({
             )}
           </div>
         ) : (
-        <form className="search-v3-form" onSubmit={submitSearch}>
+        <form className={`search-v3-form${activeTab === "Hotele" ? " is-hotels" : ""}`} onSubmit={submitSearch}>
           <div className={`search-v3-field search-v3-destination${suggestionsOpen ? " is-open" : ""}`} ref={destinationRef}>
             <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd? <small>wiele kierunków</small></label>
             {selectedDestinations.length > 0 && (
@@ -1133,6 +1134,7 @@ export default function SearchHub({
             )}
           </div>
 
+          {activeTab !== "Hotele" && (
           <div className={`search-v3-field search-v3-departure search-v3-multiselect${departureOpen ? " is-open" : ""}`} ref={departureRef}>
             <span><Plane size={15}/> Skąd? <small>wiele lotnisk</small></span>
             <button type="button" className="search-v3-multi-trigger" onClick={toggleDeparturePanel} aria-expanded={departureOpen}>
@@ -1173,6 +1175,8 @@ export default function SearchHub({
               </div>
             )}
           </div>
+
+          )}
 
           <div className={`search-v3-field search-v3-date search-v3-smart-date${dateOpen ? " is-open" : ""}`} ref={dateRef}>
             <span><CalendarDays size={15}/> {activeTab === "Loty" ? (flightTripType === "round" ? "Wylot i powrót" : "Data wylotu") : "Kiedy?"}</span>
@@ -1313,7 +1317,7 @@ export default function SearchHub({
             )}
           </div>
 
-          {activeTab === "Loty" ? (
+          {activeTab === "Hotele" ? null : activeTab === "Loty" ? (
             <label className="search-v3-field search-v3-duration">
               <span>Podróżni</span>
               <select value={flightAdults} onChange={(event) => setFlightAdults(Number(event.target.value))}>
@@ -1340,7 +1344,7 @@ export default function SearchHub({
             </label>
           )}
 
-          {activeTab === "Loty" ? (
+          {activeTab === "Hotele" ? null : activeTab === "Loty" ? (
             <label className="search-v3-field search-v3-budget">
               <span>Klasa</span>
               <select value={flightCabin} onChange={(event) => setFlightCabin(event.target.value)}>
@@ -1372,7 +1376,7 @@ export default function SearchHub({
             </label>
           )}
 
-          {activeTab !== "Loty" && budget === "custom" && (
+          {activeTab !== "Loty" && activeTab !== "Hotele" && budget === "custom" && (
             <div className={`search-v3-budget-custom${budgetInvalid ? " is-invalid" : ""}`} aria-label="Własny zakres budżetu na osobę">
               <div className="search-v3-budget-inputs">
                 <label><span>Od</span><div><input type="number" inputMode="numeric" min="0" max="15000" step="50" value={customBudgetMin} onChange={(event) => setCustomBudgetMin(event.target.value.replace(/[^0-9]/g, ""))} placeholder="np. 1500"/><b>zł</b></div></label>
@@ -1388,7 +1392,7 @@ export default function SearchHub({
             </div>
           )}
 
-          <div className="search-v3-options-row">
+          {activeTab !== "Hotele" && <div className="search-v3-options-row">
             {activeTab === "Loty" ? (
               <div className="search-v3-flight-options" role="group" aria-label="Typ podróży">
                 <button type="button" className={flightTripType === "round" ? "active" : ""} onClick={() => { setFlightTripType("round"); if (dateMode === "exact" && dateFrom) setDateMode("range"); }}>W obie strony</button>
@@ -1408,13 +1412,13 @@ export default function SearchHub({
                 </select>
               </label>
             )}
-          </div>
+          </div>}
 
           <button type="submit" className="search-v3-submit" disabled={loading || budgetInvalid}><Search size={18}/>{loading ? "Szukamy…" : budgetInvalid ? "Popraw budżet" : activeTab === "Loty" ? "Porównaj loty" : activeTab === "Hotele" ? "Szukaj hoteli" : "Szukaj wyjazdu"}</button>
         </form>
         )}
 
-        {!embedded && activeTab !== "Loty" && <div className="search-v3-quick">
+        {!embedded && activeTab !== "Loty" && activeTab !== "Hotele" && <div className="search-v3-quick">
           <span>Szybki start</span>
           <div>{quickPicks.map(([destinationLabel, label, overrides]) => <button type="button" key={destinationLabel} onClick={() => quickSearch(destinationLabel, overrides)}>{label}</button>)}</div>
         </div>}
