@@ -563,8 +563,8 @@ export default function Home() {
             </div>
             <div className="dream-category-row" aria-label="Co znajdziesz w Tripowni">
               <Link href="/wakacje">🌴 Wakacje</Link>
-              <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">✈️ Loty</a>
-              <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">🏨 Hotele</a>
+              <Link href="/loty">✈️ Loty</Link>
+              <Link href="/hotele">🏨 Hotele</Link>
               <Link href="/atrakcje">🎟️ Atrakcje</Link>
               <Link href="/wynajem-auta">🚗 Auto</Link>
             </div>
@@ -661,12 +661,12 @@ export default function Home() {
               <Link className="dream-service-card dream-service-main" href="/wakacje">
                 <div className="dream-service-icon">🌴</div><strong>Wakacje</strong><span>Gotowy pakiet: hotel, termin i wyjazd.</span><em>Znajdź wakacje →</em>
               </Link>
-              <a className="dream-service-card" href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">
+              <Link className="dream-service-card" href="/loty">
                 <div className="dream-service-icon">✈️</div><strong>Loty</strong><span>Porównaj połączenia i wybierz najlepszy wariant.</span><em>Sprawdź loty →</em>
-              </a>
-              <a className="dream-service-card" href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">
+              </Link>
+              <Link className="dream-service-card" href="/hotele">
                 <div className="dream-service-icon">🏨</div><strong>Hotele</strong><span>Znajdź nocleg dopasowany do planu wyjazdu.</span><em>Sprawdź noclegi →</em>
-              </a>
+              </Link>
             </div>
           </div>
 
