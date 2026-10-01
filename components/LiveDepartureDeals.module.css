@@ -16,3 +16,16 @@
 .empty span{margin-top:5px;line-height:1.55}
 @media(max-width:940px){.toolbar{align-items:flex-start;flex-direction:column}.filters{justify-content:flex-start}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.toolbar{gap:12px}.filters{width:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}.filters::-webkit-scrollbar{display:none}.filters button{flex:0 0 auto}.grid{grid-template-columns:1fr}}
+
+.loadingGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.skeletonCard{overflow:hidden;border:1px solid #e8e0da;border-radius:18px;background:#fff}
+.skeletonImage{aspect-ratio:16/10;background:linear-gradient(90deg,#f4f1ee 25%,#fbf9f7 50%,#f4f1ee 75%);background-size:200% 100%;animation:skeletonMove 1.4s linear infinite}
+.skeletonBody{display:grid;gap:10px;padding:16px}
+.skeletonBody>span,.skeletonBody>strong,.skeletonBody>button{display:block;border:0;border-radius:999px;background:#f1ece8}
+.skeletonBody>span:first-child{width:42%;height:10px}
+.skeletonBody>strong{width:72%;height:22px}
+.skeletonBody>span:nth-child(3){width:58%;height:12px}
+.skeletonBody>button{width:100%;height:44px;border-radius:11px}
+@keyframes skeletonMove{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@media(max-width:940px){.loadingGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.loadingGrid{grid-template-columns:1fr}.skeletonCard:nth-child(n+3){display:none}}
