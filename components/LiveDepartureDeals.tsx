@@ -140,7 +140,18 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
     });
   }
 
-  if (status === "loading") return <div className={styles.loading}>Pobieramy aktualne oferty z tego lotniska…</div>;
+  if (status === "loading") return (
+    <div className={styles.loadingGrid} aria-label="Ładowanie aktualnych ofert">
+      {[0,1,2].map((item) => (
+        <div className={styles.skeletonCard} key={item} aria-hidden="true">
+          <div className={styles.skeletonImage}/>
+          <div className={styles.skeletonBody}>
+            <span/><strong/><span/><button type="button" tabIndex={-1}/>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
   if (!available.length) return <div className={styles.empty}><strong>Nie ma teraz potwierdzonej oferty spełniającej te warunki.</strong><span>Nie podstawiamy starej ceny tylko po to, żeby zapełnić listę. Zajrzyj później albo ustaw alert.</span></div>;
 
   const cheapest = Math.min(...available.map((offer) => offer.price));
