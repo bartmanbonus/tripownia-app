@@ -787,8 +787,8 @@ export async function GET(request: NextRequest) {
         .filter(Boolean);
 
       return codes.some((code) => {
-        if (code === "WAWA") return /warszawa|chopin|okecie|modlin|\bwaw\b|\bwmi\b/.test(haystack);
-        if (code === "WAW") return /chopin|okecie|\bwaw\b/.test(haystack) || (/warszawa/.test(haystack) && !/modlin|\bwmi\b/.test(haystack));
+        if (code === "WAWA") return !/radom|\brdo\b/.test(haystack) && /warszawa|chopin|okecie|modlin|\bwaw\b|\bwmi\b/.test(haystack);
+        if (code === "WAW") return /chopin|okecie|\bwaw\b/.test(haystack) || (/warszawa/.test(haystack) && !/modlin|radom|\bwmi\b|\brdo\b/.test(haystack));
         if (code === "WMI") return /modlin|\bwmi\b/.test(haystack);
         if (code === "KRK") return /krakow|balice|\bkrk\b/.test(haystack);
         if (code === "KTW") return /katowice|pyrzowice|\bktw\b/.test(haystack);
