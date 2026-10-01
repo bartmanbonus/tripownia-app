@@ -108,7 +108,7 @@ export default function DealsPage({
   destination = "",
   dealType = "",
   pageTitle = "Najpierw cena. Potem kierunek.",
-  pageLead = "Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność pochodzą z bieżącego feedu partnera.",
+  pageLead = "Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność są regularnie odświeżane.",
   kicker = "OKAZJE TRIPOWNI",
 }: {
   destination?: string;
@@ -184,9 +184,6 @@ export default function DealsPage({
   const featuredDealHref = featuredDeal
     ? featuredDealExternal ? featuredDeal.affiliateUrl : `/oferta/${featuredDeal.id}`
     : "";
-  const featuredDealPartner = featuredDeal
-    ? (partners[featuredDeal.partner]?.name || "partnera")
-    : "";
 
   const historicalCount = useMemo(() => {
     let count = 0;
@@ -209,7 +206,7 @@ export default function DealsPage({
     : source === "live"
       ? `Aktualny feed${checkedLabel ? ` · ${checkedLabel}` : ""}`
       : offers.length
-        ? "Ostatnia opublikowana pula · sprawdź cenę u partnera"
+        ? "Ostatnia opublikowana pula · sprawdź aktualną cenę"
         : "Nie udało się potwierdzić aktualnej puli";
 
   const airportLabel = AIRPORTS.find((item) => item.value === airport)?.label || "Wszystkie lotniska";
@@ -376,7 +373,7 @@ export default function DealsPage({
                 rel="sponsored noopener noreferrer"
                 onClick={() => trackEvent("featured_offer_outbound_click", { offer_id: featuredDeal.id, destination: featuredDeal.city, price: featuredDeal.price, partner: featuredDeal.partner })}
               >
-                Sprawdź cenę w {featuredDealPartner} <ArrowRight size={16}/>
+                Sprawdź aktualną cenę <ArrowRight size={16}/>
               </a>
             ) : (
               <Link
@@ -388,7 +385,7 @@ export default function DealsPage({
               </Link>
             )}
           </div>
-          <p>Finalną cenę i dostępność potwierdza partner. Tripownia nie dolicza dodatkowej opłaty do rezerwacji.</p>
+          <p>Cena może zmienić się do momentu rezerwacji. Przed płatnością sprawdź finalne warunki oferty.</p>
         </section>
       )}
 
@@ -396,7 +393,7 @@ export default function DealsPage({
         <>
           <div className="deals-results-heading">
             <div><span>AKTUALNE OFERTY</span><h2>{filtering ? "Najlepsze dopasowania" : "Najlepsze ceny teraz"}</h2></div>
-            <p>{source === "live" ? "Kliknięcie w ofertę prowadzi do propozycji u partnera." : "Pokazujemy opublikowaną pulę Tripowni. Aktualną cenę i dostępność potwierdzisz u partnera po kliknięciu."}</p>
+            <p>{source === "live" ? "Kliknij ofertę, aby sprawdzić aktualną cenę i dostępność." : "Pokazujemy ostatnią opublikowaną pulę Tripowni. Aktualną cenę i dostępność sprawdzisz po kliknięciu."}</p>
           </div>
           <div className="cards-grid deals-premium-grid">{rows.map((offer) => <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>)}</div>
         </>
