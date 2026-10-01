@@ -70,6 +70,29 @@ function sessionHeaders(session: AccountSession) {
   };
 }
 
+function friendlyAuthError(payload: Record<string, unknown>, fallback: string) {
+  const code = String(payload.error_code || payload.code || "").toLowerCase();
+  const raw = String(payload.msg || payload.message || payload.error_description || payload.error || "").trim();
+  const normalized = raw.toLowerCase();
+
+  if (code === "invalid_credentials" || normalized.includes("invalid login credentials")) {
+    return "Nieprawidłowy e-mail lub hasło.";
+  }
+  if (code === "email_not_confirmed" || normalized.includes("email not confirmed")) {
+    return "Najpierw potwierdź adres e-mail, a potem zaloguj się ponownie.";
+  }
+  if (code === "user_already_exists" || normalized.includes("user already registered")) {
+    return "Konto z tym adresem już istnieje. Przejdź do logowania.";
+  }
+  if (code.includes("weak_password") || normalized.includes("password should be")) {
+    return "Hasło jest zbyt słabe. Użyj co najmniej 8 znaków.";
+  }
+  if (code.includes("rate_limit") || normalized.includes("rate limit") || normalized.includes("too many requests")) {
+    return "Za dużo prób w krótkim czasie. Spróbuj ponownie za chwilę.";
+  }
+  return fallback;
+}
+
 function normalizeSession(raw: AccountSession): AccountSession {
   const expiresIn = Number(raw.expires_in || 3600);
   return {
@@ -134,7 +157,7 @@ export async function requestMagicLink(email: string, redirectTo: string) {
   });
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
-    throw new Error(String(payload?.msg || payload?.message || payload?.error_description || "Nie udało się wysłać linku logowania."));
+    throw new Error(friendlyAuthError(payload, "Nie udało się wysłać linku logowania."));
   }
 }
 
@@ -285,7 +308,7 @@ export async function signInWithPassword(email: string, password: string) {
   });
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
-    throw new Error(String(payload?.msg || payload?.message || payload?.error_description || "Nie udało się zalogować."));
+    throw new Error(friendlyAuthError(payload, "Nie udało się zalogować."));
   }
   const session = normalizeSession(await response.json() as AccountSession);
   saveAccountSession(session);
@@ -304,7 +327,7 @@ export async function signUpWithPassword(email: string, password: string, redire
   });
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
-    throw new Error(String(payload?.msg || payload?.message || payload?.error_description || "Nie udało się utworzyć konta."));
+    throw new Error(friendlyAuthError(payload, "Nie udało się utworzyć konta."));
   }
   const payload = await response.json() as Partial<AccountSession> & { user?: AccountUser };
   if (payload.access_token && payload.refresh_token) {
