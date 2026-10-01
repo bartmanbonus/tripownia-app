@@ -568,7 +568,7 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
     imageSrc: "https://r.cdn.redgalaxy.com/scale/o2/TUI/hotels/HER83020/S24/27234479.jpg?dstw=1157&dsth=621&srcw=1157&srch=621&srcx=1%2F2&srcy=1%2F2&srcmode=3&type=1&quality=80",
     imageCountry: "Grecja",
     checkedAt: "2026-10-01T12:24:00+02:00",
-    status: "active",
+    status: "expired",
   },
   "kreta-heronissos-1599": {
     slug: "kreta-heronissos-1599",
