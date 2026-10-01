@@ -49,7 +49,7 @@ export default function DepartureDealsPage({
       <div className={styles.proofStrip}>
         <div><small>WYLOT</small><strong>{airportCodes.join(" + ")}</strong></div>
         <div><small>PORÓWNANIE</small><strong>Różne kierunki i typy wyjazdów</strong></div>
-        <div><small>REZERWACJA</small><strong>Przejście do konkretnej oferty partnera</strong></div>
+        <div><small>REZERWACJA</small><strong>Sprawdzasz finalną cenę i warunki wyjazdu</strong></div>
       </div>
     </div></section>
     <section className={styles.section} id="oferty"><div className={styles.shell}>
