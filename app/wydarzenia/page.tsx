@@ -100,6 +100,9 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
 
   const visibleTrips = showAll ? filteredTrips : filteredTrips.slice(0, 48);
   const activeDeparture = sportsDepartures.find(item => item.code === selectedFrom) || sportsDepartures[0];
+  const activeClub = sportsClubs.find(item => item.slug === selectedClub);
+  const activeCompetition = sportsCompetitions.find(item => item.code === selectedCompetition);
+  const activeMonthLabel = selectedMonth ? monthLabel(selectedMonth) : "";
 
   const moreParams = new URLSearchParams();
   if (selectedFrom) moreParams.set("from", selectedFrom);
@@ -150,16 +153,22 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
               <p>Nie musisz przewijać całego terminarza. Wybierz skąd lecisz, klub lub ligę i miesiąc.</p>
             </div>
           </div>
-          <form className={styles.filters} method="get">
-            <label><span>Skąd lecisz?</span><select name="from" defaultValue={selectedFrom}>{sportsDepartures.map(item => <option key={item.code} value={item.code}>{item.label}</option>)}</select></label>
+          <form className={styles.filters} method="get" action="/wydarzenia#wyniki-meczow">
+            <div className={styles.filterGroupTitle}><strong>1. Filtruj mecze</strong><span>Te pola zmieniają listę spotkań.</span></div>
             <label><span>Klub</span><select name="club" defaultValue={selectedClub}><option value="">Wszystkie kluby</option>{sportsClubs.map(club => <option key={club.slug} value={club.slug}>{club.displayName}</option>)}</select></label>
             <label><span>Rozgrywki</span><select name="competition" defaultValue={selectedCompetition}><option value="">Wszystkie rozgrywki</option>{sportsCompetitions.map(item => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
             <label><span>Kiedy?</span><select name="month" defaultValue={selectedMonth}><option value="">Dowolny termin</option>{months.map(month => <option key={month} value={month}>{monthLabel(month)}</option>)}</select></label>
+
+            <div className={styles.filterGroupTitle}><strong>2. Ustaw wyjazd</strong><span>Te pola zmieniają lot, nocleg i długość pobytu przy każdym meczu.</span></div>
+            <label><span>Skąd lecisz?</span><select name="from" defaultValue={selectedFrom}>{sportsDepartures.map(item => <option key={item.code} value={item.code}>{item.label}</option>)}</select></label>
             <label><span>Długość</span><select name="nights" defaultValue={String(selectedNights)}><option value="2">2 noce</option><option value="3">3 noce</option><option value="4">4 noce</option></select></label>
             <label><span>Osoby</span><select name="people" defaultValue={String(selectedPeople)}><option value="1">1 osoba</option><option value="2">2 osoby</option><option value="3">3 osoby</option><option value="4">4 osoby</option></select></label>
-            <div className={styles.actions}><button type="submit">Pokaż mecze</button><a href="/wydarzenia">Wyczyść filtry</a></div>
+            <div className={styles.actions}><button type="submit">Pokaż {filteredTrips.length} {filteredTrips.length === 1 ? "mecz" : "meczów"}</button><a href="/wydarzenia#wyniki-meczow">Wyczyść filtry</a></div>
           </form>
           <div className={styles.summary}>
+            {activeClub && <span>⚽ {activeClub.displayName}</span>}
+            {activeCompetition && <span>🏆 {activeCompetition.name}</span>}
+            {activeMonthLabel && <span>📅 {activeMonthLabel}</span>}
             <span>✈️ {activeDeparture.label}</span>
             <span>przylot dzień przed meczem</span>
             <span>{selectedNights} noce</span>
@@ -167,8 +176,8 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
           </div>
         </div>
 
-        <div className={styles.resultsHead}>
-          <div><div className={styles.kicker}>NAJBLIŻSZE MECZE</div><h2>{selectedClub || selectedCompetition || selectedMonth ? "Wyniki dla Twoich filtrów" : "Wybierz mecz i jedź"}</h2><p>Godziny spotkań mogą ulec zmianie — przed zakupem lotu potwierdź finalny termin organizatora rozgrywek.</p></div>
+        <div className={styles.resultsHead} id="wyniki-meczow">
+          <div><div className={styles.kicker}>NAJBLIŻSZE MECZE</div><h2>{selectedClub || selectedCompetition || selectedMonth ? `Wyniki: ${filteredTrips.length} ${filteredTrips.length === 1 ? "mecz" : "meczów"}` : "Wybierz mecz i jedź"}</h2><p>Godziny spotkań mogą ulec zmianie — przed zakupem lotu potwierdź finalny termin organizatora rozgrywek.</p></div>
         </div>
 
         {visibleTrips.length ? (
