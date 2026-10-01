@@ -948,3 +948,90 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .app-pretrip-grid span{font-size:12px!important;line-height:1.5!important}
 .app-home-tile strong,
 .app-pretrip-grid strong{font-size:15px!important}
+
+/* Mobile overlay priority: never stack fixed bars on top of each other. */
+@media(max-width:560px){
+  body:has(.compare-tray) .mobile-app-controls,
+  body:has(.affiliate-return-prompt) .mobile-app-controls,
+  body:has(.analytics-consent) .mobile-app-controls,
+  body:has(.pwa-install-banner) .mobile-app-controls{
+    transform:translateY(calc(100% + 28px))!important;
+    opacity:0!important;
+    pointer-events:none!important;
+  }
+
+  .compare-tray,
+  .affiliate-return-prompt,
+  .analytics-consent,
+  .pwa-install-banner{
+    left:10px!important;
+    right:10px!important;
+    bottom:max(10px,env(safe-area-inset-bottom))!important;
+    width:auto!important;
+    max-width:none!important;
+    transform:none!important;
+    border-radius:18px!important;
+    box-shadow:none!important;
+  }
+
+  .compare-tray{
+    max-height:min(62dvh,420px)!important;
+    overflow:auto!important;
+    padding:12px!important;
+  }
+  .compare-tray-copy{align-items:flex-start!important}
+  .compare-tray-copy>svg{margin-top:2px!important}
+  .compare-tray-copy strong{font-size:12px!important}
+  .compare-tray-copy>div>span{font-size:10px!important;line-height:1.35!important}
+  .compare-tray-items{margin-top:5px!important}
+  .compare-tray-actions{display:grid!important;grid-template-columns:1fr 1fr!important;width:100%!important}
+  .compare-tray-actions button,
+  .compare-tray-actions a{min-height:42px!important;font-size:11px!important}
+
+  .affiliate-return-prompt{
+    max-height:72dvh!important;
+    overflow:auto!important;
+    padding:14px!important;
+    grid-template-columns:36px minmax(0,1fr)!important;
+    gap:10px!important;
+  }
+  .affiliate-return-icon{width:36px!important;height:36px!important;border-radius:11px!important}
+  .affiliate-return-copy strong{font-size:14px!important}
+  .affiliate-return-copy span{font-size:11px!important;line-height:1.45!important}
+  .affiliate-return-actions{
+    grid-column:1/-1!important;
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+  }
+  .affiliate-return-actions a{
+    min-height:44px!important;
+    width:100%!important;
+    border-radius:11px!important;
+    font-size:11px!important;
+  }
+  .affiliate-return-close{
+    top:7px!important;
+    right:7px!important;
+    width:32px!important;
+    height:32px!important;
+    z-index:2!important;
+  }
+
+  .analytics-consent{
+    max-height:72dvh!important;
+    overflow:auto!important;
+    padding:15px!important;
+  }
+  .analytics-consent strong{font-size:14px!important}
+  .analytics-consent p{font-size:11px!important;line-height:1.5!important}
+  .analytics-consent-actions{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:7px!important;
+  }
+  .analytics-consent-actions button{
+    width:100%!important;
+    min-height:43px!important;
+    font-size:11px!important;
+  }
+}
