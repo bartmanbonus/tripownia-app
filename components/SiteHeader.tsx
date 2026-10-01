@@ -166,41 +166,34 @@ export default function SiteHeader() {
                 </div>
                 <div className="trip-mobile-menu-section">
                   <strong>Twoja Tripownia</strong>
-                  <Link href="/dodaj-podroz"><Sparkles size={18} /><span>Ułóż plan za darmo</span></Link>
-                  <Link href="/moja-podroz"><MapPinned size={18} /><span>Mój planer</span></Link>
-                  <Link href="/app"><LayoutDashboard size={18} /><span>Start</span></Link>
-                  <Link href="/ulubione"><Heart size={18} /><span>Ulubione</span></Link>
-                  <Link href="/alerty"><Bell size={18} /><span>Alerty</span></Link>
-                  <Link href="/dla-ciebie"><Sparkles size={18} /><span>Dla Ciebie</span></Link>
-                  <Link href="/konto"><UserRound size={18} /><span>Konto i logowanie</span></Link>
-                  <Link href="/profil"><UserRound size={18} /><span>Profil podróżnika</span></Link>
+                  <Link href="/app"><LayoutDashboard size={18} /><span>Panel główny</span></Link>
+                  <Link href="/dodaj-podroz"><Sparkles size={18} /><span>Dodaj podróż / ułóż plan</span></Link>
+                  <Link href="/moja-podroz"><MapPinned size={18} /><span>Mój planner</span></Link>
+                  <Link href="/konto"><UserRound size={18} /><span>Konto</span></Link>
                 </div>
                 <div className="trip-mobile-menu-section">
-                  <strong>Szukaj i planuj</strong>
+                  <strong>Znajdź wyjazd</strong>
+                  <Link href="/#wyszukiwarka"><Search size={18} /><span>Wyszukiwarka</span></Link>
                   <Link href="/okazje"><Sparkles size={18} /><span>Okazje</span></Link>
-                  <Link href="/wydarzenia"><Ticket size={18} /><span>Mecze i eventy</span></Link>
-                  <Link href="/radar-tripowni"><Compass size={18} /><span>Radar Tripowni</span></Link>
                   <Link href="/wakacje"><Palmtree size={18} /><span>Wakacje</span></Link>
                   <Link href="/city-break"><Building2 size={18} /><span>City break</span></Link>
                   <Link href="/last-minute"><Zap size={18} /><span>Last minute</span></Link>
-                  <Link href="/z-warszawy"><Plane size={18} /><span>Wyloty z Warszawy</span></Link>
-                  <Link href="/z-krakowa"><Plane size={18} /><span>Wyloty z Krakowa</span></Link>
                   <Link href="/kierunki"><Compass size={18} /><span>Kierunki</span></Link>
-                  <Link href="/poradniki"><BookOpen size={18} /><span>Poradniki</span></Link>
                 </div>
                 <div className="trip-mobile-menu-section">
                   <strong>Rezerwuj</strong>
-                  <Link href="/hotele"><BedDouble size={18} /><span>Hotele</span></Link>
                   <Link href="/loty"><Plane size={18} /><span>Loty</span></Link>
-                  <Link href="/wynajem-auta"><Car size={18} /><span>Wynajem auta</span></Link>
+                  <Link href="/hotele"><BedDouble size={18} /><span>Hotele</span></Link>
                   <Link href="/atrakcje"><Building2 size={18} /><span>Atrakcje</span></Link>
+                  <Link href="/wynajem-auta"><Car size={18} /><span>Wynajem auta</span></Link>
                 </div>
                 <div className="trip-mobile-menu-section">
-                  <strong>Inspiracje</strong>
+                  <strong>Odkrywaj</strong>
+                  <Link href="/z-warszawy"><Plane size={18} /><span>Wyloty z Warszawy</span></Link>
+                  <Link href="/z-krakowa"><Plane size={18} /><span>Wyloty z Krakowa</span></Link>
+                  <Link href="/wydarzenia"><Ticket size={18} /><span>Mecze i eventy</span></Link>
                   <Link href="/podroze-po-przezycia"><Sparkles size={18} /><span>Podróże po przeżycia</span></Link>
                   <Link href="/dalekie-podroze"><Palmtree size={18} /><span>Dalekie podróże</span></Link>
-                  <Link href="/sylwester"><Zap size={18} /><span>Sylwester</span></Link>
-                  <Link href="/inspiracje"><Lightbulb size={18} /><span>Inspiracje</span></Link>
                 </div>
               </div>
             </details>
