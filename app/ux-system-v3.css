@@ -892,3 +892,27 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .deals-buy-now-primary{
   box-shadow:none!important;
 }
+
+/* Search geometry: six controls belong to one desktop row. */
+@media(min-width:1101px){
+  #wyszukiwarka .search-v3-form{
+    grid-template-columns:minmax(250px,1.65fr) minmax(145px,.9fr) minmax(160px,1fr) minmax(115px,.7fr) minmax(125px,.75fr) minmax(155px,.9fr)!important;
+  }
+  #wyszukiwarka .search-v3-destination,
+  #wyszukiwarka .search-v3-submit{
+    grid-column:auto!important;
+  }
+}
+@media(min-width:821px) and (max-width:1100px){
+  #wyszukiwarka .search-v3-form{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  #wyszukiwarka .search-v3-destination{
+    grid-column:span 2!important;
+  }
+  #wyszukiwarka .search-v3-submit{
+    grid-column:span 2!important;
+    min-height:52px!important;
+    height:52px!important;
+  }
+}
