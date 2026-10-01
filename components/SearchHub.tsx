@@ -6,7 +6,7 @@ import OfferCard from "@/components/OfferCard";
 import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type WorldDestination } from "@/lib/worldDestinations";
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
-import { touristDestinationKey } from "@/lib/destinationGrouping";
+import { rankSearchOffers, searchTier } from "@/lib/searchOfferRanking";
 import { partners } from "@/lib/partners";
 import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
 import TravelpayoutsFlightsWidget from "@/components/TravelpayoutsFlightsWidget";
@@ -94,36 +94,11 @@ function isoLabel(value: string) {
 }
 
 function uniqueOfferVariants(rows: any[]) {
-  const seen = new Set<string>();
-  return rows.filter((row) => {
-    const key = [
-      String(row?.partner || ""),
-      String(row?.hotel || row?.city || "").toLowerCase(),
-      String(row?.dates || ""),
-      String(row?.departure || "").toLowerCase(),
-      String(row?.price || ""),
-    ].join("|");
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  return rankSearchOffers(rows);
 }
 
-function diversifyOfferVariants(rows: any[], limit = 80, perDirection = 10) {
-  const unique = uniqueOfferVariants(rows);
-  const counts = new Map<string, number>();
-  const picked: any[] = [];
-
-  for (const row of unique) {
-    const direction = touristDestinationKey(row) || normalizeDestination(`${String(row?.city || "")} ${String(row?.country || "")}`);
-    const count = counts.get(direction) || 0;
-    if (count >= perDirection) continue;
-    counts.set(direction, count + 1);
-    picked.push(row);
-    if (picked.length >= limit) break;
-  }
-
-  return picked;
+function diversifyOfferVariants(rows: any[], limit = 400, _perDirection?: number) {
+  return rankSearchOffers(rows, limit);
 }
 
 function canonicalSearchDestination(value: string) {
@@ -178,7 +153,7 @@ function cleanRows(rows: any[], query: string) {
     .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
     .sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
-  return uniqueOfferVariants(cleaned).slice(0, 120);
+  return uniqueOfferVariants(cleaned);
 }
 
 function isoMs(value: string) {
@@ -248,6 +223,8 @@ function prioritizeByDate(rows: any[], preference: DatePreference) {
   if (!window || !rows.length) return { rows, notice: "" };
 
   const sorted = [...rows].sort((a, b) => {
+    const tier = searchTier(a) - searchTier(b);
+    if (tier) return tier;
     const distance = distanceFromWindow(a, window) - distanceFromWindow(b, window);
     if (distance !== 0) return distance;
     return Number(a.price || Infinity) - Number(b.price || Infinity);
@@ -305,7 +282,7 @@ export default function SearchHub({
   const [remoteDestinations, setRemoteDestinations] = useState<WorldDestination[]>([]);
   const [results, setResults] = useState<any[]>([]);
   const [resultLocation, setResultLocation] = useState("");
-  const [resultSort, setResultSort] = useState<"recommended" | "price" | "rating" | "nights">("recommended");
+  const [resultSort, setResultSort] = useState<"recommended" | "price" | "rating" | "nights">("price");
   const [visibleCount, setVisibleCount] = useState(18);
   const [loading, setLoading] = useState(false);
   const [expanding, setExpanding] = useState(false);
@@ -382,7 +359,7 @@ export default function SearchHub({
       ? results.filter((offer) => String(offer?.city || offer?.country || "").trim() === resultLocation)
       : [...results];
 
-    if (resultSort === "price") return [...filtered].sort((a, b) => Number(a?.price || Infinity) - Number(b?.price || Infinity));
+    if (resultSort === "price") return rankSearchOffers(filtered);
     if (resultSort === "rating") return [...filtered].sort((a, b) => Number(b?.score || 0) - Number(a?.score || 0) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
     if (resultSort === "nights") return [...filtered].sort((a, b) => Number(a?.nights || Infinity) - Number(b?.nights || Infinity) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
     return filtered;
@@ -513,7 +490,7 @@ export default function SearchHub({
     setSearched(true);
     setVisibleCount(18);
     setResultLocation("");
-    setResultSort("recommended");
+    setResultSort("price");
     setSuggestionsOpen(false);
     setDepartureOpen(false);
     setDateOpen(false);
@@ -540,6 +517,7 @@ export default function SearchHub({
         else params.set("broad", "1");
         if (rescue) params.set("rescue", rescue);
         if (origin) params.set("from", origin);
+        params.set("strict", "1");
         if (activeMinBudget > 0) params.set("minPrice", String(activeMinBudget));
         if (activeMaxBudget > 0) params.set("maxPrice", String(activeMaxBudget));
         if (includeDates) {
@@ -566,6 +544,7 @@ export default function SearchHub({
         }
       }));
       return {
+        failed: payloads.filter(data => !data).length,
         offers: payloads.flatMap((data) => Array.isArray(data?.offers) ? data.offers : []),
         notice: payloads.map((data) => String(data?.notice || "")).find(Boolean) || "",
       };
@@ -575,15 +554,16 @@ export default function SearchHub({
       const exact = await fetchBatch();
       if (runId !== searchRunRef.current) return;
 
-      const perDirection = requested.length ? 18 : 10;
+      const perDirection = 400;
       let rows = diversifyOfferVariants(
         cleanRows(exact.offers, requested.length ? "multi" : ""),
-        80,
+        400,
         perDirection
       );
       let datePass = prioritizeByDate(rows, datePreference);
       rows = datePass.rows;
       const exactCount = rows.length;
+      setNotice(exact.notice);
       setResults(rows);
       setLoading(false);
 
@@ -593,13 +573,13 @@ export default function SearchHub({
 
       // Keep the chosen date and airports first, but relax secondary filters
       // so one strict setting does not collapse the whole result set.
-      if (rows.length < 24) {
+      if (rows.length < 24 && (activeDuration !== "all" || activeWeekend || activeBoard !== "all")) {
         setExpanding(true);
         const relaxed = await fetchBatch({ includeFilters: false });
         if (runId !== searchRunRef.current) return;
         const previousCount = rows.length;
-        const relaxedRows = cleanRows(relaxed.offers, requested.length ? "multi" : "");
-        rows = diversifyOfferVariants([...rows, ...relaxedRows], 80, perDirection);
+        const relaxedRows = cleanRows(relaxed.offers, requested.length ? "multi" : "").map(offer => ({ ...offer, searchTier: 1, searchAlternative: "Inne wyżywienie lub długość pobytu" }));
+        rows = diversifyOfferVariants([...rows, ...relaxedRows], 400, perDirection);
         relaxedFilters = rows.length > previousCount;
         datePass = prioritizeByDate(rows, datePreference);
         rows = datePass.rows;
@@ -622,11 +602,11 @@ export default function SearchHub({
           if (runId !== searchRunRef.current) return;
 
           const rescuedRows = prioritizeByDate(
-            cleanRows(rescued.offers, ""),
+            cleanRows(rescued.offers, "").map(offer => ({ ...offer, searchTier: 2, searchAlternative: "Alternatywa — sprawdź termin, wylot i wyżywienie" })),
             datePreference
           ).rows;
 
-          rows = diversifyOfferVariants([...rows, ...rescuedRows], 80, 12);
+          rows = diversifyOfferVariants([...rows, ...rescuedRows], 400, 12);
           usedRescue = rescuedRows.length > 0;
         } else {
           const broader = await fetchBatch({
@@ -636,10 +616,10 @@ export default function SearchHub({
           });
           if (runId !== searchRunRef.current) return;
           const broaderRows = prioritizeByDate(
-            cleanRows(broader.offers, "multi"),
+            cleanRows(broader.offers, "multi").map(offer => ({ ...offer, searchTier: 2, searchAlternative: "Alternatywa — sprawdź termin, wylot i wyżywienie" })),
             datePreference
           ).rows;
-          rows = diversifyOfferVariants([...rows, ...broaderRows], 80, perDirection);
+          rows = diversifyOfferVariants([...rows, ...broaderRows], 400, perDirection);
         }
 
         expandedScope = rows.length > previousCount;
@@ -653,8 +633,8 @@ export default function SearchHub({
         if (runId !== searchRunRef.current) return;
         if (broadResponse.ok && broadData?.ok !== false) {
           rows = diversifyOfferVariants(
-            cleanRows(Array.isArray(broadData?.offers) ? broadData.offers : [], ""),
-            80,
+            cleanRows(Array.isArray(broadData?.offers) ? broadData.offers : [], "").filter(offer => (!activeMinBudget || offer.price >= activeMinBudget) && (!activeMaxBudget || offer.price <= activeMaxBudget)).map(offer => ({ ...offer, searchTier: 2, searchAlternative: "Alternatywa — sprawdź termin, wylot i wyżywienie" })),
+            400,
             10
           );
           expandedScope = rows.length > 0;
@@ -673,19 +653,21 @@ export default function SearchHub({
       if (rows.length) {
         const prefix = bergamoMapped ? "Bergamo wyszukujemy jako Mediolan, żeby pokazać realne oferty dla tego obszaru. " : "";
         const expansionNotice = usedRescue
-          ? "Nie ma teraz potwierdzonych ofert dokładnie w wybranym terminie. Pokazujemy najbliższe dostępne daty — każda karta ma rzeczywistą cenę i termin."
+          ? "Dodatkowo pokazujemy oznaczone alternatywy z innych terminów lub lotnisk. Sprawdź daty i wylot na karcie."
           : expandedScope
             ? `Dokładnych dopasowań: ${exactCount}. Dalej pokazujemy najbliższe dostępne alternatywy, żeby nie kończyć wyszukiwania na kilku kartach.`
             : "";
         setNotice([
           prefix,
-          `Zakres: ${scope}.`,
+          `Zakres: ${scope}. Najtańsze najpierw w każdej grupie dopasowania.`,
+          exact.notice,
+          exact.failed ? "Część wyszukiwania nie powiodła się. Wyniki mogą być niepełne." : "",
           relaxedFilters ? "Część propozycji ma inną długość pobytu, wyżywienie lub nie obejmuje weekendu." : "",
           expansionNotice,
           !expandedScope && !usedRescue ? datePass.notice : "",
         ].filter(Boolean).join(" "));
       } else {
-        setNotice(bergamoMapped
+        setNotice(exact.failed ? "Nie udało się pobrać części ofert. Spróbuj ponownie — to nie oznacza braku wyjazdów dla tych ustawień." : bergamoMapped
           ? "Dla Bergamo szukaliśmy ofert jako Mediolan. Nie mamy teraz potwierdzonego pakietu — spróbuj Lot + hotel albo elastycznych parametrów."
           : `Nie znaleźliśmy teraz potwierdzonych ofert dla ustawień: ${scope}. Poszerz jeden filtr albo wybierz gdziekolwiek.`);
       }
@@ -1453,7 +1435,7 @@ export default function SearchHub({
                     </div>
                   </div>
                 )}
-                <div className="search-v3-results-grid">{visibleResults.slice(0, visibleCount).map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
+                <div className="search-v3-results-grid">{visibleResults.slice(0, visibleCount).map((offer) => <div key={offer.id} className="search-v3-result-item">{offer.searchAlternative && <p className="search-v3-alternative-label">{offer.searchAlternative}</p>}<OfferCard offer={offer}/></div>)}</div>
                 {visibleResults.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(visibleResults.length, count + 12))}>Pokaż kolejne oferty ({visibleResults.length - visibleCount})</button>}
               </>
             )}

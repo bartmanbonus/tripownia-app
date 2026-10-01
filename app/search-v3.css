@@ -286,7 +286,7 @@
 .search-v3-results-head h3{margin:0;font-size:clamp(30px,2.8vw,42px);line-height:1.03;letter-spacing:-.045em}
 .search-v3-results-head p{margin:0;color:#70665f;font-size:12px;line-height:1.55;text-align:right}
 .search-v3-results-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;align-items:stretch}
-.search-v3-results-grid>.offer-card{height:100%}
+.search-v3-results-grid>:is(.offer-card,.search-v3-result-item){height:100%}
 .search-v3-empty{display:flex;flex-direction:column;gap:7px;padding:26px;border:1px solid #dfd4cc;border-radius:17px;background:#fff}
 .search-v3-empty strong{font-size:18px}
 .search-v3-empty span{color:#756a63;font-size:12px;line-height:1.5}
@@ -349,7 +349,7 @@
   .search-v3-results-head h3{font-size:30px}
   .search-v3-results-grid{display:flex;overflow-x:auto;gap:12px;scroll-snap-type:x mandatory;scrollbar-width:none}
   .search-v3-results-grid::-webkit-scrollbar{display:none}
-  .search-v3-results-grid>.offer-card{flex:0 0 min(88vw,350px);scroll-snap-align:start}
+  .search-v3-results-grid>:is(.offer-card,.search-v3-result-item){flex:0 0 min(88vw,350px);scroll-snap-align:start}
   .search-v3-suggestions{width:calc(100vw - 38px);max-height:330px}
 }
 
@@ -780,3 +780,7 @@
 .search-v3-sales-sort button{min-height:36px;padding:0 12px;border:1px solid #dfd4cc;border-radius:999px;background:#fff;color:#4b433e;font-size:10.5px;font-weight:850;cursor:pointer}
 .search-v3-sales-sort button:hover,.search-v3-sales-sort button.active{border-color:#efaa8d;background:#fff2ec;color:#c84d2c}
 @media(max-width:640px){.search-v3-sales-trust{font-size:9.5px}.search-v3-sales-sort{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.search-v3-sales-sort::-webkit-scrollbar{display:none}.search-v3-sales-sort button{flex:0 0 auto}}
+
+.search-v3-result-item { min-width: 0; display: flex; flex-direction: column; }
+.search-v3-result-item > .offer-card { flex: 1; }
+.search-v3-alternative-label { margin: 0 0 8px; padding: 8px 10px; border-radius: 8px; background: #fff3df; color: #754400; font-size: 14px; line-height: 1.4; }

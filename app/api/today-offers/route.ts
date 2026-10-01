@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rankSearchOffers } from "@/lib/searchOfferRanking";
+
+export const maxDuration = 60;
+
 import type { Offer } from "@/lib/offers";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
@@ -180,6 +184,7 @@ const FLAGS: Record<string, string> = {
 function normalize(value: string | undefined | null) {
   return (value || "")
     .toLowerCase()
+    .replace(/ł/g, "l")
     .normalize("NFD")
     .replace(/\p{Diacritic}/gu, "")
     .replace(/[^a-z0-9]+/g, " ")
@@ -289,7 +294,7 @@ function countryFlag(country: string) {
 
 function tagFor(price: number, board: string): Offer["tag"] {
   if (price <= 1600) return "BIERZEMY";
-  if (price <= 2300 || /all inclusive/i.test(board)) return "OKAZJA";
+  if (price <= 2300) return "OKAZJA";
   return "DOBRA OPCJA";
 }
 
@@ -306,20 +311,26 @@ function scoreFor(price: number, rating: number, board: string, daysOut: number)
 
 function reasonFor(provider: Provider, price: number, nights: number, board: string) {
   const boardText = /all inclusive/i.test(board) ? " z All Inclusive" : "";
-  return `${nights} nocy${boardText} w cenie od ${price.toLocaleString("pl-PL")} zł/os. Dobra opcja na ten termin.`;
+  return `${nights} nocy${boardText} w cenie od ${price.toLocaleString("pl-PL")} zł/os.`;
 }
 
-async function fetchProducts(provider: Provider, query: string, token: string) {
+async function fetchProducts(provider: Provider, query: string, token: string, pages = 1) {
   const fid = provider === "exim" ? 103442 : 24864;
-  const endpoint = new URL("https://api.tradedoubler.com/1.0/products.json");
-  const path = `${endpoint.origin}${endpoint.pathname};q=${encodeURIComponent(query)};page=1;pageSize=100;fid=${fid}?token=${encodeURIComponent(token)}`;
-  const response = await fetch(path, {
-    headers: { Accept: "application/json" },
-    cache: "no-store",
-  });
-  if (!response.ok) throw new Error(`${provider.toUpperCase()} feed ${response.status}`);
-  const data = await response.json();
-  return Array.isArray(data?.products) ? (data.products as TdProduct[]) : [];
+  // TradeDoubler uses zero-based pages. Sort at source BEFORE limiting results.
+  // A short shared cache prevents every search/alternative from rescanning feeds.
+  const results = await Promise.allSettled(Array.from({ length: pages }, async (_, page) => {
+    const path = `https://api.tradedoubler.com/1.0/products.json;q=${encodeURIComponent(query)};orderBy=priceAsc;page=${page};pageSize=100;limit=${(page + 1) * 100};fid=${fid}?token=${encodeURIComponent(token)}`;
+    const response = await fetch(path, {
+      headers: { Accept: "application/json" },
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!response.ok) throw new Error(`${provider.toUpperCase()} feed ${response.status}`);
+    const data = await response.json();
+    return Array.isArray(data?.products) ? (data.products as TdProduct[]) : [];
+  }));
+  if (results.every(result => result.status === "rejected")) throw new Error(`${provider.toUpperCase()} feed unavailable`);
+  return results.flatMap(result => result.status === "fulfilled" ? result.value : []);
 }
 
 function fromExim(product: TdProduct): LiveCandidate | null {
@@ -335,7 +346,7 @@ function fromExim(product: TdProduct): LiveCandidate | null {
   const adults = Math.max(1, Number(destinationUrl?.searchParams.get("AC1") || 2));
   const nights = Math.max(1, Number(destinationUrl?.searchParams.get("NN") || 7));
   const price = Math.round(rawTotal / adults);
-  if (price < 350 || price > 9000) return null;
+  if (!Number.isFinite(price) || price < 350 || price > 9000) return null;
 
   const destinationAddress = fields.DestinationAddress || product.description || "";
   const addressParts = destinationAddress.split(";").map((value) => value.trim()).filter(Boolean);
@@ -398,7 +409,7 @@ function fromTui(product: TdProduct): LiveCandidate | null {
   const rawPrice = Number(offer?.priceHistory?.[0]?.price?.value || 0);
   if (!Number.isFinite(rawPrice) || rawPrice <= 0) return null;
   const price = Math.round(rawPrice);
-  if (price < 350 || price > 9000) return null;
+  if (!Number.isFinite(price) || price < 350 || price > 9000) return null;
 
   const country = fields.Country || "";
   const city = fields.Region || fields.City || product.name || "Wakacje";
@@ -664,6 +675,7 @@ export async function GET(request: NextRequest) {
   const mode = requestedMode === "citybreak" ? "citybreak" : requestedMode === "search" ? "search" : requestedMode === "surprise" ? "surprise" : requestedMode === "newyear" ? "newyear" : "daily";
   const query = (request.nextUrl.searchParams.get("q") || "").trim().slice(0, 80);
   const budget = Math.max(500, Math.min(10000, Number(request.nextUrl.searchParams.get("budget") || 2500)));
+  const strictSearch = request.nextUrl.searchParams.get("strict") === "1";
   const broadSearch = request.nextUrl.searchParams.get("broad") === "1";
   const airportHub = request.nextUrl.searchParams.get("hub") === "1";
   const providerParam = request.nextUrl.searchParams.get("provider");
@@ -718,29 +730,39 @@ export async function GET(request: NextRequest) {
                 ...shuffle(EUROPE_SEARCH_TERMS, `terms-eu:${key}`).slice(0, 7),
                 ...shuffle(EXOTIC_SEARCH_TERMS, `terms-exotic:${key}`).slice(0, 11),
               ];
+    const searchPages = mode === "search" || mode === "citybreak" ? (query ? 3 : 2) : 1;
     const jobs: Array<() => Promise<{ provider: Provider; products: TdProduct[] }>> = [];
 
     for (const term of terms) {
       if (eximToken && providerOnly !== "tui") {
-        jobs.push(() => fetchProducts("exim", term, eximToken).then((products) => ({ provider: "exim" as const, products })));
+        jobs.push(() => fetchProducts("exim", term, eximToken, searchPages).then((products) => ({ provider: "exim" as const, products })));
       }
       if (mode !== "citybreak" && mode !== "newyear" && tuiToken && providerOnly !== "exim") {
-        jobs.push(() => fetchProducts("tui", term, tuiToken).then((products) => ({ provider: "tui" as const, products })));
+        jobs.push(() => fetchProducts("tui", term, tuiToken, searchPages).then((products) => ({ provider: "tui" as const, products })));
       }
     }
 
     const candidates: LiveCandidate[] = [];
-    const batchSize = broadSearch || airportHub || rescueMode ? 6 : 10;
+    const batchSize = 8;
+    let successfulFeeds = 0;
+    let failedFeeds = 0;
     for (let index = 0; index < jobs.length; index += batchSize) {
       const settled = await Promise.allSettled(jobs.slice(index, index + batchSize).map((job) => job()));
       for (const item of settled) {
-        if (item.status !== "fulfilled") continue;
+        if (item.status !== "fulfilled") { failedFeeds++; continue; }
+        successfulFeeds++;
         for (const product of item.value.products) {
-          const candidate = item.value.provider === "exim" ? fromExim(product) : fromTui(product);
-          if (candidate) candidates.push(candidate);
+          try {
+            const candidate = item.value.provider === "exim" ? fromExim(product) : fromTui(product);
+            if (candidate) candidates.push(candidate);
+          } catch {
+            // One malformed product must not discard all other search results.
+          }
         }
       }
     }
+
+    if (!successfulFeeds) throw new Error("Źródła ofert chwilowo nie odpowiadają. Spróbuj ponownie.");
 
     const unique = new Map<string, LiveCandidate>();
     for (const candidate of candidates) {
@@ -766,7 +788,7 @@ export async function GET(request: NextRequest) {
 
       return codes.some((code) => {
         if (code === "WAWA") return /warszawa|chopin|okecie|modlin|\bwaw\b|\bwmi\b/.test(haystack);
-        if (code === "WAW") return /chopin|okecie|\bwaw\b/.test(haystack);
+        if (code === "WAW") return /chopin|okecie|\bwaw\b/.test(haystack) || (/warszawa/.test(haystack) && !/modlin|\bwmi\b/.test(haystack));
         if (code === "WMI") return /modlin|\bwmi\b/.test(haystack);
         if (code === "KRK") return /krakow|balice|\bkrk\b/.test(haystack);
         if (code === "KTW") return /katowice|pyrzowice|\bktw\b/.test(haystack);
@@ -869,7 +891,7 @@ export async function GET(request: NextRequest) {
             : "Nie mamy teraz potwierdzonej oferty mieszczącej się w całym wybranym zakresie dat. Nie pokazujemy ofert z innych miesięcy jako rzekomego dopasowania."
           : "";
 
-    if (mode === "search" || mode === "citybreak") {
+    if (!strictSearch && (mode === "search" || mode === "citybreak")) {
       if (!pool.length && boardFilter !== "any") {
         pool = dateCandidates.filter((offer) =>
           departureMatches(offer) &&
@@ -899,6 +921,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    pool = rankSearchOffers(pool, Number.MAX_SAFE_INTEGER);
     const cheapestDestinations = cheapestPerDestination(pool);
     const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && tripLengthMatches(offer));
 
@@ -918,18 +941,10 @@ export async function GET(request: NextRequest) {
           })
           .slice(0, 30)
       : mode === "citybreak"
-      ? query
         ? pool
             .filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5)
-            .sort((a, b) => a.price !== b.price ? a.price - b.price : b.score - a.score)
-            .slice(0, 40)
-        : selectDaily(
-            cheapestPerDestination(
-              pool.filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5)
-            ),
-            `${key}:citybreak`,
-            24
-          )
+            .sort((a, b) => a.price - b.price || b.score - a.score)
+            .slice(0, 240)
       : mode === "search"
         ? [...pool]
             .sort((a,b) => {
@@ -938,12 +953,11 @@ export async function GET(request: NextRequest) {
                 : 0;
               return dateDelta || (a.price !== b.price ? a.price - b.price : b.score - a.score);
             })
-            .slice(0, 80)
+            .slice(0, 240)
         : mode === "surprise"
           ? cheapestDestinations
               .filter((offer) => offer.price <= budget)
-              .filter((offer) => budget < 3500 || offer.price >= Math.round(budget * 0.45))
-              .sort((a,b) => (b.score * 100 + b.price / 20) - (a.score * 100 + a.price / 20))
+              .sort((a,b) => a.price - b.price || b.score - a.score)
               .slice(0, 12)
           : selectDailyDiversified(dailyLengthPool.length >= 12 ? dailyLengthPool : cheapestDestinations, key, 36);
 
@@ -956,9 +970,10 @@ export async function GET(request: NextRequest) {
         mode,
         checkedAt: new Date().toISOString(),
         sourceCount: pool.length,
+        partial: failedFeeds > 0,
         exactSourceCount: exactPool.length,
         destinationCount: cheapestDestinations.length,
-        notice,
+        notice: [notice, failedFeeds ? "Część źródeł chwilowo nie odpowiada — wyniki mogą być niepełne." : ""].filter(Boolean).join(" "),
         offers: selected,
       },
       {
