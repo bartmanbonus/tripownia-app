@@ -75,7 +75,18 @@ export default function LiveSalesRail({ mode, limit = 8 }: { mode: Mode; limit?:
   );
 
   if (loading) {
-    return <div className="seo-live-status"><span className="seo-live-pulse" /><strong>Sprawdzamy aktualne ceny…</strong></div>;
+    return (
+      <div className="seo-live-skeleton-grid" aria-label="Ładowanie aktualnych ofert">
+        {[0,1,2].map((item) => (
+          <div className="seo-live-skeleton-card" key={item} aria-hidden="true">
+            <div className="seo-live-skeleton-image"/>
+            <div className="seo-live-skeleton-body">
+              <span/><strong/><span/><button type="button" tabIndex={-1}/>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
   }
   if (!offers.length) return null;
 
