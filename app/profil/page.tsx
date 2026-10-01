@@ -8,6 +8,8 @@ import SiteFooter from "@/components/SiteFooter";
 import PrivacyDataControls from "@/components/PrivacyDataControls";
 import CountryChecklist from "@/components/CountryChecklist";
 import { DEFAULT_TRAVEL_PROFILE, readTravelProfile, saveTravelProfile, type TravelProfile } from "@/lib/travelProfile";
+import { ensureFreshAccountSession, readAccountSession, saveTripowniaUserState } from "@/lib/accountAuth";
+import { collectLocalAccountState } from "@/lib/accountState";
 
 const styleOptions = [
   ["city", "City break"],
@@ -21,6 +23,7 @@ const styleOptions = [
 export default function ProfilePage() {
   const [profile, setProfile] = useState<TravelProfile>(DEFAULT_TRAVEL_PROFILE);
   const [saved, setSaved] = useState(false);
+  const [syncNotice, setSyncNotice] = useState("");
 
   useEffect(() => setProfile(readTravelProfile()), []);
 
@@ -31,10 +34,25 @@ export default function ProfilePage() {
     }));
   }
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     saveTravelProfile(profile);
     setSaved(true);
+    setSyncNotice("Profil zapisany na tym urządzeniu.");
+
+    const session = await ensureFreshAccountSession(readAccountSession());
+    if (session) {
+      setSyncNotice("Synchronizujemy profil z Twoim kontem…");
+      try {
+        await saveTripowniaUserState(session, collectLocalAccountState());
+        setSyncNotice("Profil jest zapisany na koncie i na tym urządzeniu.");
+      } catch {
+        setSyncNotice("Profil jest zapisany na tym urządzeniu. Synchronizacja konta chwilowo się nie udała.");
+      }
+    } else {
+      setSyncNotice("Profil jest zapisany na tym urządzeniu. Po zalogowaniu możesz zsynchronizować go między urządzeniami.");
+    }
+
     window.setTimeout(() => setSaved(false), 2200);
   }
 
@@ -178,7 +196,8 @@ export default function ProfilePage() {
           </details>
 
           <button className="primary-cta app-alerts-save" type="submit">{saved ? <><CheckCircle2 size={18} /> Zapisano</> : "Zapisz mój profil"}</button>
-          <small>Bez logowania profil zostaje na tym urządzeniu. Po zalogowaniu synchronizujemy go z Twoim kontem, żeby wracał na webie i w aplikacji.</small>
+          <small>Bez logowania profil zostaje na tym urządzeniu. Po zalogowaniu możesz przechowywać go także na swoim koncie.</small>
+          {syncNotice && <small className="profile-sync-notice" role="status">{syncNotice}</small>}
         </form>
 
         <PrivacyDataControls />
