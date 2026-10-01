@@ -709,7 +709,7 @@ export default function Home() {
       <section className="dream-hero">
         <div className="shell dream-hero-shell">
           <div className="dream-hero-copy">
-            <div className="dream-eyebrow"><Sparkles size={16}/> Wyszukiwanie i darmowy planner w jednym miejscu</div>
+            <div className="dream-eyebrow"><Sparkles size={16}/> Wyszukiwanie i darmowy planer w jednym miejscu</div>
             <h1>Znajdź wyjazd.<br/><span>Zaplanuj całą podróż za 0 zł.</span></h1>
             <p>Znajdź wyjazd, a potem ogarnij całą podróż w jednym miejscu.</p>
             <div className="dream-hero-actions">
@@ -848,7 +848,7 @@ export default function Home() {
             <Link href="/dodaj-podroz" onClick={() => trackEvent("planner_cta_click", { placement: "homepage_free_plan" })}>Stwórz mój plan — 0 zł <ArrowRight size={18}/></Link>
             <Link href="/app">Zobacz moją Tripownię</Link>
           </div>
-          <div className="dream-free-plan-trust">Bez abonamentu za planner · Możesz dodać wyjazd kupiony gdzie indziej · Wszystko możesz odhaczać i wracać później</div>
+          <div className="dream-free-plan-trust">Bez abonamentu za planer · Możesz dodać wyjazd kupiony gdzie indziej · Wszystko możesz odhaczać i wracać później</div>
         </div>
 
         <div className="dream-free-plan-board">
@@ -928,7 +928,7 @@ export default function Home() {
 
         <div className="dream-marketplace-footer">
           <span>Masz już kupiony wyjazd?</span>
-          <Link href="/dodaj-podroz">Dodaj go do Tripowni — planner podpowie, czego jeszcze brakuje <ArrowRight size={16}/></Link>
+          <Link href="/dodaj-podroz">Dodaj go do Tripowni — planer podpowie, czego jeszcze brakuje <ArrowRight size={16}/></Link>
         </div>
       </section>
 
