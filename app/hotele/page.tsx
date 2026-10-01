@@ -43,7 +43,7 @@ export default async function HotelsPage({ searchParams }: Props) {
         </div>
 
         <div className="service-search-shell">
-          <SearchHub embedded initialTab="Hotele" initialDestinations={destination ? [destination] : []} initialAirports={origin ? [origin] : []} initialDateMode={hasRange ? "range" : "any"} initialDateFrom={hasRange ? from : ""} initialDateTo={hasRange ? to : ""} />
+          <SearchHub embedded initialTab="Hotele" initialDestinations={destination ? [destination] : []} initialAirports={origin ? [origin] : []} initialDateMode="range" initialDateFrom={hasRange ? from : ""} initialDateTo={hasRange ? to : ""} />
         </div>
       </section>
       <SiteFooter />
