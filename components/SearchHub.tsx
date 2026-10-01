@@ -250,7 +250,7 @@ export default function SearchHub({
   initialDestinations = [],
   initialDuration = "all",
   searchRequest = 0,
-  initialTab = "Inspiracje",
+  initialTab = "Lot + hotel",
   initialBoard = "all",
   initialDateMode = "any",
   initialDateFrom = "",
