@@ -251,3 +251,163 @@
   .airport-guide-next-grid,
   .airport-guide-related-links{grid-template-columns:1fr}
 }
+
+
+/* 2026-10-01 unified article UX */
+.article-hero{display:grid;gap:12px}
+.article-lead{
+  margin:-4px 0 4px;
+  max-width:760px;
+  color:#6d625c;
+  font-size:18px;
+  line-height:1.6;
+}
+.article-top-answer{
+  margin:0 0 28px;
+  padding:22px;
+  border:1px solid #eadfd7;
+  border-radius:20px;
+  background:#fffaf7;
+}
+.article-top-answer strong{
+  display:block;
+  margin:8px 0 7px;
+  font-size:13px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.article-top-answer p{
+  margin:0;
+  font-size:18px;
+  line-height:1.65;
+}
+.article-top-answer small{
+  display:block;
+  margin-top:10px;
+  color:#756b65;
+}
+.article-longform-label{
+  margin:8px 0 18px;
+  color:#9a6d54;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.09em;
+}
+.article-deep-dive-details-only{
+  max-width:900px;
+  margin:28px auto 0;
+}
+.article-deep-dive-details-only .article-deep-dive-sections{
+  margin-top:0;
+}
+.article-context-card,
+.article-search-section,
+.article-next-steps{
+  max-width:900px;
+  margin:28px auto 0;
+}
+.article-context-card{
+  padding:24px;
+  border:1px solid #ece5df;
+  border-radius:22px;
+  background:#fff;
+}
+.article-context-card h2,
+.article-next-steps h2,
+.article-search-section h2{
+  margin:8px 0 10px;
+  font-size:clamp(26px,3vw,36px);
+  line-height:1.08;
+  letter-spacing:-.03em;
+}
+.article-context-card p,
+.article-next-steps p,
+.article-search-section p{
+  color:#70655f;
+  line-height:1.6;
+}
+.article-context-links{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:16px;
+}
+.article-context-links a{
+  padding:10px 13px;
+  border:1px solid #e5ddd7;
+  border-radius:999px;
+  background:#fffaf7;
+  color:#2f2925;
+  text-decoration:none;
+  font-weight:800;
+}
+.article-search-section{
+  padding:26px;
+  border:1px solid #eadfd7;
+  border-radius:24px;
+  background:linear-gradient(180deg,#fffaf7,#fff);
+}
+.article-search-intro ul{
+  display:grid;
+  gap:7px;
+  margin:14px 0 18px;
+  padding-left:20px;
+  color:#5f5651;
+  line-height:1.55;
+}
+.article-related-offers{
+  max-width:1100px;
+  margin-left:auto;
+  margin-right:auto;
+  padding-top:52px;
+}
+.article-next-steps{
+  padding:26px;
+  border:1px solid #e8e1db;
+  border-radius:24px;
+  background:#fff;
+}
+.article-next-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-top:18px;
+}
+.article-next-grid a{
+  display:grid;
+  gap:8px;
+  padding:18px;
+  border:1px solid #e7dfd9;
+  border-radius:16px;
+  color:#2d2926;
+  text-decoration:none;
+  background:#fff;
+}
+.article-next-grid a strong{
+  font-size:16px;
+  line-height:1.35;
+}
+.article-next-grid a span{
+  color:#786b64;
+  font-size:12px;
+}
+.article-next-grid .article-next-primary{
+  border-color:#f45b32;
+  background:#fff8f4;
+}
+.legacy-article-post{
+  padding-bottom:34px;
+}
+.article-best-match{
+  border-top:0;
+  padding-top:0;
+}
+@media(max-width:760px){
+  .article-lead{font-size:16px}
+  .article-top-answer{padding:18px;border-radius:18px}
+  .article-top-answer p{font-size:16px}
+  .article-context-card,
+  .article-search-section,
+  .article-next-steps{padding:20px;border-radius:20px}
+  .article-next-grid{grid-template-columns:1fr}
+}
