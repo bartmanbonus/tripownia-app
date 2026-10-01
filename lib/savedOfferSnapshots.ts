@@ -2,6 +2,8 @@ import type { Offer } from "@/lib/offers";
 
 export const FAVORITE_OFFER_SNAPSHOTS_KEY = "tripownia-favorite-offers-v1";
 export const COMPARE_OFFER_SNAPSHOTS_KEY = "tripownia-compare-offers-v1";
+export const RECENT_OFFER_SNAPSHOTS_KEY = "tripownia-recent-offers-v1";
+export const RECENT_OFFER_IDS_KEY = "tripownia-recent-offer-ids-v1";
 
 export type SavedOfferSnapshots = Record<string, Offer>;
 
