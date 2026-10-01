@@ -46,7 +46,6 @@ import AnalyticsInteractions from "@/components/AnalyticsInteractions";
 import MetaPixelClient from "@/components/MetaPixelClient";
 import MobileAppControls from "@/components/MobileAppControls";
 import TripArchiveSync from "@/components/TripArchiveSync";
-import OrganizerQuickLink from "@/components/OrganizerQuickLink";
 import AccountCloudSync from "@/components/AccountCloudSync";
 import NativeAppBridge from "@/components/NativeAppBridge";
 import CompareTray from "@/components/CompareTray";
@@ -102,7 +101,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <TripArchiveSync />
         <AccountCloudSync />
         <NativeAppBridge />
-        <OrganizerQuickLink />
         <CompareTray />
         <AffiliateReturnPrompt />
         <MobileAppControls />
