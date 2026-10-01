@@ -173,7 +173,7 @@ export default function TripOrganizer({
           <div className="trip-organizer-title"><FileText size={20}/><div><strong>Rezerwacje i ważne numery</strong><span>Wpisuj skróty lub numery rezerwacji — nie zapisuj tu haseł ani pełnych danych dokumentów.</span></div></div>
           <div className="trip-organizer-fields">
             <label><span>Lot / kod rezerwacji</span><input value={state.reservations.flightRef} onChange={(e) => setReservation("flightRef", e.target.value)} placeholder="np. ABC123" /></label>
-            <label><span>Hotel / kod rezerwacji</span><input value={state.reservations.hotelRef} onChange={(e) => setReservation("hotelRef", e.target.value)} placeholder="np. numer Booking" /></label>
+            <label><span>Hotel / kod rezerwacji</span><input value={state.reservations.hotelRef} onChange={(e) => setReservation("hotelRef", e.target.value)} placeholder="np. numer rezerwacji hotelu" /></label>
             <label><span>Ubezpieczenie / polisa</span><input value={state.reservations.insuranceRef} onChange={(e) => setReservation("insuranceRef", e.target.value)} placeholder="np. numer polisy" /></label>
             <label><span>Transfer / parking</span><input value={state.reservations.transferRef} onChange={(e) => setReservation("transferRef", e.target.value)} placeholder="np. numer rezerwacji" /></label>
             <label className="wide"><span>Kontakt awaryjny</span><input value={state.reservations.emergencyContact} onChange={(e) => setReservation("emergencyContact", e.target.value)} placeholder="np. imię + telefon" /></label>
