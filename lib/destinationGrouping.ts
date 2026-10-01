@@ -14,7 +14,7 @@ export function touristDestinationKey(offer: { city?: string; country?: string }
   const text = `${city} ${country}`;
 
   const groups: Array<[RegExp, string]> = [
-    [/zanzibar|kiwengwa|matemwe|mangapwani|nungwi|kendwa|paje|jambiani|makunduchi/, "zanzibar"],
+    [/zanzibar|kiwengwa|matemwe|mangapwani|nungwi|kendwa|paje|jambiani|makunduchi|kizimkazi|michamvi|uroa|pongwe|pwani mchangani|bwejuu|pingwe|stone town|nungwi peninsula/, "zanzibar"],
     [/durres|durrës|golem|shkembi|riwiera albanska|albania/, "riwiera-albanska"],
     [/malta|mellieha|sliema|st julian|saint julian|bugibba|qawra|valletta/, "malta"],
     [/teneryf|tenerife|costa adeje|playa de las americas|puerto de la cruz/, "teneryfa"],
