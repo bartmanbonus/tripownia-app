@@ -7,7 +7,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5, Plane, Globe2, Palmtree, Building2, BadgePercent, ShieldCheck, Compass } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import GoogleIntentGateway from "@/components/GoogleIntentGateway";
 import SalesVisualShortcuts from "@/components/SalesVisualShortcuts";
 import RecentlyViewedOffers from "@/components/RecentlyViewedOffers";
 import { offers, isOfferExpired } from "@/lib/offers";
@@ -718,7 +717,6 @@ export default function Home() {
       </section>
 
       <SearchHub />
-      <GoogleIntentGateway />
       <SalesVisualShortcuts />
       <RecentlyViewedOffers />
 
@@ -765,40 +763,9 @@ export default function Home() {
         <OfferRail kicker="☀️ WAKACJE" title="Słońce i gotowy pakiet" description="Aktualne opcje na dłuższy odpoczynek, bez przekopywania setek ofert." items={themedRails.sun.slice(0, 12)}/>
         <div className="homepage-offer-more">
           <section className="homepage-offer-group">
-            <div className="homepage-offer-group-head"><span><b>⚡ Na krótko</b><small>2–4 noce · szybki reset</small></span></div>
-            <OfferRail kicker="WEEKEND / KRÓTKI WYJAZD" title="Wyskocz na kilka dni" description="Dobre opcje, kiedy nie chcesz brać całego tygodnia urlopu." items={themedRails.weekend.slice(0, 12)}/>
-          </section>
-          <section className="homepage-offer-group">
-            <div className="homepage-offer-group-head"><span><b>🏖 Tydzień odpoczynku</b><small>6–9 nocy · klasyczne wakacje</small></span></div>
-            <OfferRail kicker="TYDZIEŃ" title="Pełny tydzień poza domem" description="Wyjazdy na prawdziwy odpoczynek, z konkretną ceną i terminem." items={themedRails.week.slice(0, 12)}/>
-          </section>
-          <section className="homepage-offer-group">
-            <div className="homepage-offer-group-head"><span><b>💸 Najtaniej teraz</b><small>oferty od najniższej ceny</small></span></div>
+            <div className="homepage-offer-group-head"><span><b>💸 Najtaniej teraz</b><small>od najniższej ceny</small></span></div>
             <OfferRail kicker="DOBRY BUDŻET" title="Dużo podróży za mniej" description="Najtańsze aktualne kierunki z dzisiejszej puli." items={themedRails.budgetFriendly.slice(0, 12)}/>
           </section>
-          <section className="homepage-offer-group">
-            <div className="homepage-offer-group-head"><span><b>✨ Raz a dobrze</b><small>dalsze i bardziej wyjątkowe</small></span></div>
-            <OfferRail kicker="WIĘKSZA PODRÓŻ" title="Kiedy chcesz czegoś więcej" description="Droższe lub dalsze wyjazdy, które mają być główną podróżą sezonu." items={themedRails.premium.slice(0, 12)}/>
-          </section>
-        </div>
-      </section>
-
-      <section className="section shell homepage-trip-types" aria-labelledby="homepage-trip-types-title">
-        <div className="section-heading homepage-trip-types-heading">
-          <div>
-            <div className="kicker">WYBIERZ SWÓJ WYJAZD</div>
-            <h2 id="homepage-trip-types-title">Wybierz typ podróży.</h2>
-          </div>
-          <Link className="section-premium-link" href="/kierunki">Wszystkie kierunki <ArrowRight size={16}/></Link>
-        </div>
-        <div className="homepage-trip-types-grid">
-          {homepageTripTypes.map(item => (
-            <Link className="homepage-trip-type-card" href={item.href} key={item.href}>
-              <span aria-hidden="true">{item.icon}</span>
-              <div><strong>{item.title}</strong><small>{item.note}</small></div>
-              <ArrowRight size={17}/>
-            </Link>
-          ))}
         </div>
       </section>
 
@@ -962,11 +929,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section shell streaming-discovery streaming-offers visual-chapter chapter-streaming" aria-label="Odkrywaj oferty Tripowni">
-        <div className="section-heading"><div><div className="kicker">PODRÓŻE DOPASOWANE DO NASTROJU</div><h2>Na co masz dziś ochotę?</h2></div></div>
-        <OfferRail kicker="🔥 TREND / CITY BREAK" title="Weekend, który ratuje tydzień" description="Krótkie pakiety z aktualnego feedu i konkretnymi terminami." items={themedRails.city}/>
-        <OfferRail kicker="☀️ SŁOŃCE / ALL INCLUSIVE" title="Jeszcze trochę lata" description="Plaża, ciepło i gotowe wakacje — od krótkiego resetu po pełny tydzień." items={themedRails.sun}/>
-        <OfferRail kicker="✨ UKRYTE PEREŁKI" title="Nie kolejny Rzym i Barcelona" description="Mniej oczywiste kierunki wybrane z aktualnej lub ostatniej poprawnej puli." items={themedRails.unusual}/>
+      <section className="section shell streaming-discovery visual-chapter chapter-streaming" aria-label="Odkrywaj Tripownię inaczej">
+        <div className="section-heading"><div><div className="kicker">WIĘCEJ NIŻ ZWYKŁA OFERTA</div><h2>Wybierz powód do podróży.</h2><p>Zamiast kolejnej listy podobnych ofert — cztery różne sposoby na znalezienie następnego wyjazdu.</p></div></div>
         <div className="streaming-rail editorial-streaming-rail">
           <Link href="/dalekie-podroze" className="streaming-tile"><small>🌏 DALEJ</small><strong>Europa to dziś za mało</strong><span>Wietnam, Japonia, Bali, Nowy Jork i kierunki na większą podróż.</span></Link>
           <Link href="/podroze-po-przezycia" className="streaming-tile"><small>✨ PO PRZEŻYCIA</small><strong>Nie jedź tylko „gdzieś”</strong><span>Zorza, sakura, safari, fiordy, jarmarki i podróże pod właściwy moment.</span></Link>
