@@ -104,7 +104,7 @@ export default async function Page({ searchParams }: PageProps) {
           <SearchHub
             key={`${selectedDestination}|${selectedFrom}|${selectedTo}`}
             embedded
-            initialTab="Wakacje"
+            initialTab="Lot + hotel"
             initialDestinations={selectedDestination ? [selectedDestination] : []}
             initialDateMode="range"
             initialDateFrom={selectedFrom}
