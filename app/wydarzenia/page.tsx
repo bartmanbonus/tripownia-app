@@ -100,9 +100,6 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
 
   const visibleTrips = showAll ? filteredTrips : filteredTrips.slice(0, 48);
   const activeDeparture = sportsDepartures.find(item => item.code === selectedFrom) || sportsDepartures[0];
-  const activeClub = sportsClubs.find(item => item.slug === selectedClub);
-  const activeCompetition = sportsCompetitions.find(item => item.code === selectedCompetition);
-  const activeMonthLabel = selectedMonth ? monthLabel(selectedMonth) : "";
 
   const moreParams = new URLSearchParams();
   if (selectedFrom) moreParams.set("from", selectedFrom);
@@ -165,15 +162,6 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
             <label><span>Osoby</span><select name="people" defaultValue={String(selectedPeople)}><option value="1">1 osoba</option><option value="2">2 osoby</option><option value="3">3 osoby</option><option value="4">4 osoby</option></select></label>
             <div className={styles.actions}><button type="submit">Pokaż {filteredTrips.length} {filteredTrips.length === 1 ? "mecz" : "meczów"}</button><a href="/wydarzenia#wyniki-meczow">Wyczyść filtry</a></div>
           </form>
-          <div className={styles.summary}>
-            {activeClub && <span>⚽ {activeClub.displayName}</span>}
-            {activeCompetition && <span>🏆 {activeCompetition.name}</span>}
-            {activeMonthLabel && <span>📅 {activeMonthLabel}</span>}
-            <span>✈️ {activeDeparture.label}</span>
-            <span>przylot dzień przed meczem</span>
-            <span>{selectedNights} noce</span>
-            <span>{selectedPeople} os.</span>
-          </div>
         </div>
 
         <div className={styles.resultsHead} id="wyniki-meczow">
