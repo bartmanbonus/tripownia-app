@@ -14340,3 +14340,275 @@ img{
     border-radius:18px;
   }
 }
+
+
+/* V207 — programmatic travel landings: tighter flow and useful empty states */
+.seo-travel-landing-v2{
+  background:#fbf8f5;
+}
+.seo-travel-landing-v2 .seo-landing-hero{
+  padding:50px 0 42px!important;
+  background:
+    radial-gradient(circle at 84% 8%,rgba(244,91,50,.09),transparent 29%),
+    linear-gradient(180deg,#fff 0%,#fbf7f4 100%)!important;
+  border-bottom:1px solid #eadfd8!important;
+}
+.seo-travel-landing-v2 .seo-landing-hero .shell{
+  max-width:1140px;
+}
+.seo-travel-landing-v2 .seo-landing-hero h1{
+  max-width:860px!important;
+  margin:10px 0 12px!important;
+}
+.seo-travel-landing-v2 .seo-landing-hero p{
+  max-width:760px!important;
+  color:#746961!important;
+  font-size:15px!important;
+  line-height:1.6!important;
+}
+.seo-travel-landing-v2 .seo-hero-actions{
+  gap:8px!important;
+  margin-top:18px!important;
+}
+.seo-travel-landing-v2 .seo-hero-actions a{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 14px;
+  border-radius:12px;
+  font-size:10px;
+  font-weight:900;
+  text-decoration:none;
+}
+.seo-travel-landing-v2 .seo-hero-actions .secondary-cta{
+  border:1px solid #e3d8d1;
+  background:#fff;
+  color:#3a332f;
+}
+
+.seo-quick-facts-section{
+  padding:34px 0 18px;
+}
+.seo-landing-section-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:24px;
+  margin-bottom:15px;
+}
+.seo-landing-section-head>div{max-width:850px}
+.seo-landing-section-head h2{
+  margin:5px 0 7px;
+  font-size:clamp(27px,3vw,38px);
+  line-height:1.03;
+  letter-spacing:-.04em;
+}
+.seo-landing-section-head p{
+  max-width:760px;
+  margin:0;
+  color:#80746c;
+  font-size:10.5px;
+  line-height:1.5;
+}
+.seo-quick-facts-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
+}
+.seo-quick-fact-card{
+  min-height:90px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:6px;
+  padding:15px 16px;
+  border:1px solid #e7ddd7;
+  border-radius:16px;
+  background:#fff;
+  box-shadow:0 5px 16px rgba(50,34,24,.025);
+}
+.seo-quick-fact-card small{
+  color:#e85a32;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.09em;
+}
+.seo-quick-fact-card strong{
+  font-size:13px;
+  line-height:1.35;
+}
+
+.seo-travel-landing-v2 .seo-related-block{
+  padding-top:24px;
+  padding-bottom:34px;
+}
+.seo-travel-landing-v2 .seo-related-block h2{
+  margin:6px 0 13px;
+  font-size:clamp(23px,2.5vw,31px);
+  letter-spacing:-.035em;
+}
+.seo-travel-landing-v2 .seo-related-links{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  margin:12px 0 0;
+}
+.seo-travel-landing-v2 .seo-related-links a{
+  min-height:62px;
+  padding:12px 13px;
+  border-radius:13px;
+  font-size:10px;
+  line-height:1.35;
+}
+.seo-travel-landing-v2 .seo-related-links a:hover{
+  border-color:#efb6a2;
+  background:#fff8f4;
+}
+
+.seo-offer-section-v2{
+  padding-top:42px!important;
+  padding-bottom:36px!important;
+}
+.seo-offer-section-v2 .seo-landing-section-head{
+  margin-bottom:18px;
+}
+.seo-offer-section-v2 .seo-landing-section-head h2{
+  max-width:760px;
+  font-size:clamp(34px,4vw,50px);
+  line-height:.98;
+}
+.seo-live-status{
+  min-height:86px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:16px 18px;
+  border:1px solid #e6dbd4;
+  border-radius:17px;
+  background:#fff;
+}
+.seo-live-status>div{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.seo-live-status strong{font-size:12px}
+.seo-live-status span{color:#83776f;font-size:10px}
+.seo-live-status-loading{background:#fff}
+
+.seo-empty-offers{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:18px 30px;
+  align-items:center;
+  padding:22px;
+  border:1px solid #eadcd4;
+  border-radius:20px;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(244,91,50,.08),transparent 34%),
+    #fff;
+  box-shadow:0 12px 32px rgba(50,34,24,.04);
+}
+.seo-empty-offers-copy{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  min-width:0;
+}
+.seo-empty-offers-icon{
+  width:46px;
+  height:46px;
+  display:grid;
+  place-items:center;
+  flex:0 0 46px;
+  border-radius:15px;
+  background:#fff0e9;
+  color:#e85a32;
+}
+.seo-empty-offers-copy>div:last-child{min-width:0}
+.seo-empty-offers-copy small{
+  color:#e85a32;
+  font-size:8px;
+  font-weight:950;
+  letter-spacing:.1em;
+}
+.seo-empty-offers-copy h3{
+  margin:4px 0 7px;
+  font-size:22px;
+  letter-spacing:-.035em;
+}
+.seo-empty-offers-copy p{
+  max-width:730px;
+  margin:0;
+  color:#7b7068;
+  font-size:10px;
+  line-height:1.55;
+}
+.seo-empty-offers-actions{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  gap:8px;
+}
+.seo-empty-offers-actions a{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:0 12px;
+  border-radius:11px;
+  text-decoration:none;
+  font-size:9.5px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.seo-empty-primary{
+  background:#f45b32;
+  color:#fff;
+  box-shadow:0 8px 18px rgba(244,91,50,.17);
+}
+.seo-empty-secondary{
+  border:1px solid #e2d6cf;
+  background:#fff;
+  color:#403833;
+}
+
+.seo-travel-landing-v2 .seo-partners-section{
+  padding-top:24px!important;
+  padding-bottom:40px!important;
+}
+.seo-travel-landing-v2 .big-partner-grid{
+  gap:10px!important;
+}
+.seo-travel-landing-v2 .big-partner-grid>a{
+  min-height:120px!important;
+  border-radius:16px!important;
+}
+
+@media(max-width:900px){
+  .seo-quick-facts-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .seo-travel-landing-v2 .seo-related-links{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .seo-empty-offers{grid-template-columns:1fr}
+  .seo-empty-offers-actions{justify-content:flex-start}
+}
+@media(max-width:620px){
+  .seo-travel-landing-v2 .seo-landing-hero{padding:32px 0 28px!important}
+  .seo-travel-landing-v2 .seo-landing-hero h1{font-size:clamp(34px,10.5vw,46px)!important}
+  .seo-travel-landing-v2 .seo-hero-actions{display:grid;grid-template-columns:1fr}
+  .seo-travel-landing-v2 .seo-hero-actions a{width:100%}
+  .seo-quick-facts-section{padding-top:26px}
+  .seo-quick-facts-grid{grid-template-columns:1fr 1fr;gap:8px}
+  .seo-quick-fact-card{min-height:78px;padding:12px}
+  .seo-quick-fact-card strong{font-size:12px}
+  .seo-travel-landing-v2 .seo-related-block{padding-top:18px;padding-bottom:26px}
+  .seo-travel-landing-v2 .seo-related-links{grid-template-columns:1fr}
+  .seo-offer-section-v2{padding-top:30px!important}
+  .seo-offer-section-v2 .seo-landing-section-head h2{font-size:33px}
+  .seo-empty-offers{padding:16px;border-radius:17px}
+  .seo-empty-offers-copy{gap:10px}
+  .seo-empty-offers-icon{width:40px;height:40px;flex-basis:40px}
+  .seo-empty-offers-copy h3{font-size:19px}
+  .seo-empty-offers-actions{display:grid;grid-template-columns:1fr;width:100%}
+  .seo-empty-offers-actions a{width:100%}
+}
