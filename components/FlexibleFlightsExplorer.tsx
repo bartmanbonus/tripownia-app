@@ -288,17 +288,26 @@ function LowPriceMapFrame({ src }: { src: string }) {
   );
 }
 
-export default function FlexibleFlightsExplorer() {
-  const [origins, setOrigins] = useState<Place[]>([
-    { code: "WAW", name: "Warszawa", country: "Polska" },
-  ]);
+type FlexibleFlightsExplorerProps = {
+  initialDestination?: string;
+  initialOrigin?: string;
+  initialMonth?: string;
+};
+
+export default function FlexibleFlightsExplorer({
+  initialDestination = "",
+  initialOrigin = "WAW",
+  initialMonth = "",
+}: FlexibleFlightsExplorerProps) {
+  const initialOriginPlace = FLEXIBLE_ORIGINS.find((place) => place.code === initialOrigin.toUpperCase()) || FLEXIBLE_ORIGINS[0];
+  const [origins, setOrigins] = useState<Place[]>([initialOriginPlace]);
   const [destinations, setDestinations] = useState<Place[]>([]);
   const [originAnywhere, setOriginAnywhere] = useState(false);
   const [destinationAnywhere, setDestinationAnywhere] = useState(false);
   const [daysMin, setDaysMin] = useState(3);
   const [daysMax, setDaysMax] = useState(7);
   const [directOnly, setDirectOnly] = useState(false);
-  const [travelMonth, setTravelMonth] = useState("");
+  const [travelMonth, setTravelMonth] = useState(/^\d{4}-\d{2}$/.test(initialMonth) ? initialMonth : "");
   const [calendarResults, setCalendarResults] = useState<Array<{ price:number; departDate:string; returnDate:string; outboundStops:number; returnStops:number; affiliateUrl:string }>>([]);
   const [calendarLoading, setCalendarLoading] = useState(false);
   const [activeRouteKey, setActiveRouteKey] = useState("");
@@ -307,6 +316,27 @@ export default function FlexibleFlightsExplorer() {
   const [dealsLoading, setDealsLoading] = useState(false);
   const [dealsSort, setDealsSort] = useState<"price" | "name">("price");
   const marker = "695999.TRIPOWNIAPL";
+
+  useEffect(() => {
+    const query = initialDestination.trim();
+    if (!query) return;
+
+    const controller = new AbortController();
+    fetch("/api/flight-places?q=" + encodeURIComponent(query), {
+      signal: controller.signal,
+      cache: "no-store",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const places = Array.isArray(data?.places) ? data.places : [];
+        if (!places.length) return;
+        setDestinationAnywhere(false);
+        setDestinations([places[0]]);
+      })
+      .catch(() => {});
+
+    return () => controller.abort();
+  }, [initialDestination]);
 
   const effectiveOrigins = useMemo(
     () => (originAnywhere ? FLEXIBLE_ORIGINS : origins),
@@ -359,8 +389,8 @@ export default function FlexibleFlightsExplorer() {
     return url.toString();
   }, [activeRoute]);
 
-  const effectiveDestinationCode = activeRoute?.destination?.code || "";
-  const fallbackDestinationCode = activeRoute?.destination?.searchCode || "";
+  const effectiveDestinationCode = activeRoute?.destination?.searchCode || activeRoute?.destination?.code || "";
+  const fallbackDestinationCode = activeRoute?.destination?.code || "";
 
   const calendarSrc = useMemo(() => {
     if (!activeRoute?.origin.code || !effectiveDestinationCode) return "";

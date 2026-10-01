@@ -19,7 +19,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function FlightsPage() {
+type FlightsPageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function firstParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] || "" : value || "";
+}
+
+export default async function FlightsPage({ searchParams }: FlightsPageProps) {
+  const params = await searchParams;
+  const destination = firstParam(params.destination);
+  const origin = firstParam(params.origin) || "WAW";
+  const outbound = firstParam(params.outbound);
+  const initialMonth = /^\d{4}-\d{2}-\d{2}$/.test(outbound) ? outbound.slice(0, 7) : "";
+
   return (
     <main className="tpwl-tripownia-page">
       <SiteHeader />
@@ -29,7 +43,11 @@ export default function FlightsPage() {
           <h1>Znajdź konkretny lot albo upoluj najlepszy termin.</h1>
           <p>Masz dokładne daty? Użyj porównywarki. Jesteś elastyczna/y? Sprawdź kalendarz cen lub kierunki „gdziekolwiek”.</p>
         </section>
-        <FlexibleFlightsExplorer />
+        <FlexibleFlightsExplorer
+          initialDestination={destination}
+          initialOrigin={origin}
+          initialMonth={initialMonth}
+        />
         <TravelpayoutsFlightsWidget />
       </div>
       <SiteFooter />
