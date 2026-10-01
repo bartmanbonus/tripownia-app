@@ -259,7 +259,7 @@ export default function DealsPage({
 
       {!destination && dealType !== "allinclusive" && <><div className="deals-results-heading">
         <div><span>DZISIAJ W TRIPOWNI</span><h2>5 okazji, które warto sprawdzić dziś</h2></div>
-        <p>{todayLoading && !todayRows.length ? "Szukamy dzisiejszych okazji…" : `Codzienna selekcja Tripowni${todayCheckedLabel ? ` · sprawdzone ${todayCheckedLabel}` : ""}. Te same kierunki wykorzystujemy w naszych publikacjach społecznościowych.`}</p>
+        <p>{todayLoading && !todayRows.length ? "Szukamy dzisiejszych okazji…" : `Codzienna selekcja Tripowni${todayCheckedLabel ? ` · sprawdzone ${todayCheckedLabel}` : ""}. Pokazujemy krótko to, co dziś ma najlepszy sens cenowy.`}</p>
       </div>
       {todayRows.length > 0 ? (
         <div className="cards-grid deals-premium-grid">{todayRows.map((offer) => <OfferCard key={`today-${offer.id}`} offer={offer}/>)}</div>
