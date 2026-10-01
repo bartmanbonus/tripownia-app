@@ -50,6 +50,8 @@ export default function SiteFooter() {
               <Link href="/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem">Lot + hotel</Link>
               <Link href="/tanie-loty">Tanie loty</Link>
               <Link href="/wakacje">Wakacje</Link>
+              <Link href="/z-warszawy">Wyloty z Warszawy</Link>
+              <Link href="/z-krakowa">Wyloty z Krakowa</Link>
               <a href={partners.booking.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Hotele</a>
               <a href={partners.kiwi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Loty</a>
               <a href={partners.getyourguide.buildUrl("https://www.getyourguide.pl/")} target="_blank" rel="sponsored noopener noreferrer">Atrakcje</a>
