@@ -15186,3 +15186,193 @@ img{
 @media(max-width:980px){.seo-intent-hero-inner{grid-template-columns:1fr}.seo-intent-facts{grid-template-columns:repeat(4,minmax(0,1fr))}.seo-search-wider-grid,.seo-discovery-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){.seo-intent-hero{padding:38px 0 34px}.seo-intent-copy h1{font-size:clamp(38px,10vw,48px);letter-spacing:-2px}.seo-intent-copy>p{font-size:16px}.seo-intent-facts{grid-template-columns:1fr 1fr}.seo-intent-facts>div{min-height:92px}.seo-decision-grid,.seo-search-wider-grid,.seo-discovery-grid{grid-template-columns:1fr}.seo-decision-grid article{min-height:0}.seo-travel-landing-v3 .seo-hero-actions{display:grid;grid-template-columns:1fr}.seo-travel-landing-v3 .seo-hero-actions a{width:100%;justify-content:center}.seo-travel-landing-v3 .seo-empty-offers{padding:20px}}
 @media(max-width:460px){.seo-intent-facts{grid-template-columns:1fr}}
+
+
+/* 2026-10-02 compact recently viewed offer teasers */
+.recent-offers-teaser-section{
+  padding-top:34px!important;
+  padding-bottom:26px!important;
+}
+.recent-offers-heading{
+  margin-bottom:18px!important;
+  align-items:flex-end!important;
+}
+.recent-offers-heading>div:first-child{
+  max-width:760px;
+}
+.recent-offers-heading h2{
+  margin:8px 0 4px!important;
+  max-width:720px;
+  font-size:clamp(30px,3.5vw,46px)!important;
+  line-height:1.02!important;
+  letter-spacing:-1.8px!important;
+}
+.recent-offers-heading p{
+  margin:0;
+  color:var(--muted);
+  font-size:13px;
+}
+.recent-offers-teaser-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  align-items:stretch;
+}
+.recent-offer-teaser{
+  flex:0 1 520px;
+  width:min(100%,520px);
+  min-height:176px;
+  display:grid;
+  grid-template-columns:42% 58%;
+  overflow:hidden;
+  border:1px solid #e9dfd8;
+  border-radius:18px;
+  background:#fff;
+  color:var(--ink);
+  text-decoration:none;
+  box-shadow:0 10px 28px rgba(49,36,28,.045);
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.recent-offer-teaser:hover{
+  transform:translateY(-2px);
+  border-color:#efbca6;
+  box-shadow:0 16px 34px rgba(49,36,28,.07);
+}
+.recent-offer-teaser-image{
+  min-height:176px;
+  overflow:hidden;
+  background:#f4eee9;
+}
+.recent-offer-teaser-image>img,
+.recent-offer-teaser-image>.tripownia-image-empty{
+  width:100%!important;
+  height:100%!important;
+  min-height:176px!important;
+  object-fit:cover!important;
+  display:block!important;
+}
+.recent-offer-teaser-body{
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  padding:17px 18px;
+}
+.recent-offer-teaser-country{
+  color:#7f746d;
+  font-size:11px;
+  font-weight:800;
+}
+.recent-offer-teaser-title{
+  margin-top:5px;
+  font-size:21px;
+  line-height:1.06;
+  letter-spacing:-.5px;
+}
+.recent-offer-teaser-hotel{
+  margin-top:6px;
+  color:#786d66;
+  font-size:12px;
+  line-height:1.35;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.recent-offer-teaser-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px 12px;
+  margin-top:12px;
+  color:#6d635d;
+  font-size:10px;
+}
+.recent-offer-teaser-meta span{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  min-width:0;
+}
+.recent-offer-teaser-bottom{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:auto;
+  padding-top:13px;
+  border-top:1px solid #eee6e0;
+}
+.recent-offer-teaser-bottom>div{
+  display:flex;
+  align-items:baseline;
+  gap:5px;
+}
+.recent-offer-teaser-bottom small{
+  color:#8d8179;
+  font-size:10px;
+  font-weight:800;
+}
+.recent-offer-teaser-bottom b{
+  font-size:24px;
+  line-height:1;
+  letter-spacing:-.7px;
+}
+.recent-offer-teaser-bottom>div>span{
+  color:#83776f;
+  font-size:10px;
+}
+.recent-offer-teaser-arrow{
+  width:38px;
+  height:38px;
+  flex:0 0 38px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#ff5a32;
+  color:#fff;
+}
+@media(max-width:760px){
+  .recent-offers-heading{
+    align-items:flex-start!important;
+    gap:14px!important;
+  }
+  .recent-offers-heading h2{
+    font-size:34px!important;
+  }
+  .recent-offers-teaser-list{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    scrollbar-width:none;
+    margin-inline:-16px;
+    padding:0 16px 5px;
+  }
+  .recent-offers-teaser-list::-webkit-scrollbar{display:none}
+  .recent-offer-teaser{
+    flex:0 0 86vw;
+    width:86vw;
+    grid-template-columns:38% 62%;
+    scroll-snap-align:start;
+  }
+}
+@media(max-width:520px){
+  .recent-offer-teaser{
+    min-height:148px;
+    grid-template-columns:36% 64%;
+  }
+  .recent-offer-teaser-image,
+  .recent-offer-teaser-image>img,
+  .recent-offer-teaser-image>.tripownia-image-empty{
+    min-height:148px!important;
+  }
+  .recent-offer-teaser-body{
+    padding:14px;
+  }
+  .recent-offer-teaser-title{
+    font-size:18px;
+  }
+  .recent-offer-teaser-meta span:first-child{
+    max-width:100%;
+  }
+  .recent-offer-teaser-bottom b{
+    font-size:21px;
+  }
+}
