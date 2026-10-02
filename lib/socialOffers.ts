@@ -89,9 +89,9 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
     hotel: "B&B Giardino dei Frutti",
     partner: "esky",
     partnerLabel: "eSky",
-    affiliateUrl: "https://www2.esky.pl/lot+hotel/portfolio/details/select-room?rooms%5B0%5D%5Badults%5D=2&datesTab=flexDates&stayLength=2:4&departurePlaces=ap-WAW,ap-WMI&arrivalPlaces=ci-BRI&context=pl-packages&partner_id=TRIPOWNIAPLPACKAGES&portfolioToken=6d7b3331-b4de-4290-801f-79862c1d5e7a&packageId=MjYxMDIwOjI6cGw6NzA4NTAz&flightOptionId=V01JQkRTMjYxMDIwMjIzLjE3M3x8VzYxNDAzOjA6MCxCRFNXTUkyNjEwMjIyMjNJLjE3M3x8VzYxNDA0OjA6MQ&departureCode=WMI&arrivalCode=BDS&checkInDate=2026-10-20&checkOutDate=2026-10-22&destinationDepartureDate=2026-10-20&returnArrivalDate=2026-10-23&metaCode=708503&pricePresentation=perpax&selectedDeparturePlaces=ap-WAW,ap-WMI",
+    affiliateUrl: "https://www2.esky.pl/lot+hotel/portfolio?rooms%5B0%5D%5Badults%5D=2&datesTab=flexDates&stayLength=2:4&arrivalPlaces=ci-BRI&context=pl-packages&departureCode=WMI&arrivalCode=BDS&checkInDate=2026-10-20&checkOutDate=2026-10-22&destinationDepartureDate=2026-10-20&returnArrivalDate=2026-10-23&metaCode=708503&pricePresentation=perpax&partner_id=TRIPOWNIAPLPACKAGES&portfolioToken=e699796d-f08a-4123-94ee-3e4b66a0c737",
     imageCountry: "Włochy",
-    checkedAt: "2026-10-02T18:47:00+02:00",
+    checkedAt: "2026-10-02T20:49:00+02:00",
     status: "active",
   },
   "ateny-marina-1099": {
