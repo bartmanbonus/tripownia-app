@@ -1666,3 +1666,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   .system-state-actions{display:grid;width:100%}
   .system-state-actions a,.system-state-actions button{width:100%}
 }
+
+.system-loading-title{
+  display:block;
+  margin:8px 0 12px;
+  color:var(--ux-ink);
+  font-size:clamp(32px,4.6vw,48px);
+  line-height:1.04;
+  letter-spacing:-.04em;
+}
