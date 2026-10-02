@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
+import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 
 export const metadata: Metadata = {
   title: "Fuerteventura 22–25.11.2026 — 3 noce od 1209 zł/os. | Tripownia",
@@ -69,6 +70,16 @@ export default function FuerteventuraOfferPage() {
             </div>
           </div>
         </div>
+        <OfferAlternativeFinder
+          city="Fuerteventura"
+          country="Hiszpania"
+          nights={3}
+          board="Bez wyżywienia"
+          departure="Kraków"
+          airportCode="KRK"
+          dates="22–25 listopada 2026"
+          hotel="Fuertesol Bungalows"
+        />
       </section>
       <SiteFooter />
     </main>
