@@ -225,6 +225,8 @@ export default function AddTripPage() {
   const [session, setSession] = useState<AccountSession | null>(null);
   const [editingTrip, setEditingTrip] = useState<EditableTrip | null>(null);
   const [step, setStep] = useState<1 | 2>(1);
+  const [sourceType, setSourceType] = useState("");
+  const [sourceKind, setSourceKind] = useState("");
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
   const suggestions = useMemo(
@@ -239,6 +241,14 @@ export default function AddTripPage() {
     [],
   );
   const missingCount = Object.values(pieces).filter((value) => !value).length;
+  const quickOwnedFlow = ownedMode && (sourceType === "external" || sourceType === "affiliate") && Boolean(city || country);
+  const quickOwnedText = pieces.flight && pieces.hotel
+    ? "Lot i hotel są już zaznaczone."
+    : pieces.flight
+      ? "Lot / transport jest już zaznaczony."
+      : pieces.hotel
+        ? "Nocleg jest już zaznaczony."
+        : "Wyjazd jest gotowy do zapisania.";
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -251,11 +261,13 @@ export default function AddTripPage() {
     setOwnedMode(owned);
 
     const source = params.get("source");
+    setSourceType(source || "");
     if (source === "affiliate" || source === "external") {
       const affiliateCity = (params.get("city") || "").trim();
       const affiliateCountry = (params.get("country") || "").trim();
       const affiliateKind = (params.get("kind") || "package").trim();
       const affiliatePartner = (params.get("partner") || "").trim();
+      setSourceKind(affiliateKind);
       const sourceStart = (params.get("start") || "").trim();
       const sourceEnd = (params.get("end") || "").trim();
 
@@ -608,6 +620,118 @@ export default function AddTripPage() {
     trackEvent("planner_created", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn, missing_count: missingCount });
     trackMetaCustomEvent("PlannerCreated", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn, missing_count: missingCount });
     window.location.href = "/moja-podroz";
+  }
+
+  if (quickOwnedFlow) {
+    const destinationLabel = [city, country].filter(Boolean).join(", ");
+
+    return (
+      <main>
+        <SiteHeader />
+        <section className={"shell add-trip-page " + styles.quickPage}>
+          <form className={styles.quickLayout} onSubmit={submit}>
+            <section className={styles.quickMainCard}>
+              <div className={styles.quickEyebrow}>DODAJ DO MOJEJ TRIPOWNI</div>
+
+              <div className={styles.quickTitleRow}>
+                <div className={styles.quickIcon}><MapPinned size={24}/></div>
+                <div>
+                  <h1>{destinationLabel}</h1>
+                  <p>{quickOwnedText} Dodaj termin, jeśli go znasz — albo zapisz plan od razu.</p>
+                </div>
+              </div>
+
+              <div className={styles.quickOwnedRow}>
+                {pieces.flight && <span><Plane size={17}/> Lot / transport <CheckCircle2 size={16}/></span>}
+                {pieces.hotel && <span><BedDouble size={17}/> Nocleg <CheckCircle2 size={16}/></span>}
+                {!pieces.flight && !pieces.hotel && <span><CheckCircle2 size={16}/> Wyjazd rozpoznany</span>}
+              </div>
+
+              <section className={styles.quickDateCard}>
+                <div className={styles.quickSectionHead}>
+                  <div><CalendarDays size={19}/><strong>Termin</strong></div>
+                  <span>opcjonalnie</span>
+                </div>
+                <div className={"add-trip-grid two " + styles.quickDates}>
+                  <label><span>Wyjazd</span><input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label>
+                  <label><span>Powrót</span><input type="date" min={startDate || undefined} value={endDate} onChange={(event) => setEndDate(event.target.value)} /></label>
+                </div>
+              </section>
+
+              <details className={styles.quickMore}>
+                <summary>Dodaj więcej szczegółów</summary>
+                <div className={styles.quickMoreBody}>
+                  <div className={styles.quickMoreSection}>
+                    <strong>Kierunek</strong>
+                    <div className="add-trip-grid two">
+                      <label><span>Miasto / region</span><input value={city} onChange={(event) => setCity(event.target.value)} /></label>
+                      <label><span>Kraj</span><input value={country} onChange={(event) => setCountry(event.target.value)} /></label>
+                    </div>
+                  </div>
+
+                  <div className={styles.quickMoreSection}>
+                    <strong>Lotnisko wylotu <small>opcjonalnie</small></strong>
+                    <div className={"planner-airports " + styles.airports}>
+                      {["Warszawa","Kraków","Katowice","Gdańsk","Wrocław","Poznań"].map((airport) => (
+                        <button type="button" key={airport} className={departureOptions.includes(airport) ? "active" : ""} onClick={() => {
+                          setDepartureMode("selected");
+                          setDepartureOptions((current) => current.includes(airport) ? current.filter((x) => x !== airport) : [...current, airport]);
+                        }}>{airport}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {(pieces.flight || pieces.hotel) && (
+                    <div className={styles.quickMoreSection}>
+                      <strong>Rezerwacja <small>opcjonalnie</small></strong>
+                      <div className="add-trip-grid two">
+                        {pieces.flight && <label><span>Numer lotu / szczegóły</span><input value={flight} onChange={(event) => setFlight(event.target.value)} placeholder="np. FR 1234" /></label>}
+                        {pieces.hotel && <label><span>Hotel / adres</span><input value={hotel} onChange={(event) => setHotel(event.target.value)} placeholder="np. nazwa hotelu" /></label>}
+                        {pieces.flight && <label><span>Godzina startu</span><input type="datetime-local" value={departureAt} onChange={(event) => setDepartureAt(event.target.value)} /></label>}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className={styles.quickMoreSection}>
+                    <strong>Notatka <small>opcjonalnie</small></strong>
+                    <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="np. późny przylot, podróż z dzieckiem..." rows={3} />
+                  </div>
+                </div>
+              </details>
+
+              {error && <div className="add-trip-error" role="alert">{error}</div>}
+
+              <button type="submit" className={"primary-cta " + styles.quickPrimary}>
+                Dodaj do Mojej Tripowni <ArrowRight size={18}/>
+              </button>
+              <div className={styles.quickFootnote}>
+                Bez opłat. Bez obowiązkowego konta. Wszystko możesz edytować później.
+              </div>
+            </section>
+
+            <aside className={styles.quickSideCard}>
+              <div className={styles.quickSideLabel}>CO DALEJ?</div>
+              <h2>Nie zaczynamy od zera.</h2>
+              <p>Plan zbudujemy wokół tego, co już masz.</p>
+
+              <div className={styles.quickNextList}>
+                <div><CheckCircle2 size={18}/><span><strong>Zostawiamy lot i nocleg</strong><small>nie będziemy ich szukać ponownie</small></span></div>
+                <div><Sparkles size={18}/><span><strong>Pokażemy braki</strong><small>transfer, atrakcje, eSIM i inne dodatki</small></span></div>
+                <div><Ticket size={18}/><span><strong>Jeden plan</strong><small>wszystko trafia do Mojej Tripowni</small></span></div>
+              </div>
+
+              {authReady && !signedIn && (
+                <div className={styles.quickAccount}>
+                  <span>Chcesz mieć plan także na innych urządzeniach?</span>
+                  <Link href="/konto?next=/dodaj-podroz">Zaloguj się</Link>
+                </div>
+              )}
+            </aside>
+          </form>
+        </section>
+        <SiteFooter />
+      </main>
+    );
   }
 
   return (
