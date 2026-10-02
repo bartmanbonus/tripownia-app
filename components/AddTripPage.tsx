@@ -28,6 +28,7 @@ import { collectLocalAccountState } from "@/lib/accountState";
 import { offers, type Offer } from "@/lib/offers";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
+import { partners } from "@/lib/partners";
 
 type PieceKey = "flight" | "hotel" | "transfer" | "attractions" | "esim" | "parking";
 type PieceState = Record<PieceKey, boolean>;
@@ -172,8 +173,8 @@ function buildSuggestions(city: string, country: string, start: string, end: str
     attractions: `/atrakcje?${attractions.toString()}`,
     transfer: `/transfery?${transfer.toString()}`,
     transferAlt: `/transfery?${transfer.toString()}`,
-    esim: "/esim",
-    parking: "/parkingi",
+    esim: partners.fonia.buildUrl(),
+    parking: partners.parklot.buildUrl(),
   };
 }
 
