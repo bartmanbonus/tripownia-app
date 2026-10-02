@@ -626,7 +626,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
           </section>
         )}
 
-        {isPost && (
+        {isPost && !isAirportLiquidsGuide && (
           <section className="article-action-rail" aria-label="Szybkie przejście od poradnika do wyszukiwania ofert">
             <div className="article-action-rail-copy">
               <div className="kicker">SPRAWDŹ TO W PRAKTYCE</div>
@@ -651,6 +651,31 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
       </article>
 
       {deepDive && <ArticleDeepDiveBlock deepDive={deepDive} hideIntro />}
+
+      {isAirportLiquidsGuide && (
+        <section className="airport-guide-next" aria-label="Następny krok po sprawdzeniu zasad płynów">
+          <div className="kicker">LECISZ Z POLSKI?</div>
+          <h2>Masz już zasady. Teraz przejdź do konkretnego wyjazdu.</h2>
+          <p>Sprawdź loty albo city break z wybranego lotniska. Zasady płynów są ważne, ale przy wyborze wyjazdu porównaj też godziny lotów, bagaż i pełny koszt.</p>
+          <div className="airport-guide-next-grid">
+            <Link href="/tanie-loty">
+              <span>✈️</span>
+              <strong>Sprawdź tanie loty</strong>
+              <small>Porównaj kierunki i terminy bez wychodzenia z Tripowni.</small>
+            </Link>
+            <Link href="/city-break">
+              <span>🏙️</span>
+              <strong>Znajdź city break</strong>
+              <small>Krótki wyjazd 2–5 dni z polskich lotnisk.</small>
+            </Link>
+            <Link href="/przed-wyjazdem">
+              <span>✅</span>
+              <strong>Checklista przed wylotem</strong>
+              <small>Dokumenty, bagaż, odprawa i rzeczy do sprawdzenia przed podróżą.</small>
+            </Link>
+          </div>
+        </section>
+      )}
 
       {seoOpportunity && !isAirportLiquidsGuide && <section className="article-context-card">
         <div className="kicker">NAJWAŻNIEJSZE W TYM TEMACIE</div>
@@ -685,7 +710,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         <div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o}/>)}</div>
       </section>}
 
-      {isPost && <section className="article-next-steps" aria-label="Co dalej">
+      {isPost && !isAirportLiquidsGuide && <section className="article-next-steps" aria-label="Co dalej">
         <div className="kicker">CO DALEJ?</div>
         <h2>Przejdź do następnego kroku</h2>
         <p>Wybraliśmy tylko najważniejsze przejścia związane z tym poradnikiem.</p>
