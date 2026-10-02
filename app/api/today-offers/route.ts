@@ -641,12 +641,13 @@ export async function GET(request: NextRequest) {
   const dateKind = (request.nextUrl.searchParams.get("dateKind") || "").trim();
   const rescueMode = (request.nextUrl.searchParams.get("rescue") || "").trim();
   const fastMode = request.nextUrl.searchParams.get("fast") === "1";
+  const skipEsky = request.nextUrl.searchParams.get("skipEsky") === "1";
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
   let eskyStatus: { partial: boolean; error?: string; searchUrl?: string; hasMore?: boolean } = { partial: false };
 
   try {
-    const eskyPromise = !providerOnly || providerOnly === "esky"
+    const eskyPromise = !skipEsky && (!providerOnly || providerOnly === "esky")
       ? fetchEskyPackages({ query, departure: departureFilter, cityBreak: mode === "citybreak", nights: nightsFilter,
           minNights, maxNights, start: startDateFilter, end: endDateFilter, minPrice, maxPrice, timeoutMs: fastMode ? 7_000 : undefined })
       : Promise.resolve({ offers: [], partial: false });
@@ -718,7 +719,7 @@ export async function GET(request: NextRequest) {
     const esky = await eskyPromise;
     eskyStatus = esky;
     candidates.push(...esky.offers);
-    if (!successfulFeeds && !esky.offers.length && (esky.partial || providerOnly === "exim" || providerOnly === "tui")) throw new Error("Źródła ofert chwilowo nie odpowiadają. Spróbuj ponownie.");
+    if (!successfulFeeds && !esky.offers.length && (esky.partial || skipEsky || providerOnly === "exim" || providerOnly === "tui")) throw new Error("Źródła ofert chwilowo nie odpowiadają. Spróbuj ponownie.");
 
     const unique = new Map<string, LiveCandidate>();
     for (const candidate of candidates) {
@@ -1010,6 +1011,7 @@ export async function GET(request: NextRequest) {
           .filter((offer) => offer.linkMatch !== "unsafe")
           .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
           .filter((offer) => ["exim", "tui", "esky"].includes(String(offer.partner)))
+          .filter((offer) => !skipEsky || offer.partner !== "esky")
           .filter((offer) => !providerOnly || offer.partner === providerOnly)
           .filter(offer => candidateMatchesQuery(offer as LiveCandidate, query))
           .filter(departureMatchesFallback)
