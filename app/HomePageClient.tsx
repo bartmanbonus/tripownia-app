@@ -165,11 +165,36 @@ const longHaulCards = [
   { href: "/dalekie-podroze#dominikana", region: "ameryka", label: "DOMINIKANA", title: "Dominikana", subtitle: "Karaiby · plaże · natura", text: "Tropiki nie tylko w resorcie — wyspa ma dużo więcej do pokazania.", imageCity: "Dominikana", imageCountry: "Dominikana" },
 ];
 
-function LongHaulCardImage({ city, country, fallbackSrc }: { city: string; country: string; fallbackSrc?: string }) {
+function LongHaulCardImage({ city, country }: { city: string; country: string }) {
+  const hostRef = useRef<HTMLDivElement>(null);
   const [dynamicSrc, setDynamicSrc] = useState<string | null>(null);
+  const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
-    if (fallbackSrc) return;
+    const node = hostRef.current;
+    if (!node || shouldLoad) return;
+
+    if (!("IntersectionObserver" in window)) {
+      setShouldLoad(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        setShouldLoad(true);
+        observer.disconnect();
+      },
+      { rootMargin: "420px 0px" },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [shouldLoad]);
+
+  useEffect(() => {
+    if (!shouldLoad) return;
+
     let active = true;
     const controller = new AbortController();
     const params = new URLSearchParams({ city, country });
@@ -185,22 +210,19 @@ function LongHaulCardImage({ city, country, fallbackSrc }: { city: string; count
       active = false;
       controller.abort();
     };
-  }, [city, country, fallbackSrc]);
-
-  const src = fallbackSrc || dynamicSrc;
+  }, [city, country, shouldLoad]);
 
   return (
-    <div className="long-haul-card-media" aria-hidden="true">
-      {src ? (
+    <div ref={hostRef} className="long-haul-card-media" aria-hidden="true">
+      {dynamicSrc ? (
         <img
-          src={src}
+          src={dynamicSrc}
           alt=""
-          loading={fallbackSrc ? "eager" : "lazy"}
+          loading="lazy"
           decoding="async"
-          fetchPriority={fallbackSrc ? "high" : "auto"}
+          fetchPriority="low"
           onError={(event) => {
-            const img = event.currentTarget;
-            img.style.display = "none";
+            event.currentTarget.style.display = "none";
           }}
         />
       ) : (
