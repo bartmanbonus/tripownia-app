@@ -34,6 +34,7 @@ export type TripowniaUserState = {
 
 const AUTH_SESSION_KEY = "tripownia-auth-session-v1";
 const AUTH_EVENT = "tripownia-auth-changed";
+let refreshInFlight: Promise<AccountSession | null> | null = null;
 const DEFAULT_SUPABASE_URL = "https://wgbzccgcfhnouakswyvj.supabase.co";
 const DEFAULT_SUPABASE_KEY = "sb_publishable_5S3oW5eD0MTLArG0gZANIw_ORJiqQQl";
 
@@ -126,6 +127,30 @@ export function clearAccountSession() {
   window.dispatchEvent(new Event(AUTH_EVENT));
 }
 
+export function consumeAccountAuthErrorFromUrl(): string {
+  if (typeof window === "undefined") return "";
+
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const query = new URLSearchParams(window.location.search);
+  const errorCode = (hash.get("error_code") || query.get("error_code") || hash.get("error") || query.get("error") || "").toLowerCase();
+  const description = hash.get("error_description") || query.get("error_description") || "";
+
+  if (!errorCode && !description) return "";
+
+  const cleanUrl = new URL(window.location.href);
+  cleanUrl.hash = "";
+  ["error", "error_code", "error_description"].forEach((key) => cleanUrl.searchParams.delete(key));
+  window.history.replaceState({}, document.title, cleanUrl.pathname + cleanUrl.search);
+
+  if (errorCode.includes("otp_expired") || /expired/i.test(description)) {
+    return "Link wygasł. Wyślij nowy jednorazowy link e-mail.";
+  }
+  if (errorCode.includes("access_denied")) {
+    return "Link logowania nie został zaakceptowany. Spróbuj ponownie.";
+  }
+  return "Nie udało się dokończyć logowania z linku e-mail. Wyślij nowy link i spróbuj ponownie.";
+}
+
 export function consumeAccountSessionFromUrl(): AccountSession | null {
   if (typeof window === "undefined" || !window.location.hash) return null;
   const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
@@ -176,18 +201,43 @@ export function isSocialProviderEnabled(provider: "google" | "apple") {
 
 export async function refreshAccountSession(session: AccountSession) {
   if (!isAccountAuthConfigured()) return null;
-  const response = await fetch(`${authBaseUrl()}/auth/v1/token?grant_type=refresh_token`, {
-    method: "POST",
-    headers: publicHeaders(),
-    body: JSON.stringify({ refresh_token: session.refresh_token }),
-  });
-  if (!response.ok) {
-    clearAccountSession();
-    return null;
-  }
-  const refreshed = normalizeSession(await response.json() as AccountSession);
-  saveAccountSession(refreshed);
-  return refreshed;
+  if (refreshInFlight) return refreshInFlight;
+
+  const attemptedRefreshToken = session.refresh_token;
+  refreshInFlight = (async () => {
+    try {
+      const latestBeforeRequest = readAccountSession();
+      if (latestBeforeRequest?.refresh_token && latestBeforeRequest.refresh_token !== attemptedRefreshToken) {
+        return latestBeforeRequest;
+      }
+
+      const response = await fetch(`${authBaseUrl()}/auth/v1/token?grant_type=refresh_token`, {
+        method: "POST",
+        headers: publicHeaders(),
+        body: JSON.stringify({ refresh_token: attemptedRefreshToken }),
+      });
+
+      if (!response.ok) {
+        // Supabase rotates refresh tokens. A parallel refresh in this tab or another
+        // tab may already have stored a newer session. Never erase that newer session
+        // just because this request used the stale token.
+        const latest = readAccountSession();
+        if (latest?.refresh_token && latest.refresh_token !== attemptedRefreshToken) {
+          return latest;
+        }
+        clearAccountSession();
+        return null;
+      }
+
+      const refreshed = normalizeSession(await response.json() as AccountSession);
+      saveAccountSession(refreshed);
+      return refreshed;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+
+  return refreshInFlight;
 }
 
 export async function ensureFreshAccountSession(session = readAccountSession()) {
@@ -323,7 +373,7 @@ export async function signUpWithPassword(email: string, password: string, redire
   const response = await fetch(`${authBaseUrl()}/auth/v1/signup?redirect_to=${encodeURIComponent(safeRedirect)}`, {
     method: "POST",
     headers: publicHeaders(),
-    body: JSON.stringify({ email: email.trim(), password, data: { product: "Tripownia" } }),
+    body: JSON.stringify({ email: email.trim().toLowerCase(), password, data: { product: "Tripownia" } }),
   });
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));

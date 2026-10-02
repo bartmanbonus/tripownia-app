@@ -11,6 +11,7 @@ import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState } from "@/lib/accountState";
 import {
   accountAuthEventName,
+  consumeAccountAuthErrorFromUrl,
   consumeAccountSessionFromUrl,
   deleteAccount,
   ensureFreshAccountSession,
@@ -66,6 +67,8 @@ export default function AccountPage() {
     let cancelled = false;
 
     const load = async () => {
+      const authError = consumeAccountAuthErrorFromUrl();
+      if (authError && !cancelled) setMessage(authError);
       const fromUrl = consumeAccountSessionFromUrl();
       const current = await ensureFreshAccountSession(fromUrl || readAccountSession());
       if (cancelled) return;
