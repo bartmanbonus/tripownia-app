@@ -37,7 +37,7 @@ function FeedCard({ vertical = false, compact = false }: { vertical?: boolean; c
         <Brand />
         <div style={{ width: compact ? 150 : 190, height: 3, background: navy, marginTop: 20, marginBottom: compact ? 24 : 34 }} />
         <div style={{ color: navy, fontFamily: "Arial, sans-serif", fontSize: compact ? 24 : vertical ? 34 : 29, letterSpacing: compact ? 8 : 11, fontWeight: 600 }}>CITY BREAK</div>
-        <div style={{ color: navy, fontFamily: "Georgia, serif", fontSize: compact ? 68 : vertical ? 112 : 91, lineHeight: .9, letterSpacing: -2, fontWeight: 700, marginTop: compact ? 18 : 24, maxWidth: vertical ? 880 : 830 }}>
+        <div style={{ display: "flex", flexDirection: "column", color: navy, fontFamily: "Georgia, serif", fontSize: compact ? 68 : vertical ? 112 : 91, lineHeight: .9, letterSpacing: -2, fontWeight: 700, marginTop: compact ? 18 : 24, maxWidth: vertical ? 880 : 830 }}>
           BARI +<br/>ALBEROBELLO
         </div>
         <div style={{ display: "flex", alignItems: "baseline", marginTop: compact ? 20 : 28 }}>
@@ -80,7 +80,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ for
             </div>
           </div>
           <div style={{ marginTop: 34, fontFamily: "Arial, sans-serif", fontSize: 23, letterSpacing: 7, fontWeight: 700, color: navy }}>CITY BREAK</div>
-          <div style={{ marginTop: 14, fontFamily: "Georgia, serif", fontSize: 66, lineHeight: .93, fontWeight: 700, color: navy }}>BARI +<br/>ALBEROBELLO</div>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 14, fontFamily: "Georgia, serif", fontSize: 66, lineHeight: .93, fontWeight: 700, color: navy }}><span>BARI +</span><span>ALBEROBELLO</span></div>
           <div style={{ display: "flex", alignItems: "baseline", marginTop: 22 }}>
             <span style={{ fontFamily: "Georgia, serif", fontSize: 84, lineHeight: .85, fontWeight: 700, color: orange }}>669</span>
             <span style={{ fontFamily: "Georgia, serif", fontSize: 34, fontWeight: 700, color: navy, marginLeft: 12 }}>zł/os.</span>
