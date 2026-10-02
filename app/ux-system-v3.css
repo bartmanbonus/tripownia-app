@@ -1788,3 +1788,97 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
     flex-wrap:wrap!important;
   }
 }
+
+/* Layout hardening: prevent the small regressions that make the UI feel unfinished. */
+html,body{max-width:100%;overflow-x:hidden}
+main{min-width:0}
+main>*{min-width:0}
+img,svg,video,canvas{max-width:100%}
+button,a,input,select,textarea{min-width:0}
+button,a{overflow-wrap:anywhere}
+h1,h2,h3,p,strong,span{word-break:normal}
+.shell,.trip-header-shell,.footer-v2-shell{max-width:100%}
+
+/* Interactive controls should never become tiny or clipped. */
+.primary-cta,.secondary-cta,.card-cta,
+.trip-header-action,.trip-header-help,
+.search-v3-submit,.search-v3-tabs button,
+.search-v3-quick button,.search-v3-result-filters button,
+.search-v3-sales-sort button,.deals-clear-filters,
+.deals-quick-filters button,.account-primary-button{
+  min-height:42px;
+}
+.primary-cta,.secondary-cta,.card-cta,
+.search-v3-submit,.deals-buy-now-primary{
+  white-space:normal!important;
+  text-align:center;
+  line-height:1.25!important;
+}
+
+/* Avoid cards creating their own horizontal scrollbars. */
+.offer-card,.offer-card-clean,.article-grid>a,.app-home-tile,
+.account-card,.my-trip-card,.compare-card,.advisor-controls{
+  min-width:0!important;
+  max-width:100%!important;
+}
+.offer-card .offer-body,
+.offer-card .offer-topline,
+.offer-card .meta,
+.offer-card .offer-actions-row{
+  min-width:0!important;
+}
+
+/* Long labels must wrap cleanly instead of pushing layout sideways. */
+.offer-card .meta span,
+.offer-card .offer-actions-row button,
+.trip-header-nav-link,
+.footer-v2-column a,
+.app-home-tile strong,
+.app-home-tile span{
+  overflow-wrap:anywhere!important;
+}
+
+/* Keep anchors visible below sticky header. */
+[id]{scroll-margin-top:120px}
+#commentary,#wyszukiwarka,#oferty,#uslugi-podrozy{scroll-margin-top:126px}
+
+/* Loading/empty states should reserve useful space and not jump the page. */
+.loading,.empty,
+.search-v3-empty,.tripownia-image-empty{
+  min-height:96px;
+}
+.tripownia-image-loading{
+  background:linear-gradient(110deg,#f6f1ed 8%,#fbf8f5 18%,#f6f1ed 33%);
+  background-size:200% 100%;
+  animation:tripowniaImagePulse 1.4s linear infinite;
+}
+@keyframes tripowniaImagePulse{to{background-position-x:-200%}}
+
+@media(max-width:560px){
+  body{font-size:16px!important}
+  input,select,textarea{font-size:16px!important}
+  button,a[role="button"],summary{min-height:42px}
+  [id]{scroll-margin-top:72px}
+  #wyszukiwarka,#oferty,#uslugi-podrozy{scroll-margin-top:76px}
+
+  /* No accidental page-width carousels outside intentionally scrollable rails. */
+  .shell,
+  .trip-header-shell,
+  .footer-v2-shell,
+  .app-home-page,
+  .hub-page,
+  .service-page,
+  .legacy-shell{
+    overflow-x:clip;
+  }
+
+  /* Panels should use the whole available width, never 95vw + margins. */
+  .account-card,
+  .my-trip-card,
+  .advisor-controls,
+  .compare-card,
+  .deals-filter-panel{
+    width:100%!important;
+    box-sizing:border-box!important;
+  }
+}
