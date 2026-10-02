@@ -334,7 +334,7 @@ export default function AlertsPage() {
             </button>
             {settings.enabled && <button className="app-secondary-button" type="button" onClick={disableAlert}>Wyłącz alert</button>}
             <small>{authReady && signedIn ? (settings.enabled ? "Alert jest zapisany. Jeśli chcesz, w kolejnym kroku włącz powiadomienia na tym urządzeniu." : "Najpierw zapisz alert. Powiadomienia włączysz osobno po zapisaniu.") : "Możesz ustawić parametry bez logowania, ale zapis alertu wymaga konta."}</small>
-            {syncNotice && <small className="app-alerts-sync-notice" role="status">{syncNotice}</small>
+            {syncNotice && <small className="app-alerts-sync-notice" role="status">{syncNotice}</small>}
           </form>
 
           {settings.enabled && (
