@@ -36,7 +36,8 @@ type LiveCandidate = Offer & {
 const CITY_BREAK_TERMS = [
   "Rzym", "Mediolan", "Wenecja", "Neapol", "Barcelona", "Madryt", "Alicante", "Walencja", "Sewilla",
   "Lizbona", "Porto", "Paryż", "Amsterdam", "Praga", "Budapeszt", "Wiedeń", "Ateny", "Stambuł",
-  "Malta", "Pafos", "Sycylia",
+  "Malta", "Pafos", "Sycylia", "Bolonia", "Piza", "Turyn", "Bari", "Palermo", "Katania",
+  "Nicea", "Marsylia", "Berlin", "Kopenhaga", "Sztokholm", "Londyn", "Edynburg", "Dublin", "Bruksela", "Dubrownik",
 ];
 
 const SURPRISE_TERMS = {
@@ -675,6 +676,9 @@ export async function GET(request: NextRequest) {
   const mode = requestedMode === "citybreak" ? "citybreak" : requestedMode === "search" ? "search" : requestedMode === "surprise" ? "surprise" : requestedMode === "newyear" ? "newyear" : "daily";
   const query = (request.nextUrl.searchParams.get("q") || "").trim().slice(0, 80);
   const budget = Math.max(500, Math.min(10000, Number(request.nextUrl.searchParams.get("budget") || 2500)));
+  const destinationOverview = request.nextUrl.searchParams.get("view") === "destinations";
+  const minNights = Math.max(0, Number(request.nextUrl.searchParams.get("minNights") || 0));
+  const maxNights = Math.max(0, Number(request.nextUrl.searchParams.get("maxNights") || 0));
   const strictSearch = request.nextUrl.searchParams.get("strict") === "1";
   const broadSearch = request.nextUrl.searchParams.get("broad") === "1";
   const airportHub = request.nextUrl.searchParams.get("hub") === "1";
@@ -719,7 +723,7 @@ export async function GET(request: NextRequest) {
       : mode === "search" && broadSearch
         ? BROAD_CORE_TERMS
       : mode === "citybreak"
-        ? (query ? searchTerms : shuffle(CITY_BREAK_TERMS, `citybreak:${key}`).slice(0, 20))
+        ? (query ? searchTerms : CITY_BREAK_TERMS)
         : mode === "surprise"
           ? shuffle(budget >= 3500 ? SURPRISE_TERMS.high : budget >= 1800 ? SURPRISE_TERMS.mid : SURPRISE_TERMS.low, `surprise:${key}:${budget}`).slice(0, 12)
           : mode === "newyear"
@@ -805,6 +809,8 @@ export async function GET(request: NextRequest) {
       });
     };
     const nightsMatches = (offer: LiveCandidate) => {
+      if (minNights && offer.nights < minNights) return false;
+      if (maxNights && offer.nights > maxNights) return false;
       if (nightsFilter === "1-2") return offer.nights >= 1 && offer.nights <= 2;
       if (nightsFilter === "3-4") return offer.nights >= 3 && offer.nights <= 4;
       if (nightsFilter === "5-7") return offer.nights >= 5 && offer.nights <= 7;
@@ -925,6 +931,7 @@ export async function GET(request: NextRequest) {
     const cheapestDestinations = cheapestPerDestination(pool);
     const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && tripLengthMatches(offer));
 
+    const cityBreakPool = pool.filter(offer => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5);
     const selected = mode === "newyear"
       ? cheapestPerDestination(
           pool.filter((offer) => {
@@ -941,8 +948,7 @@ export async function GET(request: NextRequest) {
           })
           .slice(0, 30)
       : mode === "citybreak"
-        ? pool
-            .filter((offer) => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5)
+        ? (destinationOverview ? cheapestPerDestination(cityBreakPool) : cityBreakPool)
             .sort((a, b) => a.price - b.price || b.score - a.score)
             .slice(0, 240)
       : mode === "search"
