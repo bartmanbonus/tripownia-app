@@ -104,7 +104,13 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
 
       if (response.ok && data.ok && !live.length) {
         try { localStorage.removeItem(cacheKey(endpoint)); } catch {}
-        setState({ offers: [], source: "live", loading: false, checkedAt: data.checkedAt, notice: data.notice });
+        setState({
+          offers: [],
+          source: data.sourceType === "live" ? "live" : "fallback",
+          loading: false,
+          checkedAt: data.checkedAt,
+          notice: data.notice,
+        });
         return;
       }
 
