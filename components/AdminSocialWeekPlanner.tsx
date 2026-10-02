@@ -61,7 +61,7 @@ export default function AdminSocialWeekPlanner(){
     if(statuses[item.offer.id]!=="approved") return;
     setPublishing(item.offer.id);
     try{
-      const response=await adminFetch("/admin/api/social-publish",{
+      const response=await adminFetch("/api/admin/social-publish",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({offerId:item.offer.id,text:buildText(item),approved:true,channels:["facebook","instagram"]})
