@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Cloud, Download, LogOut, Mail, ShieldCheck, Sparkles, Trash2, UserRound } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
@@ -56,16 +56,34 @@ export default function AccountPage() {
   const [synced, setSynced] = useState(0);
   const configured = isAccountAuthConfigured();
 
-  const localStats = useMemo(() => {
-    if (typeof window === "undefined") return { visited: 0, favorites: 0, compare: 0, trip: false, trips: 0 };
-    const profile = readTravelProfile();
-    const state = collectLocalAccountState();
-    return {
-      visited: profile.visitedCountries.length,
-      favorites: state.favorite_offer_ids.length,
-      compare: state.compare_offer_ids.length,
-      trip: Boolean(state.current_trip),
-      trips: Array.isArray(state.trip_archive) ? state.trip_archive.length : 0,
+  const [localStats, setLocalStats] = useState({ visited: 0, favorites: 0, compare: 0, trip: false, trips: 0 });
+
+  useEffect(() => {
+    const refreshLocalStats = () => {
+      const profile = readTravelProfile();
+      const state = collectLocalAccountState();
+      setLocalStats({
+        visited: profile.visitedCountries.length,
+        favorites: state.favorite_offer_ids.length,
+        compare: state.compare_offer_ids.length,
+        trip: Boolean(state.current_trip),
+        trips: Array.isArray(state.trip_archive) ? state.trip_archive.length : 0,
+      });
+    };
+
+    refreshLocalStats();
+    const events = [
+      "tripownia-profile-updated",
+      "tripownia-favorites-updated",
+      "tripownia-compare-updated",
+      "tripownia-my-trip-updated",
+      "tripownia-trips-updated",
+    ];
+    events.forEach((name) => window.addEventListener(name, refreshLocalStats));
+    window.addEventListener("storage", refreshLocalStats);
+    return () => {
+      events.forEach((name) => window.removeEventListener(name, refreshLocalStats));
+      window.removeEventListener("storage", refreshLocalStats);
     };
   }, [session, synced]);
 
