@@ -16227,3 +16227,61 @@ img{
   .ferie-search-preset-cta{font-size:9px}
   .ferie-search-preset-body>p{display:none}
 }
+
+
+/* Ferie 2027 v5 — voivodeship picker */
+.ferie-region-picker{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin-top:24px;
+  padding:14px 16px;
+  border:1px solid #eadfd7;
+  border-radius:16px;
+  background:#fff9f5;
+}
+.ferie-region-picker>div span{
+  display:block;
+  color:#8a7d75;
+  font-size:9px;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.ferie-region-picker>div strong{
+  display:block;
+  margin-top:3px;
+  font-size:15px;
+}
+.ferie-region-picker select{
+  width:min(100%,360px);
+  min-height:46px;
+  padding:0 40px 0 14px;
+  border:1px solid #ddd1ca;
+  border-radius:12px;
+  background:#fff;
+  color:#211d1a;
+  font:inherit;
+  font-size:13px;
+  font-weight:800;
+  outline:none;
+}
+.ferie-region-picker select:focus{
+  border-color:#ff6a3d;
+  box-shadow:0 0 0 3px rgba(255,106,61,.10);
+}
+@media(max-width:640px){
+  .ferie-region-picker{
+    align-items:stretch;
+    flex-direction:column;
+    gap:10px;
+    margin-top:20px;
+    padding:13px;
+  }
+  .ferie-region-picker select{
+    width:100%;
+    min-height:48px;
+    font-size:16px;
+  }
+}
