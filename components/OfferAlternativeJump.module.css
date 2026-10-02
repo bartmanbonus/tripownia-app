@@ -1,0 +1,26 @@
+.link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: fit-content;
+  min-height: 38px;
+  padding: 7px 2px;
+  color: #4b5563;
+  font-size: 0.86rem;
+  font-weight: 750;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.link:hover {
+  color: #111827;
+  border-bottom-color: #c6cbd2;
+}
+
+@media (max-width: 700px) {
+  .link {
+    min-height: 44px;
+    font-size: 0.9rem;
+  }
+}
