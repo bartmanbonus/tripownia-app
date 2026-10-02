@@ -43,5 +43,14 @@ const route=load('app/api/today-offers/route.ts',{'@/lib/searchOfferRanking':ran
  const broad=await cityRoute.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=citybreak&from=WAWA&maxPrice=8000')});
  assert(broad.body.offers.every(o=>o.price<=2000), 'broad search and a high user budget cannot bypass the city break cap');
  assert(res.body.offers.every((o,i,all)=>!i||o.price>=all[i-1].price));
+ const tracked='https://clk.tradedoubler.com/click?p=fixture&a=fixture&url=https%3A%2F%2Fwww.tui.pl%2Foferta%2Fcity';
+ const mixed=load('app/api/today-offers/route.ts',{'@/lib/searchOfferRanking':ranking,'@/lib/destinationGrouping':grouping,'next/server':{NextResponse:{json:(body,opts)=>({body,status:opts?.status||200})}}},{process:{env:{TRADEDOUBLER_EXIM_TOKEN:'test-only',TRADEDOUBLER_TUI_TOKEN:'test-only'}},fetch:async(url)=>{
+   const p=product(77,1199);p.fields.find(f=>f.name==='DepartureDate').value='01.12.2027';p.fields.find(f=>f.name==='Duration').value='3';p.offers[0].productUrl=tracked;
+   return {ok:true,json:async()=>({products:url.includes('fid=24864')?[p]:[]})};
+ }});
+ const mixedResult=await mixed.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=citybreak&view=destinations&from=WAWA&strict=1')});
+ assert.equal(mixedResult.body.offers.length,1,'TUI short breaks are included without an EXIM-only restriction');
+ assert.equal(mixedResult.body.offers[0].partner,'tui');
+ assert.equal(mixedResult.body.offers[0].affiliateUrl,tracked,'affiliate tracking URL survives selection unchanged');
  console.log('PASS: cheapest variant, board variants, no city cap, exact-first alternatives, price pagination, WAW, budget, strict filters, upstream failure.');
 })().catch(e=>{console.error(e);process.exit(1)});
