@@ -501,6 +501,26 @@ export default function AddTripPage() {
     }
   }
 
+  function leavePlanner(fallback = "/app") {
+    if (typeof window === "undefined") return;
+    try {
+      const referrer = document.referrer ? new URL(document.referrer) : null;
+      if (referrer?.origin === window.location.origin && window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+    } catch {}
+    window.location.assign(fallback);
+  }
+
+  function handlePlannerBack() {
+    if (step === 2) {
+      moveToStep(1);
+      return;
+    }
+    leavePlanner();
+  }
+
   function continueToPieces() {
     setError("");
 
@@ -636,6 +656,13 @@ export default function AddTripPage() {
     return (
       <main>
         <SiteHeader />
+        <div className={styles.mobileProcessBar} aria-label="Nawigacja planera">
+          <button type="button" className={styles.mobileProcessBack} onClick={() => leavePlanner("/wydarzenia")}>
+            <ArrowLeft size={15}/> Wstecz
+          </button>
+          <span className={styles.mobileStepLabel}>Plan meczu</span>
+          <span className={styles.mobileFreeBadge}>0 zł</span>
+        </div>
         <section className={"shell add-trip-page " + styles.confirmPage}>
           <form className={styles.confirmCard} onSubmit={submit}>
             <div className={styles.confirmMedia}>
@@ -689,6 +716,13 @@ export default function AddTripPage() {
     return (
       <main>
         <SiteHeader />
+        <div className={styles.mobileProcessBar} aria-label="Nawigacja planera">
+          <button type="button" className={styles.mobileProcessBack} onClick={() => leavePlanner()}>
+            <ArrowLeft size={15}/> Wstecz
+          </button>
+          <span className={styles.mobileStepLabel}>Dodaj wyjazd</span>
+          <span className={styles.mobileFreeBadge}>0 zł</span>
+        </div>
         <section className={"shell add-trip-page " + styles.confirmPage}>
           <form className={styles.confirmCard} onSubmit={submit}>
             <div className={styles.confirmMedia}>
@@ -764,11 +798,15 @@ export default function AddTripPage() {
       <SiteHeader />
       <section className={"shell add-trip-page " + styles.page} id="trip-form-start">
         <div className={styles.topline}>
+          <button type="button" className={styles.mobileProcessBack} onClick={handlePlannerBack}>
+            <ArrowLeft size={15}/> Wstecz
+          </button>
           <div className={styles.progress} aria-label={"Krok " + step + " z 2"}>
             <span className={step === 1 ? styles.progressActive : styles.progressDone}><b>1</b> Podstawy</span>
             <span className={styles.progressLine} />
             <span className={step === 2 ? styles.progressActive : styles.progressIdle}><b>2</b> Co już masz</span>
           </div>
+          <span className={styles.mobileStepLabel}>Krok {step} z 2</span>
           <span className={styles.freeBadge}>Plan 0 zł</span>
         </div>
 
