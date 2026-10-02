@@ -299,8 +299,14 @@ export default function AccountPage() {
               </div>
 
               <form onSubmit={submitPasswordAuth} className="account-password-form">
-                <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="twoj@email.pl" autoComplete="email" required />
-                <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={authMode === "register" ? "Hasło — min. 8 znaków" : "Hasło"} autoComplete={authMode === "register" ? "new-password" : "current-password"} minLength={8} required />
+                <label className="account-auth-field">
+                  <span>E-mail</span>
+                  <input name="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="twoj@email.pl" autoComplete="email" required />
+                </label>
+                <label className="account-auth-field">
+                  <span>Hasło</span>
+                  <input name="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={authMode === "register" ? "Minimum 8 znaków" : "Wpisz hasło"} autoComplete={authMode === "register" ? "new-password" : "current-password"} minLength={8} required />
+                </label>
                 <button type="submit" disabled={busy}>{busy ? "Chwila…" : authMode === "register" ? "Utwórz konto" : "Zaloguj się"}</button>
               </form>
 
