@@ -3,6 +3,7 @@ import AdminOfferEditor from "@/components/AdminOfferEditor";
 import AdminOfferAudit from "@/components/AdminOfferAudit";
 import AdminPublishPanel from "@/components/AdminPublishPanel";
 import AdminAffiliateDashboard from "@/components/AdminAffiliateDashboard";
+import AdminAccessGate from "@/components/AdminAccessGate";
 
 export const metadata = {
   title: "Panel administracyjny | Tripownia.pl",
@@ -13,6 +14,7 @@ export const dynamic = "force-dynamic";
 
 export default function AdminPage() {
   return (
+    <AdminAccessGate>
     <main className="tripownia-admin-page">
       <section className="shell hub-page">
         <div className="kicker">TRIPOWNIA CONTROL CENTER</div>
@@ -33,5 +35,6 @@ export default function AdminPage() {
         <section className="admin-panel-section"><div className="admin-editor-head"><div><h2>Analityka afiliacyjna</h2><p>Kliknięcia w linki obsługiwane przez wewnętrzny tracking Tripowni.</p></div></div><AdminAffiliateDashboard/></section>
       </section>
     </main>
+    </AdminAccessGate>
   );
 }
