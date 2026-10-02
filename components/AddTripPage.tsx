@@ -135,6 +135,7 @@ type EditableTrip = {
 
 function originIata(value: string): string {
   const n = norm(value);
+  if (!n) return "";
   if (n.includes("krak")) return "KRK";
   if (n.includes("katow")) return "KTW";
   if (n.includes("gdansk")) return "GDN";
@@ -145,7 +146,7 @@ function originIata(value: string): string {
   if (n.includes("szczec")) return "SZZ";
   if (n.includes("lodz") || n.includes("łodz") || n.includes("łódź")) return "LCJ";
   if (n.includes("warsz") || n.includes("chopin") || n.includes("modlin")) return "WAW";
-  return "WAW";
+  return "";
 }
 
 function buildSuggestions(city: string, country: string, start: string, end: string, departure: string) {
