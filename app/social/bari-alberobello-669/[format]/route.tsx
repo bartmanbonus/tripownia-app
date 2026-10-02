@@ -3,7 +3,7 @@ import { ImageResponse } from "next/og";
 export const runtime = "edge";
 
 const PHOTO =
-  "https://images.unsplash.com/photo-1742665764542-aff4f4bc064e?auto=format&fit=crop&w=1800&q=86";
+  "https://images.unsplash.com/photo-1564863756233-e90e6d2f264b?auto=format&fit=crop&fm=jpg&q=82&w=2200";
 
 const navy = "#0b2453";
 const orange = "#ff5a16";
@@ -48,10 +48,17 @@ function FeedCard({ vertical = false, compact = false }: { vertical?: boolean; c
           <Details compact={compact} />
         </div>
         <div style={{ flex: 1 }} />
-        <div style={{ display: "flex", justifyContent: vertical ? "center" : "flex-start" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minWidth: compact ? 360 : vertical ? 560 : 450, padding: compact ? "22px 36px" : vertical ? "30px 46px" : "26px 42px", borderRadius: 999, background: orange, color: "#fff", fontFamily: "Arial, sans-serif", fontWeight: 800, fontSize: compact ? 28 : vertical ? 44 : 36 }}>
-            Sprawdź ofertę →
-          </div>
+        <div style={{
+          display: "flex",
+          alignItems: "flex-end",
+          width: vertical ? 700 : compact ? 510 : 600,
+          height: vertical ? 330 : compact ? 210 : 245,
+          borderRadius: 28,
+          overflow: "hidden",
+          boxShadow: "0 16px 45px rgba(11,36,83,.18)",
+          border: "5px solid rgba(255,255,255,.88)"
+        }}>
+          <img src={PHOTO} alt="" width={900} height={500} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         </div>
       </div>
     </div>
@@ -60,6 +67,36 @@ function FeedCard({ vertical = false, compact = false }: { vertical?: boolean; c
 
 export async function GET(_request: Request, { params }: { params: Promise<{ format: string }> }) {
   const { format } = await params;
+
+  if (format === "preview") {
+    return new ImageResponse(
+      <div style={{ display: "flex", width: "100%", height: "100%", background: cream, position: "relative", overflow: "hidden" }}>
+        <div style={{ display: "flex", flexDirection: "column", width: "58%", height: "100%", padding: "54px 56px 48px 62px", boxSizing: "border-box", zIndex: 2 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
+            <img src="https://tripownia.pl/tripownia-logo.webp" width="82" height="82" style={{ objectFit: "contain" }} />
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ fontFamily: "Arial, sans-serif", fontSize: 34, fontWeight: 900, color: navy }}>Tripownia.pl</div>
+              <div style={{ fontFamily: "Arial, sans-serif", fontSize: 18, color: "#665f58", marginTop: 5 }}>Znajdź wyjazd. Zaplanuj całą podróż.</div>
+            </div>
+          </div>
+          <div style={{ marginTop: 34, fontFamily: "Arial, sans-serif", fontSize: 23, letterSpacing: 7, fontWeight: 700, color: navy }}>CITY BREAK</div>
+          <div style={{ marginTop: 14, fontFamily: "Georgia, serif", fontSize: 66, lineHeight: .93, fontWeight: 700, color: navy }}>BARI +<br/>ALBEROBELLO</div>
+          <div style={{ display: "flex", alignItems: "baseline", marginTop: 22 }}>
+            <span style={{ fontFamily: "Georgia, serif", fontSize: 84, lineHeight: .85, fontWeight: 700, color: orange }}>669</span>
+            <span style={{ fontFamily: "Georgia, serif", fontSize: 34, fontWeight: 700, color: navy, marginLeft: 12 }}>zł/os.</span>
+          </div>
+          <div style={{ display: "flex", marginTop: 28, fontFamily: "Arial, sans-serif", fontSize: 21, fontWeight: 700, color: navy }}>
+            20–23 października 2026 · 2 noce · Warszawa
+          </div>
+        </div>
+        <div style={{ display: "flex", position: "absolute", right: 0, top: 0, width: "48%", height: "100%" }}>
+          <img src={PHOTO} alt="" width="760" height="630" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <div style={{ position: "absolute", inset: 0, display: "flex", background: "linear-gradient(90deg, #fffaf4 0%, rgba(255,250,244,.55) 15%, rgba(255,250,244,0) 42%)" }} />
+        </div>
+      </div>,
+      { width: 1200, height: 630 }
+    );
+  }
 
   if (format === "feed") {
     return new ImageResponse(<FeedCard />, { width: 1080, height: 1080 });
