@@ -14,6 +14,7 @@ import { ANALYTICS_CONSENT_EVENT, getAnalyticsConsent, trackEvent } from "@/lib/
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { readAccountSession } from "@/lib/accountAuth";
 import { customerDealVerdict, customerOfferReason } from "@/lib/customerOfferCopy";
+import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
 import {
   COMPARE_OFFER_SNAPSHOTS_KEY,
   FAVORITE_OFFER_SNAPSHOTS_KEY,
@@ -81,26 +82,6 @@ function readTrip() {
   }
 }
 
-function liveOfferLandingHref(offer: Offer, displayPrice: number, note: string) {
-  const live = offer as Offer & { startDateISO?: string; endDateISO?: string };
-  const params = new URLSearchParams({
-    offer: String(offer.id),
-    city: offer.city,
-    country: offer.country,
-    departure: offer.departure,
-    nights: String(offer.nights),
-    dates: offer.dates,
-    board: offer.board,
-    price: String(displayPrice),
-    target: offer.affiliateUrl,
-    note,
-  });
-  if (offer.hotel) params.set("hotel", offer.hotel);
-  if (offer.airportCode) params.set("airport", offer.airportCode);
-  if (live.startDateISO) params.set("start", live.startDateISO);
-  if (live.endDateISO) params.set("end", live.endDateISO);
-  return `/okazja?${params.toString()}`;
-}
 
 export default function OfferCard({ offer, priceHighlight, sourceSurface }: { offer: Offer; priceHighlight?: PriceHighlight; sourceSurface?: string }) {
   const [liked, setLiked] = useState(false);
@@ -290,7 +271,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
   if (override.hidden || publishedOverride.hidden) return null;
 
   const liveDetailHref = isLiveOffer && hasExternalAffiliateUrl
-    ? liveOfferLandingHref(offerSnapshot, displayPrice, customerReason)
+    ? liveOfferLandingHref(offerSnapshot, { price: displayPrice, note: customerReason })
     : "";
   // Karta zawsze otwiera najpierw Tripownię. Wyjście do partnera następuje dopiero
   // z ekranu szczegółów, gdzie zachowujemy kontekst, planner i pomiar kliknięcia.
@@ -301,7 +282,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
   const buyHref = cardHref;
   const detailHref = cardHref;
   const nightsLabel = offer.nights === 1 ? "noc" : offer.nights % 10 >= 2 && offer.nights % 10 <= 4 && !(offer.nights % 100 >= 12 && offer.nights % 100 <= 14) ? "noce" : "nocy";
-  const ctaText = isExpired ? "Zobacz podobne oferty" : "Zobacz ofertę";
+  const ctaText = isExpired ? "Zobacz podobne oferty" : isLiveOffer ? "Zobacz szczegóły" : "Zobacz ofertę";
   const trustText = isExpired
     ? "Oferta wygasła"
     : checkedAt
@@ -336,7 +317,6 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
       <div className="offer-body">
         <div className="offer-topline">
           <div><div className="eyebrow">{offer.flag} {offer.country}</div><h3>{offer.city}</h3></div>
-          <div className="score" title="Ocena oferty Tripowni, nie ocena hotelu"><strong>{offer.score}</strong><span>/10 · Tripownia</span></div>
         </div>
 
         {offer.hotel && <p className="offer-hotel-name">{offer.hotel}</p>}
