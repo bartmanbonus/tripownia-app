@@ -433,9 +433,22 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
   const bookingUrl = partners.booking.buildUrl(
     `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(config.bookingQuery)}`,
   );
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Tripownia", item: "https://tripownia.pl/" },
+      { "@type": "ListItem", position: 2, name: "Kierunki", item: "https://tripownia.pl/kierunki" },
+      { "@type": "ListItem", position: 3, name: config.eyebrow, item: `https://tripownia.pl${path}` },
+    ],
+  };
 
   return (
     <div className={styles.wrap}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c") }}
+      />
       <section
         className={styles.hero}
         style={{
@@ -518,7 +531,7 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
         </a>
         <Link href="/planer-podrozy">
           <span>🧭</span>
-          <div><strong>Zbuduj własny plan</strong><small>Lot, nocleg, atrakcje i dodatki w jednym miejscu</small></div>
+          <div><strong>Przygotuj podróż krok po kroku</strong><small>Lot, nocleg, atrakcje i dodatki w jednym miejscu</small></div>
           <b>Otwórz →</b>
         </Link>
       </section>

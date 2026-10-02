@@ -14,6 +14,7 @@ import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
 import TravelpayoutsFlightsWidget from "@/components/TravelpayoutsFlightsWidget";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
+import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type Props = {
   initialAirports?: string[];
@@ -162,6 +163,28 @@ function cleanRows(rows: any[], query: string) {
   return uniqueOfferVariants(cleaned);
 }
 
+function cheapestDirectionRows(rows: any[]) {
+  const ranked = rankSearchOffers(rows);
+  const best = new Map<string, any>();
+
+  for (const offer of ranked) {
+    const city = String(offer?.city || "").trim();
+    const country = String(offer?.country || "").trim();
+    const key = touristDestinationKey({ city, country }) || normalizeDestination(`${city}|${country}`);
+    if (!key) continue;
+
+    const current = best.get(key);
+    if (!current
+      || searchTier(offer) < searchTier(current)
+      || (searchTier(offer) === searchTier(current) && Number(offer?.price || Infinity) < Number(current?.price || Infinity))) {
+      best.set(key, offer);
+    }
+  }
+
+  return Array.from(best.values())
+    .sort((a, b) => searchTier(a) - searchTier(b) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
+}
+
 function isoMs(value: string) {
   if (!value) return Number.NaN;
   const ms = new Date(`${value}T00:00:00Z`).getTime();
@@ -289,6 +312,7 @@ export default function SearchHub({
   const [remoteDestinations, setRemoteDestinations] = useState<WorldDestination[]>([]);
   const [results, setResults] = useState<any[]>([]);
   const [resultLocation, setResultLocation] = useState("");
+  const [resultDestinationCount, setResultDestinationCount] = useState(0);
   const [resultSort, setResultSort] = useState<"recommended" | "price" | "rating" | "nights">("price");
   const [visibleCount, setVisibleCount] = useState(18);
   const [loading, setLoading] = useState(false);
@@ -365,12 +389,13 @@ export default function SearchHub({
     const filtered = resultLocation
       ? results.filter((offer) => String(offer?.city || offer?.country || "").trim() === resultLocation)
       : [...results];
+    const displayRows = resultDestinationCount === 1 ? filtered : cheapestDirectionRows(filtered);
 
-    if (resultSort === "price") return rankSearchOffers(filtered);
-    if (resultSort === "rating") return [...filtered].sort((a, b) => Number(b?.score || 0) - Number(a?.score || 0) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
-    if (resultSort === "nights") return [...filtered].sort((a, b) => Number(a?.nights || Infinity) - Number(b?.nights || Infinity) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
-    return filtered;
-  }, [results, resultLocation, resultSort]);
+    if (resultSort === "price") return rankSearchOffers(displayRows);
+    if (resultSort === "rating") return [...displayRows].sort((a, b) => Number(b?.score || 0) - Number(a?.score || 0) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
+    if (resultSort === "nights") return [...displayRows].sort((a, b) => Number(a?.nights || Infinity) - Number(b?.nights || Infinity) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
+    return displayRows;
+  }, [results, resultLocation, resultSort, resultDestinationCount]);
 
   useEffect(() => {
     setDestination("");
@@ -495,6 +520,7 @@ export default function SearchHub({
     setLoading(true);
     setExpanding(false);
     setSearched(true);
+    setResultDestinationCount(requested.length);
     setVisibleCount(18);
     setResultLocation("");
     setResultSort("price");
@@ -881,6 +907,7 @@ export default function SearchHub({
     setSearched(false);
     setResults([]);
     setResultLocation("");
+    setResultDestinationCount(0);
     setVisibleCount(18);
     setNotice("");
   }
@@ -935,6 +962,7 @@ export default function SearchHub({
     setFlightSearchMode("flex");
     setResults([]);
     setResultLocation("");
+    setResultDestinationCount(0);
     setVisibleCount(18);
     setNotice("");
     setSearched(false);
@@ -981,21 +1009,25 @@ export default function SearchHub({
         : "Bez ograniczenia daty";
 
   const quickPicks: Array<[string, string, SearchOverrides]> = [
-    ["Rzym, Włochy", "Rzym na city break", { duration: "3-4", budget: "1500", tab: "City break" }],
-    ["Teneryfa, Hiszpania", "Ciepło na Teneryfie", { duration: "5-7", budget: "3000", tab: "Wakacje" }],
-    ["Djerba, Tunezja", "All Inclusive na Djerbie", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Wakacje" }],
-    ["Mediolan, Włochy", "Mediolan / Bergamo", { duration: "3-4", budget: "1500", weekendOnly: false, tab: "City break" }],
-    ["Zanzibar, Tanzania", "Egzotyka: Zanzibar", { duration: "11-14", budget: "7500", tab: "Wakacje" }],
+    ["Rzym, Włochy", "Rzym na city break", { duration: "3-4", budget: "1500", tab: "Lot + hotel" }],
+    ["Teneryfa, Hiszpania", "Ciepło na Teneryfie", { duration: "5-7", budget: "3000", tab: "Lot + hotel" }],
+    ["Djerba, Tunezja", "All Inclusive na Djerbie", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Lot + hotel" }],
+    ["Mediolan, Włochy", "Mediolan / Bergamo", { duration: "3-4", budget: "1500", weekendOnly: false, tab: "Lot + hotel" }],
+    ["Zanzibar, Tanzania", "Egzotyka: Zanzibar", { duration: "11-14", budget: "7500", tab: "Lot + hotel" }],
   ];
+  const simpleHomePackage = !embedded && activeTab !== "Loty" && activeTab !== "Hotele";
+  const visibleTabs = embedded
+    ? ["Loty", "Hotele", "All Inclusive", "City break", "Lot + hotel"]
+    : ["Lot + hotel", "Loty", "Hotele"];
 
   return (
     <section className={embedded ? "search-v3-section search-v3-embedded" : "section shell search-v3-section"} id={embedded ? undefined : "wyszukiwarka"}>
-      <div className="search-v3">
+      <div className={`search-v3${simpleHomePackage ? " search-v3-simple" : ""}`}>
         <div className="search-v3-head">
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
             {!embedded && <h2>{activeTab === "Loty" ? "Znajdź najlepszy lot" : "Gdzie chcesz lecieć?"}</h2>}
-            {!embedded && <p>{activeTab === "Loty" ? "Wpisz dowolny kierunek, wybierz lotnisko, daty i podróżnych. Porównanie zaczynasz w Tripowni." : "Wybierz kierunki i lotniska. Zostaw puste, jeśli chcesz szukać wszędzie."}</p>}
+            {!embedded && <p>{activeTab === "Loty" ? "Wpisz kierunek, wybierz lotnisko i daty. Porównanie zaczynasz w Tripowni." : activeTab === "Hotele" ? "Wpisz kierunek i termin pobytu." : "Wybierz dokąd, skąd i kiedy. Możesz też zostawić pola puste — najtańsze kierunki pokażemy jako pierwsze."}</p>}
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
@@ -1029,7 +1061,7 @@ export default function SearchHub({
         )}
 
         <div className="search-v3-tabs" role="group" aria-label="Rodzaj podróży">
-          {["Loty", "Hotele", "All Inclusive", "City break", "Lot + hotel"].map((tab) => (
+          {visibleTabs.map((tab) => (
             <button key={tab} type="button" aria-pressed={activeTab === tab} className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
@@ -1075,7 +1107,7 @@ export default function SearchHub({
         ) : (
         <form className={`search-v3-form${activeTab === "Hotele" ? " is-hotels" : ""}`} onSubmit={submitSearch}>
           <div className={`search-v3-field search-v3-destination${suggestionsOpen ? " is-open" : ""}`} ref={destinationRef}>
-            <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd? <small>{activeTab === "Hotele" ? "miasto lub kraj" : "wiele kierunków"}</small></label>
+            <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd? {!simpleHomePackage && <small>{activeTab === "Hotele" ? "miasto lub kraj" : "wiele kierunków"}</small>}</label>
             {selectedDestinations.length > 0 && (
               <div className="search-v3-selected">
                 {selectedDestinations.map((item) => <button type="button" key={item} onClick={() => setSelectedDestinations((current) => current.filter((x) => x !== item))}>{item}<X size={12}/></button>)}
@@ -1145,7 +1177,7 @@ export default function SearchHub({
 
           {activeTab !== "Hotele" && (
           <div className={`search-v3-field search-v3-departure search-v3-multiselect${departureOpen ? " is-open" : ""}`} ref={departureRef}>
-            <span><Plane size={15}/> Skąd? <small>wiele lotnisk</small></span>
+            <span><Plane size={15}/> Skąd? {!simpleHomePackage && <small>wiele lotnisk</small>}</span>
             <button type="button" className="search-v3-multi-trigger" onClick={toggleDeparturePanel} aria-expanded={departureOpen}>
               <strong>{departures.length ? (departures.length === 1 ? airportOptions.find((a:any) => a.code === departures[0])?.label || departures[0] : `${departures.length} lotniska`) : "Wszystkie lotniska"}</strong>
               <ChevronDown size={15}/>
@@ -1326,7 +1358,7 @@ export default function SearchHub({
             )}
           </div>
 
-          {activeTab === "Hotele" ? null : activeTab === "Loty" ? (
+          {simpleHomePackage ? null : activeTab === "Hotele" ? null : activeTab === "Loty" ? (
             <label className="search-v3-field search-v3-duration">
               <span>Podróżni</span>
               <select value={flightAdults} onChange={(event) => setFlightAdults(Number(event.target.value))}>
@@ -1353,7 +1385,7 @@ export default function SearchHub({
             </label>
           )}
 
-          {activeTab === "Hotele" ? null : activeTab === "Loty" ? (
+          {simpleHomePackage ? null : activeTab === "Hotele" ? null : activeTab === "Loty" ? (
             <label className="search-v3-field search-v3-budget">
               <span>Klasa</span>
               <select value={flightCabin} onChange={(event) => setFlightCabin(event.target.value)}>
@@ -1401,7 +1433,7 @@ export default function SearchHub({
             </div>
           )}
 
-          {activeTab !== "Hotele" && <div className="search-v3-options-row">
+          {!simpleHomePackage && activeTab !== "Hotele" && <div className="search-v3-options-row">
             {activeTab === "Loty" ? (
               <div className="search-v3-flight-options" role="group" aria-label="Typ podróży">
                 <button type="button" className={flightTripType === "round" ? "active" : ""} onClick={() => { setFlightTripType("round"); if (dateMode === "exact" && dateFrom) setDateMode("range"); }}>W obie strony</button>
@@ -1439,7 +1471,7 @@ export default function SearchHub({
               <span>{departures.length ? departures.length === 1 ? "1 wybrane lotnisko" : `${departures.length} wybrane lotniska` : "Wszystkie lotniska"} · {dateSummary} · {budgetSummary}</span>
             </div>
             <div className="search-v3-results-head" role="status" aria-live="polite">
-              <div><small>WYNIKI</small><h3>{expanding ? (results.length ? `Mamy ${results.length} opcji — szukamy jeszcze szerzej…` : "Szukamy szerzej…") : loading ? "Sprawdzamy aktualne oferty…" : results.length ? `Znalezione oferty: ${results.length}` : "Brak dokładnego dopasowania"}</h3></div>
+              <div><small>WYNIKI</small><h3>{expanding ? (visibleResults.length ? `Mamy ${visibleResults.length} kierunków — szukamy jeszcze szerzej…` : "Szukamy szerzej…") : loading ? "Sprawdzamy aktualne oferty…" : visibleResults.length ? (resultDestinationCount === 1 ? `Znalezione oferty: ${visibleResults.length}` : `Najtańsze kierunki: ${visibleResults.length}`) : "Brak dokładnego dopasowania"}</h3></div>
               {notice && <p>{notice}</p>}
             </div>
 
@@ -1451,7 +1483,7 @@ export default function SearchHub({
                   <button type="button" className={resultSort === "rating" ? "active" : ""} onClick={() => { setResultSort("rating"); setVisibleCount(18); }}>Najwyżej oceniane</button>
                   <button type="button" className={resultSort === "nights" ? "active" : ""} onClick={() => { setResultSort("nights"); setVisibleCount(18); }}>Najkrótsze</button>
                 </div>
-                {resultLocations.length > 1 && (
+                {embedded && resultLocations.length > 1 && (
                   <div className="search-v3-results-toolbar">
                     <div className="search-v3-result-filters" aria-label="Filtruj wyniki po miejscowości">
                       <span>Miejscowość</span>
