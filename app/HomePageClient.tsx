@@ -1,6 +1,6 @@
 "use client";
 
-import { isPromotableOffer } from "@/lib/offerValuePolicy";
+import { isHomepageDeal } from "@/lib/offerValuePolicy";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
@@ -524,7 +524,7 @@ export default function Home() {
   }, [dailyKey, liveRefreshTick]);
 
   const todaysOffers = useMemo(() =>
-    cheapestPerDirection(liveOffers.map(offerForDisplay).filter(isPromotableOffer))
+    cheapestPerDirection(liveOffers.map(offerForDisplay).filter(isHomepageDeal))
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity))
       .slice(0, 18),
     [liveOffers]
@@ -545,7 +545,7 @@ export default function Home() {
     const pool = [...liveOffers]
       .filter((offer) => !isOfferExpired(offer))
       .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
-      .map(offerForDisplay).filter(isPromotableOffer);
+      .map(offerForDisplay).filter(isHomepageDeal);
 
     const uniqueCheapest = cheapestPerDirection(pool)
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
@@ -587,7 +587,7 @@ export default function Home() {
   }, [budget, dailyKey]);
 
   const budgetCandidates = useMemo(() => {
-    const pool = (surpriseLive.length ? surpriseLive : liveOffers).filter(isPromotableOffer);
+    const pool = (surpriseLive.length ? surpriseLive : liveOffers).filter(isHomepageDeal);
     const exotic = /zanzibar|dominikan|malediw|kenia|meksyk|tajland|kuba|dubaj|bali|wietnam|japon|nowy jork|mauritius|seszel/i;
     const mid = /marsa alam|teneryfa|fuerteventura|marrakesz|djerba|hurghada|oman|wyspy zielonego przyladka/i;
     const low = /malta|sycylia|alicante|pafos|stambul|marrakesz|bergamo|porto/i;
