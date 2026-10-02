@@ -708,7 +708,7 @@ export default function Home() {
             <h1>Znajdź wyjazd.<br/><span>Zaplanuj całą podróż za 0 zł.</span></h1>
             <p>Znajdź wyjazd, a potem ogarnij całą podróż w jednym miejscu.</p>
             <div className="dream-hero-actions">
-              <Link className="dream-primary" href="#wyszukiwarka" onClick={() => trackEvent("home_primary_cta", { action: "search" })}>Znajdź wyjazd <ArrowRight size={18}/></Link>
+              <Link className="dream-primary" href="#wyszukiwarka" onClick={() => trackEvent("home_primary_cta", { action: "search" })}>Znajdź wyjazd</Link>
               <Link className="dream-secondary" href="/dodaj-podroz?mode=owned" onClick={() => trackEvent("home_primary_cta", { action: "add_owned_trip" })}>Dodaj kupiony wyjazd</Link>
             </div>
             <div className="dream-category-row" aria-label="Co znajdziesz w Tripowni">
