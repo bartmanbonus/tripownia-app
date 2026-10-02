@@ -593,10 +593,19 @@ export default function Home() {
       .filter((offer) => Number(offer.nights || 0) >= 5 && sunPattern.test(`${offer.city} ${offer.country} ${(offer.category || []).join(" ")}`))
       .slice(0, 10);
 
+    const cityKeys = new Set(city.map(destinationGroupKey));
+    const sunCandidates = (sun.length ? sun : uniqueCheapest.filter((offer) => Number(offer.nights || 0) >= 5))
+      .filter((offer) => !cityKeys.has(destinationGroupKey(offer)))
+      .slice(0, 10);
+    const usedKeys = new Set([...cityKeys, ...sunCandidates.map(destinationGroupKey)]);
+    const cheapest = uniqueCheapest
+      .filter((offer) => !usedKeys.has(destinationGroupKey(offer)))
+      .slice(0, 10);
+
     return {
       city,
-      sun: sun.length ? sun : uniqueCheapest.filter((offer) => Number(offer.nights || 0) >= 5).slice(0, 10),
-      cheapest: uniqueCheapest.slice(0, 10),
+      sun: sunCandidates.length ? sunCandidates : uniqueCheapest.filter((offer) => Number(offer.nights || 0) >= 5).slice(0, 10),
+      cheapest: cheapest.length ? cheapest : uniqueCheapest.slice(0, 10),
     };
   }, [homepageOfferPool]);
 
