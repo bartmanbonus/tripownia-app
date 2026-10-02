@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Bell, CalendarRange, Search } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import type { Offer } from "@/lib/offers";
+import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type SeasonalOffer = Offer & { startDateISO?: string; endDateISO?: string };
 type Props = { query: string; departure?: string; minNights?: number; maxNights?: number; maxPrice?: number; startDate?: string; endDate?: string };
@@ -74,6 +75,7 @@ function uniqByProduct(items: SeasonalOffer[]) {
 }
 
 export default function SeoEximOffers({ query, departure, minNights, maxNights, maxPrice, startDate, endDate }: Props) {
+  const cityBreakOverview = normalize(query) === "city break";
   const [offers, setOffers] = useState<SeasonalOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [relaxed, setRelaxed] = useState(false);
@@ -91,9 +93,16 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     async function fetchFor(term: string, from?: string) {
       const normalizedTerm = normalize(term);
 
-      if (GENERIC_TERMS.has(normalizedTerm) && from) {
+      if (GENERIC_TERMS.has(normalizedTerm) && (from || cityBreakOverview)) {
         if (normalizedTerm === "city break") {
-          const params = new URLSearchParams({ mode: "citybreak", provider: "exim", from });
+          const params = new URLSearchParams({ mode: "citybreak", provider: "exim", view: "destinations", strict: "1" });
+          if (from) params.set("from", from);
+          if (maxPrice) params.set("maxPrice", String(maxPrice));
+          if (minNights) params.set("minNights", String(minNights));
+          if (maxNights) params.set("maxNights", String(maxNights));
+          if (startDate) params.set("start", startDate);
+          if (endDate) params.set("end", endDate);
+          if (startDate || endDate) params.set("dateKind", "departure");
           const response = await fetch(`/api/today-offers?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
           if (!response.ok) return [] as SeasonalOffer[];
           const data = (await response.json()) as ApiResponse;
@@ -102,7 +111,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
             : [];
         }
 
-        const params = new URLSearchParams({ from, strict: "1" });
+        const params = new URLSearchParams({ from: from || "", strict: "1" });
         if (normalizedTerm === "all inclusive") params.set("type", "allinclusive");
         const response = await fetch(`/api/deals?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
         if (!response.ok) return [] as SeasonalOffer[];
@@ -148,18 +157,24 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
         for (const term of queries) {
           gathered.push(...(await fetchFor(term, from || undefined)));
           if (strictFilter(uniqByProduct(gathered)).length >= 6) break;
-          if (GENERIC_TERMS.has(normalize(query)) && from) break;
+          if (cityBreakOverview || (GENERIC_TERMS.has(normalize(query)) && from)) break;
         }
 
         const unique = uniqByProduct(gathered).sort((a, b) => a.price - b.price);
         const strict = strictFilter(unique);
         if (cancelled) return;
         if (strict.length > 0) {
-          setOffers(strict.slice(0, 6));
+          const seen = new Set<string>();
+          setOffers(cityBreakOverview ? strict.filter(offer => {
+            const key = touristDestinationKey(offer);
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          }) : strict.slice(0, 6));
           setRelaxed(false);
         } else {
           const seasonal = seasonalScope(unique);
-          if (seasonal.length > 0) {
+          if (seasonal.length > 0 && !cityBreakOverview) {
             setOffers(seasonal.slice(0, 6));
             setRelaxed(true);
           } else {
@@ -177,7 +192,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     void load();
     const timer = window.setInterval(load, 10 * 60 * 1000);
     return () => { cancelled = true; window.clearInterval(timer); };
-  }, [queries, departure, minNights, maxNights, maxPrice, startDate, endDate]);
+  }, [queries, departure, minNights, maxNights, maxPrice, startDate, endDate, cityBreakOverview]);
 
   if (loading) {
     return (
@@ -244,6 +259,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   }
 
   return <>
+    {cityBreakOverview && <p className="seo-live-note">{offers.length} różnych kierunków · od najniższej ceny · najtańsza dostępna oferta dla każdego kierunku</p>}
     {relaxed && <div className="seo-live-note">Lotnisko i główny typ wyjazdu się zgadzają. Pokazujemy najbliższe aktualne propozycje — cena lub długość pobytu może różnić się od dodatkowego filtra strony.</div>}
     <div className="cards-grid seo-live-offers-grid">{offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} />)}</div>
   </>;
