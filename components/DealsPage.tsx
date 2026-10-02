@@ -1,6 +1,5 @@
 "use client";
 
-import { isPromotableOffer } from "@/lib/offerValuePolicy";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, RefreshCw, Search, SlidersHorizontal, Sparkles } from "lucide-react";
@@ -8,10 +7,9 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
 import type { Offer } from "@/lib/offers";
-import { isOfferExpired } from "@/lib/offerRuntime";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
-import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { useLiveOffers } from "@/lib/useLiveOffers";
+import { cheapestPerDestination as selectCheapestPerDestination } from "@/lib/offerEngine";
 import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
 import { trackEvent } from "@/lib/analytics";
 
@@ -56,25 +54,10 @@ function buildYearOptions(count = 3) {
 }
 
 function cheapestUnique(rows: DealsOffer[], liveOnly = true) {
-  const best = new Map<string, DealsOffer>();
-
-  rows
-    .filter((offer) => offer && (
-      liveOnly
-        ? isPromotableOffer(offer)
-        : Number.isFinite(Number(offer.price)) && Number(offer.price) > 0 && Boolean(offer.affiliateUrl)
-    ))
-    .filter((offer) => !isOfferExpired(offer))
-    .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
-    .forEach((offer) => {
-      const key = touristDestinationKey(offer);
-      const current = best.get(key);
-      if (!current || Number(offer.price) < Number(current.price)) best.set(key, offer);
-    });
-
-  return Array.from(best.values())
-    .sort((a, b) => Number(a.price) - Number(b.price))
-    .slice(0, 20);
+  return selectCheapestPerDestination(
+    rows.filter((offer) => isTravelDestinationAllowed(offer.city, offer.country)),
+    { mode: liveOnly ? "live" : "fallback", limit: 20 }
+  );
 }
 
 function buildPoolHighlights(rows: DealsOffer[]) {
