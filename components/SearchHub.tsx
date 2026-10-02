@@ -10,6 +10,8 @@ import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type Worl
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
 import { rankSearchOffers, searchTier } from "@/lib/searchOfferRanking";
 import { partners } from "@/lib/partners";
+import { eskySearchUrl } from "@/lib/eskySearch";
+import { isAffordableShortTrip } from "@/lib/offerValuePolicy";
 import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
 import TravelpayoutsFlightsWidget from "@/components/TravelpayoutsFlightsWidget";
 import { trackEvent } from "@/lib/analytics";
@@ -158,6 +160,7 @@ function cleanRows(rows: any[], query: string) {
   const cleaned = rows
     .filter((o: any) => ["exim", "tui", "esky"].includes(String(o.partner || "").toLowerCase()))
     .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
+    .filter(isAffordableShortTrip)
     .sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
   return uniqueOfferVariants(cleaned);
@@ -313,6 +316,8 @@ export default function SearchHub({
   const [results, setResults] = useState<any[]>([]);
   const [resultLocation, setResultLocation] = useState("");
   const [resultDestinationCount, setResultDestinationCount] = useState(0);
+  const [resultView, setResultView] = useState<"all" | "destinations">("all");
+  const [packageSearchLink, setPackageSearchLink] = useState("");
   const [resultSort, setResultSort] = useState<"recommended" | "price" | "rating" | "nights">("price");
   const [visibleCount, setVisibleCount] = useState(18);
   const [loading, setLoading] = useState(false);
@@ -323,6 +328,8 @@ export default function SearchHub({
   const departureRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLDivElement>(null);
   const searchRunRef = useRef(0);
+  const searchAbortRef = useRef<AbortController | null>(null);
+  useEffect(() => () => { searchRunRef.current += 1; searchAbortRef.current?.abort(); }, []);
 
   const filteredAirports = useMemo(() => {
     const query = departureQuery.trim().toLocaleLowerCase("pl-PL");
@@ -389,13 +396,13 @@ export default function SearchHub({
     const filtered = resultLocation
       ? results.filter((offer) => String(offer?.city || offer?.country || "").trim() === resultLocation)
       : [...results];
-    const displayRows = filtered;
+    const displayRows = resultView === "destinations" ? cheapestDirectionRows(filtered) : filtered;
 
     if (resultSort === "price") return rankSearchOffers(displayRows);
     if (resultSort === "rating") return [...displayRows].sort((a, b) => Number(b?.score || 0) - Number(a?.score || 0) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
     if (resultSort === "nights") return [...displayRows].sort((a, b) => Number(a?.nights || Infinity) - Number(b?.nights || Infinity) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
     return displayRows;
-  }, [results, resultLocation, resultSort, resultDestinationCount]);
+  }, [results, resultLocation, resultSort, resultView]);
 
   useEffect(() => {
     setDestination("");
@@ -473,6 +480,9 @@ export default function SearchHub({
 
   async function runSearch(destinationOverride?: string, overrides: SearchOverrides = {}) {
     const runId = ++searchRunRef.current;
+    searchAbortRef.current?.abort();
+    const controller = new AbortController();
+    searchAbortRef.current = controller;
     const typed = (destinationOverride ?? destination).trim();
     const typedDestinations = typed
       ? typed.split(/[;\n]+/).map((item) => item.trim()).filter(Boolean)
@@ -486,6 +496,9 @@ export default function SearchHub({
     const blockedOnly = requestedRaw.length > 0 && requested.length === 0;
 
     if (blockedOnly) {
+      setLoading(false);
+      setExpanding(false);
+      setPackageSearchLink("");
       setSearched(true);
       setResults([]);
       setNotice("Wybrane kierunki są obecnie wyłączone z rekomendacji ze względów bezpieczeństwa.");
@@ -512,15 +525,18 @@ export default function SearchHub({
       to: overrides.dateTo ?? dateTo,
     };
     const apiDates = apiDepartureWindow(datePreference);
+    setPackageSearchLink(eskySearchUrl({ query: requested[0], departure: departures.join(","), cityBreak: activeMode === "City break",
+      nights: activeDuration, start: apiDates.start, end: apiDates.end }));
     // One request can cover several selected airports because the API accepts
     // a comma-separated airport list. This avoids repeating the same feed scan.
-    const origins = departures.length ? [departures.join(",")] : [""];
     const targets = requested.length ? requested : [""];
 
     setLoading(true);
     setExpanding(false);
     setSearched(true);
     setResultDestinationCount(requested.length);
+    setResultView(activeMode === "City break" && !requested.length ? "destinations" : "all");
+    setResults([]);
     setVisibleCount(18);
     setResultLocation("");
     setResultSort("price");
@@ -529,190 +545,81 @@ export default function SearchHub({
     setDateOpen(false);
     setNotice("");
 
-    const fetchBatch = async ({
-      includeFilters = true,
-      includeDates = true,
-      includeDepartures = true,
-      rescue,
-    }: {
-      includeFilters?: boolean;
-      includeDates?: boolean;
-      includeDepartures?: boolean;
-      rescue?: "1" | "full";
-    } = {}) => {
-      const batchOrigins = includeDepartures ? origins : [""];
-      const combinations = targets.flatMap((target) => batchOrigins.map((origin) => ({ target, origin }))).slice(0, 20);
-      const payloads = await Promise.all(combinations.map(async ({ target, origin }) => {
-        const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search" });
-        if (activeMode === "All Inclusive") params.set("board", "allinclusive");
-        if (activeMode === "Last minute") params.set("lastMinute", "1");
-        if (target) params.set("q", target);
-        else params.set("broad", "1");
-        if (rescue) params.set("rescue", rescue);
-        if (origin) params.set("from", origin);
-        params.set("strict", "1");
-        if (activeMinBudget > 0) params.set("minPrice", String(activeMinBudget));
-        if (activeMaxBudget > 0) params.set("maxPrice", String(activeMaxBudget));
-        if (includeDates) {
-          if (apiDates.start) params.set("start", apiDates.start);
-          if (apiDates.end) params.set("end", apiDates.end);
-          if (apiDates.start || apiDates.end) params.set("dateKind", "departure");
-        }
-        if (includeFilters) {
-          if (activeDuration !== "all") params.set("nights", activeDuration);
-          if (activeWeekend) params.set("weekend", "1");
-          if (activeBoard === "all inclusive") params.set("board", "allinclusive");
-          else if (activeBoard === "ultra all inclusive") params.set("board", "ultraallinclusive");
-          else if (activeBoard === "śniadanie") params.set("board", "breakfast");
-          else if (activeBoard === "half board") params.set("board", "halfboard");
-          else if (activeBoard === "full board") params.set("board", "fullboard");
-          else if (activeBoard === "bez wyżywienia") params.set("board", "roomonly");
-        }
-        try {
-          const response = await fetch(`/api/today-offers?${params.toString()}`, { cache: "no-store" });
-          const data = await response.json();
-          return response.ok && data?.ok !== false ? data : null;
-        } catch {
-          return null;
-        }
-      }));
-      return {
-        failed: payloads.filter(data => !data).length,
-        offers: payloads.flatMap((data) => Array.isArray(data?.offers) ? data.offers : []),
-        notice: payloads.map((data) => String(data?.notice || "")).find(Boolean) || "",
-      };
+    let rows: any[] = [];
+    let failedSources = 0;
+    const fetchBatch = async (tier = 0, relaxDates = false, relaxFilters = false) => {
+      const jobs = targets.flatMap(target => ["esky", "exim", "tui"].map(provider => ({ target, provider })));
+      const boardCodes: Record<string, string> = { "all inclusive": "allinclusive", "ultra all inclusive": "ultraallinclusive", "śniadanie": "breakfast", "half board": "halfboard", "full board": "fullboard", "bez wyżywienia": "roomonly" };
+      const alternative = [relaxDates ? "Inny termin" : "", relaxFilters ? "inna długość pobytu lub wyżywienie" : ""].filter(Boolean).join(" · ");
+      for (let index = 0; index < jobs.length; index += 6) {
+        if (controller.signal.aborted) return;
+        await Promise.all(jobs.slice(index, index + 6).map(async ({ target, provider }) => {
+          const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search", provider, strict: "1" });
+          if (target) params.set("q", target); else params.set("broad", "1");
+          if (departures.length) params.set("from", departures.join(","));
+          if (activeMinBudget > 0) params.set("minPrice", String(activeMinBudget));
+          if (activeMaxBudget > 0) params.set("maxPrice", String(activeMaxBudget));
+          if (activeMode === "All Inclusive") params.set("board", "allinclusive");
+          if (activeMode === "Last minute") params.set("lastMinute", "1");
+          if (!relaxDates) {
+            if (apiDates.start) params.set("start", apiDates.start);
+            if (apiDates.end) params.set("end", apiDates.end);
+            if (apiDates.start || apiDates.end) params.set("dateKind", "departure");
+          }
+          if (!relaxFilters) {
+            if (activeDuration !== "all") params.set("nights", activeDuration);
+            if (activeWeekend) params.set("weekend", "1");
+            if (boardCodes[activeBoard]) params.set("board", boardCodes[activeBoard]);
+          }
+          const timeout = new AbortController();
+          const abort = () => timeout.abort();
+          controller.signal.addEventListener("abort", abort, { once: true });
+          const timer = window.setTimeout(abort, 55000);
+          try {
+            const response = await fetch(`/api/today-offers?${params}`, { cache: "no-store", signal: timeout.signal });
+            const data = await response.json();
+            if (!response.ok || data?.ok === false) throw new Error("source_unavailable");
+            if (runId !== searchRunRef.current) return;
+            if (data.partial) failedSources++;
+            const found = cleanRows(Array.isArray(data.offers) ? data.offers : [], target)
+              .map(offer => tier ? { ...offer, searchTier: tier, searchAlternative: alternative } : offer);
+            rows = rankSearchOffers([...rows, ...found]);
+            setResults(rows);
+            if (rows.length) { setLoading(false); setExpanding(true); }
+          } catch {
+            if (!controller.signal.aborted) failedSources++;
+          } finally {
+            window.clearTimeout(timer);
+            controller.signal.removeEventListener("abort", abort);
+          }
+        }));
+      }
     };
 
     try {
-      const exact = await fetchBatch();
+      await fetchBatch();
       if (runId !== searchRunRef.current) return;
-
-      const perDirection = 400;
-      let rows = diversifyOfferVariants(
-        cleanRows(exact.offers, requested.length ? "multi" : ""),
-        Number.MAX_SAFE_INTEGER,
-        perDirection
-      );
-      let datePass = prioritizeByDate(rows, datePreference);
-      rows = datePass.rows;
       const exactCount = rows.length;
-      setNotice(exact.notice);
-      setResults(rows);
       setLoading(false);
-
-      let relaxedFilters = false;
-      let expandedScope = false;
-      let usedRescue = false;
-
-      // Keep the chosen date and airports first, but relax secondary filters
-      // so one strict setting does not collapse the whole result set.
-      if (rows.length < 24 && (activeDuration !== "all" || activeWeekend || activeBoard !== "all")) {
+      const secondaryFilters = activeDuration !== "all" || activeWeekend || activeBoard !== "all";
+      const hasDates = Boolean(apiDates.start || apiDates.end);
+      // Alternatives keep the direction, departure airports and price ceiling.
+      // Different dates/board/duration are labelled on every affected card.
+      if (rows.length < 12 && (secondaryFilters || hasDates)) {
         setExpanding(true);
-        const relaxed = await fetchBatch({ includeFilters: false });
+        setNotice("Sprawdzamy też oznaczone alternatywy z tych samych lotnisk i w Twoim budżecie.");
+        await fetchBatch(1, hasDates, secondaryFilters);
         if (runId !== searchRunRef.current) return;
-        const previousCount = rows.length;
-        const relaxedRows = cleanRows(relaxed.offers, requested.length ? "multi" : "").map(offer => ({ ...offer, searchTier: 1, searchAlternative: "Inne wyżywienie lub długość pobytu" }));
-        rows = diversifyOfferVariants([...rows, ...relaxedRows], Number.MAX_SAFE_INTEGER, perDirection);
-        relaxedFilters = rows.length > previousCount;
-        datePass = prioritizeByDate(rows, datePreference);
-        rows = datePass.rows;
-        setResults(rows);
       }
-
-      // If "Gdziekolwiek" is still sparse, fan out across concrete destinations.
-      // Individual destination feeds are much more reliable than one giant broad feed.
-      if (rows.length < 48) {
-        setExpanding(true);
-        const previousCount = rows.length;
-
-        if (!requested.length) {
-          const rescued = await fetchBatch({
-            includeFilters: false,
-            includeDates: true,
-            includeDepartures: false,
-            rescue: "1",
-          });
-          if (runId !== searchRunRef.current) return;
-
-          const rescuedRows = prioritizeByDate(
-            cleanRows(rescued.offers, "").map(offer => ({ ...offer, searchTier: 2, searchAlternative: "Alternatywa — sprawdź termin, wylot i wyżywienie" })),
-            datePreference
-          ).rows;
-
-          rows = diversifyOfferVariants([...rows, ...rescuedRows], Number.MAX_SAFE_INTEGER, 12);
-          usedRescue = rescuedRows.length > 0;
-        } else {
-          const broader = await fetchBatch({
-            includeFilters: false,
-            includeDates: false,
-            includeDepartures: false,
-          });
-          if (runId !== searchRunRef.current) return;
-          const broaderRows = prioritizeByDate(
-            cleanRows(broader.offers, "multi").map(offer => ({ ...offer, searchTier: 2, searchAlternative: "Alternatywa — sprawdź termin, wylot i wyżywienie" })),
-            datePreference
-          ).rows;
-          rows = diversifyOfferVariants([...rows, ...broaderRows], Number.MAX_SAFE_INTEGER, perDirection);
-        }
-
-        expandedScope = rows.length > previousCount;
-        setResults(rows);
-      }
-
-      if (!rows.length && activeMode === "City break" && !requested.length) {
-        const broadParams = new URLSearchParams({ mode: "citybreak", broad: "1" });
-        const broadResponse = await fetch(`/api/today-offers?${broadParams.toString()}`, { cache: "no-store" });
-        const broadData = await broadResponse.json();
-        if (runId !== searchRunRef.current) return;
-        if (broadResponse.ok && broadData?.ok !== false) {
-          rows = diversifyOfferVariants(
-            cleanRows(Array.isArray(broadData?.offers) ? broadData.offers : [], "").filter(offer => (!activeMinBudget || offer.price >= activeMinBudget) && (!activeMaxBudget || offer.price <= activeMaxBudget)).map(offer => ({ ...offer, searchTier: 2, searchAlternative: "Alternatywa — sprawdź termin, wylot i wyżywienie" })),
-            Number.MAX_SAFE_INTEGER,
-            10
-          );
-          expandedScope = rows.length > 0;
-          datePass = prioritizeByDate(rows, datePreference);
-          rows = datePass.rows;
-          setResults(rows);
-        }
-      }
-
-      const bergamoMapped = requestedRaw.some((item) => /\bbergamo\b/i.test(item));
-      const scope = [
-        requestedRaw.length ? `${requestedRaw.length} ${requestedRaw.length === 1 ? "kierunek" : "kierunki"}` : "gdziekolwiek",
-        departures.length ? `${departures.length} ${departures.length === 1 ? "lotnisko" : "lotniska"}` : "dowolne lotnisko",
-      ].join(" · ");
-
-      if (rows.length) {
-        const prefix = bergamoMapped ? "Bergamo wyszukujemy jako Mediolan, żeby pokazać realne oferty dla tego obszaru. " : "";
-        const expansionNotice = usedRescue
-          ? "Dodatkowo pokazujemy oznaczone alternatywy z innych terminów lub lotnisk. Sprawdź daty i wylot na karcie."
-          : expandedScope
-            ? `Dokładnych dopasowań: ${exactCount}. Dalej pokazujemy najbliższe dostępne alternatywy, żeby nie kończyć wyszukiwania na kilku kartach.`
-            : "";
-        setNotice([
-          prefix,
-          `Zakres: ${scope}. Najtańsze najpierw w każdej grupie dopasowania.`,
-          exact.notice,
-          exact.failed ? "Część wyszukiwania nie powiodła się. Wyniki mogą być niepełne." : "",
-          relaxedFilters ? "Część propozycji ma inną długość pobytu, wyżywienie lub nie obejmuje weekendu." : "",
-          expansionNotice,
-          !expandedScope && !usedRescue ? datePass.notice : "",
-        ].filter(Boolean).join(" "));
-      } else {
-        setNotice(exact.failed ? "Nie udało się pobrać części ofert. Spróbuj ponownie — to nie oznacza braku wyjazdów dla tych ustawień." : bergamoMapped
-          ? "Dla Bergamo szukaliśmy ofert jako Mediolan. Nie mamy teraz potwierdzonego pakietu — spróbuj Lot + hotel albo elastycznych parametrów."
-          : `Nie znaleźliśmy teraz potwierdzonych ofert dla ustawień: ${scope}. Poszerz jeden filtr albo wybierz gdziekolwiek.`);
-      }
-    } catch {
-      if (runId !== searchRunRef.current) return;
-      setResults([]);
-      setNotice("Nie udało się teraz pobrać aktualnych ofert. Spróbuj ponownie za chwilę albo wybierz szersze parametry.");
+      const alternatives = rows.length - exactCount;
+      setNotice([
+        rows.length ? "Ceny za osobę. Najtańsze najpierw w każdej grupie dopasowania." : "Nie mamy teraz potwierdzonego pakietu dla tych ustawień. Sprawdź dostępność bezpośrednio u partnera lub zmień termin.",
+        alternatives > 0 ? `Dokładnych dopasowań: ${exactCount}. Alternatywy (${alternatives}) są oznaczone na kartach.` : "",
+        failedSources ? "Część źródeł jest chwilowo niedostępna; lista może być niepełna." : "",
+        requestedRaw.some(item => /bergamo/i.test(item)) ? "Bergamo uwzględniamy razem z Mediolanem." : "",
+      ].filter(Boolean).join(" "));
     } finally {
-      if (runId === searchRunRef.current) {
-        setLoading(false);
-        setExpanding(false);
-      }
+      if (runId === searchRunRef.current) { setLoading(false); setExpanding(false); }
     }
   }
 
@@ -893,6 +800,9 @@ export default function SearchHub({
     }
 
     searchRunRef.current += 1;
+    searchAbortRef.current?.abort();
+    setLoading(false);
+    setExpanding(false);
     setSuggestionsOpen(false);
     setDepartureOpen(false);
     setDateOpen(false);
@@ -941,6 +851,7 @@ export default function SearchHub({
 
   function resetSearch() {
     searchRunRef.current += 1;
+    searchAbortRef.current?.abort();
     setDestination("");
     setSuggestionsOpen(false);
     setSelectedDestinations([]);
@@ -1009,16 +920,16 @@ export default function SearchHub({
         : "Bez ograniczenia daty";
 
   const quickPicks: Array<[string, string, SearchOverrides]> = [
-    ["Malta", "Malta do 1 000 zł", { duration: "3-4", budget: "1000", tab: "Lot + hotel" }],
-    ["Bergamo, Włochy", "Bergamo / Mediolan do 1 000 zł", { duration: "1-2", budget: "1000", tab: "Lot + hotel" }],
-    ["Praga, Czechy", "Praga na weekend", { duration: "1-2", budget: "1000", tab: "Lot + hotel" }],
-    ["Rzym, Włochy", "Rzym do 1 500 zł", { duration: "3-4", budget: "1500", tab: "Lot + hotel" }],
+    ["Malta", "Malta do 1 000 zł", { duration: "3-4", budget: "1000", tab: "City break" }],
+    ["Bergamo, Włochy", "Bergamo / Mediolan do 1 000 zł", { duration: "1-2", budget: "1000", tab: "City break" }],
+    ["Praga, Czechy", "Praga na weekend", { duration: "1-2", budget: "1000", tab: "City break" }],
+    ["Rzym, Włochy", "Rzym do 1 500 zł", { duration: "3-4", budget: "1500", tab: "City break" }],
     ["Djerba, Tunezja", "All Inclusive do 3 000 zł", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Lot + hotel" }],
   ];
   const simpleHomePackage = !embedded && activeTab !== "Loty" && activeTab !== "Hotele";
   const visibleTabs = embedded
     ? ["Loty", "Hotele", "All Inclusive", "City break", "Lot + hotel"]
-    : ["Lot + hotel", "Loty", "Hotele"];
+    : ["Lot + hotel", "City break", "Loty", "Hotele"];
 
   return (
     <section className={embedded ? "search-v3-section search-v3-embedded" : "section shell search-v3-section"} id={embedded ? undefined : "wyszukiwarka"}>
@@ -1483,7 +1394,11 @@ export default function SearchHub({
                   <button type="button" className={resultSort === "rating" ? "active" : ""} onClick={() => { setResultSort("rating"); setVisibleCount(18); }}>Najwyżej oceniane</button>
                   <button type="button" className={resultSort === "nights" ? "active" : ""} onClick={() => { setResultSort("nights"); setVisibleCount(18); }}>Najkrótsze</button>
                 </div>
-                {embedded && resultLocations.length > 1 && (
+                <div className="search-v3-sales-sort" aria-label="Widok wyników">
+                  <button type="button" className={resultView === "all" ? "active" : ""} onClick={() => { setResultView("all"); setVisibleCount(18); }}>Wszystkie oferty ({results.length})</button>
+                  <button type="button" className={resultView === "destinations" ? "active" : ""} onClick={() => { setResultView("destinations"); setVisibleCount(18); }}>Różne kierunki ({cheapestDirectionRows(results).length})</button>
+                </div>
+                {resultLocations.length > 1 && (
                   <div className="search-v3-results-toolbar">
                     <div className="search-v3-result-filters" aria-label="Filtruj wyniki po miejscowości">
                       <span>Miejscowość</span>
@@ -1502,6 +1417,10 @@ export default function SearchHub({
                 {visibleResults.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(visibleResults.length, count + 12))}>Pokaż kolejne oferty ({visibleResults.length - visibleCount})</button>}
               </>
             )}
+            {!loading && packageSearchLink && <div className="search-v3-empty-actions">
+              <a href={packageSearchLink} target="_blank" rel="sponsored noopener noreferrer">Sprawdź więcej pakietów w eSky</a>
+              <span>Cena i dostępność do potwierdzenia u partnera.</span>
+            </div>}
             {!loading && results.length === 0 && !expanding && (() => {
               const fallbackDestination = selectedDestinations[0] || destination;
               const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination) : null;

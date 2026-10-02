@@ -1,5 +1,6 @@
 import type { Offer } from "@/lib/offers";
 import { buildEskyPackagesUrl } from "@/lib/partners";
+import { eskyArrival, eskyInventoryUrl, eskyNights, eskySearchUrl, type EskySearch } from "@/lib/eskySearch";
 
 export type EskyPackage = Offer & {
   provider: "esky"; modifiedAt: number; sourceKey: string;
@@ -24,7 +25,7 @@ export function normalizeEskyPackage(row: any): EskyPackage | null {
   if (url.searchParams.get("checkInDate") !== start || url.searchParams.get("checkOutDate") !== end || url.searchParams.get("departureCode") !== airportCode) return null;
   const sourceKey = `${url.searchParams.get("packageId")}:${row.hotel?.metaCode}:${airportCode}:${start}:${end}:${row.mealPlan}`;
   const board = String(row.mealPlan || "Wyżywienie wg oferty");
-  const city = String(row.hotel?.regionName || row.hotel?.locationBreadcrumbs?.at(-1) || "");
+  const city = String(row.hotel?.locationBreadcrumbs?.at(-1) || row.hotel?.regionName || "");
   const country = String(row.hotel?.countryName || "");
   if (!city || !country || !row.hotel?.name) return null;
   return {
@@ -44,26 +45,50 @@ export function normalizeEskyPackage(row: any): EskyPackage | null {
 
 // Official minilisting data, consumed as inventory (no embedded widget).
 // Never repeat the widget's unfiltered fallback. All results pass our own filters.
-export async function fetchEskyPackages(): Promise<{ offers: EskyPackage[]; partial: boolean }> {
+export async function fetchEskyPackages(search: EskySearch = {}): Promise<{ offers: EskyPackage[]; partial: boolean; hasMore: boolean; searchUrl: string; error?: string }> {
   const offers: EskyPackage[] = [];
-  const cursors = new Set<string>();
-  let cursor = "";
-  for (let page = 0; page < 4; page++) {
-    const url = new URL("https://hotelsapi.esky.com/gateway/minilisting/packages");
-    url.searchParams.set("partnerCode", "TRIPOWNIAPLPACKAGES");
-    url.searchParams.set("limit", "15");
-    if (cursor) url.searchParams.set("cursor", cursor);
-    try {
-      const response = await fetch(url, { headers: { "x-via": "minilisting-widget-TRIPOWNIAPLPACKAGES" }, next: { revalidate: 300 }, signal: AbortSignal.timeout(10000) });
-      if (!response.ok) throw new Error("eSky packages unavailable");
-      const data = await response.json();
-      if (!Array.isArray(data.offers)) throw new Error("Invalid eSky packages response");
-      for (const row of data.offers) { const offer = normalizeEskyPackage(row); if (offer) offers.push(offer); }
-      cursor = String(data.paging?.cursor || "");
-      if (!cursor || !data.offers.length) return { offers, partial: false };
-      if (cursors.has(cursor)) return { offers, partial: true };
-      cursors.add(cursor);
-    } catch { return { offers, partial: true }; }
+  const searchUrl = eskySearchUrl(search);
+  const nights = eskyNights(search);
+  if (nights.from > nights.to) return { offers, partial: false, hasMore: false, searchUrl };
+  // Country slices prevent the default portfolio (often Malta-heavy) from hiding
+  // cheaper city breaks elsewhere. A specific query gets deeper cursor paging.
+  const arrival = eskyArrival(search.query);
+  const arrivals = arrival ? [arrival] : search.query ? [""] : search.cityBreak
+    ? ["ci-ROM", "ci-MIL", "ci-BCN", "ci-LIS", "co-MT", "co-CY", "ci-PRG", "ci-BUD", "ci-VIE", "ci-PAR", "ci-LON", "ci-ATH"]
+    : ["co-IT", "co-ES", "co-MT", "co-CY", "co-PT", "co-GR", "co-FR", "co-CZ", "co-HU", "co-AL", "co-GB", "co-AT"];
+  const deadline = Date.now() + 38_000;
+  let partial = false;
+  let hasMore = false;
+  let error: string | undefined;
+  const scan = async (place: string) => {
+    const cursors = new Set<string>();
+    let cursor = "";
+    for (let page = 0; page < (search.query ? 8 : 2); page++) {
+      if (Date.now() >= deadline) { partial = true; return; }
+      try {
+        const response = await fetch(eskyInventoryUrl(search, place, cursor), {
+          headers: { "x-via": "minilisting-widget-TRIPOWNIAPLPACKAGES", Accept: "application/json" },
+          next: { revalidate: 300 }, signal: AbortSignal.timeout(Math.min(12000, Math.max(1, deadline - Date.now()))),
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        if (!Array.isArray(data.offers)) throw new Error("invalid_response");
+        for (const row of data.offers) { const offer = normalizeEskyPackage(row); if (offer) offers.push(offer); }
+        cursor = String(data.paging?.cursor || "");
+        if (!cursor || !data.offers.length) return;
+        if (cursors.has(cursor)) { hasMore = true; return; }
+        cursors.add(cursor);
+      } catch (cause) {
+        partial = true;
+        error = cause instanceof Error ? cause.message.slice(0, 120) : "source_unavailable";
+        console.warn("[esky_inventory]", error);
+        return;
+      }
+    }
+    hasMore = Boolean(cursor) || hasMore;
+  };
+  for (let index = 0; index < arrivals.length; index += 4) {
+    await Promise.all(arrivals.slice(index, index + 4).map(scan));
   }
-  return { offers, partial: Boolean(cursor) };
+  return { offers, partial, hasMore, searchUrl, ...(error ? { error } : {}) };
 }

@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordClick } from "@/lib/clickStats";
-import { partners, type PartnerKey } from "@/lib/partners";
+import { partners, buildEskyPackagesUrl, type PartnerKey } from "@/lib/partners";
 
 const ALLOWED_PARTNERS = new Set<PartnerKey>([
   "wakacje",
   "exim",
+  "esky",
   "tui",
   "getyourguide",
   "seeplaces",
@@ -21,6 +22,8 @@ const ALLOWED_PARTNERS = new Set<PartnerKey>([
 const ALLOWED_HOSTS = new Set([
   "reklamy.exim.pl",
   "www.exim.pl",
+  "www2.esky.pl",
+  "www.esky.pl",
   "exim.pl",
   "clk.tradedoubler.com",
   "www.tui.pl",
@@ -131,6 +134,8 @@ function validTradeDoublerWrapper(partner: PartnerKey, target: URL, allowedDesti
 
 function belongsToPartner(partner: PartnerKey, target: URL) {
   const host = target.hostname.toLowerCase();
+  if (partner === "esky") return ["www2.esky.pl", "www.esky.pl"].includes(host)
+    && (target.pathname === "/lot+hotel/portfolio" || target.pathname.startsWith("/lot+hotel/portfolio/"));
 
   if (partner === "exim") {
     if (host === "exim.pl" || host === "www.exim.pl") return true;
@@ -190,6 +195,7 @@ function affiliateTarget(partner: PartnerKey, target: URL) {
   const original = target.toString();
 
   try {
+    if (partner === "esky") return new URL(buildEskyPackagesUrl(original));
     if (partner === "exim") {
       if (host === "reklamy.exim.pl") return target;
       return new URL(partners.exim.buildUrl(original));

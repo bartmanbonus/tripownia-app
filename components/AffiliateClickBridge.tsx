@@ -8,6 +8,7 @@ import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 type Partner =
   | "wakacje"
   | "exim"
+  | "esky"
   | "tui"
   | "getyourguide"
   | "seeplaces"
@@ -31,6 +32,7 @@ function partnerFromUrl(value: string): Partner | null {
     const url = new URL(value, window.location.origin);
     if (url.origin === window.location.origin) return null;
     const host = url.hostname.toLowerCase();
+    if (["www2.esky.pl", "www.esky.pl"].includes(host) && (url.pathname === "/lot+hotel/portfolio" || url.pathname.startsWith("/lot+hotel/portfolio/"))) return "esky";
 
     if (host === "reklamy.exim.pl" || host === "exim.pl" || host === "www.exim.pl") return "exim";
     if (host === "tui.pl" || host === "www.tui.pl") return "tui";

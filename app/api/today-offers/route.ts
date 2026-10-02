@@ -249,6 +249,10 @@ function shuffle<T>(items: T[], seedText: string) {
 
 function parseDate(value: string | undefined) {
   if (!value) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const date = new Date(`${value}T00:00:00Z`);
+    return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value ? date : null;
+  }
   const [day, month, year] = value.split(".").map(Number);
   if (!day || !month || !year) return null;
   const date = new Date(Date.UTC(year, month - 1, day));
@@ -272,6 +276,12 @@ function formatDate(date: Date) {
 
 function decodeTrackedDestination(tracked: string | undefined) {
   if (!tracked) return null;
+  try {
+    const url = new URL(tracked);
+    const embedded = url.searchParams.get("url");
+    if (embedded) return new URL(embedded);
+    if (["www.exim.pl", "exim.pl"].includes(url.hostname)) return url;
+  } catch { /* Legacy TradeDoubler url(...) wrapper below. */ }
   const match = tracked.match(/url\((.+)\)$/);
   if (!match?.[1]) return null;
   try {
@@ -632,10 +642,13 @@ export async function GET(request: NextRequest) {
   const rescueMode = (request.nextUrl.searchParams.get("rescue") || "").trim();
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
+  let eskyStatus: { partial: boolean; error?: string; searchUrl?: string; hasMore?: boolean } = { partial: false };
 
   try {
     const eskyPromise = !providerOnly || providerOnly === "esky"
-      ? fetchEskyPackages() : Promise.resolve({ offers: [], partial: false });
+      ? fetchEskyPackages({ query, departure: departureFilter, cityBreak: mode === "citybreak", nights: nightsFilter,
+          minNights, maxNights, start: startDateFilter, end: endDateFilter, minPrice, maxPrice })
+      : Promise.resolve({ offers: [], partial: false });
     const searchTerms = query
       ? expandSearchTerms(
           query
@@ -702,8 +715,9 @@ export async function GET(request: NextRequest) {
     }
 
     const esky = await eskyPromise;
+    eskyStatus = esky;
     candidates.push(...esky.offers);
-    if (!successfulFeeds && !esky.offers.length) throw new Error("Źródła ofert chwilowo nie odpowiadają. Spróbuj ponownie.");
+    if (!successfulFeeds && !esky.offers.length && (esky.partial || providerOnly === "exim" || providerOnly === "tui")) throw new Error("Źródła ofert chwilowo nie odpowiadają. Spróbuj ponownie.");
 
     const unique = new Map<string, LiveCandidate>();
     for (const candidate of candidates) {
@@ -712,10 +726,9 @@ export async function GET(request: NextRequest) {
       if (!previous || candidate.price < previous.price) unique.set(keyValue, candidate);
     }
 
-    const rawCandidates = (mode === "search" || mode === "citybreak")
-      ? Array.from(unique.values())
-      : Array.from(unique.values()).filter(isAffordableShortTrip);
-    const allCandidates = query && !rescueMode && (mode === "search" || mode === "citybreak")
+    const rawCandidates = Array.from(unique.values()).filter(isAffordableShortTrip)
+      .filter(offer => isTravelDestinationAllowed(offer.city, offer.country));
+    const allCandidates = query && (mode === "search" || mode === "citybreak")
       ? rawCandidates.filter((offer) => candidateMatchesQuery(offer, query))
       : rawCandidates;
 
@@ -814,9 +827,7 @@ export async function GET(request: NextRequest) {
       return daysOut >= 0 && daysOut <= 30;
     };
 
-    const exactPool = rescueMode
-      ? budgetCandidates
-      : dateCandidates.filter((offer) =>
+    const exactPool = dateCandidates.filter((offer) =>
           departureMatches(offer) &&
           nightsMatches(offer) &&
           boardMatches(offer) &&
@@ -907,6 +918,7 @@ export async function GET(request: NextRequest) {
         checkedAt: new Date().toISOString(),
         sourceCount: pool.length,
         partial: failedFeeds > 0 || esky.partial,
+        sourceStatus: { esky: eskyStatus, feedsFailed: failedFeeds },
         providers: Array.from(new Set(pool.map(offer => offer.provider))),
         coverage: "available_feed_results",
         exactSourceCount: exactPool.length,
@@ -991,10 +1003,11 @@ export async function GET(request: NextRequest) {
       ? []
       : homepageFallbackOffers
           .filter((offer) => !isOfferExpired(offer))
+          .filter(isPromotableOffer)
           .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
           .filter((offer) => ["exim", "tui", "esky"].includes(String(offer.partner)))
           .filter((offer) => !providerOnly || offer.partner === providerOnly)
-          .filter(queryMatches)
+          .filter(offer => candidateMatchesQuery(offer as LiveCandidate, query))
           .filter(departureMatchesFallback)
           .filter(nightsMatchesFallback)
           .filter(boardMatchesFallback)
@@ -1015,9 +1028,9 @@ export async function GET(request: NextRequest) {
     }
 
     const fallbackLimit = mode === "surprise" ? 12 : mode === "daily" ? 36 : 60;
-    const selectedFallback = Array.from(bestByDestination.values())
+    const selectedFallback = ((mode === "search" || (mode === "citybreak" && !destinationOverview)) ? rankSearchOffers(fallbackOffers) : Array.from(bestByDestination.values()))
       .sort((a, b) => a.price - b.price || b.score - a.score)
-      .slice(0, fallbackLimit);
+      .slice(0, mode === "search" ? Number.MAX_SAFE_INTEGER : fallbackLimit);
 
     const fallbackNotice = hasExactDateConstraint
       ? "Źródła live chwilowo nie odpowiadają. Nie pokazujemy ofert z innych terminów jako dopasowanych do wybranej daty."
@@ -1033,6 +1046,7 @@ export async function GET(request: NextRequest) {
         checkedAt: new Date().toISOString(),
         sourceCount: selectedFallback.length,
         partial: true,
+        sourceStatus: { esky: eskyStatus },
         fallback: true,
         providers: Array.from(new Set(selectedFallback.map((offer) => offer.partner))),
         coverage: "published_fallback",

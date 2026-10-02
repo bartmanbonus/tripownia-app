@@ -5,9 +5,9 @@ const vm = require('node:vm');
 function loadPolicy(file) { return file === 'lib/offerValuePolicy.ts' ? {} : load('lib/offerValuePolicy.ts'); }
 function load(file, deps = {}, globals = {}) {
   const exports = {};
-  deps = {'@/lib/eskyPackages': {fetchEskyPackages: async()=>({offers:[], partial:false})}, '@/lib/offerValuePolicy': loadPolicy(file), ...deps};
+  deps = {'@/lib/offers': {homepageFallbackOffers:[],isOfferExpired:()=>false}, '@/lib/travelSafety':{isTravelDestinationAllowed:()=>true}, '@/lib/eskyPackages': {fetchEskyPackages: async()=>({offers:[], partial:false})}, '@/lib/offerValuePolicy': loadPolicy(file), ...deps};
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
-  vm.runInNewContext(code, {exports, require:name => deps[name] || require(name), console, URL, Date, AbortSignal, ...globals});
+  vm.runInNewContext(code, {exports, require:name => deps[name] || require(name), console, URL, URLSearchParams, Date, AbortSignal, ...globals});
   return exports;
 }
 const ranking = load('lib/searchOfferRanking.ts');
@@ -34,7 +34,7 @@ const route=load('app/api/today-offers/route.ts',{'@/lib/searchOfferRanking':ran
  assert(calls.some(url=>url.includes(';page=0;')));assert(calls.some(url=>url.includes(';page=2;')));assert(calls.every(url=>url.includes(';orderBy=priceAsc;')));
  res=await route.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=search&q=Cypr&board=roomonly&strict=1')});
  assert.equal(res.body.offers.length,0);
- mode='error';res=await route.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=search&q=Cypr')});assert.equal(res.status,502);
+ mode='error';res=await route.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=search&q=Cypr')});assert.equal(res.status,200); assert.equal(res.body.partial,true); assert.equal(res.body.offers.length,0);
  const destinations=['Malta','Pafos','Rzym','Barcelona','Lizbona','Ateny','Praga','Porto','Madera'];
  const cityRoute=load('app/api/today-offers/route.ts',{'@/lib/searchOfferRanking':ranking,'@/lib/destinationGrouping':grouping,'next/server':{NextResponse:{json:(body,opts)=>({body,status:opts?.status||200})}}},{process:{env:{TRADEDOUBLER_EXIM_TOKEN:'test-only'}},fetch:async()=>({ok:true,json:async()=>({products:destinations.flatMap((city,i)=>Array.from({length:35},(_,j)=>({name:`Hotel ${city} ${j}`,fields:[{name:'BestPrice',value:String(i === 8 ? 8000 : 1400+i*100+j*20)},{name:'DestinationName',value:city},{name:'DestinationAddress',value:`${city};Europa`},{name:'Departure',value:'Warszawa'}],offers:[{sourceProductId:`${city}-${j}`,productUrl:`https://example.test/url(${encodeURIComponent('https://www.exim.pl/?AC1=2&NN=3&DD=2027-12-01&RD=2027-12-04')})`}]})))})})});
  res=await cityRoute.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=citybreak&view=destinations&from=WAWA&strict=1')});
@@ -69,7 +69,8 @@ assert.equal(policy.isPromotableOffer({...promo,linkType:'search'}),false);
 assert.equal(policy.isPromotableOffer({...promo,priceCheckedAt:'2020-01-01'}),false);
 assert.equal(ranking.rankSearchOffers(Array.from({length:501},(_,i)=>({...base,hotel:`Hotel ${i}`,price:500+i}))).length,501);
 const partners = load('lib/partners.ts',{}, {process:{env:{}}});
-const esky = load('lib/eskyPackages.ts', {'@/lib/partners':partners});
+const eskySearch = load('lib/eskySearch.ts', {'@/lib/partners':partners});
+const esky = load('lib/eskyPackages.ts', {'@/lib/partners':partners,'@/lib/eskySearch':eskySearch});
 const fixture = { hotel:{metaCode:113569,name:'Ramla Bay Resort',regionName:'wyspa Malta',countryName:'Malta',rating:4.8}, departureAirportCode:'WMI',pricePerPax:{amount:929,currency:'PLN'},stayInformation:{checkInDate:'2027-11-28',checkOutDate:'2027-12-03',nights:5},mealPlan:'Śniadanie',variantsUrl:'https://www2.esky.pl/lot+hotel/portfolio/details/select-room?packageId=test-package&checkInDate=2027-11-28&checkOutDate=2027-12-03&departureCode=WMI&partner_id=WRONG'};
 const eskyOffer = esky.normalizeEskyPackage(fixture);
 assert(eskyOffer); assert.equal(eskyOffer.price,929);
@@ -88,4 +89,37 @@ assert.equal(esky.normalizeEskyPackage({...fixture,variantsUrl:'https://evil.exa
  const daily=await providerRoute.GET({nextUrl:new URL('https://example.test/api/today-offers')});
  assert.equal(daily.body.offers.length,1);assert.equal(daily.body.offers[0].price,929);
  console.log('PASS: promotion ceilings, stale/search-link rejection, 501 results, eSky normalization, affiliate preservation, source mix and airport filters.');
+})().catch(e=>{console.error(e);process.exitCode=1});
+
+// The public inventory API uses departures/arrivals arrays, unlike portfolio links.
+const inventory = eskySearch.eskyInventoryUrl({query:'Rzym, Włochy',departure:'WAWA,KRK',cityBreak:true,nights:'3-4',start:'2027-11-01',end:'2027-11-30',maxPrice:8000});
+assert.equal(inventory.searchParams.get('arrivals[0]'),'ci-ROM');
+assert.equal(inventory.searchParams.get('departures[0]'),'ap-WAW');
+assert.equal(inventory.searchParams.get('departures[1]'),'ap-WMI');
+assert.equal(inventory.searchParams.get('departures[2]'),'ap-KRK');
+assert.equal(inventory.searchParams.get('lengthRange[from]'),'3');
+assert.equal(inventory.searchParams.get('lengthRange[to]'),'4');
+assert.equal(inventory.searchParams.get('priceRange[to]'),'2000');
+assert.equal(inventory.searchParams.get('dateRange[from]'),'2027-11-01');
+const portfolio = new URL(eskySearch.eskySearchUrl({query:'Rzym, Włochy',departure:'WAWA',cityBreak:true}));
+assert.equal(portfolio.searchParams.get('arrivalPlaces'),'ci-ROM');
+assert.equal(portfolio.searchParams.get('departurePlaces'),'ap-WAW,ap-WMI');
+assert.equal(portfolio.searchParams.get('partner_id'),'TRIPOWNIAPLPACKAGES');
+assert.equal(esky.normalizeEskyPackage({...fixture,hotel:{...fixture.hotel,regionName:'Lacjum',locationBreadcrumbs:['Włochy','Lacjum','Rzym']}}).city,'Rzym');
+console.log('PASS: eSky direction, multi-airport, dates, nights, price limit and affiliate search parameters.');
+
+const liveRedirect = load('app/go/live/route.ts', {
+ '@/lib/partners':partners, '@/lib/clickStats':{recordClick:()=>{}},
+ 'next/server':{NextResponse:{redirect:(url,status)=>({url:String(url),status,headers:new Map()})}}
+});
+(async()=>{
+ const exact=eskyOffer.affiliateUrl;
+ const request=target=>{const url='https://tripownia.pl/go/live?partner=esky&target='+encodeURIComponent(target);return {url,nextUrl:new URL(url)}};
+ const redirect=await liveRedirect.GET(request(exact));
+ assert.equal(redirect.status,307);
+ assert.equal(new URL(redirect.url).searchParams.get('packageId'),'test-package');
+ assert.equal(new URL(redirect.url).searchParams.get('partner_id'),'TRIPOWNIAPLPACKAGES');
+ const blocked=await liveRedirect.GET(request('https://evil.example/lot+hotel/portfolio'));
+ assert.equal(blocked.url,'https://tripownia.pl/okazje');
+ console.log('PASS: tracked eSky checkout link retains package and affiliate; foreign host rejected.');
 })().catch(e=>{console.error(e);process.exitCode=1});
