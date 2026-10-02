@@ -1,5 +1,5 @@
 .section{
-  padding:0 0 58px;
+  padding:0 0 44px;
 }
 
 .shell{
@@ -69,7 +69,7 @@
 
 .seasonalGrid{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(4,minmax(0,1fr));
   gap:10px;
 }
 
@@ -78,7 +78,7 @@
 .seasonalCard{
   position:relative;
   overflow:hidden;
-  border-radius:20px;
+  border-radius:16px;
   color:#fff;
   text-decoration:none;
   isolation:isolate;
@@ -91,11 +91,11 @@
 }
 
 .budgetCard{
-  min-height:190px;
+  min-height:152px;
 }
 
 .seasonalCard{
-  min-height:150px;
+  min-height:152px;
 }
 
 .airportCard:hover,
@@ -127,7 +127,7 @@
 .cardCopy{
   position:absolute;
   z-index:2;
-  inset:auto 16px 15px;
+  inset:auto 14px 13px;
   display:flex;
   flex-direction:column;
   align-items:flex-start;
@@ -143,7 +143,7 @@
 
 .cardCopy strong{
   max-width:92%;
-  font-size:20px;
+  font-size:18px;
   line-height:1.05;
   letter-spacing:-.03em;
   text-shadow:0 2px 16px rgba(0,0,0,.24);
@@ -222,12 +222,7 @@
   .airportCard,
   .budgetCard,
   .seasonalCard,
-  .seasonalCard:last-child{
-    flex:0 0 76vw;
-    min-height:180px;
-    grid-column:auto;
-    scroll-snap-align:start;
-  }
+  
 
   .seasonalCard{
     min-height:150px;
