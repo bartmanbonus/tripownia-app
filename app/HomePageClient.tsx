@@ -380,20 +380,22 @@ function OfferRail({ kicker, title, description, items, moreHref = "/okazje" }: 
           <h3>{title}</h3>
           <p>{description}</p>
         </div>
+      </div>
+      <div className="offer-stream-rail-wrap">
         <div className="offer-stream-controls" aria-label={`Sterowanie: ${title}`}>
           <button type="button" onClick={() => move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button>
           <button type="button" onClick={() => move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button>
         </div>
-      </div>
-      <div className="offer-stream-rail" ref={railRef}>
-        {items.map((offer) => <div className="offer-stream-item" key={`${title}-${offer.id}`}><OfferCard offer={offer}/></div>)}
-        <div className="offer-stream-item offer-stream-more-card">
-          <Link href={moreHref}>
-            <small>WIĘCEJ OFERT</small>
-            <strong>Zobacz pełną pulę</strong>
-            <span>Przejdź do wszystkich aktualnych propozycji.</span>
-            <em>Zobacz więcej <ArrowRight size={15}/></em>
-          </Link>
+        <div className="offer-stream-rail" ref={railRef}>
+          {items.map((offer) => <div className="offer-stream-item" key={`${title}-${offer.id}`}><OfferCard offer={offer}/></div>)}
+          <div className="offer-stream-item offer-stream-more-card">
+            <Link href={moreHref}>
+              <small>WIĘCEJ OFERT</small>
+              <strong>Zobacz pełną pulę</strong>
+              <span>Przejdź do wszystkich aktualnych propozycji.</span>
+              <em>Zobacz więcej <ArrowRight size={15}/></em>
+            </Link>
+          </div>
         </div>
       </div>
     </section>
