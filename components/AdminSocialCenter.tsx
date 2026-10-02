@@ -269,7 +269,7 @@ export default function AdminSocialCenter() {
     if (queueItem.status !== "approved") return;
     setPublishingId(queueItem.id);
     try {
-      const response = await adminFetch("/admin/api/social-publish", {
+      const response = await adminFetch("/api/admin/social-publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
