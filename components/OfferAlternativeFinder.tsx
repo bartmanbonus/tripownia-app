@@ -15,6 +15,7 @@ type Props = {
   departure: string;
   airportCode?: string;
   dates: string;
+  startDateISO?: string;
   hotel?: string;
   currentOfferId?: number;
 };
@@ -101,11 +102,15 @@ export default function OfferAlternativeFinder({
   departure,
   airportCode,
   dates,
+  startDateISO,
   hotel,
   currentOfferId = 0,
 }: Props) {
   const initialAirport = useMemo(() => resolveAirportCode(airportCode, departure), [airportCode, departure]);
-  const originalDepartureDate = useMemo(() => inferDepartureDate(dates), [dates]);
+  const originalDepartureDate = useMemo(
+    () => (/^20\d{2}-\d{2}-\d{2}$/.test(startDateISO || "") ? String(startDateISO) : inferDepartureDate(dates)),
+    [startDateISO, dates],
+  );
   const todayIso = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const resultsRef = useRef<HTMLDivElement>(null);
   const [changeMode, setChangeMode] = useState<ChangeMode>("date");
