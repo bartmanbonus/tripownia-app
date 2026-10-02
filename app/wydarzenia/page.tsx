@@ -173,6 +173,30 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
             <div className={styles.grid}>
               {visibleTrips.map(trip => {
                 const links = buildSportsTripLinks(trip, selectedFrom, selectedNights, selectedPeople);
+                const plannerParams = new URLSearchParams({
+                  source: "sport",
+                  city: trip.city,
+                  country: trip.country,
+                  start: links.departureDate,
+                  end: links.returnDate,
+                  departure: activeDeparture.label,
+                  match: `${trip.homeTeam} vs ${trip.awayTeam}`,
+                  venue: trip.venue || trip.city,
+                });
+                if (links.ticketUrl) plannerParams.set("ticket", links.ticketUrl);
+
+                const flightHref = `/go/live?${new URLSearchParams({
+                  partner: "kiwi",
+                  target: links.flightUrl,
+                  source: "sports_event_flight",
+                  destination: trip.city,
+                }).toString()}`;
+                const hotelHref = `/go/live?${new URLSearchParams({
+                  partner: "booking",
+                  target: links.hotelUrl,
+                  source: "sports_event_hotel",
+                  destination: trip.city,
+                }).toString()}`;
                 return (
                   <article className={styles.card} key={trip.clubSlug + "-" + trip.id}>
                     <div className={styles.cardTop}>
@@ -187,10 +211,10 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                     <div className={styles.meta}><span>📍 {trip.venue || trip.city}</span><span>🌍 {trip.city}, {trip.country}</span></div>
                     <div className={styles.trip}><strong>{activeDeparture.label} → {trip.city}</strong><span>{links.departureDate} – {links.returnDate} · {selectedNights} noce · {selectedPeople} os.</span></div>
                     <div className={styles.cardActions}>
-                      <a className={styles.primary} href={"/dodaj-podroz?source=sport&city=" + encodeURIComponent(trip.city) + "&country=" + encodeURIComponent(trip.country) + "&start=" + links.departureDate + "&end=" + links.returnDate + "&departure=" + encodeURIComponent(activeDeparture.label) + "&match=" + encodeURIComponent(trip.homeTeam + " vs " + trip.awayTeam) + "&venue=" + encodeURIComponent(trip.venue || trip.city) + "&ticket=" + encodeURIComponent(links.ticketUrl)}>Ułóż cały wyjazd →</a>
-                      <a href={links.flightUrl} rel="nofollow sponsored noopener noreferrer">Sprawdź lot</a>
-                      <a href={links.hotelUrl} rel="nofollow sponsored noopener noreferrer">Znajdź nocleg</a>
-                      <a href={links.ticketUrl} rel="noopener noreferrer">Oficjalne bilety</a>
+                      <a className={styles.primary} href={"/dodaj-podroz?" + plannerParams.toString()}>Ułóż cały wyjazd →</a>
+                      <a href={flightHref} rel="nofollow sponsored">Sprawdź lot</a>
+                      <a href={hotelHref} rel="nofollow sponsored">Znajdź nocleg</a>
+                      {links.ticketUrl && <a href={links.ticketUrl} rel="noopener noreferrer">Oficjalne bilety</a>}
                     </div>
                   </article>
                 );
