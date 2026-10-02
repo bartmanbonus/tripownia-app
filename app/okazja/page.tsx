@@ -5,9 +5,11 @@ import { ArrowLeft, ExternalLink, MapPin, Plane, Moon, Utensils, CalendarDays, B
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Image from "next/image";
+import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
+import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 
 export const metadata: Metadata = {
-  title: "Okazja podróżnicza | Tripownia.pl",
+  title: "Okazja podróżnicza",
   description: "Sprawdź szczegóły okazji znalezionej przez Tripownię i przejdź do rezerwacji u partnera.",
   robots: { index: false, follow: true },
 };
@@ -98,7 +100,6 @@ export default async function SocialOfferLanding({
   const note = one(query.note, "Tripownia znalazła tę ofertę u sprawdzonego partnera. Cena i dostępność mogą się zmienić.");
   if (!target) return notFound();
 
-  const partnerLabel = target.partner.label;
   const imageSrc = countryImage(country);
   const tripKind = target.partner.key === "kiwi" ? "flight" : target.partner.key === "booking" ? "hotel" : "package";
   const outboundParams = new URLSearchParams({
@@ -116,7 +117,6 @@ export default async function SocialOfferLanding({
     city,
     country,
     kind: tripKind,
-    partner: partnerLabel,
     ...(start ? { start } : {}),
     ...(end ? { end } : {}),
     ...(airport ? { departure: airport } : {}),
@@ -201,12 +201,26 @@ export default async function SocialOfferLanding({
               <Link className="btn secondary" href={plannerHref}>
                 <PlusCircle size={17}/> Dodaj do planera
               </Link>
+              <OfferAlternativeJump />
               <small className="affiliate-note">
                 Rezerwacja i płatność są u partnera. Link partnerski — możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.
               </small>
             </div>
           </div>
         </section>
+
+        <OfferAlternativeFinder
+          city={city}
+          country={country}
+          nights={nights}
+          board={board}
+          departure={departure}
+          airportCode={airport}
+          dates={dates}
+          startDateISO={start}
+          hotel={hotel}
+          currentOfferId={Number(offerId) || 0}
+        />
 
         <section className="deals-end-cta" style={{ marginBottom: 36 }}>
           <div>
