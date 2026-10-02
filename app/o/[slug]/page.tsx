@@ -110,7 +110,7 @@ export default async function ShortSocialOfferPage({ params }: { params: Promise
             <div className="detail-topline"><div className="detail-score"><BadgeCheck size={18}/><span>Oferta zweryfikowana przez Tripownię</span></div></div>
             <div className="detail-price-card">
               <div className="detail-price"><small>znaleźliśmy od</small> <strong>{offer.price.toLocaleString("pl-PL")} zł</strong> / os.</div>
-              <div className="price-status detail-price-status">Finalną cenę i dostępność potwierdza {offer.partnerLabel}.</div>
+              <div className="price-status detail-price-status">Sprawdź aktualną cenę i dostępność przed rezerwacją.</div>
             </div>
             <p className="detail-lead"><strong>{offer.hotel}</strong></p>
             <div className="detail-meta">
