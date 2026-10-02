@@ -179,7 +179,7 @@ type PublishedOverride = {
 
 export const publishedOfferOverrides = publishedOverridesRaw as Record<string, PublishedOverride>;
 
-export const offers: Offer[] = baseOffers
+const mergedPublishedOffers: Offer[] = baseOffers
   .filter((offer) => !publishedOfferOverrides[String(offer.id)]?.hidden)
   .map((offer) => {
     const override = publishedOfferOverrides[String(offer.id)];
@@ -194,8 +194,17 @@ export const offers: Offer[] = baseOffers
       availabilityStatus: override?.availabilityStatus || offer.availabilityStatus,
     };
     return { ...merged, linkMatch: getLinkMatch(merged) };
-  })
-  .filter((offer) => offer.linkMatch !== "unsafe")
+  });
+
+/**
+ * Homepage fallback may use parameterized eSky links when live feeds are down.
+ * Prices are shown as orientational on these cards and must be confirmed after click.
+ * Keeping this separate means the main catalogue still preserves its stricter link policy.
+ */
+export const homepageFallbackOffers: Offer[] = mergedPublishedOffers
+  .filter((offer) => offer.linkMatch !== "unsafe");
+
+export const offers: Offer[] = homepageFallbackOffers
   .filter((offer) => offer.partner !== "esky");
 
 export const featuredOfferIds = new Set(
