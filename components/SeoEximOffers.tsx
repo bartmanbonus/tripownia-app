@@ -95,7 +95,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
 
       if (GENERIC_TERMS.has(normalizedTerm) && (from || cityBreakOverview)) {
         if (normalizedTerm === "city break") {
-          const params = new URLSearchParams({ mode: "citybreak", provider: "exim", view: "destinations", strict: "1" });
+          const params = new URLSearchParams({ mode: "citybreak", view: "destinations", strict: "1" });
           if (from) params.set("from", from);
           if (maxPrice) params.set("maxPrice", String(maxPrice));
           if (minNights) params.set("minNights", String(minNights));
@@ -107,7 +107,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
           if (!response.ok) return [] as SeasonalOffer[];
           const data = (await response.json()) as ApiResponse;
           return Array.isArray(data.offers)
-            ? data.offers.filter((offer) => offer.partner === "exim" && termMatchesOffer(term, offer))
+            ? data.offers.filter((offer) => offer.nights >= 2 && offer.nights <= 5 && offer.price <= 2000)
             : [];
         }
 
