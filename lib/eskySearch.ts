@@ -4,6 +4,7 @@ export type EskySearch = {
   query?: string; departure?: string; cityBreak?: boolean;
   minNights?: number; maxNights?: number; nights?: string;
   start?: string; end?: string; minPrice?: number; maxPrice?: number;
+  timeoutMs?: number;
 };
 
 const PL_AIRPORTS = new Set(["WAW", "WMI", "KRK", "KTW", "GDN", "WRO", "POZ", "RZE", "LUZ", "SZZ", "LCJ", "BZG", "SZY", "IEG", "RDO"]);

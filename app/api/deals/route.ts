@@ -1,6 +1,6 @@
 import { isPromotableOffer } from "@/lib/offerValuePolicy";
 import { NextRequest, NextResponse } from "next/server";
-import { offers as publishedOffers, type Offer } from "@/lib/offers";
+import { homepageFallbackOffers as publishedOffers, isOfferExpired, type Offer } from "@/lib/offers";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { GET as getTodayOffers } from "@/app/api/today-offers/route";
 
@@ -120,6 +120,30 @@ function isUsableDeal(offer: DealsOffer) {
   );
 }
 
+function isUsablePublishedFallback(offer: DealsOffer) {
+  return Boolean(
+    offer &&
+    Number.isFinite(Number(offer.price)) &&
+    Number(offer.price) > 0 &&
+    offer.affiliateUrl &&
+    !isOfferExpired(offer) &&
+    offer.linkMatch !== "unsafe"
+  );
+}
+
+function cheapestFallbackPerDestination(offers: DealsOffer[], limit = DEAL_LIMIT) {
+  const best = new Map<string, DealsOffer>();
+  for (const offer of offers) {
+    if (!isUsablePublishedFallback(offer)) continue;
+    const key = touristDestinationKey(offer);
+    const current = best.get(key);
+    if (!current || Number(offer.price) < Number(current.price)) best.set(key, offer);
+  }
+  return Array.from(best.values())
+    .sort((a, b) => Number(a.price) - Number(b.price))
+    .slice(0, limit);
+}
+
 function cheapestPerDestination(offers: DealsOffer[]) {
   const best = new Map<string, DealsOffer>();
   for (const offer of offers) {
@@ -171,22 +195,22 @@ export async function GET(request: NextRequest) {
   // short EXIM city breaks. We deduplicate only after the combined pool is loaded,
   // so a temporarily partial provider response cannot be mistaken for the cheapest deal.
   const results = await Promise.all([
-    loadSource(request, "combined-packages", destination ? { mode: "search", q: destination } : { mode: "search", broad: "1" }),
-    loadSource(request, "combined-citybreaks", destination ? { mode: "citybreak", q: destination } : { mode: "citybreak" }),
+    loadSource(request, "combined-packages", destination ? { mode: "search", q: destination, fast: "1" } : { mode: "search", broad: "1", fast: "1" }),
+    loadSource(request, "combined-citybreaks", destination ? { mode: "citybreak", q: destination, fast: "1" } : { mode: "citybreak", fast: "1" }),
   ]);
 
   const successful = results.filter((item) => item.response.ok);
   const unavailableSources = results.filter((item) => !item.response.ok || item.payload.partial).map((item) => item.label);
   if (!successful.length) {
     const fallbackPool = (publishedOffers as DealsOffer[])
-      .filter(isUsableDeal)
+      .filter(isUsablePublishedFallback)
       .filter(polishDepartureMatches)
       .filter((offer) => typeMatches(offer, type))
       .filter((offer) => destinationMatches(offer, destination));
     const fallbackExact = fallbackPool
       .filter((offer) => requestedDepartureMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
-    const fallbackOffers = lowestPriceDeals(
+    const fallbackOffers = cheapestFallbackPerDestination(
       fallbackExact.length ? fallbackExact : strict && (airport || month || year) ? [] : fallbackPool
     );
     const error = results.map((item) => item.payload.error).find(Boolean) || "Nie udało się pobrać okazji.";
@@ -261,11 +285,11 @@ export async function GET(request: NextRequest) {
     .filter((offer) => destinationMatches(offer, destination));
 
   if (!sourceOffers.length) {
-    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsableDeal).filter((offer) => typeMatches(offer, type)).filter((offer) => destinationMatches(offer, destination));
+    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsablePublishedFallback).filter(polishDepartureMatches).filter((offer) => typeMatches(offer, type)).filter((offer) => destinationMatches(offer, destination));
     const fallbackExact = fallbackPool
       .filter((offer) => requestedDepartureMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
-    const fallbackOffers = lowestPriceDeals(
+    const fallbackOffers = cheapestFallbackPerDestination(
       fallbackExact.length ? fallbackExact : strict && (airport || month || year) ? [] : fallbackPool
     );
 

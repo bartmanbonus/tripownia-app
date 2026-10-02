@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { Offer } from "@/lib/offers";
+import { isOfferExpired } from "@/lib/offerRuntime";
 
 type LiveOffersResponse = {
   ok?: boolean;
@@ -29,6 +30,11 @@ type CachedLiveOffers = {
 
 const DEFAULT_ENDPOINT = "/api/today-offers?mode=search&broad=1";
 const MAX_CACHE_AGE_MS = 6 * 60 * 60 * 1000;
+const REQUEST_TIMEOUT_MS = 15_000;
+
+function usableOffers(rows: Offer[]) {
+  return rows.filter((offer) => offer && !isOfferExpired(offer));
+}
 
 function cacheKey(endpoint: string) {
   return `tripownia-live-cache:${encodeURIComponent(endpoint)}`;
@@ -55,7 +61,13 @@ function readCache(endpoint: string): CachedLiveOffers | null {
       return null;
     }
 
-    return parsed;
+    const offers = usableOffers(parsed.offers);
+    if (!offers.length) {
+      localStorage.removeItem(key);
+      return null;
+    }
+
+    return { ...parsed, offers };
   } catch {
     localStorage.removeItem(cacheKey(endpoint));
     return null;
@@ -64,11 +76,13 @@ function readCache(endpoint: string): CachedLiveOffers | null {
 
 function writeCache(endpoint: string, offers: Offer[], checkedAt?: string) {
   if (typeof window === "undefined" || !offers.length) return;
+  const usable = usableOffers(offers);
+  if (!usable.length) return;
   try {
     localStorage.setItem(cacheKey(endpoint), JSON.stringify({
       checkedAt,
       savedAt: new Date().toISOString(),
-      offers,
+      offers: usable,
     } satisfies CachedLiveOffers));
   } catch {}
 }
@@ -81,10 +95,12 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
   });
 
   const refresh = useCallback(async () => {
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
     try {
-      const response = await fetch(endpoint, { cache: "no-store" });
+      const response = await fetch(endpoint, { cache: "no-store", signal: controller.signal });
       const data = await response.json() as LiveOffersResponse;
-      const live = Array.isArray(data.offers) ? data.offers : [];
+      const live = usableOffers(Array.isArray(data.offers) ? data.offers : []);
 
       if (response.ok && data.ok && !live.length) {
         try { localStorage.removeItem(cacheKey(endpoint)); } catch {}
@@ -144,6 +160,8 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
           error: error instanceof Error ? error.message : "Nie udało się pobrać aktualnych ofert.",
         };
       });
+    } finally {
+      window.clearTimeout(timeout);
     }
   }, [endpoint]);
 
@@ -155,6 +173,14 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
         source: "fallback",
         loading: true,
         checkedAt: cached.checkedAt,
+      });
+    } else {
+      // Endpoint changes when filters change. Never leave results from the
+      // previous filter visible while the new request is loading.
+      setState({
+        offers: [],
+        source: "fallback",
+        loading: true,
       });
     }
 

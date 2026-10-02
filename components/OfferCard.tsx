@@ -286,8 +286,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
       {directAffiliate && isLiveOffer ? (
         <a
           href={cardHref}
-          target="_blank"
-          rel="sponsored noopener noreferrer"
+          rel="sponsored noreferrer"
           onClick={() => trackOfferClick("image", true)}
           className="offer-image"
           aria-label={`Sprawdź ofertę ${offer.city}`}
@@ -345,8 +344,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
         <a
           className="card-cta"
           href={buyHref}
-          target={directAffiliate ? "_blank" : undefined}
-          rel={directAffiliate ? "sponsored noopener noreferrer" : undefined}
+          rel={directAffiliate ? "sponsored noreferrer" : undefined}
           onClick={() => trackOfferClick("card_cta")}
         >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
 

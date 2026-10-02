@@ -56,20 +56,24 @@ export async function fetchEskyPackages(search: EskySearch = {}): Promise<{ offe
   const arrivals = arrival ? [arrival] : search.query ? [""] : search.cityBreak
     ? ["ci-ROM", "ci-MIL", "ci-BCN", "ci-LIS", "co-MT", "co-CY", "ci-PRG", "ci-BUD", "ci-VIE", "ci-PAR", "ci-LON", "ci-ATH"]
     : ["co-IT", "co-ES", "co-MT", "co-CY", "co-PT", "co-GR", "co-FR", "co-CZ", "co-HU", "co-AL", "co-GB", "co-AT"];
-  const deadline = Date.now() + 38_000;
+  const deadline = Date.now() + Math.max(3_000, Math.min(38_000, search.timeoutMs || 38_000));
   let partial = false;
   let hasMore = false;
   let error: string | undefined;
+  let sourceBlocked = false;
   const scan = async (place: string) => {
+    if (sourceBlocked) return;
     const cursors = new Set<string>();
     let cursor = "";
     for (let page = 0; page < (search.query ? 8 : 2); page++) {
       if (Date.now() >= deadline) { partial = true; return; }
       try {
+        const requestTimeout = Math.min(search.timeoutMs ? 4_000 : 12_000, Math.max(1, deadline - Date.now()));
         const response = await fetch(eskyInventoryUrl(search, place, cursor), {
           headers: { "x-via": "minilisting-widget-TRIPOWNIAPLPACKAGES", Accept: "application/json" },
-          next: { revalidate: 300 }, signal: AbortSignal.timeout(Math.min(12000, Math.max(1, deadline - Date.now()))),
+          next: { revalidate: 300 }, signal: AbortSignal.timeout(requestTimeout),
         });
+        if (response.status === 401 || response.status === 403) sourceBlocked = true;
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         if (!Array.isArray(data.offers)) throw new Error("invalid_response");
@@ -87,7 +91,11 @@ export async function fetchEskyPackages(search: EskySearch = {}): Promise<{ offe
     }
     hasMore = Boolean(cursor) || hasMore;
   };
-  for (let index = 0; index < arrivals.length; index += 4) {
+  // Probe the source once before fanning out. When eSky returns 401/403,
+  // this avoids multiplying the same blocked request across every destination.
+  if (arrivals.length) await scan(arrivals[0]);
+  for (let index = 1; index < arrivals.length; index += 4) {
+    if (sourceBlocked || Date.now() >= deadline) break;
     await Promise.all(arrivals.slice(index, index + 4).map(scan));
   }
   return { offers, partial, hasMore, searchUrl, ...(error ? { error } : {}) };

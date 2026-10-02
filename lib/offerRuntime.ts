@@ -58,6 +58,16 @@ function normalizeDateText(value: string) {
 export function inferOfferEndDate(value?: string): Date | null {
   if (!value) return null;
   const raw = normalizeDateText(value).replace(/[–—]/g, "-");
+
+  // Live affiliate feeds often use ISO ranges (for example
+  // 2026-09-28–2026-10-05). Treat the final ISO date as the end of the offer
+  // so stale mobile/web cards disappear consistently after the trip ends.
+  const isoDates = raw.match(/20\d{2}-\d{2}-\d{2}/g);
+  if (isoDates?.length) {
+    const end = new Date(`${isoDates.at(-1)}T23:59:59Z`);
+    if (!Number.isNaN(end.getTime())) return end;
+  }
+
   const exact = raw.match(/(?:\d{1,2}\s*-\s*)?(\d{1,2})\s+([a-z]+)\s+(20\d{2})/);
   if (exact) {
     const month = POLISH_MONTHS[exact[2]];

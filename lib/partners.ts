@@ -93,12 +93,12 @@ export function buildEskyPackagesUrl(destinationUrl?: string) {
 export const partners: Record<PartnerKey, Partner> = {
   esky: {
     key: "esky",
-    name: "Kiwi.com",
+    name: "eSky",
     category: "travel",
-    description: "Legacy alias kierowany wyłącznie do Kiwi.com",
+    description: "Pakiety lot + hotel eSky",
     commissionType: "unknown",
-    trackingId: "7PnrR4dn",
-    buildUrl: (destinationUrl) => buildLegacyEskyAlias(destinationUrl),
+    trackingId: "TRIPOWNIAPLPACKAGES",
+    buildUrl: (destinationUrl) => buildEskyPackagesUrl(destinationUrl),
   },
   wakacje: {
     key: "wakacje",
