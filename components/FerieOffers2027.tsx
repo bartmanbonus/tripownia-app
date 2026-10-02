@@ -186,7 +186,7 @@ function CompactOfferCard({
 }
 
 export default function FerieOffers2027() {
-  const [selectedId, setSelectedId] = useState("turn-2");
+  const [selectedId, setSelectedId] = useState("all");
   const [presetPayload, setPresetPayload] = useState<FeriePresetPayload | null>(null);
   const [presetStatus, setPresetStatus] = useState<"loading" | "ready" | "error">("loading");
   const [offers, setOffers] = useState<LiveOffer[]>([]);
