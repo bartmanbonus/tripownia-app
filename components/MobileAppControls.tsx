@@ -46,6 +46,12 @@ export default function MobileAppControls() {
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
+    const hasNav = isAppPath(pathname) && !pathname.startsWith("/dodaj-podroz");
+    document.documentElement.classList.toggle("tripownia-app-nav-visible", hasNav);
+    return () => document.documentElement.classList.remove("tripownia-app-nav-visible");
+  }, [pathname]);
+
+  useEffect(() => {
     let lastY = window.scrollY;
     const onScroll = () => {
       const nextY = window.scrollY;

@@ -71,9 +71,12 @@
 }
 @media (max-width: 760px) {
   .affiliate-return-prompt {
-    bottom: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
     grid-template-columns: auto 1fr;
     padding: 14px;
+  }
+  .tripownia-app-nav-visible .affiliate-return-prompt {
+    bottom: calc(92px + env(safe-area-inset-bottom));
   }
   .affiliate-return-actions {
     grid-column: 1 / -1;
