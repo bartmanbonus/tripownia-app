@@ -1722,3 +1722,17 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   .app-alerts-presets::-webkit-scrollbar{display:none}
   .app-alerts-presets button{flex:0 0 auto;min-height:40px}
 }
+
+.profile-budget-presets{
+  margin:-8px 0 20px;
+}
+@media(max-width:560px){
+  .profile-budget-presets{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    padding-bottom:2px;
+    scrollbar-width:none;
+  }
+  .profile-budget-presets::-webkit-scrollbar{display:none}
+  .profile-budget-presets .profile-chip{flex:0 0 auto;min-height:40px}
+}
