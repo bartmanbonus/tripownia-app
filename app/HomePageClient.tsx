@@ -481,6 +481,7 @@ export default function Home() {
   useEffect(() => {
     let active = true;
     const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 12_000);
     setLiveOffersStatus("loading");
 
     const useCachedPool = () => {
@@ -500,7 +501,7 @@ export default function Home() {
       setLiveOffersStatus("fallback");
     };
 
-    fetch(`/api/today-offers?key=${encodeURIComponent(dailyKey)}&refresh=${liveRefreshTick}`, {
+    fetch(`/api/today-offers?key=${encodeURIComponent(dailyKey)}&refresh=${liveRefreshTick}&fast=1`, {
       signal: controller.signal,
       cache: "no-store",
     })
@@ -522,20 +523,31 @@ export default function Home() {
         }
 
         const checkedAt = typeof data?.checkedAt === "string" ? data.checkedAt : new Date().toISOString();
+        const sourceIsFallback = data?.sourceType === "published_fallback"
+          || data?.coverage === "published_fallback"
+          || data?.fallback === true;
         const freshPool = safeRows.slice(0, 60);
         setLiveOffers(freshPool);
-        setLastLiveCheckedAt(checkedAt);
-        setLiveOffersStatus("live");
-        try {
-          localStorage.setItem("tripownia:last-good-daily", JSON.stringify({ key: dailyKey, checkedAt, offers: freshPool }));
-        } catch {}
+        setLastLiveCheckedAt(sourceIsFallback ? null : checkedAt);
+        setLiveOffersStatus(sourceIsFallback ? "fallback" : "live");
+
+        // Only confirmed live inventory becomes the "last good live" cache.
+        // Published fallback prices remain usable on screen, but never masquerade
+        // as a recently verified live feed on the next visit.
+        if (!sourceIsFallback) {
+          try {
+            localStorage.setItem("tripownia:last-good-daily", JSON.stringify({ key: dailyKey, checkedAt, offers: freshPool }));
+          } catch {}
+        }
       })
       .catch(() => {
         if (active) useCachedPool();
-      });
+      })
+      .finally(() => window.clearTimeout(timeout));
 
     return () => {
       active = false;
+      window.clearTimeout(timeout);
       controller.abort();
     };
   }, [dailyKey, liveRefreshTick]);
