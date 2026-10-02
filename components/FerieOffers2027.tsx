@@ -39,6 +39,7 @@ type PresetResult = {
   regionalDeparture: boolean;
   airportLabel: string;
   notice?: string;
+  searchUrl?: string;
 };
 
 type FeriePresetPayload = {
@@ -55,6 +56,8 @@ const FERIE_DESTINATIONS = [
     icon: "🇮🇹",
     eyebrow: "ALPY / ZIMOWY WYJAZD",
     short: "Dolomity i północne Włochy",
+    imageCity: "Cortina d'Ampezzo",
+    imageCountry: "Włochy",
     vibe: "snow",
     emptyCopy: "Nie mamy teraz potwierdzonego pakietu w tej turze. Sprawdź Włochy w wyszukiwarce z gotowymi datami.",
   },
@@ -64,6 +67,8 @@ const FERIE_DESTINATIONS = [
     icon: "🇦🇹",
     eyebrow: "ALPY / ZIMOWY WYJAZD",
     short: "Tyrol, Salzburg i austriackie Alpy",
+    imageCity: "Innsbruck",
+    imageCountry: "Austria",
     vibe: "snow",
     emptyCopy: "Nie mamy teraz potwierdzonego pakietu w tej turze. Sprawdź Austrię w wyszukiwarce z gotowymi datami.",
   },
@@ -73,6 +78,8 @@ const FERIE_DESTINATIONS = [
     icon: "🇪🇬",
     eyebrow: "SŁOŃCE / ALL INCLUSIVE",
     short: "Hurghada, Marsa Alam, Sharm el Sheikh",
+    imageCity: "Hurghada",
+    imageCountry: "Egipt",
     vibe: "sun",
     emptyCopy: "Nie mamy teraz potwierdzonego Egiptu w tej turze. Wyszukiwarka poniżej zachowa daty ferii.",
   },
@@ -82,6 +89,8 @@ const FERIE_DESTINATIONS = [
     icon: "🇹🇷",
     eyebrow: "HOTEL / ZWIEDZANIE",
     short: "Stambuł i zimowy wyjazd do Turcji",
+    imageCity: "Stambuł",
+    imageCountry: "Turcja",
     vibe: "sun",
     emptyCopy: "Nie mamy teraz potwierdzonej Turcji w tej turze. Wyszukaj ją niżej bez zmiany dat.",
   },
@@ -131,6 +140,43 @@ function nightsLabel(nights: number) {
   if (nights === 1) return "noc";
   if (nights % 10 >= 2 && nights % 10 <= 4 && !(nights % 100 >= 12 && nights % 100 <= 14)) return "noce";
   return "nocy";
+}
+
+function SearchPresetCard({
+  preset,
+  searchUrl,
+  dates,
+  airportLabel,
+}: {
+  preset: (typeof FERIE_DESTINATIONS)[number];
+  searchUrl?: string;
+  dates: string;
+  airportLabel: string;
+}) {
+  return (
+    <a className="ferie-search-preset-card" href={searchUrl || "#szukaj-w-tej-turze"}>
+      <div className="ferie-search-preset-media">
+        <TravelImage
+          city={preset.imageCity}
+          country={preset.imageCountry}
+          alt={`${preset.label} — ferie 2027`}
+          className="ferie-search-preset-image"
+        />
+        <span>GOTOWE WYSZUKIWANIE</span>
+      </div>
+      <div className="ferie-search-preset-body">
+        <strong>{preset.label}</strong>
+        <small>{preset.short}</small>
+        <div className="ferie-search-preset-meta">
+          <span><CalendarDays size={14}/>{dates} 2027</span>
+          <span><Plane size={14}/>{airportLabel || "lotniska w Polsce"}</span>
+          <span><Moon size={14}/>5–9 nocy</span>
+        </div>
+        <div className="ferie-search-preset-cta">Sprawdź aktualne pakiety <ArrowRight size={15}/></div>
+        <p>Bez zgadywania ceny — otwieramy wyszukiwanie już ustawione na tę turę.</p>
+      </div>
+    </a>
+  );
 }
 
 function CompactOfferCard({
@@ -370,11 +416,12 @@ export default function FerieOffers2027() {
                   sourceNote={regionalNote}
                 />
               ) : (
-                <div className="ferie-preset-empty ferie-preset-empty-v2">
-                  <strong>Brak potwierdzonej oferty w tej turze.</strong>
-                  <span>{preset.emptyCopy}</span>
-                  <a href="#szukaj-w-tej-turze">Szukaj {preset.label} <ArrowRight size={14}/></a>
-                </div>
+                <SearchPresetCard
+                  preset={preset}
+                  searchUrl={result?.searchUrl}
+                  dates={selected.dates}
+                  airportLabel={presetPayload?.airportLabel || "lotniska w Polsce"}
+                />
               )}
             </article>
           );
