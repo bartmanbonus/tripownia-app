@@ -225,6 +225,8 @@ export default function AddTripPage() {
   const [session, setSession] = useState<AccountSession | null>(null);
   const [editingTrip, setEditingTrip] = useState<EditableTrip | null>(null);
   const [step, setStep] = useState<1 | 2>(1);
+  const [sourceType, setSourceType] = useState("");
+  const [sourceKind, setSourceKind] = useState("");
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
   const suggestions = useMemo(
@@ -239,6 +241,14 @@ export default function AddTripPage() {
     [],
   );
   const missingCount = Object.values(pieces).filter((value) => !value).length;
+  const quickOwnedFlow = ownedMode && (sourceType === "external" || sourceType === "affiliate") && Boolean(city || country);
+  const quickOwnedText = pieces.flight && pieces.hotel
+    ? "Lot i hotel są już zaznaczone."
+    : pieces.flight
+      ? "Lot / transport jest już zaznaczony."
+      : pieces.hotel
+        ? "Nocleg jest już zaznaczony."
+        : "Wyjazd jest gotowy do zapisania.";
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -251,11 +261,13 @@ export default function AddTripPage() {
     setOwnedMode(owned);
 
     const source = params.get("source");
+    setSourceType(source || "");
     if (source === "affiliate" || source === "external") {
       const affiliateCity = (params.get("city") || "").trim();
       const affiliateCountry = (params.get("country") || "").trim();
       const affiliateKind = (params.get("kind") || "package").trim();
       const affiliatePartner = (params.get("partner") || "").trim();
+      setSourceKind(affiliateKind);
       const sourceStart = (params.get("start") || "").trim();
       const sourceEnd = (params.get("end") || "").trim();
 
@@ -608,6 +620,80 @@ export default function AddTripPage() {
     trackEvent("planner_created", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn, missing_count: missingCount });
     trackMetaCustomEvent("PlannerCreated", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn, missing_count: missingCount });
     window.location.href = "/moja-podroz";
+  }
+
+  if (quickOwnedFlow) {
+    return (
+      <main>
+        <SiteHeader />
+        <section className={"shell add-trip-page " + styles.confirmPage}>
+          <form className={styles.confirmCard} onSubmit={submit}>
+            <div className={styles.confirmMedia}>
+              <TravelImage
+                city={city}
+                country={country}
+                alt={[city, country].filter(Boolean).join(", ")}
+              />
+            </div>
+
+            <div className={styles.confirmContent}>
+              <div className={styles.confirmEyebrow}>TWÓJ WYJAZD</div>
+              <h1>{city || country}</h1>
+              {city && country && <div className={styles.confirmCountry}>{country}</div>}
+
+              <div className={styles.confirmIncluded}>
+                {pieces.flight && <span><CheckCircle2 size={16}/> Lot / transport</span>}
+                {pieces.hotel && <span><CheckCircle2 size={16}/> Nocleg</span>}
+                {!pieces.flight && !pieces.hotel && <span><CheckCircle2 size={16}/> Wyjazd gotowy</span>}
+              </div>
+
+              {error && <div className="add-trip-error" role="alert">{error}</div>}
+
+              <button type="submit" className={"primary-cta " + styles.confirmPrimary}>
+                Dodaj wyjazd <ArrowRight size={18}/>
+              </button>
+
+              <details className={styles.confirmDetails}>
+                <summary>Uzupełnij daty i szczegóły</summary>
+                <div className={styles.confirmDetailsBody}>
+                  <div className={styles.confirmDetailSection}>
+                    <strong>Termin</strong>
+                    <div className="add-trip-grid two">
+                      <label><span>Wyjazd</span><input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label>
+                      <label><span>Powrót</span><input type="date" min={startDate || undefined} value={endDate} onChange={(event) => setEndDate(event.target.value)} /></label>
+                    </div>
+                  </div>
+
+                  <div className={styles.confirmDetailSection}>
+                    <strong>Rezerwacja</strong>
+                    <div className="add-trip-grid two">
+                      {pieces.flight && <label><span>Lot / transport</span><input value={flight} onChange={(event) => setFlight(event.target.value)} placeholder="np. numer lotu" /></label>}
+                      {pieces.hotel && <label><span>Hotel</span><input value={hotel} onChange={(event) => setHotel(event.target.value)} placeholder="np. nazwa hotelu" /></label>}
+                    </div>
+                  </div>
+
+                  <div className={styles.confirmDetailSection}>
+                    <strong>Kierunek</strong>
+                    <div className="add-trip-grid two">
+                      <label><span>Miasto / region</span><input value={city} onChange={(event) => setCity(event.target.value)} /></label>
+                      <label><span>Kraj</span><input value={country} onChange={(event) => setCountry(event.target.value)} /></label>
+                    </div>
+                  </div>
+
+                  <div className={styles.confirmDetailSection}>
+                    <strong>Notatka</strong>
+                    <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Opcjonalnie" rows={3} />
+                  </div>
+                </div>
+              </details>
+
+              <div className={styles.confirmHint}>Wszystko możesz uzupełnić później.</div>
+            </div>
+          </form>
+        </section>
+        <SiteFooter />
+      </main>
+    );
   }
 
   return (
