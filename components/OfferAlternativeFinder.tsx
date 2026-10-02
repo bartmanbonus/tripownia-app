@@ -15,6 +15,7 @@ type Props = {
   departure: string;
   airportCode?: string;
   dates: string;
+  hotel?: string;
   currentOfferId: number;
 };
 
@@ -58,6 +59,7 @@ export default function OfferAlternativeFinder({
   departure,
   airportCode,
   dates,
+  hotel,
   currentOfferId,
 }: Props) {
   const initialAirport = useMemo(() => resolveAirportCode(airportCode, departure), [airportCode, departure]);
@@ -79,23 +81,28 @@ export default function OfferAlternativeFinder({
     const date = forceAnyDate ? "" : selectedDate;
     const flex = Math.max(0, Number(flexDays) || 0);
 
-    const params = new URLSearchParams({
-      mode: "search",
-      q: city,
-      nights: String(Math.max(1, nights || 1)),
-      fast: "1",
-    });
+    const buildParams = (query: string) => {
+      const params = new URLSearchParams({
+        mode: "search",
+        q: query,
+        nights: String(Math.max(1, nights || 1)),
+        fast: "1",
+        strict: "1",
+      });
 
-    if (airport) params.set("from", airport);
-    if (date) {
-      params.set("start", addDaysIso(date, -flex));
-      params.set("end", addDaysIso(date, flex));
-      params.set("dateKind", "departure");
-    }
+      if (airport) params.set("from", airport);
+      if (date) {
+        params.set("start", addDaysIso(date, -flex));
+        params.set("end", addDaysIso(date, flex));
+        params.set("dateKind", "departure");
+      }
+      return params;
+    };
 
     trackEvent("offer_alternative_search", {
       destination: city,
       country,
+      hotel: hotel || "",
       from: airport || "any",
       date: date || "any",
       flex_days: date ? flex : null,
@@ -103,24 +110,42 @@ export default function OfferAlternativeFinder({
     });
 
     try {
-      const response = await fetch(`/api/today-offers?${params.toString()}`, {
-        cache: "no-store",
-      });
-      const data = await response.json();
-      if (!response.ok || data?.ok === false) throw new Error(data?.error || "search_failed");
+      const search = async (query: string) => {
+        const response = await fetch(`/api/today-offers?${buildParams(query).toString()}`, {
+          cache: "no-store",
+        });
+        const data = await response.json();
+        if (!response.ok || data?.ok === false) throw new Error(data?.error || "search_failed");
+        const offers = (Array.isArray(data?.offers) ? data.offers : [])
+          .filter((offer: Offer) => offer.id !== currentOfferId)
+          .sort((a: Offer, b: Offer) => Number(a.price || Infinity) - Number(b.price || Infinity));
+        return { data, offers };
+      };
 
-      const found = (Array.isArray(data?.offers) ? data.offers : [])
-        .filter((offer: Offer) => offer.id !== currentOfferId)
-        .sort((a: Offer, b: Offer) => Number(a.price || Infinity) - Number(b.price || Infinity))
-        .slice(0, 6);
+      const hotelQuery = String(hotel || "").trim();
+      const canSearchSameHotel = hotelQuery.length >= 4 && !/^hotel$/i.test(hotelQuery);
+      let result = canSearchSameHotel ? await search(hotelQuery) : { data: null, offers: [] as Offer[] };
+      let sameHotel = result.offers.length > 0;
 
+      if (!result.offers.length) {
+        result = await search(city);
+        sameHotel = false;
+      }
+
+      const found = result.offers.slice(0, 6);
       setResults(found);
       setNotice(
         found.length
-          ? [`Znaleźliśmy ${found.length} alternatyw dla kierunku ${city}.`, data?.notice || "", data?.partial ? "Część źródeł może być chwilowo niepełna." : ""]
+          ? [
+              sameHotel
+                ? `Znaleźliśmy ${found.length} wariantów tego samego hotelu/wyjazdu.`
+                : `Nie znaleźliśmy tego samego hotelu, więc pokazujemy ${found.length} najlepszych alternatyw w kierunku ${city}.`,
+              result.data?.notice || "",
+              result.data?.partial ? "Część źródeł może być chwilowo niepełna." : "",
+            ]
               .filter(Boolean)
               .join(" ")
-          : data?.notice || "Nie znaleźliśmy teraz potwierdzonej alternatywy dla tych ustawień."
+          : result.data?.notice || "Nie znaleźliśmy teraz potwierdzonej alternatywy dla tych ustawień."
       );
     } catch {
       setResults([]);
