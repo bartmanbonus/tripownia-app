@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5, Plane, Globe2, Palmtree, Building2, BadgePercent, ShieldCheck, Compass } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
-import { offers, isOfferExpired } from "@/lib/offers";
+import { offers, homepageFallbackOffers, isOfferExpired } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { trackEvent } from "@/lib/analytics";
@@ -487,9 +487,10 @@ export default function Home() {
         setLiveOffers(saved.offers.slice(0, 60));
         setLastLiveCheckedAt(saved.checkedAt || null);
       } else {
-        const publishedFallback = offers
+        const publishedFallback = homepageFallbackOffers
           .filter((offer) => !isOfferExpired(offer))
           .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
+          .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity))
           .slice(0, 60);
         setLiveOffers(publishedFallback);
         setLastLiveCheckedAt(null);
@@ -539,7 +540,7 @@ export default function Home() {
 
   const publishedFallbackOffers = useMemo(() =>
     cheapestPerDirection(
-      offers
+      homepageFallbackOffers
         .filter(isPublishedHomepageFallback)
         .map(offerForDisplay)
     )
@@ -620,7 +621,8 @@ export default function Home() {
   }, [budget, dailyKey]);
 
   const budgetCandidates = useMemo(() => {
-    const pool = (surpriseLive.length ? surpriseLive : liveOffers).filter(isHomepageDeal);
+    const pool = (surpriseLive.length ? surpriseLive : homepageOfferPool)
+      .filter((offer) => isHomepageDeal(offer) || isPublishedHomepageFallback(offer));
     const exotic = /zanzibar|dominikan|malediw|kenia|meksyk|tajland|kuba|dubaj|bali|wietnam|japon|nowy jork|mauritius|seszel/i;
     const mid = /marsa alam|teneryfa|fuerteventura|marrakesz|djerba|hurghada|oman|wyspy zielonego przyladka/i;
     const low = /malta|sycylia|alicante|pafos|stambul|marrakesz|bergamo|porto/i;
@@ -633,7 +635,7 @@ export default function Home() {
       .map(offerForDisplay)
       .sort((a, b) => a.price - b.price || b.score - a.score)
       .slice(0, 10);
-  }, [budget, surpriseLive, liveOffers]);
+  }, [budget, surpriseLive, homepageOfferPool]);
 
   function moveOffersRail(direction: -1 | 1) {
     const rail = offersRailRef.current;
