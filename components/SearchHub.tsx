@@ -1496,7 +1496,7 @@ export default function SearchHub({
               </>
             )}
             {!loading && packageSearchLink && <div className="search-v3-empty-actions">
-              <a href={packageSearchLink} target="_blank" rel="sponsored noopener noreferrer">Sprawdź więcej pakietów w eSky</a>
+              <a href={packageSearchLink} rel="sponsored noreferrer">Sprawdź więcej pakietów w eSky</a>
               <span>Cena i dostępność do potwierdzenia u partnera.</span>
             </div>}
             {!loading && results.length === 0 && !expanding && (() => {

@@ -55,11 +55,15 @@ function buildYearOptions(count = 3) {
   return Array.from({ length: count }, (_, index) => String(currentYear + index));
 }
 
-function cheapestUnique(rows: DealsOffer[]) {
+function cheapestUnique(rows: DealsOffer[], liveOnly = true) {
   const best = new Map<string, DealsOffer>();
 
   rows
-    .filter((offer) => offer && isPromotableOffer(offer))
+    .filter((offer) => offer && (
+      liveOnly
+        ? isPromotableOffer(offer)
+        : Number.isFinite(Number(offer.price)) && Number(offer.price) > 0 && Boolean(offer.affiliateUrl)
+    ))
     .filter((offer) => !isOfferExpired(offer))
     .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
     .forEach((offer) => {
@@ -151,13 +155,13 @@ export default function DealsPage({
     if (quickFilter === "under2000") return sourceRows.filter((offer) => Number(offer.price) <= 2000);
     return sourceRows;
   }, [offers, quickFilter]);
-  const rows = useMemo(() => cheapestUnique(quickFilteredOffers), [quickFilteredOffers]);
+  const rows = useMemo(() => cheapestUnique(quickFilteredOffers, source === "live"), [quickFilteredOffers, source]);
   const destinationHotelHref = useMemo(
     () => destination ? `/hotele?q=${encodeURIComponent(destination)}` : "",
     [destination]
   );
   const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
-  const poolHighlights = useMemo(() => buildPoolHighlights(rows), [rows]);
+  const poolHighlights = useMemo(() => source === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source]);
 
   useEffect(() => {
     if (source !== "live" || !rows.length) return;
@@ -167,6 +171,7 @@ export default function DealsPage({
 
   const priceHighlights = useMemo(() => {
     const result = new Map<number, PriceHighlight>();
+    if (source !== "live") return result;
     rows.forEach((offer) => {
       const historical = getHistoricalPriceHighlight(offer);
       if (historical) {
@@ -177,7 +182,7 @@ export default function DealsPage({
       if (pool) result.set(offer.id, pool);
     });
     return result;
-  }, [rows, poolHighlights, historyVersion]);
+  }, [rows, poolHighlights, historyVersion, source]);
 
   const isGenericDealsPage = !destination && dealType !== "allinclusive";
   const todayDirectionKeys = useMemo(
@@ -253,9 +258,11 @@ export default function DealsPage({
           <div className="kicker">{kicker}</div>
           <h1>{destination ? "Okazje: " + destination : "Najtańsze wyjazdy. Bez przekopywania się przez setki ofert."}</h1>
           <p className="deals-simple-lead">
-            {destination
-              ? "Pokazujemy tylko aktualne oferty dla tego kierunku — bez przypadkowych zamienników."
-              : "Jedna najtańsza oferta na kierunek, bez duplikatów. Najtańsze pokazujemy jako pierwsze."}
+            {source === "fallback" && offers.length
+              ? "Źródła live są chwilowo ograniczone. Pokazujemy nieprzeterminowane propozycje orientacyjne — finalną cenę potwierdź u partnera."
+              : destination
+                ? "Pokazujemy tylko aktualne oferty dla tego kierunku — bez przypadkowych zamienników."
+                : "Jedna najtańsza oferta na kierunek, bez duplikatów. Najtańsze pokazujemy jako pierwsze."}
           </p>
         </div>
         <Link className="primary-cta deals-simple-search" href="/#wyszukiwarka">

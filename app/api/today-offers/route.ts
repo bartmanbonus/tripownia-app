@@ -640,6 +640,7 @@ export async function GET(request: NextRequest) {
   const endDateFilter = safeIsoDate(request.nextUrl.searchParams.get("end"));
   const dateKind = (request.nextUrl.searchParams.get("dateKind") || "").trim();
   const rescueMode = (request.nextUrl.searchParams.get("rescue") || "").trim();
+  const fastMode = request.nextUrl.searchParams.get("fast") === "1";
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
   let eskyStatus: { partial: boolean; error?: string; searchUrl?: string; hasMore?: boolean } = { partial: false };
@@ -647,7 +648,7 @@ export async function GET(request: NextRequest) {
   try {
     const eskyPromise = !providerOnly || providerOnly === "esky"
       ? fetchEskyPackages({ query, departure: departureFilter, cityBreak: mode === "citybreak", nights: nightsFilter,
-          minNights, maxNights, start: startDateFilter, end: endDateFilter, minPrice, maxPrice })
+          minNights, maxNights, start: startDateFilter, end: endDateFilter, minPrice, maxPrice, timeoutMs: fastMode ? 7_000 : undefined })
       : Promise.resolve({ offers: [], partial: false });
     const searchTerms = query
       ? expandSearchTerms(
@@ -677,7 +678,7 @@ export async function GET(request: NextRequest) {
           : mode === "search"
             ? BROAD_CORE_TERMS
             : BROAD_CORE_TERMS;
-    const searchPages = mode === "search" || mode === "citybreak" ? (query ? 3 : 2) : 1;
+    const searchPages = fastMode ? 1 : mode === "search" || mode === "citybreak" ? (query ? 3 : 2) : 1;
     const jobs: Array<() => Promise<{ provider: Provider; products: TdProduct[] }>> = [];
 
     for (const term of terms) {
@@ -693,7 +694,7 @@ export async function GET(request: NextRequest) {
     const batchSize = mode === "citybreak" ? 16 : 8;
     let successfulFeeds = 0;
     let failedFeeds = 0;
-    const feedDeadline = Date.now() + 42_000;
+    const feedDeadline = Date.now() + (fastMode ? 9_000 : 42_000);
     for (let index = 0; index < jobs.length; index += batchSize) {
       if (Date.now() >= feedDeadline) { failedFeeds += jobs.length - index; break; }
       const settled = await Promise.allSettled(jobs.slice(index, index + batchSize).map((job) => job()));

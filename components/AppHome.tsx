@@ -7,7 +7,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
-import { offers } from "@/lib/offers";
+import { isOfferExpired, offers } from "@/lib/offers";
 import { readTravelProfile, TRAVEL_PROFILE_KEY } from "@/lib/travelProfile";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
@@ -69,22 +69,30 @@ export default function AppHome() {
 
   useEffect(() => {
     const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 12_000);
     setLiveLoading(true);
 
-    fetch("/api/today-offers?broad=1", { cache: "no-store", signal: controller.signal })
+    fetch("/api/today-offers?broad=1&fast=1", { cache: "no-store", signal: controller.signal })
       .then((response) => response.ok ? response.json() : Promise.reject(new Error("today-offers")))
       .then((data) => {
         const rows = Array.isArray(data?.offers) ? data.offers : [];
         const clean = onePerDirection(rows
           .filter((offer: TripOffer) => offer?.price > 0 && offer?.affiliateUrl)
+          .filter((offer: TripOffer) => !isOfferExpired(offer))
           .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country))
         );
         setLiveOffers(clean.slice(0, 6));
       })
       .catch(() => setLiveOffers([]))
-      .finally(() => setLiveLoading(false));
+      .finally(() => {
+        window.clearTimeout(timeout);
+        setLiveLoading(false);
+      });
 
-    return () => controller.abort();
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
   }, []);
 
   const tripOffer = useMemo(

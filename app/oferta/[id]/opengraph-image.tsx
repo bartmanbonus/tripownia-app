@@ -6,7 +6,7 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 function absoluteImage(src: string) {
-  if (!src) return "https://tripownia.pl/tripownia-logo.webp";
+  if (!src) return "https://tripownia.pl/tripownia-app-icon-v2.png";
   return src.startsWith("http://") || src.startsWith("https://")
     ? src
     : `https://tripownia.pl${src.startsWith("/") ? src : `/${src}`}`;
