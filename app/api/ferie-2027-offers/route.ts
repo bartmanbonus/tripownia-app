@@ -93,6 +93,10 @@ async function loadOffer(
     dateKind: "departure",
     minNights: "5",
     maxNights: "9",
+    // eSky currently blocks server-side requests from Vercel. Ferie keeps
+    // EXIM/TUI live data here and uses the direct eSky searchUrl as the
+    // user-facing fallback instead of multiplying HTTP 403 calls.
+    skipEsky: "1",
   };
 
   if (airports.length) params.from = airports.join(",");
