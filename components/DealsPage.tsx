@@ -140,7 +140,9 @@ export default function DealsPage({
   }, [destination, dealType, airport, month, year]);
 
   const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
-  const { offers: todayOffers, loading: todayLoading, checkedAt: todayCheckedAt } = useLiveOffers("/api/today-offers");
+  const todayOffers: Offer[] = [];
+  const todayLoading = false;
+  const todayCheckedAt: string | null = null;
   const quickFilteredOffers = useMemo(() => {
     const sourceRows = offers as DealsOffer[];
     if (quickFilter === "city") return sourceRows.filter((offer) => offer.category.includes("city") || offer.category.includes("weekend"));
@@ -245,76 +247,61 @@ export default function DealsPage({
 
   return <main>
     <SiteHeader/>
-    <section className="shell hub-page deals-hub-page">
-      <div className="deals-hub-hero">
+    <section className="shell deals-simple-page">
+      <div className="deals-simple-hero">
         <div>
           <div className="kicker">{kicker}</div>
-          <h1>{destination ? `Oferty: ${destination}` : pageTitle}</h1>
-          <p className="hub-lead">{destination ? `Aktualne, potwierdzone oferty dla kierunku ${destination}. Nie pokazujemy losowych krajów zamiast tego, którego szukasz.` : pageLead}</p>
+          <h1>{destination ? "Okazje: " + destination : "Najtańsze wyjazdy. Bez przekopywania się przez setki ofert."}</h1>
+          <p className="deals-simple-lead">
+            {destination
+              ? "Pokazujemy tylko aktualne oferty dla tego kierunku — bez przypadkowych zamienników."
+              : "Jedna najtańsza oferta na kierunek, bez duplikatów. Najtańsze pokazujemy jako pierwsze."}
+          </p>
         </div>
-        <div className="deals-hub-actions">
-          <Link className="primary-cta" href="/#wyszukiwarka"><Search size={16}/> Dokładne wyszukiwanie</Link>
-          <button className="secondary-cta" type="button" onClick={refresh} disabled={loading}><RefreshCw size={15}/>{loading ? "Odświeżamy…" : "Odśwież"}</button>
-        </div>
+        <Link className="primary-cta deals-simple-search" href="/#wyszukiwarka">
+          <Search size={16}/> Wyszukaj po swojemu
+        </Link>
       </div>
 
-      {!destination && dealType !== "allinclusive" && <><div className="deals-results-heading">
-        <div><span>DZISIAJ W TRIPOWNI</span><h2>5 okazji, które warto sprawdzić dziś</h2></div>
-        <p>{todayLoading && !todayRows.length ? "Szukamy dzisiejszych okazji…" : `Codzienna selekcja Tripowni${todayCheckedLabel ? ` · sprawdzone ${todayCheckedLabel}` : ""}. Pokazujemy krótko to, co dziś ma najlepszy sens cenowy.`}</p>
-      </div>
-      {todayRows.length > 0 ? (
-        <div className="cards-grid deals-premium-grid">{todayRows.map((offer) => <OfferCard key={`today-${offer.id}`} offer={offer}/>)}</div>
-      ) : !todayLoading ? (
-        <div className="self-search-empty">
-          <strong>Dzisiejsza pula właśnie się odświeża.</strong>
-          <span>Wróć za chwilę — pokazujemy tylko oferty, których cenę i dostępność udało się teraz potwierdzić.</span>
-        </div>
-      ) : null}</>}
-
-      {!destination && dealType !== "allinclusive" && (
-        <div className="deals-ai-promo-strip">
-          <div>
-            <small>TANIE ALL INCLUSIVE 🔥</small>
-            <strong>Najtańsze pakiety z pełnym wyżywieniem</strong>
-            <span>Aktualizowana lista — sortowana od najniższej potwierdzonej ceny.</span>
+      <div className="deals-simple-controls">
+        <div className="deals-simple-topline">
+          <div className="deals-quick-filters" aria-label="Szybkie filtry okazji">
+            {([
+              ["all", "Wszystkie"],
+              ["city", "City break"],
+              ["allinclusive", "All inclusive"],
+              ["sun", "Ciepło"],
+              ["under2000", "Do 2000 zł"],
+            ] as Array<[QuickFilter, string]>).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                className={quickFilter === value ? "active" : ""}
+                onClick={() => {
+                  setQuickFilter(value);
+                  trackEvent("deals_quick_filter", { filter: value });
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-          <Link href="/tanie-all-inclusive" onClick={() => trackEvent("allinclusive_promo_click", { placement: "deals_page" })}>Zobacz Tanie All Inclusive →</Link>
-        </div>
-      )}
 
-      {!destination && dealType === "allinclusive" && (
-        <div className="deals-ai-promo-strip">
-          <div><small>TANIE ALL INCLUSIVE 🔥</small><strong>Hotel + wyżywienie + przelot w jednej cenie</strong><span>Sortujemy od najniższej potwierdzonej ceny.</span></div>
-          <Link href="/okazje">Zobacz też wszystkie okazje →</Link>
-        </div>
-      )}
-
-      <div className="deals-quick-filters" aria-label="Szybkie filtry okazji">
-        {([
-          ["all", "Wszystkie"],
-          ["city", "City break"],
-          ["allinclusive", dealType === "allinclusive" ? "Tanie All Inclusive 🔥" : "Tanie All Inclusive"],
-          ["sun", "Ciepło"],
-          ["under2000", "Do 2000 zł"],
-        ] as Array<[QuickFilter, string]>).map(([value, label]) => (
           <button
-            key={value}
             type="button"
-            className={quickFilter === value ? "active" : ""}
-            onClick={() => {
-              setQuickFilter(value);
-              trackEvent("deals_quick_filter", { filter: value });
-            }}
+            className="deals-simple-refresh"
+            onClick={refresh}
+            disabled={loading}
+            aria-label="Odśwież ceny"
           >
-            {label}
+            <RefreshCw size={16} className={loading ? "is-spinning" : ""}/>
+            <span>{loading ? "Odświeżamy…" : "Odśwież"}</span>
           </button>
-        ))}
-      </div>
+        </div>
 
-      <div className="deals-mobile-toolbar">
         <button
           type="button"
-          className={`deals-filter-toggle${filtersOpen ? " is-open" : ""}`}
+          className={"deals-filter-toggle deals-simple-filter-toggle" + (filtersOpen ? " is-open" : "")}
           onClick={() => setFiltersOpen((value) => !value)}
           aria-expanded={filtersOpen}
           aria-controls="deals-filters"
@@ -322,127 +309,413 @@ export default function DealsPage({
           <SlidersHorizontal size={17}/>
           <span><strong>Filtry</strong><small>{filterSummary}</small></span>
         </button>
-        <button type="button" className="deals-mobile-refresh" onClick={refresh} disabled={loading} aria-label="Odśwież ceny">
-          <RefreshCw size={17} className={loading ? "is-spinning" : ""}/>
-        </button>
-      </div>
 
-      <div id="deals-filters" className={`deals-filter-panel${filtersOpen ? " is-open" : ""}`} aria-label="Filtry okazji Tripowni">
-        <label>
-          <span><MapPin size={15}/> Lotnisko wylotu</span>
-          <select value={airport} onChange={(event) => setAirport(event.target.value)}>
-            {AIRPORTS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
-          </select>
-        </label>
-        <label>
-          <span><CalendarDays size={15}/> Miesiąc</span>
-          <select value={month} onChange={(event) => setMonth(event.target.value)}>
-            <option value="any">Wszystkie miesiące</option>
-            {MONTH_OPTIONS.map((item) => {
-              const disabled = year === String(currentYear) && Number(item.value) < currentMonth;
-              return <option key={item.value} value={item.value} disabled={disabled}>{item.label}</option>;
-            })}
-          </select>
-        </label>
-        <label>
-          <span><CalendarDays size={15}/> Rok</span>
-          <select value={year} onChange={(event) => handleYearChange(event.target.value)}>
-            <option value="any">Wszystkie lata</option>
-            {yearOptions.map((item) => <option key={item} value={item}>{item}</option>)}
-          </select>
-        </label>
-        {filtering && <button type="button" className="deals-clear-filters" onClick={clearFilters}>Wyczyść filtry</button>}
-        <button
-          type="button"
-          className="deals-filter-apply"
-          onClick={() => {
-            setFiltersOpen(false);
-            window.setTimeout(() => document.getElementById("deals-results-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
-          }}
+        <div
+          id="deals-filters"
+          className={"deals-filter-panel deals-simple-filter-panel" + (filtersOpen ? " is-open" : "")}
+          aria-label="Filtry okazji Tripowni"
         >
-          Pokaż wyniki
-        </button>
+          <label>
+            <span><MapPin size={15}/> Skąd</span>
+            <select value={airport} onChange={(event) => setAirport(event.target.value)}>
+              {AIRPORTS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+            </select>
+          </label>
+
+          <label>
+            <span><CalendarDays size={15}/> Kiedy</span>
+            <select
+              value={month === "any" || year === "any" ? "any" : year + "-" + month}
+              onChange={(event) => {
+                const next = event.target.value;
+                if (next === "any") {
+                  setMonth("any");
+                  setYear("any");
+                  return;
+                }
+                const [nextYear, nextMonth] = next.split("-");
+                setYear(nextYear);
+                setMonth(nextMonth);
+              }}
+            >
+              <option value="any">Dowolny termin</option>
+              {Array.from({ length: 15 }, (_, index) => {
+                const date = new Date(currentYear, currentMonth - 1 + index, 1);
+                const optionYear = String(date.getFullYear());
+                const optionMonth = String(date.getMonth() + 1).padStart(2, "0");
+                return (
+                  <option key={optionYear + "-" + optionMonth} value={optionYear + "-" + optionMonth}>
+                    {MONTH_NAMES[date.getMonth()]} {optionYear}
+                  </option>
+                );
+              })}
+            </select>
+          </label>
+
+          {filtering && (
+            <button type="button" className="deals-clear-filters" onClick={clearFilters}>
+              Wyczyść
+            </button>
+          )}
+
+          <button
+            type="button"
+            className="deals-filter-apply"
+            onClick={() => {
+              setFiltersOpen(false);
+              window.setTimeout(
+                () => document.getElementById("deals-results-anchor")?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                80
+              );
+            }}
+          >
+            Pokaż wyniki
+          </button>
+        </div>
       </div>
 
-      <div className="deals-trust-bar" id="deals-results-anchor">
-        <span className="deals-trust-primary"><Sparkles size={15}/><strong>{loading && !rows.length ? "Sprawdzamy oferty…" : `${rows.length} ${rows.length === 1 ? "kierunek" : "kierunków"}`}</strong></span>
-        <span className="deals-trust-detail">{historicalCount ? `${historicalCount} historycznych minimów` : priceHighlights.size ? `${priceHighlights.size} cen wyraźnie poniżej mediany puli` : "Oferty od najniższej ceny"}</span>
-        <span className="deals-trust-detail">{filtering ? `${airportLabel} · ${monthLabel} · ${yearLabel}` : "Wszystkie dostępne lotniska i terminy"}</span>
-        <span className="deals-trust-source">{sourceCopy}</span>
+      <div className="deals-simple-summary" id="deals-results-anchor">
+        <div>
+          <strong>
+            {loading && !rows.length
+              ? "Szukamy najlepszych cen…"
+              : rows.length + " " + (rows.length === 1 ? "kierunek" : "kierunków")}
+          </strong>
+          <span>{filtering ? filterSummary : "Wszystkie lotniska · dowolny termin"}</span>
+        </div>
+        <small>{sourceCopy}</small>
       </div>
 
       {notice && <div className="deals-filter-notice">{notice}</div>}
 
-      {featuredDeal && (
-        <section className="deals-buy-now" aria-label="Najtańsza aktualna oferta">
-          <div className="deals-buy-now-copy">
-            <small>NAJTAŃSZA Z AKTUALNYCH WYNIKÓW</small>
-            <strong>{featuredDeal.flag} {featuredDeal.city} — od {Number(featuredDeal.price).toLocaleString("pl-PL")} zł / os.</strong>
-            <span>{featuredDeal.departure} · {featuredDeal.dates} · {featuredDeal.nights} nocy · {featuredDeal.board}</span>
-          </div>
-          <div className="deals-buy-now-actions">
-            {featuredDeal.id < 1_000_000 && (
-              <Link
-                className="deals-buy-now-details"
-                href={`/oferta/${featuredDeal.id}`}
-                onClick={() => trackEvent("featured_offer_detail_click", { offer_id: featuredDeal.id, destination: featuredDeal.city, price: featuredDeal.price })}
-              >
-                Szczegóły w Tripowni
-              </Link>
-            )}
-            {featuredDealExternal ? (
-              <a
-                className="deals-buy-now-primary"
-                href={featuredDealHref}
-                target="_blank"
-                rel="sponsored noopener noreferrer"
-                onClick={() => trackEvent("featured_offer_outbound_click", { offer_id: featuredDeal.id, destination: featuredDeal.city, price: featuredDeal.price, partner: featuredDeal.partner })}
-              >
-                Sprawdź aktualną cenę <ArrowRight size={16}/>
-              </a>
-            ) : (
-              <Link
-                className="deals-buy-now-primary"
-                href={featuredDealHref}
-                onClick={() => trackEvent("featured_offer_open_click", { offer_id: featuredDeal.id, destination: featuredDeal.city, price: featuredDeal.price })}
-              >
-                Sprawdź ofertę <ArrowRight size={16}/>
-              </Link>
-            )}
-          </div>
-          <p>Cena może zmienić się do momentu rezerwacji. Przed płatnością sprawdź finalne warunki oferty.</p>
-        </section>
-      )}
-
       {rows.length > 0 ? (
-        <>
-          {displayRows.length > 0 && <>
-          <div className="deals-results-heading">
-            <div><span>AKTUALNE OFERTY</span><h2>{filtering ? "Najlepsze dopasowania" : "Więcej najlepszych cen"}</h2></div>
-            <p>{source === "live" ? "Kliknij ofertę, aby sprawdzić aktualną cenę i dostępność." : "Pokazujemy ostatnio sprawdzone oferty Tripowni. Aktualną cenę i dostępność potwierdzisz po kliknięciu."}</p>
-          </div>
-          <div className="cards-grid deals-premium-grid">{displayRows.map((offer) => <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>)}</div>
-          </>}
-        </>
+        <div className="cards-grid deals-premium-grid deals-simple-grid">
+          {rows.map((offer) => (
+            <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>
+          ))}
+        </div>
       ) : !loading ? (
-        <div className="self-search-empty">
-          <strong>{destination ? `Nie mamy teraz potwierdzonego pakietu: ${destination}.` : "Nie mamy teraz potwierdzonych okazji w tej puli."}</strong>
-          <span>{destination ? "Nie pokazujemy losowego kierunku zamiast tego, którego szukasz. Sprawdź loty albo noclegi dla tego samego miejsca." : "Spróbuj odświeżyć dane lub zmienić jeden filtr. Tripownia nie podmieni ceny na statyczną."}</span>
+        <div className="self-search-empty deals-simple-empty">
+          <strong>{destination ? "Brak aktualnej oferty dla: " + destination : "Brak ofert dla tych filtrów."}</strong>
+          <span>
+            {destination
+              ? "Nie podstawiamy innego kierunku. Zmień termin albo sprawdź lot i hotel osobno."
+              : "Zmień jeden filtr albo wyczyść ustawienia — nie pokazujemy sztucznych wyników."}
+          </span>
           {destination && (
             <div className="deals-empty-actions">
-              <Link href={`/loty?destination=${encodeURIComponent(destination)}`}>✈️ Porównaj loty</Link>
+              <Link href={"/loty?destination=" + encodeURIComponent(destination)}>✈️ Porównaj loty</Link>
               <Link href={destinationHotelHref}>🏨 Sprawdź hotele</Link>
             </div>
           )}
         </div>
       ) : null}
 
-      <div className="deals-end-cta"><div><strong>Chcesz zawęzić jeszcze bardziej?</strong><span>W głównej wyszukiwarce ustawisz też kierunek, budżet, długość pobytu, weekend i wyżywienie.</span></div><Link href="/#wyszukiwarka">Przejdź do wyszukiwarki <ArrowRight size={16}/></Link></div>
-      <div className="facebook-growth-strip facebook-growth-strip-compact">
-        <div><small>NIE PRZEGAP KOLEJNEJ PULI</small><strong>Obserwuj Tripownię na Facebooku.</strong><span>Nowe okazje i konkretne wyjazdy publikujemy również tam.</span></div>
-        <a href="https://www.facebook.com/987707741084438" target="_blank" rel="noopener noreferrer" onClick={() => trackEvent("facebook_follow_click", { placement: "deals_page" })}>Obserwuj na Facebooku →</a>
+      <div className="deals-simple-bottom">
+        <span>Nie widzisz nic dla siebie?</span>
+        <Link href="/#wyszukiwarka">Ustaw kierunek, budżet i długość pobytu</Link>
       </div>
     </section>
     <SiteFooter/>
+
+    <style jsx>{`
+      .deals-simple-page {
+        padding-top: 28px;
+        padding-bottom: 36px;
+      }
+
+      .deals-simple-hero {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 28px;
+        padding: 12px 0 22px;
+      }
+
+      .deals-simple-hero h1 {
+        margin: 8px 0 8px;
+        max-width: 820px;
+        font-size: clamp(32px, 4.2vw, 54px);
+        line-height: 1.02;
+        letter-spacing: -0.04em;
+      }
+
+      .deals-simple-lead {
+        margin: 0;
+        max-width: 720px;
+        color: #5f6670;
+        font-size: 16px;
+        line-height: 1.55;
+      }
+
+      .deals-simple-search {
+        flex: 0 0 auto;
+        white-space: nowrap;
+      }
+
+      .deals-simple-controls {
+        margin: 8px 0 16px;
+        padding: 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 18px;
+        background: #fff;
+      }
+
+      .deals-simple-topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .deals-quick-filters {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding-bottom: 1px;
+      }
+
+      .deals-quick-filters::-webkit-scrollbar {
+        display: none;
+      }
+
+      .deals-quick-filters button {
+        border: 1px solid #e5e7eb;
+        background: #fff;
+        border-radius: 999px;
+        padding: 9px 13px;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        white-space: nowrap;
+        cursor: pointer;
+      }
+
+      .deals-quick-filters button.active {
+        border-color: #111827;
+        background: #111827;
+        color: #fff;
+      }
+
+      .deals-simple-refresh {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        border: 0;
+        background: transparent;
+        color: #4b5563;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .deals-simple-filter-toggle {
+        display: none;
+      }
+
+      .deals-simple-filter-panel {
+        display: grid;
+        grid-template-columns: minmax(210px, 1fr) minmax(210px, 1fr) auto auto;
+        align-items: end;
+        gap: 10px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #eef0f2;
+      }
+
+      .deals-simple-filter-panel label {
+        display: grid;
+        gap: 6px;
+      }
+
+      .deals-simple-filter-panel label > span {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #6b7280;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+      }
+
+      .deals-simple-filter-panel select {
+        width: 100%;
+        height: 44px;
+        padding: 0 12px;
+        border: 1px solid #dfe3e8;
+        border-radius: 12px;
+        background: #fff;
+        color: #111827;
+        font: inherit;
+        font-weight: 650;
+      }
+
+      .deals-clear-filters,
+      .deals-filter-apply {
+        height: 44px;
+        border-radius: 12px;
+        padding: 0 14px;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .deals-clear-filters {
+        border: 1px solid #e5e7eb;
+        background: #fff;
+      }
+
+      .deals-filter-apply {
+        display: none;
+        border: 0;
+        background: #111827;
+        color: #fff;
+      }
+
+      .deals-simple-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin: 18px 0 12px;
+      }
+
+      .deals-simple-summary > div {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .deals-simple-summary strong {
+        font-size: 20px;
+      }
+
+      .deals-simple-summary span,
+      .deals-simple-summary small {
+        color: #737982;
+        font-size: 13px;
+      }
+
+      .deals-simple-grid {
+        margin-top: 0;
+        gap: 16px;
+      }
+
+      .deals-simple-bottom {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 24px;
+        padding: 18px;
+        border-top: 1px solid #eceff2;
+        color: #6b7280;
+        font-size: 14px;
+      }
+
+      .deals-simple-bottom a {
+        font-weight: 800;
+      }
+
+      @media (max-width: 820px) {
+        .deals-simple-page {
+          padding-top: 14px;
+        }
+
+        .deals-simple-hero {
+          display: grid;
+          gap: 14px;
+          padding-bottom: 10px;
+        }
+
+        .deals-simple-hero h1 {
+          font-size: clamp(30px, 10vw, 42px);
+        }
+
+        .deals-simple-search {
+          width: 100%;
+          justify-content: center;
+        }
+
+        .deals-simple-controls {
+          padding: 10px;
+          border-radius: 15px;
+        }
+
+        .deals-simple-topline {
+          display: block;
+        }
+
+        .deals-simple-refresh {
+          display: none;
+        }
+
+        .deals-simple-filter-toggle {
+          display: flex;
+          width: 100%;
+          align-items: center;
+          gap: 10px;
+          margin-top: 10px;
+          padding: 11px 12px;
+          border: 1px solid #e5e7eb;
+          border-radius: 12px;
+          background: #f9fafb;
+          text-align: left;
+        }
+
+        .deals-simple-filter-toggle span {
+          display: grid;
+          gap: 1px;
+        }
+
+        .deals-simple-filter-toggle small {
+          color: #6b7280;
+          font-size: 11px;
+          font-weight: 500;
+        }
+
+        .deals-simple-filter-panel {
+          display: none;
+          grid-template-columns: 1fr;
+          margin-top: 10px;
+        }
+
+        .deals-simple-filter-panel.is-open {
+          display: grid;
+        }
+
+        .deals-filter-apply {
+          display: block;
+        }
+
+        .deals-simple-summary {
+          align-items: flex-start;
+          margin-top: 14px;
+        }
+
+        .deals-simple-summary > div {
+          display: grid;
+          gap: 2px;
+        }
+
+        .deals-simple-summary small {
+          display: none;
+        }
+
+        .deals-simple-grid {
+          gap: 12px;
+        }
+
+        .deals-simple-bottom {
+          display: grid;
+          text-align: center;
+        }
+      }
+    `}</style>
   </main>;
 }
