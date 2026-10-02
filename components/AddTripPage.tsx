@@ -599,7 +599,7 @@ export default function AddTripPage() {
             <div className="add-trip-section-title"><MapPinned size={20}/><div><strong>1. Zacznij od tego, co chcesz podać</strong><span>{ownedMode ? "Wpisz tylko informacje, które już masz. Pozostałe elementy możesz pominąć." : "Nie musisz znać kierunku ani dokładnych dat. Każdy element tego kroku jest opcjonalny."}</span></div></div>
 
             <div className="planner-mode-row">
-              <button type="button" className={destinationMode === "open" ? "active" : ""} onClick={() => { setDestinationMode("open"); setSkipDestinationChoice(false); }}>🌍 Lecę gdziekolwiek</button>
+              <button type="button" className={destinationMode === "open" ? "active" : ""} onClick={() => { setDestinationMode("open"); setSkipDestinationChoice(false); }}>🌍 Gdziekolwiek</button>
               <button type="button" className={destinationMode === "known" ? "active" : ""} onClick={() => { setDestinationMode("known"); setSkipDestinationChoice(false); }}>📍 Wiem dokąd chcę</button>
             </div>
             {destinationMode === "known" && <div className="add-trip-grid two">
