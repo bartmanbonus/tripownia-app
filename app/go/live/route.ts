@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { recordClick } from "@/lib/clickStats";
 import { partners, buildEskyPackagesUrl, type PartnerKey } from "@/lib/partners";
+import { recordGlobalAffiliateClick } from "@/lib/affiliateAnalyticsStore";
 
 const ALLOWED_PARTNERS = new Set<PartnerKey>([
   "wakacje",
@@ -290,6 +291,25 @@ export async function GET(request: NextRequest) {
       path: request.nextUrl.pathname,
     })
   );
+
+  if (clickId) {
+    after(async () => {
+      await recordGlobalAffiliateClick({
+        clickId,
+        partner,
+        source,
+        offer,
+        destination,
+        price,
+        page,
+        utmSource,
+        utmMedium,
+        utmCampaign,
+        utmContent,
+        landing,
+      });
+    });
+  }
 
   const response = NextResponse.redirect(target, 307);
   response.headers.set("Cache-Control", "no-store");
