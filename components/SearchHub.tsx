@@ -1478,8 +1478,8 @@ export default function SearchHub({
                 <div className="search-v3-empty-actions">
                   <button type="button" onClick={searchNearestDates}>Pokaż inne terminy</button>
                   <button type="button" onClick={relaxSearchFilters}>Usuń dodatkowe filtry</button>
-                  {fallback && <a href={fallback.kiwi} rel="sponsored">Sprawdź loty</a>}
-                  {fallback && <a href={fallback.booking} rel="sponsored">Sprawdź noclegi</a>}
+                  {fallbackDestination && <Link href={`/loty?destination=${encodeURIComponent(fallbackDestination)}`}>Sprawdź loty</Link>}
+                  {fallbackDestination && <Link href={`/hotele?destination=${encodeURIComponent(fallbackDestination)}`}>Sprawdź noclegi</Link>}
                 </div>
               </div>;
             })()}
