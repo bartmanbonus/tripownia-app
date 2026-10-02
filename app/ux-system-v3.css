@@ -1493,3 +1493,85 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   font-size:10.5px!important;
   line-height:1.4!important;
 }
+
+/* UX v3 flat pass — remove legacy floating-card styling from remaining screens. */
+#wyszukiwarka::before{display:none!important;content:none!important}
+
+.app-alerts-card,
+.compare-card,
+.advisor-controls,
+.trip-mode-card,
+.my-trip-card,
+.trip-toolkit-card,
+.directions-v188-hero,
+.directions-v188-search,
+.directions-v188-card,
+.partner-search-shopping,
+.experience-expanded-card,
+.service-panel>div,
+.city-break-idea-card,
+.single-partner-search-wrap,
+.article-sales-bridge,
+.chapter-score .score-box{
+  box-shadow:none!important;
+}
+
+.directions-v188-card:hover,
+.city-break-idea-card:hover,
+.dream-service-card:hover{
+  transform:none!important;
+  box-shadow:none!important;
+}
+
+.app-alerts-card,
+.compare-card,
+.advisor-controls,
+.my-trip-card,
+.trip-toolkit-card,
+.experience-expanded-card,
+.service-panel>div,
+.single-partner-search-wrap{
+  border-radius:18px!important;
+}
+
+.directions-v188-hero,
+.partner-search-shopping,
+.article-sales-bridge{
+  border-radius:20px!important;
+}
+
+.directions-v188-card,
+.city-break-idea-card{
+  border:1px solid var(--ux-line)!important;
+  border-radius:18px!important;
+}
+
+.directions-v188-cta,
+.article-sales-primary,
+.article-action-rail-links .article-action-rail-primary,
+.chapter-score .verdict{
+  box-shadow:none!important;
+}
+
+.article-action-rail-links a:hover{
+  transform:none!important;
+  box-shadow:none!important;
+}
+
+.chapter-score.score-section{
+  box-shadow:none!important;
+}
+
+.trip-toolkit-card,
+.app-alerts-card,
+.compare-card,
+.advisor-controls,
+.trip-mode-card,
+.my-trip-card{
+  border-color:var(--ux-line)!important;
+}
+
+.app-pretrip-grid a,
+.app-home-tile{
+  box-shadow:none!important;
+}
