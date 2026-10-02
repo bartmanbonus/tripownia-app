@@ -5,7 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SearchHub from "@/components/SearchHub";
 
 export const metadata: Metadata = {
-  title: "Hotele i noclegi – wyszukiwarka | Tripownia.pl",
+  title: "Hotele i noclegi – wyszukiwarka",
   description: "Znajdź nocleg do swojej podróży bez wychodzenia od razu z Tripowni. Wybierz kierunek i termin, a potem sprawdź aktualną dostępność.",
   alternates: { canonical: "/hotele" },
   openGraph: {
