@@ -753,7 +753,7 @@ export default function Home() {
           <div>
             <div className="kicker">PODPOWIEDZI TRIPOWNI</div>
             <h2 id="curated-trips-title">Najtańsze sensowne wyjazdy na start.</h2>
-            <p>Najpierw cena, potem różnorodność. Każdy kierunek pokazujemy tylko raz w pierwszej sekcji.</p>
+            <p>W tej sekcji zaczynamy od najniższych cen, ale odrzucamy przypadkowe i powtarzające się propozycje. Każdy kierunek pokazujemy tylko raz.</p>
           </div>
           <Link className="section-premium-link" href="/okazje">Wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
@@ -762,7 +762,7 @@ export default function Home() {
             Źródła ofert live chwilowo nie odpowiadają. Pokazujemy ostatnio opublikowane propozycje — aktualną cenę i dostępność potwierdzisz po kliknięciu.
           </div>
         )}
-        <OfferRail kicker="💸 NAJTANIEJ TERAZ" title="Najniższe ceny na pierwszy rzut" description="Najtańsze propozycje pokazujemy pierwsze — po jednym wariancie na kierunek." items={themedRails.cheapest}/>
+        <OfferRail kicker="💸 NAJTANIEJ TERAZ" title="Najniższe ceny na pierwszy rzut" description="Najtańsze sensowne propozycje pokazujemy pierwsze — po jednym wariancie na kierunek." items={themedRails.cheapest}/>
         <OfferRail kicker="🏙 CITY BREAK" title="Na kilka dni" description="Krótkie wyjazdy bez powielania kierunków z sekcji najtańszych." items={themedRails.city}/>
         <OfferRail kicker="☀️ WAKACJE" title="Słońce i dłuższy odpoczynek" description="Dłuższe wyjazdy i ciepłe kierunki, których nie pokazaliśmy wyżej." items={themedRails.sun}/>
       </section>
@@ -990,7 +990,7 @@ export default function Home() {
           <div>
             <div className="kicker light">DOBIERZ WYJAZD DO BUDŻETU</div>
             <h2>Mam do {budget.toLocaleString("pl-PL")} zł/os.<br/>Co ma sens?</h2>
-            <p>Nie pokazujemy po prostu najtańszej opcji. Dobieramy wyjazd do budżetu, długości pobytu i jakości oferty.</p>
+            <p>W sekcji budżetowej nie wybieramy automatycznie absolutnie najtańszej opcji. Dobieramy wyjazd do budżetu, długości pobytu i jakości oferty.</p>
             <input type="range" min="500" max="5000" step="100" value={budget} onChange={e => setBudget(Number(e.target.value))}/>
             <div className="range-labels"><span>500 zł</span><strong>{budget} zł</strong><span>5000 zł</span></div>
           </div>
