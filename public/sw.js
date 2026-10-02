@@ -1,8 +1,19 @@
-const CACHE_NAME = "tripownia-v5";
+const CACHE_NAME = "tripownia-v7";
 const APP_SHELL = [
-  "/app",
+  "/offline.html",
   "/tripownia-app-icon-v2.png?v=20260913",
 ];
+
+function canStoreResponse(response, isStaticAsset) {
+  if (!response.ok || !isStaticAsset) return false;
+
+  const cacheControl = (response.headers.get("cache-control") || "").toLowerCase();
+  if (cacheControl.includes("no-store") || cacheControl.includes("private")) return false;
+
+  // Tripownia has live prices, availability and account state. Never cache HTML
+  // navigations; offline navigation always uses the neutral offline screen.
+  return true;
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -46,7 +57,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(request)
       .then((response) => {
-        if (response.ok && (isNavigation || isStaticAsset)) {
+        if (canStoreResponse(response, isStaticAsset)) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
         }
@@ -55,7 +66,9 @@ self.addEventListener("fetch", (event) => {
       .catch(async () => {
         const cached = await caches.match(request);
         if (cached) return cached;
-        if (isNavigation) return caches.match("/app");
+
+        // Keep a lightweight offline fallback without serving cached private state.
+        if (isNavigation) return caches.match("/offline.html");
         return Response.error();
       })
   );
