@@ -691,7 +691,7 @@ export default function AddTripPage() {
                 <Link className="secondary-cta" href={suggestions.flight}><Plane size={17}/> Sprawdź lot</Link>
                 <Link className="secondary-cta" href={suggestions.hotel}><BedDouble size={17}/> Znajdź nocleg</Link>
                 {sportTicket && (
-                  <a className="secondary-cta" href={sportTicket} target="_blank" rel="noopener noreferrer">
+                  <a className="secondary-cta" href={sportTicket} rel="noopener noreferrer">
                     <Ticket size={17}/> Oficjalne bilety
                   </a>
                 )}
