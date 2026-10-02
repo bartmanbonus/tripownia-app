@@ -13,6 +13,7 @@ type LiveOffersResponse = {
   notice?: string;
   error?: string;
   sourceType?: OfferSourceType;
+  partial?: boolean;
 };
 
 type LiveOffersState = {
@@ -89,6 +90,16 @@ function writeCache(endpoint: string, offers: Offer[], checkedAt?: string) {
   } catch {}
 }
 
+function mergeOffers(primary: Offer[], supplement: Offer[]) {
+  const unique = new Map<string, Offer>();
+  for (const offer of usableOffers([...primary, ...supplement])) {
+    const key = `${offer.partner || "unknown"}:${offer.id}`;
+    const current = unique.get(key);
+    if (!current || Number(offer.price) < Number(current.price)) unique.set(key, offer);
+  }
+  return Array.from(unique.values()).sort((a, b) => Number(a.price) - Number(b.price));
+}
+
 export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 1000) {
   const [state, setState] = useState<LiveOffersState>({
     offers: [],
@@ -105,18 +116,25 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
       const live = usableOffers(Array.isArray(data.offers) ? data.offers : []);
 
       const tryBrowserEsky = () => {
-        if (offerSourceIsLive(data.sourceType)) return;
+        const shouldTry = Boolean(data.partial) || !offerSourceIsLive(data.sourceType);
+        if (!shouldTry) return;
+
         void fetchBrowserEskyOffers(endpoint).then((rows) => {
           const browserLive = usableOffers(rows);
           if (!browserLive.length) return;
+
           const checkedAt = new Date().toISOString();
-          writeCache(endpoint, browserLive, checkedAt);
+          const merged = mergeOffers(live, browserLive);
+          writeCache(endpoint, merged, checkedAt);
           setState({
-            offers: browserLive,
+            offers: merged,
             source: "live",
             loading: false,
             checkedAt,
-            notice: "Ceny eSky odświeżone bezpośrednio w przeglądarce. Finalną dostępność potwierdzisz u partnera.",
+            notice: [
+              data.notice,
+              "Dodaliśmy dostępne wyniki eSky pobrane bezpośrednio w przeglądarce.",
+            ].filter(Boolean).join(" "),
           });
         });
       };
@@ -168,7 +186,7 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
         checkedAt,
         notice: data.notice,
       });
-      if (!offerSourceIsLive(data.sourceType)) tryBrowserEsky();
+      if (data.partial || !offerSourceIsLive(data.sourceType)) tryBrowserEsky();
     } catch (error) {
       setState((current) => {
         if (current.source === "live" && current.offers.length && isFreshTimestamp(current.checkedAt)) {
