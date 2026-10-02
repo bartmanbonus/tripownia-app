@@ -33,12 +33,15 @@ const route=load('app/api/today-offers/route.ts',{'@/lib/searchOfferRanking':ran
  res=await route.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=search&q=Cypr&board=roomonly&strict=1')});
  assert.equal(res.body.offers.length,0);
  mode='error';res=await route.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=search&q=Cypr')});assert.equal(res.status,502);
- const destinations=['Malta','Pafos','Rzym','Barcelona','Lizbona','Ateny','Praga','Porto'];
- const cityRoute=load('app/api/today-offers/route.ts',{'@/lib/searchOfferRanking':ranking,'@/lib/destinationGrouping':grouping,'next/server':{NextResponse:{json:(body,opts)=>({body,status:opts?.status||200})}}},{process:{env:{TRADEDOUBLER_EXIM_TOKEN:'test-only'}},fetch:async()=>({ok:true,json:async()=>({products:destinations.flatMap((city,i)=>Array.from({length:35},(_,j)=>({name:`Hotel ${city} ${j}`,fields:[{name:'BestPrice',value:String(1400+i*100+j*20)},{name:'DestinationName',value:city},{name:'DestinationAddress',value:`${city};Europa`},{name:'Departure',value:'Warszawa'}],offers:[{sourceProductId:`${city}-${j}`,productUrl:`https://example.test/url(${encodeURIComponent('https://www.exim.pl/?AC1=2&NN=3&DD=2027-12-01&RD=2027-12-04')})`}]})))})})});
+ const destinations=['Malta','Pafos','Rzym','Barcelona','Lizbona','Ateny','Praga','Porto','Madera'];
+ const cityRoute=load('app/api/today-offers/route.ts',{'@/lib/searchOfferRanking':ranking,'@/lib/destinationGrouping':grouping,'next/server':{NextResponse:{json:(body,opts)=>({body,status:opts?.status||200})}}},{process:{env:{TRADEDOUBLER_EXIM_TOKEN:'test-only'}},fetch:async()=>({ok:true,json:async()=>({products:destinations.flatMap((city,i)=>Array.from({length:35},(_,j)=>({name:`Hotel ${city} ${j}`,fields:[{name:'BestPrice',value:String(i === 8 ? 8000 : 1400+i*100+j*20)},{name:'DestinationName',value:city},{name:'DestinationAddress',value:`${city};Europa`},{name:'Departure',value:'Warszawa'}],offers:[{sourceProductId:`${city}-${j}`,productUrl:`https://example.test/url(${encodeURIComponent('https://www.exim.pl/?AC1=2&NN=3&DD=2027-12-01&RD=2027-12-04')})`}]})))})})});
  res=await cityRoute.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=citybreak&view=destinations&from=WAWA&strict=1')});
  assert.equal(res.body.offers.length,8, 'all eight directions survive more than 240 variants');
  assert.equal(new Set(res.body.offers.map(o=>grouping.touristDestinationKey(o))).size,8);
  assert.equal(res.body.offers[0].price,700);
+ assert(res.body.offers.every(o=>o.price<=2000), 'expensive city breaks are excluded even as the cheapest in a destination');
+ const broad=await cityRoute.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=citybreak&from=WAWA&maxPrice=8000')});
+ assert(broad.body.offers.every(o=>o.price<=2000), 'broad search and a high user budget cannot bypass the city break cap');
  assert(res.body.offers.every((o,i,all)=>!i||o.price>=all[i-1].price));
  console.log('PASS: cheapest variant, board variants, no city cap, exact-first alternatives, price pagination, WAW, budget, strict filters, upstream failure.');
 })().catch(e=>{console.error(e);process.exit(1)});
