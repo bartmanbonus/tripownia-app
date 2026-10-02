@@ -4,7 +4,7 @@ export default function Loading() {
       <div className="system-loading-mark" aria-hidden="true">✈</div>
       <div>
         <div className="kicker">TRIPOWNIA</div>
-        <h1>Ładujemy kolejną część podróży.</h1>
+        <strong className="system-loading-title">Ładujemy kolejną część podróży.</strong>
         <p>Za moment pokażemy aktualny widok.</p>
       </div>
       <div className="system-loading-bar" aria-hidden="true"><span /></div>
