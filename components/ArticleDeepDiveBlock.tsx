@@ -34,7 +34,7 @@ export default function ArticleDeepDiveBlock({ deepDive, hideIntro = false }: { 
               <div className="article-table-wrap">
                 <table>
                   <thead><tr>{section.table.headers.map((header) => <th key={header}>{header}</th>)}</tr></thead>
-                  <tbody>{section.table.rows.map((row, rowIndex) => <tr key={`${section.title}-${rowIndex}`}>{row.map((cell, cellIndex) => <td key={`${rowIndex}-${cellIndex}`}>{cell}</td>)}</tr>)}</tbody>
+                  <tbody>{section.table.rows.map((row, rowIndex) => <tr key={`${section.title}-${rowIndex}`}>{row.map((cell, cellIndex) => <td key={`${rowIndex}-${cellIndex}`} data-label={section.table!.headers[cellIndex]}>{cell}</td>)}</tr>)}</tbody>
                 </table>
               </div>
             ) : null}
