@@ -8,7 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { readTravelProfile } from "@/lib/travelProfile";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
-import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState } from "@/lib/accountState";
+import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState, hasMeaningfulLocalAccountState, mergeAnonymousAccountState } from "@/lib/accountState";
 import {
   accountAuthEventName,
   consumeAccountAuthErrorFromUrl,
@@ -162,9 +162,23 @@ export default function AccountPage() {
           getTripowniaUserState(logged),
         ]);
         setUser(accountUser);
-        setCloudState(remote);
-        if (remote) applyCloudAccountState(remote);
-        else await saveTripowniaUserState(logged, collectLocalAccountState());
+        if (remote) {
+          const localOwner = localStorage.getItem("tripownia-local-owner-v1") || "";
+          const hasAnonymousLocalData = !localOwner && hasMeaningfulLocalAccountState();
+          if (hasAnonymousLocalData) {
+            const merged = mergeAnonymousAccountState(remote, collectLocalAccountState());
+            const saved = await saveTripowniaUserState(logged, merged);
+            const reconciled = saved || { ...remote, ...merged, user_id: remote.user_id };
+            applyCloudAccountState(reconciled);
+            setCloudState(reconciled);
+          } else {
+            applyCloudAccountState(remote);
+            setCloudState(remote);
+          }
+        } else {
+          const saved = await saveTripowniaUserState(logged, collectLocalAccountState());
+          setCloudState(saved);
+        }
         trackEvent("login", { method: "password" });
         setMessage("Zalogowano. Otwieramy Twoją Tripownię…");
         const next = safeNextPath();
