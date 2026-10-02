@@ -922,6 +922,7 @@ export async function GET(request: NextRequest) {
         sourceStatus: { esky: eskyStatus, feedsFailed: failedFeeds },
         providers: Array.from(new Set(pool.map(offer => offer.provider))),
         coverage: "available_feed_results",
+        sourceType: "live",
         exactSourceCount: exactPool.length,
         destinationCount: cheapestDestinations.length,
         notice: [notice, (failedFeeds || esky.partial) ? "Pokazujemy dostępne wyniki źródeł; lista może nie obejmować całego katalogu partnerów." : ""].filter(Boolean).join(" "),
@@ -1004,7 +1005,9 @@ export async function GET(request: NextRequest) {
       ? []
       : homepageFallbackOffers
           .filter((offer) => !isOfferExpired(offer))
-          .filter(isPromotableOffer)
+          .filter(isAffordableShortTrip)
+          .filter((offer) => Boolean(offer.affiliateUrl))
+          .filter((offer) => offer.linkMatch !== "unsafe")
           .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
           .filter((offer) => ["exim", "tui", "esky"].includes(String(offer.partner)))
           .filter((offer) => !providerOnly || offer.partner === providerOnly)
@@ -1051,6 +1054,7 @@ export async function GET(request: NextRequest) {
         fallback: true,
         providers: Array.from(new Set(selectedFallback.map((offer) => offer.partner))),
         coverage: "published_fallback",
+        sourceType: "published_fallback",
         exactSourceCount: 0,
         destinationCount: selectedFallback.length,
         notice: fallbackNotice,
