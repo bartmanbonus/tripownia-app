@@ -22,8 +22,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TravelImage from "@/components/TravelImage";
 import { ACTIVE_TRIP_KEY, upsertTripArchive } from "@/lib/tripArchive";
-import { ensureFreshAccountSession, readAccountSession, saveTripowniaUserState, type AccountSession } from "@/lib/accountAuth";
-import { collectLocalAccountState } from "@/lib/accountState";
+import { ensureFreshAccountSession, readAccountSession, type AccountSession } from "@/lib/accountAuth";
 import { offers, type Offer } from "@/lib/offers";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
@@ -610,7 +609,9 @@ export default function AddTripPage() {
       country: resolvedCountry,
       price: editingTrip?.offerSnapshot?.price || 0,
       departure: departureMode === "any" ? "Polska — dowolne lotnisko" : (departureOptions.join(", ") || departure.trim() || "Do ustalenia"),
-      airportCode: "",
+      airportCode: departureMode === "selected"
+        ? originIata(departureOptions[0] || departure.trim())
+        : "",
       nights: dateMode === "range" ? nights : 0,
       weather: "",
       score: 0,
@@ -661,15 +662,8 @@ export default function AddTripPage() {
     upsertTripArchive(tripWithPreferences);
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
 
-    if (session) {
-      try {
-        await saveTripowniaUserState(session, collectLocalAccountState());
-      } catch {
-        setError("Plan zapisano na tym urządzeniu, ale synchronizacja konta chwilowo się nie udała. Spróbuj ponownie za moment.");
-        return;
-      }
-    }
-
+    // Cloud sync is handled globally by AccountCloudSync after the update event.
+    // Never block the planner funnel on a transient network/Supabase failure.
     trackEvent("planner_created", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn, missing_count: missingCount });
     trackMetaCustomEvent("PlannerCreated", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn, missing_count: missingCount });
     window.location.href = "/moja-podroz";
