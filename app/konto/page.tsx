@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, Cloud, Download, LogOut, Mail, ShieldCheck, Sparkles, Trash2, UserRound } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
@@ -21,11 +21,13 @@ import {
   isSocialProviderEnabled,
   readAccountSession,
   requestMagicLink,
+  requestPasswordReset,
   saveTripowniaUserState,
   signInWithPassword,
   signOutAccount,
   signUpWithPassword,
   socialLoginUrl,
+  updateAccountPassword,
   type AccountSession,
   type AccountUser,
   type TripowniaUserState,
@@ -47,19 +49,41 @@ export default function AccountPage() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [magicCooldown, setMagicCooldown] = useState(0);
+  const [resetCooldown, setResetCooldown] = useState(0);
+  const [recoveryMode, setRecoveryMode] = useState(false);
+  const [recoveryPassword, setRecoveryPassword] = useState("");
+  const [recoveryPasswordConfirm, setRecoveryPasswordConfirm] = useState("");
   const [synced, setSynced] = useState(0);
   const configured = isAccountAuthConfigured();
 
-  const localStats = useMemo(() => {
-    if (typeof window === "undefined") return { visited: 0, favorites: 0, compare: 0, trip: false, trips: 0 };
-    const profile = readTravelProfile();
-    const state = collectLocalAccountState();
-    return {
-      visited: profile.visitedCountries.length,
-      favorites: state.favorite_offer_ids.length,
-      compare: state.compare_offer_ids.length,
-      trip: Boolean(state.current_trip),
-      trips: Array.isArray(state.trip_archive) ? state.trip_archive.length : 0,
+  const [localStats, setLocalStats] = useState({ visited: 0, favorites: 0, compare: 0, trip: false, trips: 0 });
+
+  useEffect(() => {
+    const refreshLocalStats = () => {
+      const profile = readTravelProfile();
+      const state = collectLocalAccountState();
+      setLocalStats({
+        visited: profile.visitedCountries.length,
+        favorites: state.favorite_offer_ids.length,
+        compare: state.compare_offer_ids.length,
+        trip: Boolean(state.current_trip),
+        trips: Array.isArray(state.trip_archive) ? state.trip_archive.length : 0,
+      });
+    };
+
+    refreshLocalStats();
+    const events = [
+      "tripownia-profile-updated",
+      "tripownia-favorites-updated",
+      "tripownia-compare-updated",
+      "tripownia-my-trip-updated",
+      "tripownia-trips-updated",
+    ];
+    events.forEach((name) => window.addEventListener(name, refreshLocalStats));
+    window.addEventListener("storage", refreshLocalStats);
+    return () => {
+      events.forEach((name) => window.removeEventListener(name, refreshLocalStats));
+      window.removeEventListener("storage", refreshLocalStats);
     };
   }, [session, synced]);
 
@@ -70,12 +94,16 @@ export default function AccountPage() {
       const authError = consumeAccountAuthErrorFromUrl();
       if (authError && !cancelled) setMessage(authError);
       const fromUrl = consumeAccountSessionFromUrl();
-      const current = await ensureFreshAccountSession(fromUrl || readAccountSession());
+      const sourceSession = fromUrl || readAccountSession();
+      const recoveryFlow = sourceSession?.auth_event_type === "recovery";
+      if (recoveryFlow && !cancelled) setRecoveryMode(true);
+      const current = await ensureFreshAccountSession(sourceSession);
       if (cancelled) return;
       setSession(current);
       if (!current) {
         setUser(null);
         setCloudState(null);
+        if (!recoveryFlow) setRecoveryMode(false);
         return;
       }
       try {
@@ -91,7 +119,7 @@ export default function AccountPage() {
           setUser(accountUser);
           setCloudState(remote);
           const next = safeNextPath();
-          if (fromUrl || next) window.setTimeout(() => window.location.replace(next || "/app"), 350);
+          if (!recoveryFlow && (fromUrl || next)) window.setTimeout(() => window.location.replace(next || "/app"), 350);
         }
       } catch {
         if (!cancelled) setMessage("Konto jest zalogowane, ale nie udało się teraz pobrać wszystkich danych.");
@@ -115,6 +143,12 @@ export default function AccountPage() {
     const timer = window.setTimeout(() => setMagicCooldown((value) => Math.max(0, value - 1)), 1000);
     return () => window.clearTimeout(timer);
   }, [magicCooldown]);
+
+  useEffect(() => {
+    if (resetCooldown <= 0) return;
+    const timer = window.setTimeout(() => setResetCooldown((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [resetCooldown]);
 
   async function submitPasswordAuth(event: FormEvent) {
     event.preventDefault();
@@ -210,6 +244,61 @@ export default function AccountPage() {
     }
   }
 
+  async function sendPasswordReset() {
+    const cleanEmail = email.trim();
+    if (!cleanEmail) {
+      setMessage("Wpisz adres e-mail konta, a wyślemy link do ustawienia nowego hasła.");
+      return;
+    }
+    if (resetCooldown > 0 || busy) return;
+
+    setBusy(true);
+    setMessage("");
+    try {
+      await requestPasswordReset(cleanEmail, `${window.location.origin}/konto`);
+      setResetCooldown(60);
+      trackEvent("password_reset_requested", { method: "email" });
+      setMessage("Jeśli konto z tym adresem istnieje, wysłaliśmy link do ustawienia nowego hasła. Sprawdź skrzynkę e-mail.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Nie udało się wysłać linku do zmiany hasła.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function submitRecoveredPassword(event: FormEvent) {
+    event.preventDefault();
+    if (!session) {
+      setMessage("Link do zmiany hasła wygasł. Wyślij nowy link.");
+      setRecoveryMode(false);
+      return;
+    }
+    if (recoveryPassword.length < 10 || !/[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]/.test(recoveryPassword) || !/\d/.test(recoveryPassword)) {
+      setMessage("Nowe hasło powinno mieć co najmniej 10 znaków, w tym literę i cyfrę.");
+      return;
+    }
+    if (recoveryPassword !== recoveryPasswordConfirm) {
+      setMessage("Hasła nie są takie same.");
+      return;
+    }
+
+    setBusy(true);
+    setMessage("");
+    try {
+      const accountUser = await updateAccountPassword(session, recoveryPassword);
+      setUser(accountUser);
+      setRecoveryMode(false);
+      setRecoveryPassword("");
+      setRecoveryPasswordConfirm("");
+      trackEvent("password_reset_completed", { method: "email" });
+      setMessage("Hasło zostało zmienione. Konto jest zalogowane na tym urządzeniu.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Nie udało się ustawić nowego hasła.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function syncLocalData() {
     if (!session) return;
     setBusy(true);
@@ -296,6 +385,47 @@ export default function AccountPage() {
             <div className="account-card-title"><Cloud size={21}/><div><small>BACKEND KONTA</small><strong>Logowanie jest chwilowo niedostępne.</strong></div></div>
             <p>Personalizacja nadal działa lokalnie. Gdy połączenie wróci, dane możesz zsynchronizować jednym przyciskiem.</p>
           </div>
+        ) : session && user && recoveryMode ? (
+          <div className="account-grid">
+            <div className="account-card account-login-card">
+              <div className="account-card-title"><ShieldCheck size={21}/><div><small>ODZYSKIWANIE KONTA</small><strong>Ustaw nowe hasło</strong></div></div>
+              <p>Link został potwierdzony. Ustaw nowe hasło do konta Tripowni.</p>
+              <form onSubmit={submitRecoveredPassword} className="account-password-form">
+                <label className="account-auth-field">
+                  <span>Nowe hasło</span>
+                  <input
+                    name="new-password"
+                    type="password"
+                    value={recoveryPassword}
+                    onChange={(event) => setRecoveryPassword(event.target.value)}
+                    placeholder="Minimum 10 znaków"
+                    autoComplete="new-password"
+                    minLength={10}
+                    required
+                  />
+                  <small>Minimum 10 znaków, w tym co najmniej jedna litera i jedna cyfra.</small>
+                </label>
+                <label className="account-auth-field">
+                  <span>Powtórz nowe hasło</span>
+                  <input
+                    name="new-password-confirm"
+                    type="password"
+                    value={recoveryPasswordConfirm}
+                    onChange={(event) => setRecoveryPasswordConfirm(event.target.value)}
+                    placeholder="Powtórz hasło"
+                    autoComplete="new-password"
+                    minLength={10}
+                    required
+                  />
+                </label>
+                <button type="submit" disabled={busy}>{busy ? "Zapisuję…" : "Ustaw nowe hasło"}</button>
+              </form>
+            </div>
+            <div className="account-card account-benefits-card">
+              <div className="account-card-title"><Cloud size={21}/><div><small>TWOJE DANE</small><strong>Podróże pozostają na koncie</strong></div></div>
+              <p>Zmiana hasła nie usuwa zapisanych podróży, ulubionych, profilu ani planera.</p>
+            </div>
+          </div>
         ) : session && user ? (
           <div className="account-grid">
             <div className="account-card">
@@ -347,6 +477,16 @@ export default function AccountPage() {
                   {authMode === "register" && <small>Minimum 10 znaków, w tym co najmniej jedna litera i jedna cyfra.</small>}
                 </label>
                 <button type="submit" disabled={busy}>{busy ? "Chwila…" : authMode === "register" ? "Utwórz konto" : "Zaloguj się"}</button>
+                {authMode === "login" && (
+                  <button
+                    type="button"
+                    className="account-reset-link"
+                    onClick={sendPasswordReset}
+                    disabled={busy || resetCooldown > 0}
+                  >
+                    {resetCooldown > 0 ? `Wyślij ponownie za ${resetCooldown}s` : "Nie pamiętam hasła"}
+                  </button>
+                )}
               </form>
 
               <div className="account-divider"><span>albo bez hasła</span></div>
