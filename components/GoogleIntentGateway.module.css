@@ -1,5 +1,5 @@
 .section {
-  padding: 24px 0 56px;
+  padding: 22px 0 38px;
 }
 
 .shell {
@@ -39,15 +39,15 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
 .card {
   position: relative;
-  min-height: 220px;
+  min-height: 152px;
   overflow: hidden;
-  border-radius: 22px;
+  border-radius: 16px;
   color: #fff;
   text-decoration: none;
   isolation: isolate;
@@ -80,7 +80,7 @@
 .cardCopy {
   position: absolute;
   z-index: 2;
-  inset: auto 18px 17px;
+  inset: auto 14px 13px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -96,21 +96,25 @@
 
 .cardCopy strong {
   max-width: 90%;
-  font-size: 24px;
+  font-size: 19px;
   line-height: 1.02;
   letter-spacing: -.035em;
   text-shadow: 0 2px 18px rgba(0,0,0,.24);
 }
 
 .cardCopy b {
-  margin-top: 10px;
-  font-size: 10px;
+  margin-top: 7px;
+  font-size: 9px;
   font-weight: 900;
 }
 
-@media (max-width: 880px) {
+@media (max-width: 980px) {
   .grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .card {
+    min-height: 165px;
   }
 }
 
