@@ -344,6 +344,47 @@ const homepageTripTypes = [
   { href: "/gdzie-jest-cieplo-zima-bez-dalekiego-lotu", icon: "🌤️", title: "Ciepło zimą", note: "słońce bez bardzo dalekiego lotu" },
 ] as const;
 
+function OfferRail({ kicker, title, description, items, moreHref = "/okazje" }: { kicker: string; title: string; description: string; items: TripOffer[]; moreHref?: string }) {
+  const railRef = useRef<HTMLDivElement>(null);
+
+  const move = (direction: -1 | 1) => {
+    const rail = railRef.current;
+    if (!rail) return;
+    const card = rail.querySelector<HTMLElement>(".offer-card");
+    const step = card ? card.getBoundingClientRect().width + 18 : 320;
+    rail.scrollBy({ left: direction * step * 2, behavior: "smooth" });
+  };
+
+  if (!items.length) return null;
+
+  return (
+    <section className="offer-stream-row">
+      <div className="offer-stream-head">
+        <div>
+          <div className="kicker">{kicker}</div>
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </div>
+        <div className="offer-stream-controls" aria-label={`Sterowanie: ${title}`}>
+          <button type="button" onClick={() => move(-1)} aria-label={`Poprzednie: ${title}`}><ArrowLeft size={18}/></button>
+          <button type="button" onClick={() => move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button>
+        </div>
+      </div>
+      <div className="offer-stream-rail" ref={railRef}>
+        {items.map((offer) => <div className="offer-stream-item" key={`${title}-${offer.id}`}><OfferCard offer={offer}/></div>)}
+        <div className="offer-stream-item offer-stream-more-card">
+          <Link href={moreHref}>
+            <small>WIĘCEJ OFERT</small>
+            <strong>Zobacz pełną pulę</strong>
+            <span>Przejdź do wszystkich aktualnych propozycji.</span>
+            <em>Zobacz więcej <ArrowRight size={15}/></em>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ExperienceTeaserImage({ city, country, title, fallbackSrc }: { city: string; country: string; title: string; fallbackSrc?: string }) {
   const [src, setSrc] = useState<string | null>(fallbackSrc || null);
 
@@ -499,6 +540,31 @@ export default function Home() {
     return { last, next: "ceny sprawdzamy ponownie automatycznie co 10 min" };
   }, [lastLiveCheckedAt]);
 
+  const themedRails = useMemo(() => {
+    const pool = [...liveOffers, ...offers]
+      .filter((offer) => !isOfferExpired(offer))
+      .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
+      .map(offerForDisplay);
+
+    const uniqueCheapest = cheapestPerDirection(pool)
+      .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
+
+    const city = uniqueCheapest
+      .filter((offer) => Number(offer.nights || 0) >= 2 && Number(offer.nights || 0) <= 5)
+      .slice(0, 10);
+
+    const sunPattern = /egipt|turcj|grecj|hiszp|cypr|tunez|zanzibar|malediw|mauritius|dominik|teneryf|fuertevent|djerb|marsa alam|madera/i;
+    const sun = uniqueCheapest
+      .filter((offer) => Number(offer.nights || 0) >= 5 && sunPattern.test(`${offer.city} ${offer.country} ${(offer.category || []).join(" ")}`))
+      .slice(0, 10);
+
+    return {
+      city: city.length ? city : uniqueCheapest.slice(0, 10),
+      sun: sun.length ? sun : uniqueCheapest.filter((offer) => Number(offer.nights || 0) >= 5).slice(0, 10),
+      cheapest: uniqueCheapest.slice(0, 10),
+    };
+  }, [liveOffers]);
+
   const offersRailRef = useRef<HTMLDivElement>(null);
   const [budget, setBudget] = useState(2500);
   const [surprise, setSurprise] = useState<TripOffer | null>(null);
@@ -604,6 +670,20 @@ export default function Home() {
       <SearchHub />
       <SalesVisualShortcuts />
       <RecentlyViewedOffers />
+
+      <section className="section shell homepage-curated-trips" aria-labelledby="curated-trips-title">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">PODPOWIEDZI TRIPOWNI</div>
+            <h2 id="curated-trips-title">Nie wiesz od czego zacząć?</h2>
+            <p>Przewiń kierunki zamiast wpisywać wszystko ręcznie. Każdy kierunek pokazujemy tylko raz — od najtańszej aktualnej opcji.</p>
+          </div>
+          <Link className="section-premium-link" href="/okazje">Wszystkie okazje <ArrowRight size={16}/></Link>
+        </div>
+        <OfferRail kicker="🏙 CITY BREAK" title="Na kilka dni" description="Krótkie wyjazdy, najtańsze kierunki na początku." items={themedRails.city}/>
+        <OfferRail kicker="☀️ WAKACJE" title="Słońce i dłuższy odpoczynek" description="Gotowe kierunki na minimum kilka dni, bez powielania miejsc." items={themedRails.sun}/>
+        <OfferRail kicker="💸 NAJTANIEJ TERAZ" title="Najniższe ceny na pierwszy rzut" description="Po jednym najtańszym wariancie dla każdego kierunku." items={themedRails.cheapest}/>
+      </section>
 
       <section className="section shell visual-chapter chapter-daily" id="okazje">
         <div className="section-heading">
