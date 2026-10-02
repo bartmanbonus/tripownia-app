@@ -553,8 +553,6 @@ export default function Home() {
     const liveDeals = cheapestPerDirection(liveOffers.map(offerForDisplay).filter(isHomepageDeal))
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
-    if (liveDeals.length >= 12) return liveDeals.slice(0, 18);
-
     const seen = new Set(liveDeals.map(destinationGroupKey));
     const fallback = publishedFallbackOffers.filter((offer) => {
       const key = destinationGroupKey(offer);
@@ -563,10 +561,12 @@ export default function Home() {
       return true;
     });
 
-    return [...liveDeals, ...fallback].slice(0, 18);
+    return [...liveDeals, ...fallback]
+      .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity) || b.score - a.score)
+      .slice(0, 18);
   }, [liveOffers, publishedFallbackOffers]);
 
-  const todaysOffers = homepageOfferPool;
+  const todaysOffers = homepageOfferPool.slice(0, 18);
 
   const usingPublishedFallback = homepageOfferPool.some((offer) => offer.id < 1_000_000);
   const newOffersCount = todaysOffers.length;
@@ -584,28 +584,25 @@ export default function Home() {
     const uniqueCheapest = [...homepageOfferPool]
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
+    const cheapest = uniqueCheapest.slice(0, 10);
+    const cheapestKeys = new Set(cheapest.map(destinationGroupKey));
+
     const city = uniqueCheapest
+      .filter((offer) => !cheapestKeys.has(destinationGroupKey(offer)))
       .filter((offer) => Number(offer.nights || 0) >= 2 && Number(offer.nights || 0) <= 5)
       .slice(0, 10);
 
+    const usedKeys = new Set([...cheapestKeys, ...city.map(destinationGroupKey)]);
     const sunPattern = /egipt|turcj|grecj|hiszp|cypr|tunez|zanzibar|malediw|mauritius|dominik|teneryf|fuertevent|djerb|marsa alam|madera/i;
     const sun = uniqueCheapest
+      .filter((offer) => !usedKeys.has(destinationGroupKey(offer)))
       .filter((offer) => Number(offer.nights || 0) >= 5 && sunPattern.test(`${offer.city} ${offer.country} ${(offer.category || []).join(" ")}`))
       .slice(0, 10);
 
-    const cityKeys = new Set(city.map(destinationGroupKey));
-    const sunCandidates = (sun.length ? sun : uniqueCheapest.filter((offer) => Number(offer.nights || 0) >= 5))
-      .filter((offer) => !cityKeys.has(destinationGroupKey(offer)))
-      .slice(0, 10);
-    const usedKeys = new Set([...cityKeys, ...sunCandidates.map(destinationGroupKey)]);
-    const cheapest = uniqueCheapest
-      .filter((offer) => !usedKeys.has(destinationGroupKey(offer)))
-      .slice(0, 10);
-
     return {
-      city,
-      sun: sunCandidates.length ? sunCandidates : uniqueCheapest.filter((offer) => Number(offer.nights || 0) >= 5).slice(0, 10),
-      cheapest: cheapest.length ? cheapest : uniqueCheapest.slice(0, 10),
+      cheapest,
+      city: city.length ? city : uniqueCheapest.filter((offer) => Number(offer.nights || 0) >= 2 && Number(offer.nights || 0) <= 5).slice(0, 10),
+      sun: sun.length ? sun : uniqueCheapest.filter((offer) => Number(offer.nights || 0) >= 5).slice(0, 10),
     };
   }, [homepageOfferPool]);
 
@@ -630,7 +627,7 @@ export default function Home() {
   }, [budget, dailyKey]);
 
   const budgetCandidates = useMemo(() => {
-    const pool = (surpriseLive.length ? surpriseLive : homepageOfferPool)
+    const pool = cheapestPerDirection([...surpriseLive, ...homepageOfferPool])
       .filter((offer) => isHomepageDeal(offer) || isPublishedHomepageFallback(offer));
     const exotic = /zanzibar|dominikan|malediw|kenia|meksyk|tajland|kuba|dubaj|bali|wietnam|japon|nowy jork|mauritius|seszel/i;
     const mid = /marsa alam|teneryfa|fuerteventura|marrakesz|djerba|hurghada|oman|wyspy zielonego przyladka/i;
