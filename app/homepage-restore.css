@@ -1266,3 +1266,144 @@ body:has(.dream-hero) .editorial-streaming-rail .streaming-tile small{
     height:240px!important;
   }
 }
+
+
+/* 2026-10-02 — compact budget recommender: reduce vertical footprint */
+body:has(.dream-hero) .budget-wrap.chapter-budget{
+  margin:14px 0 0!important;
+  padding:30px 0!important;
+}
+@media(min-width:981px){
+  body:has(.dream-hero) .chapter-budget .budget-grid{
+    grid-template-columns:minmax(0,1fr) minmax(390px,460px)!important;
+    gap:44px!important;
+    align-items:center!important;
+  }
+}
+body:has(.dream-hero) .chapter-budget .budget-grid h2{
+  margin:4px 0 8px!important;
+  font-size:clamp(30px,3vw,40px)!important;
+  line-height:.99!important;
+}
+body:has(.dream-hero) .chapter-budget .budget-grid>div:first-child>p{
+  max-width:520px!important;
+  margin:0!important;
+  font-size:11px!important;
+  line-height:1.45!important;
+}
+body:has(.dream-hero) .chapter-budget .budget-grid input[type="range"]{
+  margin-top:18px!important;
+}
+body:has(.dream-hero) .chapter-budget .range-labels{
+  margin-top:6px!important;
+  font-size:10px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-card{
+  padding:20px!important;
+  border-radius:20px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-card-head{
+  gap:9px!important;
+  margin-bottom:9px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-card-head>svg{
+  width:21px!important;
+  height:21px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-card-head h3{
+  margin:3px 0 3px!important;
+  font-size:22px!important;
+  line-height:1.04!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-card-head p{
+  font-size:10px!important;
+  line-height:1.35!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-result-v2{
+  margin-top:10px!important;
+  padding:14px!important;
+  border-radius:14px!important;
+  grid-template-columns:40px minmax(0,1fr)!important;
+  column-gap:10px!important;
+  row-gap:3px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-result-v2 .surprise-flag{
+  font-size:25px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-result-v2>strong{
+  font-size:17px!important;
+  line-height:1.1!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-result-v2>em{
+  font-size:10px!important;
+  line-height:1.35!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-fit-meta{
+  gap:5px!important;
+  margin:7px 0!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-fit-meta span{
+  padding:4px 7px!important;
+  font-size:8px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-result-v2>span:last-of-type{
+  margin-top:2px!important;
+  font-size:10px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-result-actions{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:7px!important;
+  margin-top:8px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-result-actions a,
+body:has(.dream-hero) .chapter-budget .surprise-result-actions button{
+  min-height:36px!important;
+  width:100%!important;
+  padding:0 10px!important;
+  border-radius:10px!important;
+  font-size:9px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-alternatives{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:6px!important;
+  margin-top:9px!important;
+  padding-top:9px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-alternatives>small{
+  grid-column:1/-1!important;
+  margin-bottom:0!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-alternatives>button{
+  min-height:42px!important;
+  padding:6px 8px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-alternatives>button+button{
+  margin-top:0!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-alternatives strong{
+  font-size:10px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-alternatives small{
+  font-size:7px!important;
+}
+body:has(.dream-hero) .chapter-budget .surprise-alternatives b{
+  font-size:10px!important;
+}
+@media(max-width:980px){
+  body:has(.dream-hero) .budget-wrap.chapter-budget{
+    padding:26px 0!important;
+  }
+  body:has(.dream-hero) .chapter-budget .budget-grid{
+    gap:22px!important;
+  }
+}
+@media(max-width:620px){
+  body:has(.dream-hero) .chapter-budget .surprise-alternatives{
+    grid-template-columns:1fr!important;
+  }
+  body:has(.dream-hero) .chapter-budget .surprise-alternatives>small{
+    grid-column:auto!important;
+  }
+}
