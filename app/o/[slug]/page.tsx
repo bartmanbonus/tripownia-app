@@ -8,6 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 import AffiliateOfferLink from "@/components/AffiliateOfferLink";
 import { getSocialOffer, type SocialOffer } from "@/lib/socialOffers";
 import CompleteTripSales from "@/components/CompleteTripSales";
+import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 
 type SocialOfferPage = SocialOffer & { expired?: boolean };
 
@@ -139,6 +140,15 @@ export default async function ShortSocialOfferPage({ params }: { params: Promise
             )}
           </div>
         </section>
+        <OfferAlternativeFinder
+          city={offer.city}
+          country={offer.country}
+          nights={offer.nights}
+          board={offer.board}
+          departure={offer.departure}
+          dates={offer.dates}
+          hotel={offer.hotel}
+        />
       </div>
       {!offer.expired && <CompleteTripSales city={offer.city} country={offer.country} source="social_offer" />}
       <SiteFooter />
