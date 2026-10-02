@@ -37,7 +37,6 @@ const primaryItems = [
   { href: "/okazje", label: "Okazje" },
   { href: "/kierunki", label: "Kierunki" },
   { href: "/wydarzenia", label: "Mecze i eventy" },
-  { href: "/planer-podrozy", label: "Planer" },
 ] as const;
 
 const bookingItems = [
@@ -171,7 +170,8 @@ export default function SiteHeader() {
                   <Link href="/dla-ciebie"><Sparkles size={18} /><span>Dla Ciebie</span></Link>
                   <Link href="/ulubione"><Heart size={18} /><span>Ulubione</span></Link>
                   <Link href="/alerty"><Bell size={18} /><span>Alerty</span></Link>
-                  <Link href="/profil"><UserRound size={18} /><span>Profil i konto</span></Link>
+                  <Link href="/profil"><UserRound size={18} /><span>Profil podróżnika</span></Link>
+                  <Link href="/konto"><UserRound size={18} /><span>Konto i logowanie</span></Link>
                 </div>
                 <div className="trip-mobile-menu-section">
                   <strong>Znajdź wyjazd</strong>
@@ -212,12 +212,6 @@ export default function SiteHeader() {
             <span className="trip-header-search-cta" aria-hidden="true"><Search size={24} strokeWidth={2.8} /></span>
           </Link>
           <nav className="trip-header-actions" aria-label="Twoje konto i social media">
-            <div className="trip-header-socials" aria-label="Obserwuj Tripownię">
-              {socialItems.map((item) => {
-                const Icon = item.icon;
-                return <a key={item.label} className="trip-header-social" href={item.href} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent(item.event, { placement: "header" })} aria-label={`Tripownia na ${item.label}`} title={item.label}><Icon size={17} strokeWidth={2}/></a>;
-              })}
-            </div>
             <Link className="trip-header-action trip-header-action-primary" href="/dodaj-podroz" aria-label="Ułóż darmowy plan podróży"><Sparkles size={19} strokeWidth={2} /><span>Plan za 0 zł</span></Link>
             <Link className="trip-header-action" href="/konto" aria-label="Konto i logowanie"><UserRound size={19} strokeWidth={2} /><span>Konto</span></Link>
           </nav>
