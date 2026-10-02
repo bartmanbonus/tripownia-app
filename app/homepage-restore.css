@@ -173,3 +173,451 @@ body:has(.dream-hero) .streaming-discovery{
     padding-bottom:42px!important;
   }
 }
+
+
+/* 2026-10-02 — homepage UX cohesion + compact rhythm */
+.homepage-visual-v2{
+  --home-width:1180px;
+  --home-line:#ece5df;
+  --home-soft:#faf7f4;
+  --home-muted:#756c66;
+}
+
+/* Hero + search should read as one opening block, not two separate screens. */
+body:has(.dream-hero) .dream-hero{
+  padding-top:28px!important;
+  padding-bottom:42px!important;
+}
+body:has(.dream-hero) .dream-hero h1{
+  margin-top:12px!important;
+  margin-bottom:10px!important;
+  font-size:clamp(42px,4.8vw,64px)!important;
+  line-height:1!important;
+  letter-spacing:-.045em!important;
+}
+body:has(.dream-hero) .dream-hero-copy>p{
+  margin-top:0!important;
+  font-size:15px!important;
+  line-height:1.5!important;
+}
+body:has(.dream-hero) .dream-hero-actions{
+  margin-top:16px!important;
+}
+body:has(.dream-hero) #wyszukiwarka.search-v3-section{
+  margin-top:-24px!important;
+  margin-bottom:20px!important;
+  padding-top:0!important;
+  padding-bottom:0!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3{
+  border-radius:20px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-head{
+  padding-top:18px!important;
+  padding-bottom:10px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-tabs{
+  padding-bottom:10px!important;
+}
+body:has(.dream-hero) #wyszukiwarka .search-v3-quick{
+  padding-top:10px!important;
+  padding-bottom:14px!important;
+}
+
+/* One consistent vertical rhythm across the homepage. */
+body:has(.dream-hero) .homepage-curated-trips,
+body:has(.dream-hero) .chapter-daily,
+body:has(.dream-hero) .homepage-trip-types,
+body:has(.dream-hero) .homepage-events,
+body:has(.dream-hero) .homepage-phenomena,
+body:has(.dream-hero) .dream-free-plan,
+body:has(.dream-hero) .dream-marketplace,
+body:has(.dream-hero) .dream-personalization,
+body:has(.dream-hero) .streaming-discovery{
+  padding-top:34px!important;
+  padding-bottom:34px!important;
+}
+body:has(.dream-hero) .homepage-curated-trips,
+body:has(.dream-hero) .chapter-daily,
+body:has(.dream-hero) .homepage-trip-types,
+body:has(.dream-hero) .homepage-events,
+body:has(.dream-hero) .homepage-phenomena,
+body:has(.dream-hero) .dream-marketplace,
+body:has(.dream-hero) .streaming-discovery,
+.homepage-visual-v2 .recent-offers-teaser-section{
+  border-top:1px solid var(--home-line)!important;
+}
+.homepage-visual-v2 .recent-offers-teaser-section{
+  margin-top:0!important;
+  padding-top:28px!important;
+  padding-bottom:28px!important;
+}
+
+/* Headings use one scale instead of jumping from small to billboard-sized. */
+body:has(.dream-hero) .section-heading{
+  margin-bottom:16px!important;
+}
+body:has(.dream-hero) .section-heading h2,
+.homepage-visual-v2 .recent-offers-heading h2{
+  margin:4px 0 0!important;
+  font-size:clamp(28px,2.7vw,36px)!important;
+  line-height:1.05!important;
+  letter-spacing:-.04em!important;
+}
+body:has(.dream-hero) .kicker,
+.homepage-visual-v2 .recent-offers-heading .kicker{
+  font-size:9px!important;
+  letter-spacing:.1em!important;
+}
+body:has(.dream-hero) .section-premium-link{
+  font-size:11px!important;
+}
+.homepage-visual-v2 .recent-offers-heading{
+  margin-bottom:14px!important;
+}
+.homepage-visual-v2 .recent-offers-heading p{
+  display:none!important;
+}
+
+/* Offer shelves: remove the large dead zones between rails. */
+body:has(.dream-hero) .offer-stream-row{
+  margin-top:18px!important;
+}
+body:has(.dream-hero) .offer-stream-row + .offer-stream-row{
+  margin-top:24px!important;
+  padding-top:22px!important;
+  border-top:1px solid var(--home-line)!important;
+}
+body:has(.dream-hero) .offer-stream-head{
+  margin-bottom:10px!important;
+}
+body:has(.dream-hero) .offer-stream-head h3{
+  margin:0!important;
+  font-size:22px!important;
+  line-height:1.12!important;
+  letter-spacing:-.025em!important;
+}
+body:has(.dream-hero) .premium-action-row{
+  margin-top:16px!important;
+}
+
+/* Compact category navigation: all choices stay visible without taking half a page. */
+body:has(.dream-hero) .homepage-trip-types-grid{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+body:has(.dream-hero) .homepage-trip-type-card{
+  min-height:68px!important;
+  gap:9px!important;
+  padding:11px 12px!important;
+  border-radius:14px!important;
+  box-shadow:none!important;
+}
+body:has(.dream-hero) .homepage-trip-type-card>span{
+  width:34px!important;
+  height:34px!important;
+  border-radius:10px!important;
+  font-size:18px!important;
+}
+body:has(.dream-hero) .homepage-trip-type-card strong{
+  font-size:13px!important;
+}
+body:has(.dream-hero) .homepage-trip-type-card small{
+  margin-top:2px!important;
+  font-size:9px!important;
+}
+body:has(.dream-hero) .homepage-trip-type-card>svg{
+  width:14px!important;
+  height:14px!important;
+}
+
+/* Events and seasonal content share the same card language. */
+body:has(.dream-hero) .homepage-football-package{
+  min-height:0!important;
+  padding:22px!important;
+  border:1px solid var(--home-line)!important;
+  border-radius:20px!important;
+  background:var(--home-soft)!important;
+  box-shadow:none!important;
+}
+body:has(.dream-hero) .homepage-football-copy h3{
+  margin:6px 0 8px!important;
+  font-size:26px!important;
+  line-height:1.05!important;
+}
+body:has(.dream-hero) .homepage-football-copy p{
+  margin:0 0 12px!important;
+  font-size:12px!important;
+  line-height:1.5!important;
+}
+body:has(.dream-hero) .homepage-phenomena-grid{
+  gap:12px!important;
+}
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-card{
+  overflow:hidden!important;
+  border:1px solid var(--home-line)!important;
+  border-radius:18px!important;
+  background:#fff!important;
+}
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-media{
+  aspect-ratio:16/10!important;
+  border-radius:0!important;
+}
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy{
+  min-height:0!important;
+  padding:12px 13px 14px!important;
+}
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy strong{
+  margin-top:4px!important;
+  font-size:16px!important;
+  line-height:1.15!important;
+}
+body:has(.dream-hero) .homepage-phenomena .experience-teaser-copy em{
+  margin-top:9px!important;
+  font-size:10px!important;
+}
+
+/* Planner becomes one coherent feature panel. */
+body:has(.dream-hero) .dream-free-plan{
+  gap:30px!important;
+  padding:28px 30px!important;
+  border:1px solid var(--home-line)!important;
+  border-radius:24px!important;
+  background:var(--home-soft)!important;
+}
+body:has(.dream-hero) .dream-free-plan-copy h2{
+  margin:6px 0 12px!important;
+  font-size:clamp(30px,3vw,40px)!important;
+  line-height:1.02!important;
+  letter-spacing:-.045em!important;
+}
+body:has(.dream-hero) .dream-free-plan-actions{
+  margin-top:18px!important;
+}
+body:has(.dream-hero) .dream-free-plan-trust{
+  margin-top:12px!important;
+}
+body:has(.dream-hero) .dream-free-plan-board{
+  padding:16px!important;
+  border-radius:18px!important;
+  box-shadow:none!important;
+}
+
+/* Marketplace: same typography and compact service cards. */
+body:has(.dream-hero) .dream-marketplace-head{
+  margin-bottom:20px!important;
+}
+body:has(.dream-hero) .dream-marketplace-head h2{
+  margin:5px 0 8px!important;
+  font-size:clamp(30px,3vw,40px)!important;
+  line-height:1.02!important;
+  letter-spacing:-.045em!important;
+}
+body:has(.dream-hero) .dream-marketplace-groups{
+  gap:22px!important;
+}
+body:has(.dream-hero) .dream-marketplace-group{
+  gap:8px!important;
+}
+body:has(.dream-hero) .dream-marketplace-group + .dream-marketplace-group{
+  padding-top:20px!important;
+  border-top:1px solid var(--home-line)!important;
+}
+body:has(.dream-hero) .dream-marketplace-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:10px!important;
+}
+body:has(.dream-hero) .dream-service-card{
+  min-height:126px!important;
+  padding:16px!important;
+  border-radius:16px!important;
+  box-shadow:none!important;
+}
+body:has(.dream-hero) .dream-service-icon{
+  width:38px!important;
+  height:38px!important;
+  margin-bottom:12px!important;
+  border-radius:11px!important;
+  font-size:18px!important;
+}
+body:has(.dream-hero) .dream-service-card strong{
+  margin:2px 0 4px!important;
+  font-size:17px!important;
+}
+body:has(.dream-hero) .dream-service-card em{
+  padding-top:10px!important;
+  font-size:10px!important;
+}
+body:has(.dream-hero) .dream-marketplace-footer{
+  margin-top:20px!important;
+}
+
+/* Personalization is a compact transition, not another oversized chapter. */
+body:has(.dream-hero) .dream-personalization{
+  gap:18px 28px!important;
+  padding:26px 28px!important;
+  border:1px solid var(--home-line)!important;
+  border-radius:22px!important;
+  background:var(--home-soft)!important;
+}
+body:has(.dream-hero) .dream-personalization h2{
+  margin:5px 0 0!important;
+  font-size:clamp(28px,2.8vw,36px)!important;
+  line-height:1.05!important;
+  letter-spacing:-.04em!important;
+}
+body:has(.dream-hero) .dream-personalization-chips{
+  gap:7px!important;
+}
+body:has(.dream-hero) .dream-personalization-chips span{
+  padding:9px 11px!important;
+  font-size:10px!important;
+}
+body:has(.dream-hero) .dream-personalization-actions{
+  gap:8px!important;
+}
+
+/* Editorial discovery and budget close the page without another oversized gap. */
+body:has(.dream-hero) .streaming-discovery .section-heading{
+  margin-bottom:14px!important;
+}
+body:has(.dream-hero) .editorial-streaming-rail{
+  margin-top:0!important;
+  gap:10px!important;
+}
+body:has(.dream-hero) .streaming-tile{
+  min-height:138px!important;
+  padding:18px!important;
+  border-radius:18px!important;
+}
+body:has(.dream-hero) .budget-wrap{
+  margin:24px 0 0!important;
+  padding:52px 0!important;
+}
+body:has(.dream-hero) .budget-grid{
+  gap:42px!important;
+}
+body:has(.dream-hero) .budget-grid h2{
+  margin:6px 0 10px!important;
+  font-size:clamp(32px,3.2vw,44px)!important;
+  line-height:1.02!important;
+}
+.homepage-visual-v2 > .footer.footer-v2{
+  margin-top:0!important;
+}
+
+@media(max-width:1100px){
+  body:has(.dream-hero) .homepage-trip-types-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:820px){
+  body:has(.dream-hero) .homepage-trip-types-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  body:has(.dream-hero) .dream-marketplace-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  body:has(.dream-hero) .homepage-phenomena-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+@media(max-width:560px){
+  body:has(.dream-hero) .dream-hero{
+    padding-top:18px!important;
+    padding-bottom:32px!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka.search-v3-section{
+    margin-top:-14px!important;
+    margin-bottom:12px!important;
+  }
+  body:has(.dream-hero) .homepage-curated-trips,
+  body:has(.dream-hero) .chapter-daily,
+  body:has(.dream-hero) .homepage-trip-types,
+  body:has(.dream-hero) .homepage-events,
+  body:has(.dream-hero) .homepage-phenomena,
+  body:has(.dream-hero) .dream-marketplace,
+  body:has(.dream-hero) .streaming-discovery{
+    padding-top:28px!important;
+    padding-bottom:28px!important;
+  }
+  .homepage-visual-v2 .recent-offers-teaser-section{
+    padding-top:22px!important;
+    padding-bottom:22px!important;
+  }
+  body:has(.dream-hero) .section-heading,
+  .homepage-visual-v2 .recent-offers-heading{
+    margin-bottom:12px!important;
+  }
+  body:has(.dream-hero) .section-heading h2,
+  .homepage-visual-v2 .recent-offers-heading h2{
+    font-size:27px!important;
+  }
+  body:has(.dream-hero) .offer-stream-row,
+  body:has(.dream-hero) .offer-stream-row + .offer-stream-row{
+    margin-top:14px!important;
+  }
+  body:has(.dream-hero) .homepage-trip-types-grid{
+    grid-template-columns:1fr 1fr!important;
+    gap:7px!important;
+  }
+  body:has(.dream-hero) .homepage-trip-type-card{
+    min-height:62px!important;
+    padding:9px 10px!important;
+  }
+  body:has(.dream-hero) .homepage-trip-type-card small,
+  body:has(.dream-hero) .homepage-trip-type-card>svg{
+    display:none!important;
+  }
+  body:has(.dream-hero) .homepage-football-package{
+    padding:18px!important;
+    border-radius:17px!important;
+  }
+  body:has(.dream-hero) .homepage-phenomena-grid{
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  body:has(.dream-hero) .dream-free-plan{
+    padding:22px 18px!important;
+    border-radius:18px!important;
+  }
+  body:has(.dream-hero) .dream-marketplace-grid{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+    overflow:visible!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  body:has(.dream-hero) .dream-service-card{
+    min-height:112px!important;
+    padding:13px!important;
+  }
+  body:has(.dream-hero) .dream-personalization{
+    padding:20px 18px!important;
+    border-radius:18px!important;
+  }
+  body:has(.dream-hero) .editorial-streaming-rail{
+    display:grid!important;
+    grid-template-columns:1fr 1fr!important;
+  }
+  body:has(.dream-hero) .streaming-tile{
+    min-height:124px!important;
+    padding:14px!important;
+  }
+  body:has(.dream-hero) .budget-wrap{
+    margin-top:16px!important;
+    padding:38px 0!important;
+  }
+}
+
+
+.homepage-offer-source-note{
+  margin:0 0 16px!important;
+  padding:10px 12px!important;
+  border:1px solid #f0dfd5!important;
+  border-radius:12px!important;
+  background:#fff8f4!important;
+  color:#7a5f53!important;
+  font-size:11px!important;
+  line-height:1.45!important;
+}

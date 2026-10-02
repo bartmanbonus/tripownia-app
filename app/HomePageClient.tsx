@@ -88,6 +88,20 @@ function cheapestPerDirection<T extends { city: string; country: string; price: 
   return Array.from(best.values());
 }
 
+function isPublishedHomepageFallback(offer: TripOffer) {
+  if (!offer?.affiliateUrl || !Number.isFinite(offer.price) || offer.price <= 0 || Number(offer.nights || 0) <= 0) return false;
+  if (isOfferExpired(offer) || !isTravelDestinationAllowed(offer.city, offer.country)) return false;
+
+  const haystack = `${offer.city} ${offer.country}`.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const exotic = /zanzibar|tanzania|kenia|mauritius|malediw|seszel|tajland|wietnam|indonez|bali|sri lanka|dominik|meksyk|kuba|jamaj|japon|usa|nowy jork|brazyl|kolumbi|peru|kostary|rpa/i.test(haystack);
+  const allInclusive = /all[ -]?inclusive/i.test(offer.board || "");
+
+  if (exotic) return offer.price <= (allInclusive ? 6000 : 5200);
+  if (offer.nights <= 5) return offer.price <= 2000;
+  if (offer.nights <= 8) return offer.price <= (allInclusive ? 3500 : 3000);
+  return offer.price <= (allInclusive ? 3800 : 3200);
+}
+
 type TripOffer = (typeof offers)[number];
 
 type DailyCache = {
@@ -523,13 +537,37 @@ export default function Home() {
     };
   }, [dailyKey, liveRefreshTick]);
 
-  const todaysOffers = useMemo(() =>
-    cheapestPerDirection(liveOffers.map(offerForDisplay).filter(isHomepageDeal))
+  const publishedFallbackOffers = useMemo(() =>
+    cheapestPerDirection(
+      offers
+        .filter(isPublishedHomepageFallback)
+        .map(offerForDisplay)
+    )
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity))
-      .slice(0, 18),
-    [liveOffers]
+      .slice(0, 24),
+    []
   );
 
+  const homepageOfferPool = useMemo(() => {
+    const liveDeals = cheapestPerDirection(liveOffers.map(offerForDisplay).filter(isHomepageDeal))
+      .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
+
+    if (liveDeals.length >= 12) return liveDeals.slice(0, 18);
+
+    const seen = new Set(liveDeals.map(destinationGroupKey));
+    const fallback = publishedFallbackOffers.filter((offer) => {
+      const key = destinationGroupKey(offer);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    return [...liveDeals, ...fallback].slice(0, 18);
+  }, [liveOffers, publishedFallbackOffers]);
+
+  const todaysOffers = homepageOfferPool;
+
+  const usingPublishedFallback = homepageOfferPool.some((offer) => offer.id < 1_000_000);
   const newOffersCount = todaysOffers.length;
   const hasOffers = newOffersCount > 0;
 
@@ -542,12 +580,7 @@ export default function Home() {
   }, [lastLiveCheckedAt]);
 
   const themedRails = useMemo(() => {
-    const pool = [...liveOffers]
-      .filter((offer) => !isOfferExpired(offer))
-      .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
-      .map(offerForDisplay).filter(isHomepageDeal);
-
-    const uniqueCheapest = cheapestPerDirection(pool)
+    const uniqueCheapest = [...homepageOfferPool]
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
     const city = uniqueCheapest
@@ -564,7 +597,7 @@ export default function Home() {
       sun: sun.length ? sun : uniqueCheapest.filter((offer) => Number(offer.nights || 0) >= 5).slice(0, 10),
       cheapest: uniqueCheapest.slice(0, 10),
     };
-  }, [liveOffers]);
+  }, [homepageOfferPool]);
 
   const offersRailRef = useRef<HTMLDivElement>(null);
   const [budget, setBudget] = useState(2500);
@@ -674,6 +707,11 @@ export default function Home() {
           </div>
           <Link className="section-premium-link" href="/okazje">Wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
+        {usingPublishedFallback && (
+          <div className="homepage-offer-source-note" role="status">
+            Źródła ofert live chwilowo nie odpowiadają. Pokazujemy ostatnio opublikowane propozycje — aktualną cenę i dostępność potwierdzisz po kliknięciu.
+          </div>
+        )}
         <OfferRail kicker="🏙 CITY BREAK" title="Na kilka dni" description="Krótkie wyjazdy, najtańsze kierunki na początku." items={themedRails.city}/>
         <OfferRail kicker="☀️ WAKACJE" title="Słońce i dłuższy odpoczynek" description="Gotowe kierunki na minimum kilka dni, bez powielania miejsc." items={themedRails.sun}/>
         <OfferRail kicker="💸 NAJTANIEJ TERAZ" title="Najniższe ceny na pierwszy rzut" description="Po jednym najtańszym wariancie dla każdego kierunku." items={themedRails.cheapest}/>
