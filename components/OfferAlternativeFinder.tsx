@@ -16,7 +16,7 @@ type Props = {
   airportCode?: string;
   dates: string;
   hotel?: string;
-  currentOfferId: number;
+  currentOfferId?: number;
 };
 
 function normalize(value: string) {
@@ -60,7 +60,7 @@ export default function OfferAlternativeFinder({
   airportCode,
   dates,
   hotel,
-  currentOfferId,
+  currentOfferId = 0,
 }: Props) {
   const initialAirport = useMemo(() => resolveAirportCode(airportCode, departure), [airportCode, departure]);
   const [selectedAirport, setSelectedAirport] = useState(initialAirport);
@@ -117,13 +117,15 @@ export default function OfferAlternativeFinder({
         const data = await response.json();
         if (!response.ok || data?.ok === false) throw new Error(data?.error || "search_failed");
         const offers = (Array.isArray(data?.offers) ? data.offers : [])
-          .filter((offer: Offer) => offer.id !== currentOfferId)
+          .filter((offer: Offer) => !currentOfferId || offer.id !== currentOfferId)
           .sort((a: Offer, b: Offer) => Number(a.price || Infinity) - Number(b.price || Infinity));
         return { data, offers };
       };
 
       const hotelQuery = String(hotel || "").trim();
-      const canSearchSameHotel = hotelQuery.length >= 4 && !/^hotel$/i.test(hotelQuery);
+      const normalizedHotel = normalize(hotelQuery);
+      const genericHotel = /^(hotel|resort|nocleg|obiekt)( w centrum)?( [1-5])?$/.test(normalizedHotel);
+      const canSearchSameHotel = hotelQuery.length >= 4 && !genericHotel;
       let result = canSearchSameHotel ? await search(hotelQuery) : { data: null, offers: [] as Offer[] };
       let sameHotel = result.offers.length > 0;
 
@@ -168,7 +170,7 @@ export default function OfferAlternativeFinder({
           <p>Zostań przy {city}. Zmień tylko termin, lotnisko albo oba parametry i od razu zobacz aktualne oferty.</p>
         </div>
         <div className={styles.current}>
-          <span>Teraz</span>
+          <span>Wyjściowa oferta</span>
           <strong>{departure} · {dates}</strong>
           <small>{nights} nocy · {board}</small>
         </div>
