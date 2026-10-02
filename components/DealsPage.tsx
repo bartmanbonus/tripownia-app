@@ -8,6 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
 import type { Offer } from "@/lib/offers";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
+import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { useLiveOffers } from "@/lib/useLiveOffers";
 import { cheapestPerDestination as selectCheapestPerDestination } from "@/lib/offerEngine";
 import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
