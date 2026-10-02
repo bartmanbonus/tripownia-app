@@ -3,6 +3,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
+import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 
 export const metadata: Metadata = {
   title: "Budapeszt 16–19.10.2026 — lot + 3 noce od 572 zł/os. | Tripownia",
@@ -76,6 +77,7 @@ export default function BudapestOfferPage() {
               >
                 Sprawdź nocleg w Booking →
               </TrackedPartnerLink>
+              <OfferAlternativeJump />
               <small className="booking-note">
                 To nie jest gotowy pakiet touroperatora. Lot i nocleg rezerwujesz osobno.
                 Ceny są dynamiczne i mogą zmienić się przed kliknięciem.

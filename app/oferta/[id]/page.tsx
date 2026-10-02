@@ -16,6 +16,7 @@ import CompleteTripSales from "@/components/CompleteTripSales";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 import { customerOfferReason } from "@/lib/customerOfferCopy";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
+import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
@@ -171,6 +172,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               >
                 {o.partner === "exim" || o.partner === "tui" ? "Zobacz konkretną ofertę" : "Sprawdź aktualną cenę"} <ExternalLink size={18}/>
               </TrackedPartnerLink>
+              <OfferAlternativeJump />
               <small className="booking-note">Cena i dostępność mogą zmienić się do momentu rezerwacji. Sprawdź finalne warunki przed płatnością.</small>
             </div>
           )}
