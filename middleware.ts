@@ -107,6 +107,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(target, 308);
   }
 
+  // Keep the old organizer URL as a temporary private redirect. The explicit
+  // middleware redirect guarantees the expected 307 status and private headers.
+  if (normalizedPath === "/organizer") {
+    const target = request.nextUrl.clone();
+    target.pathname = "/moja-podroz";
+    target.search = "";
+    const response = NextResponse.redirect(target, 307);
+    response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
+  }
+
   // Consolidate old WordPress-style /poradniki/<slug> aliases into the clean
   // canonical root article URL when that article exists in the migrated corpus.
   if (request.nextUrl.pathname.startsWith("/poradniki/")) {
