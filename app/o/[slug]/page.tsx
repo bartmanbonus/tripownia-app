@@ -9,6 +9,7 @@ import AffiliateOfferLink from "@/components/AffiliateOfferLink";
 import { getSocialOffer, type SocialOffer } from "@/lib/socialOffers";
 import CompleteTripSales from "@/components/CompleteTripSales";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
+import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 
 type SocialOfferPage = SocialOffer & { expired?: boolean };
 
@@ -133,6 +134,7 @@ export default async function ShortSocialOfferPage({ params }: { params: Promise
                 <div className="detail-source">Najpierw oglądasz szczegóły w Tripowni. Rezerwacja i płatność odbywają się bezpośrednio u partnera.</div>
                 <div className="detail-action-box">
                   <AffiliateOfferLink href={offer.affiliateUrl} partner={offer.partnerLabel} slug={offer.slug} destination={`${offer.city}, ${offer.country}`} tripKind={offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package"} />
+                  <OfferAlternativeJump />
                   <Link className="btn secondary" href={`/dodaj-podroz?mode=owned&source=affiliate&city=${encodeURIComponent(offer.city)}&country=${encodeURIComponent(offer.country)}&kind=${offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package"}&partner=${encodeURIComponent(offer.partnerLabel)}&slug=${encodeURIComponent(offer.slug)}`}><PlusCircle size={17}/> Dodaj do planera</Link>
                   <small className="affiliate-note">Link partnerski. Możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.</small>
                 </div>
