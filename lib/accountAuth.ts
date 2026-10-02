@@ -11,6 +11,7 @@ export type AccountSession = {
   token_type?: string;
   expires_in?: number;
   expires_at?: number;
+  auth_event_type?: string;
   user?: AccountUser;
 };
 
@@ -163,11 +164,45 @@ export function consumeAccountSessionFromUrl(): AccountSession | null {
     refresh_token: refreshToken,
     token_type: hash.get("token_type") || "bearer",
     expires_in: Number(hash.get("expires_in") || 3600),
+    auth_event_type: hash.get("type") || undefined,
   });
 
   saveAccountSession(session);
   window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.search}`);
   return session;
+}
+
+export async function requestPasswordReset(email: string, redirectTo: string) {
+  if (!isAccountAuthConfigured()) throw new Error("Odzyskiwanie hasła nie jest jeszcze podłączone.");
+  const safeRedirect = redirectTo.startsWith("https://tripownia.pl/")
+    ? redirectTo
+    : "https://tripownia.pl/konto";
+  const response = await fetch(`${authBaseUrl()}/auth/v1/recover?redirect_to=${encodeURIComponent(safeRedirect)}`, {
+    method: "POST",
+    headers: publicHeaders(),
+    body: JSON.stringify({ email: email.trim().toLowerCase() }),
+  });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(friendlyAuthError(payload, "Nie udało się wysłać linku do zmiany hasła."));
+  }
+}
+
+export async function updateAccountPassword(session: AccountSession, password: string) {
+  if (!isAccountAuthConfigured()) throw new Error("Logowanie nie jest jeszcze podłączone.");
+  const response = await fetch(`${authBaseUrl()}/auth/v1/user`, {
+    method: "PUT",
+    headers: sessionHeaders(session),
+    body: JSON.stringify({ password }),
+  });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(friendlyAuthError(payload, "Nie udało się ustawić nowego hasła."));
+  }
+  const user = await response.json() as AccountUser;
+  const current = readAccountSession();
+  if (current) saveAccountSession({ ...current, auth_event_type: undefined, user });
+  return user;
 }
 
 export async function requestMagicLink(email: string, redirectTo: string) {
@@ -229,7 +264,11 @@ export async function refreshAccountSession(session: AccountSession) {
         return null;
       }
 
-      const refreshed = normalizeSession(await response.json() as AccountSession);
+      const refreshedPayload = await response.json() as AccountSession;
+      const refreshed = normalizeSession({
+        ...refreshedPayload,
+        auth_event_type: session.auth_event_type,
+      });
       saveAccountSession(refreshed);
       return refreshed;
     } finally {
