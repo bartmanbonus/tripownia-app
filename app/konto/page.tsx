@@ -8,7 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { readTravelProfile } from "@/lib/travelProfile";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
-import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState, hasMeaningfulLocalAccountState } from "@/lib/accountState";
+import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState } from "@/lib/accountState";
 import {
   accountAuthEventName,
   consumeAccountSessionFromUrl,
@@ -132,7 +132,9 @@ export default function AccountPage() {
     setMessage("");
     try {
       if (authMode === "register") {
-        const result = await signUpWithPassword(cleanEmail, password);
+        const next = safeNextPath();
+        const confirmRedirect = `https://tripownia.pl/konto${next ? `?next=${encodeURIComponent(next)}` : ""}`;
+        const result = await signUpWithPassword(cleanEmail, password, confirmRedirect);
         if (result.session) {
           const remote = await getTripowniaUserState(result.session).catch(() => null);
           if (!remote) await saveTripowniaUserState(result.session, collectLocalAccountState());
@@ -159,7 +161,6 @@ export default function AccountPage() {
         setUser(accountUser);
         setCloudState(remote);
         if (remote) applyCloudAccountState(remote);
-        else if (hasMeaningfulLocalAccountState()) await saveTripowniaUserState(logged, collectLocalAccountState());
         else await saveTripowniaUserState(logged, collectLocalAccountState());
         trackEvent("login", { method: "password" });
         setMessage("Zalogowano. Otwieramy Twoją Tripownię…");
