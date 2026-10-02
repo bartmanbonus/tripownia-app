@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Trash2, X } from "lucide-react";
