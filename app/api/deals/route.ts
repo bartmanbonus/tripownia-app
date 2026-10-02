@@ -338,6 +338,44 @@ export async function GET(request: NextRequest) {
     .filter((offer) => requestedDepartureMatches(offer, airport))
     .filter((offer) => dateMatches(offer, month, year));
 
+  // When live providers are only partially available, prefer an exact published
+  // fallback for the requested airport/date over silently widening the user's
+  // filters to another airport or nearby month.
+  if (!exact.length && unavailableSources.length && hasScopedFallbackFilter) {
+    const fallbackPool = (publishedOffers as DealsOffer[])
+      .filter(isUsablePublishedFallback)
+      .filter(polishDepartureMatches)
+      .filter((offer) => typeMatches(offer, type))
+      .filter((offer) => destinationMatches(offer, destination));
+    const fallbackExact = fallbackPool
+      .filter((offer) => requestedDepartureMatches(offer, airport))
+      .filter((offer) => dateMatches(offer, month, year));
+    const fallbackOffers = cheapestFallbackPerDestination(fallbackExact);
+
+    if (fallbackOffers.length) {
+      return NextResponse.json(
+        {
+          ok: true,
+          checkedAt: new Date().toISOString(),
+          sourceCount: sourceOffers.length,
+          exactCount: fallbackExact.length,
+          destinationCount: fallbackOffers.length,
+          sort: "price_asc",
+          selection: "cheapest_per_destination",
+          sources: ["published-fallback"],
+          unavailableSources,
+          partial: true,
+          sourceType: "published_fallback",
+          matchMode: "fallback_exact",
+          filters: { destination: destination || null, type: type || null, airport: airport || null, month: month || null, year: year || null, strict },
+          notice: "Nie udało się teraz potwierdzić pełnej puli live dla tych filtrów. Pokazujemy pasujące, nieprzeterminowane propozycje Tripowni; finalną cenę i dostępność potwierdź u partnera.",
+          offers: fallbackOffers,
+        },
+        { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } }
+      );
+    }
+  }
+
   let offers = lowestPriceDeals(exact);
   let matchMode = "exact";
   let notice = offers.length
