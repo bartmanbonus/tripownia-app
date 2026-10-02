@@ -553,8 +553,6 @@ export default function Home() {
     const liveDeals = cheapestPerDirection(liveOffers.map(offerForDisplay).filter(isHomepageDeal))
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
-    if (liveDeals.length >= 12) return liveDeals.slice(0, 18);
-
     const seen = new Set(liveDeals.map(destinationGroupKey));
     const fallback = publishedFallbackOffers.filter((offer) => {
       const key = destinationGroupKey(offer);
@@ -563,10 +561,12 @@ export default function Home() {
       return true;
     });
 
-    return [...liveDeals, ...fallback].slice(0, 18);
+    return [...liveDeals, ...fallback]
+      .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity) || b.score - a.score)
+      .slice(0, 18);
   }, [liveOffers, publishedFallbackOffers]);
 
-  const todaysOffers = homepageOfferPool;
+  const todaysOffers = homepageOfferPool.slice(0, 18);
 
   const usingPublishedFallback = homepageOfferPool.some((offer) => offer.id < 1_000_000);
   const newOffersCount = todaysOffers.length;
@@ -584,19 +584,25 @@ export default function Home() {
     const uniqueCheapest = [...homepageOfferPool]
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
+    const cheapest = uniqueCheapest.slice(0, 10);
+    const cheapestKeys = new Set(cheapest.map(destinationGroupKey));
+
     const city = uniqueCheapest
+      .filter((offer) => !cheapestKeys.has(destinationGroupKey(offer)))
       .filter((offer) => Number(offer.nights || 0) >= 2 && Number(offer.nights || 0) <= 5)
       .slice(0, 10);
 
+    const usedKeys = new Set([...cheapestKeys, ...city.map(destinationGroupKey)]);
     const sunPattern = /egipt|turcj|grecj|hiszp|cypr|tunez|zanzibar|malediw|mauritius|dominik|teneryf|fuertevent|djerb|marsa alam|madera/i;
     const sun = uniqueCheapest
+      .filter((offer) => !usedKeys.has(destinationGroupKey(offer)))
       .filter((offer) => Number(offer.nights || 0) >= 5 && sunPattern.test(`${offer.city} ${offer.country} ${(offer.category || []).join(" ")}`))
       .slice(0, 10);
 
     return {
-      city,
+      cheapest,
+      city: city.length ? city : uniqueCheapest.filter((offer) => Number(offer.nights || 0) >= 2 && Number(offer.nights || 0) <= 5).slice(0, 10),
       sun: sun.length ? sun : uniqueCheapest.filter((offer) => Number(offer.nights || 0) >= 5).slice(0, 10),
-      cheapest: uniqueCheapest.slice(0, 10),
     };
   }, [homepageOfferPool]);
 
@@ -607,7 +613,6 @@ export default function Home() {
   const [surpriseLoading, setSurpriseLoading] = useState(false);
 
   useEffect(() => {
-    setSurprise(null);
     const controller = new AbortController();
     const timer = window.setTimeout(() => {
       setSurpriseLoading(true);
@@ -621,21 +626,48 @@ export default function Home() {
   }, [budget, dailyKey]);
 
   const budgetCandidates = useMemo(() => {
-    const pool = (surpriseLive.length ? surpriseLive : homepageOfferPool)
-      .filter((offer) => isHomepageDeal(offer) || isPublishedHomepageFallback(offer));
-    const exotic = /zanzibar|dominikan|malediw|kenia|meksyk|tajland|kuba|dubaj|bali|wietnam|japon|nowy jork|mauritius|seszel/i;
-    const mid = /marsa alam|teneryfa|fuerteventura|marrakesz|djerba|hurghada|oman|wyspy zielonego przyladka/i;
-    const low = /malta|sycylia|alicante|pafos|stambul|marrakesz|bergamo|porto/i;
-
-    return pool
+    const pool = cheapestPerDirection([...surpriseLive, ...homepageOfferPool])
+      .filter((offer) => isHomepageDeal(offer) || isPublishedHomepageFallback(offer))
       .filter(o => !isOfferExpired(o))
       .filter(o => isTravelDestinationAllowed(o.city, o.country))
       .filter(o => o.price <= budget)
-      .filter(o => budget < 3500 || exotic.test(`${o.city} ${o.country}`))
-      .map(offerForDisplay)
-      .sort((a, b) => a.price - b.price || b.score - a.score)
-      .slice(0, 10);
+      .map(offerForDisplay);
+
+    const lowerFit = budget >= 3000 ? 0.55 : budget >= 2000 ? 0.5 : budget >= 1200 ? 0.4 : 0;
+    const goodFit = pool.filter((offer) => offer.price >= budget * lowerFit);
+    const candidates = goodFit.length >= 3 ? goodFit : pool;
+
+    const scoreForBudget = (offer: TripOffer) => {
+      const ratio = Math.min(1, offer.price / Math.max(1, budget));
+      const targetRatio = budget >= 2500 ? 0.82 : budget >= 1500 ? 0.76 : 0.68;
+      const priceFit = 100 - Math.abs(ratio - targetRatio) * 115;
+      const nights = Number(offer.nights || 0);
+      const durationFit = budget >= 2500
+        ? (nights >= 5 ? 22 : nights >= 3 ? 8 : -18)
+        : budget >= 1500
+          ? (nights >= 3 ? 14 : nights >= 2 ? 6 : -8)
+          : (nights >= 2 && nights <= 4 ? 10 : 0);
+      const warmOrPackage = /all[ -]?inclusive|plaza|cieplo|egipt|turcj|grecj|hiszp|cypr|tunez|maroko|portug/i
+        .test(`${offer.board} ${(offer.category || []).join(" ")} ${offer.country}`) ? 8 : 0;
+      const tinyTripPenalty = budget >= 2200 && (nights <= 2 || ratio < 0.35) ? -28 : 0;
+      return priceFit + durationFit + warmOrPackage + Number(offer.score || 0) * 1.5 + tinyTripPenalty;
+    };
+
+    return candidates
+      .sort((a, b) => scoreForBudget(b) - scoreForBudget(a) || b.price - a.price || b.score - a.score)
+      .slice(0, 8);
   }, [budget, surpriseLive, homepageOfferPool]);
+
+  useEffect(() => {
+    if (!budgetCandidates.length) {
+      setSurprise(null);
+      return;
+    }
+    setSurprise((current) => {
+      if (current && budgetCandidates.some((offer) => offer.id === current.id)) return current;
+      return budgetCandidates[0];
+    });
+  }, [budgetCandidates]);
 
   function moveOffersRail(direction: -1 | 1) {
     const rail = offersRailRef.current;
@@ -650,12 +682,13 @@ export default function Home() {
       setSurprise(null);
       return;
     }
-    const top = budgetCandidates.slice(0, Math.min(6, budgetCandidates.length));
-    let next = top[Math.floor(Math.random() * top.length)];
-    if (surprise && top.length > 1 && next.id === surprise.id) {
-      next = top[(top.findIndex(item => item.id === next.id) + 1) % top.length];
+    const top = budgetCandidates.slice(0, Math.min(5, budgetCandidates.length));
+    if (!surprise) {
+      setSurprise(top[0]);
+      return;
     }
-    setSurprise(next);
+    const currentIndex = top.findIndex(item => item.id === surprise.id);
+    setSurprise(top[(currentIndex + 1 + top.length) % top.length]);
   }
 
   const dailyCopy = liveOffersStatus === "live"
@@ -704,8 +737,8 @@ export default function Home() {
         <div className="section-heading">
           <div>
             <div className="kicker">PODPOWIEDZI TRIPOWNI</div>
-            <h2 id="curated-trips-title">Nie wiesz od czego zacząć?</h2>
-            <p>Przewiń kierunki zamiast wpisywać wszystko ręcznie. Każdy kierunek pokazujemy tylko raz — od najtańszej aktualnej opcji.</p>
+            <h2 id="curated-trips-title">Najtańsze sensowne wyjazdy na start.</h2>
+            <p>Najpierw cena, potem różnorodność. Każdy kierunek pokazujemy tylko raz w pierwszej sekcji.</p>
           </div>
           <Link className="section-premium-link" href="/okazje">Wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
@@ -714,9 +747,9 @@ export default function Home() {
             Źródła ofert live chwilowo nie odpowiadają. Pokazujemy ostatnio opublikowane propozycje — aktualną cenę i dostępność potwierdzisz po kliknięciu.
           </div>
         )}
-        <OfferRail kicker="🏙 CITY BREAK" title="Na kilka dni" description="Krótkie wyjazdy, najtańsze kierunki na początku." items={themedRails.city}/>
-        <OfferRail kicker="☀️ WAKACJE" title="Słońce i dłuższy odpoczynek" description="Gotowe kierunki na minimum kilka dni, bez powielania miejsc." items={themedRails.sun}/>
-        <OfferRail kicker="💸 NAJTANIEJ TERAZ" title="Najniższe ceny na pierwszy rzut" description="Po jednym najtańszym wariancie dla każdego kierunku." items={themedRails.cheapest}/>
+        <OfferRail kicker="💸 NAJTANIEJ TERAZ" title="Najniższe ceny na pierwszy rzut" description="Najtańsze propozycje pokazujemy pierwsze — po jednym wariancie na kierunek." items={themedRails.cheapest}/>
+        <OfferRail kicker="🏙 CITY BREAK" title="Na kilka dni" description="Krótkie wyjazdy bez powielania kierunków z sekcji najtańszych." items={themedRails.city}/>
+        <OfferRail kicker="☀️ WAKACJE" title="Słońce i dłuższy odpoczynek" description="Dłuższe wyjazdy i ciepłe kierunki, których nie pokazaliśmy wyżej." items={themedRails.sun}/>
       </section>
 
       <section className="section shell visual-chapter chapter-daily" id="okazje">
@@ -940,19 +973,21 @@ export default function Home() {
       <section className="budget-wrap visual-chapter chapter-budget" id="budzet">
         <div className="shell budget-grid">
           <div>
-            <div className="kicker light">WYNIKI TRIPOWNIA.PL</div>
-            <h2>Mam {budget} zł.<br/>Gdzie mogę polecieć?</h2>
-            <p>Ustaw kwotę, a Tripownia pokaże tylko wyjazdy, które mieszczą się w Twoim budżecie.</p>
+            <div className="kicker light">DOBIERZ WYJAZD DO BUDŻETU</div>
+            <h2>Mam do {budget.toLocaleString("pl-PL")} zł/os.<br/>Co ma sens?</h2>
+            <p>Nie pokazujemy po prostu najtańszej opcji. Dobieramy wyjazd do budżetu, długości pobytu i jakości oferty.</p>
             <input type="range" min="500" max="5000" step="100" value={budget} onChange={e => setBudget(Number(e.target.value))}/>
             <div className="range-labels"><span>500 zł</span><strong>{budget} zł</strong><span>5000 zł</span></div>
           </div>
           <div className="surprise-card">
-            <Sparkles size={30}/><h3>Nie wiesz gdzie?</h3><p>Daj nam budżet i daj się zaskoczyć.</p>
-            <button onClick={pickSurprise} disabled={surpriseLoading}><Dice5 size={18}/> {surpriseLoading?"Szukamy czegoś lepszego…":"Zaskocz mnie"}</button>
+            <div className="surprise-card-head">
+              <Sparkles size={26}/>
+              <div><small>NAJLEPSZE DOPASOWANIE</small><h3>Co wybrać w tym budżecie?</h3><p>Najpierw sensowny wyjazd, nie najtańszy przypadkowy kierunek.</p></div>
+            </div>
             {!budgetCandidates.length && (
               <div className="surprise-result surprise-result-v2">
-                <strong>W tym budżecie nie mamy teraz potwierdzonej okazji.</strong>
-                <em>Nie podstawiamy starej ceny ani przypadkowego kierunku tylko po to, żeby coś pokazać.</em>
+                <strong>Brak sensownej propozycji w tym budżecie.</strong>
+                <em>Zmień kwotę — nie podstawiamy przypadkowej oferty tylko po to, żeby coś pokazać.</em>
               </div>
             )}
             {surprise && (
@@ -960,11 +995,28 @@ export default function Home() {
                 <span className="surprise-flag">{surprise.flag}</span>
                 <strong>{surprise.city}</strong>
                 <em>{surprise.reason}</em>
-                <span>Tripownia znalazła od {surprise.price.toLocaleString("pl-PL")} zł/os. · mieści się w budżecie {budget.toLocaleString("pl-PL")} zł.</span>
-                <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
-                  <a href={surprise.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer" style={{fontWeight:800,textDecoration:"none"}}>Zobacz wyjazd →</a>
-                  <a href={buildKiwiFlightSearch(surprise.city, surprise.country)} target="_blank" rel="sponsored noopener noreferrer" style={{fontWeight:800}}>✈️ Sprawdź loty →</a>
+                <div className="surprise-fit-meta">
+                  <span>{surprise.nights} {surprise.nights === 1 ? "noc" : "nocy"}</span>
+                  <span>{surprise.board}</span>
+                  <span>{surprise.departure}</span>
                 </div>
+                <span><b>od {surprise.price.toLocaleString("pl-PL")} zł/os.</b> · zostaje ok. {(budget - surprise.price).toLocaleString("pl-PL")} zł w budżecie.</span>
+                <div className="surprise-result-actions">
+                  <a href={surprise.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Zobacz wyjazd →</a>
+                  <button type="button" onClick={pickSurprise} disabled={surpriseLoading}><Dice5 size={15}/> {surpriseLoading ? "Szukamy…" : "Pokaż inną"}</button>
+                </div>
+              </div>
+            )}
+            {budgetCandidates.length > 1 && (
+              <div className="surprise-alternatives">
+                <small>INNE DOBRE OPCJE</small>
+                {budgetCandidates.slice(0, 3).filter((offer) => offer.id !== surprise?.id).slice(0, 2).map((offer) => (
+                  <button type="button" key={offer.id} onClick={() => setSurprise(offer)}>
+                    <span>{offer.flag} <strong>{offer.city}</strong><small>{offer.nights} nocy · {offer.board}</small></span>
+                    <b>{offer.price.toLocaleString("pl-PL")} zł</b>
+                    <ArrowRight size={15}/>
+                  </button>
+                ))}
               </div>
             )}
           </div>
