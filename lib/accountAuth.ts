@@ -34,6 +34,7 @@ export type TripowniaUserState = {
 
 const AUTH_SESSION_KEY = "tripownia-auth-session-v1";
 const AUTH_EVENT = "tripownia-auth-changed";
+let refreshInFlight: Promise<AccountSession | null> | null = null;
 const DEFAULT_SUPABASE_URL = "https://wgbzccgcfhnouakswyvj.supabase.co";
 const DEFAULT_SUPABASE_KEY = "sb_publishable_5S3oW5eD0MTLArG0gZANIw_ORJiqQQl";
 
@@ -176,18 +177,43 @@ export function isSocialProviderEnabled(provider: "google" | "apple") {
 
 export async function refreshAccountSession(session: AccountSession) {
   if (!isAccountAuthConfigured()) return null;
-  const response = await fetch(`${authBaseUrl()}/auth/v1/token?grant_type=refresh_token`, {
-    method: "POST",
-    headers: publicHeaders(),
-    body: JSON.stringify({ refresh_token: session.refresh_token }),
-  });
-  if (!response.ok) {
-    clearAccountSession();
-    return null;
-  }
-  const refreshed = normalizeSession(await response.json() as AccountSession);
-  saveAccountSession(refreshed);
-  return refreshed;
+  if (refreshInFlight) return refreshInFlight;
+
+  const attemptedRefreshToken = session.refresh_token;
+  refreshInFlight = (async () => {
+    try {
+      const latestBeforeRequest = readAccountSession();
+      if (latestBeforeRequest?.refresh_token && latestBeforeRequest.refresh_token !== attemptedRefreshToken) {
+        return latestBeforeRequest;
+      }
+
+      const response = await fetch(`${authBaseUrl()}/auth/v1/token?grant_type=refresh_token`, {
+        method: "POST",
+        headers: publicHeaders(),
+        body: JSON.stringify({ refresh_token: attemptedRefreshToken }),
+      });
+
+      if (!response.ok) {
+        // Supabase rotates refresh tokens. A parallel refresh in this tab or another
+        // tab may already have stored a newer session. Never erase that newer session
+        // just because this request used the stale token.
+        const latest = readAccountSession();
+        if (latest?.refresh_token && latest.refresh_token !== attemptedRefreshToken) {
+          return latest;
+        }
+        clearAccountSession();
+        return null;
+      }
+
+      const refreshed = normalizeSession(await response.json() as AccountSession);
+      saveAccountSession(refreshed);
+      return refreshed;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+
+  return refreshInFlight;
 }
 
 export async function ensureFreshAccountSession(session = readAccountSession()) {
