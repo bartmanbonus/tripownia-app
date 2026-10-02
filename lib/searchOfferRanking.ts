@@ -9,7 +9,7 @@ export function searchTier(offer: any): number {
   return Number(offer?.searchTier || 0);
 }
 
-export function rankSearchOffers<T extends Record<string, any>>(offers: T[], limit = 400): T[] {
+export function rankSearchOffers<T extends Record<string, any>>(offers: T[], limit = Number.MAX_SAFE_INTEGER): T[] {
   const sorted = offers.filter(offer => searchPrice(offer) < Infinity)
     .sort((a, b) => searchTier(a) - searchTier(b) || searchPrice(a) - searchPrice(b));
   const seen = new Set<string>();

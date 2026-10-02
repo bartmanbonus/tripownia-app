@@ -1,5 +1,6 @@
 "use client";
 
+import { isPromotableOffer } from "@/lib/offerValuePolicy";
 import { useEffect, useMemo, useState } from "react";
 import OfferCard from "@/components/OfferCard";
 import type { Offer } from "@/lib/offers";
@@ -21,7 +22,7 @@ function uniqueOffers(items: LiveOffer[]) {
 function matchesMode(offer: LiveOffer, mode: Mode) {
   const categories = offer.category || [];
   if (mode === "citybreak") {
-    return offer.nights <= 5 || categories.includes("city") || categories.includes("weekend");
+    return offer.nights >= 2 && offer.nights <= 5 && offer.price <= 2000;
   }
   if (mode === "vacation") {
     return offer.nights >= 5 || categories.some((item) => /wakacje|allinclusive|plaza|cieplo/i.test(item));
@@ -68,7 +69,7 @@ export default function LiveSalesRail({ mode, limit = 8 }: { mode: Mode; limit?:
   }, []);
 
   const offers = useMemo(
-    () => uniqueOffers(pool.filter((offer) => matchesMode(offer, mode)))
+    () => uniqueOffers(pool.filter((offer) => isPromotableOffer(offer) && matchesMode(offer, mode)))
       .sort((a, b) => Number(a.price) - Number(b.price))
       .slice(0, limit),
     [pool, mode, limit]

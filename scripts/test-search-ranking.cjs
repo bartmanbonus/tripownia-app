@@ -2,8 +2,10 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const ts = require('typescript');
 const vm = require('node:vm');
+function loadPolicy(file) { return file === 'lib/offerValuePolicy.ts' ? {} : load('lib/offerValuePolicy.ts'); }
 function load(file, deps = {}, globals = {}) {
   const exports = {};
+  deps = {'@/lib/eskyPackages': {fetchEskyPackages: async()=>({offers:[], partial:false})}, '@/lib/offerValuePolicy': loadPolicy(file), ...deps};
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
   vm.runInNewContext(code, {exports, require:name => deps[name] || require(name), console, URL, Date, AbortSignal, ...globals});
   return exports;
@@ -54,3 +56,36 @@ const route=load('app/api/today-offers/route.ts',{'@/lib/searchOfferRanking':ran
  assert.equal(mixedResult.body.offers[0].affiliateUrl,tracked,'affiliate tracking URL survives selection unchanged');
  console.log('PASS: cheapest variant, board variants, no city cap, exact-first alternatives, price pagination, WAW, budget, strict filters, upstream failure.');
 })().catch(e=>{console.error(e);process.exit(1)});
+
+// Price gates, actual eSky payload shape and tracking preservation.
+const policy = load('lib/offerValuePolicy.ts');
+const checked = new Date().toISOString();
+const promo = {...base,price:1499,nights:3,affiliateUrl:'https://example.test',priceCheckedAt:checked,availabilityStatus:'available',linkType:'exact'};
+assert.equal(policy.isPromotableOffer(promo),true);
+assert.equal(policy.isAffordableShortTrip({...promo,price:4000}),false);
+assert.equal(policy.isPromotableOffer({...promo,price:4000,nights:7}),false);
+assert.equal(policy.isPromotableOffer({...promo,price:4500,nights:7,country:'Tanzania',city:'Zanzibar'}),true);
+assert.equal(policy.isPromotableOffer({...promo,linkType:'search'}),false);
+assert.equal(policy.isPromotableOffer({...promo,priceCheckedAt:'2020-01-01'}),false);
+assert.equal(ranking.rankSearchOffers(Array.from({length:501},(_,i)=>({...base,hotel:`Hotel ${i}`,price:500+i}))).length,501);
+const partners = load('lib/partners.ts',{}, {process:{env:{}}});
+const esky = load('lib/eskyPackages.ts', {'@/lib/partners':partners});
+const fixture = { hotel:{metaCode:113569,name:'Ramla Bay Resort',regionName:'wyspa Malta',countryName:'Malta',rating:4.8}, departureAirportCode:'WMI',pricePerPax:{amount:929,currency:'PLN'},stayInformation:{checkInDate:'2027-11-28',checkOutDate:'2027-12-03',nights:5},mealPlan:'Śniadanie',variantsUrl:'https://www2.esky.pl/lot+hotel/portfolio/details/select-room?packageId=test-package&checkInDate=2027-11-28&checkOutDate=2027-12-03&departureCode=WMI&partner_id=WRONG'};
+const eskyOffer = esky.normalizeEskyPackage(fixture);
+assert(eskyOffer); assert.equal(eskyOffer.price,929);
+assert.equal(new URL(eskyOffer.affiliateUrl).searchParams.get('partner_id'),'TRIPOWNIAPLPACKAGES');
+assert.equal(new URL(eskyOffer.affiliateUrl).searchParams.get('packageId'),'test-package');
+assert.equal(esky.normalizeEskyPackage({...fixture,departureAirportCode:'BER'}),null);
+assert.equal(esky.normalizeEskyPackage({...fixture,pricePerPax:{amount:929,currency:'EUR'}}),null);
+assert.equal(esky.normalizeEskyPackage({...fixture,variantsUrl:'https://evil.example/lot+hotel/portfolio/details/select-room?packageId=1'}),null);
+(async()=>{
+ const providerRoute=load('app/api/today-offers/route.ts',{'@/lib/searchOfferRanking':ranking,'@/lib/destinationGrouping':grouping,'@/lib/eskyPackages':{fetchEskyPackages:async()=>({offers:[eskyOffer,{...eskyOffer,id:eskyOffer.id+1,sourceKey:'expensive',city:'Madryt',price:4000}],partial:true})},'next/server':{NextResponse:{json:(body,opts)=>({body,status:opts?.status||200})}}},{process:{env:{}}});
+ const result=await providerRoute.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=search&from=WAWA&strict=1')});
+ assert.equal(result.body.offers.length,1); assert.equal(result.body.offers[0].partner,'esky');assert.equal(result.body.partial,true);
+ assert.equal(result.body.offers[0].affiliateUrl,eskyOffer.affiliateUrl);
+ const wrongAirport=await providerRoute.GET({nextUrl:new URL('https://example.test/api/today-offers?mode=search&from=KRK&strict=1')});
+ assert.equal(wrongAirport.body.offers.length,0);
+ const daily=await providerRoute.GET({nextUrl:new URL('https://example.test/api/today-offers')});
+ assert.equal(daily.body.offers.length,1);assert.equal(daily.body.offers[0].price,929);
+ console.log('PASS: promotion ceilings, stale/search-link rejection, 501 results, eSky normalization, affiliate preservation, source mix and airport filters.');
+})().catch(e=>{console.error(e);process.exitCode=1});

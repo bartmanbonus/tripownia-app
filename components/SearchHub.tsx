@@ -100,7 +100,7 @@ function uniqueOfferVariants(rows: any[]) {
   return rankSearchOffers(rows);
 }
 
-function diversifyOfferVariants(rows: any[], limit = 400, _perDirection?: number) {
+function diversifyOfferVariants(rows: any[], limit = Number.MAX_SAFE_INTEGER, _perDirection?: number) {
   return rankSearchOffers(rows, limit);
 }
 
@@ -156,7 +156,7 @@ function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: s
 
 function cleanRows(rows: any[], query: string) {
   const cleaned = rows
-    .filter((o: any) => ["exim", "tui"].includes(String(o.partner || "").toLowerCase()))
+    .filter((o: any) => ["exim", "tui", "esky"].includes(String(o.partner || "").toLowerCase()))
     .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
     .sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
@@ -389,7 +389,7 @@ export default function SearchHub({
     const filtered = resultLocation
       ? results.filter((offer) => String(offer?.city || offer?.country || "").trim() === resultLocation)
       : [...results];
-    const displayRows = resultDestinationCount === 1 ? filtered : cheapestDirectionRows(filtered);
+    const displayRows = filtered;
 
     if (resultSort === "price") return rankSearchOffers(displayRows);
     if (resultSort === "rating") return [...displayRows].sort((a, b) => Number(b?.score || 0) - Number(a?.score || 0) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
@@ -590,7 +590,7 @@ export default function SearchHub({
       const perDirection = 400;
       let rows = diversifyOfferVariants(
         cleanRows(exact.offers, requested.length ? "multi" : ""),
-        400,
+        Number.MAX_SAFE_INTEGER,
         perDirection
       );
       let datePass = prioritizeByDate(rows, datePreference);
@@ -612,7 +612,7 @@ export default function SearchHub({
         if (runId !== searchRunRef.current) return;
         const previousCount = rows.length;
         const relaxedRows = cleanRows(relaxed.offers, requested.length ? "multi" : "").map(offer => ({ ...offer, searchTier: 1, searchAlternative: "Inne wyżywienie lub długość pobytu" }));
-        rows = diversifyOfferVariants([...rows, ...relaxedRows], 400, perDirection);
+        rows = diversifyOfferVariants([...rows, ...relaxedRows], Number.MAX_SAFE_INTEGER, perDirection);
         relaxedFilters = rows.length > previousCount;
         datePass = prioritizeByDate(rows, datePreference);
         rows = datePass.rows;
@@ -639,7 +639,7 @@ export default function SearchHub({
             datePreference
           ).rows;
 
-          rows = diversifyOfferVariants([...rows, ...rescuedRows], 400, 12);
+          rows = diversifyOfferVariants([...rows, ...rescuedRows], Number.MAX_SAFE_INTEGER, 12);
           usedRescue = rescuedRows.length > 0;
         } else {
           const broader = await fetchBatch({
@@ -652,7 +652,7 @@ export default function SearchHub({
             cleanRows(broader.offers, "multi").map(offer => ({ ...offer, searchTier: 2, searchAlternative: "Alternatywa — sprawdź termin, wylot i wyżywienie" })),
             datePreference
           ).rows;
-          rows = diversifyOfferVariants([...rows, ...broaderRows], 400, perDirection);
+          rows = diversifyOfferVariants([...rows, ...broaderRows], Number.MAX_SAFE_INTEGER, perDirection);
         }
 
         expandedScope = rows.length > previousCount;
@@ -667,7 +667,7 @@ export default function SearchHub({
         if (broadResponse.ok && broadData?.ok !== false) {
           rows = diversifyOfferVariants(
             cleanRows(Array.isArray(broadData?.offers) ? broadData.offers : [], "").filter(offer => (!activeMinBudget || offer.price >= activeMinBudget) && (!activeMaxBudget || offer.price <= activeMaxBudget)).map(offer => ({ ...offer, searchTier: 2, searchAlternative: "Alternatywa — sprawdź termin, wylot i wyżywienie" })),
-            400,
+            Number.MAX_SAFE_INTEGER,
             10
           );
           expandedScope = rows.length > 0;
@@ -1471,7 +1471,7 @@ export default function SearchHub({
               <span>{departures.length ? departures.length === 1 ? "1 wybrane lotnisko" : `${departures.length} wybrane lotniska` : "Wszystkie lotniska"} · {dateSummary} · {budgetSummary}</span>
             </div>
             <div className="search-v3-results-head" role="status" aria-live="polite">
-              <div><small>WYNIKI</small><h3>{expanding ? (visibleResults.length ? `Mamy ${visibleResults.length} kierunków — szukamy jeszcze szerzej…` : "Szukamy szerzej…") : loading ? "Sprawdzamy aktualne oferty…" : visibleResults.length ? (resultDestinationCount === 1 ? `Znalezione oferty: ${visibleResults.length}` : `Najtańsze kierunki: ${visibleResults.length}`) : "Brak dokładnego dopasowania"}</h3></div>
+              <div><small>WYNIKI</small><h3>{expanding ? (visibleResults.length ? `Mamy ${visibleResults.length} ofert — szukamy jeszcze szerzej…` : "Szukamy szerzej…") : loading ? "Sprawdzamy aktualne oferty…" : visibleResults.length ? `Znalezione oferty: ${visibleResults.length}` : "Brak dokładnego dopasowania"}</h3></div>
               {notice && <p>{notice}</p>}
             </div>
 

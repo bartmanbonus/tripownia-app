@@ -1,5 +1,6 @@
 "use client";
 
+import { isPromotableOffer } from "@/lib/offerValuePolicy";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Bell, BriefcaseBusiness, Check, Flame, MapPin, Plane, Search, Sparkles } from "lucide-react";
@@ -34,8 +35,8 @@ function publicationKey() {
 function cleanOffers(rows: Offer[]) {
   const seen = new Set<string>();
   return rows
-    .filter(o => o?.id && o.price > 0 && o.affiliateUrl && !isOfferExpired(o) && isTravelDestinationAllowed(o.city, o.country))
-    .sort((a,b) => ((b.linkMatch === "exact" ? 1 : 0) - (a.linkMatch === "exact" ? 1 : 0)) || b.score - a.score || a.price - b.price)
+    .filter(o => isPromotableOffer(o) && o?.id && o.price > 0 && o.affiliateUrl && !isOfferExpired(o) && isTravelDestinationAllowed(o.city, o.country))
+    .sort((a,b) => a.price - b.price || b.score - a.score)
     .filter(o => { const key = `${o.city.toLowerCase()}|${o.country.toLowerCase()}`; if (seen.has(key)) return false; seen.add(key); return true; });
 }
 

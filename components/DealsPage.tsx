@@ -1,5 +1,6 @@
 "use client";
 
+import { isPromotableOffer } from "@/lib/offerValuePolicy";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, RefreshCw, Search, SlidersHorizontal, Sparkles } from "lucide-react";
@@ -58,7 +59,7 @@ function cheapestUnique(rows: DealsOffer[]) {
   const best = new Map<string, DealsOffer>();
 
   rows
-    .filter((offer) => offer && Number(offer.price) > 0)
+    .filter((offer) => offer && isPromotableOffer(offer))
     .filter((offer) => !isOfferExpired(offer))
     .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
     .forEach((offer) => {

@@ -1,5 +1,7 @@
 "use client";
 
+import { isPromotableOffer } from "@/lib/offerValuePolicy";
+import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { useEffect, useMemo, useState } from "react";
 import OfferCard from "@/components/OfferCard";
 import { offers, isOfferExpired, type Offer } from "@/lib/offers";
@@ -12,8 +14,8 @@ type ViewMode = "best" | "cheap" | "city" | "holiday";
 
 function uniqueDirections(rows: Offer[]) {
   const seen = new Set<string>();
-  return rows.filter((offer) => {
-    const key = offer.city.toLowerCase() + "|" + offer.country.toLowerCase();
+  return [...rows].sort((a, b) => a.price - b.price).filter((offer) => {
+    const key = touristDestinationKey(offer);
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -28,7 +30,7 @@ function matchesAirport(offer: Offer, codes: string[]) {
   if (!codes.length) return true;
   const haystack = normalizeAirportText(`${offer.departure || ""} ${offer.airportCode || ""}`);
   return codes.some((code) => {
-    if (code === "WAW") return /warszawa|chopin|okecie|\bwaw\b/.test(haystack) && !/modlin/.test(haystack);
+    if (code === "WAW") return /warszawa|chopin|okecie|\bwaw\b/.test(haystack) && !/modlin|radom|\brdo\b/.test(haystack);
     if (code === "WMI") return /modlin|\bwmi\b/.test(haystack);
     if (code === "KRK") return /krakow|balice|\bkrk\b/.test(haystack);
     return haystack.includes(code.toLowerCase());
@@ -98,7 +100,7 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
   const available = useMemo(() => {
     const result = rows
       .filter((offer) => offer && offer.id && offer.price > 0 && offer.affiliateUrl)
-      .filter((offer) => !isOfferExpired(offer))
+      .filter((offer) => !isOfferExpired(offer) && isPromotableOffer(offer))
       .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
       .filter((offer) => matchesAirport(offer, airportCodes))
       .filter((offer) => !weekendOnly || (offer.nights >= 2 && offer.nights <= 4));
@@ -121,11 +123,11 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
       result.sort((a, b) => a.price - b.price || b.score - a.score);
     } else if (viewMode === "holiday") {
       result = result.filter((offer) => offer.nights >= 5);
-      result.sort((a, b) => b.score - a.score || a.price - b.price);
+      result.sort((a, b) => a.price - b.price || b.score - a.score);
     } else if (viewMode === "cheap") {
       result.sort((a, b) => a.price - b.price || b.score - a.score);
     } else {
-      result.sort((a, b) => b.score - a.score || a.price - b.price);
+      result.sort((a, b) => a.price - b.price || b.score - a.score);
     }
 
     return result.slice(0, limit);

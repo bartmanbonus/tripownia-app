@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { fetchEskyPackages } from "@/lib/eskyPackages";
+import { isAffordableShortTrip, isPromotableOffer } from "@/lib/offerValuePolicy";
 import { rankSearchOffers } from "@/lib/searchOfferRanking";
 
 export const maxDuration = 60;
@@ -23,7 +25,7 @@ type TdProduct = {
   productImage?: { url?: string };
 };
 
-type Provider = "exim" | "tui";
+type Provider = "exim" | "tui" | "esky";
 
 type LiveCandidate = Offer & {
   provider: Provider;
@@ -315,7 +317,7 @@ function reasonFor(provider: Provider, price: number, nights: number, board: str
   return `${nights} nocy${boardText} w cenie od ${price.toLocaleString("pl-PL")} zł/os.`;
 }
 
-async function fetchProducts(provider: Provider, query: string, token: string, pages = 1) {
+async function fetchProducts(provider: "exim" | "tui", query: string, token: string, pages = 1) {
   const fid = provider === "exim" ? 103442 : 24864;
   // TradeDoubler uses zero-based pages. Sort at source BEFORE limiting results.
   // A short shared cache prevents every search/alternative from rescanning feeds.
@@ -347,7 +349,7 @@ function fromExim(product: TdProduct): LiveCandidate | null {
   const adults = Math.max(1, Number(destinationUrl?.searchParams.get("AC1") || 2));
   const nights = Math.max(1, Number(destinationUrl?.searchParams.get("NN") || 7));
   const price = Math.round(rawTotal / adults);
-  if (!Number.isFinite(price) || price < 350 || price > 9000) return null;
+  if (!Number.isFinite(price) || price <= 0) return null;
 
   const destinationAddress = fields.DestinationAddress || product.description || "";
   const addressParts = destinationAddress.split(";").map((value) => value.trim()).filter(Boolean);
@@ -360,7 +362,7 @@ function fromExim(product: TdProduct): LiveCandidate | null {
   const daysOut = departureDate ? Math.max(0, Math.round((departureDate.getTime() - Date.now()) / 86400000)) : 120;
   const rating = Number(fields.Stars || 0);
   const modifiedAt = Number(offer?.modified || 0);
-  const sourceKey = offer?.sourceProductId || productUrl;
+  const sourceKey = `${offer?.sourceProductId || ""}:${productUrl}`;
 
   if (departureDate) {
     const todayUtc = new Date();
@@ -410,7 +412,7 @@ function fromTui(product: TdProduct): LiveCandidate | null {
   const rawPrice = Number(offer?.priceHistory?.[0]?.price?.value || 0);
   if (!Number.isFinite(rawPrice) || rawPrice <= 0) return null;
   const price = Math.round(rawPrice);
-  if (!Number.isFinite(price) || price < 350 || price > 9000) return null;
+  if (!Number.isFinite(price) || price <= 0) return null;
 
   const country = fields.Country || "";
   const city = fields.Region || fields.City || product.name || "Wakacje";
@@ -422,7 +424,7 @@ function fromTui(product: TdProduct): LiveCandidate | null {
   const daysOut = departureDate ? Math.max(0, Math.round((departureDate.getTime() - Date.now()) / 86400000)) : 120;
   const rating = Number(fields.Rating || 0);
   const modifiedAt = Number(offer?.modified || 0);
-  const sourceKey = offer?.sourceProductId || productUrl;
+  const sourceKey = `${offer?.sourceProductId || ""}:${productUrl}`;
 
   if (departureDate) {
     const todayUtc = new Date();
@@ -585,39 +587,9 @@ function dateWindowDistance(offer: LiveCandidate, start: string, end: string) {
   return 0;
 }
 
-function selectDailyDiversified(candidates: LiveCandidate[], key: string, limit = 20) {
-  const buckets = {
-    europe: candidates.filter((o) => continentFor(o) === "europe"),
-    africa: candidates.filter((o) => continentFor(o) === "africa"),
-    asia: candidates.filter((o) => continentFor(o) === "asia"),
-    americas: candidates.filter((o) => continentFor(o) === "americas"),
-  };
-
-  const quotas: Array<[keyof typeof buckets, number]> = [
-    ["europe", 8],
-    ["africa", 5],
-    ["asia", 4],
-    ["americas", 3],
-  ];
-
-  const picked: LiveCandidate[] = [];
-  const seen = new Set<string>();
-  for (const [bucket, quota] of quotas) {
-    const ranked = shuffle([...buckets[bucket]].sort((a,b) => dealValue(b)-dealValue(a)).slice(0, 24), `${key}:${bucket}`);
-    for (const offer of ranked) {
-      const dk = destinationKey(offer);
-      if (seen.has(dk)) continue;
-      picked.push(offer);
-      seen.add(dk);
-      if (picked.filter((o) => continentFor(o) === bucket).length >= quota) break;
-    }
-  }
-
-  if (picked.length < limit) {
-    const rest = selectDaily(candidates.filter((o) => !seen.has(destinationKey(o))), `${key}:rest`, limit - picked.length);
-    picked.push(...rest);
-  }
-  return picked.slice(0, limit);
+function selectDailyDiversified(candidates: LiveCandidate[], _key: string, limit = 36) {
+  return cheapestPerDestination(candidates.filter(isPromotableOffer))
+    .sort((a, b) => a.price - b.price || b.score - a.score).slice(0, limit);
 }
 
 function cheapestPerDestination(candidates: LiveCandidate[]) {
@@ -630,44 +602,6 @@ function cheapestPerDestination(candidates: LiveCandidate[]) {
     }
   }
   return Array.from(best.values());
-}
-
-function selectDaily(candidates: LiveCandidate[], key: string, limit = 12) {
-  const ranked = [...candidates].sort((a, b) => dealValue(b) - dealValue(a));
-  const shortlist = ranked.slice(0, Math.min(48, ranked.length));
-  const shuffled = shuffle(shortlist, `tripownia-live:${key}`);
-
-  const selected: LiveCandidate[] = [];
-  const countryCounts = new Map<string, number>();
-  const providerCounts = new Map<Provider, number>();
-  const destinationKeys = new Set<string>();
-  let secondaryAirportCount = 0;
-
-  for (const offer of shuffled) {
-    const destKey = destinationKey(offer);
-    if (destinationKeys.has(destKey)) continue;
-
-    const countryKey = normalize(offer.country);
-    const countryCount = countryCounts.get(countryKey) || 0;
-    if (countryCount >= countryLimit(offer)) continue;
-
-    const providerCount = providerCounts.get(offer.provider) || 0;
-    if (providerCount >= Math.max(10, Math.ceil(limit * 0.75))) continue;
-
-    const primaryAirport = departurePriority(offer) > 0;
-    if (!primaryAirport && secondaryAirportCount >= 2) continue;
-
-    selected.push(offer);
-    destinationKeys.add(destKey);
-    countryCounts.set(countryKey, countryCount + 1);
-    providerCounts.set(offer.provider, providerCount + 1);
-    if (!primaryAirport) secondaryAirportCount += 1;
-    if (selected.length >= limit) break;
-  }
-
-  return selected
-    .sort((a, b) => dealValue(b) - dealValue(a))
-    .slice(0, limit);
 }
 
 export async function GET(request: NextRequest) {
@@ -683,7 +617,7 @@ export async function GET(request: NextRequest) {
   const broadSearch = request.nextUrl.searchParams.get("broad") === "1";
   const airportHub = request.nextUrl.searchParams.get("hub") === "1";
   const providerParam = request.nextUrl.searchParams.get("provider");
-  const providerOnly: Provider | null = providerParam === "exim" || providerParam === "tui" ? providerParam : null;
+  const providerOnly: Provider | null = providerParam === "exim" || providerParam === "tui" || providerParam === "esky" ? providerParam : null;
   const departureFilter = (request.nextUrl.searchParams.get("from") || "").trim();
   const nightsFilter = (request.nextUrl.searchParams.get("nights") || "any").trim();
   const boardFilter = (request.nextUrl.searchParams.get("board") || "any").trim();
@@ -698,11 +632,9 @@ export async function GET(request: NextRequest) {
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
 
-  if (!eximToken && !tuiToken) {
-    return NextResponse.json({ ok: false, key, offers: [], error: "Brak tokenów TradeDoubler." }, { status: 503 });
-  }
-
   try {
+    const eskyPromise = !providerOnly || providerOnly === "esky"
+      ? fetchEskyPackages() : Promise.resolve({ offers: [], partial: false });
     const searchTerms = query
       ? expandSearchTerms(
           query
@@ -730,18 +662,15 @@ export async function GET(request: NextRequest) {
             ? NEW_YEAR_SEARCH_TERMS
           : mode === "search"
             ? BROAD_CORE_TERMS
-            : [
-                ...shuffle(EUROPE_SEARCH_TERMS, `terms-eu:${key}`).slice(0, 7),
-                ...shuffle(EXOTIC_SEARCH_TERMS, `terms-exotic:${key}`).slice(0, 11),
-              ];
+            : BROAD_CORE_TERMS;
     const searchPages = mode === "search" || mode === "citybreak" ? (query ? 3 : 2) : 1;
     const jobs: Array<() => Promise<{ provider: Provider; products: TdProduct[] }>> = [];
 
     for (const term of terms) {
-      if (eximToken && providerOnly !== "tui") {
+      if (eximToken && (!providerOnly || providerOnly === "exim")) {
         jobs.push(() => fetchProducts("exim", term, eximToken, searchPages).then((products) => ({ provider: "exim" as const, products })));
       }
-      if (mode !== "newyear" && tuiToken && providerOnly !== "exim") {
+      if (tuiToken && (!providerOnly || providerOnly === "tui")) {
         jobs.push(() => fetchProducts("tui", term, tuiToken, searchPages).then((products) => ({ provider: "tui" as const, products })));
       }
     }
@@ -750,23 +679,30 @@ export async function GET(request: NextRequest) {
     const batchSize = mode === "citybreak" ? 16 : 8;
     let successfulFeeds = 0;
     let failedFeeds = 0;
+    const feedDeadline = Date.now() + 42_000;
     for (let index = 0; index < jobs.length; index += batchSize) {
+      if (Date.now() >= feedDeadline) { failedFeeds += jobs.length - index; break; }
       const settled = await Promise.allSettled(jobs.slice(index, index + batchSize).map((job) => job()));
       for (const item of settled) {
         if (item.status !== "fulfilled") { failedFeeds++; continue; }
         successfulFeeds++;
         for (const product of item.value.products) {
-          try {
-            const candidate = item.value.provider === "exim" ? fromExim(product) : fromTui(product);
-            if (candidate) candidates.push(candidate);
-          } catch {
-            // One malformed product must not discard all other search results.
+          for (const variant of product.offers || []) {
+            try {
+              const row = { ...product, offers: [variant] };
+              const candidate = item.value.provider === "exim" ? fromExim(row) : fromTui(row);
+              if (candidate) candidates.push(candidate);
+            } catch {
+              // A malformed variant must not discard the rest of the product.
+            }
           }
         }
       }
     }
 
-    if (!successfulFeeds) throw new Error("Źródła ofert chwilowo nie odpowiadają. Spróbuj ponownie.");
+    const esky = await eskyPromise;
+    candidates.push(...esky.offers);
+    if (!successfulFeeds && !esky.offers.length) throw new Error("Źródła ofert chwilowo nie odpowiadają. Spróbuj ponownie.");
 
     const unique = new Map<string, LiveCandidate>();
     for (const candidate of candidates) {
@@ -775,7 +711,7 @@ export async function GET(request: NextRequest) {
       if (!previous || candidate.price < previous.price) unique.set(keyValue, candidate);
     }
 
-    const rawCandidates = Array.from(unique.values());
+    const rawCandidates = Array.from(unique.values()).filter(isAffordableShortTrip);
     const allCandidates = query && !rescueMode && (mode === "search" || mode === "citybreak")
       ? rawCandidates.filter((offer) => candidateMatchesQuery(offer, query))
       : rawCandidates;
@@ -822,12 +758,12 @@ export async function GET(request: NextRequest) {
     const boardMatches = (offer: LiveCandidate) => {
       if (boardFilter === "any") return true;
       const value = normalize(offer.board);
-      if (boardFilter === "allinclusive") return /all inclusive|allinclusive/.test(value) && !/ultra/.test(value);
+      if (boardFilter === "allinclusive") return /all[ -]?inclusive/.test(value) && !/ultra/.test(value);
       if (boardFilter === "ultraallinclusive") return /ultra all|ultraall/.test(value);
       if (boardFilter === "breakfast") return /sniad|breakfast|\bbb\b/.test(value);
       if (boardFilter === "halfboard") return /half board|\bhb\b|2 posil|sniad.*obiad|sniad.*kolac/.test(value);
       if (boardFilter === "fullboard") return /full board|\bfb\b|3 posil|pelne wyzywienie/.test(value);
-      if (boardFilter === "roomonly") return /bez wyzywienia|room only|self catering|no meals/.test(value);
+      if (boardFilter === "roomonly") return /bez wyzywienia|room only|self catering|no meals|wlasne|aneks/.test(value);
       return true;
     };
 
@@ -929,46 +865,35 @@ export async function GET(request: NextRequest) {
 
     pool = rankSearchOffers(pool, Number.MAX_SAFE_INTEGER);
     const cheapestDestinations = cheapestPerDestination(pool);
-    const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && tripLengthMatches(offer));
+    const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && isPromotableOffer(offer));
 
     // Short city breaks must remain affordable, even when a destination has only expensive stock.
     const cityBreakPool = pool.filter(offer => offer.nights >= 2 && offer.nights <= 5 && offer.price <= 2000 && hasConcreteDates(offer));
     const selected = mode === "newyear"
       ? cheapestPerDestination(
           pool.filter((offer) => {
-            if (offer.provider !== "exim" || !offer.startDateISO) return false;
+            if (!offer.startDateISO || !isPromotableOffer(offer)) return false;
             const start = offer.startDateISO;
             return start >= "2026-12-26" && start <= "2027-01-02" && offer.nights >= 3 && offer.nights <= 12;
           })
         )
-          .sort((a, b) => {
-            const aCity = a.nights <= 6 ? 0 : 1;
-            const bCity = b.nights <= 6 ? 0 : 1;
-            if (aCity !== bCity) return aCity - bCity;
-            return a.price - b.price;
-          })
+          .sort((a, b) => a.price - b.price)
           .slice(0, 30)
       : mode === "citybreak"
         ? (destinationOverview ? cheapestPerDestination(cityBreakPool) : cityBreakPool)
             .sort((a, b) => a.price - b.price || b.score - a.score)
-            .slice(0, 240)
+
       : mode === "search"
         ? [...pool]
-            .sort((a,b) => {
-              const dateDelta = (startDateFilter || endDateFilter)
-                ? dateWindowDistance(a, startDateFilter, endDateFilter) - dateWindowDistance(b, startDateFilter, endDateFilter)
-                : 0;
-              return dateDelta || (a.price !== b.price ? a.price - b.price : b.score - a.score);
-            })
-            .slice(0, 240)
+            .sort((a,b) => a.price - b.price || b.score - a.score)
         : mode === "surprise"
           ? cheapestDestinations
-              .filter((offer) => offer.price <= budget)
+              .filter((offer) => offer.price <= budget && isPromotableOffer(offer))
               .sort((a,b) => a.price - b.price || b.score - a.score)
               .slice(0, 12)
-          : selectDailyDiversified(dailyLengthPool.length >= 12 ? dailyLengthPool : cheapestDestinations, key, 36);
+          : selectDailyDiversified(dailyLengthPool, key, 60);
 
-    const validEmptySearch = mode === "citybreak" || Boolean(query && !rescueMode && mode === "search");
+    const validEmptySearch = true;
 
     return NextResponse.json(
       {
@@ -977,10 +902,12 @@ export async function GET(request: NextRequest) {
         mode,
         checkedAt: new Date().toISOString(),
         sourceCount: pool.length,
-        partial: failedFeeds > 0,
+        partial: failedFeeds > 0 || esky.partial,
+        providers: Array.from(new Set(pool.map(offer => offer.provider))),
+        coverage: "available_feed_results",
         exactSourceCount: exactPool.length,
         destinationCount: cheapestDestinations.length,
-        notice: [notice, failedFeeds ? "Część źródeł chwilowo nie odpowiada — wyniki mogą być niepełne." : ""].filter(Boolean).join(" "),
+        notice: [notice, (failedFeeds || esky.partial) ? "Pokazujemy dostępne wyniki źródeł; lista może nie obejmować całego katalogu partnerów." : ""].filter(Boolean).join(" "),
         offers: selected,
       },
       {

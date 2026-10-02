@@ -1,3 +1,4 @@
+import { isPromotableOffer } from "@/lib/offerValuePolicy";
 import { NextRequest, NextResponse } from "next/server";
 import { offers as publishedOffers, type Offer } from "@/lib/offers";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
@@ -13,6 +14,7 @@ type SourcePayload = {
   checkedAt?: string;
   offers?: DealsOffer[];
   error?: string;
+  partial?: boolean;
 };
 
 type SourceResult = {
@@ -110,7 +112,7 @@ function monthDistance(offer: DealsOffer, month: string, year: string) {
 
 function isUsableDeal(offer: DealsOffer) {
   return Boolean(
-    offer &&
+    offer && isPromotableOffer(offer) &&
     Number.isFinite(Number(offer.price)) &&
     Number(offer.price) > 0 &&
     offer.affiliateUrl &&
@@ -170,11 +172,11 @@ export async function GET(request: NextRequest) {
   // so a temporarily partial provider response cannot be mistaken for the cheapest deal.
   const results = await Promise.all([
     loadSource(request, "combined-packages", destination ? { mode: "search", q: destination } : { mode: "search", broad: "1" }),
-    loadSource(request, "exim-citybreaks", destination ? { mode: "citybreak", q: destination, provider: "exim" } : { mode: "citybreak", provider: "exim" }),
+    loadSource(request, "combined-citybreaks", destination ? { mode: "citybreak", q: destination } : { mode: "citybreak" }),
   ]);
 
   const successful = results.filter((item) => item.response.ok);
-  const unavailableSources = results.filter((item) => !item.response.ok).map((item) => item.label);
+  const unavailableSources = results.filter((item) => !item.response.ok || item.payload.partial).map((item) => item.label);
   if (!successful.length) {
     const fallbackPool = (publishedOffers as DealsOffer[])
       .filter(isUsableDeal)
@@ -247,11 +249,11 @@ export async function GET(request: NextRequest) {
   }
 
   const combined = successful.flatMap((item) => Array.isArray(item.payload.offers) ? item.payload.offers : []);
-  const unique = new Map<number, DealsOffer>();
+  const unique = new Map<string, DealsOffer>();
   for (const offer of combined) {
     if (!isUsableDeal(offer)) continue;
-    const current = unique.get(offer.id);
-    if (!current || Number(offer.price) < Number(current.price)) unique.set(offer.id, offer);
+    const current = unique.get(`${offer.partner}:${offer.id}`);
+    if (!current || Number(offer.price) < Number(current.price)) unique.set(`${offer.partner}:${offer.id}`, offer);
   }
   const sourceOffers = Array.from(unique.values())
     .filter(polishDepartureMatches)
@@ -351,6 +353,8 @@ export async function GET(request: NextRequest) {
     const providerNotice = `Część danych jest chwilowo niedostępna. Pokazujemy tylko oferty, które udało się teraz potwierdzić.`;
     notice = notice ? `${notice} ${providerNotice}` : providerNotice;
   }
+
+  offers.sort((a, b) => a.price - b.price);
 
   const checkedAt = successful
     .map((item) => item.payload.checkedAt)

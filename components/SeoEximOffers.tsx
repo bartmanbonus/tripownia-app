@@ -131,13 +131,13 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
           : [];
       }
 
-      const params = new URLSearchParams({ mode: "search", provider: "exim", q: term });
+      const params = new URLSearchParams({ mode: "search", q: term });
       if (from) params.set("from", from);
       const response = await fetch(`/api/today-offers?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
       if (!response.ok) return [] as SeasonalOffer[];
       const data = (await response.json()) as ApiResponse;
       return Array.isArray(data.offers)
-        ? data.offers.filter((offer) => offer.partner === "exim" && termMatchesOffer(term, offer))
+        ? data.offers.filter((offer) => termMatchesOffer(term, offer))
         : [];
     }
 

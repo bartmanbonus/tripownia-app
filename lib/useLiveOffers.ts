@@ -28,7 +28,7 @@ type CachedLiveOffers = {
 };
 
 const DEFAULT_ENDPOINT = "/api/today-offers?mode=search&broad=1";
-const MAX_CACHE_AGE_MS = 48 * 60 * 60 * 1000;
+const MAX_CACHE_AGE_MS = 6 * 60 * 60 * 1000;
 
 function cacheKey(endpoint: string) {
   return `tripownia-live-cache:${encodeURIComponent(endpoint)}`;
@@ -85,6 +85,12 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
       const response = await fetch(endpoint, { cache: "no-store" });
       const data = await response.json() as LiveOffersResponse;
       const live = Array.isArray(data.offers) ? data.offers : [];
+
+      if (response.ok && data.ok && !live.length) {
+        try { localStorage.removeItem(cacheKey(endpoint)); } catch {}
+        setState({ offers: [], source: "live", loading: false, checkedAt: data.checkedAt, notice: data.notice });
+        return;
+      }
 
       if (!response.ok || !live.length) {
         setState((current) => {

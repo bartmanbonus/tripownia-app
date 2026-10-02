@@ -1,5 +1,6 @@
 "use client";
 
+import { isPromotableOffer } from "@/lib/offerValuePolicy";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
@@ -523,9 +524,9 @@ export default function Home() {
   }, [dailyKey, liveRefreshTick]);
 
   const todaysOffers = useMemo(() =>
-    cheapestPerDirection(liveOffers.map(offerForDisplay))
+    cheapestPerDirection(liveOffers.map(offerForDisplay).filter(isPromotableOffer))
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity))
-      .slice(0, 6),
+      .slice(0, 18),
     [liveOffers]
   );
 
@@ -541,10 +542,10 @@ export default function Home() {
   }, [lastLiveCheckedAt]);
 
   const themedRails = useMemo(() => {
-    const pool = [...liveOffers, ...offers]
+    const pool = [...liveOffers]
       .filter((offer) => !isOfferExpired(offer))
       .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
-      .map(offerForDisplay);
+      .map(offerForDisplay).filter(isPromotableOffer);
 
     const uniqueCheapest = cheapestPerDirection(pool)
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
@@ -559,7 +560,7 @@ export default function Home() {
       .slice(0, 10);
 
     return {
-      city: city.length ? city : uniqueCheapest.slice(0, 10),
+      city,
       sun: sun.length ? sun : uniqueCheapest.filter((offer) => Number(offer.nights || 0) >= 5).slice(0, 10),
       cheapest: uniqueCheapest.slice(0, 10),
     };
@@ -586,7 +587,7 @@ export default function Home() {
   }, [budget, dailyKey]);
 
   const budgetCandidates = useMemo(() => {
-    const pool = surpriseLive.length ? surpriseLive : liveOffers;
+    const pool = (surpriseLive.length ? surpriseLive : liveOffers).filter(isPromotableOffer);
     const exotic = /zanzibar|dominikan|malediw|kenia|meksyk|tajland|kuba|dubaj|bali|wietnam|japon|nowy jork|mauritius|seszel/i;
     const mid = /marsa alam|teneryfa|fuerteventura|marrakesz|djerba|hurghada|oman|wyspy zielonego przyladka/i;
     const low = /malta|sycylia|alicante|pafos|stambul|marrakesz|bergamo|porto/i;
@@ -597,14 +598,7 @@ export default function Home() {
       .filter(o => o.price <= budget)
       .filter(o => budget < 3500 || exotic.test(`${o.city} ${o.country}`))
       .map(offerForDisplay)
-      .sort((a, b) => {
-        const aText = `${a.city} ${a.country}`.toLowerCase();
-        const bText = `${b.city} ${b.country}`.toLowerCase();
-        const tierScore = (text:string) => budget >= 3500 ? (exotic.test(text) ? 500 : 0) : budget >= 1800 ? (mid.test(text) ? 250 : 0) : (low.test(text) ? 180 : 0);
-        const aFit = a.price / Math.max(1, budget);
-        const bFit = b.price / Math.max(1, budget);
-        return (tierScore(bText) + bFit * 80 + Number(b.score || 0) * 10) - (tierScore(aText) + aFit * 80 + Number(a.score || 0) * 10);
-      })
+      .sort((a, b) => a.price - b.price || b.score - a.score)
       .slice(0, 10);
   }, [budget, surpriseLive, liveOffers]);
 

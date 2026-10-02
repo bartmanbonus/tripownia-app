@@ -82,7 +82,7 @@ export default function NewYearOffers() {
     let active = true;
     const load = async () => {
       try {
-        const response = await fetch(`/api/today-offers?mode=newyear&provider=exim&refresh=${Date.now()}`, { cache: "no-store" });
+        const response = await fetch(`/api/today-offers?mode=newyear&refresh=${Date.now()}`, { cache: "no-store" });
         const data = (await response.json()) as ApiResponse;
         if (!active) return;
         setLive(Array.isArray(data.offers) ? data.offers : []);
