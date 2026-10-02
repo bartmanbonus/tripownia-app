@@ -119,7 +119,7 @@ export function applyCloudAccountState(state: TripowniaUserState) {
     if (tripId) localStorage.setItem(`${ORGANIZER_PREFIX}${tripId}`, JSON.stringify(value));
   });
 
-  ["tripownia-profile-updated","tripownia-favorites-updated","tripownia-compare-updated","tripownia-my-trip-updated","tripownia-trips-updated","tripownia-alerts-updated","tripownia-toolkit-updated"]
+  ["tripownia-profile-updated","tripownia-favorites-updated","tripownia-compare-updated","tripownia-my-trip-updated","tripownia-trips-updated","tripownia-alerts-updated","tripownia-toolkit-updated","tripownia-organizer-updated"]
     .forEach((name) => window.dispatchEvent(new Event(name)));
 }
 
@@ -148,6 +148,6 @@ export function clearLocalAccountState() {
   }
   scopedKeys.forEach((key) => localStorage.removeItem(key));
 
-  ["tripownia-profile-updated","tripownia-favorites-updated","tripownia-compare-updated","tripownia-my-trip-updated","tripownia-trips-updated","tripownia-alerts-updated","tripownia-toolkit-updated"]
+  ["tripownia-profile-updated","tripownia-favorites-updated","tripownia-compare-updated","tripownia-my-trip-updated","tripownia-trips-updated","tripownia-alerts-updated","tripownia-toolkit-updated","tripownia-organizer-updated"]
     .forEach((name) => window.dispatchEvent(new Event(name)));
 }
