@@ -44,6 +44,16 @@ const CITY_BREAK_TERMS = [
   "Nicea", "Marsylia", "Berlin", "Kopenhaga", "Sztokholm", "Londyn", "Edynburg", "Dublin", "Bruksela", "Dubrownik",
 ];
 
+// Fast discovery endpoints should stay below TradeDoubler's burst-rate limit.
+// These high-demand directions still cover the cheapest commercial city-break stock;
+// typed searches continue to use the full alias/query logic.
+const CITY_BREAK_FAST_TERMS = [
+  "Rzym", "Mediolan", "Wenecja", "Neapol", "Bari",
+  "Barcelona", "Madryt", "Alicante", "Lizbona", "Porto",
+  "Paryż", "Amsterdam", "Praga", "Budapeszt", "Wiedeń",
+  "Ateny", "Stambuł", "Malta", "Pafos", "Sycylia",
+];
+
 const SURPRISE_TERMS = {
   low: ["Malta", "Sycylia", "Alicante", "Pafos", "Stambuł", "Marrakesz"],
   mid: ["Djerba", "Marrakesz", "Teneryfa", "Fuerteventura", "Marsa Alam", "Hurghada"],
@@ -676,7 +686,7 @@ export async function GET(request: NextRequest) {
       : mode === "search" && broadSearch
         ? BROAD_CORE_TERMS
       : mode === "citybreak"
-        ? (query ? searchTerms : CITY_BREAK_TERMS)
+        ? (query ? searchTerms : fastMode ? CITY_BREAK_FAST_TERMS : CITY_BREAK_TERMS)
         : mode === "surprise"
           ? shuffle(budget >= 3500 ? SURPRISE_TERMS.high : budget >= 1800 ? SURPRISE_TERMS.mid : SURPRISE_TERMS.low, `surprise:${key}:${budget}`).slice(0, 12)
           : mode === "newyear"
@@ -719,7 +729,7 @@ export async function GET(request: NextRequest) {
     }
 
     const candidates: LiveCandidate[] = [];
-    const batchSize = mode === "citybreak" ? 16 : 8;
+    const batchSize = mode === "citybreak" ? (fastMode ? 8 : 12) : 8;
     let successfulFeeds = 0;
     let failedFeeds = 0;
     const feedDeadline = Date.now() + (fastMode ? 9_000 : 42_000);
