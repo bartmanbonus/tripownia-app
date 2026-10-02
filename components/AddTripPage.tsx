@@ -555,7 +555,7 @@ export default function AddTripPage() {
       ...(editingTrip?.offerSnapshot || {}),
       id: offerId,
       flag: editingTrip?.offerSnapshot?.flag || "🌍",
-      city: city.trim() || "Kierunek jeszcze nie wybrany",
+      city: city.trim() || (resolvedCountry ? "" : "Kierunek jeszcze nie wybrany"),
       country: resolvedCountry,
       price: editingTrip?.offerSnapshot?.price || 0,
       departure: departureMode === "any" ? "Polska — dowolne lotnisko" : (departureOptions.join(", ") || departure.trim() || "Do ustalenia"),
