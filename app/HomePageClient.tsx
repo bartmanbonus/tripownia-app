@@ -710,6 +710,75 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section shell homepage-trip-types" aria-labelledby="homepage-trip-types-title">
+        <div className="section-heading homepage-trip-types-heading">
+          <div>
+            <div className="kicker">WYBIERZ SWÓJ WYJAZD</div>
+            <h2 id="homepage-trip-types-title">Wybierz typ podróży.</h2>
+          </div>
+          <Link className="section-premium-link" href="/kierunki">Wszystkie kierunki <ArrowRight size={16}/></Link>
+        </div>
+        <div className="homepage-trip-types-grid">
+          {homepageTripTypes.map(item => (
+            <Link className="homepage-trip-type-card" href={item.href} key={item.href}>
+              <span aria-hidden="true">{item.icon}</span>
+              <div><strong>{item.title}</strong><small>{item.note}</small></div>
+              <ArrowRight size={17}/>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="section shell homepage-events" aria-labelledby="homepage-events-title">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">WYJAZDY NA WYDARZENIA</div>
+            <h2 id="homepage-events-title">Jedź na wydarzenie.</h2>
+          </div>
+          <Link className="section-premium-link" href="/wydarzenia">Zobacz wydarzenia <ArrowRight size={16}/></Link>
+        </div>
+
+        <Link href="/wydarzenia" className="homepage-football-package">
+          <div className="homepage-football-copy">
+            <small>⚽ OSOBNY PAKIET</small>
+            <h3>Piłka nożna + city break</h3>
+            <p>Wybierz konkretny mecz. Tripownia dopasuje termin, lot, nocleg i plan pobytu wokół wydarzenia.</p>
+            <strong>Wybierz mecz i zbuduj wyjazd <ArrowRight size={17}/></strong>
+          </div>
+          <div className="homepage-football-steps" aria-label="Co obejmuje pakiet piłkarski">
+            <span><b>1</b> Mecz</span>
+            <span><b>2</b> Lot</span>
+            <span><b>3</b> Nocleg</span>
+            <span><b>4</b> City break</span>
+          </div>
+        </Link>
+      </section>
+
+      <section className="section shell homepage-phenomena" aria-labelledby="homepage-phenomena-title">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">ZJAWISKA I SEZON</div>
+            <h2 id="homepage-phenomena-title">Podróże, na które warto trafić w dobrym momencie.</h2>
+          </div>
+          <Link className="section-premium-link" href="/podroze-po-przezycia">Zobacz pełny kalendarz <ArrowRight size={16}/></Link>
+        </div>
+        <div className="homepage-phenomena-grid">
+          {[...experienceCards,
+            { href: "/sylwester", season: "29 GRUDNIA–2 STYCZNIA", title: "🥂 Sylwester za granicą", text: "Gotowy city break na przełom roku — lot, nocleg i miasto, w którym północ naprawdę jest wydarzeniem.", imageCity: "sylwester praga noc fajerwerki", imageCountry: "Czechy", fallbackImage: "/images/destinations/praga.jpg" }
+          ].map(card => (
+            <Link className="discovery-card experience-teaser-card" href={card.href} key={card.href}>
+              <ExperienceTeaserImage city={card.imageCity} country={card.imageCountry} title={card.title} fallbackSrc={"fallbackImage" in card && typeof card.fallbackImage === "string" ? card.fallbackImage : undefined} />
+              <div className="experience-teaser-copy">
+                <small>{card.season}</small>
+                <strong>{card.title}</strong>
+                <span>{card.text}</span>
+                <em>Zobacz najlepszy moment →</em>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <section className="section shell dream-free-plan">
         <div className="dream-free-plan-copy">
           <div className="kicker">DARMOWY PERSONALIZOWANY PLAN PODRÓŻY</div>
