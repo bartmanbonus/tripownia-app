@@ -277,6 +277,7 @@ export default function AddTripPage() {
       setSourceKind(affiliateKind);
       const sourceStart = (params.get("start") || "").trim();
       const sourceEnd = (params.get("end") || "").trim();
+      const sourceDeparture = (params.get("departure") || "").trim();
 
       setDestinationMode("known");
       setSkipDestinationChoice(false);
@@ -286,6 +287,11 @@ export default function AddTripPage() {
       setDateMode(sourceStart && sourceEnd ? "range" : "flexible");
       if (sourceStart) setStartDate(sourceStart);
       if (sourceEnd) setEndDate(sourceEnd);
+      if (sourceDeparture) {
+        setDepartureMode("selected");
+        setDeparture(sourceDeparture);
+        setDepartureOptions([sourceDeparture]);
+      }
       setPieces({
         flight: affiliateKind === "flight" || affiliateKind === "package",
         hotel: affiliateKind === "hotel" || affiliateKind === "package",
