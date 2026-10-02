@@ -1039,7 +1039,7 @@ export default function SearchHub({
                 value={destination}
                 onChange={(event) => { setDestination(event.target.value); openDestinationPanel(); }}
                 onFocus={openDestinationPanel}
-                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "Gdziekolwiek lub np. Rzym, Malta, Tokio"}
+                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "🌍 Gdziekolwiek — lub wpisz np. Rzym, Malta, Tokio"}
                 autoComplete="off"
               />
               {destination && <button type="button" aria-label="Wyczyść wpisany kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
@@ -1070,9 +1070,15 @@ export default function SearchHub({
                       setSuggestionsOpen(false);
                     }}><Search size={15}/><span><strong>Szukaj: „{destination.trim()}”</strong><small>Dowolne miasto lub kraj — nie musi być na liście</small></span></button>
                   )}
-                  {!destination.trim() && activeTab !== "Hotele" && (
-                    <button type="button" className="search-v3-anywhere" onClick={() => { setSelectedDestinations([]); setDestination(""); setSuggestionsOpen(false); }}>
-                      <MapPin size={15}/><span><strong>🌍 Gdziekolwiek</strong><small>Bez ograniczenia kierunku — pokaż najlepsze dostępne opcje</small></span>
+                  {activeTab !== "Hotele" && (
+                    <button
+                      type="button"
+                      className={`search-v3-anywhere${!selectedDestinations.length && !destination.trim() ? " active" : ""}`}
+                      aria-pressed={!selectedDestinations.length && !destination.trim()}
+                      onClick={() => { setSelectedDestinations([]); setDestination(""); setSuggestionsOpen(false); }}
+                    >
+                      {!selectedDestinations.length && !destination.trim() ? <Check size={15}/> : <MapPin size={15}/>}
+                      <span><strong>🌍 Gdziekolwiek</strong><small>Bez ograniczenia kierunku — pokaż najlepsze dostępne opcje</small></span>
                     </button>
                   )}
                   {suggestions.map((item) => (
@@ -1088,7 +1094,7 @@ export default function SearchHub({
                 </div>
 
                 <div className="search-v3-panel-footer">
-                  <span>{selectedDestinations.length ? `Wybrano: ${selectedDestinations.length}` : "Brak ograniczenia kierunku"}</span>
+                  <span>{selectedDestinations.length ? `Wybrano: ${selectedDestinations.length}` : "🌍 Gdziekolwiek — bez ograniczenia kierunku"}</span>
                   <button type="button" onClick={() => setSuggestionsOpen(false)}>Gotowe</button>
                 </div>
               </div>
@@ -1110,7 +1116,7 @@ export default function SearchHub({
                 </div>
                 <label className="search-v3-airport-search">
                   <Search size={17}/>
-                  <input value={departureQuery} onChange={(event) => setDepartureQuery(event.target.value)} placeholder="Wpisz miasto lub kod lotniska" autoFocus />
+                  <input value={departureQuery} onChange={(event) => setDepartureQuery(event.target.value)} placeholder="Wpisz miasto lub kod lotniska" inputMode="search" />
                   {departureQuery && <button type="button" aria-label="Wyczyść wyszukiwanie lotniska" onClick={() => setDepartureQuery("")}><X size={15}/></button>}
                 </label>
                 <div className="search-v3-panel-scroll search-v3-airport-list">
