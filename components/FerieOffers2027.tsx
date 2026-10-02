@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, RefreshCw, Search } from "lucide-react";
+import { CalendarDays, MountainSnow, RefreshCw, Search, Sun } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SearchHub from "@/components/SearchHub";
 import type { Offer } from "@/lib/offers";
@@ -19,6 +19,45 @@ type FerieTurn = {
   to: string;
   regions: string;
 };
+
+const FERIE_DESTINATIONS = [
+  {
+    id: "italy",
+    query: "Włochy",
+    label: "Włochy",
+    icon: "🇮🇹",
+    type: "Narty + Dolomity",
+    note: "Najwięcej ofert narciarskich w sezonie 2026/27.",
+    vibe: "snow",
+  },
+  {
+    id: "austria",
+    query: "Austria",
+    label: "Austria",
+    icon: "🇦🇹",
+    type: "Narty + Alpy",
+    note: "Klasyczny zimowy kierunek rodzinny.",
+    vibe: "snow",
+  },
+  {
+    id: "egypt",
+    query: "Egipt",
+    label: "Egipt",
+    icon: "🇪🇬",
+    type: "Słońce + All Inclusive",
+    note: "Jeden z najmocniejszych kierunków na ferie z biurami podróży.",
+    vibe: "sun",
+  },
+  {
+    id: "turkey",
+    query: "Turcja",
+    label: "Turcja",
+    icon: "🇹🇷",
+    type: "Hotel + zwiedzanie",
+    note: "Jeden z najczęściej wybieranych kierunków zorganizowanych wyjazdów.",
+    vibe: "sun",
+  },
+] as const;
 
 const FERIE_TURNS: FerieTurn[] = [
   {
@@ -65,6 +104,8 @@ export default function FerieOffers2027() {
   const [offers, setOffers] = useState<LiveOffer[]>([]);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [notice, setNotice] = useState("");
+  const [presetOffers, setPresetOffers] = useState<Record<string, LiveOffer | null>>({});
+  const [presetStatus, setPresetStatus] = useState<"loading" | "ready">("loading");
   const selected = FERIE_TURNS.find((turn) => turn.id === selectedId) || FERIE_TURNS[0];
 
   useEffect(() => {
@@ -101,6 +142,50 @@ export default function FerieOffers2027() {
 
     return () => controller.abort();
   }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setPresetStatus("loading");
+    setPresetOffers({});
+
+    Promise.all(
+      FERIE_DESTINATIONS.map(async (preset) => {
+        const params = new URLSearchParams({
+          mode: "search",
+          q: preset.query,
+          fast: "1",
+          strict: "1",
+          start: selected.from,
+          end: selected.to,
+          dateKind: "departure",
+          minNights: "5",
+          maxNights: "10",
+        });
+
+        try {
+          const response = await fetch(`/api/today-offers?${params.toString()}`, {
+            signal: controller.signal,
+            cache: "no-store",
+          });
+          const payload = await response.json();
+          const rows = Array.isArray(payload?.offers) ? payload.offers as LiveOffer[] : [];
+          const best = rows
+            .filter((offer) => inRange(offer, selected.from, selected.to))
+            .filter((offer) => Boolean(offer.affiliateUrl) && offer.availabilityStatus !== "expired")
+            .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity))[0] || null;
+          return [preset.id, best] as const;
+        } catch {
+          return [preset.id, null] as const;
+        }
+      })
+    ).then((entries) => {
+      if (controller.signal.aborted) return;
+      setPresetOffers(Object.fromEntries(entries));
+      setPresetStatus("ready");
+    });
+
+    return () => controller.abort();
+  }, [selected.id, selected.from, selected.to]);
 
   const visibleOffers = useMemo(() => {
     const rows = offers
@@ -150,6 +235,53 @@ export default function FerieOffers2027() {
         </div>
       </div>
 
+      <div className="ferie-presets-head">
+        <div>
+          <div className="kicker">4 GOTOWCE NA TĘ TURĘ</div>
+          <h3>Najpopularniejsze style ferii: Alpy albo słońce</h3>
+          <p>Włochy i Austria to mocne kierunki narciarskie, a Egipt i Turcja należą do najczęściej wybieranych kierunków wyjazdów zorganizowanych. Dla każdej tury szukamy konkretnego terminu w jej datach.</p>
+        </div>
+      </div>
+
+      <div className="ferie-presets-grid">
+        {FERIE_DESTINATIONS.map((preset) => {
+          const offer = presetOffers[preset.id];
+          return (
+            <article className="ferie-preset" key={preset.id}>
+              <div className="ferie-preset-title">
+                <span className="ferie-preset-flag">{preset.icon}</span>
+                <div>
+                  <small>{preset.vibe === "snow" ? <MountainSnow size={14}/> : <Sun size={14}/>} {preset.type}</small>
+                  <strong>{preset.label}</strong>
+                  <span>{preset.note}</span>
+                </div>
+              </div>
+
+              {presetStatus === "loading" ? (
+                <div className="ferie-preset-loading"><RefreshCw size={18} className="ferie-spin"/><span>Szukamy najtańszego gotowca…</span></div>
+              ) : offer ? (
+                <OfferCard
+                  offer={offer}
+                  sourceSurface={`ferie_2027_${preset.id}`}
+                  priceHighlight={{ label: `${preset.label} · ferie 2027`, detail: selected.dates }}
+                />
+              ) : (
+                <div className="ferie-preset-empty">
+                  <strong>Brak potwierdzonej oferty w tej turze</strong>
+                  <span>Nie pokazujemy ceny z innego terminu. Sprawdź ten kierunek w wyszukiwarce poniżej.</span>
+                  <a href="#szukaj-w-tej-turze">Szukaj {preset.label} →</a>
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
+
+      <div className="ferie-more-offers-head">
+        <div className="kicker">WIĘCEJ OFERT W TEJ TURZE</div>
+        <h3>Najtańsze pozostałe propozycje</h3>
+      </div>
+
       {status === "loading" && (
         <div className="ferie-live-state">
           <RefreshCw size={20} className="ferie-spin"/>
@@ -190,7 +322,7 @@ export default function FerieOffers2027() {
         </div>
       )}
 
-      <div className="ferie-direct-search">
+      <div className="ferie-direct-search" id="szukaj-w-tej-turze">
         <div className="ferie-direct-search-head">
           <div className="kicker">SZUKAJ DOKŁADNIE W SWOJEJ TURZE</div>
           <h3>Daty ferii są już ustawione</h3>
@@ -203,7 +335,7 @@ export default function FerieOffers2027() {
           initialDateMode="range"
           initialDateFrom={selected.from}
           initialDateTo={selected.to}
-          destinationQuickPicks={["Egipt", "Teneryfa", "Fuerteventura", "Malta", "Cypr"]}
+          destinationQuickPicks={["Włochy", "Austria", "Egipt", "Turcja", "Wyspy Kanaryjskie"]}
         />
       </div>
     </section>
