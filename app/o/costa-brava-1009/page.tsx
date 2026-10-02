@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
+import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 
 export const metadata: Metadata = {
   title: "Costa Brava 25–28.10.2026 — 3 noce od 1009 zł/os. | Tripownia",
@@ -69,6 +70,16 @@ export default function CostaBravaOfferPage() {
             </div>
           </div>
         </div>
+        <OfferAlternativeFinder
+          city="Costa Brava"
+          country="Hiszpania"
+          nights={3}
+          board="Bez wyżywienia"
+          departure="Warszawa–Modlin"
+          airportCode="WMI"
+          dates="25–28 października 2026"
+          hotel="Htop Amatista"
+        />
       </section>
       <SiteFooter />
     </main>

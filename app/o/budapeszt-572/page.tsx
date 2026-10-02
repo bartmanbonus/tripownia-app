@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
+import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 
 export const metadata: Metadata = {
   title: "Budapeszt 16–19.10.2026 — lot + 3 noce od 572 zł/os. | Tripownia",
@@ -82,6 +83,16 @@ export default function BudapestOfferPage() {
             </div>
           </div>
         </div>
+        <OfferAlternativeFinder
+          city="Budapeszt"
+          country="Węgry"
+          nights={3}
+          board="Bez wyżywienia"
+          departure="Warszawa"
+          airportCode="WAW"
+          dates="16–19 października 2026"
+          hotel="GoodWind Apartments"
+        />
       </section>
       <SiteFooter />
     </main>

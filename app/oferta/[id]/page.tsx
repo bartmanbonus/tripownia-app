@@ -15,6 +15,7 @@ import EximLivePrice from "@/components/EximLivePrice";
 import CompleteTripSales from "@/components/CompleteTripSales";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 import { customerOfferReason } from "@/lib/customerOfferCopy";
+import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
@@ -180,6 +181,19 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           />
         </div>
       </section>
+      {o.availabilityStatus !== "expired" && (
+        <OfferAlternativeFinder
+          city={o.city}
+          country={o.country}
+          nights={o.nights}
+          board={o.board}
+          departure={o.departure}
+          airportCode={o.airportCode}
+          dates={o.dates}
+          hotel={o.hotel}
+          currentOfferId={o.id}
+        />
+      )}
       {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
 
       {o.availabilityStatus !== "expired" && comparisonOffers.length > 0 && (
