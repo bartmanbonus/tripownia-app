@@ -60,6 +60,12 @@
   font-size:11px;
   font-weight:900;
 }
+.mobileProcessBar,
+.mobileProcessBack,
+.mobileStepLabel,
+.mobileFreeBadge{
+  display:none;
+}
 .accountNote{
   display:flex;
   justify-content:space-between;
@@ -332,11 +338,81 @@
 @media(max-width:760px){
   .page{
     width:min(100% - 24px,1080px)!important;
-    padding-top:16px;
+    padding-top:12px;
   }
   .topline,.hero,.trustLine,.form{max-width:none}
   .trustLine{margin-left:0;margin-right:0}
-  .topline{align-items:flex-start}
+  .topline{
+    position:sticky;
+    top:0;
+    z-index:92;
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr) auto;
+    align-items:center;
+    gap:8px;
+    margin:0 auto 12px;
+    padding:8px 4px;
+    border-bottom:1px solid rgba(43,36,32,.08);
+    background:rgba(255,255,255,.94);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+  }
+  .topline .progress{display:none}
+  .mobileProcessBar{
+    position:sticky;
+    top:0;
+    z-index:92;
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr) auto;
+    align-items:center;
+    gap:8px;
+    width:min(100% - 24px,760px);
+    margin:0 auto 10px;
+    padding:8px 4px;
+    border-bottom:1px solid rgba(43,36,32,.08);
+    background:rgba(255,255,255,.94);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+  }
+  .mobileProcessBack{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    min-height:36px;
+    padding:0 8px;
+    border:0;
+    border-radius:10px;
+    background:#f7f3f0;
+    color:#514842;
+    font:inherit;
+    font-size:10px;
+    font-weight:900;
+    cursor:pointer;
+  }
+  .mobileStepLabel{
+    display:inline-flex;
+    min-width:0;
+    justify-content:center;
+    overflow:hidden;
+    color:#6f625a;
+    font-size:10px;
+    font-weight:900;
+    white-space:nowrap;
+    text-overflow:ellipsis;
+  }
+  .mobileFreeBadge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:30px;
+    padding:0 8px;
+    border-radius:999px;
+    background:#f4f8f5;
+    color:#1f7a50;
+    font-size:9px;
+    font-weight:900;
+  }
   .progress{gap:7px}
   .progress span{font-size:10px}
   .progressLine{width:20px}
