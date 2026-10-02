@@ -85,7 +85,7 @@ function friendlyAuthError(payload: Record<string, unknown>, fallback: string) {
     return "Konto z tym adresem już istnieje. Przejdź do logowania.";
   }
   if (code.includes("weak_password") || normalized.includes("password should be")) {
-    return "Hasło jest zbyt słabe. Użyj co najmniej 8 znaków.";
+    return "Hasło jest zbyt słabe. Użyj dłuższego hasła z literą i cyfrą.";
   }
   if (code.includes("rate_limit") || normalized.includes("rate limit") || normalized.includes("too many requests")) {
     return "Za dużo prób w krótkim czasie. Spróbuj ponownie za chwilę.";
@@ -153,7 +153,7 @@ export async function requestMagicLink(email: string, redirectTo: string) {
   const response = await fetch(`${authBaseUrl()}/auth/v1/otp?redirect_to=${encodeURIComponent(safeRedirect)}`, {
     method: "POST",
     headers: publicHeaders(),
-    body: JSON.stringify({ email, create_user: true, data: { product: "Tripownia" } }),
+    body: JSON.stringify({ email: email.trim().toLowerCase(), create_user: true, data: { product: "Tripownia" } }),
   });
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
@@ -304,7 +304,7 @@ export async function signInWithPassword(email: string, password: string) {
   const response = await fetch(`${authBaseUrl()}/auth/v1/token?grant_type=password`, {
     method: "POST",
     headers: publicHeaders(),
-    body: JSON.stringify({ email: email.trim(), password }),
+    body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
   });
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));

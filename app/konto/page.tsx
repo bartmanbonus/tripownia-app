@@ -45,6 +45,7 @@ export default function AccountPage() {
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [magicCooldown, setMagicCooldown] = useState(0);
   const [synced, setSynced] = useState(0);
   const configured = isAccountAuthConfigured();
 
@@ -75,15 +76,19 @@ export default function AccountPage() {
         return;
       }
       try {
-        const [accountUser, remote] = await Promise.all([
+        const [accountUser, existingRemote] = await Promise.all([
           getAccountUser(current),
           getTripowniaUserState(current),
         ]);
+        let remote = existingRemote;
+        if (!remote) {
+          remote = await saveTripowniaUserState(current, collectLocalAccountState()).catch(() => null);
+        }
         if (!cancelled) {
           setUser(accountUser);
           setCloudState(remote);
           const next = safeNextPath();
-          if (fromUrl || next) window.setTimeout(() => window.location.replace(next || "/app"), 250);
+          if (fromUrl || next) window.setTimeout(() => window.location.replace(next || "/app"), 350);
         }
       } catch {
         if (!cancelled) setMessage("Konto jest zalogowane, ale nie udało się teraz pobrać wszystkich danych.");
@@ -102,20 +107,34 @@ export default function AccountPage() {
     };
   }, []);
 
+  useEffect(() => {
+    if (magicCooldown <= 0) return;
+    const timer = window.setTimeout(() => setMagicCooldown((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [magicCooldown]);
+
   async function submitPasswordAuth(event: FormEvent) {
     event.preventDefault();
     const cleanEmail = email.trim();
     if (!cleanEmail || !password) return;
-    if (password.length < 8) {
-      setMessage("Hasło powinno mieć co najmniej 8 znaków.");
-      return;
+    if (authMode === "register") {
+      if (password.length < 10) {
+        setMessage("Nowe hasło powinno mieć co najmniej 10 znaków.");
+        return;
+      }
+      if (!/[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż]/.test(password) || !/\d/.test(password)) {
+        setMessage("Nowe hasło powinno zawierać przynajmniej jedną literę i jedną cyfrę.");
+        return;
+      }
     }
 
     setBusy(true);
     setMessage("");
     try {
       if (authMode === "register") {
-        const result = await signUpWithPassword(cleanEmail, password);
+        const next = safeNextPath();
+        const confirmRedirect = `https://tripownia.pl/konto${next ? `?next=${encodeURIComponent(next)}` : ""}`;
+        const result = await signUpWithPassword(cleanEmail, password, confirmRedirect);
         if (result.session) {
           const remote = await getTripowniaUserState(result.session).catch(() => null);
           if (!remote) await saveTripowniaUserState(result.session, collectLocalAccountState());
@@ -142,7 +161,7 @@ export default function AccountPage() {
         setUser(accountUser);
         setCloudState(remote);
         if (remote) applyCloudAccountState(remote);
-        else if (collectLocalAccountState()) await saveTripowniaUserState(logged, collectLocalAccountState());
+        else await saveTripowniaUserState(logged, collectLocalAccountState());
         trackEvent("login", { method: "password" });
         setMessage("Zalogowano. Otwieramy Twoją Tripownię…");
         const next = safeNextPath();
@@ -157,7 +176,7 @@ export default function AccountPage() {
 
   async function sendMagicLink(event: FormEvent) {
     event.preventDefault();
-    if (!email.trim()) return;
+    if (!email.trim() || magicCooldown > 0) return;
     setBusy(true);
     setMessage("");
     try {
@@ -165,7 +184,8 @@ export default function AccountPage() {
       const redirect = `${window.location.origin}/konto${next ? `?next=${encodeURIComponent(next)}` : ""}`;
       await requestMagicLink(email.trim(), redirect);
       trackEvent("magic_link_requested", { method: "email" });
-      setMessage("Link do logowania wysłany. Sprawdź skrzynkę e-mail.");
+      setMagicCooldown(60);
+      setMessage("Link do logowania wysłany. Sprawdź skrzynkę e-mail — ponowna wysyłka będzie dostępna za minutę.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Nie udało się wysłać linku logowania.");
     } finally {
@@ -283,6 +303,7 @@ export default function AccountPage() {
                 <Link href="/dodaj-podroz">+ Dodaj podróż</Link>
                 <Link href="/profil">Mój profil →</Link>
                 <Link href="/dla-ciebie">Dla Ciebie →</Link>
+                {user.app_metadata?.role === "admin" && <Link href="/admin">Panel administratora →</Link>}
               </div>
               <small className="account-footnote">Dane kont są odseparowane regułami dostępu — zalogowany użytkownik widzi i zmienia wyłącznie swój zapis.</small>
             </div>
@@ -305,14 +326,17 @@ export default function AccountPage() {
                 </label>
                 <label className="account-auth-field">
                   <span>Hasło</span>
-                  <input name="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={authMode === "register" ? "Minimum 8 znaków" : "Wpisz hasło"} autoComplete={authMode === "register" ? "new-password" : "current-password"} minLength={8} required />
+                  <input name="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={authMode === "register" ? "Minimum 10 znaków" : "Wpisz hasło"} autoComplete={authMode === "register" ? "new-password" : "current-password"} minLength={authMode === "register" ? 10 : 1} required />
+                  {authMode === "register" && <small>Minimum 10 znaków, w tym co najmniej jedna litera i jedna cyfra.</small>}
                 </label>
                 <button type="submit" disabled={busy}>{busy ? "Chwila…" : authMode === "register" ? "Utwórz konto" : "Zaloguj się"}</button>
               </form>
 
               <div className="account-divider"><span>albo bez hasła</span></div>
               <form onSubmit={sendMagicLink} className="account-magic-form">
-                <button type="submit" disabled={busy || !email.trim()}>Wyślij jednorazowy link na ten e-mail</button>
+                <button type="submit" disabled={busy || !email.trim() || magicCooldown > 0}>
+                  {magicCooldown > 0 ? `Wyślij ponownie za ${magicCooldown}s` : "Wyślij jednorazowy link na ten e-mail"}
+                </button>
               </form>
 
               {(googleEnabled || appleEnabled) && <div className="account-divider"><span>lub</span></div>}
