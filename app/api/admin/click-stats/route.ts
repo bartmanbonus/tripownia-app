@@ -10,6 +10,7 @@ type GlobalStats = ClickStats & {
   days: number;
   byDay: Record<string, number>;
   authStatus?: "admin" | "signed_out" | "forbidden" | "unauthorized" | "error";
+  truncated?: boolean;
 };
 
 function clampDays(value: string | null) {
@@ -19,7 +20,7 @@ function clampDays(value: string | null) {
   return 90;
 }
 
-function aggregate(rows: AffiliateAnalyticsRow[], days: number): GlobalStats {
+function aggregate(rows: AffiliateAnalyticsRow[], days: number, truncated = false): GlobalStats {
   const stats: GlobalStats = {
     total: rows.length,
     byPartner: {},
@@ -31,6 +32,7 @@ function aggregate(rows: AffiliateAnalyticsRow[], days: number): GlobalStats {
     days,
     authStatus: "admin",
     updatedAt: rows[0]?.created_at,
+    truncated,
   };
 
   for (const row of rows) {
@@ -86,7 +88,7 @@ export async function GET(request: NextRequest) {
   const result = await getAdminAffiliateRows(auth.token, days);
   if (result.status === 200) {
     return NextResponse.json(
-      { stats: aggregate(result.rows, days) },
+      { stats: aggregate(result.rows, days, result.truncated) },
       { headers: { "Cache-Control": "no-store" } }
     );
   }
