@@ -20,5 +20,5 @@ export function customerOfferReason(value: string | undefined | null) {
 export function customerDealVerdict(value: string) {
   if (value === "BIERZ") return "Bardzo dobra cena";
   if (value === "DOBRA OPCJA") return "Dobra opcja";
-  return "Sprawdź warunki";
+  return "Do sprawdzenia";
 }
