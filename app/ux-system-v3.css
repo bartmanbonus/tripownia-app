@@ -1575,3 +1575,94 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .app-home-tile{
   box-shadow:none!important;
 }
+
+/* Shared route states */
+.system-state-page{
+  width:min(760px,calc(100% - 32px));
+  min-height:52vh;
+  margin:0 auto;
+  padding:72px 0 96px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-start;
+}
+.system-state-page h1{
+  margin:8px 0 12px;
+  color:var(--ux-ink);
+  font-size:clamp(38px,5vw,58px);
+  line-height:1.02;
+  letter-spacing:-.045em;
+}
+.system-state-page p{
+  max-width:620px;
+  margin:0;
+  color:var(--ux-muted);
+  font-size:15px;
+  line-height:1.65;
+}
+.system-state-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:24px;
+}
+.system-state-actions a,
+.system-state-actions button{
+  min-height:46px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 15px;
+  border-radius:11px;
+  font-size:12px;
+  font-weight:900;
+  text-decoration:none;
+}
+.system-state-actions button{cursor:pointer}
+.system-loading-page{
+  align-items:center;
+  text-align:center;
+}
+.system-loading-page>div:nth-child(2){
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.system-loading-mark{
+  width:54px;
+  height:54px;
+  display:grid;
+  place-items:center;
+  margin-bottom:18px;
+  border:1px solid var(--ux-line);
+  border-radius:16px;
+  background:#fff;
+  color:var(--ux-accent);
+  font-size:24px;
+}
+.system-loading-bar{
+  width:min(320px,80vw);
+  height:4px;
+  margin-top:22px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#eee8e4;
+}
+.system-loading-bar span{
+  display:block;
+  width:42%;
+  height:100%;
+  border-radius:999px;
+  background:var(--ux-accent);
+  animation:tripownia-loading 1.15s ease-in-out infinite alternate;
+}
+@keyframes tripownia-loading{
+  from{transform:translateX(-5%)}
+  to{transform:translateX(145%)}
+}
+@media(max-width:560px){
+  .system-state-page{padding:48px 0 76px;min-height:46vh}
+  .system-state-actions{display:grid;width:100%}
+  .system-state-actions a,.system-state-actions button{width:100%}
+}
