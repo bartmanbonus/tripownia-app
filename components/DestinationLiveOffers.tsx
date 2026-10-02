@@ -54,8 +54,12 @@ export default function DestinationLiveOffers({ destination, allInclusive = fals
     return (
       <div className="seo-live-status seo-live-status-warning">
         <strong>Nie mamy teraz potwierdzonego pakietu dla: {destination}.</strong>
-        <span>Nie podstawiamy losowego kierunku. Możesz przejść do wyszukiwania lub sprawdzić ponownie później.</span>
-        <Link href={`/okazje?q=${encodeURIComponent(destination)}`}>Sprawdź wszystkie aktualne opcje →</Link>
+        <span>Nie pokazujemy przypadkowego kierunku zamiast tego, którego szukasz. Sprawdź lot, nocleg albo szerszą pulę dla tej destynacji.</span>
+        <div className="seo-live-status-actions">
+          <Link href={`/okazje?q=${encodeURIComponent(destination)}`}>Wszystkie opcje</Link>
+          <Link href={`/loty?destination=${encodeURIComponent(destination)}`}>Loty</Link>
+          <Link href={`/hotele?destination=${encodeURIComponent(destination)}`}>Noclegi</Link>
+        </div>
       </div>
     );
   }
