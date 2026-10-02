@@ -5,9 +5,24 @@ import SiteFooter from "@/components/SiteFooter";
 import SearchHub from "@/components/SearchHub";
 
 export const metadata: Metadata = {
-  title: "Hotele i noclegi – wyszukiwarka",
-  description: "Znajdź nocleg do swojej podróży bez wychodzenia od razu z Tripowni. Wybierz kierunek, termin i dopiero potem przejdź do aktualnej dostępności.",
+  title: "Hotele i noclegi – wyszukiwarka | Tripownia.pl",
+  description: "Znajdź nocleg do swojej podróży bez wychodzenia od razu z Tripowni. Wybierz kierunek i termin, a potem sprawdź aktualną dostępność.",
   alternates: { canonical: "/hotele" },
+  openGraph: {
+    type: "website",
+    locale: "pl_PL",
+    siteName: "Tripownia",
+    title: "Hotele i noclegi | Tripownia.pl",
+    description: "Wybierz kierunek i termin, a potem sprawdź aktualne noclegi.",
+    url: "/hotele",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Hotele i noclegi | Tripownia.pl",
+    description: "Wybierz kierunek i termin, a potem sprawdź aktualne noclegi.",
+    images: ["/opengraph-image"],
+  },
 };
 
 type Props = {
