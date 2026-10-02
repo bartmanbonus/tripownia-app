@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, BadgeCheck, Plus, Scale, Trash2 } from "lucide-react";
+import { ArrowRight, BadgeCheck, Plus, Scale, Trash2 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { offers, publishedOfferOverrides, type Offer } from "@/lib/offers";
@@ -146,7 +146,7 @@ export default function ComparePage() {
             <Scale size={36}/>
             <h2>Dodaj minimum 2 oferty</h2>
             <p>Na kartach ofert kliknij „Porównaj”. Możesz zestawić maksymalnie 3 wyjazdy.</p>
-            <Link className="primary-cta" href="/"><ArrowLeft size={17}/> Wróć do ofert</Link>
+            <Link className="primary-cta" href="/#wyszukiwarka">Wybierz oferty do porównania <ArrowRight size={17}/></Link>
           </div>
         )}
       </section>
