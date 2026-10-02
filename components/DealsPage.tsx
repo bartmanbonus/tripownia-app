@@ -98,12 +98,14 @@ export default function DealsPage({
   pageTitle = "Najpierw cena. Potem kierunek.",
   pageLead = "Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność są regularnie odświeżane.",
   kicker = "OKAZJE TRIPOWNI",
+  initialOffers = [],
 }: {
   destination?: string;
   dealType?: "" | "allinclusive";
   pageTitle?: string;
   pageLead?: string;
   kicker?: string;
+  initialOffers?: Offer[];
 }) {
   const now = useMemo(() => new Date(), []);
   const currentYear = now.getFullYear();
@@ -128,34 +130,38 @@ export default function DealsPage({
   }, [destination, dealType, airport, month, year]);
 
   const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
+  const canShowInitial = airport === "any" && month === "any" && year === "any";
+  const showingInitial = loading && !offers.length && canShowInitial && initialOffers.length > 0;
+  const visibleSourceOffers = showingInitial ? initialOffers : offers;
+  const effectiveSource = showingInitial ? "fallback" : source;
   const todayOffers: Offer[] = [];
   const todayLoading = false;
   const todayCheckedAt: string | null = null;
   const quickFilteredOffers = useMemo(() => {
-    const sourceRows = offers as DealsOffer[];
+    const sourceRows = visibleSourceOffers as DealsOffer[];
     if (quickFilter === "city") return sourceRows.filter((offer) => offer.category.includes("city") || offer.category.includes("weekend"));
     if (quickFilter === "allinclusive") return sourceRows.filter((offer) => offer.category.includes("allinclusive"));
     if (quickFilter === "sun") return sourceRows.filter((offer) => offer.category.includes("cieplo") || offer.category.includes("plaza"));
     if (quickFilter === "under2000") return sourceRows.filter((offer) => Number(offer.price) <= 2000);
     return sourceRows;
-  }, [offers, quickFilter]);
-  const rows = useMemo(() => cheapestUnique(quickFilteredOffers, source === "live"), [quickFilteredOffers, source]);
+  }, [visibleSourceOffers, quickFilter]);
+  const rows = useMemo(() => cheapestUnique(quickFilteredOffers, effectiveSource === "live"), [quickFilteredOffers, effectiveSource]);
   const destinationHotelHref = useMemo(
     () => destination ? `/hotele?q=${encodeURIComponent(destination)}` : "",
     [destination]
   );
   const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
-  const poolHighlights = useMemo(() => source === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source]);
+  const poolHighlights = useMemo(() => effectiveSource === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, effectiveSource]);
 
   useEffect(() => {
-    if (source !== "live" || !rows.length) return;
+    if (effectiveSource !== "live" || !rows.length) return;
     const changed = recordDealPriceHistory(rows);
     if (changed) setHistoryVersion((value) => value + 1);
-  }, [rows, source]);
+  }, [rows, effectiveSource]);
 
   const priceHighlights = useMemo(() => {
     const result = new Map<number, PriceHighlight>();
-    if (source !== "live") return result;
+    if (effectiveSource !== "live") return result;
     rows.forEach((offer) => {
       const historical = getHistoricalPriceHighlight(offer);
       if (historical) {
@@ -166,7 +172,7 @@ export default function DealsPage({
       if (pool) result.set(offer.id, pool);
     });
     return result;
-  }, [rows, poolHighlights, historyVersion, source]);
+  }, [rows, poolHighlights, historyVersion, effectiveSource]);
 
   const isGenericDealsPage = !destination && dealType !== "allinclusive";
   const todayDirectionKeys = useMemo(
@@ -207,13 +213,15 @@ export default function DealsPage({
     ? new Intl.DateTimeFormat("pl-PL", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Warsaw" }).format(new Date(todayCheckedAt))
     : "";
 
-  const sourceCopy = loading && !offers.length
-    ? "Sprawdzamy aktualne ceny…"
-    : source === "live"
-      ? `Aktualne${checkedLabel ? ` · ${checkedLabel}` : ""}`
-      : offers.length
-        ? "Ostatnio sprawdzone · potwierdź cenę przed rezerwacją"
-        : "Brak aktualnych danych";
+  const sourceCopy = showingInitial
+    ? "Ostatnio sprawdzone · odświeżamy ceny…"
+    : loading && !offers.length
+      ? "Sprawdzamy aktualne ceny…"
+      : effectiveSource === "live"
+        ? `Aktualne${checkedLabel ? ` · ${checkedLabel}` : ""}`
+        : visibleSourceOffers.length
+          ? "Ostatnio sprawdzone · potwierdź cenę przed rezerwacją"
+          : "Brak aktualnych danych";
 
   const airportLabel = AIRPORTS.find((item) => item.value === airport)?.label || "Wszystkie lotniska";
   const monthLabel = MONTH_OPTIONS.find((item) => item.value === month)?.label || "dowolny miesiąc";
@@ -242,7 +250,7 @@ export default function DealsPage({
           <div className="kicker">{kicker}</div>
           <h1>{destination ? "Okazje: " + destination : "Najtańsze wyjazdy. Bez przekopywania się przez setki ofert."}</h1>
           <p className="deals-simple-lead">
-            {source === "fallback" && offers.length
+            {effectiveSource === "fallback" && visibleSourceOffers.length
               ? "Źródła live są chwilowo ograniczone. Pokazujemy nieprzeterminowane propozycje orientacyjne — finalną cenę potwierdź u partnera."
               : destination
                 ? "Pokazujemy tylko aktualne oferty dla tego kierunku — bez przypadkowych zamienników."
