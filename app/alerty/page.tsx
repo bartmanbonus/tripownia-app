@@ -29,6 +29,10 @@ const DEFAULTS: AlertSettings = {
   enabled: false,
 };
 
+const ALERT_AIRPORTS = ["Warszawa", "Kraków", "Katowice", "Gdańsk", "Wrocław", "Poznań", "Rzeszów", "Lublin", "Szczecin"];
+const ALERT_DESTINATION_PRESETS = ["Europa", "Ciepło", "Plaża", "All Inclusive", "Azja"];
+const ALERT_BUDGET_PRESETS = ["1000", "1500", "2000", "2500", "3000"];
+
 const DESTINATION_GROUPS: Record<string, string[]> = {
   azja: ["wietnam", "tajlandia", "indonezja", "bali", "japonia", "sri lanka", "malediwy"],
   europa: ["wlochy", "hiszpania", "portugalia", "grecja", "cypr", "malta", "czechy", "austria", "wegry", "francja", "wielka brytania", "albania", "turcja"],
@@ -315,12 +319,30 @@ export default function AlertsPage() {
           <form className="app-alerts-card" onSubmit={save}>
             <label>
               <span><Plane size={17} /> Wylot z</span>
-              <input value={settings.departure} onChange={(e) => setSettings({ ...settings, departure: e.target.value })} placeholder="np. Warszawa" />
+              <input list="alert-airports" value={settings.departure} onChange={(e) => setSettings({ ...settings, departure: e.target.value })} placeholder="np. Warszawa" autoComplete="off" />
+              <datalist id="alert-airports">
+                {ALERT_AIRPORTS.map((airport) => <option value={airport} key={airport} />)}
+              </datalist>
             </label>
+
             <label>
               <span><Bell size={17} /> Kierunki</span>
-              <input value={settings.destinations} onChange={(e) => setSettings({ ...settings, destinations: e.target.value })} placeholder="np. Włochy, Hiszpania, Azja" />
+              <input value={settings.destinations} onChange={(e) => setSettings({ ...settings, destinations: e.target.value })} placeholder="np. Włochy, Hiszpania albo Azja" />
             </label>
+            <div className="app-alerts-presets" aria-label="Szybki wybór kierunku">
+              {ALERT_DESTINATION_PRESETS.map((preset) => (
+                <button
+                  type="button"
+                  key={preset}
+                  className={norm(settings.destinations) === norm(preset) ? "active" : ""}
+                  aria-pressed={norm(settings.destinations) === norm(preset)}
+                  onClick={() => setSettings({ ...settings, destinations: preset })}
+                >
+                  {preset}
+                </button>
+              ))}
+            </div>
+
             <label>
               <span><WalletCards size={17} /> Maksymalna cena za osobę</span>
               <div className="app-alerts-price-row">
@@ -328,6 +350,19 @@ export default function AlertsPage() {
                 <strong>zł</strong>
               </div>
             </label>
+            <div className="app-alerts-presets app-alerts-budget-presets" aria-label="Szybki wybór budżetu">
+              {ALERT_BUDGET_PRESETS.map((price) => (
+                <button
+                  type="button"
+                  key={price}
+                  className={settings.maxPrice === price ? "active" : ""}
+                  aria-pressed={settings.maxPrice === price}
+                  onClick={() => setSettings({ ...settings, maxPrice: price })}
+                >
+                  do {Number(price).toLocaleString("pl-PL")} zł
+                </button>
+              ))}
+            </div>
             <div className="app-alerts-status"><span>{freshness}</span><button type="button" className="app-secondary-button" onClick={refresh}><RefreshCw size={16}/> {loading ? "Sprawdzam…" : "Sprawdź teraz"}</button></div>
             <button className="primary-cta app-alerts-save" type="submit">
               {saved ? <><CheckCircle2 size={18} /> Zapisano</> : !signedIn ? "Zaloguj się i zapisz alert" : settings.enabled ? "Aktualizuj alert" : "Zapisz alert"}
