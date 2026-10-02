@@ -518,7 +518,7 @@ export default function DestinationLandingPanel({ path }: { path: string }) {
         </a>
         <Link href="/planer-podrozy">
           <span>🧭</span>
-          <div><strong>Zbuduj własny plan</strong><small>Lot, nocleg, atrakcje i dodatki w jednym miejscu</small></div>
+          <div><strong>Przygotuj podróż krok po kroku</strong><small>Lot, nocleg, atrakcje i dodatki w jednym miejscu</small></div>
           <b>Otwórz →</b>
         </Link>
       </section>
