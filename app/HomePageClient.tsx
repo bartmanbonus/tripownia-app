@@ -710,8 +710,8 @@ export default function Home() {
         <div className="section-heading">
           <div>
             <div className="kicker">PODPOWIEDZI TRIPOWNI</div>
-            <h2 id="curated-trips-title">Nie wiesz od czego zacząć?</h2>
-            <p>Przewiń kierunki zamiast wpisywać wszystko ręcznie. Każdy kierunek pokazujemy tylko raz — od najtańszej aktualnej opcji.</p>
+            <h2 id="curated-trips-title">Najtańsze sensowne wyjazdy na start.</h2>
+            <p>Najpierw cena, potem różnorodność. Każdy kierunek pokazujemy tylko raz w pierwszej sekcji.</p>
           </div>
           <Link className="section-premium-link" href="/okazje">Wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
@@ -720,9 +720,9 @@ export default function Home() {
             Źródła ofert live chwilowo nie odpowiadają. Pokazujemy ostatnio opublikowane propozycje — aktualną cenę i dostępność potwierdzisz po kliknięciu.
           </div>
         )}
-        <OfferRail kicker="🏙 CITY BREAK" title="Na kilka dni" description="Krótkie wyjazdy, najtańsze kierunki na początku." items={themedRails.city}/>
-        <OfferRail kicker="☀️ WAKACJE" title="Słońce i dłuższy odpoczynek" description="Gotowe kierunki na minimum kilka dni, bez powielania miejsc." items={themedRails.sun}/>
-        <OfferRail kicker="💸 NAJTANIEJ TERAZ" title="Najniższe ceny na pierwszy rzut" description="Po jednym najtańszym wariancie dla każdego kierunku." items={themedRails.cheapest}/>
+        <OfferRail kicker="💸 NAJTANIEJ TERAZ" title="Najniższe ceny na pierwszy rzut" description="Najtańsze propozycje pokazujemy pierwsze — po jednym wariancie na kierunek." items={themedRails.cheapest}/>
+        <OfferRail kicker="🏙 CITY BREAK" title="Na kilka dni" description="Krótkie wyjazdy bez powielania kierunków z sekcji najtańszych." items={themedRails.city}/>
+        <OfferRail kicker="☀️ WAKACJE" title="Słońce i dłuższy odpoczynek" description="Dłuższe wyjazdy i ciepłe kierunki, których nie pokazaliśmy wyżej." items={themedRails.sun}/>
       </section>
 
       <section className="section shell visual-chapter chapter-daily" id="okazje">
