@@ -73,7 +73,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ for
       <div style={{ display: "flex", width: "100%", height: "100%", background: cream, position: "relative", overflow: "hidden" }}>
         <div style={{ display: "flex", flexDirection: "column", width: "58%", height: "100%", padding: "54px 56px 48px 62px", boxSizing: "border-box", zIndex: 2 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-            <img src="https://tripownia.pl/tripownia-logo.webp" width="82" height="82" style={{ objectFit: "contain" }} />
+            <img src="https://tripownia.pl/tripownia-app-icon-v2.png" width="82" height="82" style={{ objectFit: "contain" }} />
             <div style={{ display: "flex", flexDirection: "column" }}>
               <div style={{ fontFamily: "Arial, sans-serif", fontSize: 34, fontWeight: 900, color: navy }}>Tripownia.pl</div>
               <div style={{ fontFamily: "Arial, sans-serif", fontSize: 18, color: "#665f58", marginTop: 5 }}>Znajdź wyjazd. Zaplanuj całą podróż.</div>
