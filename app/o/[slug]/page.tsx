@@ -135,7 +135,7 @@ export default async function ShortSocialOfferPage({ params }: { params: Promise
                 <div className="detail-action-box">
                   <AffiliateOfferLink href={offer.affiliateUrl} partner={offer.partnerLabel} slug={offer.slug} destination={`${offer.city}, ${offer.country}`} tripKind={offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package"} />
                   <OfferAlternativeJump />
-                  <Link className="btn secondary" href={`/dodaj-podroz?mode=owned&source=affiliate&city=${encodeURIComponent(offer.city)}&country=${encodeURIComponent(offer.country)}&kind=${offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package"}&partner=${encodeURIComponent(offer.partnerLabel)}&slug=${encodeURIComponent(offer.slug)}`}><PlusCircle size={17}/> Dodaj do planera</Link>
+                  <Link className="btn secondary" href={`/dodaj-podroz?mode=known&source=offer&city=${encodeURIComponent(offer.city)}&country=${encodeURIComponent(offer.country)}&kind=${offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package"}&slug=${encodeURIComponent(offer.slug)}`}><PlusCircle size={17}/> Dodaj do planera</Link>
                   <small className="affiliate-note">Link partnerski. Możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.</small>
                 </div>
               </>
