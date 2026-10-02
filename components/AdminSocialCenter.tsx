@@ -8,6 +8,7 @@ import {
 import { offers } from "@/lib/offers";
 import { getSocialDailyPlan, type SocialTone } from "@/lib/social-selection";
 import styles from "./AdminSocialCenter.module.css";
+import { adminFetch } from "@/lib/adminClient";
 
 type Tone = SocialTone;
 type QueueStatus = "pending" | "approved" | "published" | "skipped";
@@ -268,7 +269,7 @@ export default function AdminSocialCenter() {
     if (queueItem.status !== "approved") return;
     setPublishingId(queueItem.id);
     try {
-      const response = await fetch("/admin/api/social-publish", {
+      const response = await adminFetch("/admin/api/social-publish", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

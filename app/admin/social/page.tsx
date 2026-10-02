@@ -1,6 +1,7 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AdminSocialWeekPlanner from "@/components/AdminSocialWeekPlanner";
+import AdminAccessGate from "@/components/AdminAccessGate";
 
 export const metadata = {
   title: "Planner treści | Tripownia.pl",
@@ -9,6 +10,7 @@ export const metadata = {
 
 export default function AdminSocialPage() {
   return (
+    <AdminAccessGate>
     <main>
       <SiteHeader/>
       <section className="shell hub-page admin-page social-admin-page">
@@ -21,5 +23,6 @@ export default function AdminSocialPage() {
       </section>
       <SiteFooter/>
     </main>
+    </AdminAccessGate>
   );
 }

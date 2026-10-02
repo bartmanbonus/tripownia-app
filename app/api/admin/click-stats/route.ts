@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clearClickStats, readClickStats, type ClickStats } from "@/lib/clickStats";
 import { getAdminAffiliateRows, type AffiliateAnalyticsRow } from "@/lib/affiliateAnalyticsStore";
+import { adminAuthError, verifyAdminRequest } from "@/lib/adminAuthServer";
 
 export const dynamic = "force-dynamic";
 
@@ -16,12 +17,6 @@ function clampDays(value: string | null) {
   if (parsed <= 7) return 7;
   if (parsed <= 30) return 30;
   return 90;
-}
-
-function bearerToken(request: NextRequest) {
-  const header = request.headers.get("authorization") || "";
-  const match = header.match(/^Bearer\s+(.+)$/i);
-  return match?.[1]?.trim() || "";
 }
 
 function aggregate(rows: AffiliateAnalyticsRow[], days: number): GlobalStats {
@@ -84,17 +79,11 @@ function localStats(request: NextRequest, days: number, authStatus: GlobalStats[
 }
 
 export async function GET(request: NextRequest) {
+  const auth = await verifyAdminRequest(request);
+  if (!auth.ok) return adminAuthError(auth);
+
   const days = clampDays(request.nextUrl.searchParams.get("days"));
-  const token = bearerToken(request);
-
-  if (!token) {
-    return NextResponse.json(
-      { stats: localStats(request, days, "signed_out") },
-      { headers: { "Cache-Control": "no-store" } }
-    );
-  }
-
-  const result = await getAdminAffiliateRows(token, days);
+  const result = await getAdminAffiliateRows(auth.token, days);
   if (result.status === 200) {
     return NextResponse.json(
       { stats: aggregate(result.rows, days) },
@@ -109,7 +98,10 @@ export async function GET(request: NextRequest) {
   );
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
+  const auth = await verifyAdminRequest(request);
+  if (!auth.ok) return adminAuthError(auth);
+
   const response = NextResponse.json({
     ok: true,
     stats: {

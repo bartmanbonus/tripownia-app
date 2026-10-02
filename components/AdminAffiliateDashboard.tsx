@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Download, RefreshCw, RotateCcw, MousePointerClick, Database, ShieldCheck } from "lucide-react";
-import { ensureFreshAccountSession, readAccountSession } from "@/lib/accountAuth";
+import { adminFetch } from "@/lib/adminClient";
 
 type Stats = {
   total: number;
@@ -66,12 +66,7 @@ export default function AdminAffiliateDashboard() {
   async function load(period = days) {
     setLoading(true);
     try {
-      const existing = readAccountSession();
-      const session = existing ? await ensureFreshAccountSession(existing) : null;
-      const response = await fetch(`/api/admin/click-stats?days=${period}`, {
-        cache: "no-store",
-        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
-      });
+      const response = await adminFetch(`/api/admin/click-stats?days=${period}`);
       const data = await response.json();
       setStats(data.stats || empty);
     } finally {
@@ -106,7 +101,7 @@ export default function AdminAffiliateDashboard() {
   async function reset() {
     if (isGlobal) return;
     if (!window.confirm("Wyzerować lokalne statystyki klików w tej przeglądarce?")) return;
-    await fetch("/api/admin/click-stats", { method: "DELETE" });
+    await adminFetch("/api/admin/click-stats", { method: "DELETE" });
     setStats(empty);
   }
 

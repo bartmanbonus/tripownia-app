@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CloudUpload, RefreshCw } from "lucide-react";
 import { exportOfferOverrides } from "@/lib/clientOfferOverrides";
+import { adminFetch } from "@/lib/adminClient";
 
 export default function AdminPublishPanel() {
   const [configured, setConfigured] = useState<boolean | null>(null);
@@ -11,7 +12,7 @@ export default function AdminPublishPanel() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/publish-overrides")
+    adminFetch("/api/admin/publish-overrides")
       .then(r => r.json())
       .then(data => setConfigured(Boolean(data.configured)))
       .catch(() => setConfigured(false));
@@ -21,7 +22,7 @@ export default function AdminPublishPanel() {
     setBusy(true);
     setStatus("");
     try {
-      const response = await fetch("/api/admin/publish-overrides", {
+      const response = await adminFetch("/api/admin/publish-overrides", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ adminSecret: secret, overrides: exportOfferOverrides() }),

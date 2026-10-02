@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { adminAuthError, verifyAdminRequest } from "@/lib/adminAuthServer";
 
 type OverridePatch = Record<string, Record<string, unknown>>;
 
@@ -33,7 +34,10 @@ async function getCurrentFile(token: string, repo: string, branch: string) {
   return { sha: file.sha as string | undefined, data };
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = await verifyAdminRequest(request);
+  if (!auth.ok) return adminAuthError(auth);
+
   const { token, repo, secret } = githubConfig();
   return NextResponse.json({
     configured: Boolean(token && repo && secret),
@@ -42,6 +46,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdminRequest(request);
+  if (!auth.ok) return adminAuthError(auth);
+
   const { token, repo, branch, secret } = githubConfig();
 
   if (!token || !repo || !secret) {

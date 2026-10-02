@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, ExternalLink, Send } from "lucide-react";
 import { getSocialDailyPlan } from "@/lib/social-selection";
 import styles from "./AdminSocialWeekPlanner.module.css";
+import { adminFetch } from "@/lib/adminClient";
 
 type Status = "proposal" | "approved" | "published";
 
@@ -60,7 +61,7 @@ export default function AdminSocialWeekPlanner(){
     if(statuses[item.offer.id]!=="approved") return;
     setPublishing(item.offer.id);
     try{
-      const response=await fetch("/admin/api/social-publish",{
+      const response=await adminFetch("/admin/api/social-publish",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({offerId:item.offer.id,text:buildText(item),approved:true,channels:["facebook","instagram"]})
