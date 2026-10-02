@@ -741,13 +741,13 @@ export async function GET(request: NextRequest) {
       if (eximToken && providerOnly !== "tui") {
         jobs.push(() => fetchProducts("exim", term, eximToken, searchPages).then((products) => ({ provider: "exim" as const, products })));
       }
-      if (mode !== "citybreak" && mode !== "newyear" && tuiToken && providerOnly !== "exim") {
+      if (mode !== "newyear" && tuiToken && providerOnly !== "exim") {
         jobs.push(() => fetchProducts("tui", term, tuiToken, searchPages).then((products) => ({ provider: "tui" as const, products })));
       }
     }
 
     const candidates: LiveCandidate[] = [];
-    const batchSize = 8;
+    const batchSize = mode === "citybreak" ? 16 : 8;
     let successfulFeeds = 0;
     let failedFeeds = 0;
     for (let index = 0; index < jobs.length; index += batchSize) {
@@ -932,7 +932,7 @@ export async function GET(request: NextRequest) {
     const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && tripLengthMatches(offer));
 
     // Short city breaks must remain affordable, even when a destination has only expensive stock.
-    const cityBreakPool = pool.filter(offer => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5 && offer.price <= 2000);
+    const cityBreakPool = pool.filter(offer => offer.nights >= 2 && offer.nights <= 5 && offer.price <= 2000 && hasConcreteDates(offer));
     const selected = mode === "newyear"
       ? cheapestPerDestination(
           pool.filter((offer) => {
