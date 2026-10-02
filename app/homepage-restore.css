@@ -1266,3 +1266,69 @@ body:has(.dream-hero) .editorial-streaming-rail .streaming-tile small{
     height:240px!important;
   }
 }
+
+
+/* 2026-10-02 — mobile search stability: no iOS zoom, fixed-width pickers, explicit Anywhere */
+@media(max-width:640px){
+  body:has(.dream-hero) #wyszukiwarka .search-v3-field input,
+  body:has(.dream-hero) #wyszukiwarka .search-v3-airport-search input{
+    font-size:16px!important;
+    line-height:1.25!important;
+    transform:none!important;
+    max-width:100%!important;
+    min-width:0!important;
+    -webkit-text-size-adjust:100%;
+  }
+
+  body:has(.dream-hero) #wyszukiwarka .search-v3-airport-search{
+    display:flex!important;
+    align-items:center!important;
+    gap:9px!important;
+    width:100%!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+    padding:10px 12px!important;
+    margin:0 0 8px!important;
+    border:1px solid #e3d9d2!important;
+    border-radius:13px!important;
+    background:#fff!important;
+  }
+
+  body:has(.dream-hero) #wyszukiwarka .search-v3-airport-search input{
+    width:100%!important;
+    height:34px!important;
+    padding:0!important;
+    border:0!important;
+    outline:0!important;
+    box-shadow:none!important;
+    background:transparent!important;
+  }
+
+  body:has(.dream-hero) #wyszukiwarka .search-v3-departure-menu{
+    left:10px!important;
+    right:10px!important;
+    width:auto!important;
+    max-width:calc(100vw - 20px)!important;
+    box-sizing:border-box!important;
+    transform:none!important;
+    overflow:hidden!important;
+  }
+
+  body:has(.dream-hero) #wyszukiwarka .search-v3-field.is-open,
+  body:has(.dream-hero) #wyszukiwarka .search-v3-multiselect.is-open{
+    width:100%!important;
+    max-width:100%!important;
+    transform:none!important;
+  }
+
+  body:has(.dream-hero) #wyszukiwarka .search-v3-anywhere.active,
+  body:has(.dream-hero) #wyszukiwarka .search-v3-selected-anywhere{
+    border-color:#efb39d!important;
+    background:#fff1eb!important;
+    color:#b94629!important;
+  }
+
+  body:has(.dream-hero) #wyszukiwarka .search-v3-selected-anywhere{
+    font-weight:900!important;
+  }
+}
