@@ -32,6 +32,22 @@ function normalize(value: string) {
     .trim();
 }
 
+function boardCode(value: string) {
+  const normalized = normalize(value);
+  const map: Record<string, string> = {
+    "all inclusive": "allinclusive",
+    "ultra all inclusive": "ultraallinclusive",
+    "sniadanie": "breakfast",
+    "sniadania": "breakfast",
+    "half board": "halfboard",
+    "polpensja": "halfboard",
+    "full board": "fullboard",
+    "pelne wyzywienie": "fullboard",
+    "bez wyzywienia": "roomonly",
+  };
+  return map[normalized] || "";
+}
+
 function resolveAirportCode(code: string | undefined, departure: string) {
   const explicit = String(code || "").trim().toUpperCase();
   if (explicit && airportOptions.some((airport: any) => airport.code === explicit)) return explicit;
@@ -107,6 +123,7 @@ export default function OfferAlternativeFinder({
   currentOfferId = 0,
 }: Props) {
   const initialAirport = useMemo(() => resolveAirportCode(airportCode, departure), [airportCode, departure]);
+  const initialBoard = useMemo(() => boardCode(board), [board]);
   const originalDepartureDate = useMemo(
     () => (/^20\d{2}-\d{2}-\d{2}$/.test(startDateISO || "") ? String(startDateISO) : inferDepartureDate(dates)),
     [startDateISO, dates],
@@ -163,7 +180,7 @@ export default function OfferAlternativeFinder({
     const date = forceAnyDate ? "" : usesDate ? selectedDate : changeMode === "airport" ? originalDepartureDate : "";
     const flex = usesDate ? Math.max(0, Number(flexDays) || 0) : 0;
 
-    const buildParams = (query: string) => {
+    const buildParams = (query: string, keepBoard = true) => {
       const params = new URLSearchParams({
         mode: "search",
         q: query,
@@ -178,6 +195,7 @@ export default function OfferAlternativeFinder({
         params.set("end", addDaysIso(date, flex));
         params.set("dateKind", "departure");
       }
+      if (keepBoard && initialBoard) params.set("board", initialBoard);
       return params;
     };
 
@@ -193,8 +211,8 @@ export default function OfferAlternativeFinder({
     });
 
     try {
-      const search = async (query: string) => {
-        const response = await fetch(`/api/today-offers?${buildParams(query).toString()}`, {
+      const search = async (query: string, keepBoard = true) => {
+        const response = await fetch(`/api/today-offers?${buildParams(query, keepBoard).toString()}`, {
           cache: "no-store",
         });
         const data = await response.json();
@@ -206,18 +224,30 @@ export default function OfferAlternativeFinder({
             return resolveAirportCode(offer.airportCode, offer.departure) !== initialAirport;
           })
           .sort((a: Offer, b: Offer) => Number(a.price || Infinity) - Number(b.price || Infinity));
-        return { data, offers };
+        return { data, offers, boardRelaxed: !keepBoard };
       };
 
       const hotelQuery = String(hotel || "").trim();
       const normalizedHotel = normalize(hotelQuery);
       const genericHotel = /^(hotel|resort|nocleg|obiekt)( w centrum)?( [1-5])?$/.test(normalizedHotel);
       const canSearchSameHotel = hotelQuery.length >= 4 && !genericHotel;
-      let result = canSearchSameHotel ? await search(hotelQuery) : { data: null, offers: [] as Offer[] };
+      let result = canSearchSameHotel
+        ? await search(hotelQuery, true)
+        : { data: null, offers: [] as Offer[], boardRelaxed: false };
       let sameHotel = result.offers.length > 0;
 
+      if (!result.offers.length && canSearchSameHotel && initialBoard) {
+        result = await search(hotelQuery, false);
+        sameHotel = result.offers.length > 0;
+      }
+
       if (!result.offers.length) {
-        result = await search(city);
+        result = await search(city, true);
+        sameHotel = false;
+      }
+
+      if (!result.offers.length && initialBoard) {
+        result = await search(city, false);
         sameHotel = false;
       }
 
@@ -229,6 +259,7 @@ export default function OfferAlternativeFinder({
               sameHotel
                 ? `Mamy ${found.length} wariantów tej samej wycieczki lub hotelu.`
                 : `Nie ma teraz dokładnie tego samego hotelu. Pokazujemy najlepsze opcje w ${city} dla wybranych ustawień.`,
+              result.boardRelaxed && initialBoard ? "Nie było wariantu z identycznym wyżywieniem, więc rozszerzyliśmy także ten parametr." : "",
               result.data?.partial ? "Część źródeł może być chwilowo niepełna." : "",
             ]
               .filter(Boolean)
@@ -287,9 +318,11 @@ export default function OfferAlternativeFinder({
             <span><Plane size={16} /> Skąd chcesz lecieć?</span>
             <select value={selectedAirport} onChange={(event) => setSelectedAirport(event.target.value)}>
               <option value="">{initialAirport ? "Dowolne inne lotnisko" : "Wszystkie lotniska w Polsce"}</option>
-              {airportOptions.map((airport: any) => (
-                <option key={airport.code} value={airport.code}>{airport.label} ({airport.code})</option>
-              ))}
+              {airportOptions
+                .filter((airport: any) => !initialAirport || airport.code !== initialAirport)
+                .map((airport: any) => (
+                  <option key={airport.code} value={airport.code}>{airport.label} ({airport.code})</option>
+                ))}
             </select>
           </label>
         )}
