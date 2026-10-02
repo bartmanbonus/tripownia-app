@@ -415,7 +415,7 @@ export async function GET(request: NextRequest) {
       sources: successful.map((item) => item.label),
       unavailableSources,
       partial: unavailableSources.length > 0,
-      sourceType: "live",
+      sourceType: sourceOffers.length ? "live" : unavailableSources.length ? "live_unavailable" : "live",
       matchMode,
       filters: { destination: destination || null, type: type || null, airport: airport || null, month: month || null, year: year || null, strict },
       notice,
