@@ -142,15 +142,17 @@ export default async function ShortSocialOfferPage({ params }: { params: Promise
             )}
           </div>
         </section>
-        <OfferAlternativeFinder
-          city={offer.city}
-          country={offer.country}
-          nights={offer.nights}
-          board={offer.board}
-          departure={offer.departure}
-          dates={offer.dates}
-          hotel={offer.hotel}
-        />
+        {!(offer.expired || offer.status === "expired") && (
+          <OfferAlternativeFinder
+            city={offer.city}
+            country={offer.country}
+            nights={offer.nights}
+            board={offer.board}
+            departure={offer.departure}
+            dates={offer.dates}
+            hotel={offer.hotel}
+          />
+        )}
       </div>
       {!offer.expired && <CompleteTripSales city={offer.city} country={offer.country} source="social_offer" />}
       <SiteFooter />
