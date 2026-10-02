@@ -167,9 +167,11 @@ export default function SiteHeader() {
                 <div className="trip-mobile-menu-section">
                   <strong>Twoja Tripownia</strong>
                   <Link href="/app"><LayoutDashboard size={18} /><span>Panel główny</span></Link>
-                  <Link href="/dodaj-podroz"><Sparkles size={18} /><span>Dodaj podróż / ułóż plan</span></Link>
-                  <Link href="/moja-podroz"><MapPinned size={18} /><span>Mój planner</span></Link>
-                  <Link href="/konto"><UserRound size={18} /><span>Konto</span></Link>
+                  <Link href="/moje-podroze"><MapPinned size={18} /><span>Moje podróże</span></Link>
+                  <Link href="/dla-ciebie"><Sparkles size={18} /><span>Dla Ciebie</span></Link>
+                  <Link href="/ulubione"><Heart size={18} /><span>Ulubione</span></Link>
+                  <Link href="/alerty"><Bell size={18} /><span>Alerty</span></Link>
+                  <Link href="/profil"><UserRound size={18} /><span>Profil i konto</span></Link>
                 </div>
                 <div className="trip-mobile-menu-section">
                   <strong>Znajdź wyjazd</strong>
