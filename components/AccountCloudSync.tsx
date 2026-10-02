@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { accountAuthEventName, ensureFreshAccountSession, getTripowniaUserState, readAccountSession, saveTripowniaUserState } from "@/lib/accountAuth";
-import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState, hasMeaningfulLocalAccountState } from "@/lib/accountState";
+import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState, hasMeaningfulLocalAccountState, mergeAnonymousAccountState } from "@/lib/accountState";
 
 const DIRTY_KEY = "tripownia-local-dirty-v1";
 
@@ -21,6 +21,7 @@ export default function AccountCloudSync() {
   useEffect(() => {
     let cancelled = false;
     let ready = false;
+    let hydrating = false;
     let timer: number | undefined;
 
     async function bootstrap() {
@@ -35,6 +36,7 @@ export default function AccountCloudSync() {
 
         const currentUserId = session.user?.id || remote?.user_id || "";
         const localOwner = localStorage.getItem("tripownia-local-owner-v1") || "";
+        hydrating = true;
 
         if (localOwner && currentUserId && localOwner !== currentUserId) {
           clearLocalAccountState();
@@ -43,7 +45,14 @@ export default function AccountCloudSync() {
         const localDirty = localStorage.getItem(DIRTY_KEY);
 
         if (remote && localDirty && (!localOwner || localOwner === currentUserId)) {
-          await saveTripowniaUserState(session, collectLocalAccountState());
+          const localState = collectLocalAccountState();
+          if (!localOwner) {
+            const merged = mergeAnonymousAccountState(remote, localState);
+            const saved = await saveTripowniaUserState(session, merged);
+            applyCloudAccountState(saved || { ...remote, ...merged, user_id: remote.user_id });
+          } else {
+            await saveTripowniaUserState(session, localState);
+          }
           localStorage.removeItem(DIRTY_KEY);
         } else if (remote) {
           applyCloudAccountState(remote);
@@ -53,8 +62,10 @@ export default function AccountCloudSync() {
         }
 
         if (currentUserId) localStorage.setItem("tripownia-local-owner-v1", currentUserId);
+        hydrating = false;
         ready = true;
       } catch {
+        hydrating = false;
         ready = true;
       }
     }
@@ -69,6 +80,7 @@ export default function AccountCloudSync() {
     }
 
     const schedule = () => {
+      if (hydrating) return;
       try { localStorage.setItem(DIRTY_KEY, String(Date.now())); } catch {}
       if (!ready) return;
       if (timer) window.clearTimeout(timer);

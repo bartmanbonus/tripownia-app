@@ -89,6 +89,83 @@ export function hasMeaningfulLocalAccountState() {
   );
 }
 
+
+function uniqueNumbers(...groups: Array<number[] | undefined>) {
+  return Array.from(new Set(groups.flatMap((group) => Array.isArray(group) ? group : []).filter((value) => typeof value === "number" && Number.isFinite(value))));
+}
+
+function uniqueStrings(...groups: Array<string[] | undefined>) {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const value of groups.flatMap((group) => Array.isArray(group) ? group : [])) {
+    if (typeof value !== "string") continue;
+    const trimmed = value.trim();
+    const key = trimmed.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    if (!trimmed || seen.has(key)) continue;
+    seen.add(key);
+    result.push(trimmed);
+  }
+  return result;
+}
+
+function mergeTripArchive(remote: unknown[] | undefined, local: unknown[] | undefined) {
+  const byId = new Map<string, Record<string, unknown>>();
+  const extras: unknown[] = [];
+
+  for (const item of [...(Array.isArray(remote) ? remote : []), ...(Array.isArray(local) ? local : [])]) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      extras.push(item);
+      continue;
+    }
+    const record = item as Record<string, unknown>;
+    const tripId = typeof record.tripId === "string" ? record.tripId.trim() : "";
+    if (!tripId) {
+      extras.push(record);
+      continue;
+    }
+    const current = byId.get(tripId);
+    if (!current) {
+      byId.set(tripId, record);
+      continue;
+    }
+    const currentUpdated = typeof current.updatedAt === "string" ? current.updatedAt : "";
+    const nextUpdated = typeof record.updatedAt === "string" ? record.updatedAt : "";
+    if (!currentUpdated || (nextUpdated && nextUpdated >= currentUpdated)) byId.set(tripId, record);
+  }
+
+  return [...byId.values(), ...extras].slice(0, 30);
+}
+
+export function mergeAnonymousAccountState(
+  remote: TripowniaUserState,
+  local: Omit<TripowniaUserState, "user_id">,
+): Omit<TripowniaUserState, "user_id"> {
+  const hasLocalProfile = typeof window !== "undefined" && Boolean(localStorage.getItem(TRAVEL_PROFILE_KEY));
+  const hasLocalTrip = typeof window !== "undefined" && Boolean(localStorage.getItem(ACTIVE_TRIP_KEY));
+  const hasLocalAlerts = typeof window !== "undefined" && Boolean(localStorage.getItem(ALERTS_KEY));
+
+  const remoteProfile = remote.travel_profile && typeof remote.travel_profile === "object" ? remote.travel_profile : {};
+  const localProfile = local.travel_profile && typeof local.travel_profile === "object" ? local.travel_profile : {};
+  const visited = uniqueStrings(remote.visited_countries, local.visited_countries);
+  const excluded = uniqueStrings(remote.excluded_visited_countries, local.excluded_visited_countries)
+    .filter((country) => visited.some((visitedCountry) => visitedCountry.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === country.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()));
+
+  return {
+    travel_profile: hasLocalProfile ? { ...remoteProfile, ...localProfile, visitedCountries: visited, excludedVisitedCountries: excluded } : remoteProfile,
+    favorite_offer_ids: uniqueNumbers(remote.favorite_offer_ids, local.favorite_offer_ids),
+    compare_offer_ids: uniqueNumbers(remote.compare_offer_ids, local.compare_offer_ids),
+    current_trip: hasLocalTrip ? local.current_trip : remote.current_trip,
+    visited_countries: visited,
+    excluded_visited_countries: excluded,
+    favorite_offer_snapshots: { ...(remote.favorite_offer_snapshots || {}), ...(local.favorite_offer_snapshots || {}) },
+    compare_offer_snapshots: { ...(remote.compare_offer_snapshots || {}), ...(local.compare_offer_snapshots || {}) },
+    trip_archive: mergeTripArchive(remote.trip_archive, local.trip_archive),
+    alert_settings: hasLocalAlerts ? { ...(remote.alert_settings || {}), ...(local.alert_settings || {}) } : (remote.alert_settings || {}),
+    toolkit_by_trip: { ...(remote.toolkit_by_trip || {}), ...(local.toolkit_by_trip || {}) },
+    organizer_by_trip: { ...(remote.organizer_by_trip || {}), ...(local.organizer_by_trip || {}) },
+  };
+}
+
 export function applyCloudAccountState(state: TripowniaUserState) {
   if (typeof window === "undefined") return;
 
