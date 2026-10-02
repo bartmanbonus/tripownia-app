@@ -1,7 +1,6 @@
-import { isPromotableOffer } from "@/lib/offerValuePolicy";
 import { NextRequest, NextResponse } from "next/server";
-import { homepageFallbackOffers as publishedOffers, isOfferExpired, type Offer } from "@/lib/offers";
-import { touristDestinationKey } from "@/lib/destinationGrouping";
+import { homepageFallbackOffers as publishedOffers, type Offer } from "@/lib/offers";
+import { cheapestPerDestination as selectCheapestPerDestination, dedupeOffersByIdentity, isUsableOffer } from "@/lib/offerEngine";
 import { GET as getTodayOffers } from "@/app/api/today-offers/route";
 
 type DealsOffer = Offer & {
@@ -130,48 +129,19 @@ function monthDistance(offer: DealsOffer, month: string, year: string) {
 }
 
 function isUsableDeal(offer: DealsOffer) {
-  return Boolean(
-    offer && isPromotableOffer(offer) &&
-    Number.isFinite(Number(offer.price)) &&
-    Number(offer.price) > 0 &&
-    offer.affiliateUrl &&
-    offer.availabilityStatus !== "expired"
-  );
+  return isUsableOffer(offer, "live");
 }
 
 function isUsablePublishedFallback(offer: DealsOffer) {
-  return Boolean(
-    offer &&
-    Number.isFinite(Number(offer.price)) &&
-    Number(offer.price) > 0 &&
-    offer.affiliateUrl &&
-    !isOfferExpired(offer) &&
-    offer.linkMatch !== "unsafe"
-  );
+  return isUsableOffer(offer, "fallback");
 }
 
 function cheapestFallbackPerDestination(offers: DealsOffer[], limit = DEAL_LIMIT) {
-  const best = new Map<string, DealsOffer>();
-  for (const offer of offers) {
-    if (!isUsablePublishedFallback(offer)) continue;
-    const key = touristDestinationKey(offer);
-    const current = best.get(key);
-    if (!current || Number(offer.price) < Number(current.price)) best.set(key, offer);
-  }
-  return Array.from(best.values())
-    .sort((a, b) => Number(a.price) - Number(b.price))
-    .slice(0, limit);
+  return selectCheapestPerDestination(offers, { mode: "fallback", limit });
 }
 
 function cheapestPerDestination(offers: DealsOffer[]) {
-  const best = new Map<string, DealsOffer>();
-  for (const offer of offers) {
-    if (!isUsableDeal(offer)) continue;
-    const key = touristDestinationKey(offer);
-    const current = best.get(key);
-    if (!current || Number(offer.price) < Number(current.price)) best.set(key, offer);
-  }
-  return Array.from(best.values()).sort((a, b) => Number(a.price) - Number(b.price));
+  return selectCheapestPerDestination(offers, { mode: "live" });
 }
 
 function lowestPriceDeals(offers: DealsOffer[], limit = DEAL_LIMIT) {
@@ -293,13 +263,7 @@ export async function GET(request: NextRequest) {
   }
 
   const combined = successful.flatMap((item) => Array.isArray(item.payload.offers) ? item.payload.offers : []);
-  const unique = new Map<string, DealsOffer>();
-  for (const offer of combined) {
-    if (!isUsableDeal(offer)) continue;
-    const current = unique.get(`${offer.partner}:${offer.id}`);
-    if (!current || Number(offer.price) < Number(current.price)) unique.set(`${offer.partner}:${offer.id}`, offer);
-  }
-  const sourceOffers = Array.from(unique.values())
+  const sourceOffers = dedupeOffersByIdentity(combined, "live")
     .filter(polishDepartureMatches)
     .filter((offer) => typeMatches(offer, type))
     .filter((offer) => destinationMatches(offer, destination));

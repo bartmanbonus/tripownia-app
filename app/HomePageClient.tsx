@@ -13,6 +13,7 @@ import { partners } from "@/lib/partners";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { trackEvent } from "@/lib/analytics";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
+import { offerSourceIsFallback } from "@/lib/offerEngine";
 
 const SearchHub = dynamic(() => import("@/components/SearchHub"));
 const SalesVisualShortcuts = dynamic(() => import("@/components/SalesVisualShortcuts"));
@@ -387,7 +388,7 @@ function OfferRail({ kicker, title, description, items, moreHref = "/okazje" }: 
           <button type="button" onClick={() => move(1)} aria-label={`Następne: ${title}`}><ArrowRight size={18}/></button>
         </div>
         <div className="offer-stream-rail" ref={railRef}>
-          {items.map((offer) => <div className="offer-stream-item" key={`${title}-${offer.id}`}><OfferCard offer={offer}/></div>)}
+          {items.map((offer) => <div className="offer-stream-item" key={`${title}-${offer.id}`}><OfferCard offer={offer} sourceSurface="homepage" /></div>)}
           <div className="offer-stream-item offer-stream-more-card">
             <Link href={moreHref}>
               <small>WIĘCEJ OFERT</small>
@@ -523,7 +524,7 @@ export default function Home() {
         }
 
         const checkedAt = typeof data?.checkedAt === "string" ? data.checkedAt : new Date().toISOString();
-        const sourceIsFallback = data?.sourceType === "published_fallback"
+        const sourceIsFallback = offerSourceIsFallback(data?.sourceType)
           || data?.coverage === "published_fallback"
           || data?.fallback === true;
         const freshPool = safeRows.slice(0, 60);
@@ -782,7 +783,7 @@ export default function Home() {
           </div>}
           <div className="daily-carousel" ref={offersRailRef}>
             {todaysOffers.length > 0 ? (
-              todaysOffers.map(o => <div className="daily-carousel-item" key={o.id}><OfferCard offer={o}/></div>)
+              todaysOffers.map(o => <div className="daily-carousel-item" key={o.id}><OfferCard offer={o} sourceSurface="homepage" /></div>)
             ) : (
               <div className="daily-live-empty">
                 <strong>{liveOffersStatus === "loading" ? "Sprawdzamy dzisiejszą pulę" : "Aktualizujemy dzisiejsze oferty"}</strong>

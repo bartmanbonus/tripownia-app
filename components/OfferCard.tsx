@@ -155,7 +155,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
     live_offer: isLiveOffer,
     live_exact: isLiveExact,
     exact_link: isExactLink,
-    source_surface: sourceSurface,
+    source_surface: sourceSurface || "unknown",
   };
 
   useEffect(() => {
@@ -250,9 +250,20 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
   function trackOfferClick(placement: "image" | "card_cta", outboundOverride?: boolean) {
     rememberRecentOffer();
     const outbound = outboundOverride ?? (!isExpired && hasExternalAffiliateUrl);
-    const params = { ...eventBase, placement };
-    trackEvent(outbound ? "outbound_partner_click" : "offer_open", params);
-    trackMetaCustomEvent(outbound ? "PartnerOutboundClick" : "OfferOpen", params);
+    const params = { ...eventBase, placement, outbound };
+
+    // Keep the funnel measurable even when a card click immediately leaves
+    // Tripownia. offer_click is the bridge between impression and partner exit.
+    trackEvent("offer_click", params);
+    trackMetaCustomEvent("OfferClick", params);
+
+    if (outbound) {
+      trackEvent("outbound_partner_click", params);
+      trackMetaCustomEvent("PartnerOutboundClick", params);
+    } else {
+      trackEvent("offer_open", params);
+      trackMetaCustomEvent("OfferOpen", params);
+    }
   }
 
   if (override.hidden || publishedOverride.hidden) return null;
@@ -282,6 +293,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
       data-offer-id={offer.id}
       data-offer-price={displayPrice}
       data-offer-partner={offer.partner}
+      data-offer-surface={sourceSurface || "unknown"}
       onClick={(event) => {
         const target = event.target as HTMLElement;
         if (target.closest("a,button,input,select,textarea,[role='button']")) return;

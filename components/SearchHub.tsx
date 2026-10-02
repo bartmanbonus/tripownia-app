@@ -1491,7 +1491,7 @@ export default function SearchHub({
                     </div>
                   </div>
                 )}
-                <div className="search-v3-results-grid">{visibleResults.slice(0, visibleCount).map((offer) => <div key={offer.id} className="search-v3-result-item">{offer.searchAlternative && <p className="search-v3-alternative-label">{offer.searchAlternative}</p>}<OfferCard offer={offer}/></div>)}</div>
+                <div className="search-v3-results-grid">{visibleResults.slice(0, visibleCount).map((offer) => <div key={offer.id} className="search-v3-result-item">{offer.searchAlternative && <p className="search-v3-alternative-label">{offer.searchAlternative}</p>}<OfferCard offer={offer} sourceSurface="search_results"/></div>)}</div>
                 {visibleResults.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(visibleResults.length, count + 12))}>Pokaż kolejne oferty ({visibleResults.length - visibleCount})</button>}
               </>
             )}

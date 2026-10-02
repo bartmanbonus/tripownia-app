@@ -11,6 +11,7 @@ import { isOfferExpired, offers } from "@/lib/offers";
 import { readTravelProfile, TRAVEL_PROFILE_KEY } from "@/lib/travelProfile";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
+import { offerSourceIsFallback } from "@/lib/offerEngine";
 
 type TripOffer = (typeof offers)[number];
 type TripState = { offerId?: number; offerSnapshot?: TripOffer; departureAt?: string; checklist?: Record<string, boolean> };
@@ -84,7 +85,7 @@ export default function AppHome() {
         );
         setLiveOffers(clean.slice(0, 6));
         setLiveSource(
-          data?.sourceType === "published_fallback" || data?.coverage === "published_fallback" || data?.fallback === true
+          offerSourceIsFallback(data?.sourceType) || data?.coverage === "published_fallback" || data?.fallback === true
             ? "fallback"
             : clean.length ? "live" : null
         );
@@ -253,7 +254,7 @@ export default function AppHome() {
             </div>
             <Link href="/okazje">Zobacz Okazje <ArrowRight size={16}/></Link>
           </div>
-          {!liveLoading && topOffers.length > 0 && <div className="cards-grid">{topOffers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}</div>}
+          {!liveLoading && topOffers.length > 0 && <div className="cards-grid">{topOffers.map((offer) => <OfferCard key={offer.id} offer={offer} sourceSurface="app_home" />)}</div>}
           {!liveLoading && topOffers.length === 0 && <div className="self-search-empty"><strong>Aktualizujemy oferty.</strong><span>Wróć do wyszukiwarki powyżej albo sprawdź inspiracje — nie podstawiamy niezweryfikowanych cen.</span></div>}
         </section>
       </section>

@@ -8,6 +8,7 @@ export const maxDuration = 60;
 import { homepageFallbackOffers, isOfferExpired, type Offer } from "@/lib/offers";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
+import { cheapestPerDestination as selectCheapestPerDestination } from "@/lib/offerEngine";
 
 type TdField = { name?: string; value?: string };
 type TdOffer = {
@@ -604,15 +605,10 @@ function selectDailyDiversified(candidates: LiveCandidate[], _key: string, limit
 }
 
 function cheapestPerDestination(candidates: LiveCandidate[]) {
-  const best = new Map<string, LiveCandidate>();
-  for (const offer of candidates) {
-    const key = destinationKey(offer);
-    const previous = best.get(key);
-    if (!previous || offer.price < previous.price || (offer.price === previous.price && departurePriority(offer) > departurePriority(previous))) {
-      best.set(key, offer);
-    }
-  }
-  return Array.from(best.values());
+  return selectCheapestPerDestination(candidates, {
+    mode: "live",
+    tieBreak: (candidate, current) => departurePriority(candidate) - departurePriority(current),
+  });
 }
 
 export async function GET(request: NextRequest) {
@@ -1026,15 +1022,12 @@ export async function GET(request: NextRequest) {
       fallbackOffers = fallbackOffers.filter((offer) => offer.price <= budget);
     }
 
-    const bestByDestination = new Map<string, Offer>();
-    for (const offer of fallbackOffers.sort((a, b) => a.price - b.price || b.score - a.score)) {
-      const destination = touristDestinationKey(offer);
-      const previous = bestByDestination.get(destination);
-      if (!previous || offer.price < previous.price) bestByDestination.set(destination, offer);
-    }
-
     const fallbackLimit = mode === "surprise" ? 12 : mode === "daily" ? 36 : 60;
-    const selectedFallback = ((mode === "search" || (mode === "citybreak" && !destinationOverview)) ? rankSearchOffers(fallbackOffers) : Array.from(bestByDestination.values()))
+    const selectedFallback = (
+      mode === "search" || (mode === "citybreak" && !destinationOverview)
+        ? rankSearchOffers(fallbackOffers)
+        : selectCheapestPerDestination(fallbackOffers, { mode: "fallback" })
+    )
       .sort((a, b) => a.price - b.price || b.score - a.score)
       .slice(0, mode === "search" ? Number.MAX_SAFE_INTEGER : fallbackLimit);
 
