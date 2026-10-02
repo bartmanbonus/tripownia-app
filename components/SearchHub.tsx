@@ -995,8 +995,16 @@ export default function SearchHub({
     ["Djerba, Tunezja", "All Inclusive do 3 000 zł", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Lot + hotel" }],
   ];
   const hotelSearchDestination = selectedDestinations[0] || destination.trim();
-  const hotelSearchHref = hotelSearchDestination
+  const hotelPartnerTarget = hotelSearchDestination
     ? standaloneHotelPartnerUrl([hotelSearchDestination], dateFrom, dateTo)
+    : "";
+  const hotelSearchHref = hotelPartnerTarget
+    ? `/go/live?${new URLSearchParams({
+        partner: "booking",
+        target: hotelPartnerTarget,
+        source: "hotel_search_ready",
+        destination: hotelSearchDestination,
+      }).toString()}`
     : "";
   const hotelStayLabel = dateFrom && dateTo
     ? `${isoLabel(dateFrom)} – ${isoLabel(dateTo)}`
@@ -1557,8 +1565,16 @@ export default function SearchHub({
               </>
             )}
             {!loading && packageSearchLink && <div className="search-v3-empty-actions">
-              <a href={packageSearchLink} rel="sponsored noreferrer">Sprawdź więcej pakietów w eSky</a>
-              <span>Cena i dostępność do potwierdzenia u partnera.</span>
+              <a
+                href={`/go/live?${new URLSearchParams({
+                  partner: "esky",
+                  target: packageSearchLink,
+                  source: "search_more_packages",
+                  destination: selectedDestinations[0] || destination.trim(),
+                }).toString()}`}
+                rel="sponsored"
+              >Sprawdź więcej pakietów</a>
+              <span>Cena i dostępność są potwierdzane przy rezerwacji.</span>
             </div>}
             {!loading && results.length === 0 && !expanding && (() => {
               const fallbackDestination = selectedDestinations[0] || destination;

@@ -14,6 +14,7 @@ import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { trackEvent } from "@/lib/analytics";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { offerSourceIsFallback } from "@/lib/offerEngine";
+import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
 
 const SearchHub = dynamic(() => import("@/components/SearchHub"));
 const SalesVisualShortcuts = dynamic(() => import("@/components/SalesVisualShortcuts"));
@@ -1017,7 +1018,7 @@ export default function Home() {
                 </div>
                 <span><b>od {surprise.price.toLocaleString("pl-PL")} zł/os.</b> · zostaje ok. {(budget - surprise.price).toLocaleString("pl-PL")} zł w budżecie.</span>
                 <div className="surprise-result-actions">
-                  <a href={surprise.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Zobacz wyjazd →</a>
+                  <Link href={liveOfferLandingHref(surprise)}>Zobacz wyjazd →</Link>
                   <button type="button" onClick={pickSurprise} disabled={surpriseLoading}><Dice5 size={15}/> {surpriseLoading ? "Szukamy…" : "Pokaż inną"}</button>
                 </div>
               </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, MapPin, Plane, Moon, Utensils, CalendarDays, BadgeCheck } from "lucide-react";
+import { ArrowLeft, ExternalLink, MapPin, Plane, Moon, Utensils, CalendarDays, BadgeCheck, PlusCircle } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Image from "next/image";
@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 type Search = Record<string, string | string[] | undefined>;
 
 const PARTNERS = [
+  { key: "esky", label: "eSky", hosts: ["www2.esky.pl", "www.esky.pl"] },
   { key: "exim", label: "EXIM Tours", hosts: ["exim.pl", "www.exim.pl", "reklamy.exim.pl"] },
   { key: "tui", label: "TUI", hosts: ["tui.pl", "www.tui.pl", "clk.tradedoubler.com"] },
   { key: "wakacje", label: "Wakacje.pl", hosts: ["wakacje.pl", "www.wakacje.pl"] },
@@ -86,6 +87,11 @@ export default async function SocialOfferLanding({
   const departure = one(query.departure, "Polska");
   const dates = one(query.dates, "Sprawdź dostępne terminy");
   const board = one(query.board, "wg oferty");
+  const hotel = one(query.hotel);
+  const airport = one(query.airport);
+  const start = one(query.start);
+  const end = one(query.end);
+  const offerId = one(query.offer);
   const nights = Math.max(1, Math.min(30, Number(one(query.nights, "7")) || 7));
   const price = safePrice(one(query.price));
   const target = safeTarget(one(query.target));
@@ -94,6 +100,28 @@ export default async function SocialOfferLanding({
 
   const partnerLabel = target.partner.label;
   const imageSrc = countryImage(country);
+  const tripKind = target.partner.key === "kiwi" ? "flight" : target.partner.key === "booking" ? "hotel" : "package";
+  const outboundParams = new URLSearchParams({
+    partner: target.partner.key,
+    target: target.url,
+    source: "live_offer_detail",
+    destination: [city, country].filter(Boolean).join(", "),
+    ...(offerId ? { offer: offerId } : {}),
+    ...(price ? { price: String(price) } : {}),
+  });
+  const outboundHref = `/go/live?${outboundParams.toString()}`;
+  const plannerParams = new URLSearchParams({
+    mode: "known",
+    source: "offer",
+    city,
+    country,
+    kind: tripKind,
+    partner: partnerLabel,
+    ...(start ? { start } : {}),
+    ...(end ? { end } : {}),
+    ...(airport ? { departure: airport } : {}),
+  });
+  const plannerHref = `/dodaj-podroz?${plannerParams.toString()}`;
 
   return (
     <main>
@@ -147,11 +175,12 @@ export default async function SocialOfferLanding({
                 <div className="detail-price"><strong>Sprawdź aktualną cenę</strong></div>
               )}
               <div className="price-status detail-price-status">
-                Finalną cenę i dostępność potwierdza {partnerLabel}.
+                Finalną cenę i dostępność potwierdzisz przy rezerwacji.
               </div>
             </div>
 
             <p className="detail-lead">{note}</p>
+            {hotel && <p className="offer-hotel-name"><strong>{hotel}</strong></p>}
 
             <div className="detail-meta">
               <span><Plane/> <b>{departure}</b></span>
@@ -166,11 +195,14 @@ export default async function SocialOfferLanding({
             </div>
 
             <div className="detail-action-box">
-              <a className="primary-cta" href={target.url} target="_blank" rel="sponsored noopener noreferrer">
-                Sprawdź ofertę w {partnerLabel} <ExternalLink size={18}/>
+              <a className="primary-cta" href={outboundHref} rel="sponsored">
+                Sprawdź aktualną cenę <ExternalLink size={18}/>
               </a>
+              <Link className="btn secondary" href={plannerHref}>
+                <PlusCircle size={17}/> Dodaj do planera
+              </Link>
               <small className="affiliate-note">
-                Link partnerski. Możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.
+                Rezerwacja i płatność są u partnera. Link partnerski — możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.
               </small>
             </div>
           </div>

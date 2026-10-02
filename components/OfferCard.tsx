@@ -14,6 +14,7 @@ import { ANALYTICS_CONSENT_EVENT, getAnalyticsConsent, trackEvent } from "@/lib/
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { readAccountSession } from "@/lib/accountAuth";
 import { customerDealVerdict, customerOfferReason } from "@/lib/customerOfferCopy";
+import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
 import {
   COMPARE_OFFER_SNAPSHOTS_KEY,
   FAVORITE_OFFER_SNAPSHOTS_KEY,
@@ -80,6 +81,7 @@ function readTrip() {
     return null;
   }
 }
+
 
 export default function OfferCard({ offer, priceHighlight, sourceSurface }: { offer: Offer; priceHighlight?: PriceHighlight; sourceSurface?: string }) {
   const [liked, setLiked] = useState(false);
@@ -268,16 +270,19 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
 
   if (override.hidden || publishedOverride.hidden) return null;
 
-  const directAffiliate = !isExpired && hasExternalAffiliateUrl;
-  const cardHref = directAffiliate
-    ? offer.affiliateUrl
-    : isLiveOffer
-      ? "/okazje"
-      : `/oferta/${offer.id}`;
+  const liveDetailHref = isLiveOffer && hasExternalAffiliateUrl
+    ? liveOfferLandingHref(offerSnapshot, { price: displayPrice, note: customerReason })
+    : "";
+  // Karta zawsze otwiera najpierw Tripownię. Wyjście do partnera następuje dopiero
+  // z ekranu szczegółów, gdzie zachowujemy kontekst, planner i pomiar kliknięcia.
+  const directAffiliate = false;
+  const cardHref = isLiveOffer
+    ? (liveDetailHref || "/okazje")
+    : `/oferta/${offer.id}`;
   const buyHref = cardHref;
-  const detailHref = isLiveOffer ? cardHref : `/oferta/${offer.id}`;
+  const detailHref = cardHref;
   const nightsLabel = offer.nights === 1 ? "noc" : offer.nights % 10 >= 2 && offer.nights % 10 <= 4 && !(offer.nights % 100 >= 12 && offer.nights % 100 <= 14) ? "noce" : "nocy";
-  const ctaText = isExpired ? "Zobacz podobne oferty" : "Zobacz ofertę";
+  const ctaText = isExpired ? "Zobacz podobne oferty" : isLiveOffer ? "Zobacz szczegóły" : "Zobacz ofertę";
   const trustText = isExpired
     ? "Oferta wygasła"
     : checkedAt
@@ -301,32 +306,17 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
         window.location.assign(cardHref);
       }}
     >
-      {directAffiliate && isLiveOffer ? (
-        <a
-          href={cardHref}
-          rel="sponsored noreferrer"
-          onClick={() => trackOfferClick("image", true)}
-          className="offer-image"
-          aria-label={`Sprawdź ofertę ${offer.city}`}
-        >
-          <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
-          {isExpired && <span className="badge">WYGASŁA</span>}
-          {isFeatured && !isExpired && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
-        </a>
-      ) : (
-        <Link href={detailHref} onClick={() => trackOfferClick("image", false)} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city} w Tripowni`}>
-          <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
-          {isExpired && <span className="badge">WYGASŁA</span>}
-          {isFeatured && !isExpired && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
-        </Link>
-      )}
+      <Link href={detailHref} onClick={() => trackOfferClick("image", false)} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city} w Tripowni`}>
+        <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
+        {isExpired && <span className="badge">WYGASŁA</span>}
+        {isFeatured && !isExpired && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
+      </Link>
 
       <button className="heart" aria-label={liked ? "Usuń z ulubionych" : "Dodaj do ulubionych"} onClick={toggleLike}><Heart size={20} fill={liked ? "currentColor" : "none"} /></button>
 
       <div className="offer-body">
         <div className="offer-topline">
           <div><div className="eyebrow">{offer.flag} {offer.country}</div><h3>{offer.city}</h3></div>
-          <div className="score" title="Ocena oferty Tripowni, nie ocena hotelu"><strong>{offer.score}</strong><span>/10 · Tripownia</span></div>
         </div>
 
         {offer.hotel && <p className="offer-hotel-name">{offer.hotel}</p>}
@@ -359,12 +349,11 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
 
         <div className="why-now"><span>DLACZEGO WARTO</span><strong>{customerReason}</strong></div>
 
-        <a
+        <Link
           className="card-cta"
           href={buyHref}
-          rel={directAffiliate ? "sponsored noreferrer" : undefined}
-          onClick={() => trackOfferClick("card_cta")}
-        >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></a>
+          onClick={() => trackOfferClick("card_cta", false)}
+        >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></Link>
 
         {!isExpired && (
           <div className="offer-actions-row offer-actions-secondary">
