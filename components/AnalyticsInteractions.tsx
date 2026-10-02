@@ -77,6 +77,11 @@ export default function AnalyticsInteractions() {
             price: anchor.dataset.salesPrice ? Number(anchor.dataset.salesPrice) : undefined,
             sales_placement: anchor.dataset.salesPlacement || undefined,
           };
+          if (outboundParams.offer_id) {
+            const offerClickParams = { ...outboundParams, outbound: true };
+            trackEvent("offer_click", offerClickParams);
+            trackMetaCustomEvent("OfferClick", offerClickParams);
+          }
           trackEvent("outbound_partner_click", outboundParams);
           trackMetaCustomEvent("PartnerOutboundClick", outboundParams);
         }
