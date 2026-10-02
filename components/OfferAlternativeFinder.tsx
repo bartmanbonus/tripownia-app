@@ -15,6 +15,7 @@ type Props = {
   departure: string;
   airportCode?: string;
   dates: string;
+  startDateISO?: string;
   hotel?: string;
   currentOfferId?: number;
 };
@@ -29,6 +30,22 @@ function normalize(value: string) {
     .replace(/\p{Diacritic}/gu, "")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+}
+
+function boardCode(value: string) {
+  const normalized = normalize(value);
+  const map: Record<string, string> = {
+    "all inclusive": "allinclusive",
+    "ultra all inclusive": "ultraallinclusive",
+    "sniadanie": "breakfast",
+    "sniadania": "breakfast",
+    "half board": "halfboard",
+    "polpensja": "halfboard",
+    "full board": "fullboard",
+    "pelne wyzywienie": "fullboard",
+    "bez wyzywienia": "roomonly",
+  };
+  return map[normalized] || "";
 }
 
 function resolveAirportCode(code: string | undefined, departure: string) {
@@ -101,16 +118,21 @@ export default function OfferAlternativeFinder({
   departure,
   airportCode,
   dates,
+  startDateISO,
   hotel,
   currentOfferId = 0,
 }: Props) {
   const initialAirport = useMemo(() => resolveAirportCode(airportCode, departure), [airportCode, departure]);
-  const originalDepartureDate = useMemo(() => inferDepartureDate(dates), [dates]);
+  const initialBoard = useMemo(() => boardCode(board), [board]);
+  const originalDepartureDate = useMemo(
+    () => (/^20\d{2}-\d{2}-\d{2}$/.test(startDateISO || "") ? String(startDateISO) : inferDepartureDate(dates)),
+    [startDateISO, dates],
+  );
   const todayIso = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const resultsRef = useRef<HTMLDivElement>(null);
   const [changeMode, setChangeMode] = useState<ChangeMode>("date");
   const [selectedAirport, setSelectedAirport] = useState(initialAirport);
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(originalDepartureDate);
   const [flexDays, setFlexDays] = useState("7");
   const [results, setResults] = useState<Offer[]>([]);
   const [notice, setNotice] = useState("");
@@ -126,8 +148,21 @@ export default function OfferAlternativeFinder({
     setNotice("");
     setResults([]);
     setSearched(false);
-    if (mode === "date") setSelectedAirport(initialAirport);
-    if (mode === "airport") setSelectedDate("");
+
+    if (mode === "date") {
+      setSelectedAirport(initialAirport);
+      setSelectedDate(originalDepartureDate);
+      return;
+    }
+
+    if (mode === "airport") {
+      setSelectedAirport("");
+      setSelectedDate("");
+      return;
+    }
+
+    setSelectedAirport("");
+    setSelectedDate(originalDepartureDate);
   }
 
   async function runSearch(event?: FormEvent, forceAnyAirport = false, forceAnyDate = false) {
@@ -145,7 +180,7 @@ export default function OfferAlternativeFinder({
     const date = forceAnyDate ? "" : usesDate ? selectedDate : changeMode === "airport" ? originalDepartureDate : "";
     const flex = usesDate ? Math.max(0, Number(flexDays) || 0) : 0;
 
-    const buildParams = (query: string) => {
+    const buildParams = (query: string, keepBoard = true) => {
       const params = new URLSearchParams({
         mode: "search",
         q: query,
@@ -160,6 +195,7 @@ export default function OfferAlternativeFinder({
         params.set("end", addDaysIso(date, flex));
         params.set("dateKind", "departure");
       }
+      if (keepBoard && initialBoard) params.set("board", initialBoard);
       return params;
     };
 
@@ -175,27 +211,43 @@ export default function OfferAlternativeFinder({
     });
 
     try {
-      const search = async (query: string) => {
-        const response = await fetch(`/api/today-offers?${buildParams(query).toString()}`, {
+      const search = async (query: string, keepBoard = true) => {
+        const response = await fetch(`/api/today-offers?${buildParams(query, keepBoard).toString()}`, {
           cache: "no-store",
         });
         const data = await response.json();
         if (!response.ok || data?.ok === false) throw new Error(data?.error || "search_failed");
         const offers = (Array.isArray(data?.offers) ? data.offers : [])
           .filter((offer: Offer) => !currentOfferId || offer.id !== currentOfferId)
+          .filter((offer: Offer) => {
+            if (!usesAirport || selectedAirport || forceAnyAirport || !initialAirport) return true;
+            return resolveAirportCode(offer.airportCode, offer.departure) !== initialAirport;
+          })
           .sort((a: Offer, b: Offer) => Number(a.price || Infinity) - Number(b.price || Infinity));
-        return { data, offers };
+        return { data, offers, boardRelaxed: !keepBoard };
       };
 
       const hotelQuery = String(hotel || "").trim();
       const normalizedHotel = normalize(hotelQuery);
       const genericHotel = /^(hotel|resort|nocleg|obiekt)( w centrum)?( [1-5])?$/.test(normalizedHotel);
       const canSearchSameHotel = hotelQuery.length >= 4 && !genericHotel;
-      let result = canSearchSameHotel ? await search(hotelQuery) : { data: null, offers: [] as Offer[] };
+      let result = canSearchSameHotel
+        ? await search(hotelQuery, true)
+        : { data: null, offers: [] as Offer[], boardRelaxed: false };
       let sameHotel = result.offers.length > 0;
 
+      if (!result.offers.length && canSearchSameHotel && initialBoard) {
+        result = await search(hotelQuery, false);
+        sameHotel = result.offers.length > 0;
+      }
+
       if (!result.offers.length) {
-        result = await search(city);
+        result = await search(city, true);
+        sameHotel = false;
+      }
+
+      if (!result.offers.length && initialBoard) {
+        result = await search(city, false);
         sameHotel = false;
       }
 
@@ -207,6 +259,7 @@ export default function OfferAlternativeFinder({
               sameHotel
                 ? `Mamy ${found.length} wariantów tej samej wycieczki lub hotelu.`
                 : `Nie ma teraz dokładnie tego samego hotelu. Pokazujemy najlepsze opcje w ${city} dla wybranych ustawień.`,
+              result.boardRelaxed && initialBoard ? "Nie było wariantu z identycznym wyżywieniem, więc rozszerzyliśmy także ten parametr." : "",
               result.data?.partial ? "Część źródeł może być chwilowo niepełna." : "",
             ]
               .filter(Boolean)
@@ -264,10 +317,12 @@ export default function OfferAlternativeFinder({
           <label className={styles.field}>
             <span><Plane size={16} /> Skąd chcesz lecieć?</span>
             <select value={selectedAirport} onChange={(event) => setSelectedAirport(event.target.value)}>
-              <option value="">Wszystkie lotniska w Polsce</option>
-              {airportOptions.map((airport: any) => (
-                <option key={airport.code} value={airport.code}>{airport.label} ({airport.code})</option>
-              ))}
+              <option value="">{initialAirport ? "Dowolne inne lotnisko" : "Wszystkie lotniska w Polsce"}</option>
+              {airportOptions
+                .filter((airport: any) => !initialAirport || airport.code !== initialAirport)
+                .map((airport: any) => (
+                  <option key={airport.code} value={airport.code}>{airport.label} ({airport.code})</option>
+                ))}
             </select>
           </label>
         )}
