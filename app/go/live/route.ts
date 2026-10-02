@@ -79,7 +79,14 @@ function safeText(value: string | null, max = 160) {
 
 function safeClickId(value: string | null) {
   const normalized = safeText(value, 80);
-  return normalized && normalized.length >= 6 ? normalized : crypto.randomUUID();
+  return normalized && normalized.length >= 6 && /^[A-Za-z0-9_-]+$/.test(normalized)
+    ? normalized
+    : crypto.randomUUID();
+}
+
+function partnerClickRef(clickId: string) {
+  const normalized = clickId.replace(/-/g, "_").replace(/[^A-Za-z0-9_]/g, "_");
+  return `tripownia_${normalized}`.slice(0, 64);
 }
 
 function safeTarget(value: string | null) {
@@ -252,6 +259,56 @@ function affiliateTarget(partner: PartnerKey, target: URL) {
   return target;
 }
 
+function withPartnerClickAttribution(partner: PartnerKey, target: URL, clickId: string) {
+  const ref = partnerClickRef(clickId);
+  const host = target.hostname.toLowerCase();
+
+  try {
+    if (partner === "booking") {
+      const next = new URL(target.toString());
+      next.searchParams.set("label", ref);
+      return next;
+    }
+
+    if (["kiwi", "rentacar", "kiwitaxi", "gettransfer"].includes(partner)) {
+      const next = new URL(target.toString());
+      if (host === "c111.travelpayouts.com") {
+        const shmarker = next.searchParams.get("shmarker") || "";
+        const partnerId = shmarker.split(".")[0] || process.env.NEXT_PUBLIC_KIWI_SHMARKER || "740301";
+        next.searchParams.set("shmarker", `${partnerId}.TRIPOWNIAPL_${ref.replace(/^tripownia_/, "")}`);
+      } else if (host.endsWith(".tpk.lv")) {
+        next.searchParams.set("sub_id", `TRIPOWNIAPL_${ref.replace(/^tripownia_/, "")}`);
+      }
+      return next;
+    }
+
+    if (WRAPPER_PROGRAMS[partner]) {
+      const raw = target.toString();
+      // Product-feed trackers can use the legacy parenthesis syntax. Keep url(...)
+      // as the final segment and use EPI2 so we do not overwrite any publisher EPI.
+      if (/url\(.+\)$/.test(raw)) {
+        const urlIndex = raw.lastIndexOf("url(");
+        if (urlIndex > 0) {
+          const withoutOldEpi2 = raw.replace(/epi2\([^)]*\)/g, "");
+          const refreshedIndex = withoutOldEpi2.lastIndexOf("url(");
+          return new URL(`${withoutOldEpi2.slice(0, refreshedIndex)}epi2(${ref})${withoutOldEpi2.slice(refreshedIndex)}`);
+        }
+      }
+
+      const next = new URL(raw);
+      const destination = next.searchParams.get("url");
+      if (destination) next.searchParams.delete("url");
+      next.searchParams.set("epi2", ref);
+      if (destination) next.searchParams.set("url", destination);
+      return next;
+    }
+  } catch {
+    return target;
+  }
+
+  return target;
+}
+
 export async function GET(request: NextRequest) {
   const originalTarget = safeTarget(request.nextUrl.searchParams.get("target"));
   const partner = safePartner(request.nextUrl.searchParams.get("partner"));
@@ -260,7 +317,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/okazje", request.url), 307);
   }
 
-  const target = affiliateTarget(partner, originalTarget);
+  const clickId = safeClickId(request.nextUrl.searchParams.get("clickId"));
+  const baseTarget = affiliateTarget(partner, originalTarget);
+  const target = baseTarget ? withPartnerClickAttribution(partner, baseTarget, clickId) : null;
   if (!target || !safeTarget(target.toString()) || !belongsToPartner(partner, target)) {
     return NextResponse.redirect(new URL("/okazje", request.url), 307);
   }
@@ -270,7 +329,6 @@ export async function GET(request: NextRequest) {
   const destination = safeText(request.nextUrl.searchParams.get("destination"), 160);
   const price = safeText(request.nextUrl.searchParams.get("price"), 40);
   const page = safeText(request.nextUrl.searchParams.get("page"), 160);
-  const clickId = safeClickId(request.nextUrl.searchParams.get("clickId"));
   const utmSource = safeText(request.nextUrl.searchParams.get("utmSource"), 80);
   const utmMedium = safeText(request.nextUrl.searchParams.get("utmMedium"), 80);
   const utmCampaign = safeText(request.nextUrl.searchParams.get("utmCampaign"), 120);
