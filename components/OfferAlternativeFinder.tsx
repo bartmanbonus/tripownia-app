@@ -53,6 +53,41 @@ function addDaysIso(value: string, days: number) {
   return date.toISOString().slice(0, 10);
 }
 
+const POLISH_MONTHS: Record<string, number> = {
+  stycznia: 1, lutego: 2, marca: 3, kwietnia: 4, maja: 5, czerwca: 6,
+  lipca: 7, sierpnia: 8, wrzesnia: 9, pazdziernika: 10, listopada: 11, grudnia: 12,
+};
+
+function inferDepartureDate(value: string) {
+  const raw = normalize(value).replace(/–|—/g, "-");
+
+  const iso = value.match(/20\d{2}-\d{2}-\d{2}/);
+  if (iso?.[0]) return iso[0];
+
+  const dotted = value.match(/\b(\d{1,2})[.\/-](\d{1,2})[.\/-](20\d{2})\b/);
+  if (dotted) {
+    return `${dotted[3]}-${String(Number(dotted[2])).padStart(2, "0")}-${String(Number(dotted[1])).padStart(2, "0")}`;
+  }
+
+  const polishRange = raw.match(/\b(\d{1,2})\s*-\s*\d{1,2}\s+([a-z]+)\s+(20\d{2})\b/);
+  if (polishRange) {
+    const month = POLISH_MONTHS[polishRange[2]];
+    if (month) {
+      return `${polishRange[3]}-${String(month).padStart(2, "0")}-${String(Number(polishRange[1])).padStart(2, "0")}`;
+    }
+  }
+
+  const polishSingle = raw.match(/\b(\d{1,2})\s+([a-z]+)\s+(20\d{2})\b/);
+  if (polishSingle) {
+    const month = POLISH_MONTHS[polishSingle[2]];
+    if (month) {
+      return `${polishSingle[3]}-${String(month).padStart(2, "0")}-${String(Number(polishSingle[1])).padStart(2, "0")}`;
+    }
+  }
+
+  return "";
+}
+
 export default function OfferAlternativeFinder({
   city,
   country,
@@ -65,6 +100,7 @@ export default function OfferAlternativeFinder({
   currentOfferId = 0,
 }: Props) {
   const initialAirport = useMemo(() => resolveAirportCode(airportCode, departure), [airportCode, departure]);
+  const originalDepartureDate = useMemo(() => inferDepartureDate(dates), [dates]);
   const todayIso = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const resultsRef = useRef<HTMLDivElement>(null);
   const [changeMode, setChangeMode] = useState<ChangeMode>("date");
@@ -101,8 +137,8 @@ export default function OfferAlternativeFinder({
     setNotice("");
 
     const airport = forceAnyAirport ? "" : usesAirport ? selectedAirport : initialAirport;
-    const date = forceAnyDate ? "" : usesDate ? selectedDate : "";
-    const flex = Math.max(0, Number(flexDays) || 0);
+    const date = forceAnyDate ? "" : usesDate ? selectedDate : changeMode === "airport" ? originalDepartureDate : "";
+    const flex = usesDate ? Math.max(0, Number(flexDays) || 0) : 0;
 
     const buildParams = (query: string) => {
       const params = new URLSearchParams({
@@ -210,7 +246,7 @@ export default function OfferAlternativeFinder({
         </button>
         <button type="button" className={changeMode === "airport" ? styles.modeActive : ""} aria-pressed={changeMode === "airport"} onClick={() => chooseMode("airport")}>
           <Plane size={18} />
-          <span><strong>Inne lotnisko</strong><small>Zostaw dowolny termin</small></span>
+          <span><strong>Inne lotnisko</strong><small>{originalDepartureDate ? "Zostaw ten sam termin" : "Szukaj dostępnych terminów"}</small></span>
         </button>
         <button type="button" className={changeMode === "both" ? styles.modeActive : ""} aria-pressed={changeMode === "both"} onClick={() => chooseMode("both")}>
           <Search size={18} />
@@ -272,6 +308,7 @@ export default function OfferAlternativeFinder({
         <span>Kierunek: <strong>{city}</strong></span>
         {usesAirport && <span>Wylot: <strong>{airportLabel}</strong></span>}
         {usesDate && selectedDate && <span>Termin: <strong>{selectedDate}</strong></span>}
+        {changeMode === "airport" && originalDepartureDate && <span>Termin: <strong>{originalDepartureDate}</strong></span>}
       </div>
 
       <div ref={resultsRef} className={styles.resultAnchor} aria-live="polite">
