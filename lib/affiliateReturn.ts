@@ -11,6 +11,7 @@ export type AffiliateReturnContext = {
   source?: string;
   offerId?: string;
   price?: string;
+  returnPath?: string;
 };
 
 export const AFFILIATE_RETURN_STORAGE_KEY = "tripownia-affiliate-return-v1";
@@ -47,6 +48,7 @@ export function saveAffiliateReturnContext(input: {
       offerId: input.offerId == null ? "" : String(input.offerId),
       price: input.price == null ? "" : String(input.price),
       slug: input.slug || "",
+      returnPath: `${window.location.pathname}${window.location.search}`,
     };
     localStorage.setItem(AFFILIATE_RETURN_STORAGE_KEY, JSON.stringify(payload));
   } catch {
