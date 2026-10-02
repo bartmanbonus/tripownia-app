@@ -3,17 +3,16 @@
 import { FormEvent, useEffect, useMemo, useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
+  ArrowLeft,
   ArrowRight,
   BedDouble,
   CalendarDays,
   Car,
   CheckCircle2,
-  ListChecks,
   MapPinned,
   NotebookPen,
   Plane,
   Route,
-  ShieldCheck,
   Smartphone,
   ParkingCircle,
   Sparkles,
@@ -29,6 +28,7 @@ import { offers, type Offer } from "@/lib/offers";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { partners } from "@/lib/partners";
+import styles from "@/components/AddTripPage.module.css";
 
 type PieceKey = "flight" | "hotel" | "transfer" | "attractions" | "esim" | "parking";
 type PieceState = Record<PieceKey, boolean>;
@@ -192,7 +192,7 @@ function PieceToggle({
   return (
     <button type="button" aria-pressed={checked} className={`trip-piece-toggle${checked ? " active" : ""}`} onClick={onClick}>
       {icon}
-      <span><strong>{title}</strong><small>{checked ? "Mam już — pomiń propozycje" : "Nie mam — pokaż propozycje"}</small></span>
+      <span><strong>{title}</strong><small>{checked ? "Mam" : "Brakuje"}</small></span>
       {checked ? <CheckCircle2 size={19}/> : <span className="trip-piece-dot"/>}
     </button>
   );
@@ -224,6 +224,7 @@ export default function AddTripPage() {
   const [ownedMode, setOwnedMode] = useState(false);
   const [session, setSession] = useState<AccountSession | null>(null);
   const [editingTrip, setEditingTrip] = useState<EditableTrip | null>(null);
+  const [step, setStep] = useState<1 | 2>(1);
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
   const suggestions = useMemo(
@@ -249,11 +250,14 @@ export default function AddTripPage() {
     const editActive = params.get("edit") === "active";
     setOwnedMode(owned);
 
-    if (params.get("source") === "affiliate") {
+    const source = params.get("source");
+    if (source === "affiliate" || source === "external") {
       const affiliateCity = (params.get("city") || "").trim();
       const affiliateCountry = (params.get("country") || "").trim();
       const affiliateKind = (params.get("kind") || "package").trim();
       const affiliatePartner = (params.get("partner") || "").trim();
+      const sourceStart = (params.get("start") || "").trim();
+      const sourceEnd = (params.get("end") || "").trim();
 
       setDestinationMode("known");
       setSkipDestinationChoice(false);
@@ -261,6 +265,8 @@ export default function AddTripPage() {
       setCountry(affiliateCountry);
       setOwnedMode(true);
       setDateMode("range");
+      if (sourceStart) setStartDate(sourceStart);
+      if (sourceEnd) setEndDate(sourceEnd);
       setPieces({
         flight: affiliateKind === "flight" || affiliateKind === "package",
         hotel: affiliateKind === "hotel" || affiliateKind === "package",
@@ -275,7 +281,7 @@ export default function AddTripPage() {
           hotel: affiliateKind === "hotel" || affiliateKind === "package" ? affiliatePartner : undefined,
         });
       }
-      setNotes("Rezerwacja rozpoczęta przez Tripownię");
+      if (source === "affiliate") setNotes("Rezerwacja rozpoczęta przez Tripownię");
     }
 
     if (editActive) {
@@ -465,6 +471,43 @@ export default function AddTripPage() {
     });
   }
 
+  function moveToStep(next: 1 | 2) {
+    setStep(next);
+    setError("");
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        document.getElementById("trip-form-start")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  }
+
+  function continueToPieces() {
+    setError("");
+
+    if (destinationMode === "known" && !city.trim() && !country.trim()) {
+      setError("Wpisz kierunek albo wybierz „Gdziekolwiek”.");
+      return;
+    }
+
+    if (!ownedMode && dateMode === "range" && (!startDate || !endDate)) {
+      setError("Wybierz daty albo termin elastyczny.");
+      return;
+    }
+
+    if (!ownedMode && dateMode === "month" && !travelMonth) {
+      setError("Wybierz miesiąc albo termin elastyczny.");
+      return;
+    }
+
+    if (startDate && endDate && new Date(endDate).getTime() < new Date(startDate).getTime()) {
+      setError("Powrót nie może być przed wyjazdem.");
+      return;
+    }
+
+    trackEvent("planner_step_1_complete", { destination_mode: destinationMode, date_mode: dateMode, owned_mode: ownedMode });
+    moveToStep(2);
+  }
+
   async function submit(event: FormEvent) {
     event.preventDefault();
     setError("");
@@ -476,12 +519,12 @@ export default function AddTripPage() {
       return;
     }
 
-    if (dateMode === "range" && (!startDate || !endDate)) {
+    if (!ownedMode && dateMode === "range" && (!startDate || !endDate)) {
       setError("Wybierz zakres dat albo przełącz termin na elastyczny.");
       return;
     }
 
-    if (dateMode === "month" && !travelMonth) {
+    if (!ownedMode && dateMode === "month" && !travelMonth) {
       setError("Wybierz miesiąc albo przełącz termin na elastyczny.");
       return;
     }
@@ -570,130 +613,208 @@ export default function AddTripPage() {
   return (
     <main>
       <SiteHeader />
-      <section className="shell add-trip-page">
+      <section className={"shell add-trip-page " + styles.page} id="trip-form-start">
+        <div className={styles.topline}>
+          <div className={styles.progress} aria-label={"Krok " + step + " z 2"}>
+            <span className={step === 1 ? styles.progressActive : styles.progressDone}><b>1</b> Podstawy</span>
+            <span className={styles.progressLine} />
+            <span className={step === 2 ? styles.progressActive : styles.progressIdle}><b>2</b> Co już masz</span>
+          </div>
+          <span className={styles.freeBadge}>Plan 0 zł</span>
+        </div>
+
         {authReady && !signedIn && (
-          <div className="account-message" role="status">
-            <strong>Plan możesz ułożyć bez konta.</strong> Zostanie na tym urządzeniu. Konto jest opcjonalne — przydaje się, jeśli chcesz wracać do planów, checklist i preferencji na innych urządzeniach.{" "}
-            <Link href="/konto?next=/dodaj-podroz">Utwórz konto / zaloguj się →</Link>
+          <div className={styles.accountNote} role="status">
+            <span>Bez konta też działa.</span>
+            <Link href="/konto?next=/dodaj-podroz">Zaloguj, żeby synchronizować</Link>
           </div>
         )}
 
-        <header className="add-trip-hero">
-          <div className="add-trip-icon"><Route size={28}/></div>
+        <header className={"add-trip-hero " + styles.hero}>
+          <div className="add-trip-icon"><Route size={24}/></div>
           <div>
-            <div className="kicker">{editingTrip ? "EDYTUJ PODRÓŻ" : ownedMode ? "MASZ JUŻ WYJAZD" : "TWÓJ PLAN — 0 ZŁ"}</div>
-            <h1>{editingTrip ? "Uzupełnij swój plan bez zaczynania od zera." : ownedMode ? "Dodaj to, co już masz. Resztę ułożymy wokół Twojej podróży." : "My układamy. Ty tylko wybierasz."}</h1>
-            <p>{ownedMode ? "Nie szukamy Ci nowego wyjazdu. Wpisz kierunek, termin i elementy, które masz już kupione — lot, hotel lub oba. Tripownia zbuduje planer, checklistę i podpowie tylko brakujące rzeczy." : "Tak jak w płatnych planach podróży — tylko u nas za darmo. Podajesz kierunek i termin, zaznaczasz co już masz, a Tripownia pokazuje brakujące elementy i gotowe miejsca, gdzie możesz je dobrać."}</p>
+            <div className="kicker">{editingTrip ? "EDYCJA PLANU" : ownedMode ? "DODAJ SWÓJ WYJAZD" : "PLAN PODRÓŻY"}</div>
+            <h1>{editingTrip ? "Uzupełnij podróż" : ownedMode ? (city ? "Dodaj " + city + " do planu" : "Dodaj swój wyjazd") : "Ułóżmy Twój wyjazd"}</h1>
+            <p>{editingTrip ? "Zmień tylko to, czego potrzebujesz." : ownedMode ? "Kilka danych i gotowe. Brakujące elementy pokażemy później." : "Wybierz kierunek i termin. Resztę ogarniemy krok po kroku."}</p>
           </div>
         </header>
 
-        <div className="add-trip-promise">
-          <div><Sparkles size={18}/><span><strong>Gotowe podpowiedzi</strong><small>nie musisz szukać każdej rzeczy osobno</small></span></div>
-          <div><ListChecks size={18}/><span><strong>Pomijamy to, co już masz</strong><small>nie pytamy drugi raz o to, co już masz</small></span></div>
-          <div><Ticket size={18}/><span><strong>Cały wyjazd w jednym planie</strong><small>lot, nocleg, transfer, atrakcje i przygotowanie</small></span></div>
-          <div><ShieldCheck size={18}/><span><strong>0 zł za planer</strong><small>plan możesz ułożyć bez opłat i bez obowiązkowego konta</small></span></div>
+        <div className={styles.trustLine}>
+          <span>bez opłat</span>
+          <span>bez obowiązkowego konta</span>
+          <span>możesz dokończyć później</span>
         </div>
 
-        <form className="add-trip-form" onSubmit={submit}>
-          <section className="add-trip-section">
-            <div className="add-trip-section-title"><MapPinned size={20}/><div><strong>1. Zacznij od tego, co chcesz podać</strong><span>{ownedMode ? "Wpisz tylko informacje, które już masz. Pozostałe elementy możesz pominąć." : "Nie musisz znać kierunku ani dokładnych dat. Każdy element tego kroku jest opcjonalny."}</span></div></div>
-
-            <div className="planner-mode-row">
-              <button type="button" className={destinationMode === "open" ? "active" : ""} onClick={() => { setDestinationMode("open"); setSkipDestinationChoice(false); }}>🌍 Gdziekolwiek</button>
-              <button type="button" className={destinationMode === "known" ? "active" : ""} onClick={() => { setDestinationMode("known"); setSkipDestinationChoice(false); }}>📍 Wiem dokąd chcę</button>
-            </div>
-            {destinationMode === "known" && <div className="add-trip-grid two">
-              <label><span>Miasto / region</span><input value={city} onChange={(event) => setCity(event.target.value)} placeholder="np. Hanoi, Kreta, Mediolan" autoComplete="address-level2" /></label>
-              <label><span>Kraj — opcjonalnie</span><input value={country} onChange={(event) => setCountry(event.target.value)} placeholder="np. Wietnam" autoComplete="country-name" /></label>
-            </div>}
-            {!ownedMode && destinationMode === "open" && !skipDestinationChoice && (
-              <div className="trip-open-suggestions">
-                <div className="planner-subtitle"><Sparkles size={17}/><strong>Nie masz kierunku? To my zaczynamy.</strong></div>
-                <p className="planner-helper">Wybierz jedną z konkretnych propozycji poniżej. Dopiero wtedy pokażemy lot, nocleg, transfer i atrakcje dopasowane do miejsca.</p>
-                <div className="trip-plan-option-grid">
-                  {openOfferSuggestions.map((offer) => (
-                    <article className="trip-plan-option" key={`open-${offer.id}`}>
-                      <MapPinned size={22}/>
-                      <div>
-                        <TravelImage className="trip-plan-option-image" city={offer.city} country={offer.country} overrideSrc={offer.image} alt={`${offer.city}, ${offer.country}`} />
-                        <small>{offer.flag} {offer.country}</small>
-                        <h3>{offer.city}</h3>
-                        <p>{offer.hotel} · {offer.dates} · od {offer.price.toLocaleString("pl-PL")} zł/os.</p>
-                      </div>
-                      <div className="trip-plan-option-actions">
-                        <button type="button" onClick={() => chooseOpenOffer(offer)}>Wybieram ten kierunek</button>
-                        <Link href={`/oferta/${offer.id}`}>Zobacz ofertę w Tripowni <ArrowRight size={14}/></Link>
-                      </div>
-                    </article>
-                  ))}
+        <form className={"add-trip-form " + styles.form} onSubmit={submit}>
+          {step === 1 && (
+            <section className={"add-trip-section " + styles.stepCard}>
+              <div className={styles.sectionHead}>
+                <span className={styles.stepNumber}>1</span>
+                <div>
+                  <strong>Podstawy</strong>
+                  <span>{ownedMode ? "Sprawdź kierunek i dodaj termin, jeśli go znasz." : "Gdzie i kiedy?"}</span>
                 </div>
-                <button type="button" className="secondary-cta" onClick={() => setSkipDestinationChoice(true)}>
-                  Pomiń kierunek i przejdź dalej
-                </button>
               </div>
-            )}
-            {!ownedMode && destinationMode === "open" && skipDestinationChoice && (
-              <div className="trip-plan-waiting">
-                Kierunek pominięty. Możesz zbudować pusty plan i uzupełnić miejsce później.
-                <button type="button" className="text-link-button" onClick={() => setSkipDestinationChoice(false)}>Pokaż propozycje kierunków</button>
+
+              {ownedMode && (city || country) ? (
+                <>
+                  <div className={styles.prefilled}>
+                    <MapPinned size={20}/>
+                    <div>
+                      <small>Kierunek</small>
+                      <strong>{[city, country].filter(Boolean).join(", ")}</strong>
+                    </div>
+                  </div>
+                  <details className={styles.editDetails}>
+                    <summary>Zmień kierunek</summary>
+                    <div className={"add-trip-grid two " + styles.editGrid}>
+                      <label><span>Miasto / region</span><input value={city} onChange={(event) => setCity(event.target.value)} placeholder="np. Durrës" autoComplete="address-level2" /></label>
+                      <label><span>Kraj</span><input value={country} onChange={(event) => setCountry(event.target.value)} placeholder="np. Albania" autoComplete="country-name" /></label>
+                    </div>
+                  </details>
+                </>
+              ) : (
+                <div className={styles.fieldBlock}>
+                  <div className={styles.blockHeader}><strong>Kierunek</strong>{ownedMode && <small>podaj miejsce</small>}</div>
+                  {!ownedMode && (
+                    <div className={"planner-mode-row " + styles.modeRow}>
+                      <button type="button" className={destinationMode === "open" ? "active" : ""} onClick={() => { setDestinationMode("open"); setSkipDestinationChoice(false); }}>🌍 Gdziekolwiek</button>
+                      <button type="button" className={destinationMode === "known" ? "active" : ""} onClick={() => { setDestinationMode("known"); setSkipDestinationChoice(false); }}>📍 Mam kierunek</button>
+                    </div>
+                  )}
+
+                  {destinationMode === "known" && (
+                    <div className="add-trip-grid two">
+                      <label><span>Miasto / region</span><input value={city} onChange={(event) => setCity(event.target.value)} placeholder="np. Hanoi, Kreta, Mediolan" autoComplete="address-level2" /></label>
+                      <label><span>Kraj</span><input value={country} onChange={(event) => setCountry(event.target.value)} placeholder="opcjonalnie" autoComplete="country-name" /></label>
+                    </div>
+                  )}
+
+                  {!ownedMode && destinationMode === "open" && !skipDestinationChoice && (
+                    <div className={styles.quickSuggestions}>
+                      <div className={styles.destinationChips}>
+                        {openOfferSuggestions.slice(0, 4).map((offer) => (
+                          <button type="button" key={"open-" + offer.id} onClick={() => chooseOpenOffer(offer)}>
+                            <TravelImage city={offer.city} country={offer.country} overrideSrc={offer.image} alt={offer.city + ", " + offer.country} />
+                            <span><strong>{offer.city}</strong><small>od {offer.price.toLocaleString("pl-PL")} zł/os.</small></span>
+                          </button>
+                        ))}
+                      </div>
+                      <button type="button" className={styles.textAction} onClick={() => setSkipDestinationChoice(true)}>Wybiorę kierunek później</button>
+                    </div>
+                  )}
+
+                  {!ownedMode && destinationMode === "open" && skipDestinationChoice && (
+                    <div className={styles.skippedLine}>
+                      <span>Kierunek wybierzesz później.</span>
+                      <button type="button" onClick={() => setSkipDestinationChoice(false)}>Pokaż propozycje</button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className={styles.fieldBlock}>
+                <div className={styles.blockHeader}><strong>Termin</strong>{ownedMode && <small>opcjonalnie</small>}</div>
+                {!ownedMode && (
+                  <div className={"planner-mode-row " + styles.modeRow}>
+                    <button type="button" className={dateMode === "flexible" ? "active" : ""} onClick={() => setDateMode("flexible")}>Elastycznie</button>
+                    <button type="button" className={dateMode === "month" ? "active" : ""} onClick={() => setDateMode("month")}>Miesiąc</button>
+                    <button type="button" className={dateMode === "range" ? "active" : ""} onClick={() => setDateMode("range")}>Dokładne daty</button>
+                  </div>
+                )}
+
+                {dateMode === "month" && !ownedMode && (
+                  <div className="add-trip-grid two">
+                    <label><span>Miesiąc</span><input type="month" value={travelMonth} onChange={(event) => setTravelMonth(event.target.value)} /></label>
+                  </div>
+                )}
+
+                {dateMode === "range" && (
+                  <div className="add-trip-grid two">
+                    <label><span>{ownedMode ? "Wyjazd" : "Od"}</span><input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label>
+                    <label><span>{ownedMode ? "Powrót" : "Do"}</span><input type="date" min={startDate || undefined} value={endDate} onChange={(event) => setEndDate(event.target.value)} /></label>
+                  </div>
+                )}
+
+                {!ownedMode && dateMode !== "range" && (
+                  <div className={"add-trip-grid two planner-flex-options " + styles.flexOptions}>
+                    <label><span>Na ile?</span><select value={flexNights} onChange={(event) => setFlexNights(event.target.value)}><option value="1-3">1–3 noce</option><option value="3-7">3–7 nocy</option><option value="5-10">5–10 nocy</option><option value="7-14">7–14 nocy</option><option value="14+">14+ nocy</option></select></label>
+                    <label className="planner-weekend-check"><input type="checkbox" checked={weekendRequired} onChange={(event) => setWeekendRequired(event.target.checked)} /><span>Z weekendem</span></label>
+                  </div>
+                )}
               </div>
-            )}
 
-            <div className="planner-subtitle"><CalendarDays size={17}/><strong>Kiedy?</strong></div>
-            <div className="planner-mode-row">
-              <button type="button" className={dateMode === "flexible" ? "active" : ""} onClick={() => setDateMode("flexible")}>Elastycznie</button>
-              <button type="button" className={dateMode === "month" ? "active" : ""} onClick={() => setDateMode("month")}>Cały miesiąc</button>
-              <button type="button" className={dateMode === "range" ? "active" : ""} onClick={() => setDateMode("range")}>Od–do</button>
-            </div>
-            {dateMode === "month" && <div className="add-trip-grid two"><label><span>Miesiąc</span><input type="month" value={travelMonth} onChange={(event) => setTravelMonth(event.target.value)} /></label></div>}
-            {dateMode === "range" && <div className="add-trip-grid two">
-              <label><span>{ownedMode ? "Data wyjazdu" : "Najwcześniej"}</span><input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} /></label>
-              <label><span>{ownedMode ? "Data powrotu" : "Najpóźniej"}</span><input type="date" min={startDate || undefined} value={endDate} onChange={(event) => setEndDate(event.target.value)} /></label>
-            </div>}
-            {!ownedMode && <div className="add-trip-grid two planner-flex-options">
-              <label><span>Na ile?</span><select value={flexNights} onChange={(event) => setFlexNights(event.target.value)}><option value="1-3">1–3 noce</option><option value="3-7">3–7 nocy</option><option value="5-10">5–10 nocy</option><option value="7-14">7–14 nocy</option><option value="14+">14+ nocy</option></select></label>
-              <label className="planner-weekend-check"><input type="checkbox" checked={weekendRequired} onChange={(event) => setWeekendRequired(event.target.checked)} /><span>Pobyt ma zawierać weekend</span></label>
-            </div>}
-
-            <div className="planner-subtitle"><Plane size={17}/><strong>Skąd ruszasz?</strong></div>
-            <div className="planner-mode-row">
-              <button type="button" className={departureMode === "any" ? "active" : ""} onClick={() => setDepartureMode("any")}>🇵🇱 Obojętnie skąd w Polsce</button>
-              <button type="button" className={departureMode === "selected" ? "active" : ""} onClick={() => setDepartureMode("selected")}>Wybiorę lotniska</button>
-            </div>
-            {departureMode === "selected" && <div className="planner-airports">
-              {["Warszawa","Kraków","Katowice","Gdańsk","Wrocław","Poznań"].map((airport) => <button type="button" key={airport} className={departureOptions.includes(airport) ? "active" : ""} onClick={() => setDepartureOptions((current) => current.includes(airport) ? current.filter((x) => x !== airport) : [...current, airport])}>{airport}</button>)}
-            </div>}
-          </section>
-          <section className="add-trip-section">
-            <div className="add-trip-section-title"><CheckCircle2 size={20}/><div><strong>2. Co już masz? <em>(opcjonalnie)</em></strong><span>Masz lot, hotel albo transfer? Zaznacz. Nie masz nic — pomiń cały krok.</span></div></div>
-            <div className="trip-piece-grid">
-              <PieceToggle icon={<Plane size={20}/>} title="Lot / transport do celu" checked={pieces.flight} onClick={() => togglePiece("flight")} />
-              <PieceToggle icon={<BedDouble size={20}/>} title="Hotel / nocleg" checked={pieces.hotel} onClick={() => togglePiece("hotel")} />
-              <PieceToggle icon={<Car size={20}/>} title="Transfer z lotniska" checked={pieces.transfer} onClick={() => togglePiece("transfer")} />
-              <PieceToggle icon={<Ticket size={20}/>} title="Atrakcje / bilety" checked={pieces.attractions} onClick={() => togglePiece("attractions")} />
-              <PieceToggle icon={<Smartphone size={20}/>} title="Internet / eSIM" checked={pieces.esim} onClick={() => togglePiece("esim")} />
-              <PieceToggle icon={<ParkingCircle size={20}/>} title="Parking przy lotnisku" checked={pieces.parking} onClick={() => togglePiece("parking")} />
-            </div>
-
-            {(pieces.flight || pieces.hotel) && (
-              <div className="add-trip-grid two trip-owned-details">
-                {pieces.flight && <label><span>Numer lotu / szczegóły</span><input value={flight} onChange={(event) => setFlight(event.target.value)} placeholder="np. QR 260 — opcjonalnie" /></label>}
-                {pieces.hotel && <label><span>Hotel / adres</span><input value={hotel} onChange={(event) => setHotel(event.target.value)} placeholder="np. nazwa hotelu — opcjonalnie" /></label>}
-                {pieces.flight && <label><span>Godzina startu</span><input type="datetime-local" value={departureAt} onChange={(event) => setDepartureAt(event.target.value)} /></label>}
+              <div className={styles.fieldBlock}>
+                <div className={styles.blockHeader}><strong>Skąd ruszasz?</strong><small>opcjonalnie</small></div>
+                <div className={"planner-mode-row " + styles.modeRow}>
+                  <button type="button" className={departureMode === "any" ? "active" : ""} onClick={() => setDepartureMode("any")}>Dowolne lotnisko</button>
+                  <button type="button" className={departureMode === "selected" ? "active" : ""} onClick={() => setDepartureMode("selected")}>Wybierz lotniska</button>
+                </div>
+                {departureMode === "selected" && (
+                  <div className={"planner-airports " + styles.airports}>
+                    {["Warszawa","Kraków","Katowice","Gdańsk","Wrocław","Poznań"].map((airport) => (
+                      <button type="button" key={airport} className={departureOptions.includes(airport) ? "active" : ""} onClick={() => setDepartureOptions((current) => current.includes(airport) ? current.filter((x) => x !== airport) : [...current, airport])}>{airport}</button>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </section>
 
-          <section className="add-trip-section">
-            <div className="add-trip-section-title"><NotebookPen size={20}/><div><strong>3. Co jeszcze zapamiętać? <em>(opcjonalnie)</em></strong><span>Nie musisz nic wpisywać. Notatkę możesz dodać teraz albo później w swoim planie.</span></div></div>
-            <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="np. późny przylot, dziecko w podróży, chcemy dużo zwiedzać..." rows={4} />
-          </section>
+              {error && <div className="add-trip-error" role="alert">{error}</div>}
 
-          {error && <div className="add-trip-error" role="alert">{error}</div>}
-          <div className="add-trip-actions">
-            <button type="submit" className="primary-cta">{editingTrip ? "Zapisz zmiany w planie" : "Utwórz darmowy plan"} <ArrowRight size={17}/></button>
-            <Link href="/#wyszukiwarka">Najpierw chcę znaleźć cały wyjazd</Link>
-          </div>
+              <div className={styles.stepActions}>
+                <button type="button" className={"primary-cta " + styles.primaryButton} onClick={continueToPieces}>Dalej <ArrowRight size={17}/></button>
+                {!ownedMode && <Link href="/#wyszukiwarka" className={styles.secondaryLink}>Najpierw chcę znaleźć wyjazd</Link>}
+              </div>
+            </section>
+          )}
+
+          {step === 2 && (
+            <section className={"add-trip-section " + styles.stepCard}>
+              <div className={styles.sectionHead}>
+                <span className={styles.stepNumber}>2</span>
+                <div>
+                  <strong>Co już masz?</strong>
+                  <span>Kliknij elementy, które są już załatwione.</span>
+                </div>
+              </div>
+
+              {ownedMode && pieces.flight && pieces.hotel && (
+                <div className={styles.detectedBadge}><CheckCircle2 size={16}/> Pakiet: lot + hotel zaznaczone</div>
+              )}
+
+              <div className="trip-piece-grid">
+                <PieceToggle icon={<Plane size={20}/>} title="Lot / transport" checked={pieces.flight} onClick={() => togglePiece("flight")} />
+                <PieceToggle icon={<BedDouble size={20}/>} title="Nocleg" checked={pieces.hotel} onClick={() => togglePiece("hotel")} />
+                <PieceToggle icon={<Car size={20}/>} title="Transfer" checked={pieces.transfer} onClick={() => togglePiece("transfer")} />
+                <PieceToggle icon={<Ticket size={20}/>} title="Atrakcje" checked={pieces.attractions} onClick={() => togglePiece("attractions")} />
+                <PieceToggle icon={<Smartphone size={20}/>} title="Internet / eSIM" checked={pieces.esim} onClick={() => togglePiece("esim")} />
+                <PieceToggle icon={<ParkingCircle size={20}/>} title="Parking" checked={pieces.parking} onClick={() => togglePiece("parking")} />
+              </div>
+
+              {(pieces.flight || pieces.hotel) && (
+                <details className={styles.detailsPanel}>
+                  <summary>Dodaj szczegóły rezerwacji <span>opcjonalnie</span></summary>
+                  <div className={"add-trip-grid two trip-owned-details " + styles.detailsGrid}>
+                    {pieces.flight && <label><span>Numer lotu / szczegóły</span><input value={flight} onChange={(event) => setFlight(event.target.value)} placeholder="np. FR 1234" /></label>}
+                    {pieces.hotel && <label><span>Hotel / adres</span><input value={hotel} onChange={(event) => setHotel(event.target.value)} placeholder="np. nazwa hotelu" /></label>}
+                    {pieces.flight && <label><span>Godzina startu</span><input type="datetime-local" value={departureAt} onChange={(event) => setDepartureAt(event.target.value)} /></label>}
+                  </div>
+                </details>
+              )}
+
+              <details className={styles.detailsPanel}>
+                <summary>Dodaj notatkę <span>opcjonalnie</span></summary>
+                <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="np. późny przylot, podróż z dzieckiem..." rows={3} />
+              </details>
+
+              {error && <div className="add-trip-error" role="alert">{error}</div>}
+
+              <div className={styles.finalActions}>
+                <button type="button" className={styles.backButton} onClick={() => moveToStep(1)}><ArrowLeft size={17}/> Wstecz</button>
+                <button type="submit" className={"primary-cta " + styles.primaryButton}>{editingTrip ? "Zapisz plan" : "Utwórz plan"} <ArrowRight size={17}/></button>
+              </div>
+            </section>
+          )}
         </form>
       </section>
       <SiteFooter />
