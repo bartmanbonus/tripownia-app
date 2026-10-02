@@ -96,6 +96,25 @@ const FERIE_DESTINATIONS = [
   },
 ] as const;
 
+const VOIVODESHIPS = [
+  ["dolnośląskie", "turn-1"],
+  ["kujawsko-pomorskie", "turn-3"],
+  ["lubelskie", "turn-2"],
+  ["lubuskie", "turn-3"],
+  ["łódzkie", "turn-1"],
+  ["małopolskie", "turn-3"],
+  ["mazowieckie", "turn-2"],
+  ["opolskie", "turn-1"],
+  ["podkarpackie", "turn-1"],
+  ["podlaskie", "turn-1"],
+  ["pomorskie", "turn-2"],
+  ["śląskie", "turn-1"],
+  ["świętokrzyskie", "turn-2"],
+  ["warmińsko-mazurskie", "turn-3"],
+  ["wielkopolskie", "turn-3"],
+  ["zachodniopomorskie", "turn-3"],
+] as const;
+
 const FERIE_TURNS: FerieTurn[] = [
   {
     id: "turn-1",
@@ -233,6 +252,7 @@ function CompactOfferCard({
 
 export default function FerieOffers2027() {
   const [selectedId, setSelectedId] = useState("all");
+  const [selectedVoivodeship, setSelectedVoivodeship] = useState("");
   const [presetPayload, setPresetPayload] = useState<FeriePresetPayload | null>(null);
   const [presetStatus, setPresetStatus] = useState<"loading" | "ready" | "error">("loading");
   const [offers, setOffers] = useState<LiveOffer[]>([]);
@@ -329,6 +349,27 @@ export default function FerieOffers2027() {
         </div>
       </div>
 
+      <div className="ferie-region-picker">
+        <div>
+          <span>Nie wiesz, która to tura?</span>
+          <strong>Wybierz województwo</strong>
+        </div>
+        <select
+          value={selectedVoivodeship}
+          onChange={(event) => {
+            const value = event.target.value;
+            setSelectedVoivodeship(value);
+            const match = VOIVODESHIPS.find(([name]) => name === value);
+            if (match) setSelectedId(match[1]);
+            else setSelectedId("all");
+          }}
+          aria-label="Wybierz województwo"
+        >
+          <option value="">Wszystkie województwa</option>
+          {VOIVODESHIPS.map(([name]) => <option value={name} key={name}>{name}</option>)}
+        </select>
+      </div>
+
       <div className="ferie-turn-tabs ferie-turn-tabs-v2" role="tablist" aria-label="Wybierz termin ferii">
         {FERIE_TURNS.map((turn) => (
           <button
@@ -337,7 +378,14 @@ export default function FerieOffers2027() {
             role="tab"
             aria-selected={selected.id === turn.id}
             className={selected.id === turn.id ? "active" : ""}
-            onClick={() => setSelectedId(turn.id)}
+            onClick={() => {
+              setSelectedId(turn.id);
+              if (turn.id === "all") setSelectedVoivodeship("");
+              else if (selectedVoivodeship) {
+                const current = VOIVODESHIPS.find(([name]) => name === selectedVoivodeship);
+                if (!current || current[1] !== turn.id) setSelectedVoivodeship("");
+              }
+            }}
           >
             <small>{turn.label}</small>
             <strong>{turn.dates}</strong>
@@ -353,7 +401,7 @@ export default function FerieOffers2027() {
         </div>
         <div>
           <MapPin size={18}/>
-          <span><small>WOJEWÓDZTWA</small><strong>{selected.regions}</strong></span>
+          <span><small>{selectedVoivodeship ? "TWOJE WOJEWÓDZTWO" : "WOJEWÓDZTWA"}</small><strong>{selectedVoivodeship || selected.regions}</strong></span>
         </div>
         <div>
           <Plane size={18}/>
