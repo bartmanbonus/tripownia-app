@@ -3,8 +3,8 @@ import Link from "next/link";
 import { Building2, CalendarDays, MapPin, Plane, Search, Sun, Users } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import SearchHub from "@/components/SearchHub";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import FerieOffers2027 from "@/components/FerieOffers2027";
 
 const title = "Ferie zimowe 2027 – terminy województw i gdzie lecieć";
 const description = "Ferie zimowe 2027: sprawdź terminy dla województw i pomysły na wyjazd. Ciepłe kierunki, city break, narty i wakacje z polskich lotnisk.";
@@ -67,9 +67,11 @@ export default function Ferie2027Page() {
         <div className="kicker">FERIE ZIMOWE 2027</div>
         <h1>Ferie 2027: terminy województw i pomysły na wyjazd.</h1>
         <p>Sprawdź swoją turę, wybierz styl wyjazdu i od razu przejdź do aktualnych propozycji. Bez przekopywania się przez przypadkowe terminy i kierunki.</p>
-        <a className="ferie-hero-cta" href="#szukaj-ferie"><Search size={18}/> Szukaj wyjazdu na ferie</a>
+        <a className="ferie-hero-cta" href="#oferty-ferie"><Search size={18}/> Zobacz konkretne oferty na ferie</a>
       </div>
     </section>
+
+    <FerieOffers2027/>
 
     <section className="shell ferie-section ferie-terms-section">
       <div className="ferie-section-head">
@@ -126,15 +128,6 @@ export default function Ferie2027Page() {
           <Link href="/podroze/ferie-2027-z-katowic-all-inclusive">Ferie z Katowic All Inclusive →</Link>
         </div>
       </div>
-    </section>
-
-    <section className="shell ferie-search-section" id="szukaj-ferie">
-      <div className="ferie-search-heading">
-        <div className="kicker">SZUKAJ WYJAZDU</div>
-        <h2>Sprawdź aktualne wakacje na ferie</h2>
-        <p>Wybierz kierunek, lotnisko i zakres dat. Pokażemy tylko oferty, które rzeczywiście pasują do ustawionych parametrów.</p>
-      </div>
-      <div className="ferie-search-wrap"><SearchHub embedded initialTab="Lot + hotel" /></div>
     </section>
 
     <SiteFooter/>
