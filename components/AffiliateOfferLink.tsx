@@ -38,7 +38,7 @@ export default function AffiliateOfferLink({ href, partner, slug, destination, t
       rel="sponsored noopener noreferrer"
       onClick={rememberTripContext}
     >
-      Sprawdź ofertę w {partner} <ArrowRight size={18}/>
+      Sprawdź ofertę <ArrowRight size={18}/>
     </a>
   );
 }
