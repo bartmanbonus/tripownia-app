@@ -127,6 +127,30 @@ export function clearAccountSession() {
   window.dispatchEvent(new Event(AUTH_EVENT));
 }
 
+export function consumeAccountAuthErrorFromUrl(): string {
+  if (typeof window === "undefined") return "";
+
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const query = new URLSearchParams(window.location.search);
+  const errorCode = (hash.get("error_code") || query.get("error_code") || hash.get("error") || query.get("error") || "").toLowerCase();
+  const description = hash.get("error_description") || query.get("error_description") || "";
+
+  if (!errorCode && !description) return "";
+
+  const cleanUrl = new URL(window.location.href);
+  cleanUrl.hash = "";
+  ["error", "error_code", "error_description"].forEach((key) => cleanUrl.searchParams.delete(key));
+  window.history.replaceState({}, document.title, cleanUrl.pathname + cleanUrl.search);
+
+  if (errorCode.includes("otp_expired") || /expired/i.test(description)) {
+    return "Link wygasł. Wyślij nowy jednorazowy link e-mail.";
+  }
+  if (errorCode.includes("access_denied")) {
+    return "Link logowania nie został zaakceptowany. Spróbuj ponownie.";
+  }
+  return "Nie udało się dokończyć logowania z linku e-mail. Wyślij nowy link i spróbuj ponownie.";
+}
+
 export function consumeAccountSessionFromUrl(): AccountSession | null {
   if (typeof window === "undefined" || !window.location.hash) return null;
   const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
@@ -349,7 +373,7 @@ export async function signUpWithPassword(email: string, password: string, redire
   const response = await fetch(`${authBaseUrl()}/auth/v1/signup?redirect_to=${encodeURIComponent(safeRedirect)}`, {
     method: "POST",
     headers: publicHeaders(),
-    body: JSON.stringify({ email: email.trim(), password, data: { product: "Tripownia" } }),
+    body: JSON.stringify({ email: email.trim().toLowerCase(), password, data: { product: "Tripownia" } }),
   });
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
