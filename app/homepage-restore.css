@@ -1009,3 +1009,108 @@ body:has(.dream-hero) .surprise-result-v2>span:last-of-type{
   font-size:12px!important;
   line-height:1.35!important;
 }
+
+
+body:has(.dream-hero) .surprise-card-head{
+  display:flex!important;
+  gap:12px!important;
+  align-items:flex-start!important;
+  margin-bottom:14px!important;
+}
+body:has(.dream-hero) .surprise-card-head>svg{
+  flex:0 0 auto!important;
+  margin-top:3px!important;
+}
+body:has(.dream-hero) .surprise-card-head small{
+  display:block!important;
+  color:#ff8a6f!important;
+  font-size:9px!important;
+  font-weight:900!important;
+  letter-spacing:.09em!important;
+}
+body:has(.dream-hero) .surprise-card-head h3{
+  margin:4px 0 4px!important;
+  font-size:26px!important;
+}
+body:has(.dream-hero) .surprise-card-head p{
+  margin:0!important;
+  color:#cbc3be!important;
+  font-size:12px!important;
+}
+body:has(.dream-hero) .surprise-result-actions{
+  display:flex!important;
+  gap:8px!important;
+  flex-wrap:wrap!important;
+  margin-top:12px!important;
+}
+body:has(.dream-hero) .surprise-result-actions a,
+body:has(.dream-hero) .surprise-result-actions button{
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:40px!important;
+  padding:0 13px!important;
+  border:0!important;
+  border-radius:11px!important;
+  font-size:10px!important;
+  font-weight:850!important;
+  text-decoration:none!important;
+  cursor:pointer!important;
+}
+body:has(.dream-hero) .surprise-result-actions a{
+  background:#fff!important;
+  color:#171513!important;
+}
+body:has(.dream-hero) .surprise-result-actions button{
+  background:#ff5a36!important;
+  color:#fff!important;
+}
+body:has(.dream-hero) .surprise-alternatives{
+  margin-top:12px!important;
+  padding-top:12px!important;
+  border-top:1px solid rgba(255,255,255,.1)!important;
+}
+body:has(.dream-hero) .surprise-alternatives>small{
+  display:block!important;
+  margin-bottom:7px!important;
+  color:#9d938d!important;
+  font-size:8px!important;
+  font-weight:900!important;
+  letter-spacing:.1em!important;
+}
+body:has(.dream-hero) .surprise-alternatives>button{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto 20px!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:100%!important;
+  min-height:48px!important;
+  padding:8px 9px!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  border-radius:11px!important;
+  background:rgba(255,255,255,.035)!important;
+  color:#fff!important;
+  text-align:left!important;
+}
+body:has(.dream-hero) .surprise-alternatives>button+button{
+  margin-top:6px!important;
+}
+body:has(.dream-hero) .surprise-alternatives>button>span{
+  min-width:0!important;
+}
+body:has(.dream-hero) .surprise-alternatives strong,
+body:has(.dream-hero) .surprise-alternatives small{
+  display:block!important;
+}
+body:has(.dream-hero) .surprise-alternatives strong{
+  font-size:12px!important;
+}
+body:has(.dream-hero) .surprise-alternatives small{
+  margin-top:2px!important;
+  color:#aea5a0!important;
+  font-size:8px!important;
+}
+body:has(.dream-hero) .surprise-alternatives b{
+  font-size:12px!important;
+  white-space:nowrap!important;
+}
