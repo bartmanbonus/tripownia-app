@@ -288,6 +288,7 @@ export default function FerieOffers2027() {
       broad: "1",
       fast: "1",
       strict: "1",
+      skipEsky: "1",
       start: selected.from,
       end: selected.to,
       dateKind: "departure",

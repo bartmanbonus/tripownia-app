@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Offer } from "@/lib/offers";
 import { isOfferExpired } from "@/lib/offerRuntime";
+import { fetchBrowserEskyOffers } from "@/lib/browserEsky";
 
 type LiveOffersResponse = {
   ok?: boolean;
@@ -102,6 +103,23 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
       const data = await response.json() as LiveOffersResponse;
       const live = usableOffers(Array.isArray(data.offers) ? data.offers : []);
 
+      const tryBrowserEsky = () => {
+        if (data.sourceType === "live") return;
+        void fetchBrowserEskyOffers(endpoint).then((rows) => {
+          const browserLive = usableOffers(rows);
+          if (!browserLive.length) return;
+          const checkedAt = new Date().toISOString();
+          writeCache(endpoint, browserLive, checkedAt);
+          setState({
+            offers: browserLive,
+            source: "live",
+            loading: false,
+            checkedAt,
+            notice: "Ceny eSky odświeżone bezpośrednio w przeglądarce. Finalną dostępność potwierdzisz u partnera.",
+          });
+        });
+      };
+
       if (response.ok && data.ok && !live.length) {
         try { localStorage.removeItem(cacheKey(endpoint)); } catch {}
         setState({
@@ -111,6 +129,7 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
           checkedAt: data.checkedAt,
           notice: data.notice,
         });
+        tryBrowserEsky();
         return;
       }
 
@@ -135,6 +154,7 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
             error: data.error || (!response.ok ? `HTTP ${response.status}` : "Brak aktualnych ofert z feedu."),
           };
         });
+        tryBrowserEsky();
         return;
       }
 
@@ -147,6 +167,7 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
         checkedAt,
         notice: data.notice,
       });
+      if (data.sourceType !== "live") tryBrowserEsky();
     } catch (error) {
       setState((current) => {
         if (current.source === "live" && current.offers.length && isFreshTimestamp(current.checkedAt)) {
