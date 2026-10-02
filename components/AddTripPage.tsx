@@ -132,16 +132,19 @@ type EditableTrip = {
 
 function originIata(value: string): string {
   const n = norm(value);
-  if (n.includes("krak")) return "KRK";
-  if (n.includes("katow")) return "KTW";
-  if (n.includes("gdansk")) return "GDN";
-  if (n.includes("wrocl")) return "WRO";
-  if (n.includes("poznan")) return "POZ";
-  if (n.includes("rzesz")) return "RZE";
-  if (n.includes("lublin")) return "LUZ";
-  if (n.includes("szczec")) return "SZZ";
-  if (n.includes("lodz") || n.includes("łodz") || n.includes("łódź")) return "LCJ";
-  if (n.includes("warsz") || n.includes("chopin") || n.includes("modlin")) return "WAW";
+  if (n.includes("modlin") || /\bwmi\b/.test(n)) return "WMI";
+  if (n.includes("radom") || /\brdo\b/.test(n)) return "RDO";
+  if (n.includes("chopin") || /\bwaw\b/.test(n) || n === "warszawa") return "WAW";
+  if (n.includes("krak") || /\bkrk\b/.test(n)) return "KRK";
+  if (n.includes("katow") || /\bktw\b/.test(n)) return "KTW";
+  if (n.includes("gdansk") || /\bgdn\b/.test(n)) return "GDN";
+  if (n.includes("wrocl") || /\bwro\b/.test(n)) return "WRO";
+  if (n.includes("poznan") || /\bpoz\b/.test(n)) return "POZ";
+  if (n.includes("rzesz") || /\brze\b/.test(n)) return "RZE";
+  if (n.includes("lublin") || /\bluz\b/.test(n)) return "LUZ";
+  if (n.includes("szczec") || /\bszz\b/.test(n)) return "SZZ";
+  if (n.includes("lodz") || n.includes("łodz") || n.includes("łódź") || /\blcj\b/.test(n)) return "LCJ";
+  if (n.includes("warsz")) return "WAW";
   return "WAW";
 }
 
@@ -280,7 +283,7 @@ export default function AddTripPage() {
       setCity(affiliateCity);
       setCountry(affiliateCountry);
       setOwnedMode(true);
-      setDateMode("range");
+      setDateMode(sourceStart && sourceEnd ? "range" : "flexible");
       if (sourceStart) setStartDate(sourceStart);
       if (sourceEnd) setEndDate(sourceEnd);
       setPieces({
@@ -362,13 +365,19 @@ export default function AddTripPage() {
 
   useEffect(() => {
     let cancelled = false;
+    const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+    const explicitSource = params?.get("source") || "";
+    const hasExplicitSourceDestination = Boolean(
+      ((params?.get("city") || "").trim() || (params?.get("country") || "").trim())
+      && ["affiliate", "external", "experience", "sport"].includes(explicitSource)
+    );
     void ensureFreshAccountSession(readAccountSession()).then((currentSession) => {
       if (cancelled) return;
       setSession(currentSession);
       setSignedIn(Boolean(currentSession));
       setAuthReady(true);
 
-      if (currentSession) {
+      if (currentSession && !hasExplicitSourceDestination) {
         try {
           const raw = sessionStorage.getItem("tripownia-pending-offer-v1");
           const pending = raw ? JSON.parse(raw) as Record<string, unknown> : null;

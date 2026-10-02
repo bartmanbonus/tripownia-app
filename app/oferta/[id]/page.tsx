@@ -23,12 +23,8 @@ export async function generateMetadata({params}:{params:Promise<{id:string}>}):P
   const {id}=await params;
   const o=offers.find(x=>x.id===Number(id));
   if (!o) return {};
-  const title = o.partner === "exim"
-    ? `${o.city} z ${o.departure} — sprawdź aktualną ofertę | Tripownia`
-    : `${o.city} z ${o.departure} — ostatnio znaleźliśmy od ${o.price} zł | Tripownia`;
-  const description = o.partner === "exim"
-    ? `${o.city}, ${o.nights} nocy, ${o.board}. Sprawdź aktualną cenę i dostępność wyjazdu.`
-    : `${o.city}, ${o.nights} nocy, ${o.board}. ${customerOfferReason(o.reason)}`;
+  const title = `${o.city} z ${o.departure} — od ${o.price.toLocaleString("pl-PL")} zł/os. | Tripownia`;
+  const description = `${o.city}, ${o.nights} nocy, ${o.board}, wylot z ${o.departure}. Ostatnio znaleźliśmy od ${o.price.toLocaleString("pl-PL")} zł/os. Sprawdź aktualną cenę i dostępność.`;
   return {
     title,
     description,
