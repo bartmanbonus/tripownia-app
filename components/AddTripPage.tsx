@@ -227,6 +227,9 @@ export default function AddTripPage() {
   const [step, setStep] = useState<1 | 2>(1);
   const [sourceType, setSourceType] = useState("");
   const [sourceKind, setSourceKind] = useState("");
+  const [sportMatch, setSportMatch] = useState("");
+  const [sportVenue, setSportVenue] = useState("");
+  const [sportTicket, setSportTicket] = useState("");
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
   const suggestions = useMemo(
@@ -242,6 +245,7 @@ export default function AddTripPage() {
   );
   const missingCount = Object.values(pieces).filter((value) => !value).length;
   const quickOwnedFlow = ownedMode && (sourceType === "external" || sourceType === "affiliate") && Boolean(city || country);
+  const quickSportFlow = sourceType === "sport" && Boolean(city || country) && Boolean(startDate && endDate);
   const quickOwnedText = pieces.flight && pieces.hotel
     ? "Lot i hotel są już zaznaczone."
     : pieces.flight
@@ -434,6 +438,10 @@ export default function AddTripPage() {
     const venue = (params.get("venue") || "").trim();
     const ticket = (params.get("ticket") || "").trim();
 
+    setSportMatch(match);
+    setSportVenue(venue);
+    setSportTicket(ticket);
+
     if (sportCity || sportCountry) {
       setDestinationMode("known");
       setCity(sportCity);
@@ -564,7 +572,9 @@ export default function AddTripPage() {
       weather: "",
       score: 0,
       tag: "OKAZJA" as const,
-      reason: "Własna podróż ułożona bezpłatnie w Tripowni.",
+      reason: sourceType === "sport"
+        ? `Wyjazd na mecz${sportMatch ? `: ${sportMatch}` : ""}.`
+        : "Własna podróż ułożona bezpłatnie w Tripowni.",
       image: "/tripownia-app-icon-v2.png",
       category: [],
       hotel: hotel.trim() || (pieces.hotel ? "Nocleg użytkownika" : "Nocleg do wyboru"),
@@ -620,6 +630,59 @@ export default function AddTripPage() {
     trackEvent("planner_created", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn, missing_count: missingCount });
     trackMetaCustomEvent("PlannerCreated", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn, missing_count: missingCount });
     window.location.href = "/moja-podroz";
+  }
+
+  if (quickSportFlow) {
+    return (
+      <main>
+        <SiteHeader />
+        <section className={"shell add-trip-page " + styles.confirmPage}>
+          <form className={styles.confirmCard} onSubmit={submit}>
+            <div className={styles.confirmMedia}>
+              <TravelImage
+                city={city}
+                country={country}
+                alt={[city, country].filter(Boolean).join(", ")}
+              />
+            </div>
+
+            <div className={styles.confirmContent}>
+              <div className={styles.confirmEyebrow}>WYJAZD NA MECZ</div>
+              <h1>{sportMatch || `Mecz w ${city || country}`}</h1>
+              <div className={styles.confirmCountry}>{[city, country].filter(Boolean).join(", ")}</div>
+
+              <div className={styles.confirmIncluded}>
+                <span><CalendarDays size={16}/> {dateLabel(startDate, endDate)}</span>
+                {sportVenue && <span><MapPinned size={16}/> {sportVenue}</span>}
+              </div>
+
+              <div className={styles.confirmHint}>
+                Termin i kierunek są już ustawione pod ten mecz. Nie wracamy do ogólnej wyszukiwarki.
+              </div>
+
+              <div className="planner-preview-actions">
+                <Link className="secondary-cta" href={suggestions.flight}><Plane size={17}/> Sprawdź lot</Link>
+                <Link className="secondary-cta" href={suggestions.hotel}><BedDouble size={17}/> Znajdź nocleg</Link>
+                {sportTicket && (
+                  <a className="secondary-cta" href={sportTicket} target="_blank" rel="noopener noreferrer">
+                    <Ticket size={17}/> Oficjalne bilety
+                  </a>
+                )}
+              </div>
+
+              {error && <div className="add-trip-error" role="alert">{error}</div>}
+
+              <button type="submit" className={"primary-cta " + styles.confirmPrimary}>
+                Dodaj ten mecz do planu <ArrowRight size={18}/>
+              </button>
+
+              <Link href="/wydarzenia" className={styles.confirmHint}>← Wróć do listy meczów</Link>
+            </div>
+          </form>
+        </section>
+        <SiteFooter />
+      </main>
+    );
   }
 
   if (quickOwnedFlow) {
