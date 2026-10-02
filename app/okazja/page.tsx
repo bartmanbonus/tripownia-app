@@ -111,8 +111,8 @@ export default async function SocialOfferLanding({
   });
   const outboundHref = `/go/live?${outboundParams.toString()}`;
   const plannerParams = new URLSearchParams({
-    mode: "owned",
-    source: "external",
+    mode: "known",
+    source: "offer",
     city,
     country,
     kind: tripKind,
