@@ -10,7 +10,6 @@ import OfferCard from "@/components/OfferCard";
 import { offers, isOfferExpired } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
-import { LONG_HAUL_IMAGES } from "@/lib/longHaulImages";
 import { trackEvent } from "@/lib/analytics";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
@@ -144,26 +143,26 @@ function publicationKey(now = new Date()) {
 }
 
 const longHaulCards = [
-  { href: "/dalekie-podroze#wietnam", region: "azja", label: "WIETNAM", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam", imageCountry: "Wietnam", fallbackImage: LONG_HAUL_IMAGES.wietnam },
-  { href: "/dalekie-podroze#pekin", region: "azja", label: "CHINY", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin", imageCountry: "Chiny", fallbackImage: LONG_HAUL_IMAGES.pekin },
-  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Fuji · świątynie · tradycja", text: "Świątynie, kultura, jedzenie i kolej — podróż, której nie zamyka się w weekendzie.", imageCity: "Tokio", imageCountry: "Japonia", fallbackImage: LONG_HAUL_IMAGES.japonia },
-  { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · świątynie · plaże", text: "Energia Bangkoku i kilka dni nad morzem w jednej podróży.", imageCity: "Bangkok", imageCountry: "Tajlandia", fallbackImage: LONG_HAUL_IMAGES.tajlandia },
-  { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Tarasy ryżowe · świątynie · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali", imageCountry: "Indonezja", fallbackImage: LONG_HAUL_IMAGES.bali },
-  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur", imageCountry: "Singapur", fallbackImage: LONG_HAUL_IMAGES.singapur },
-  { href: "/dalekie-podroze#seul", region: "azja", label: "KOREA PŁD.", title: "Seul", subtitle: "Pałace · kultura · K-food", text: "Nowoczesne miasto, tradycja i świetna baza do odkrywania Korei Południowej.", imageCity: "Seul", imageCountry: "Korea Południowa", fallbackImage: LONG_HAUL_IMAGES.seul },
-  { href: "/dalekie-podroze#malezja", region: "azja", label: "MALEZJA", title: "Malezja", subtitle: "Kuala Lumpur · wyspy · natura", text: "Metropolia, tropiki i różnorodność, która dobrze działa w jednej dłuższej trasie.", imageCity: "Kuala Lumpur", imageCountry: "Malezja", fallbackImage: LONG_HAUL_IMAGES.malezja },
-  { href: "/dalekie-podroze#malediwy", region: "azja", label: "MALEDIWY", title: "Malediwy", subtitle: "Laguny · rafy · wyspy", text: "Kierunek na prawdziwe odcięcie od codzienności i kilka dni nad turkusową wodą.", imageCity: "Malediwy", imageCountry: "Malediwy", fallbackImage: LONG_HAUL_IMAGES.malediwy },
-  { href: "/dalekie-podroze#meksyk", region: "ameryka", label: "MEKSYK", title: "Meksyk", subtitle: "Kultura · kuchnia · Karaiby", text: "Kolor, historia, świetne jedzenie i możliwość połączenia zwiedzania z plażą.", imageCity: "Meksyk", imageCountry: "Meksyk", fallbackImage: LONG_HAUL_IMAGES.meksyk },
-  { href: "/dalekie-podroze#sydney", region: "oceania", label: "AUSTRALIA", title: "Sydney", subtitle: "Opera · ocean · city life", text: "Ikoniczne miasto i dobry początek większej podróży po Australii.", imageCity: "Sydney", imageCountry: "Australia", fallbackImage: LONG_HAUL_IMAGES.sydney },
-  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad", imageCountry: "RPA", fallbackImage: LONG_HAUL_IMAGES.kapsztad },
-  { href: "/dalekie-podroze#nowy-jork", region: "ameryka", label: "USA", title: "Nowy Jork", subtitle: "Manhattan · Brooklyn · Times Square", text: "Miasto, które nigdy nie śpi i zawsze daje powód, by wrócić.", imageCity: "Nowy Jork", imageCountry: "USA", fallbackImage: LONG_HAUL_IMAGES.nowy_jork },
-  { href: "/dalekie-podroze#kostaryka", region: "ameryka", label: "KOSTARYKA", title: "Kostaryka", subtitle: "Dżungla · Pacyfik · Karaiby", text: "Natura, plaże i road trip pomiędzy dwoma wybrzeżami.", imageCity: "Kostaryka", imageCountry: "Kostaryka", fallbackImage: LONG_HAUL_IMAGES.kostaryka },
-  { href: "/dalekie-podroze#peru", region: "ameryka", label: "PERU", title: "Peru", subtitle: "Machu Picchu · Andy · Cusco", text: "Historia i krajobrazy, które spokojnie wypełnią dużą podróż.", imageCity: "Peru", imageCountry: "Peru", fallbackImage: LONG_HAUL_IMAGES.peru },
-  { href: "/dalekie-podroze#zanzibar", region: "afryka", label: "ZANZIBAR", title: "Zanzibar", subtitle: "Plaże · Stone Town · przyprawy", text: "Tropikalna wyspa, którą łatwo połączyć z safari w Tanzanii.", imageCity: "Zanzibar", imageCountry: "Tanzania", fallbackImage: LONG_HAUL_IMAGES.zanzibar },
-  { href: "/dalekie-podroze#mauritius", region: "afryka", label: "MAURITIUS", title: "Mauritius", subtitle: "Laguny · góry · plaże", text: "Wyspa na dłuższy wypoczynek, ale z dużą ilością rzeczy do zobaczenia poza resortem.", imageCity: "Mauritius", imageCountry: "Mauritius", fallbackImage: LONG_HAUL_IMAGES.mauritius },
-  { href: "/dalekie-podroze#nowa-zelandia", region: "oceania", label: "NOWA ZELANDIA", title: "Nowa Zelandia", subtitle: "Fiordy · road trip · natura", text: "Kierunek na dużą podróż i trasę, której nie warto robić w pośpiechu.", imageCity: "Nowa Zelandia", imageCountry: "Nowa Zelandia", fallbackImage: LONG_HAUL_IMAGES.nowa_zelandia },
-  { href: "/dalekie-podroze#kenia", region: "afryka", label: "KENIA", title: "Kenia", subtitle: "Safari · sawanna · ocean", text: "Safari i kilka dni nad oceanem — podróż, którą warto planować etapami.", imageCity: "Kenia", imageCountry: "Kenia", fallbackImage: LONG_HAUL_IMAGES.kenia },
-  { href: "/dalekie-podroze#dominikana", region: "ameryka", label: "DOMINIKANA", title: "Dominikana", subtitle: "Karaiby · plaże · natura", text: "Tropiki nie tylko w resorcie — wyspa ma dużo więcej do pokazania.", imageCity: "Dominikana", imageCountry: "Dominikana", fallbackImage: LONG_HAUL_IMAGES.dominikana },
+  { href: "/dalekie-podroze#wietnam", region: "azja", label: "WIETNAM", title: "Wietnam", subtitle: "Hanoi · Ha Long · Hoi An", text: "Zatoka Ha Long, klimat Azji i niezapomniane smaki.", imageCity: "Wietnam", imageCountry: "Wietnam" },
+  { href: "/dalekie-podroze#pekin", region: "azja", label: "CHINY", title: "Pekin", subtitle: "Wielki Mur · Zakazane Miasto", text: "Historia, nowoczesność i zupełnie inna skala podróżowania.", imageCity: "Pekin", imageCountry: "Chiny" },
+  { href: "/dalekie-podroze#japonia", region: "azja", label: "JAPONIA", title: "Tokio + Kioto", subtitle: "Fuji · świątynie · tradycja", text: "Świątynie, kultura, jedzenie i kolej — podróż, której nie zamyka się w weekendzie.", imageCity: "Tokio", imageCountry: "Japonia" },
+  { href: "/dalekie-podroze#tajlandia", region: "azja", label: "TAJLANDIA", title: "Bangkok + wyspy", subtitle: "Street food · świątynie · plaże", text: "Energia Bangkoku i kilka dni nad morzem w jednej podróży.", imageCity: "Bangkok", imageCountry: "Tajlandia" },
+  { href: "/dalekie-podroze#bali", region: "azja", label: "INDONEZJA", title: "Bali", subtitle: "Tarasy ryżowe · świątynie · ocean", text: "Wyjazd, który warto układać regionami zamiast wokół jednego hotelu.", imageCity: "Bali", imageCountry: "Indonezja" },
+  { href: "/dalekie-podroze#singapur", region: "azja", label: "SINGAPUR", title: "Singapur", subtitle: "Miasto · food · architektura", text: "Idealny jako pierwszy lub ostatni etap dłuższej podróży po Azji.", imageCity: "Singapur", imageCountry: "Singapur" },
+  { href: "/dalekie-podroze#seul", region: "azja", label: "KOREA PŁD.", title: "Seul", subtitle: "Pałace · kultura · K-food", text: "Nowoczesne miasto, tradycja i świetna baza do odkrywania Korei Południowej.", imageCity: "Seul", imageCountry: "Korea Południowa" },
+  { href: "/dalekie-podroze#malezja", region: "azja", label: "MALEZJA", title: "Malezja", subtitle: "Kuala Lumpur · wyspy · natura", text: "Metropolia, tropiki i różnorodność, która dobrze działa w jednej dłuższej trasie.", imageCity: "Kuala Lumpur", imageCountry: "Malezja" },
+  { href: "/dalekie-podroze#malediwy", region: "azja", label: "MALEDIWY", title: "Malediwy", subtitle: "Laguny · rafy · wyspy", text: "Kierunek na prawdziwe odcięcie od codzienności i kilka dni nad turkusową wodą.", imageCity: "Malediwy", imageCountry: "Malediwy" },
+  { href: "/dalekie-podroze#meksyk", region: "ameryka", label: "MEKSYK", title: "Meksyk", subtitle: "Kultura · kuchnia · Karaiby", text: "Kolor, historia, świetne jedzenie i możliwość połączenia zwiedzania z plażą.", imageCity: "Meksyk", imageCountry: "Meksyk" },
+  { href: "/dalekie-podroze#sydney", region: "oceania", label: "AUSTRALIA", title: "Sydney", subtitle: "Opera · ocean · city life", text: "Ikoniczne miasto i dobry początek większej podróży po Australii.", imageCity: "Sydney", imageCountry: "Australia" },
+  { href: "/dalekie-podroze#kapsztad", region: "afryka", label: "RPA", title: "Kapsztad", subtitle: "Ocean · góry · winnice", text: "Road trip i widoki, dla których naprawdę warto polecieć dalej.", imageCity: "Kapsztad", imageCountry: "RPA" },
+  { href: "/dalekie-podroze#nowy-jork", region: "ameryka", label: "USA", title: "Nowy Jork", subtitle: "Manhattan · Brooklyn · Times Square", text: "Miasto, które nigdy nie śpi i zawsze daje powód, by wrócić.", imageCity: "Nowy Jork", imageCountry: "USA" },
+  { href: "/dalekie-podroze#kostaryka", region: "ameryka", label: "KOSTARYKA", title: "Kostaryka", subtitle: "Dżungla · Pacyfik · Karaiby", text: "Natura, plaże i road trip pomiędzy dwoma wybrzeżami.", imageCity: "Kostaryka", imageCountry: "Kostaryka" },
+  { href: "/dalekie-podroze#peru", region: "ameryka", label: "PERU", title: "Peru", subtitle: "Machu Picchu · Andy · Cusco", text: "Historia i krajobrazy, które spokojnie wypełnią dużą podróż.", imageCity: "Peru", imageCountry: "Peru" },
+  { href: "/dalekie-podroze#zanzibar", region: "afryka", label: "ZANZIBAR", title: "Zanzibar", subtitle: "Plaże · Stone Town · przyprawy", text: "Tropikalna wyspa, którą łatwo połączyć z safari w Tanzanii.", imageCity: "Zanzibar", imageCountry: "Tanzania" },
+  { href: "/dalekie-podroze#mauritius", region: "afryka", label: "MAURITIUS", title: "Mauritius", subtitle: "Laguny · góry · plaże", text: "Wyspa na dłuższy wypoczynek, ale z dużą ilością rzeczy do zobaczenia poza resortem.", imageCity: "Mauritius", imageCountry: "Mauritius" },
+  { href: "/dalekie-podroze#nowa-zelandia", region: "oceania", label: "NOWA ZELANDIA", title: "Nowa Zelandia", subtitle: "Fiordy · road trip · natura", text: "Kierunek na dużą podróż i trasę, której nie warto robić w pośpiechu.", imageCity: "Nowa Zelandia", imageCountry: "Nowa Zelandia" },
+  { href: "/dalekie-podroze#kenia", region: "afryka", label: "KENIA", title: "Kenia", subtitle: "Safari · sawanna · ocean", text: "Safari i kilka dni nad oceanem — podróż, którą warto planować etapami.", imageCity: "Kenia", imageCountry: "Kenia" },
+  { href: "/dalekie-podroze#dominikana", region: "ameryka", label: "DOMINIKANA", title: "Dominikana", subtitle: "Karaiby · plaże · natura", text: "Tropiki nie tylko w resorcie — wyspa ma dużo więcej do pokazania.", imageCity: "Dominikana", imageCountry: "Dominikana" },
 ];
 
 function LongHaulCardImage({ city, country, fallbackSrc }: { city: string; country: string; fallbackSrc?: string }) {
@@ -272,7 +271,6 @@ function LongHaulHomeSection() {
               <LongHaulCardImage
                 city={card.imageCity}
                 country={card.imageCountry}
-                fallbackSrc={"fallbackImage" in card && typeof card.fallbackImage === "string" ? card.fallbackImage : undefined}
               />
               <div className="long-haul-photo-caption">
                 <strong>{card.title}</strong>
