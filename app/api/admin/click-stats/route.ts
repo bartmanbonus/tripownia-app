@@ -19,12 +19,6 @@ function clampDays(value: string | null) {
   return 90;
 }
 
-function bearerToken(request: NextRequest) {
-  const header = request.headers.get("authorization") || "";
-  const match = header.match(/^Bearer\s+(.+)$/i);
-  return match?.[1]?.trim() || "";
-}
-
 function aggregate(rows: AffiliateAnalyticsRow[], days: number): GlobalStats {
   const stats: GlobalStats = {
     total: rows.length,
