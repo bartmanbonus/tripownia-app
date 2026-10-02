@@ -25,7 +25,9 @@ export default function SiteFooter() {
               <h3>Twoja podróż</h3>
               <Link href="/planer-podrozy">Darmowy planer podróży</Link>
               <Link href="/dodaj-podroz">Dodaj własny wyjazd</Link>
-              <Link href="/dla-ciebie">Dla Ciebie</Link>
+              <Link href="/moje-podroze">Moje podróże</Link>
+              <Link href="/ulubione">Ulubione</Link>
+              <Link href="/alerty">Alerty</Link>
               <Link href="/profil">Profil podróżnika</Link>
               <Link href="/przed-wyjazdem">Checklista przed wyjazdem</Link>
             </div>
@@ -34,6 +36,8 @@ export default function SiteFooter() {
               <h3>Odkrywaj</h3>
               <Link href="/okazje">Okazje</Link>
               <Link href="/kierunki">Wszystkie kierunki</Link>
+              <Link href="/z-warszawy">Wyloty z Warszawy</Link>
+              <Link href="/z-krakowa">Wyloty z Krakowa</Link>
               <Link href="/wydarzenia">Mecze i eventy</Link>
               <Link href="/podroze-po-przezycia">Podróże po przeżycia</Link>
               <Link href="/dalekie-podroze">Dalekie podróże</Link>
@@ -45,19 +49,13 @@ export default function SiteFooter() {
               <h3>Rezerwuj</h3>
               <Link href="/city-break">City break</Link>
               <Link href="/last-minute">Last Minute</Link>
-              <Link href="/tanie-all-inclusive">Tanie All Inclusive</Link>
-              <Link href="/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem">Lot + hotel</Link>
-              <Link href="/tanie-loty">Tanie loty</Link>
+              <Link href="/tanie-all-inclusive">All Inclusive</Link>
               <Link href="/wakacje">Wakacje</Link>
-              <Link href="/z-warszawy">Wyloty z Warszawy</Link>
-              <Link href="/z-krakowa">Wyloty z Krakowa</Link>
-              <Link href="/hotele">Hotele</Link>
               <Link href="/loty">Loty</Link>
+              <Link href="/hotele">Hotele</Link>
               <Link href="/atrakcje">Atrakcje</Link>
               <Link href="/wynajem-auta">Wynajem auta</Link>
               <Link href="/transfery">Transfery</Link>
-              <Link href="/parkingi">Parkingi</Link>
-              <Link href="/esim">eSIM</Link>
             </div>
 
             <div className="footer-v2-column footer-v2-company">
