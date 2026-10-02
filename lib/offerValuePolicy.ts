@@ -26,3 +26,21 @@ export function isPromotableOffer(offer: Offer) {
     : offer.nights <= 5 ? 2000 : allInclusive ? 3500 : 3000;
   return offer.price <= ceiling;
 }
+
+
+/**
+ * Homepage rails are editorial shelves, not a full catalogue. Keep a tighter
+ * ceiling here than in search so Tripownia never promotes a merely available
+ * but visibly expensive package as an "okazja".
+ */
+export function isHomepageDeal(offer: Offer) {
+  if (!isPromotableOffer(offer)) return false;
+
+  const exotic = longHaul(offer);
+  const allInclusive = /all[ -]?inclusive/i.test(offer.board);
+
+  if (exotic) return offer.price <= (allInclusive ? 5500 : 4500);
+  if (offer.nights <= 5) return offer.price <= 1600;
+  if (offer.nights <= 8) return offer.price <= (allInclusive ? 2800 : 2400);
+  return offer.price <= (allInclusive ? 3000 : 2600);
+}
