@@ -17,6 +17,7 @@ import TravelpayoutsFlightsWidget from "@/components/TravelpayoutsFlightsWidget"
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
+import { consumeRequestedSearchResume, saveSearchResumeContext, type SearchResumeContext } from "@/lib/searchResume";
 
 type Props = {
   initialAirports?: string[];
@@ -325,6 +326,7 @@ export default function SearchHub({
   const [expanding, setExpanding] = useState(false);
   const [searched, setSearched] = useState(false);
   const [notice, setNotice] = useState("");
+  const [pendingResume, setPendingResume] = useState<SearchResumeContext | null>(null);
   const destinationRef = useRef<HTMLDivElement>(null);
   const departureRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLDivElement>(null);
@@ -432,6 +434,44 @@ export default function SearchHub({
   ]);
 
   useEffect(() => {
+    const saved = consumeRequestedSearchResume();
+    if (!saved) return;
+
+    setDestination(saved.destinationInput);
+    setSelectedDestinations(saved.selectedDestinations);
+    setDepartures(saved.departures);
+    setDuration(saved.duration);
+    setBudget(saved.budget);
+    setCustomBudgetMin(saved.customBudgetMin);
+    setCustomBudgetMax(saved.customBudgetMax);
+    setActiveTab(saved.activeTab);
+    setBoard(saved.board);
+    setWeekendOnly(saved.weekendOnly);
+    setDateMode(saved.dateMode);
+    setDateFrom(saved.dateFrom);
+    setDateTo(saved.dateTo);
+    setMonth(saved.month);
+    setCalendarMonth(saved.month || saved.dateFrom.slice(0, 7) || localMonthKey());
+    setPendingResume(saved);
+  }, []);
+
+  useEffect(() => {
+    if (!pendingResume) return;
+    const restored = pendingResume;
+    setPendingResume(null);
+    const resumedSearch = runSearch();
+    setResultSort(restored.resultSort);
+    setResultView(restored.resultView);
+    void resumedSearch.finally(() => {
+      window.requestAnimationFrame(() => {
+        document.getElementById("wyszukiwarka")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+    // Run once after all restored form state is committed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingResume]);
+
+  useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
       if (destinationRef.current && !destinationRef.current.contains(event.target as Node)) setSuggestionsOpen(false);
       if (departureRef.current && !departureRef.current.contains(event.target as Node)) setDepartureOpen(false);
@@ -526,6 +566,27 @@ export default function SearchHub({
       to: overrides.dateTo ?? dateTo,
     };
     const apiDates = apiDepartureWindow(datePreference);
+
+    saveSearchResumeContext({
+      path: typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : pathname || "/",
+      destinationInput: destinationOverride ?? destination,
+      selectedDestinations: destinationOverride ? [] : selectedDestinations,
+      departures,
+      activeTab: activeMode,
+      dateMode: datePreference.mode,
+      month: datePreference.month,
+      dateFrom: datePreference.from,
+      dateTo: datePreference.to,
+      duration: activeDuration,
+      budget: activeBudget,
+      customBudgetMin,
+      customBudgetMax,
+      board: activeBoard,
+      weekendOnly: activeWeekend,
+      resultSort,
+      resultView,
+    });
+
     setPackageSearchLink(eskySearchUrl({ query: requested[0], departure: departures.join(","), cityBreak: activeMode === "City break",
       nights: activeDuration, start: apiDates.start, end: apiDates.end }));
     // One request can cover several selected airports because the API accepts

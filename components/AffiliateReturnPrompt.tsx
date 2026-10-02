@@ -9,6 +9,7 @@ import {
   type AffiliateReturnContext,
 } from "@/lib/affiliateReturn";
 import { trackEvent } from "@/lib/analytics";
+import { readSearchResumeContext, requestSearchResume } from "@/lib/searchResume";
 
 export default function AffiliateReturnPrompt() {
   const [context, setContext] = useState<AffiliateReturnContext | null>(null);
@@ -54,10 +55,16 @@ export default function AffiliateReturnPrompt() {
     return `/dodaj-podroz?${params.toString()}`;
   }, [context]);
 
+  const searchResume = useMemo(() => {
+    if (!context?.source || !/search/i.test(context.source)) return null;
+    return readSearchResumeContext();
+  }, [context]);
+
   const retryHref = useMemo(() => {
+    if (searchResume?.path) return searchResume.path;
     if (!context?.destination) return "/okazje";
     return `/okazje?q=${encodeURIComponent(context.destination)}`;
-  }, [context]);
+  }, [context, searchResume]);
 
   function clearContext() {
     localStorage.removeItem(AFFILIATE_RETURN_STORAGE_KEY);
@@ -102,12 +109,30 @@ export default function AffiliateReturnPrompt() {
         <Link
           className="affiliate-return-secondary"
           href={retryHref}
-          onClick={() => {
-            trackEvent("affiliate_return_retry", { destination: context.destination || "", partner: context.partner || "" });
+          onClick={(event) => {
+            trackEvent("affiliate_return_retry", {
+              destination: context.destination || "",
+              partner: context.partner || "",
+              restore_search: Boolean(searchResume),
+            });
+
+            if (searchResume) {
+              event.preventDefault();
+              requestSearchResume();
+              clearContext();
+              const currentPath = `${window.location.pathname}${window.location.search}`;
+              if (currentPath === searchResume.path) {
+                window.location.reload();
+              } else {
+                window.location.assign(searchResume.path);
+              }
+              return;
+            }
+
             clearContext();
           }}
         >
-          <Search size={16}/> Nie — pokaż podobne
+          <Search size={16}/> {searchResume ? "Nie — wróć do wyników" : "Nie — pokaż podobne"}
         </Link>
       </div>
     </aside>
