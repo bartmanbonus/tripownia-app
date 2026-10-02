@@ -331,10 +331,11 @@ function reasonFor(provider: Provider, price: number, nights: number, board: str
 
 async function fetchProducts(provider: "exim" | "tui", query: string, token: string, pages = 1) {
   const fid = provider === "exim" ? 103442 : 24864;
-  // TradeDoubler uses zero-based pages. Sort at source BEFORE limiting results.
-  // A short shared cache prevents every search/alternative from rescanning feeds.
-  const results = await Promise.allSettled(Array.from({ length: pages }, async (_, page) => {
-    const path = `https://api.tradedoubler.com/1.0/products.json;q=${encodeURIComponent(query)};orderBy=priceAsc;page=${page};pageSize=100;limit=${(page + 1) * 100};fid=${fid}?token=${encodeURIComponent(token)}`;
+  // TradeDoubler's generated Product Feed endpoints use one-based page numbers.
+  // Keep the matrix parameters aligned with the official API examples and sort at source.
+  const results = await Promise.allSettled(Array.from({ length: pages }, async (_, pageIndex) => {
+    const page = pageIndex + 1;
+    const path = `https://api.tradedoubler.com/1.0/products.json;fid=${fid};q=${encodeURIComponent(query)};orderBy=priceAsc;page=${page};pageSize=100?token=${encodeURIComponent(token)}`;
     const response = await fetch(path, {
       headers: { Accept: "application/json" },
       next: { revalidate: 300 },
