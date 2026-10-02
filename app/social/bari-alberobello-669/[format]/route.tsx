@@ -35,8 +35,8 @@ function FeedCard({ vertical = false, compact = false }: { vertical?: boolean; c
       <div style={{ position: "absolute", inset: 0, display: "flex", background: "linear-gradient(105deg, rgba(255,250,244,.99) 0%, rgba(255,250,244,.97) 44%, rgba(255,250,244,.52) 62%, rgba(255,250,244,0) 79%)" }} />
       <div style={{ position: "absolute", left: compact ? 56 : vertical ? 72 : 64, top: compact ? 54 : vertical ? 80 : 58, right: compact ? 46 : vertical ? 64 : 54, bottom: compact ? 50 : vertical ? 86 : 54, display: "flex", flexDirection: "column" }}>
         <Brand />
-        <div style={{ width: compact ? 150 : 190, height: 3, background: navy, marginTop: 20, marginBottom: compact ? 24 : 34 }} />
-        <div style={{ color: navy, fontFamily: "Arial, sans-serif", fontSize: compact ? 24 : vertical ? 34 : 29, letterSpacing: compact ? 8 : 11, fontWeight: 600 }}>CITY BREAK</div>
+        <div style={{ display: "flex", width: compact ? 150 : 190, height: 3, background: navy, marginTop: 20, marginBottom: compact ? 24 : 34 }} />
+        <div style={{ display: "flex", color: navy, fontFamily: "Arial, sans-serif", fontSize: compact ? 24 : vertical ? 34 : 29, letterSpacing: compact ? 8 : 11, fontWeight: 600 }}>CITY BREAK</div>
         <div style={{ display: "flex", flexDirection: "column", color: navy, fontFamily: "Georgia, serif", fontSize: compact ? 68 : vertical ? 112 : 91, lineHeight: .9, letterSpacing: -2, fontWeight: 700, marginTop: compact ? 18 : 24, maxWidth: vertical ? 880 : 830 }}>
           BARI +<br/>ALBEROBELLO
         </div>
@@ -44,10 +44,10 @@ function FeedCard({ vertical = false, compact = false }: { vertical?: boolean; c
           <span style={{ color: orange, fontFamily: "Georgia, serif", fontWeight: 700, fontSize: compact ? 96 : vertical ? 150 : 130, lineHeight: .8 }}>669</span>
           <span style={{ color: navy, fontFamily: "Georgia, serif", fontWeight: 700, fontSize: compact ? 38 : vertical ? 58 : 48, marginLeft: 14 }}>zł/os.</span>
         </div>
-        <div style={{ marginTop: compact ? 28 : 38, maxWidth: vertical ? 920 : 860 }}>
+        <div style={{ display: "flex", marginTop: compact ? 28 : 38, maxWidth: vertical ? 920 : 860 }}>
           <Details compact={compact} />
         </div>
-        <div style={{ flex: 1 }} />
+        <div style={{ display: "flex", flex: 1 }} />
         <div style={{
           display: "flex",
           alignItems: "flex-end",
