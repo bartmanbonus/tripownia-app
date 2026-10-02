@@ -207,6 +207,28 @@ function normalize(value: string | undefined | null) {
     .trim();
 }
 
+function inferDepartureAirportCode(value: string | undefined | null) {
+  const n = normalize(value);
+  if (!n) return "";
+  if (/\bwmi\b|modlin/.test(n)) return "WMI";
+  if (/\brdo\b|radom/.test(n)) return "RDO";
+  if (/\bwaw\b|chopin|okecie/.test(n)) return "WAW";
+  if (/\bkrk\b|krakow|balice/.test(n)) return "KRK";
+  if (/\bktw\b|katowice|pyrzowice/.test(n)) return "KTW";
+  if (/\bgdn\b|gdansk|rebiechowo/.test(n)) return "GDN";
+  if (/\bwro\b|wroclaw|strachowice/.test(n)) return "WRO";
+  if (/\bpoz\b|poznan|lawica/.test(n)) return "POZ";
+  if (/\brze\b|rzeszow|jasionka/.test(n)) return "RZE";
+  if (/\bluz\b|lublin|swidnik/.test(n)) return "LUZ";
+  if (/\bszz\b|szczecin|goleniow/.test(n)) return "SZZ";
+  if (/\blcj\b|lodz|lublinek/.test(n)) return "LCJ";
+  if (/\bbzg\b|bydgoszcz/.test(n)) return "BZG";
+  if (/\bszy\b|olsztyn|mazury|szymany/.test(n)) return "SZY";
+  if (/\bieg\b|zielona gora|babimost/.test(n)) return "IEG";
+  if (/warszawa/.test(n)) return "WAW";
+  return "";
+}
+
 function fieldMap(product: TdProduct) {
   return Object.fromEntries(
     (product.fields || [])
@@ -406,7 +428,7 @@ function fromExim(product: TdProduct): LiveCandidate | null {
     priceCheckedAt: new Date().toISOString(),
     availabilityStatus: "available",
     departure,
-    airportCode: "",
+    airportCode: inferDepartureAirportCode(departure),
     nights,
     weather: "sprawdź",
     score: scoreFor(price, rating, board, daysOut),
@@ -468,7 +490,7 @@ function fromTui(product: TdProduct): LiveCandidate | null {
     priceCheckedAt: new Date().toISOString(),
     availabilityStatus: "available",
     departure,
-    airportCode: fields.DeparturePlace || "",
+    airportCode: inferDepartureAirportCode(fields.DeparturePlace || departure),
     nights,
     weather: "sprawdź",
     score: scoreFor(price, rating, board, daysOut),
