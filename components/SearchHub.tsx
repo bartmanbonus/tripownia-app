@@ -290,6 +290,7 @@ export default function SearchHub({
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState(initialTab);
   const [destination, setDestination] = useState("");
+  const [anywhereSelected, setAnywhereSelected] = useState(false);
   const [selectedDestinations, setSelectedDestinations] = useState<string[]>(initialDestinations);
   const [departures, setDepartures] = useState<string[]>(initialAirports);
   const [departureOpen, setDepartureOpen] = useState(false);
@@ -852,6 +853,7 @@ export default function SearchHub({
     searchRunRef.current += 1;
     searchAbortRef.current?.abort();
     setDestination("");
+    setAnywhereSelected(false);
     setSuggestionsOpen(false);
     setSelectedDestinations([]);
     setDepartures([]);
@@ -879,6 +881,12 @@ export default function SearchHub({
     setLoading(false);
     setExpanding(false);
   }
+
+  useEffect(() => {
+    if (activeTab === "Hotele" || selectedDestinations.length > 0 || destination.trim()) {
+      setAnywhereSelected(false);
+    }
+  }, [activeTab, selectedDestinations.length, destination]);
 
   const dateSummary = useMemo(() => {
     if (dateMode === "month") return month ? monthLabel(month) : "Wybierz miesiąc";
@@ -1028,8 +1036,9 @@ export default function SearchHub({
         <form className={`search-v3-form${activeTab === "Hotele" ? " is-hotels" : ""}`} onSubmit={submitSearch}>
           <div className={`search-v3-field search-v3-destination${suggestionsOpen ? " is-open" : ""}`} ref={destinationRef}>
             <label htmlFor="tripownia-destination"><MapPin size={15}/> Dokąd? {!simpleHomePackage && <small>{activeTab === "Hotele" ? "miasto lub kraj" : "wiele kierunków"}</small>}</label>
-            {selectedDestinations.length > 0 && (
+            {(anywhereSelected || selectedDestinations.length > 0) && (
               <div className="search-v3-selected">
+                {anywhereSelected && <button type="button" className="search-v3-selected-anywhere" onClick={() => setAnywhereSelected(false)}>🌍 Gdziekolwiek<X size={12}/></button>}
                 {selectedDestinations.map((item) => <button type="button" key={item} onClick={() => setSelectedDestinations((current) => current.filter((x) => x !== item))}>{item}<X size={12}/></button>)}
               </div>
             )}
@@ -1037,9 +1046,9 @@ export default function SearchHub({
               <input
                 id="tripownia-destination"
                 value={destination}
-                onChange={(event) => { setDestination(event.target.value); openDestinationPanel(); }}
+                onChange={(event) => { setAnywhereSelected(false); setDestination(event.target.value); openDestinationPanel(); }}
                 onFocus={openDestinationPanel}
-                placeholder={selectedDestinations.length ? "Dodaj kolejny kierunek" : "🌍 Gdziekolwiek — lub wpisz np. Rzym, Malta, Tokio"}
+                placeholder={anywhereSelected || selectedDestinations.length ? "Dodaj konkretny kierunek" : "Wpisz kierunek lub wybierz Gdziekolwiek"}
                 autoComplete="off"
               />
               {destination && <button type="button" aria-label="Wyczyść wpisany kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
@@ -1052,8 +1061,13 @@ export default function SearchHub({
                   <button type="button" className="search-v3-panel-close" aria-label="Zamknij wybór kierunków" onClick={() => setSuggestionsOpen(false)}><X size={16}/></button>
                 </div>
 
-                {selectedDestinations.length > 0 && (
+                {(anywhereSelected || selectedDestinations.length > 0) && (
                   <div className="search-v3-panel-selected">
+                    {anywhereSelected && (
+                      <button type="button" className="search-v3-selected-anywhere" onClick={() => setAnywhereSelected(false)}>
+                        🌍 Gdziekolwiek<X size={12}/>
+                      </button>
+                    )}
                     {selectedDestinations.map((item) => (
                       <button type="button" key={item} onClick={() => setSelectedDestinations((current) => current.filter((x) => x !== item))}>
                         {item}<X size={12}/>
@@ -1065,6 +1079,7 @@ export default function SearchHub({
                 <div className="search-v3-panel-scroll">
                   {destination.trim() && !isTravelDestinationBlocked(destination) && (
                     <button type="button" className="search-v3-use-exact" onClick={() => {
+                      setAnywhereSelected(false);
                       setSelectedDestinations((current) => activeTab === "Hotele" ? [canonicalSearchDestination(destination.trim())] : Array.from(new Set([...current, canonicalSearchDestination(destination.trim())])));
                       setDestination("");
                       setSuggestionsOpen(false);
@@ -1073,17 +1088,18 @@ export default function SearchHub({
                   {activeTab !== "Hotele" && (
                     <button
                       type="button"
-                      className={`search-v3-anywhere${!selectedDestinations.length && !destination.trim() ? " active" : ""}`}
-                      aria-pressed={!selectedDestinations.length && !destination.trim()}
-                      onClick={() => { setSelectedDestinations([]); setDestination(""); setSuggestionsOpen(false); }}
+                      className={`search-v3-anywhere${anywhereSelected ? " active" : ""}`}
+                      aria-pressed={anywhereSelected}
+                      onClick={() => { setAnywhereSelected(true); setSelectedDestinations([]); setDestination(""); setSuggestionsOpen(false); }}
                     >
-                      {!selectedDestinations.length && !destination.trim() ? <Check size={15}/> : <MapPin size={15}/>}
+                      {anywhereSelected ? <Check size={15}/> : <MapPin size={15}/>}
                       <span><strong>🌍 Gdziekolwiek</strong><small>Bez ograniczenia kierunku — pokaż najlepsze dostępne opcje</small></span>
                     </button>
                   )}
                   {suggestions.map((item) => (
                     <button key={item.label} type="button" onClick={() => {
                       const next = canonicalSearchDestination(item.label);
+                      setAnywhereSelected(false);
                       setSelectedDestinations((current) => activeTab === "Hotele" ? [next] : Array.from(new Set([...current, next])));
                       setDestination("");
                       setSuggestionsOpen(false);
@@ -1094,7 +1110,7 @@ export default function SearchHub({
                 </div>
 
                 <div className="search-v3-panel-footer">
-                  <span>{selectedDestinations.length ? `Wybrano: ${selectedDestinations.length}` : "🌍 Gdziekolwiek — bez ograniczenia kierunku"}</span>
+                  <span>{anywhereSelected ? "🌍 Gdziekolwiek — bez ograniczenia kierunku" : selectedDestinations.length ? `Wybrano: ${selectedDestinations.length}` : "Wybierz kierunek albo Gdziekolwiek"}</span>
                   <button type="button" onClick={() => setSuggestionsOpen(false)}>Gotowe</button>
                 </div>
               </div>
