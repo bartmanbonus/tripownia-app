@@ -931,7 +931,8 @@ export async function GET(request: NextRequest) {
     const cheapestDestinations = cheapestPerDestination(pool);
     const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && tripLengthMatches(offer));
 
-    const cityBreakPool = pool.filter(offer => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5);
+    // Short city breaks must remain affordable, even when a destination has only expensive stock.
+    const cityBreakPool = pool.filter(offer => offer.provider === "exim" && offer.nights >= 2 && offer.nights <= 5 && offer.price <= 2000);
     const selected = mode === "newyear"
       ? cheapestPerDestination(
           pool.filter((offer) => {
@@ -967,7 +968,7 @@ export async function GET(request: NextRequest) {
               .slice(0, 12)
           : selectDailyDiversified(dailyLengthPool.length >= 12 ? dailyLengthPool : cheapestDestinations, key, 36);
 
-    const validEmptySearch = Boolean(query && !rescueMode && (mode === "search" || mode === "citybreak"));
+    const validEmptySearch = mode === "citybreak" || Boolean(query && !rescueMode && mode === "search");
 
     return NextResponse.json(
       {
