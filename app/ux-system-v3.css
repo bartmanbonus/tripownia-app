@@ -1675,3 +1675,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   line-height:1.04;
   letter-spacing:-.04em;
 }
+
+.account-auth-field{
+  display:grid;
+  gap:6px;
+}
+.account-auth-field>span{
+  color:#625851;
+  font-size:11px;
+  font-weight:850;
+}
+.account-password-form .account-auth-field input{
+  width:100%;
+}
