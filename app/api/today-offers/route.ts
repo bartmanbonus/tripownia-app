@@ -5,7 +5,8 @@ import { rankSearchOffers } from "@/lib/searchOfferRanking";
 
 export const maxDuration = 60;
 
-import type { Offer } from "@/lib/offers";
+import { homepageFallbackOffers, isOfferExpired, type Offer } from "@/lib/offers";
+import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type TdField = { name?: string; value?: string };
@@ -749,6 +750,7 @@ export async function GET(request: NextRequest) {
     const nightsMatches = (offer: LiveCandidate) => {
       if (minNights && offer.nights < minNights) return false;
       if (maxNights && offer.nights > maxNights) return false;
+      if (/^\d+$/.test(nightsFilter)) return offer.nights === Number(nightsFilter);
       if (nightsFilter === "1-2") return offer.nights >= 1 && offer.nights <= 2;
       if (nightsFilter === "3-4") return offer.nights >= 3 && offer.nights <= 4;
       if (nightsFilter === "5-7") return offer.nights >= 5 && offer.nights <= 7;
@@ -919,9 +921,132 @@ export async function GET(request: NextRequest) {
       }
     );
   } catch (error) {
+    const hasExactDateConstraint = Boolean(startDateFilter || endDateFilter || weekendOnly || lastMinuteOnly || mode === "newyear");
+
+    const queryParts = query
+      .split(",")
+      .map((item) => normalize(item))
+      .filter(Boolean);
+
+    const queryMatches = (offer: Offer) => {
+      if (!queryParts.length) return true;
+      const haystack = normalize(`${offer.city} ${offer.country} ${offer.hotel}`);
+      const [primary, ...context] = queryParts;
+      const aliasKey = primary.replace(/ /g, "_");
+      const aliases = SEARCH_ALIASES[aliasKey] || [primary];
+      const primaryMatch = aliases.some((alias) => haystack.includes(normalize(alias)));
+      if (!primaryMatch) return false;
+      return context.every((part) => haystack.includes(part));
+    };
+
+    const departureMatchesFallback = (offer: Offer) => {
+      if (!departureFilter) return true;
+      const haystack = normalize(`${offer.departure} ${offer.airportCode}`);
+      const codes = departureFilter.split(",").map((item) => item.trim().toUpperCase()).filter(Boolean);
+      return codes.some((code) => {
+        if (code === "WAWA") return /warszawa|chopin|okecie|modlin|\bwaw\b|\bwmi\b/.test(haystack);
+        if (code === "WAW") return /warszawa|chopin|okecie|\bwaw\b/.test(haystack) && !/modlin|\bwmi\b/.test(haystack);
+        if (code === "WMI") return /modlin|\bwmi\b/.test(haystack);
+        if (code === "KRK") return /krakow|balice|\bkrk\b/.test(haystack);
+        if (code === "KTW") return /katowice|pyrzowice|\bktw\b/.test(haystack);
+        if (code === "GDN") return /gdansk|rebiechowo|\bgdn\b/.test(haystack);
+        if (code === "WRO") return /wroclaw|strachowice|\bwro\b/.test(haystack);
+        if (code === "POZ") return /poznan|lawica|\bpoz\b/.test(haystack);
+        if (code === "RZE") return /rzeszow|jasionka|\brze\b/.test(haystack);
+        if (code === "LCJ") return /lodz|lublinek|\blcj\b/.test(haystack);
+        if (code === "LUZ") return /lublin|swidnik|\bluz\b/.test(haystack);
+        if (code === "SZZ") return /szczecin|goleniow|\bszz\b/.test(haystack);
+        if (code === "BZG") return /bydgoszcz|\bbzg\b/.test(haystack);
+        if (code === "IEG") return /zielona gora|babimost|\bieg\b/.test(haystack);
+        return haystack.includes(normalize(code));
+      });
+    };
+
+    const nightsMatchesFallback = (offer: Offer) => {
+      if (minNights && offer.nights < minNights) return false;
+      if (maxNights && offer.nights > maxNights) return false;
+      if (/^\d+$/.test(nightsFilter)) return offer.nights === Number(nightsFilter);
+      if (nightsFilter === "1-2") return offer.nights >= 1 && offer.nights <= 2;
+      if (nightsFilter === "3-4") return offer.nights >= 3 && offer.nights <= 4;
+      if (nightsFilter === "5-7") return offer.nights >= 5 && offer.nights <= 7;
+      if (nightsFilter === "8-10") return offer.nights >= 8 && offer.nights <= 10;
+      if (nightsFilter === "11-14") return offer.nights >= 11 && offer.nights <= 14;
+      if (nightsFilter === "15+") return offer.nights >= 15;
+      return true;
+    };
+
+    const boardMatchesFallback = (offer: Offer) => {
+      if (boardFilter === "any") return true;
+      const value = normalize(offer.board);
+      if (boardFilter === "allinclusive") return /all inclusive/.test(value) && !/ultra/.test(value);
+      if (boardFilter === "ultraallinclusive") return /ultra all|ultraall/.test(value);
+      if (boardFilter === "breakfast") return /sniad|breakfast|\bbb\b/.test(value);
+      if (boardFilter === "halfboard") return /half board|\bhb\b|2 posil/.test(value);
+      if (boardFilter === "fullboard") return /full board|\bfb\b|3 posil|pelne wyzywienie/.test(value);
+      if (boardFilter === "roomonly") return /bez wyzywienia|room only|self catering|no meals|wlasne|aneks/.test(value);
+      return true;
+    };
+
+    let fallbackOffers = hasExactDateConstraint
+      ? []
+      : homepageFallbackOffers
+          .filter((offer) => !isOfferExpired(offer))
+          .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
+          .filter((offer) => ["exim", "tui", "esky"].includes(String(offer.partner)))
+          .filter((offer) => !providerOnly || offer.partner === providerOnly)
+          .filter(queryMatches)
+          .filter(departureMatchesFallback)
+          .filter(nightsMatchesFallback)
+          .filter(boardMatchesFallback)
+          .filter((offer) => (!minPrice || offer.price >= minPrice) && (!maxPrice || offer.price <= maxPrice));
+
+    if (mode === "citybreak") {
+      fallbackOffers = fallbackOffers.filter((offer) => offer.nights >= 2 && offer.nights <= 5 && offer.price <= 2000);
+    }
+    if (mode === "surprise") {
+      fallbackOffers = fallbackOffers.filter((offer) => offer.price <= budget);
+    }
+
+    const bestByDestination = new Map<string, Offer>();
+    for (const offer of fallbackOffers.sort((a, b) => a.price - b.price || b.score - a.score)) {
+      const destination = touristDestinationKey(offer);
+      const previous = bestByDestination.get(destination);
+      if (!previous || offer.price < previous.price) bestByDestination.set(destination, offer);
+    }
+
+    const fallbackLimit = mode === "surprise" ? 12 : mode === "daily" ? 36 : 60;
+    const selectedFallback = Array.from(bestByDestination.values())
+      .sort((a, b) => a.price - b.price || b.score - a.score)
+      .slice(0, fallbackLimit);
+
+    const fallbackNotice = hasExactDateConstraint
+      ? "Źródła live chwilowo nie odpowiadają. Nie pokazujemy ofert z innych terminów jako dopasowanych do wybranej daty."
+      : selectedFallback.length
+        ? "Źródła live chwilowo nie odpowiadają. Pokazujemy najtańsze opublikowane propozycje Tripowni; cenę i dostępność potwierdzisz po kliknięciu."
+        : "Źródła live chwilowo nie odpowiadają i nie mamy bezpiecznej opublikowanej alternatywy dla tych ustawień.";
+
     return NextResponse.json(
-      { ok: false, key, offers: [], error: error instanceof Error ? error.message : "Nie udało się odświeżyć ofert." },
-      { status: 502 }
+      {
+        ok: true,
+        key,
+        mode,
+        checkedAt: new Date().toISOString(),
+        sourceCount: selectedFallback.length,
+        partial: true,
+        fallback: true,
+        providers: Array.from(new Set(selectedFallback.map((offer) => offer.partner))),
+        coverage: "published_fallback",
+        exactSourceCount: 0,
+        destinationCount: selectedFallback.length,
+        notice: fallbackNotice,
+        offers: selectedFallback,
+        upstreamError: error instanceof Error ? error.message : "Źródła live chwilowo nie odpowiadają.",
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        },
+      }
     );
   }
 }
