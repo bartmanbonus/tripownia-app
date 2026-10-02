@@ -3,18 +3,20 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Clock3, Flame, Sparkles, Dice5, Plane, Globe2, Palmtree, Building2, BadgePercent, ShieldCheck, Compass } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
-import SearchHub from "@/components/SearchHub";
-import SalesVisualShortcuts from "@/components/SalesVisualShortcuts";
-import RecentlyViewedOffers from "@/components/RecentlyViewedOffers";
 import { offers, isOfferExpired } from "@/lib/offers";
 import { partners } from "@/lib/partners";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { LONG_HAUL_IMAGES } from "@/lib/longHaulImages";
 import { trackEvent } from "@/lib/analytics";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
+
+const SearchHub = dynamic(() => import("@/components/SearchHub"));
+const SalesVisualShortcuts = dynamic(() => import("@/components/SalesVisualShortcuts"));
+const RecentlyViewedOffers = dynamic(() => import("@/components/RecentlyViewedOffers"));
 
 const DAILY_CACHE_MAX_AGE_MS = 48 * 60 * 60 * 1000;
 
