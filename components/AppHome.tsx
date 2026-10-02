@@ -34,6 +34,7 @@ export default function AppHome() {
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [liveOffers, setLiveOffers] = useState<TripOffer[]>([]);
   const [liveLoading, setLiveLoading] = useState(true);
+  const [liveSource, setLiveSource] = useState<"live" | "fallback" | null>(null);
 
   useEffect(() => {
     const load = () => {
@@ -82,8 +83,16 @@ export default function AppHome() {
           .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country))
         );
         setLiveOffers(clean.slice(0, 6));
+        setLiveSource(
+          data?.sourceType === "published_fallback" || data?.coverage === "published_fallback" || data?.fallback === true
+            ? "fallback"
+            : clean.length ? "live" : null
+        );
       })
-      .catch(() => setLiveOffers([]))
+      .catch(() => {
+        setLiveOffers([]);
+        setLiveSource(null);
+      })
       .finally(() => {
         window.clearTimeout(timeout);
         setLiveLoading(false);
@@ -233,8 +242,14 @@ export default function AppHome() {
           <div className="section-heading">
             <div>
               <div className="kicker">DZISIAJ</div>
-              <h2>Najtańsze aktualne propozycje</h2>
-              <p>{liveLoading ? "Sprawdzamy dzisiejsze oferty…" : topOffers.length ? "Różne kierunki z aktualnego feedu Tripowni — najpierw cena, potem inspiracja." : "Nie pokazujemy starych kart, jeśli feed nie potwierdzi aktualnych ofert."}</p>
+              <h2>{liveSource === "fallback" ? "Najtańsze propozycje do sprawdzenia" : "Najtańsze aktualne propozycje"}</h2>
+              <p>{liveLoading
+                ? "Sprawdzamy dzisiejsze oferty…"
+                : topOffers.length
+                  ? liveSource === "fallback"
+                    ? "Źródła live są chwilowo ograniczone. Pokazujemy nieprzeterminowane propozycje orientacyjne — finalną cenę potwierdź u partnera."
+                    : "Różne kierunki z aktualnego feedu Tripowni — najpierw cena, potem inspiracja."
+                  : "Nie pokazujemy starych kart, jeśli feed nie potwierdzi aktualnych ofert."}</p>
             </div>
             <Link href="/okazje">Zobacz Okazje <ArrowRight size={16}/></Link>
           </div>
