@@ -92,10 +92,26 @@ function dateParts(offer: DealsOffer) {
 function dateMatches(offer: DealsOffer, month: string, year: string) {
   if (!month && !year) return true;
   const parts = dateParts(offer);
-  if (!parts) return false;
-  if (month && parts.month !== month) return false;
-  if (year && parts.year !== year) return false;
-  return true;
+  if (parts) {
+    if (month && parts.month !== month) return false;
+    if (year && parts.year !== year) return false;
+    return true;
+  }
+
+  // Published fallback offers often have human-readable ranges instead of
+  // startDateISO. Respect explicit month/year filters rather than silently
+  // showing a different period when the live feed is unavailable.
+  const dateText = normalize(offer.dates || "");
+  if (year && !dateText.includes(year)) return false;
+  if (!month) return true;
+
+  const monthNames: Record<string, string> = {
+    "01": "styczen", "02": "luty", "03": "marzec", "04": "kwiecien",
+    "05": "maj", "06": "czerwiec", "07": "lipiec", "08": "sierpien",
+    "09": "wrzesien", "10": "pazdziernik", "11": "listopad", "12": "grudzien",
+  };
+  const monthName = monthNames[month];
+  return Boolean(monthName && dateText.includes(monthName));
 }
 
 function monthDistance(offer: DealsOffer, month: string, year: string) {
@@ -190,6 +206,7 @@ export async function GET(request: NextRequest) {
   const rawYear = (request.nextUrl.searchParams.get("year") || "").trim();
   const month = /^(0[1-9]|1[0-2])$/.test(rawMonth) ? rawMonth : "";
   const year = /^20\d{2}$/.test(rawYear) ? rawYear : "";
+  const hasScopedFallbackFilter = Boolean(airport || month || year);
 
   // Okazje use one combined live package pool across available providers plus
   // short EXIM city breaks. We deduplicate only after the combined pool is loaded,
@@ -211,7 +228,7 @@ export async function GET(request: NextRequest) {
       .filter((offer) => requestedDepartureMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
     const fallbackOffers = cheapestFallbackPerDestination(
-      fallbackExact.length ? fallbackExact : strict && (airport || month || year) ? [] : fallbackPool
+      fallbackExact.length ? fallbackExact : hasScopedFallbackFilter ? [] : fallbackPool
     );
     const error = results.map((item) => item.payload.error).find(Boolean) || "Nie udało się pobrać okazji.";
 
@@ -290,7 +307,7 @@ export async function GET(request: NextRequest) {
       .filter((offer) => requestedDepartureMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
     const fallbackOffers = cheapestFallbackPerDestination(
-      fallbackExact.length ? fallbackExact : strict && (airport || month || year) ? [] : fallbackPool
+      fallbackExact.length ? fallbackExact : hasScopedFallbackFilter ? [] : fallbackPool
     );
 
     if (fallbackOffers.length) {
