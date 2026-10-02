@@ -77,6 +77,11 @@ function safeText(value: string | null, max = 160) {
   return normalized || undefined;
 }
 
+function safeClickId(value: string | null) {
+  const normalized = safeText(value, 80);
+  return normalized && normalized.length >= 6 ? normalized : crypto.randomUUID();
+}
+
 function safeTarget(value: string | null) {
   if (!value) return null;
   try {
@@ -265,7 +270,7 @@ export async function GET(request: NextRequest) {
   const destination = safeText(request.nextUrl.searchParams.get("destination"), 160);
   const price = safeText(request.nextUrl.searchParams.get("price"), 40);
   const page = safeText(request.nextUrl.searchParams.get("page"), 160);
-  const clickId = safeText(request.nextUrl.searchParams.get("clickId"), 80);
+  const clickId = safeClickId(request.nextUrl.searchParams.get("clickId"));
   const utmSource = safeText(request.nextUrl.searchParams.get("utmSource"), 80);
   const utmMedium = safeText(request.nextUrl.searchParams.get("utmMedium"), 80);
   const utmCampaign = safeText(request.nextUrl.searchParams.get("utmCampaign"), 120);
@@ -292,24 +297,22 @@ export async function GET(request: NextRequest) {
     })
   );
 
-  if (clickId) {
-    after(async () => {
-      await recordGlobalAffiliateClick({
-        clickId,
-        partner,
-        source,
-        offer,
-        destination,
-        price,
-        page,
-        utmSource,
-        utmMedium,
-        utmCampaign,
-        utmContent,
-        landing,
-      });
+  after(async () => {
+    await recordGlobalAffiliateClick({
+      clickId,
+      partner,
+      source,
+      offer,
+      destination,
+      price,
+      page,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      utmContent,
+      landing,
     });
-  }
+  });
 
   const response = NextResponse.redirect(target, 307);
   response.headers.set("Cache-Control", "no-store");
