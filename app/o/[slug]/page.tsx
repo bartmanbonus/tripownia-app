@@ -48,21 +48,29 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
+  const isBariAlberobello = offer.slug === "bari-alberobello-669";
   const title = `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł/os. | Tripownia.pl`;
-  const description = `${offer.hotel} • ${offer.dates} • ${offer.nights} nocy • wylot: ${offer.departure}. Sprawdź konkretną ofertę na Tripowni.`;
-  const image = `/o/${offer.slug}/opengraph-image`;
+  const description = isBariAlberobello
+    ? "City break do Apulii z wylotem z Warszawy. 20–23 października 2026, 2 noce, śniadanie."
+    : `${offer.hotel} • ${offer.dates} • ${offer.nights} nocy • wylot: ${offer.departure}. Sprawdź konkretną ofertę na Tripowni.`;
+  const image = isBariAlberobello
+    ? "/social/bari-alberobello-669/preview"
+    : `/o/${offer.slug}/opengraph-image`;
+  const pageUrl = `/o/${offer.slug}`;
 
   return {
-    title,
+    title: { absolute: title },
     description,
+    alternates: { canonical: pageUrl },
     robots: { index: false, follow: true },
     openGraph: {
       type: "website",
       siteName: "Tripownia",
       locale: "pl_PL",
+      url: pageUrl,
       title,
       description,
-      images: [{ url: image, width: 1200, height: 630, alt: "Tripownia.pl" }],
+      images: [{ url: image, width: 1200, height: 630, alt: `${offer.city} — Tripownia.pl` }],
     },
     twitter: {
       card: "summary_large_image",
