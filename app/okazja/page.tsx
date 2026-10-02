@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 type Search = Record<string, string | string[] | undefined>;
 
 const PARTNERS = [
+  { key: "esky", label: "eSky", hosts: ["www2.esky.pl", "www.esky.pl"] },
   { key: "exim", label: "EXIM Tours", hosts: ["exim.pl", "www.exim.pl", "reklamy.exim.pl"] },
   { key: "tui", label: "TUI", hosts: ["tui.pl", "www.tui.pl", "clk.tradedoubler.com"] },
   { key: "wakacje", label: "Wakacje.pl", hosts: ["wakacje.pl", "www.wakacje.pl"] },
@@ -174,7 +175,7 @@ export default async function SocialOfferLanding({
                 <div className="detail-price"><strong>Sprawdź aktualną cenę</strong></div>
               )}
               <div className="price-status detail-price-status">
-                Finalną cenę i dostępność potwierdza {partnerLabel}.
+                Finalną cenę i dostępność potwierdzisz przy rezerwacji.
               </div>
             </div>
 
