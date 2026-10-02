@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import DealsPage from "@/components/DealsPage";
 import Link from "next/link";
+import { homepageFallbackOffers } from "@/lib/offers";
+import { cheapestPerDestination } from "@/lib/offerEngine";
+import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
 export const metadata: Metadata = {
   title: "Tanie wakacje i city break – najtańsze okazje podróżnicze",
@@ -38,10 +41,18 @@ export default async function DealsRoute({ searchParams }:{ searchParams: Promis
   const params = await searchParams;
   const destination = (params.q || params.destination || "").trim();
   const dealType = params.type === "allinclusive" ? "allinclusive" : "";
+  const initialOffers = destination
+    ? []
+    : cheapestPerDestination(
+        homepageFallbackOffers
+          .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
+          .filter((offer) => dealType !== "allinclusive" || offer.category.includes("allinclusive")),
+        { mode: "fallback", limit: 20 }
+      );
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }} />
-    <DealsPage destination={destination} dealType={dealType}/>
+    <DealsPage destination={destination} dealType={dealType} initialOffers={initialOffers}/>
     <div className="shell" style={{paddingBottom:24}}><Link href="/radar-tripowni">Nie chcesz przeglądać wszystkiego? Zobacz 5 wyborów w Radarze Tripowni →</Link></div>
   </>;
 }
