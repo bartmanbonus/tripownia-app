@@ -212,6 +212,13 @@ export default function SiteHeader() {
             <span className="trip-header-search-cta" aria-hidden="true"><Search size={24} strokeWidth={2.8} /></span>
           </Link>
           <nav className="trip-header-actions" aria-label="Twoje konto i social media">
+            <div className="trip-header-socials" aria-label="Obserwuj Tripownię">
+              <span className="trip-header-social-label">Obserwuj nas</span>
+              {socialItems.map((item) => {
+                const Icon = item.icon;
+                return <a key={item.label} className="trip-header-social" href={item.href} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent(item.event, { placement: "header" })} aria-label={`Tripownia na ${item.label}`} title={item.label}><Icon size={17} strokeWidth={2}/></a>;
+              })}
+            </div>
             <Link className="trip-header-action trip-header-action-primary" href="/dodaj-podroz" aria-label="Ułóż darmowy plan podróży"><Sparkles size={19} strokeWidth={2} /><span>Plan za 0 zł</span></Link>
             <Link className="trip-header-action" href="/konto" aria-label="Konto i logowanie"><UserRound size={19} strokeWidth={2} /><span>Konto</span></Link>
           </nav>

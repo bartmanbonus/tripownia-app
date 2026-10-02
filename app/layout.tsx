@@ -36,6 +36,7 @@ import "./homepage-focus.css";
 import "./ux-audit.css";
 import "./search-mobile-hotfix.css";
 import "./ux-system-v3.css";
+import "./homepage-restore.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 import OfferRailDeduper from "@/components/OfferRailDeduper";
