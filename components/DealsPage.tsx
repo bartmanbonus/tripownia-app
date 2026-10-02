@@ -398,7 +398,7 @@ export default function DealsPage({
       {rows.length > 0 ? (
         <div className="cards-grid deals-premium-grid deals-simple-grid">
           {rows.map((offer) => (
-            <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)}/>
+            <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)} sourceSurface="okazje" />
           ))}
         </div>
       ) : !loading ? (
