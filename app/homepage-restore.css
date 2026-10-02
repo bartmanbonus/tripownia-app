@@ -609,3 +609,15 @@ body:has(.dream-hero) .budget-grid h2{
     padding:38px 0!important;
   }
 }
+
+
+.homepage-offer-source-note{
+  margin:0 0 16px!important;
+  padding:10px 12px!important;
+  border:1px solid #f0dfd5!important;
+  border-radius:12px!important;
+  background:#fff8f4!important;
+  color:#7a5f53!important;
+  font-size:11px!important;
+  line-height:1.45!important;
+}
