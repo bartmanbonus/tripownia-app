@@ -24,7 +24,7 @@ import TravelImage from "@/components/TravelImage";
 import { ACTIVE_TRIP_KEY, upsertTripArchive } from "@/lib/tripArchive";
 import { ensureFreshAccountSession, readAccountSession, saveTripowniaUserState, type AccountSession } from "@/lib/accountAuth";
 import { collectLocalAccountState } from "@/lib/accountState";
-import { offers, type Offer } from "@/lib/offers";
+import { isOfferExpired, offers, type Offer } from "@/lib/offers";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { partners } from "@/lib/partners";
@@ -52,7 +52,7 @@ function dateLabel(start: string, end: string) {
 }
 
 function nightsBetween(start: string, end: string) {
-  if (!start || !end) return 1;
+  if (!start || !end) return 0;
   const from = new Date(`${start}T12:00:00`).getTime();
   const to = new Date(`${end}T12:00:00`).getTime();
   return Math.max(1, Math.round((to - from) / 86400000));
@@ -127,6 +127,9 @@ type EditableTrip = {
     weekendRequired?: boolean;
     departureMode?: "any" | "selected";
     departureOptions?: string[];
+    startDate?: string;
+    endDate?: string;
+    ownedMode?: boolean;
   };
 };
 
@@ -229,14 +232,17 @@ export default function AddTripPage() {
   const [sourceKind, setSourceKind] = useState("");
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
+  const suggestionStart = dateMode === "range" ? startDate : "";
+  const suggestionEnd = dateMode === "range" ? endDate : "";
+  const suggestionDeparture = departureMode === "selected" ? (departureOptions[0] || departure) : departure;
   const suggestions = useMemo(
-    () => buildSuggestions(city, country, startDate, endDate, departure),
-    [city, country, startDate, endDate, departure],
+    () => buildSuggestions(city, country, suggestionStart, suggestionEnd, suggestionDeparture),
+    [city, country, suggestionStart, suggestionEnd, suggestionDeparture],
   );
   const openOfferSuggestions = useMemo(
     () => [...offers]
-      .filter((offer) => offer.availabilityStatus !== "expired")
-      .sort((a, b) => (b.score - a.score) || (a.price - b.price))
+      .filter((offer) => !isOfferExpired(offer))
+      .sort((a, b) => (a.price - b.price) || (b.score - a.score))
       .slice(0, 4),
     [],
   );
@@ -309,24 +315,30 @@ export default function AddTripPage() {
           setCountry(["Dowolny kierunek", "Do wyboru"].includes(snapshot.country || "") ? "" : snapshot.country || "");
 
           const prefs = saved.searchPreferences || {};
+          const journey = saved.journeyPieces || {};
+          const restoredOwnedMode = typeof prefs.ownedMode === "boolean"
+            ? prefs.ownedMode
+            : Boolean(saved.flight || saved.hotel || journey.flight?.status === "owned" || journey.hotel?.status === "owned");
+          setOwnedMode(restoredOwnedMode);
           setDateMode(prefs.dateMode || (snapshot.dates?.startsWith("Elastycznie") ? "flexible" : "flexible"));
           setTravelMonth(prefs.travelMonth || "");
           setFlexNights(prefs.flexNights || "3-7");
           setWeekendRequired(Boolean(prefs.weekendRequired));
           setDepartureMode(prefs.departureMode || "any");
           setDepartureOptions(Array.isArray(prefs.departureOptions) ? prefs.departureOptions : []);
+          setStartDate(prefs.startDate || "");
+          setEndDate(prefs.endDate || "");
 
           setFlight(saved.flight || "");
           setHotel(saved.hotel || "");
           setNotes(saved.notes || "");
-          const journey = saved.journeyPieces || {};
           setPieces({
             flight: Boolean(saved.flight) || journey.flight?.status === "owned",
             hotel: Boolean(saved.hotel) || journey.hotel?.status === "owned",
-            transfer: journey.transfer?.status === "owned",
-            attractions: journey.attractions?.status === "owned",
-            esim: journey.esim?.status === "owned",
-            parking: journey.parking?.status === "owned",
+            transfer: journey.transfer?.status === "owned" || Boolean(saved.checklist?.["Sprawdź transfer z lotniska i taxi na miejscu"]),
+            attractions: journey.attractions?.status === "owned" || Boolean(saved.checklist?.["Zarezerwuj najważniejsze atrakcje"]),
+            esim: journey.esim?.status === "owned" || Boolean(saved.checklist?.["Sprawdź internet / eSIM"]) || Boolean(saved.checklist?.["Sprawdź internet / eSIM na wyjazd"]),
+            parking: journey.parking?.status === "owned" || Boolean(saved.checklist?.["Zarezerwuj parking przy lotnisku"]),
           });
           setSelectedProvider({
             flight: journey.flight?.provider || undefined,
@@ -364,30 +376,33 @@ export default function AddTripPage() {
       setSignedIn(Boolean(currentSession));
       setAuthReady(true);
 
-      if (currentSession) {
-        try {
-          const raw = sessionStorage.getItem("tripownia-pending-offer-v1");
-          const pending = raw ? JSON.parse(raw) as Record<string, unknown> : null;
-          if (pending) {
-            if (typeof pending.city === "string") setCity(pending.city);
-            if (typeof pending.country === "string") setCountry(pending.country);
-            if (typeof pending.departure === "string") setDeparture(pending.departure);
-            if (typeof pending.hotel === "string") setHotel(pending.hotel);
-            if (typeof pending.startDateISO === "string") setStartDate(pending.startDateISO);
-            if (typeof pending.endDateISO === "string") setEndDate(pending.endDateISO);
-            setPieces({
-              flight: true,
-              hotel: true,
-              transfer: Boolean(pending.transferIncluded),
-              attractions: false,
-              esim: false,
-              parking: false,
-            });
-            sessionStorage.removeItem("tripownia-pending-offer-v1");
+      try {
+        const raw = sessionStorage.getItem("tripownia-pending-offer-v1");
+        const pending = raw ? JSON.parse(raw) as Record<string, unknown> : null;
+        if (pending) {
+          if (typeof pending.city === "string") setCity(pending.city);
+          if (typeof pending.country === "string") setCountry(pending.country);
+          if (typeof pending.departure === "string") {
+            setDeparture(pending.departure);
+            setDepartureMode("selected");
+            setDepartureOptions([pending.departure]);
           }
-        } catch {
+          if (typeof pending.hotel === "string") setHotel(pending.hotel);
+          if (typeof pending.startDateISO === "string") setStartDate(pending.startDateISO);
+          if (typeof pending.endDateISO === "string") setEndDate(pending.endDateISO);
+          if (typeof pending.startDateISO === "string" || typeof pending.endDateISO === "string") setDateMode("range");
+          setPieces({
+            flight: true,
+            hotel: true,
+            transfer: Boolean(pending.transferIncluded),
+            attractions: false,
+            esim: false,
+            parking: false,
+          });
           sessionStorage.removeItem("tripownia-pending-offer-v1");
         }
+      } catch {
+        sessionStorage.removeItem("tripownia-pending-offer-v1");
       }
     });
     return () => { cancelled = true; };
@@ -560,7 +575,7 @@ export default function AddTripPage() {
       price: editingTrip?.offerSnapshot?.price || 0,
       departure: departureMode === "any" ? "Polska — dowolne lotnisko" : (departureOptions.join(", ") || departure.trim() || "Do ustalenia"),
       airportCode: "",
-      nights: dateMode === "range" ? nights : 0,
+      nights: dateMode === "range" && startDate && endDate ? nights : 0,
       weather: "",
       score: 0,
       tag: "OKAZJA" as const,
@@ -581,14 +596,15 @@ export default function AddTripPage() {
       tripId,
       offerId,
       offerSnapshot: snapshot,
-      departureAt: departureAt || editingTrip?.departureAt || (startDate ? `${startDate}T08:00` : ""),
-      flight: pieces.flight ? flight.trim() : (editingTrip?.flight || ""),
-      hotel: pieces.hotel ? hotel.trim() : (editingTrip?.hotel || ""),
+      departureAt: departureAt || editingTrip?.departureAt || "",
+      flight: pieces.flight ? flight.trim() : "",
+      hotel: pieces.hotel ? hotel.trim() : "",
       notes: notes.trim() || editingTrip?.notes || "",
-      checklist: editingTrip?.checklist || {
+      checklist: {
+        ...(editingTrip?.checklist || {}),
         "Sprawdź transfer z lotniska i taxi na miejscu": pieces.transfer,
         "Zarezerwuj najważniejsze atrakcje": pieces.attractions,
-        "Sprawdź internet / eSIM na wyjazd": pieces.esim,
+        "Sprawdź internet / eSIM": pieces.esim,
         "Zarezerwuj parking przy lotnisku": pieces.parking,
       },
       dayPlan: editingTrip?.dayPlan || [],
@@ -603,18 +619,30 @@ export default function AddTripPage() {
       suggestedLinks: suggestions,
     };
 
-    const tripWithPreferences = { ...trip, searchPreferences: { destinationMode, dateMode, travelMonth, flexNights, weekendRequired, departureMode, departureOptions, destinationPending } };
+    const tripWithPreferences = {
+      ...trip,
+      searchPreferences: {
+        destinationMode,
+        dateMode,
+        travelMonth,
+        flexNights,
+        weekendRequired,
+        departureMode,
+        departureOptions,
+        destinationPending,
+        startDate,
+        endDate,
+        ownedMode,
+      },
+    };
     localStorage.setItem(ACTIVE_TRIP_KEY, JSON.stringify(tripWithPreferences));
     upsertTripArchive(tripWithPreferences);
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
 
     if (session) {
-      try {
-        await saveTripowniaUserState(session, collectLocalAccountState());
-      } catch {
-        setError("Plan zapisano na tym urządzeniu, ale synchronizacja konta chwilowo się nie udała. Spróbuj ponownie za moment.");
-        return;
-      }
+      void saveTripowniaUserState(session, collectLocalAccountState()).catch(() => {
+        try { localStorage.setItem("tripownia-local-dirty-v1", String(Date.now())); } catch {}
+      });
     }
 
     trackEvent("planner_created", { destination_mode: destinationMode, date_mode: dateMode, signed_in: signedIn, missing_count: missingCount });
