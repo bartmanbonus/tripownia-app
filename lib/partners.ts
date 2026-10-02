@@ -77,7 +77,17 @@ export function buildEskyFlightsUrl(destinationUrl?: string) {
 }
 
 export function buildEskyPackagesUrl(destinationUrl?: string) {
-  return buildLegacyEskyAlias(destinationUrl);
+  const fallback = "https://www2.esky.pl/lot+hotel/portfolio";
+  let url = new URL(fallback);
+  if (destinationUrl) {
+    try {
+      const candidate = new URL(destinationUrl);
+      if (candidate.protocol === "https:" && ["www2.esky.pl", "www.esky.pl"].includes(candidate.hostname) && candidate.pathname.startsWith("/lot+hotel/")) url = candidate;
+    } catch { /* Use the package search when the input URL is invalid. */ }
+  }
+  url.searchParams.set("partner_id", "TRIPOWNIAPLPACKAGES");
+  url.searchParams.set("context", "pl-packages");
+  return url.toString();
 }
 
 export const partners: Record<PartnerKey, Partner> = {
