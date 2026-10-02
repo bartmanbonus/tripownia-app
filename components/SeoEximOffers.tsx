@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Bell, CalendarRange, Search } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import type { Offer } from "@/lib/offers";
+import { buildEskyPackagesUrl } from "@/lib/partners";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type SeasonalOffer = Offer & { startDateISO?: string; endDateISO?: string };
@@ -76,6 +77,15 @@ function uniqByProduct(items: SeasonalOffer[]) {
 
 export default function SeoEximOffers({ query, departure, minNights, maxNights, maxPrice, startDate, endDate }: Props) {
   const cityBreakOverview = normalize(query) === "city break";
+  const eskySearch = new URL("https://www2.esky.pl/lot+hotel/portfolio");
+  eskySearch.searchParams.set("rooms[0][adults]", "2");
+  eskySearch.searchParams.set("datesTab", "flexDates");
+  eskySearch.searchParams.set("stayLength", "2:4");
+  eskySearch.searchParams.set("landingPageId", "qWXMSX");
+  const eskyDeparture = departureCode(departure);
+  if (eskyDeparture) eskySearch.searchParams.set("departurePlaces", eskyDeparture === "WAWA" ? "ap-WAW,ap-WMI" : `ap-${eskyDeparture}`);
+  const morePackagesUrl = buildEskyPackagesUrl(eskySearch.toString());
+
   const [offers, setOffers] = useState<SeasonalOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [relaxed, setRelaxed] = useState(false);
@@ -262,5 +272,6 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     {cityBreakOverview && <p className="seo-live-note">{offers.length} różnych kierunków · od najniższej ceny · najtańsza dostępna oferta dla każdego kierunku</p>}
     {relaxed && <div className="seo-live-note">Lotnisko i główny typ wyjazdu się zgadzają. Pokazujemy najbliższe aktualne propozycje — cena lub długość pobytu może różnić się od dodatkowego filtra strony.</div>}
     <div className="cards-grid seo-live-offers-grid">{offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} />)}</div>
+    {cityBreakOverview && !startDate && !endDate && <div className="seo-empty-offers-actions"><a href={morePackagesUrl} target="_blank" rel="nofollow sponsored noopener noreferrer" className="seo-empty-secondary">Porównaj więcej pakietów lot + hotel <ArrowRight size={16}/></a></div>}
   </>;
 }
