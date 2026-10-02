@@ -1,6 +1,9 @@
 
 .page{
-  max-width:960px;
+  width:min(1080px,calc(100% - 40px))!important;
+  max-width:1080px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
   padding-top:28px;
   padding-bottom:48px;
 }
@@ -9,7 +12,9 @@
   align-items:center;
   justify-content:space-between;
   gap:16px;
-  margin-bottom:18px;
+  width:100%;
+  max-width:960px;
+  margin:0 auto 18px;
 }
 .progress{
   display:flex;
@@ -68,7 +73,9 @@
 }
 .accountNote a{color:#d9512d;font-weight:800;text-decoration:none}
 .hero{
-  margin-bottom:10px!important;
+  width:100%;
+  max-width:960px;
+  margin:0 auto 10px!important;
 }
 .hero h1{
   max-width:720px;
@@ -86,7 +93,9 @@
   display:flex;
   flex-wrap:wrap;
   gap:8px;
-  margin:0 0 18px 58px;
+  width:100%;
+  max-width:902px;
+  margin:0 auto 18px;
 }
 .trustLine span{
   padding:6px 9px;
@@ -96,7 +105,12 @@
   font-size:10px;
   font-weight:800;
 }
-.form{max-width:820px}
+.form{
+  width:100%;
+  max-width:960px;
+  margin-left:auto;
+  margin-right:auto;
+}
 .stepCard{
   padding:22px!important;
   border:1px solid #ebe2dc!important;
@@ -316,7 +330,12 @@
 }
 
 @media(max-width:760px){
-  .page{padding-top:16px}
+  .page{
+    width:min(100% - 24px,1080px)!important;
+    padding-top:16px;
+  }
+  .topline,.hero,.trustLine,.form{max-width:none}
+  .trustLine{margin-left:0;margin-right:0}
   .topline{align-items:flex-start}
   .progress{gap:7px}
   .progress span{font-size:10px}
