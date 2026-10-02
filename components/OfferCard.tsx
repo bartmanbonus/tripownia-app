@@ -155,7 +155,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
     live_offer: isLiveOffer,
     live_exact: isLiveExact,
     exact_link: isExactLink,
-    source_surface: sourceSurface,
+    source_surface: sourceSurface || "unknown",
   };
 
   useEffect(() => {
@@ -293,6 +293,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
       data-offer-id={offer.id}
       data-offer-price={displayPrice}
       data-offer-partner={offer.partner}
+      data-offer-surface={sourceSurface || "unknown"}
       onClick={(event) => {
         const target = event.target as HTMLElement;
         if (target.closest("a,button,input,select,textarea,[role='button']")) return;
