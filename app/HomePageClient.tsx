@@ -933,7 +933,7 @@ export default function Home() {
                 <div className="dream-service-icon">📱</div><strong>eSIM</strong><span>Internet gotowy od chwili lądowania.</span><em>Wybierz eSIM →</em>
               </Link>
               <Link className="dream-service-card" href="/parkingi">
-                <div className="dream-service-icon">🅿️</div><strong>Parking</strong><span>Zostaw auto przy lotnisku bez stresu.</span><em>Znajdź parking →</em>
+                <div className="dream-service-icon">🅿️</div><strong>Parking</strong><span>Zarezerwuj parking przy lotnisku i podróżuj bez stresu.</span><em>Znajdź parking →</em>
               </Link>
             </div>
           </div>
@@ -942,13 +942,13 @@ export default function Home() {
             <div className="dream-marketplace-group-head"><small>3. JESTEM NA MIEJSCU</small><strong>Poruszaj się i korzystaj z wyjazdu</strong></div>
             <div className="dream-marketplace-grid">
               <Link className="dream-service-card" href="/transfery">
-                <div className="dream-service-icon">🚕</div><strong>Transfer</strong><span>Lotnisko → hotel bez szukania po lądowaniu.</span><em>Sprawdź transfer →</em>
+                <div className="dream-service-icon">🚕</div><strong>Transfer</strong><span>Zarezerwuj wygodny transfer z lotniska do hotelu.</span><em>Sprawdź transfer →</em>
               </Link>
               <Link className="dream-service-card" href="/wynajem-auta">
-                <div className="dream-service-icon">🚗</div><strong>Auto</strong><span>Wynajem dopasowany do Twojej trasy.</span><em>Porównaj auta →</em>
+                <div className="dream-service-icon">🚗</div><strong>Auto</strong><span>Porównaj oferty wynajmu samochodów i zwiedzaj na własnych zasadach.</span><em>Porównaj auta →</em>
               </Link>
               <Link className="dream-service-card" href="/atrakcje">
-                <div className="dream-service-icon">🎟️</div><strong>Atrakcje</strong><span>Bilety, wycieczki i rezerwacje na miejscu.</span><em>Znajdź atrakcje →</em>
+                <div className="dream-service-icon">🎟️</div><strong>Atrakcje</strong><span>Odkryj najciekawsze atrakcje w okolicy i zarezerwuj bilety online.</span><em>Znajdź atrakcje →</em>
               </Link>
             </div>
           </div>

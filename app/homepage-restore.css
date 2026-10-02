@@ -1332,3 +1332,190 @@ body:has(.dream-hero) .editorial-streaming-rail .streaming-tile small{
     font-weight:900!important;
   }
 }
+
+
+/* 2026-10-02 — mobile marketplace cards: prevent letter-by-letter text wrapping */
+@media(max-width:620px){
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(2) .dream-marketplace-grid,
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-marketplace-grid{
+    overflow:visible!important;
+    margin:0!important;
+    padding:0!important;
+  }
+
+  /* Preparation cards stay comfortably full width. */
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(2) .dream-marketplace-grid{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+
+  /* On-site actions: two compact cards + one wide card below. */
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-marketplace-grid{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    gap:10px!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card:nth-child(3){
+    grid-column:1 / -1!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(2) .dream-service-card,
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card{
+    width:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    box-sizing:border-box!important;
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    justify-content:flex-start!important;
+    gap:0!important;
+    padding:16px!important;
+    border-radius:18px!important;
+    overflow:hidden!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card{
+    min-height:210px!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card:nth-child(3){
+    min-height:156px!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(2) .dream-service-icon,
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-icon{
+    flex:0 0 auto!important;
+    width:46px!important;
+    height:46px!important;
+    margin:0 0 14px!important;
+    border-radius:13px!important;
+    font-size:22px!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(2) .dream-service-card>strong,
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card>strong{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0 0 7px!important;
+    font-size:19px!important;
+    line-height:1.15!important;
+    letter-spacing:-.025em!important;
+    white-space:normal!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+    writing-mode:horizontal-tb!important;
+  }
+
+  /* V208 hides these descriptions globally; restore them for these service cards. */
+  body:has(.dream-hero).homepage-visual-v2 .dream-marketplace-group:nth-child(2) .dream-service-card>span,
+  body:has(.dream-hero).homepage-visual-v2 .dream-marketplace-group:nth-child(3) .dream-service-card>span,
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(2) .dream-service-card>span,
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card>span{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+    color:#746d68!important;
+    font-size:12px!important;
+    line-height:1.45!important;
+    white-space:normal!important;
+    word-break:normal!important;
+    overflow-wrap:break-word!important;
+    writing-mode:horizontal-tb!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(2) .dream-service-card>em,
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card>em{
+    display:flex!important;
+    align-items:center!important;
+    width:auto!important;
+    min-width:0!important;
+    margin-top:auto!important;
+    padding-top:16px!important;
+    font-size:12px!important;
+    line-height:1.2!important;
+    font-weight:900!important;
+    white-space:normal!important;
+    word-break:normal!important;
+    writing-mode:horizontal-tb!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(2) .dream-service-card>em::after,
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card>em::after{
+    content:none!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card:nth-child(3){
+    display:grid!important;
+    grid-template-columns:52px minmax(0,1fr)!important;
+    grid-template-areas:
+      "icon title"
+      "icon copy"
+      ". action"!important;
+    column-gap:14px!important;
+    row-gap:4px!important;
+    align-items:start!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card:nth-child(3) .dream-service-icon{
+    grid-area:icon!important;
+    margin:0!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card:nth-child(3)>strong{
+    grid-area:title!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card:nth-child(3)>span{
+    grid-area:copy!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card:nth-child(3)>em{
+    grid-area:action!important;
+    margin-top:10px!important;
+    padding-top:0!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group-head{
+    min-width:0!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group-head strong,
+  body:has(.dream-hero) .dream-marketplace-group-head small{
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+    writing-mode:horizontal-tb!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-footer{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:8px!important;
+    padding:16px!important;
+    border-radius:18px!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-footer a{
+    min-width:0!important;
+    white-space:normal!important;
+    word-break:normal!important;
+    overflow-wrap:break-word!important;
+    line-height:1.4!important;
+  }
+}
+
+@media(max-width:390px){
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-marketplace-grid{
+    grid-template-columns:1fr!important;
+  }
+
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card,
+  body:has(.dream-hero) .dream-marketplace-group:nth-child(3) .dream-service-card:nth-child(3){
+    grid-column:auto!important;
+    min-height:170px!important;
+  }
+}
