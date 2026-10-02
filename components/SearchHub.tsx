@@ -749,13 +749,12 @@ export default function SearchHub({
         return;
       }
 
-      const outboundParams = { ...conversionContext, partner: "booking" };
-      trackEvent("outbound_partner_click", outboundParams);
-      trackMetaCustomEvent("PartnerOutboundClick", outboundParams);
+      trackEvent("hotel_search_ready", conversionContext);
       setSearched(true);
       setResults([]);
-      setNotice("Sprawdzamy aktualną dostępność noclegów.");
-      window.location.assign(standaloneHotelPartnerUrl(destinations, dateFrom, dateTo));
+      setNotice("Kierunek i termin są gotowe. Sprawdź podsumowanie poniżej.");
+      setSuggestionsOpen(false);
+      setDateOpen(false);
       return;
     }
 
@@ -926,6 +925,16 @@ export default function SearchHub({
     ["Rzym, Włochy", "Rzym do 1 500 zł", { duration: "3-4", budget: "1500", tab: "City break" }],
     ["Djerba, Tunezja", "All Inclusive do 3 000 zł", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Lot + hotel" }],
   ];
+  const hotelSearchDestination = selectedDestinations[0] || destination.trim();
+  const hotelSearchHref = hotelSearchDestination
+    ? standaloneHotelPartnerUrl([hotelSearchDestination], dateFrom, dateTo)
+    : "";
+  const hotelStayLabel = dateFrom && dateTo
+    ? `${isoLabel(dateFrom)} – ${isoLabel(dateTo)}`
+    : dateFrom
+      ? `od ${isoLabel(dateFrom)}`
+      : "termin elastyczny";
+
   const simpleHomePackage = !embedded && activeTab !== "Loty" && activeTab !== "Hotele";
   const visibleTabs = embedded
     ? ["Loty", "Hotele", "All Inclusive", "City break", "Lot + hotel"]
@@ -1375,7 +1384,54 @@ export default function SearchHub({
           <div>{quickPicks.map(([destinationLabel, label, overrides]) => <button type="button" key={destinationLabel} onClick={() => quickSearch(destinationLabel, overrides)}>{label}</button>)}</div>
         </div>}
 
-        {searched && (
+        {searched && activeTab === "Hotele" && pathname === "/hotele" && hotelSearchDestination && (
+          <div className="hotel-search-ready" role="status" aria-live="polite">
+            <div className="hotel-search-ready-head">
+              <div>
+                <small>KROK 3 · AKTUALNA DOSTĘPNOŚĆ</small>
+                <h3>Sprawdź noclegi dla {hotelSearchDestination}</h3>
+                <p>Tripownia zachowuje wybrany kierunek i termin. Dopiero teraz przechodzisz do aktualnych cen i dostępności noclegów.</p>
+              </div>
+              <span className="hotel-search-ready-check"><Check size={20}/></span>
+            </div>
+
+            <div className="hotel-search-ready-summary">
+              <div><span>Miejsce</span><strong>{hotelSearchDestination}</strong></div>
+              <div><span>Pobyt</span><strong>{hotelStayLabel}</strong></div>
+            </div>
+
+            <div className="hotel-search-ready-actions">
+              <a
+                href={hotelSearchHref}
+                rel="sponsored"
+                onClick={() => {
+                  const outboundParams = {
+                    mode: "hotele",
+                    destination: hotelSearchDestination,
+                    placement: "hotel_ready_step",
+                    partner: "booking",
+                  };
+                  trackEvent("outbound_partner_click", outboundParams);
+                  trackMetaCustomEvent("PartnerOutboundClick", outboundParams);
+                }}
+              >
+                <Search size={17}/> Sprawdź aktualne noclegi
+              </a>
+              <button type="button" onClick={() => {
+                setDateOpen(true);
+                window.requestAnimationFrame(() => dateRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }));
+              }}>
+                Zmień termin
+              </button>
+            </div>
+
+            <div className="hotel-search-ready-note">
+              Przejście nastąpi w tej samej karcie. Nie otwieramy dodatkowego okna.
+            </div>
+          </div>
+        )}
+
+        {searched && activeTab !== "Hotele" && (
           <div className="search-v3-results">
             <div className="search-v3-active-summary">
               <strong>{selectedDestinations.length ? selectedDestinations.join(" + ") : "Gdziekolwiek"}</strong>
