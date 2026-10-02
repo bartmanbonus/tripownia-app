@@ -1,4 +1,4 @@
-export type SocialOfferPartner = "exim" | "tui" | "wakacje" | "booking" | "kiwi" | "getyourguide" | "other";
+export type SocialOfferPartner = "exim" | "esky" | "tui" | "wakacje" | "booking" | "kiwi" | "getyourguide" | "other";
 
 export type SocialOffer = {
   slug: string;
@@ -23,6 +23,9 @@ const ALLOWED_PARTNER_HOSTS = [
   "reklamy.exim.pl",
   "exim.pl",
   "www.exim.pl",
+  "esky.pl",
+  "www.esky.pl",
+  "www2.esky.pl",
   "pdt.tradedoubler.com",
   "clk.tradedoubler.com",
   "tui.pl",
@@ -74,6 +77,23 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "bari-alberobello-669": {
+    slug: "bari-alberobello-669",
+    city: "Bari + Alberobello",
+    country: "Włochy",
+    price: 669,
+    departure: "Warszawa–Modlin → Brindisi",
+    nights: 2,
+    dates: "20–23 października 2026",
+    board: "Śniadanie",
+    hotel: "B&B Giardino dei Frutti",
+    partner: "esky",
+    partnerLabel: "eSky",
+    affiliateUrl: "https://www2.esky.pl/lot+hotel/portfolio/details/select-room?rooms%5B0%5D%5Badults%5D=2&datesTab=flexDates&stayLength=2:4&departurePlaces=ap-WAW,ap-WMI&arrivalPlaces=ci-BRI&context=pl-packages&partner_id=TRIPOWNIAPLPACKAGES&portfolioToken=6d7b3331-b4de-4290-801f-79862c1d5e7a&packageId=MjYxMDIwOjI6cGw6NzA4NTAz&flightOptionId=V01JQkRTMjYxMDIwMjIzLjE3M3x8VzYxNDAzOjA6MCxCRFNXTUkyNjEwMjIyMjNJLjE3M3x8VzYxNDA0OjA6MQ&departureCode=WMI&arrivalCode=BDS&checkInDate=2026-10-20&checkOutDate=2026-10-22&destinationDepartureDate=2026-10-20&returnArrivalDate=2026-10-23&metaCode=708503&pricePresentation=perpax&selectedDeparturePlaces=ap-WAW,ap-WMI",
+    imageCountry: "Włochy",
+    checkedAt: "2026-10-02T18:47:00+02:00",
+    status: "active",
+  },
   "ateny-marina-1099": {
     slug: "ateny-marina-1099",
     city: "Ateny",
