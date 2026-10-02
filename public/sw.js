@@ -1,6 +1,6 @@
 const CACHE_NAME = "tripownia-v6";
 const APP_SHELL = [
-  "/app",
+  "/offline.html",
   "/tripownia-app-icon-v2.png?v=20260913",
 ];
 
@@ -93,7 +93,7 @@ self.addEventListener("fetch", (event) => {
         if (cached) return cached;
 
         // Keep a lightweight offline fallback without serving cached private state.
-        if (isNavigation) return caches.match("/app");
+        if (isNavigation) return caches.match("/offline.html");
         return Response.error();
       })
   );
