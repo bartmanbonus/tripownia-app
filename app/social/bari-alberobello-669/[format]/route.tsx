@@ -116,7 +116,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ for
   }
 
   if (format === "tiktok") {
-    return new ImageResponse(<FeedCard vertical />, { width: 1080, height: 1920 });
+    return Response.redirect(new URL("/social/bari-alberobello-669/tiktok-jpeg", _request.url), 307);
   }
 
   return new Response("Not found", { status: 404 });
