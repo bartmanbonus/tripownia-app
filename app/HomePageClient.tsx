@@ -613,7 +613,6 @@ export default function Home() {
   const [surpriseLoading, setSurpriseLoading] = useState(false);
 
   useEffect(() => {
-    setSurprise(null);
     const controller = new AbortController();
     const timer = window.setTimeout(() => {
       setSurpriseLoading(true);
@@ -658,6 +657,17 @@ export default function Home() {
       .sort((a, b) => scoreForBudget(b) - scoreForBudget(a) || b.price - a.price || b.score - a.score)
       .slice(0, 8);
   }, [budget, surpriseLive, homepageOfferPool]);
+
+  useEffect(() => {
+    if (!budgetCandidates.length) {
+      setSurprise(null);
+      return;
+    }
+    setSurprise((current) => {
+      if (current && budgetCandidates.some((offer) => offer.id === current.id)) return current;
+      return budgetCandidates[0];
+    });
+  }, [budgetCandidates]);
 
   function moveOffersRail(direction: -1 | 1) {
     const rail = offersRailRef.current;
@@ -970,12 +980,14 @@ export default function Home() {
             <div className="range-labels"><span>500 zł</span><strong>{budget} zł</strong><span>5000 zł</span></div>
           </div>
           <div className="surprise-card">
-            <Sparkles size={30}/><h3>Nie wiesz gdzie?</h3><p>Daj nam budżet i daj się zaskoczyć.</p>
-            <button onClick={pickSurprise} disabled={surpriseLoading}><Dice5 size={18}/> {surpriseLoading ? "Szukamy czegoś lepszego…" : surprise ? "Pokaż inną opcję" : "Dobierz wyjazd"}</button>
+            <div className="surprise-card-head">
+              <Sparkles size={26}/>
+              <div><small>NAJLEPSZE DOPASOWANIE</small><h3>Co wybrać w tym budżecie?</h3><p>Najpierw sensowny wyjazd, nie najtańszy przypadkowy kierunek.</p></div>
+            </div>
             {!budgetCandidates.length && (
               <div className="surprise-result surprise-result-v2">
-                <strong>W tym budżecie nie mamy teraz potwierdzonej okazji.</strong>
-                <em>Nie podstawiamy starej ceny ani przypadkowego kierunku tylko po to, żeby coś pokazać.</em>
+                <strong>Brak sensownej propozycji w tym budżecie.</strong>
+                <em>Zmień kwotę — nie podstawiamy przypadkowej oferty tylko po to, żeby coś pokazać.</em>
               </div>
             )}
             {surprise && (
@@ -989,10 +1001,22 @@ export default function Home() {
                   <span>{surprise.departure}</span>
                 </div>
                 <span><b>od {surprise.price.toLocaleString("pl-PL")} zł/os.</b> · zostaje ok. {(budget - surprise.price).toLocaleString("pl-PL")} zł w budżecie.</span>
-                <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
-                  <a href={surprise.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer" style={{fontWeight:800,textDecoration:"none"}}>Zobacz wyjazd →</a>
-                  <a href={buildKiwiFlightSearch(surprise.city, surprise.country)} target="_blank" rel="sponsored noopener noreferrer" style={{fontWeight:800}}>✈️ Sprawdź loty →</a>
+                <div className="surprise-result-actions">
+                  <a href={surprise.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Zobacz wyjazd →</a>
+                  <button type="button" onClick={pickSurprise} disabled={surpriseLoading}><Dice5 size={15}/> {surpriseLoading ? "Szukamy…" : "Pokaż inną"}</button>
                 </div>
+              </div>
+            )}
+            {budgetCandidates.length > 1 && (
+              <div className="surprise-alternatives">
+                <small>INNE DOBRE OPCJE</small>
+                {budgetCandidates.slice(0, 3).filter((offer) => offer.id !== surprise?.id).slice(0, 2).map((offer) => (
+                  <button type="button" key={offer.id} onClick={() => setSurprise(offer)}>
+                    <span>{offer.flag} <strong>{offer.city}</strong><small>{offer.nights} nocy · {offer.board}</small></span>
+                    <b>{offer.price.toLocaleString("pl-PL")} zł</b>
+                    <ArrowRight size={15}/>
+                  </button>
+                ))}
               </div>
             )}
           </div>
