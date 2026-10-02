@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { Offer } from "@/lib/offers";
 import { isOfferExpired } from "@/lib/offerRuntime";
 import { fetchBrowserEskyOffers } from "@/lib/browserEsky";
+import { offerSourceIsLive, type OfferSourceType } from "@/lib/offerEngine";
 
 type LiveOffersResponse = {
   ok?: boolean;
@@ -11,7 +12,7 @@ type LiveOffersResponse = {
   offers?: Offer[];
   notice?: string;
   error?: string;
-  sourceType?: "live" | "published_fallback" | "live_unavailable";
+  sourceType?: OfferSourceType;
 };
 
 type LiveOffersState = {
@@ -104,7 +105,7 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
       const live = usableOffers(Array.isArray(data.offers) ? data.offers : []);
 
       const tryBrowserEsky = () => {
-        if (data.sourceType === "live") return;
+        if (offerSourceIsLive(data.sourceType)) return;
         void fetchBrowserEskyOffers(endpoint).then((rows) => {
           const browserLive = usableOffers(rows);
           if (!browserLive.length) return;
@@ -124,7 +125,7 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
         try { localStorage.removeItem(cacheKey(endpoint)); } catch {}
         setState({
           offers: [],
-          source: data.sourceType === "live" ? "live" : "fallback",
+          source: offerSourceIsLive(data.sourceType) ? "live" : "fallback",
           loading: false,
           checkedAt: data.checkedAt,
           notice: data.notice,
@@ -162,12 +163,12 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
       writeCache(endpoint, live, checkedAt);
       setState({
         offers: live,
-        source: data.sourceType === "live" ? "live" : "fallback",
+        source: offerSourceIsLive(data.sourceType) ? "live" : "fallback",
         loading: false,
         checkedAt,
         notice: data.notice,
       });
-      if (data.sourceType !== "live") tryBrowserEsky();
+      if (!offerSourceIsLive(data.sourceType)) tryBrowserEsky();
     } catch (error) {
       setState((current) => {
         if (current.source === "live" && current.offers.length && isFreshTimestamp(current.checkedAt)) {
