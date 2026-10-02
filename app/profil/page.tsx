@@ -20,6 +20,9 @@ const styleOptions = [
   ["allinclusive", "All Inclusive"],
 ] as const;
 
+const PROFILE_AIRPORTS = ["Warszawa", "Kraków", "Katowice", "Gdańsk", "Wrocław", "Poznań", "Rzeszów", "Lublin", "Szczecin"];
+const PROFILE_BUDGETS = [1000, 1500, 2500, 4000, 6000];
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState<TravelProfile>(DEFAULT_TRAVEL_PROFILE);
   const [saved, setSaved] = useState(false);
@@ -77,7 +80,10 @@ export default function ProfilePage() {
 
           <label>
             <span><Plane size={17} /> Najczęściej wylatuję z</span>
-            <input value={profile.departure} onChange={(e) => setProfile({ ...profile, departure: e.target.value })} placeholder="np. Warszawa" />
+            <input list="profile-airports" value={profile.departure} onChange={(e) => setProfile({ ...profile, departure: e.target.value })} placeholder="np. Warszawa" autoComplete="off" />
+            <datalist id="profile-airports">
+              {PROFILE_AIRPORTS.map((airport) => <option value={airport} key={airport} />)}
+            </datalist>
           </label>
 
           <label>
@@ -87,6 +93,19 @@ export default function ProfilePage() {
               <strong>zł</strong>
             </div>
           </label>
+          <div className="profile-chips profile-budget-presets" aria-label="Szybki wybór budżetu">
+            {PROFILE_BUDGETS.map((budget) => (
+              <button
+                key={budget}
+                type="button"
+                className={profile.budget === budget ? "profile-chip active" : "profile-chip"}
+                aria-pressed={profile.budget === budget}
+                onClick={() => setProfile({ ...profile, budget })}
+              >
+                do {budget.toLocaleString("pl-PL")} zł
+              </button>
+            ))}
+          </div>
 
           <div className="profile-field">
             <strong><Clock3 size={16}/> Jak najczęściej możesz wyjechać?</strong>
