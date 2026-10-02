@@ -190,15 +190,23 @@ const teamTravelData: Array<{ names: string[]; city: string; country: string; cr
   { names:["VfB Stuttgart","Stuttgart"], city:"Stuttgart", country:"Niemcy" },
 ];
 
+function matchesKnownTeamName(name: string | null | undefined, aliases: string[]) {
+  const normalized = normalize(name);
+  if (!normalized) return false;
+  return aliases.some(alias => normalized === normalize(alias));
+}
+
 function teamInfo(name: string) {
-  const n = normalize(name);
-  return teamTravelData.find(item => item.names.some(alias => n === normalize(alias) || n.includes(normalize(alias))));
+  return teamTravelData.find(item => matchesKnownTeamName(name, item.names));
 }
 
 function destinationForMatch(homeTeam: string, club: SportsClub, isHome: boolean) {
   if (isHome) return { city: club.city, country: club.country };
   const info = teamInfo(homeTeam);
-  return info || { city: club.city, country: club.country };
+  // For an away fixture the destination must be the home team's city. If we
+  // cannot resolve it confidently, omit the fixture instead of sending users
+  // to the tracked club's home city.
+  return info ? { city: info.city, country: info.country } : null;
 }
 
 function cityToKiwiSlug(city: string) {
@@ -238,10 +246,7 @@ function normalize(value?: string | null) {
 }
 
 function clubMatchesTeam(club: SportsClub, name?: string | null) {
-  const normalized = normalize(name);
-  return club.names.some(alias =>
-    normalized === normalize(alias) || normalized.includes(normalize(alias))
-  );
+  return matchesKnownTeamName(name, club.names);
 }
 
 function canonicalTeamKey(name?: string | null) {
@@ -251,9 +256,7 @@ function canonicalTeamKey(name?: string | null) {
   const trackedClub = sportsClubs.find(club => clubMatchesTeam(club, name));
   if (trackedClub) return `club:${trackedClub.slug}`;
 
-  const knownTeam = teamTravelData.find(item =>
-    item.names.some(alias => normalized === normalize(alias) || normalized.includes(normalize(alias)))
-  );
+  const knownTeam = teamTravelData.find(item => matchesKnownTeamName(name, item.names));
   if (knownTeam) return `team:${normalize(knownTeam.names[0])}`;
 
   return `name:${normalized}`;
@@ -338,8 +341,11 @@ function makeTrip(club: SportsClub, match: FootballDataMatch, source: SportsTrip
   if (!isHome && !isAway) return null;
 
   const destination = destinationForMatch(home, club, isHome);
+  if (!destination) return null;
+
   const homeInfo = teamInfo(home);
   const awayInfo = teamInfo(away);
+  const homeClub = sportsClubs.find(c => clubMatchesTeam(c, home));
   const baseTrip: Omit<SportsTrip, "flightUrl" | "hotelUrl"> = {
     id: String(match.id),
     clubSlug: club.slug,
@@ -357,7 +363,7 @@ function makeTrip(club: SportsClub, match: FootballDataMatch, source: SportsTrip
     homeCrest: match.homeTeam?.crest || homeInfo?.crest || null,
     awayCrest: match.awayTeam?.crest || awayInfo?.crest || null,
     isHome,
-    ticketUrl: isHome ? club.ticketUrl : (sportsClubs.find(c => clubMatchesTeam(c, home))?.ticketUrl || club.ticketUrl),
+    ticketUrl: isHome ? club.ticketUrl : (homeClub?.ticketUrl || ""),
   };
 
   const links = buildSportsTripLinks(baseTrip, "WAWA", 3, 2);
