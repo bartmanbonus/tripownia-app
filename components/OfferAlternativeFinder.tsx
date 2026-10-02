@@ -115,7 +115,7 @@ export default function OfferAlternativeFinder({
   const resultsRef = useRef<HTMLDivElement>(null);
   const [changeMode, setChangeMode] = useState<ChangeMode>("date");
   const [selectedAirport, setSelectedAirport] = useState(initialAirport);
-  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedDate, setSelectedDate] = useState(originalDepartureDate);
   const [flexDays, setFlexDays] = useState("7");
   const [results, setResults] = useState<Offer[]>([]);
   const [notice, setNotice] = useState("");
@@ -131,8 +131,21 @@ export default function OfferAlternativeFinder({
     setNotice("");
     setResults([]);
     setSearched(false);
-    if (mode === "date") setSelectedAirport(initialAirport);
-    if (mode === "airport") setSelectedDate("");
+
+    if (mode === "date") {
+      setSelectedAirport(initialAirport);
+      setSelectedDate(originalDepartureDate);
+      return;
+    }
+
+    if (mode === "airport") {
+      setSelectedAirport("");
+      setSelectedDate("");
+      return;
+    }
+
+    setSelectedAirport("");
+    setSelectedDate(originalDepartureDate);
   }
 
   async function runSearch(event?: FormEvent, forceAnyAirport = false, forceAnyDate = false) {
@@ -188,6 +201,10 @@ export default function OfferAlternativeFinder({
         if (!response.ok || data?.ok === false) throw new Error(data?.error || "search_failed");
         const offers = (Array.isArray(data?.offers) ? data.offers : [])
           .filter((offer: Offer) => !currentOfferId || offer.id !== currentOfferId)
+          .filter((offer: Offer) => {
+            if (!usesAirport || selectedAirport || forceAnyAirport || !initialAirport) return true;
+            return resolveAirportCode(offer.airportCode, offer.departure) !== initialAirport;
+          })
           .sort((a: Offer, b: Offer) => Number(a.price || Infinity) - Number(b.price || Infinity));
         return { data, offers };
       };
@@ -269,7 +286,7 @@ export default function OfferAlternativeFinder({
           <label className={styles.field}>
             <span><Plane size={16} /> Skąd chcesz lecieć?</span>
             <select value={selectedAirport} onChange={(event) => setSelectedAirport(event.target.value)}>
-              <option value="">Wszystkie lotniska w Polsce</option>
+              <option value="">{initialAirport ? "Dowolne inne lotnisko" : "Wszystkie lotniska w Polsce"}</option>
               {airportOptions.map((airport: any) => (
                 <option key={airport.code} value={airport.code}>{airport.label} ({airport.code})</option>
               ))}
