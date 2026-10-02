@@ -188,9 +188,9 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                     <div className={styles.trip}><strong>{activeDeparture.label} → {trip.city}</strong><span>{links.departureDate} – {links.returnDate} · {selectedNights} noce · {selectedPeople} os.</span></div>
                     <div className={styles.cardActions}>
                       <a className={styles.primary} href={"/dodaj-podroz?source=sport&city=" + encodeURIComponent(trip.city) + "&country=" + encodeURIComponent(trip.country) + "&start=" + links.departureDate + "&end=" + links.returnDate + "&departure=" + encodeURIComponent(activeDeparture.label) + "&match=" + encodeURIComponent(trip.homeTeam + " vs " + trip.awayTeam) + "&venue=" + encodeURIComponent(trip.venue || trip.city) + "&ticket=" + encodeURIComponent(links.ticketUrl)}>Ułóż cały wyjazd →</a>
-                      <a href={links.flightUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">Sprawdź lot</a>
-                      <a href={links.hotelUrl} target="_blank" rel="nofollow sponsored noopener noreferrer">Znajdź nocleg</a>
-                      <a href={links.ticketUrl} target="_blank" rel="noopener noreferrer">Oficjalne bilety</a>
+                      <a href={links.flightUrl} rel="nofollow sponsored noopener noreferrer">Sprawdź lot</a>
+                      <a href={links.hotelUrl} rel="nofollow sponsored noopener noreferrer">Znajdź nocleg</a>
+                      <a href={links.ticketUrl} rel="noopener noreferrer">Oficjalne bilety</a>
                     </div>
                   </article>
                 );
