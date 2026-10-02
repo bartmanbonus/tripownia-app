@@ -1,42 +1,17 @@
-const CACHE_NAME = "tripownia-v6";
+const CACHE_NAME = "tripownia-v7";
 const APP_SHELL = [
   "/offline.html",
   "/tripownia-app-icon-v2.png?v=20260913",
 ];
 
-const PRIVATE_NAV_PREFIXES = [
-  "/app",
-  "/konto",
-  "/profil",
-  "/moje-podroze",
-  "/moja-podroz",
-  "/dodaj-podroz",
-  "/ulubione",
-  "/alerty",
-  "/dla-ciebie",
-  "/porownaj",
-  "/admin",
-];
-
-function isPrivateNavigation(url) {
-  return PRIVATE_NAV_PREFIXES.some((prefix) =>
-    url.pathname === prefix || url.pathname.startsWith(prefix + "/")
-  );
-}
-
-function canStoreResponse(request, response, url, isNavigation, isStaticAsset) {
-  if (!response.ok) return false;
+function canStoreResponse(response, isStaticAsset) {
+  if (!response.ok || !isStaticAsset) return false;
 
   const cacheControl = (response.headers.get("cache-control") || "").toLowerCase();
   if (cacheControl.includes("no-store") || cacheControl.includes("private")) return false;
 
-  if (isStaticAsset) return true;
-  if (!isNavigation) return false;
-
-  // Dynamic/private screens and query-driven pages should always come from the
-  // network so users do not see stale account/planner/offer state after deploys.
-  if (isPrivateNavigation(url) || url.search) return false;
-
+  // Tripownia has live prices, availability and account state. Never cache HTML
+  // navigations; offline navigation always uses the neutral offline screen.
   return true;
 }
 
@@ -82,7 +57,7 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     fetch(request)
       .then((response) => {
-        if (canStoreResponse(request, response, url, isNavigation, isStaticAsset)) {
+        if (canStoreResponse(response, isStaticAsset)) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
         }
