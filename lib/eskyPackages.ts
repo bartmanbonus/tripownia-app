@@ -7,6 +7,9 @@ export type EskyPackage = Offer & {
   startDateISO: string; endDateISO: string;
 };
 const AIRPORTS: Record<string, string> = { WAW: "Warszawa Chopina", WMI: "Warszawa Modlin", KRK: "Kraków", KTW: "Katowice", GDN: "Gdańsk", WRO: "Wrocław", POZ: "Poznań", RZE: "Rzeszów", LUZ: "Lublin", SZZ: "Szczecin", LCJ: "Łódź", BZG: "Bydgoszcz", SZY: "Olsztyn", IEG: "Zielona Góra", RDO: "Radom" };
+const ESKY_BLOCK_COOLDOWN_MS = 5 * 60 * 1000;
+let eskyBlockedUntil = 0;
+
 function hash(value: string) { let n = 0; for (const c of value) n = (Math.imul(n, 31) + c.charCodeAt(0)) | 0; return n >>> 0; }
 
 export function normalizeEskyPackage(row: any): EskyPackage | null {
@@ -48,6 +51,9 @@ export function normalizeEskyPackage(row: any): EskyPackage | null {
 export async function fetchEskyPackages(search: EskySearch = {}): Promise<{ offers: EskyPackage[]; partial: boolean; hasMore: boolean; searchUrl: string; error?: string }> {
   const offers: EskyPackage[] = [];
   const searchUrl = eskySearchUrl(search);
+  if (Date.now() < eskyBlockedUntil) {
+    return { offers, partial: true, hasMore: false, searchUrl, error: "HTTP 403 (cooldown)" };
+  }
   const nights = eskyNights(search);
   if (nights.from > nights.to) return { offers, partial: false, hasMore: false, searchUrl };
   // Country slices prevent the default portfolio (often Malta-heavy) from hiding
@@ -73,8 +79,12 @@ export async function fetchEskyPackages(search: EskySearch = {}): Promise<{ offe
           headers: { "x-via": "minilisting-widget-TRIPOWNIAPLPACKAGES", Accept: "application/json" },
           next: { revalidate: 300 }, signal: AbortSignal.timeout(requestTimeout),
         });
-        if (response.status === 401 || response.status === 403) sourceBlocked = true;
+        if (response.status === 401 || response.status === 403) {
+          sourceBlocked = true;
+          eskyBlockedUntil = Date.now() + ESKY_BLOCK_COOLDOWN_MS;
+        }
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        eskyBlockedUntil = 0;
         const data = await response.json();
         if (!Array.isArray(data.offers)) throw new Error("invalid_response");
         for (const row of data.offers) { const offer = normalizeEskyPackage(row); if (offer) offers.push(offer); }
