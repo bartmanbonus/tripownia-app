@@ -3,13 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin } from "lucide-react";
-import OfferRailDeduper from "@/components/OfferRailDeduper";
 import { trackEvent } from "@/lib/analytics";
 
 export default function SiteFooter() {
   return (
     <>
-      <OfferRailDeduper />
       <footer className="footer footer-v2">
         <div className="shell footer-v2-shell">
           <div className="footer-v2-grid">
