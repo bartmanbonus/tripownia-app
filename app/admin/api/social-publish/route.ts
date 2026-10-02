@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { publishFacebook, publishInstagram } from "@/lib/social-automation";
 import { getSocialOfferById } from "@/lib/social-offer-pool";
+import { adminAuthError, verifyAdminRequest } from "@/lib/adminAuthServer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdminRequest(request);
+  if (!auth.ok) return adminAuthError(auth);
+
   try {
     const body = (await request.json()) as {
       offerId?: number;
