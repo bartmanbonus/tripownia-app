@@ -711,7 +711,9 @@ export async function GET(request: NextRequest) {
       if (!previous || candidate.price < previous.price) unique.set(keyValue, candidate);
     }
 
-    const rawCandidates = Array.from(unique.values()).filter(isAffordableShortTrip);
+    const rawCandidates = (mode === "search" || mode === "citybreak")
+      ? Array.from(unique.values())
+      : Array.from(unique.values()).filter(isAffordableShortTrip);
     const allCandidates = query && !rescueMode && (mode === "search" || mode === "citybreak")
       ? rawCandidates.filter((offer) => candidateMatchesQuery(offer, query))
       : rawCandidates;
