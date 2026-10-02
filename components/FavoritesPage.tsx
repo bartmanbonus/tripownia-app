@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Heart, ArrowLeft } from "lucide-react";
+import { Heart, ArrowRight } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
