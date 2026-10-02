@@ -59,7 +59,12 @@ const POLISH_MONTHS: Record<string, number> = {
 };
 
 function inferDepartureDate(value: string) {
-  const raw = normalize(value).replace(/–|—/g, "-");
+  const raw = value
+    .toLocaleLowerCase("pl")
+    .replace(/ł/g, "l")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[–—]/g, "-");
 
   const iso = value.match(/20\d{2}-\d{2}-\d{2}/);
   if (iso?.[0]) return iso[0];
