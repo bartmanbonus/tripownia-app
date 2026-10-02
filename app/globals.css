@@ -15376,3 +15376,119 @@ img{
     font-size:21px;
   }
 }
+
+
+/* 2026-10-02 hotel guided affiliate handoff */
+.hotel-search-ready{
+  margin-top:18px;
+  padding:20px;
+  border:1px solid #eadfd7;
+  border-radius:20px;
+  background:linear-gradient(180deg,#fff 0%,#fffaf7 100%);
+  box-shadow:0 14px 34px rgba(53,38,28,.05);
+}
+.hotel-search-ready-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:18px;
+}
+.hotel-search-ready-head small{
+  display:block;
+  color:#ef5b35;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.09em;
+}
+.hotel-search-ready-head h3{
+  margin:5px 0 6px;
+  font-size:24px;
+  line-height:1.05;
+  letter-spacing:-.7px;
+}
+.hotel-search-ready-head p{
+  max-width:720px;
+  margin:0;
+  color:#746861;
+  font-size:12px;
+  line-height:1.55;
+}
+.hotel-search-ready-check{
+  display:grid;
+  place-items:center;
+  width:40px;
+  height:40px;
+  flex:0 0 40px;
+  border-radius:12px;
+  background:#eef8f2;
+  color:#1f7a50;
+}
+.hotel-search-ready-summary{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+  margin-top:16px;
+}
+.hotel-search-ready-summary>div{
+  padding:13px 14px;
+  border:1px solid #eee5df;
+  border-radius:13px;
+  background:#fff;
+}
+.hotel-search-ready-summary span{
+  display:block;
+  color:#8e8178;
+  font-size:9px;
+  font-weight:850;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.hotel-search-ready-summary strong{
+  display:block;
+  margin-top:4px;
+  font-size:13px;
+}
+.hotel-search-ready-actions{
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+  margin-top:15px;
+}
+.hotel-search-ready-actions>a,
+.hotel-search-ready-actions>button{
+  min-height:46px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:0 15px;
+  border-radius:13px;
+  font:inherit;
+  font-size:11px;
+  font-weight:900;
+  cursor:pointer;
+  text-decoration:none;
+}
+.hotel-search-ready-actions>a{
+  border:0;
+  background:#171717;
+  color:#fff;
+}
+.hotel-search-ready-actions>button{
+  border:1px solid #e2d7d0;
+  background:#fff;
+  color:#2c2723;
+}
+.hotel-search-ready-note{
+  margin-top:10px;
+  color:#8f8179;
+  font-size:9px;
+}
+@media(max-width:640px){
+  .hotel-search-ready{padding:16px;border-radius:16px}
+  .hotel-search-ready-head h3{font-size:20px}
+  .hotel-search-ready-summary{grid-template-columns:1fr}
+  .hotel-search-ready-actions{display:grid;grid-template-columns:1fr}
+  .hotel-search-ready-actions>a,
+  .hotel-search-ready-actions>button{width:100%}
+}
