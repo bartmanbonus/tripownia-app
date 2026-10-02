@@ -57,7 +57,7 @@ export default function FavoritesPage() {
       {favorites.length ? (
         <>
           {activeFavorites.length > 0 && <>
-            <div className="section-heading"><div><div className="kicker">ZAPISANE</div><h2>Twoje oferty</h2><p>Przy starszej zapisanej ofercie zawsze potwierdź aktualną cenę u partnera.</p></div></div>
+            <div className="section-heading"><div><div className="kicker">ZAPISANE</div><h2>Twoje oferty</h2><p>Przy starszej zapisanej ofercie zawsze potwierdź aktualną cenę przed rezerwacją.</p></div></div>
             <div className="cards-grid">{activeFavorites.map((offer) => <OfferCard key={offer.id} offer={offer}/>)}</div>
           </>}
           {expiredFavorites.length > 0 && <>
@@ -74,7 +74,7 @@ export default function FavoritesPage() {
           <Heart size={34}/>
           <h2>Nie masz jeszcze zapisanych ofert</h2>
           <p>Kliknij serduszko przy interesującej propozycji, a znajdziesz ją tutaj przy kolejnej wizycie na tym urządzeniu.</p>
-          <Link className="primary-cta" href="/okazje"><ArrowLeft size={17}/> Zobacz aktualne okazje</Link>
+          <Link className="primary-cta" href="/okazje">Zobacz aktualne okazje <ArrowRight size={17}/></Link>
         </div>
       )}
     </section>
