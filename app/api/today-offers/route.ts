@@ -344,7 +344,11 @@ async function fetchProducts(provider: "exim" | "tui", query: string, token: str
     const data = await response.json();
     return Array.isArray(data?.products) ? (data.products as TdProduct[]) : [];
   }));
-  if (results.every(result => result.status === "rejected")) throw new Error(`${provider.toUpperCase()} feed unavailable`);
+  if (results.every(result => result.status === "rejected")) {
+    const firstFailure = results.find((result) => result.status === "rejected");
+    if (firstFailure?.status === "rejected" && firstFailure.reason instanceof Error) throw firstFailure.reason;
+    throw new Error(`${provider.toUpperCase()} feed unavailable`);
+  }
   return results.flatMap(result => result.status === "fulfilled" ? result.value : []);
 }
 
@@ -641,6 +645,10 @@ export async function GET(request: NextRequest) {
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
   let eskyStatus: { partial: boolean; error?: string; searchUrl?: string; hasMore?: boolean } = { partial: false };
+  const feedStatus: Record<"exim" | "tui", { configured: boolean; attempted: number; succeeded: number; failed: number; error?: string }> = {
+    exim: { configured: Boolean(eximToken), attempted: 0, succeeded: 0, failed: 0 },
+    tui: { configured: Boolean(tuiToken), attempted: 0, succeeded: 0, failed: 0 },
+  };
 
   try {
     const eskyPromise = !skipEsky && (!providerOnly || providerOnly === "esky")
@@ -680,10 +688,32 @@ export async function GET(request: NextRequest) {
 
     for (const term of terms) {
       if (eximToken && (!providerOnly || providerOnly === "exim")) {
-        jobs.push(() => fetchProducts("exim", term, eximToken, searchPages).then((products) => ({ provider: "exim" as const, products })));
+        jobs.push(async () => {
+          feedStatus.exim.attempted++;
+          try {
+            const products = await fetchProducts("exim", term, eximToken, searchPages);
+            feedStatus.exim.succeeded++;
+            return { provider: "exim" as const, products };
+          } catch (error) {
+            feedStatus.exim.failed++;
+            if (!feedStatus.exim.error) feedStatus.exim.error = error instanceof Error ? error.message.slice(0, 120) : "feed_unavailable";
+            throw error;
+          }
+        });
       }
       if (tuiToken && (!providerOnly || providerOnly === "tui")) {
-        jobs.push(() => fetchProducts("tui", term, tuiToken, searchPages).then((products) => ({ provider: "tui" as const, products })));
+        jobs.push(async () => {
+          feedStatus.tui.attempted++;
+          try {
+            const products = await fetchProducts("tui", term, tuiToken, searchPages);
+            feedStatus.tui.succeeded++;
+            return { provider: "tui" as const, products };
+          } catch (error) {
+            feedStatus.tui.failed++;
+            if (!feedStatus.tui.error) feedStatus.tui.error = error instanceof Error ? error.message.slice(0, 120) : "feed_unavailable";
+            throw error;
+          }
+        });
       }
     }
 
@@ -916,7 +946,7 @@ export async function GET(request: NextRequest) {
         checkedAt: new Date().toISOString(),
         sourceCount: pool.length,
         partial: failedFeeds > 0 || esky.partial,
-        sourceStatus: { esky: eskyStatus, feedsFailed: failedFeeds },
+        sourceStatus: { esky: eskyStatus, exim: feedStatus.exim, tui: feedStatus.tui, feedsFailed: failedFeeds },
         providers: Array.from(new Set(pool.map(offer => offer.provider))),
         coverage: "available_feed_results",
         sourceType: "live",
@@ -1045,7 +1075,7 @@ export async function GET(request: NextRequest) {
         checkedAt: new Date().toISOString(),
         sourceCount: selectedFallback.length,
         partial: true,
-        sourceStatus: { esky: eskyStatus },
+        sourceStatus: { esky: eskyStatus, exim: feedStatus.exim, tui: feedStatus.tui },
         fallback: true,
         providers: Array.from(new Set(selectedFallback.map((offer) => offer.partner))),
         coverage: "published_fallback",
