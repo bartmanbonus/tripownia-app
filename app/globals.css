@@ -15592,3 +15592,66 @@ img{
   .ferie-live-card{flex:0 0 86vw;scroll-snap-align:start}
   .ferie-direct-search-head h3{font-size:24px}
 }
+
+
+/* Ferie 2027 — curated destination presets */
+.ferie-presets-head{margin:24px 0 14px}
+.ferie-presets-head h3,.ferie-more-offers-head h3{margin:6px 0 0;font-size:28px;line-height:1.1;letter-spacing:-1px}
+.ferie-presets-head p{max-width:820px;margin:8px 0 0;color:#6f625b;font-size:13px;line-height:1.55}
+.ferie-presets-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+  margin-top:16px;
+}
+.ferie-preset{
+  min-width:0;
+  padding:14px;
+  border:1px solid #eadfd7;
+  border-radius:20px;
+  background:#fffaf6;
+}
+.ferie-preset-title{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  min-height:86px;
+  padding:2px 2px 12px;
+}
+.ferie-preset-flag{font-size:30px;line-height:1}
+.ferie-preset-title small{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  color:#ff5b35;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.ferie-preset-title strong{display:block;margin-top:4px;font-size:22px;letter-spacing:-.5px}
+.ferie-preset-title span:not(.ferie-preset-flag){display:block;margin-top:4px;color:#756860;font-size:11px;line-height:1.35}
+.ferie-preset>.offer-card{height:calc(100% - 86px)}
+.ferie-preset-loading,
+.ferie-preset-empty{
+  min-height:180px;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:7px;
+  padding:20px;
+  border:1px dashed #e1d5ce;
+  border-radius:16px;
+  background:#fff;
+}
+.ferie-preset-loading{flex-direction:row;align-items:center}
+.ferie-preset-loading span,.ferie-preset-empty span{color:#74675f;font-size:12px;line-height:1.45}
+.ferie-preset-empty a{margin-top:4px;color:#171717;font-size:12px;font-weight:900;text-decoration:none}
+.ferie-more-offers-head{margin:32px 0 14px;padding-top:24px;border-top:1px solid #eee3dc}
+@media(max-width:760px){
+  .ferie-presets-grid{display:flex;overflow-x:auto;gap:12px;padding-bottom:10px;scroll-snap-type:x mandatory;scrollbar-width:none}
+  .ferie-presets-grid::-webkit-scrollbar{display:none}
+  .ferie-preset{flex:0 0 88vw;scroll-snap-align:start}
+  .ferie-presets-head h3,.ferie-more-offers-head h3{font-size:24px}
+}
