@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GET as getTodayOffers } from "@/app/api/today-offers/route";
 import type { Offer } from "@/lib/offers";
+import { eskySearchUrl } from "@/lib/eskySearch";
 
 type LiveOffer = Offer & {
   startDateISO?: string;
@@ -149,6 +150,14 @@ export async function GET(request: NextRequest) {
         offer: result.offer,
         regionalDeparture: true,
         airportLabel: turn.airportLabel,
+        searchUrl: eskySearchUrl({
+          query: preset.query,
+          departure: turn.airports.join(","),
+          minNights: 5,
+          maxNights: 9,
+          start: turn.from,
+          end: turn.to,
+        }),
         notice: result.notice,
       };
     }
@@ -161,6 +170,14 @@ export async function GET(request: NextRequest) {
       offer: fallback?.offer || null,
       regionalDeparture: false,
       airportLabel: fallback?.offer ? String(fallback.offer.departure || "inne lotnisko w Polsce") : turn.airportLabel,
+      searchUrl: eskySearchUrl({
+        query: preset.query,
+        departure: turn.airports.join(","),
+        minNights: 5,
+        maxNights: 9,
+        start: turn.from,
+        end: turn.to,
+      }),
       notice: fallback?.notice || result.notice,
     };
   });
