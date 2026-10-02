@@ -13,6 +13,7 @@ import { partners } from "@/lib/partners";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { trackEvent } from "@/lib/analytics";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
+import { offerSourceIsFallback } from "@/lib/offerEngine";
 
 const SearchHub = dynamic(() => import("@/components/SearchHub"));
 const SalesVisualShortcuts = dynamic(() => import("@/components/SalesVisualShortcuts"));
@@ -523,7 +524,7 @@ export default function Home() {
         }
 
         const checkedAt = typeof data?.checkedAt === "string" ? data.checkedAt : new Date().toISOString();
-        const sourceIsFallback = data?.sourceType === "published_fallback"
+        const sourceIsFallback = offerSourceIsFallback(data?.sourceType)
           || data?.coverage === "published_fallback"
           || data?.fallback === true;
         const freshPool = safeRows.slice(0, 60);
