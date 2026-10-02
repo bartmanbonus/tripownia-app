@@ -1736,3 +1736,55 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   .profile-budget-presets::-webkit-scrollbar{display:none}
   .profile-budget-presets .profile-chip{flex:0 0 auto;min-height:40px}
 }
+
+/* Mobile global navigation polish */
+@media(max-width:560px){
+  .trip-mobile-account,
+  .trip-mobile-menu>summary{
+    min-height:44px!important;
+  }
+  .trip-mobile-social{
+    min-height:42px!important;
+  }
+  .trip-mobile-menu-panel{
+    width:min(calc(100vw - 20px),360px)!important;
+    max-height:calc(100dvh - 76px)!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain;
+    padding-bottom:calc(18px + env(safe-area-inset-bottom))!important;
+  }
+  .trip-mobile-menu-section{
+    padding-block:10px!important;
+  }
+  .trip-mobile-menu-section strong{
+    font-size:10px!important;
+    letter-spacing:.08em!important;
+  }
+  .trip-mobile-menu-section a{
+    min-height:46px!important;
+    padding-block:8px!important;
+    font-size:13px!important;
+  }
+
+  .footer-v2-column h3{
+    font-size:11px!important;
+  }
+  .footer-v2-column a{
+    min-height:28px!important;
+    margin-bottom:7px!important;
+    display:flex!important;
+    align-items:center!important;
+    font-size:12px!important;
+    line-height:1.4!important;
+  }
+  .footer-v2-bottom p,
+  .footer-v2-bottom>span,
+  .footer-v2-legal a{
+    font-size:11px!important;
+    line-height:1.5!important;
+  }
+  .footer-v2-legal{
+    gap:10px 14px!important;
+    flex-wrap:wrap!important;
+  }
+}
