@@ -691,7 +691,7 @@ export default function AddTripPage() {
 
           {error && <div className="add-trip-error" role="alert">{error}</div>}
           <div className="add-trip-actions">
-            <button type="submit" className="primary-cta">{editingTrip ? "Zapisz zmiany w planie" : signedIn ? "Zapisz plan z tym, co podałam" : "Utwórz plan z tym, co podałam"} <ArrowRight size={17}/></button>
+            <button type="submit" className="primary-cta">{editingTrip ? "Zapisz zmiany w planie" : "Utwórz darmowy plan"} <ArrowRight size={17}/></button>
             <Link href="/#wyszukiwarka">Najpierw chcę znaleźć cały wyjazd</Link>
           </div>
         </form>
