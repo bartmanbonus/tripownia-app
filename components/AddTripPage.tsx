@@ -269,21 +269,22 @@ export default function AddTripPage() {
 
     const source = params.get("source");
     setSourceType(source || "");
-    if (source === "affiliate" || source === "external") {
+    if (source === "affiliate" || source === "external" || source === "offer") {
       const affiliateCity = (params.get("city") || "").trim();
       const affiliateCountry = (params.get("country") || "").trim();
       const affiliateKind = (params.get("kind") || "package").trim();
       const affiliatePartner = (params.get("partner") || "").trim();
-      setSourceKind(affiliateKind);
       const sourceStart = (params.get("start") || "").trim();
       const sourceEnd = (params.get("end") || "").trim();
       const sourceDeparture = (params.get("departure") || "").trim();
+      const isOwnedSource = source === "affiliate" || source === "external";
 
+      setSourceKind(affiliateKind);
       setDestinationMode("known");
       setSkipDestinationChoice(false);
       setCity(affiliateCity);
       setCountry(affiliateCountry);
-      setOwnedMode(true);
+      setOwnedMode(isOwnedSource);
       setDateMode(sourceStart && sourceEnd ? "range" : "flexible");
       if (sourceStart) setStartDate(sourceStart);
       if (sourceEnd) setEndDate(sourceEnd);
@@ -292,15 +293,22 @@ export default function AddTripPage() {
         setDeparture(sourceDeparture);
         setDepartureOptions([sourceDeparture]);
       }
-      setPieces({
+      setPieces(isOwnedSource ? {
         flight: affiliateKind === "flight" || affiliateKind === "package",
         hotel: affiliateKind === "hotel" || affiliateKind === "package",
         transfer: false,
         attractions: false,
         esim: false,
         parking: false,
+      } : {
+        flight: false,
+        hotel: false,
+        transfer: false,
+        attractions: false,
+        esim: false,
+        parking: false,
       });
-      if (affiliatePartner) {
+      if (isOwnedSource && affiliatePartner) {
         setSelectedProvider({
           flight: affiliateKind === "flight" || affiliateKind === "package" ? affiliatePartner : undefined,
           hotel: affiliateKind === "hotel" || affiliateKind === "package" ? affiliatePartner : undefined,
@@ -375,7 +383,7 @@ export default function AddTripPage() {
     const explicitSource = params?.get("source") || "";
     const hasExplicitSourceDestination = Boolean(
       ((params?.get("city") || "").trim() || (params?.get("country") || "").trim())
-      && ["affiliate", "external", "experience", "sport"].includes(explicitSource)
+      && ["affiliate", "external", "offer", "experience", "sport"].includes(explicitSource)
     );
     void ensureFreshAccountSession(readAccountSession()).then((currentSession) => {
       if (cancelled) return;
