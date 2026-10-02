@@ -264,7 +264,11 @@ export async function refreshAccountSession(session: AccountSession) {
         return null;
       }
 
-      const refreshed = normalizeSession(await response.json() as AccountSession);
+      const refreshedPayload = await response.json() as AccountSession;
+      const refreshed = normalizeSession({
+        ...refreshedPayload,
+        auth_event_type: session.auth_event_type,
+      });
       saveAccountSession(refreshed);
       return refreshed;
     } finally {
