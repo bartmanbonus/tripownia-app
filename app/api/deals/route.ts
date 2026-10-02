@@ -436,6 +436,12 @@ export async function GET(request: NextRequest) {
     notice = notice ? `${notice} ${providerNotice}` : providerNotice;
   }
 
+  if (!offers.length && unavailableSources.length && hasScopedFallbackFilter) {
+    notice = airport
+      ? "Nie mamy teraz potwierdzonej oferty z wybranego lotniska i terminu. Nie podstawiamy innego miasta ani miesiąca."
+      : "Nie mamy teraz potwierdzonej oferty dla wybranego terminu. Nie podstawiamy innego miesiąca.";
+  }
+
   offers.sort((a, b) => a.price - b.price);
 
   const checkedAt = successful
