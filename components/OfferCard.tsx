@@ -282,6 +282,12 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
       data-offer-id={offer.id}
       data-offer-price={displayPrice}
       data-offer-partner={offer.partner}
+      onClick={(event) => {
+        const target = event.target as HTMLElement;
+        if (target.closest("a,button,input,select,textarea,[role='button']")) return;
+        trackOfferClick("card_cta", directAffiliate);
+        window.location.assign(cardHref);
+      }}
     >
       {directAffiliate && isLiveOffer ? (
         <a
