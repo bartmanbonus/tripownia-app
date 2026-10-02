@@ -24,6 +24,15 @@ const FAR_COUNTRIES = new Set([
   "australia","brazylia","chiny","dominikana","indonezja","jamajka","japonia","kenia","kolumbia","kostaryka","kuba","malediwy","mauritius","meksyk","peru","seszele","singapur","sri lanka","tajlandia","tanzania","usa","wietnam","zanzibar","zjednoczone emiraty arabskie",
 ]);
 
+const TRIP_INTENT_LABELS: Record<TravelProfile["tripIntent"], string> = {
+  any: "Różnie / zaskocz mnie",
+  quick: "Krótki wypad",
+  rest: "Dłuższy odpoczynek",
+  capitals: "Stolice i miasta",
+  new_country: "Nowe kraje",
+  far: "Dalsze kierunki",
+};
+
 function normalize(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 }
@@ -223,7 +232,7 @@ export default function ForYouPage() {
           <span>Wylot: <strong>{profile.departure}</strong></span>
           <span>Budżet: <strong>do {profile.budget.toLocaleString("pl-PL")} zł</strong></span>
           <span>Dostępność: <strong>{scheduleLabel}</strong></span>
-          <span>Cel: <strong>{profile.tripIntent}</strong></span>
+          <span>Cel: <strong>{TRIP_INTENT_LABELS[profile.tripIntent]}</strong></span>
           {profile.excludedVisitedCountries.length > 0 && <span>Pomijamy: <strong>{profile.excludedVisitedCountries.length} krajów</strong></span>}
           <span>{sourceLabel}</span>
           <button type="button" onClick={refresh} className="app-secondary-button"><RefreshCw size={16} /> {loading ? "Odświeżam…" : "Odśwież"}</button>
@@ -267,7 +276,12 @@ export default function ForYouPage() {
         {!loading && !offers.length && (
           <div className="self-search-empty">
             <strong>Nie mamy teraz potwierdzonej puli ofert.</strong>
-            <span>Odśwież dane lub wróć za chwilę — nie pokazujemy starych cen jako aktualnych.</span>
+            <span>Nie pokazujemy starych cen jako aktualnych. Możesz odświeżyć dane albo przejść do wszystkich bieżących okazji.</span>
+            <div className="self-search-empty-actions">
+              <button type="button" onClick={refresh}><RefreshCw size={16}/> Odśwież</button>
+              <Link href="/okazje">Zobacz aktualne okazje <ArrowRight size={16}/></Link>
+              <Link href="/profil">Zmień preferencje</Link>
+            </div>
           </div>
         )}
       </section>
