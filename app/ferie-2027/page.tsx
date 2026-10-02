@@ -10,9 +10,22 @@ const title = "Ferie zimowe 2027 – terminy i gotowe wyjazdy dla województw";
 const description = "Ferie zimowe 2027: wybierz swoją turę i zobacz konkretne wyjazdy dopasowane do dat ferii. Austria, Włochy, Egipt, Turcja i aktualne oferty z polskich lotnisk.";
 
 export const metadata: Metadata = {
-  title,
+  title: { absolute: title },
   description,
   alternates: { canonical: "/ferie-2027" },
+  openGraph: {
+    type: "website",
+    url: "https://tripownia.pl/ferie-2027",
+    title,
+    description,
+    siteName: "Tripownia",
+    locale: "pl_PL",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title,
+    description,
+  },
 };
 
 const terms = [
