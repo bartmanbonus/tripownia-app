@@ -8,7 +8,30 @@ export type EskyPackage = Offer & {
 };
 const AIRPORTS: Record<string, string> = { WAW: "Warszawa Chopina", WMI: "Warszawa Modlin", KRK: "Kraków", KTW: "Katowice", GDN: "Gdańsk", WRO: "Wrocław", POZ: "Poznań", RZE: "Rzeszów", LUZ: "Lublin", SZZ: "Szczecin", LCJ: "Łódź", BZG: "Bydgoszcz", SZY: "Olsztyn", IEG: "Zielona Góra", RDO: "Radom" };
 const ESKY_BLOCK_COOLDOWN_MS = 5 * 60 * 1000;
+const ESKY_LAST_GOOD_TTL_MS = 30 * 60 * 1000;
 let eskyBlockedUntil = 0;
+const eskyLastGood = new Map<string, { at: number; offers: EskyPackage[]; hasMore: boolean }>();
+
+function eskyCacheKey(search: EskySearch) {
+  return JSON.stringify({
+    query: search.query || "",
+    departure: search.departure || "",
+    cityBreak: Boolean(search.cityBreak),
+    nights: search.nights || "",
+    minNights: search.minNights || "",
+    maxNights: search.maxNights || "",
+    start: search.start || "",
+    end: search.end || "",
+    minPrice: search.minPrice || "",
+    maxPrice: search.maxPrice || "",
+  });
+}
+
+function lastGoodEsky(search: EskySearch) {
+  const cached = eskyLastGood.get(eskyCacheKey(search));
+  if (!cached || Date.now() - cached.at > ESKY_LAST_GOOD_TTL_MS) return null;
+  return cached;
+}
 
 function hash(value: string) { let n = 0; for (const c of value) n = (Math.imul(n, 31) + c.charCodeAt(0)) | 0; return n >>> 0; }
 
@@ -51,8 +74,11 @@ export function normalizeEskyPackage(row: any): EskyPackage | null {
 export async function fetchEskyPackages(search: EskySearch = {}): Promise<{ offers: EskyPackage[]; partial: boolean; hasMore: boolean; searchUrl: string; error?: string }> {
   const offers: EskyPackage[] = [];
   const searchUrl = eskySearchUrl(search);
+  const cached = lastGoodEsky(search);
   if (Date.now() < eskyBlockedUntil) {
-    return { offers, partial: true, hasMore: false, searchUrl, error: "HTTP 403 (cooldown)" };
+    return cached
+      ? { offers: cached.offers, partial: true, hasMore: cached.hasMore, searchUrl, error: "HTTP 403 (using last good results)" }
+      : { offers, partial: true, hasMore: false, searchUrl, error: "HTTP 403 (cooldown)" };
   }
   const nights = eskyNights(search);
   if (nights.from > nights.to) return { offers, partial: false, hasMore: false, searchUrl };
@@ -104,9 +130,26 @@ export async function fetchEskyPackages(search: EskySearch = {}): Promise<{ offe
   // Probe the source once before fanning out. When eSky returns 401/403,
   // this avoids multiplying the same blocked request across every destination.
   if (arrivals.length) await scan(arrivals[0]);
-  for (let index = 1; index < arrivals.length; index += 4) {
+  for (let index = 1; index < arrivals.length; index += 2) {
     if (sourceBlocked || Date.now() >= deadline) break;
-    await Promise.all(arrivals.slice(index, index + 4).map(scan));
+    await Promise.all(arrivals.slice(index, index + 2).map(scan));
   }
+
+  if (offers.length) {
+    eskyLastGood.set(eskyCacheKey(search), {
+      at: Date.now(),
+      offers: offers.slice(),
+      hasMore,
+    });
+  } else if (partial && cached) {
+    return {
+      offers: cached.offers,
+      partial: true,
+      hasMore: cached.hasMore,
+      searchUrl,
+      error: error ? `${error} (using last good results)` : "using last good results",
+    };
+  }
+
   return { offers, partial, hasMore, searchUrl, ...(error ? { error } : {}) };
 }
