@@ -14,9 +14,9 @@ on:
           - beta
           - production
       version_code:
-        description: Android versionCode (must be higher than every version already uploaded to Play)
+        description: Android versionCode (use the next small integer, e.g. 2, 3, 4; must be higher than every version already uploaded to Play)
         required: true
-        default: '2026100201'
+        default: '2'
         type: string
       version_name:
         description: User-facing Android version
