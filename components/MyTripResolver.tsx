@@ -18,7 +18,7 @@ function hydrateStoredOffer() {
   try {
     const saved = JSON.parse(localStorage.getItem("tripownia-my-trip") || "null") as StoredTrip | null;
     const snapshot = saved?.offerSnapshot;
-    if (!snapshot?.id || !snapshot.city || !snapshot.country) return "static";
+    if (!snapshot?.id || !snapshot.city) return "static";
 
     const index = offers.findIndex((offer) => offer.id === snapshot.id);
     if (index >= 0) offers[index] = { ...offers[index], ...snapshot };
