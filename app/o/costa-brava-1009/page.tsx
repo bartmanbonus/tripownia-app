@@ -3,6 +3,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
+import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 
 export const metadata: Metadata = {
   title: "Costa Brava 25–28.10.2026 — 3 noce od 1009 zł/os. | Tripownia",
@@ -64,6 +65,7 @@ export default function CostaBravaOfferPage() {
               >
                 Sprawdź ofertę →
               </TrackedPartnerLink>
+              <OfferAlternativeJump />
               <small className="booking-note">
                 Rezerwacja odbywa się u partnera. Cena jest dynamiczna i może się zmienić.
               </small>
