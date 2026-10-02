@@ -36,13 +36,13 @@ export default function AccountCloudSync() {
 
         const currentUserId = session.user?.id || remote?.user_id || "";
         const localOwner = localStorage.getItem("tripownia-local-owner-v1") || "";
+        hydrating = true;
 
         if (localOwner && currentUserId && localOwner !== currentUserId) {
           clearLocalAccountState();
         }
 
         const localDirty = localStorage.getItem(DIRTY_KEY);
-        hydrating = true;
 
         if (remote && localDirty && (!localOwner || localOwner === currentUserId)) {
           const localState = collectLocalAccountState();
