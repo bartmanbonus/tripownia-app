@@ -1009,11 +1009,11 @@ export default function SearchHub({
         : "Bez ograniczenia daty";
 
   const quickPicks: Array<[string, string, SearchOverrides]> = [
-    ["Rzym, Włochy", "Rzym na city break", { duration: "3-4", budget: "1500", tab: "Lot + hotel" }],
-    ["Teneryfa, Hiszpania", "Ciepło na Teneryfie", { duration: "5-7", budget: "3000", tab: "Lot + hotel" }],
-    ["Djerba, Tunezja", "All Inclusive na Djerbie", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Lot + hotel" }],
-    ["Mediolan, Włochy", "Mediolan / Bergamo", { duration: "3-4", budget: "1500", weekendOnly: false, tab: "Lot + hotel" }],
-    ["Zanzibar, Tanzania", "Egzotyka: Zanzibar", { duration: "11-14", budget: "7500", tab: "Lot + hotel" }],
+    ["Malta", "Malta do 1 000 zł", { duration: "3-4", budget: "1000", tab: "Lot + hotel" }],
+    ["Bergamo, Włochy", "Bergamo / Mediolan do 1 000 zł", { duration: "1-2", budget: "1000", tab: "Lot + hotel" }],
+    ["Praga, Czechy", "Praga na weekend", { duration: "1-2", budget: "1000", tab: "Lot + hotel" }],
+    ["Rzym, Włochy", "Rzym do 1 500 zł", { duration: "3-4", budget: "1500", tab: "Lot + hotel" }],
+    ["Djerba, Tunezja", "All Inclusive do 3 000 zł", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Lot + hotel" }],
   ];
   const simpleHomePackage = !embedded && activeTab !== "Loty" && activeTab !== "Hotele";
   const visibleTabs = embedded
