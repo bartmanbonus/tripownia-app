@@ -93,7 +93,7 @@ export default function LiveSalesRail({ mode, limit = 8 }: { mode: Mode; limit?:
 
   return (
     <div className="cards-grid seo-live-offers-grid">
-      {offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} />)}
+      {offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} sourceSurface="live_sales_rail" />)}
     </div>
   );
 }
