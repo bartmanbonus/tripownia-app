@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Building2, CalendarDays, MapPin, Plane, Search, Sun, Users } from "lucide-react";
+import { Search } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import FerieOffers2027 from "@/components/FerieOffers2027";
 
-const title = "Ferie zimowe 2027 – terminy województw i gdzie lecieć";
-const description = "Ferie zimowe 2027: sprawdź terminy dla województw i pomysły na wyjazd. Ciepłe kierunki, city break, narty i wakacje z polskich lotnisk.";
+const title = "Ferie zimowe 2027 – terminy i gotowe wyjazdy dla województw";
+const description = "Ferie zimowe 2027: wybierz swoją turę i zobacz konkretne wyjazdy dopasowane do dat ferii. Austria, Włochy, Egipt, Turcja i aktualne oferty z polskich lotnisk.";
 
 export const metadata: Metadata = {
   title,
@@ -21,38 +20,7 @@ const terms = [
   ["15–28 lutego 2027", "lubuskie, kujawsko-pomorskie, warmińsko-mazurskie, wielkopolskie, zachodniopomorskie, małopolskie"],
 ] as const;
 
-const ideas = [
-  {
-    href: "/gdzie-jest-cieplo-zima-bez-dalekiego-lotu",
-    label: "Gdzie jest ciepło zimą",
-    icon: <Sun size={22}/>,
-  },
-  {
-    href: "/wakacje-z-dziecmi",
-    label: "Wakacje z dziećmi",
-    icon: <Users size={22}/>,
-  },
-  {
-    href: "/wyspy-kanaryjskie-wakacje-all-inclusive-i-last-minute",
-    label: "Wyspy Kanaryjskie",
-    icon: <Plane size={22}/>,
-  },
-  {
-    href: "/egipt",
-    label: "Egipt",
-    icon: <MapPin size={22}/>,
-  },
-  {
-    href: "/city-break",
-    label: "City break",
-    icon: <Building2 size={22}/>,
-  },
-  {
-    href: "/planer-podrozy",
-    label: "Zaplanuj wyjazd",
-    icon: <CalendarDays size={22}/>,
-  },
-] as const;
+
 
 export default function Ferie2027Page() {
   return <main className="ferie-2027-page">
@@ -65,8 +33,8 @@ export default function Ferie2027Page() {
     <section className="shell ferie-hero">
       <div className="ferie-hero-copy">
         <div className="kicker">FERIE ZIMOWE 2027</div>
-        <h1>Ferie 2027: terminy województw i pomysły na wyjazd.</h1>
-        <p>Sprawdź swoją turę, wybierz styl wyjazdu i od razu przejdź do aktualnych propozycji. Bez przekopywania się przez przypadkowe terminy i kierunki.</p>
+        <h1>Ferie 2027: wybierz swoją turę i zobacz gotowe wyjazdy.</h1>
+        <p>Daty ferii są już podpięte. Wybierz grupę województw, a pokażemy konkretne oferty i najbliższe sensowne lotniska.</p>
         <a className="ferie-hero-cta" href="#oferty-ferie"><Search size={18}/> Zobacz konkretne oferty na ferie</a>
       </div>
     </section>
@@ -97,19 +65,6 @@ export default function Ferie2027Page() {
       </div>
     </section>
 
-    <section className="shell ferie-section ferie-ideas-section">
-      <div className="kicker">GDZIE NA FERIE</div>
-      <h2>Dobierz kierunek do tego, czego chcesz od zimowego wyjazdu</h2>
-      <div className="ferie-ideas-grid">
-        {ideas.map((item) => (
-          <Link href={item.href} className="ferie-idea-card" key={item.href}>
-            <span className="ferie-idea-icon">{item.icon}</span>
-            <strong>{item.label}</strong>
-            <span className="ferie-idea-arrow">→</span>
-          </Link>
-        ))}
-      </div>
-    </section>
 
     <section className="shell ferie-editorial">
       <div className="ferie-editorial-media" aria-hidden="true"/>
