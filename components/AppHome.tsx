@@ -253,7 +253,7 @@ export default function AppHome() {
             </div>
             <Link href="/okazje">Zobacz Okazje <ArrowRight size={16}/></Link>
           </div>
-          {!liveLoading && topOffers.length > 0 && <div className="cards-grid">{topOffers.map((offer) => <OfferCard key={offer.id} offer={offer} />)}</div>}
+          {!liveLoading && topOffers.length > 0 && <div className="cards-grid">{topOffers.map((offer) => <OfferCard key={offer.id} offer={offer} sourceSurface="app_home" />)}</div>}
           {!liveLoading && topOffers.length === 0 && <div className="self-search-empty"><strong>Aktualizujemy oferty.</strong><span>Wróć do wyszukiwarki powyżej albo sprawdź inspiracje — nie podstawiamy niezweryfikowanych cen.</span></div>}
         </section>
       </section>
