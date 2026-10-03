@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import Image from "next/image";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
+import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 
 export const metadata: Metadata = {
   title: "Okazja podróżnicza",
@@ -198,9 +199,25 @@ export default async function SocialOfferLanding({
             </div>
 
             <div className="detail-action-box">
-              <a className="primary-cta" href={outboundHref} rel="sponsored">
+              <TrackedPartnerLink
+                className="primary-cta"
+                href={outboundHref}
+                partner={target.partner.key}
+                offerId={Number(offerId) || 0}
+                destination={[city, country].filter(Boolean).join(", ")}
+                price={price || 0}
+                placement="live_offer_detail_primary"
+                returnContext={{
+                  departure,
+                  hotel,
+                  board,
+                  nights,
+                  start,
+                  end,
+                }}
+              >
                 Sprawdź aktualną cenę <ExternalLink size={18}/>
-              </a>
+              </TrackedPartnerLink>
               <Link className="btn secondary" href={plannerHref}>
                 <PlusCircle size={17}/> Dodaj do planera
               </Link>
