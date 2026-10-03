@@ -1024,6 +1024,53 @@ export function findSocialOfferForCatalogOffer(input: {
   ) || null;
 }
 
+function decodedAffiliateUrl(value: string) {
+  let current = value;
+  for (let index = 0; index < 3; index++) {
+    try {
+      const next = decodeURIComponent(current);
+      if (next === current) break;
+      current = next;
+    } catch {
+      break;
+    }
+  }
+  return current;
+}
+
+function compactIso(value: string) {
+  if (!/^20\d{6}$/.test(value)) return "";
+  return `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
+}
+
+export function socialOfferDateRange(offer: Pick<SocialOffer, "affiliateUrl">) {
+  const decoded = decodedAffiliateUrl(offer.affiliateUrl || "");
+  const firstParam = (keys: string[]) => {
+    for (const key of keys) {
+      const match = decoded.match(new RegExp(`(?:[?&]|\\b)${key}=((?:20\\d{2}-\\d{2}-\\d{2}))`, "i"));
+      if (match?.[1]) return match[1];
+    }
+    return "";
+  };
+
+  let start = firstParam(["destinationDepartureDate", "departure", "DD", "checkInDate"]);
+  let end = firstParam(["returnArrivalDate", "return", "RD", "checkOutDate"]);
+
+  if (!start || !end) {
+    const compactDates = Array.from(decoded.matchAll(/20\d{6}/g), (match) => compactIso(match[0]))
+      .filter(Boolean);
+    const uniqueDates = Array.from(new Set(compactDates));
+    if (!start && uniqueDates.length) start = uniqueDates[0];
+    if (!end && uniqueDates.length > 1) end = uniqueDates[uniqueDates.length - 1];
+  }
+
+  if (!/^20\d{2}-\d{2}-\d{2}$/.test(start) || !/^20\d{2}-\d{2}-\d{2}$/.test(end)) {
+    return { start: "", end: "" };
+  }
+  if (Date.parse(end) < Date.parse(start)) return { start: "", end: "" };
+  return { start, end };
+}
+
 export function getSocialOffer(slug: string): SocialOffer | null {
   const normalizedSlug = slug.toLocaleLowerCase("pl");
   const offer = SOCIAL_OFFERS[normalizedSlug] || null;
