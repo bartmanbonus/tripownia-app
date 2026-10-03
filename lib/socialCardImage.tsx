@@ -206,5 +206,5 @@ function TikTok({ offer, origin }: { offer: SocialOffer; origin: string }) {
 export function SocialCardImage({ offer, origin, format }: { offer: SocialOffer; origin: string; format: SocialCardFormat }) {
   if (format === "story") return <Story offer={offer} origin={origin} />;
   if (format === "tiktok") return <TikTok offer={offer} origin={origin} />;
-  return <CoreCard offer={offer} origin={origin} width={1080} height={1350} />;
+  return <CoreCard offer={offer} origin={origin} width={1080} height={1080} />;
 }
