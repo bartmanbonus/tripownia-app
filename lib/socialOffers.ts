@@ -1106,6 +1106,15 @@ export function socialOfferDateRange(offer: Pick<SocialOffer, "affiliateUrl" | "
   return { start, end };
 }
 
+export function getSocialOfferForLanding(slug: string): SocialOffer | null {
+  const normalizedSlug = slug.toLocaleLowerCase("pl");
+  const offer = SOCIAL_OFFERS[normalizedSlug] || null;
+  if (!offer) return null;
+  if (!validAffiliateUrl(offer.affiliateUrl)) return null;
+  if (!validImageCountry(offer)) return null;
+  return offer;
+}
+
 export function getSocialOffer(slug: string): SocialOffer | null {
   const normalizedSlug = slug.toLocaleLowerCase("pl");
   const offer = SOCIAL_OFFERS[normalizedSlug] || null;
