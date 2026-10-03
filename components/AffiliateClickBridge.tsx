@@ -273,6 +273,48 @@ function interactiveAnchor(event: Event) {
   return target.closest<HTMLAnchorElement>("a[href]");
 }
 
+function captureOutboundContext(anchor: HTMLAnchorElement) {
+  if (!isTrackedLiveHref(anchor)) return;
+  try {
+    const tracked = new URL(anchor.href, window.location.origin);
+    const clickId = tracked.searchParams.get("clickId") || "";
+    if (clickId && anchor.dataset.tripowniaOutboundContextSaved === clickId) return;
+
+    const partner = tracked.searchParams.get("partner") || "unknown";
+    const source = tracked.searchParams.get("source") || sourceFor(anchor);
+    const destination = tracked.searchParams.get("destination") || destinationFor(anchor);
+    const target = tracked.searchParams.get("target") || "";
+    const outboundHost = (() => { try { return new URL(target).hostname; } catch { return ""; } })();
+    const offerId = tracked.searchParams.get("offer") || "";
+    const price = tracked.searchParams.get("price") || "";
+
+    saveAffiliateReturnContext({
+      partner,
+      destination,
+      source,
+      offerId,
+      price,
+      ...currentOfferReturnDetails(),
+    });
+    trackEvent("affiliate_click", {
+      partner,
+      source,
+      destination,
+      page: window.location.pathname,
+      outbound_host: outboundHost,
+    });
+    trackMetaCustomEvent("AffiliateClick", {
+      partner,
+      source,
+      destination,
+      page: window.location.pathname,
+      outbound_host: outboundHost,
+    });
+
+    if (clickId) anchor.dataset.tripowniaOutboundContextSaved = clickId;
+  } catch {}
+}
+
 export default function AffiliateClickBridge() {
   useEffect(() => {
     wrapInitialPartnerLinks();
@@ -280,49 +322,23 @@ export default function AffiliateClickBridge() {
     const handleInteraction = (event: Event) => {
       const anchor = interactiveAnchor(event);
       if (!anchor) return;
-      const before = anchor.href;
       wrapAnchor(anchor);
-      if (event.type === "pointerdown" && isTrackedLiveHref(anchor)) {
-        try {
-          const tracked = new URL(anchor.href, window.location.origin);
-          const partner = tracked.searchParams.get("partner") || "unknown";
-          const source = tracked.searchParams.get("source") || sourceFor(anchor);
-          const destination = tracked.searchParams.get("destination") || destinationFor(anchor);
-          const outboundHost = (() => { try { return new URL(before).hostname; } catch { return ""; } })();
-          const offerId = tracked.searchParams.get("offer") || "";
-          const price = tracked.searchParams.get("price") || "";
-          saveAffiliateReturnContext({
-            partner,
-            destination,
-            source,
-            offerId,
-            price,
-            ...currentOfferReturnDetails(),
-          });
-          trackEvent("affiliate_click", {
-            partner,
-            source,
-            destination,
-            page: window.location.pathname,
-            outbound_host: outboundHost,
-          });
-          trackMetaCustomEvent("AffiliateClick", {
-            partner,
-            source,
-            destination,
-            page: window.location.pathname,
-            outbound_host: outboundHost,
-          });
-        } catch {}
+
+      // pointerdown covers mouse/touch before navigation; click also covers
+      // keyboard activation (Enter). The clickId marker prevents double events.
+      if (event.type === "pointerdown" || event.type === "click") {
+        captureOutboundContext(anchor);
       }
     };
 
     document.addEventListener("pointerdown", handleInteraction, true);
+    document.addEventListener("click", handleInteraction, true);
     document.addEventListener("focusin", handleInteraction, true);
     document.addEventListener("contextmenu", handleInteraction, true);
 
     return () => {
       document.removeEventListener("pointerdown", handleInteraction, true);
+      document.removeEventListener("click", handleInteraction, true);
       document.removeEventListener("focusin", handleInteraction, true);
       document.removeEventListener("contextmenu", handleInteraction, true);
     };
