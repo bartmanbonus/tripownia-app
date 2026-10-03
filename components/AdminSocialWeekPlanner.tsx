@@ -5,6 +5,7 @@ import { Check, ChevronLeft, ChevronRight, ExternalLink, Send } from "lucide-rea
 import { getSocialDailyPlan } from "@/lib/social-selection";
 import styles from "./AdminSocialWeekPlanner.module.css";
 import { adminFetch } from "@/lib/adminClient";
+import { findSocialOfferForCatalogOffer } from "@/lib/socialOffers";
 
 type Status = "proposal" | "approved" | "published";
 
@@ -13,14 +14,35 @@ function key(date:Date){ return `${date.getFullYear()}-${pad(date.getMonth()+1)}
 function dateFromKey(value:string){ const [y,m,d]=value.split("-").map(Number); return new Date(y,m-1,d,12); }
 function monday(date:Date){ const d=new Date(date); const offset=(d.getDay()+6)%7; d.setDate(d.getDate()-offset); d.setHours(12,0,0,0); return d; }
 function addDays(date:Date, amount:number){ const d=new Date(date); d.setDate(d.getDate()+amount); return d; }
-function publicOfferUrl(item: ReturnType<typeof getSocialDailyPlan>["items"][number]) {
+function publicOfferUrl(
+  item: ReturnType<typeof getSocialDailyPlan>["items"][number],
+  placement: "post"|"comment" = "post"
+) {
   const o=item.offer;
-  if(o.id>=1_000_000) return item.kind==="flight" ? "https://tripownia.pl/tanie-loty" : "https://tripownia.pl/okazje";
-  return `https://tripownia.pl/oferta/${o.id}`;
+  const curated=findSocialOfferForCatalogOffer({
+    affiliateUrl:o.affiliateUrl,
+    city:o.city,
+    hotel:o.hotel,
+    price:o.price,
+  });
+  const path=curated
+    ? `/o/${curated.slug}`
+    : o.id>=1_000_000
+      ? item.kind==="flight" ? "/tanie-loty" : "/okazje"
+      : `/oferta/${o.id}`;
+  const url=new URL(path,"https://tripownia.pl");
+  url.searchParams.set("utm_source","facebook");
+  url.searchParams.set("utm_medium","social");
+  url.searchParams.set("utm_campaign",item.kind==="flight" ? "perelka_lotnicza" : "oferta_dnia");
+  url.searchParams.set("utm_content",`${o.city}-${o.id}-${placement}`.toLowerCase().replace(/[^a-z0-9]+/g,"-"));
+  return url.toString();
 }
-function buildText(item: ReturnType<typeof getSocialDailyPlan>["items"][number]) {
+function buildText(
+  item: ReturnType<typeof getSocialDailyPlan>["items"][number],
+  placement: "post"|"comment" = "post"
+) {
   const o=item.offer;
-  const landing=publicOfferUrl(item);
+  const landing=publicOfferUrl(item,placement);
   const price=o.price>0 ? `${o.price} zł/os.` : "sprawdź aktualną cenę";
   const tags = item.kind === "city" ? "#Tripownia #CityBreak #TaniePodróże" : item.kind === "flight" ? "#Tripownia #TanieLoty #Podróże" : "#Tripownia #Wakacje #Podróże";
 
@@ -65,7 +87,7 @@ export default function AdminSocialWeekPlanner(){
       const response=await adminFetch("/api/admin/social-publish",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({offerId:item.offer.id,text:buildText(item),approved:true,channels:["facebook","instagram"],linkPlacement})
+        body:JSON.stringify({offerId:item.offer.id,text:buildText(item,linkPlacement),approved:true,channels:["facebook","instagram"],linkPlacement})
       });
       const data=await response.json();
       if(!response.ok||!data.ok) throw new Error(data.error||"Publikacja nie powiodła się");
@@ -133,15 +155,16 @@ export default function AdminSocialWeekPlanner(){
               <span className={`${styles.badge} ${flight?styles.flight:""}`}>{item.label}</span>
             </div>
             <div className={styles.body}>
-              <small>POST {index+1}/5</small>
+              <small>{index<2 ? `FEED ${index+1}/2` : `STORY ${index-1}/3`}</small>
               <h3>{flight ? hasPrice ? `✈️ ${item.offer.city} — mocna cena` : `✈️ ${item.offer.city} na radarze` : `${item.offer.flag} ${item.offer.city}`}</h3>
               <strong className={styles.price}>{flight && hasPrice ? `od ${item.offer.price} zł` : hasPrice ? `od ${item.offer.price} zł/os.` : "sprawdź ceny lotów"}</strong>
               <p>📅 {item.offer.dates}<br/>✈️ {item.offer.departure}{flight?` → ${item.offer.city}`:` · ${item.offer.nights} nocy`}</p>
               <div className={styles.reason}>{item.priceGem.reason}</div>
               <div className={styles.actions}>
-                {status==="proposal" && <button onClick={()=>setStatuses((s)=>({...s,[item.offer.id]:"approved"}))}><Check size={15}/> {manualFlight?"Zatwierdź po sprawdzeniu":"Zatwierdź"}</button>}
-                {status==="approved" && <button onClick={()=>publish(item)} disabled={publishing===item.offer.id}><Send size={15}/> {publishing===item.offer.id?"Publikuję…":"Publikuj FB + IG"}</button>}
-                {status==="published" && <span>✓ Opublikowano</span>}
+                {index<2 && status==="proposal" && <button onClick={()=>setStatuses((s)=>({...s,[item.offer.id]:"approved"}))}><Check size={15}/> {manualFlight?"Zatwierdź po sprawdzeniu":"Zatwierdź feed"}</button>}
+                {index<2 && status==="approved" && <button onClick={()=>publish(item)} disabled={publishing===item.offer.id}><Send size={15}/> {publishing===item.offer.id?"Publikuję…":"Publikuj FB + IG"}</button>}
+                {index<2 && status==="published" && <span>✓ Opublikowano</span>}
+                {index>=2 && <span>Story — kandydat do przygotowania</span>}
                 <a href={item.offer.affiliateUrl} target="_blank" rel="sponsored noreferrer">{flight?"Sprawdź lot":"Sprawdź ofertę"} <ExternalLink size={14}/></a>
               </div>
             </div>
