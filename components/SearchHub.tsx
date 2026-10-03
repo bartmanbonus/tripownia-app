@@ -1681,8 +1681,8 @@ export default function SearchHub({
               const fallbackDestination = selectedDestinations[0] || destination;
               const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination, {
                 departures,
-                from: dateMode === "exact" || dateMode === "range" ? apiDates.start : "",
-                to: dateMode === "range" ? apiDates.end : dateMode === "exact" ? apiDates.start : "",
+                from: dateMode === "exact" || dateMode === "range" ? dateFrom : "",
+                to: dateMode === "range" ? dateTo : dateMode === "exact" ? dateFrom : "",
               }) : null;
               return <div className="search-v3-empty">
                 <strong>{fallbackDestination ? `Nie kończymy na 0 wyników dla „${fallbackDestination}”.` : "Nie kończymy na pustej liście."}</strong>
