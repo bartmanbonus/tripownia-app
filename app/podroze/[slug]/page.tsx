@@ -409,6 +409,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
           endDate={endDate}
         />
       </section>
+      <section className="section shell seo-social-after-offers"><FacebookFollowCTA placement="seo_landing_after_offers" compact /></section>
 
       <section className="shell seo-decision-section">
         <div className="seo-decision-head">
@@ -514,7 +515,6 @@ export default async function SeoLandingPage({ params }: PageProps) {
         </section>
       )}
 
-      <section className="section shell seo-social-footer"><FacebookFollowCTA placement="seo_landing" compact /></section>
 
       <SiteFooter />
     </main>
