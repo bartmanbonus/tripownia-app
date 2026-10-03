@@ -73,9 +73,10 @@ export default async function Page({ searchParams }: PageProps) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
       <section className="seasonal-hero shell newyear-hero-premium">
         <div className="kicker">CITY BREAK NA SYLWESTRA 2026/2027</div>
-        <h1>City break na Sylwestra: lot + hotel i krótkie wyjazdy za granicę.</h1>
+        <h1>City break na Sylwestra 2026/2027 – lot + hotel i gotowe wyjazdy</h1>
         <p>Porównaj krótkie city breaki, tydzień w cieple i dalsze wyjazdy na przełom roku. Najpierw realne terminy i ceny, potem wybór kierunku.</p>
         <div className="newyear-type-nav">
+          <a href="#szukaj-sylwester">Znajdź wyjazd do swojego budżetu</a>
           <a href="#city-break">City break 3–6 nocy</a>
           <a href="#dluzsze">Dłuższe 7–12 nocy</a>
         </div>
