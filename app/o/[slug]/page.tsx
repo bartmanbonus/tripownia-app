@@ -6,7 +6,7 @@ import { ArrowLeft, BadgeCheck, CalendarDays, MapPin, Moon, Plane, PlusCircle, U
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AffiliateOfferLink from "@/components/AffiliateOfferLink";
-import { getSocialOffer, socialOfferDateRange, type SocialOffer } from "@/lib/socialOffers";
+import { getSocialOfferForLanding, socialOfferDateRange, type SocialOffer } from "@/lib/socialOffers";
 import CompleteTripSales from "@/components/CompleteTripSales";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
@@ -36,7 +36,7 @@ const LEGACY_RZYM_529: SocialOfferPage = {
 function getOfferForPage(slug: string): SocialOfferPage | null {
   const normalizedSlug = slug.toLocaleLowerCase("pl");
   if (normalizedSlug === "rzym-529") return LEGACY_RZYM_529;
-  return getSocialOffer(slug);
+  return getSocialOfferForLanding(slug);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
