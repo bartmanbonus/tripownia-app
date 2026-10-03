@@ -55,22 +55,25 @@ function buildText(
   const o=item.offer;
   const landing=publicOfferUrl(item,placement);
   const price=o.price>0 ? `${o.price} zł/os.` : "sprawdź aktualną cenę";
+  const postCta = placement === "comment"
+    ? "👇 Link do konkretnej oferty w pierwszym komentarzu."
+    : `👉 Sprawdź konkretną ofertę: ${landing}`;
   const tags = item.kind === "city" ? "#Tripownia #CityBreak #TaniePodróże" : item.kind === "flight" ? "#Tripownia #TanieLoty #Podróże" : "#Tripownia #Wakacje #Podróże";
 
   if(item.kind === "flight"){
     const hook=o.price>0 ? `${o.city} od ${o.price} zł. Taki lot dziś trafia na nasz radar. ✈️` : `${o.city} na radarze Tripowni. Dziś warto sprawdzić ceny lotów. ✈️`;
-    return `${hook}\n\nWylot: ${o.departure}\nTermin: ${o.dates}\n\n${o.reason}\n\nSprawdź aktualne opcje: ${landing}\n\n${tags}`;
+    return `${hook}\n\nWylot: ${o.departure}\nTermin: ${o.dates}\n\n${o.reason}\n\n${postCta}\n\n${tags}`;
   }
 
   if(item.kind === "city"){
-    return `${o.city} na krótki wyjazd? Dzisiaj znaleźliśmy opcję za ${price}.\n\n✈️ ${o.departure}\n📅 ${o.dates}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\nSprawdź na Tripowni: ${landing}\n\n${tags}`;
+    return `${o.city} na krótki wyjazd? Dzisiaj znaleźliśmy opcję za ${price}.\n\n✈️ ${o.departure}\n📅 ${o.dates}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\n${postCta}\n\n${tags}`;
   }
 
   if(item.kind === "seasonal"){
-    return `Gdy w Polsce robi się chłodniej, ${o.city} wygląda coraz lepiej. ☀️\n\nCena: ${price}\nWylot: ${o.departure}\nTermin: ${o.dates}\nHotel: ${o.hotel}\n\n${o.reason}\n\nZobacz aktualną ofertę: ${landing}\n\n${tags}`;
+    return `Gdy w Polsce robi się chłodniej, ${o.city} wygląda coraz lepiej. ☀️\n\nCena: ${price}\nWylot: ${o.departure}\nTermin: ${o.dates}\nHotel: ${o.hotel}\n\n${o.reason}\n\n${postCta}\n\n${tags}`;
   }
 
-  return `${o.city} za ${price}. To jedna z mocniejszych ofert, które dziś wyłapała Tripownia.\n\n✈️ Wylot: ${o.departure}\n📅 ${o.dates}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\nMy szukamy. Ty lecisz. → ${landing}\n\n${tags}`;
+  return `${o.city} za ${price}. To jedna z mocniejszych ofert, które dziś wyłapała Tripownia.\n\n✈️ Wylot: ${o.departure}\n📅 ${o.dates}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\n${postCta}\n\n${tags}`;
 }
 
 export default function AdminSocialWeekPlanner(){
