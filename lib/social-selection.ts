@@ -71,6 +71,13 @@ function hasDurableSocialLanding(offer: Offer) {
   }));
 }
 
+function isEskyPackage(offer: Offer) {
+  const href = String(offer.affiliateUrl || "").toLowerCase();
+  return href.includes("esky.pl")
+    || href.includes("partner_id=tripowniaplpackages")
+    || /[?&]partner=esky(?:&|$)/.test(href);
+}
+
 function choose(
   pool: Offer[],
   picked: Offer[],
@@ -135,12 +142,22 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
   const cheapCity = (offer: Offer) => isCityBreak(offer) && offer.price > 0 && offer.price <= 1300;
   const followerMagnetCity = (offer: Offer) => isCityBreak(offer) && offer.price > 0 && offer.price <= 1000;
   const durableCheapCity = (offer: Offer) => followerMagnetCity(offer) && hasDurableSocialLanding(offer);
+  const durableEskyUnder700 = (offer: Offer) =>
+    isCityBreak(offer)
+    && offer.price > 0
+    && offer.price <= 700
+    && isEskyPackage(offer)
+    && hasDurableSocialLanding(offer);
 
   // The first two items are the feed slots in the social planner.
-  // Prioritize concrete low-price city breaks because they generate the strongest
-  // clicks and follower growth. A flight gem moves to Stories after both feed slots.
+  // First slot mirrors the strongest observed sales pattern: a durable eSky city
+  // break at <=700 PLN. The second stays broader to preserve destination variety.
+  // A flight gem moves to Stories after both feed slots.
   for (let index = 0; index < 2; index += 1) {
     const offer =
+      (index === 0
+        ? choose(pool, picked, durableEskyUnder700, evaluationNow, { strict:true, cheapestFirst:true })
+        : undefined) ||
       choose(pool, picked, durableCheapCity, evaluationNow, { strict:true, cheapestFirst:true }) ||
       choose(pool, picked, followerMagnetCity, evaluationNow, { strict:true, cheapestFirst:true }) ||
       choose(pool, picked, cheapCity, evaluationNow, { strict:true, cheapestFirst:true }) ||
