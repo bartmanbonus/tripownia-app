@@ -204,7 +204,27 @@ function isTrackedLiveHref(anchor: HTMLAnchorElement) {
   }
 }
 
+function enrichTrackedLiveHref(anchor: HTMLAnchorElement) {
+  if (!isTrackedLiveHref(anchor)) return false;
+  try {
+    const url = new URL(anchor.href, window.location.origin);
+    const attribution = visitAttribution();
+    if (!url.searchParams.get("clickId")) url.searchParams.set("clickId", createClickId());
+    if (!url.searchParams.get("utmSource") && attribution?.source) url.searchParams.set("utmSource", attribution.source);
+    if (!url.searchParams.get("utmMedium") && attribution?.medium) url.searchParams.set("utmMedium", attribution.medium);
+    if (!url.searchParams.get("utmCampaign") && attribution?.campaign) url.searchParams.set("utmCampaign", attribution.campaign);
+    if (!url.searchParams.get("utmContent") && attribution?.content) url.searchParams.set("utmContent", attribution.content);
+    if (!url.searchParams.get("landing")) url.searchParams.set("landing", attribution?.landing || window.location.pathname);
+    anchor.href = url.pathname + "?" + url.searchParams.toString();
+    anchor.dataset.tripowniaOutboundWrapped = "1";
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function wrapAnchor(anchor: HTMLAnchorElement) {
+  if (enrichTrackedLiveHref(anchor)) return;
   if (anchor.dataset.tripowniaOutboundWrapped === "1" && isTrackedLiveHref(anchor)) return;
 
   // React can update href after a user changes search parameters while the DOM node
