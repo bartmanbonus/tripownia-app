@@ -6895,3 +6895,84 @@ body {
   .seo-hero-actions{align-items:stretch}
   .seo-hero-actions a{width:100%;justify-content:center}
 }
+
+
+/* V154 — commercial SEO UX guard */
+.seo-travel-landing-v3,
+.seo-travel-landing-v3 *{
+  min-width:0;
+}
+.seo-intent-copy h1,
+.seo-intent-copy p,
+.seo-primary-offers h2,
+.seo-decision-section h2,
+.seo-search-wider h2,
+.seo-faq-section h2,
+.seo-discovery-section h2{
+  overflow-wrap:anywhere;
+}
+.seo-hero-actions a,
+.seo-search-wider-grid a,
+.seo-discovery-grid a{
+  max-width:100%;
+}
+.seo-hero-actions a{
+  white-space:normal;
+  text-align:center;
+}
+.seo-live-offers-grid>.offer-card{
+  height:100%;
+}
+.seo-live-offers-grid .offer-body{
+  min-height:0;
+  height:100%;
+}
+.seo-live-offers-grid .card-cta{
+  min-height:48px;
+}
+.seo-primary-offers,
+.seo-decision-section,
+.seo-search-wider,
+.seo-faq-section,
+.seo-discovery-section{
+  overflow:hidden;
+}
+@media(max-width:700px){
+  .seo-intent-hero-inner{gap:22px}
+  .seo-intent-copy h1{
+    font-size:clamp(36px,10.5vw,44px);
+    line-height:1.02;
+    letter-spacing:-1.8px;
+  }
+  .seo-intent-copy>p{font-size:15px;line-height:1.55}
+  .seo-intent-facts{gap:8px}
+  .seo-intent-facts>div{
+    min-height:88px;
+    padding:13px;
+    border-radius:14px;
+  }
+  .seo-primary-offers{padding:30px 0 34px}
+  .seo-primary-offers-head{margin-bottom:14px}
+  .seo-primary-offers-head h2,
+  .seo-decision-head h2,
+  .seo-search-wider h2,
+  .seo-faq-section h2,
+  .seo-discovery-section h2{
+    font-size:30px;
+    letter-spacing:-1.1px;
+  }
+  .seo-decision-section,
+  .seo-search-wider,
+  .seo-faq-section,
+  .seo-discovery-section{padding:18px 0 36px}
+  .seo-decision-grid article,
+  .seo-search-wider-grid>a,
+  .seo-discovery-grid a{border-radius:16px}
+  .seo-search-wider-grid>a{min-height:138px}
+  .seo-discovery-grid a{min-height:88px}
+  .seo-editorial-note{padding:16px}
+}
+@media(max-width:390px){
+  .seo-intent-facts{grid-template-columns:1fr}
+  .seo-intent-copy h1{font-size:36px}
+}
