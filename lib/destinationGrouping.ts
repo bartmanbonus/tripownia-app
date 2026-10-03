@@ -10,7 +10,7 @@ export function normalizeDestinationKey(value: string) {
 }
 
 export function touristDestinationKey(offer: { city?: string; country?: string }) {
-  const city = normalizeDestinationKey(offer.city || "");
+  const city = normalizeDestinationKey(offer.city || "").replace(/\s+i\s+okolice$/, "");
   const country = normalizeDestinationKey(offer.country || "");
   const text = `${city} ${country}`;
 
