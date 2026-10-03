@@ -73,22 +73,22 @@ const wrap: React.CSSProperties = {
   fontFamily: "Arial, sans-serif",
 };
 
-function Wordmark({ fg }: { fg: string }) {
+function Wordmark({ fg, scale = 1 }: { fg: string; scale?: number }) {
   return (
-    <div style={{ display: "flex", alignItems: "baseline", fontSize: 23, fontWeight: 800, letterSpacing: "-0.4px", color: fg }}>
+    <div style={{ display: "flex", alignItems: "baseline", fontSize: 23 * scale, fontWeight: 800, letterSpacing: -0.4 * scale, color: fg }}>
       <span>TRIPOWNIA</span><span style={{ color: "#f28a31" }}>.PL</span>
     </div>
   );
 }
 
-function Meta({ offer, fg, compact = false }: { offer: SocialOffer; fg: string; compact?: boolean }) {
-  const fs = compact ? 22 : 25;
-  const gap = compact ? 22 : 28;
+function Meta({ offer, fg, compact = false, scale = 1 }: { offer: SocialOffer; fg: string; compact?: boolean; scale?: number }) {
+  const fs = (compact ? 22 : 25) * scale;
+  const gap = (compact ? 22 : 28) * scale;
   return (
     <div style={{ display: "flex", width: "100%", justifyContent: "space-between", alignItems: "center", color: fg, fontSize: fs, gap }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span>▦</span><b>{dateShort(offer)}</b></div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span>☾</span><b>{offer.nights} {offer.nights === 1 ? "noc" : "nocy"}</b></div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}><span>✈</span><b>Wylot<br />z {offer.departure.replace("m.in. ", "")}</b></div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 * scale }}><span>▦</span><b>{dateShort(offer)}</b></div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 * scale }}><span>☾</span><b>{offer.nights} {offer.nights === 1 ? "noc" : "nocy"}</b></div>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 * scale }}><span>✈</span><b>Wylot<br />z {offer.departure.replace("m.in. ", "")}</b></div>
     </div>
   );
 }
@@ -97,27 +97,29 @@ function CoreCard({ offer, origin, width, height }: { offer: SocialOffer; origin
   const type = visualType(offer.slug);
   const c = colors(type);
   const destination = displayDestination(offer);
-  const titleSize = destination.length > 10 ? 87 : destination.length > 7 ? 100 : 116;
+  const scale = width / 1080;
+  const titleSize = (destination.length > 10 ? 87 : destination.length > 7 ? 100 : 116) * scale;
   const priceText = offer.price.toLocaleString("pl-PL").replace(/\u00A0/g, " ");
+  const imageHeight = Math.round(555 * scale);
   return (
-    <div style={{ ...wrap, width, height, background: c.bg, color: c.fg, padding: "56px 70px 0" }}>
-      <Wordmark fg={c.fg} />
-      <div style={{ display: "flex", marginTop: 35, fontSize: 25, letterSpacing: 10, fontWeight: 500, borderBottom: `2px solid ${c.fg}`, paddingBottom: 14, width: "74%" }}>
+    <div style={{ ...wrap, width, height, background: c.bg, color: c.fg, padding: `${56 * scale}px ${70 * scale}px 0` }}>
+      <Wordmark fg={c.fg} scale={scale} />
+      <div style={{ display: "flex", marginTop: 35 * scale, fontSize: 25 * scale, letterSpacing: 10 * scale, fontWeight: 500, borderBottom: `${Math.max(1, 2 * scale)}px solid ${c.fg}`, paddingBottom: 14 * scale, width: "74%" }}>
         {category(type)}
       </div>
-      <div style={{ display: "flex", fontFamily: "Georgia, serif", fontWeight: 800, fontSize: titleSize, lineHeight: 0.94, marginTop: 24, letterSpacing: -4 }}>
+      <div style={{ display: "flex", fontFamily: "Georgia, serif", fontWeight: 800, fontSize: titleSize, lineHeight: 0.94, marginTop: 24 * scale, letterSpacing: -4 * scale }}>
         {destination}
       </div>
-      <div style={{ display: "flex", alignItems: "baseline", marginTop: 4, color: c.price }}>
-        <div style={{ fontFamily: "Georgia, serif", fontWeight: 800, fontSize: 103, lineHeight: 1 }}>{priceText}</div>
-        <div style={{ color: c.fg, fontSize: 28, fontWeight: 700, marginLeft: 14 }}>zł/os.</div>
+      <div style={{ display: "flex", alignItems: "baseline", marginTop: 4 * scale, color: c.price }}>
+        <div style={{ fontFamily: "Georgia, serif", fontWeight: 800, fontSize: 103 * scale, lineHeight: 1 }}>{priceText}</div>
+        <div style={{ color: c.fg, fontSize: 28 * scale, fontWeight: 700, marginLeft: 14 * scale }}>zł/os.</div>
       </div>
-      <div style={{ display: "flex", marginTop: 22 }}>
-        <Meta offer={offer} fg={c.fg} compact />
+      <div style={{ display: "flex", marginTop: 22 * scale }}>
+        <Meta offer={offer} fg={c.fg} compact scale={scale} />
       </div>
-      <div style={{ display: "flex", position: "absolute", left: 0, right: 0, bottom: 0, height: 555 }}>
-        <img src={imageUrl(offer, origin)} width="1080" height="555" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-        <div style={{ display: "flex", position: "absolute", bottom: 34, left: "50%", transform: "translateX(-50%)", background: c.cta, color: "#fff", borderRadius: 30, padding: "17px 38px", fontSize: 26, fontWeight: 700, whiteSpace: "nowrap" }}>
+      <div style={{ display: "flex", position: "absolute", left: 0, right: 0, bottom: 0, height: imageHeight }}>
+        <img src={imageUrl(offer, origin)} width={width} height={imageHeight} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{ display: "flex", position: "absolute", bottom: 34 * scale, left: "50%", transform: "translateX(-50%)", background: c.cta, color: "#fff", borderRadius: 30 * scale, padding: `${17 * scale}px ${38 * scale}px`, fontSize: 26 * scale, fontWeight: 700, whiteSpace: "nowrap" }}>
           Sprawdź ofertę →
         </div>
       </div>
