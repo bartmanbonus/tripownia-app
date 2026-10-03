@@ -161,10 +161,10 @@ function TikTokFull({ offer, origin }: { offer: SocialOffer; origin: string }) {
         <div style={{ color: c.fg, fontSize: 30, fontWeight: 700, marginLeft: 15 }}>zł/os.</div>
       </div>
       <div style={{ display: "flex", marginTop: 22 }}><Meta offer={offer} fg={c.fg} /></div>
-      <div style={{ display: "flex", position: "absolute", left: 72, right: 72, top: 790, height: 850, borderRadius: 30, overflow: "hidden" }}>
-        <img src={imageUrl(offer, origin)} width="936" height="850" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      <div style={{ display: "flex", position: "absolute", left: 72, right: 72, top: 720, height: 760, borderRadius: 30, overflow: "hidden" }}>
+        <img src={imageUrl(offer, origin)} width="936" height="760" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       </div>
-      <div style={{ display: "flex", position: "absolute", bottom: 95, left: 180, right: 180, justifyContent: "center", background: c.cta, color: "#fff", borderRadius: 44, padding: "24px 40px", fontSize: 33, fontWeight: 700 }}>
+      <div style={{ display: "flex", position: "absolute", bottom: 285, left: 180, right: 180, justifyContent: "center", background: c.cta, color: "#fff", borderRadius: 44, padding: "24px 40px", fontSize: 33, fontWeight: 700 }}>
         Sprawdź ofertę →
       </div>
     </div>
@@ -213,6 +213,6 @@ function TikTok({ offer, origin }: { offer: SocialOffer; origin: string }) {
 
 export function SocialCardImage({ offer, origin, format }: { offer: SocialOffer; origin: string; format: SocialCardFormat }) {
   if (format === "story") return <Story offer={offer} origin={origin} />;
-  if (format === "tiktok") return <TikTok offer={offer} origin={origin} />;
+  if (format === "tiktok") return <TikTokFull offer={offer} origin={origin} />;
   return <CoreCard offer={offer} origin={origin} width={1080} height={1080} />;
 }
