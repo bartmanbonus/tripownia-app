@@ -23,17 +23,27 @@ export async function generateMetadata({params}:{params:Promise<{id:string}>}):P
   const {id}=await params;
   const o=offers.find(x=>x.id===Number(id));
   if (!o) return {};
-  const title = `${o.city} z ${o.departure} — od ${o.price.toLocaleString("pl-PL")} zł/os. | Tripownia`;
+  const title = `${o.city} z ${o.departure} — od ${o.price.toLocaleString("pl-PL")} zł/os.`;
+  const socialTitle = `${title} | Tripownia.pl`;
   const description = `${o.city}, ${o.nights} nocy, ${o.board}, wylot z ${o.departure}. Ostatnio znaleźliśmy od ${o.price.toLocaleString("pl-PL")} zł/os. Sprawdź aktualną cenę i dostępność.`;
+  const socialImage = `/oferta/${o.id}/opengraph-image`;
   return {
     title,
     description,
     alternates: { canonical: `/oferta/${o.id}` },
     openGraph: {
-      title, description, type: "website", url: `/oferta/${o.id}`,
-      images: o.image ? [{ url: o.image, alt: `${o.city}, ${o.country}` }] : undefined,
+      title: socialTitle,
+      description,
+      type: "website",
+      url: `/oferta/${o.id}`,
+      images: [{ url: socialImage, alt: `${o.city}, ${o.country} — oferta Tripowni` }],
     },
-    twitter: { card: "summary_large_image", title, description, images: o.image ? [o.image] : undefined },
+    twitter: {
+      card: "summary_large_image",
+      title: socialTitle,
+      description,
+      images: [socialImage],
+    },
     // Offer IDs are transient product views, not evergreen SEO landing pages.
     // Keep links crawlable so bots can reach stable hubs, but never index a price snapshot.
     robots: { index: false, follow: true },
