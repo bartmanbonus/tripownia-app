@@ -5,6 +5,8 @@ import SiteFooter from "@/components/SiteFooter";
 import NewYearOffers from "@/components/NewYearOffers";
 import SearchHub from "@/components/SearchHub";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
+import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
+import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 
 const title = "City break Sylwester 2026/2027 — lot + hotel za granicą";
 const description = "City break na Sylwestra 2026/2027: lot + hotel, krótkie wyjazdy do Europy i ciepłe kierunki na przełom roku. Sprawdź aktualne terminy, ceny i gotowe wyjazdy.";
@@ -71,6 +73,7 @@ export default async function Page({ searchParams }: PageProps) {
   return (
     <main>
       <SiteHeader />
+      <SalesCollectionSchema name="City break Sylwester 2026/2027" description={description} path="/sylwester" about={["city break sylwester 2026","sylwester za granicą","lot + hotel","Sylwester 2026/2027"]} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
       <section className="seasonal-hero shell newyear-hero-premium">
         <div className="kicker">CITY BREAK NA SYLWESTRA 2026/2027</div>
@@ -80,17 +83,6 @@ export default async function Page({ searchParams }: PageProps) {
           <a href="#szukaj-sylwester">Znajdź wyjazd do swojego budżetu</a>
           <a href="#city-break">City break 3–6 nocy</a>
           <a href="#dluzsze">Dłuższe 7–12 nocy</a>
-        </div>
-        <div className="seo-related-links" style={{ marginTop: 16 }}>
-          <Link href="/sylwester-all-inclusive-2026-2027-egipt-czy-wyspy-kanaryjskie">Sylwester All Inclusive: Egipt czy Kanary? →</Link>
-          <Link href="/podroze/cieple-wakacje-grudzien-2026">Ciepłe wakacje w grudniu 2026 →</Link>
-          <Link href="/city-break">City break lot + hotel →</Link>
-          <Link href="/podroze/city-break-grudzien-2026">City break grudzień 2026 →</Link>
-          <Link href="/podroze/city-break-z-warszawy">City break z Warszawy →</Link>
-          <Link href="/podroze/city-break-z-poznania">City break z Poznania →</Link>
-          <Link href="/podroze/sylwester-z-warszawy-do-2000-zl">Sylwester z Warszawy do 2000 zł →</Link>
-          <Link href="/podroze/grudzien-2026-all-inclusive-do-3000-zl">All Inclusive w grudniu do 3000 zł →</Link>
-          <Link href="/planer-podrozy">Ułóż wyjazd w darmowym planerze →</Link>
         </div>
       </section>
 
@@ -118,6 +110,32 @@ export default async function Page({ searchParams }: PageProps) {
 
       <NewYearOffers />
       <section className="section shell"><FacebookFollowCTA placement="sylwester_after_offers" compact /></section>
+
+      <section className="section shell">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">NAJCZĘŚCIEJ SZUKANE NA SYLWESTRA</div>
+            <h2>Wybierz wariant bez wracania do początku</h2>
+            <p>Najpierw budżet, lotnisko albo styl wyjazdu. Pozostałe warianty są schowane, żeby strona nie zamieniała się w ścianę linków.</p>
+          </div>
+        </div>
+        <ProgressiveLinkCloud
+          visible={6}
+          moreLabel="Pokaż więcej wariantów sylwestrowych"
+          items={[
+            { href: "/podroze/sylwester-z-warszawy-do-2000-zl", label: "Sylwester z Warszawy do 2000 zł" },
+            { href: "/podroze/grudzien-2026-all-inclusive-do-3000-zl", label: "All Inclusive w grudniu do 3000 zł" },
+            { href: "/podroze/city-break-grudzien-2026", label: "City break grudzień 2026" },
+            { href: "/podroze/cieple-wakacje-grudzien-2026", label: "Ciepłe wakacje w grudniu 2026" },
+            { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
+            { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
+            { href: "/sylwester-all-inclusive-2026-2027-egipt-czy-wyspy-kanaryjskie", label: "Sylwester All Inclusive: Egipt czy Kanary?" },
+            { href: "/city-break", label: "City break 2–5 dni" },
+            { href: "/lot-hotel", label: "Lot + hotel" },
+            { href: "/planer-podrozy", label: "Ułóż wyjazd w darmowym planerze" },
+          ]}
+        />
+      </section>
 
       <section className="section shell">
         <div className="section-heading">
