@@ -1,16 +1,8 @@
 import type { Offer } from "@/lib/offers";
+import { normalizeDestinationKey, touristDestinationKey } from "@/lib/destinationGrouping";
 
 const DAY_MS = 86400000;
 const COOLDOWN_DAYS = 7;
-
-function normalize(value: string) {
-  return value
-    .toLocaleLowerCase("pl")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
 
 function hash(value: string) {
   let result = 2166136261;
@@ -33,11 +25,11 @@ function warsawDaySerial(date: Date) {
 }
 
 export function destinationRotationKey(offer: Offer) {
-  return normalize(`${offer.city}-${offer.country}`);
+  return touristDestinationKey(offer);
 }
 
 export function countryRotationKey(offer: Offer) {
-  return normalize(offer.country || offer.city);
+  return normalizeDestinationKey(offer.country || offer.city).replace(/\s+/g, "-");
 }
 
 /**
