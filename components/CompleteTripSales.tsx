@@ -35,8 +35,7 @@ export default function CompleteTripSales({ city, country, source }: { city: str
             <a
               key={item.key}
               href={item.href}
-              target="_blank"
-              rel="sponsored noopener noreferrer"
+              rel="sponsored"
               onClick={() => trackEvent("trip_addon_click", {
                 addon: item.key,
                 destination: city,
