@@ -30,6 +30,8 @@ export async function GET(request: NextRequest) {
       tracked.searchParams.set("partner", "exim");
       tracked.searchParams.set("source", "exim_resolver");
       if (destination) tracked.searchParams.set("destination", destination);
+      const returnPath = p.get("return");
+      if (returnPath?.startsWith("/") && !returnPath.startsWith("//")) tracked.searchParams.set("return", returnPath);
       return NextResponse.redirect(tracked, 307);
     }
 
