@@ -1141,3 +1141,49 @@
     justify-content: center;
   }
 }
+
+
+/* V154 — conversion landing UX guard */
+.page,
+.page *{
+  min-width:0;
+}
+.heroCopy h1,
+.sectionHead h2,
+.sectionCard h2,
+.searchPanelHead h2{
+  overflow-wrap:anywhere;
+}
+.heroActions a,
+.linkPills a{
+  max-width:100%;
+}
+.heroActions a{
+  white-space:normal;
+  text-align:center;
+}
+.faq article{
+  overflow:hidden;
+}
+@media(max-width:640px){
+  .heroGrid{min-height:0}
+  .heroMedia{min-height:220px}
+  .heroCopy h1{
+    font-size:clamp(34px,10vw,44px);
+    line-height:1.02;
+  }
+  .heroCopy{padding:22px 17px 24px}
+  .fact{min-height:0}
+  .sectionHead h2,
+  .sectionCard h2,
+  .searchPanelHead h2{
+    font-size:30px;
+    line-height:1.05;
+  }
+  .sectionCard{margin:12px 0}
+  .linkPills a{
+    min-height:42px;
+    white-space:normal;
+    text-align:center;
+  }
+}
