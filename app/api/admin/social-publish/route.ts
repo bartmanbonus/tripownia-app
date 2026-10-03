@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
       text?: string;
       approved?: boolean;
       channels?: Array<"facebook" | "instagram">;
+      linkPlacement?: "post" | "comment";
     };
 
     if (body.approved !== true) {
@@ -37,9 +38,10 @@ export async function POST(request: NextRequest) {
       ? Array.from(new Set(body.channels))
       : ["facebook", "instagram"] as const;
 
+    const linkPlacement = body.linkPlacement === "comment" ? "comment" : "post";
     const jobs = channels.map((channel) =>
       channel === "facebook"
-        ? publishFacebook(offer, text)
+        ? publishFacebook(offer, text, linkPlacement)
         : publishInstagram(offer, text)
     );
     const results = await Promise.all(jobs);
@@ -48,6 +50,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       ok,
       offer: { id: offer.id, city: offer.city, price: offer.price },
+      linkPlacement,
       results,
     }, { status: ok ? 200 : 502 });
   } catch (error) {
