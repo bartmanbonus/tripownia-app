@@ -96,6 +96,7 @@ export default async function SocialOfferLanding({
   const start = one(query.start);
   const end = one(query.end);
   const offerId = one(query.offer);
+  const source = one(query.source, "live_offer");
   const nights = Math.max(1, Math.min(30, Number(one(query.nights, "7")) || 7));
   const price = safePrice(one(query.price));
   // Affiliate booking URLs can be much longer than labels/copy. Do not truncate them.
@@ -206,7 +207,7 @@ export default async function SocialOfferLanding({
                 offerId={Number(offerId) || 0}
                 destination={[city, country].filter(Boolean).join(", ")}
                 price={price || 0}
-                placement="live_offer_detail_primary"
+                placement={source.includes("search") ? "search_live_offer_detail" : "live_offer_detail_primary"}
                 returnContext={{
                   departure,
                   hotel,
