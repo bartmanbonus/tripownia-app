@@ -83,10 +83,44 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function ShortSocialOfferPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ShortSocialOfferPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const { slug } = await params;
+  const query = await searchParams;
   const offer = getOfferForPage(slug);
   if (!offer) return notFound();
+
+  const directAffiliateHref = (() => {
+    if (!offer.affiliateUrl || offer.partner === "other") return offer.affiliateUrl;
+    const value = (key: string) => {
+      const raw = query[key];
+      return Array.isArray(raw) ? raw[0] || "" : raw || "";
+    };
+    const tracked = new URLSearchParams({
+      target: offer.affiliateUrl,
+      partner: offer.partner,
+      source: "social_offer",
+      page: `/o/${offer.slug}`,
+      offer: offer.slug,
+      destination: `${offer.city}, ${offer.country}`,
+      price: String(offer.price),
+      landing: `/o/${offer.slug}`,
+    });
+    const utmSource = value("utm_source");
+    const utmMedium = value("utm_medium");
+    const utmCampaign = value("utm_campaign");
+    const utmContent = value("utm_content");
+    if (utmSource) tracked.set("utmSource", utmSource);
+    if (utmMedium) tracked.set("utmMedium", utmMedium);
+    if (utmCampaign) tracked.set("utmCampaign", utmCampaign);
+    if (utmContent) tracked.set("utmContent", utmContent);
+    return `/go/live?${tracked.toString()}`;
+  })();
 
   return (
     <main>
@@ -133,7 +167,7 @@ export default async function ShortSocialOfferPage({ params }: { params: Promise
               <>
                 <div className="detail-source">Najpierw oglądasz szczegóły w Tripowni. Rezerwacja i płatność odbywają się bezpośrednio u partnera.</div>
                 <div className="detail-action-box">
-                  <AffiliateOfferLink href={offer.affiliateUrl} partner={offer.partnerLabel} slug={offer.slug} destination={`${offer.city}, ${offer.country}`} tripKind={offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package"} />
+                  <AffiliateOfferLink href={directAffiliateHref} partner={offer.partnerLabel} slug={offer.slug} destination={`${offer.city}, ${offer.country}`} tripKind={offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package"} />
                   <OfferAlternativeJump />
                   <Link className="btn secondary" href={`/dodaj-podroz?mode=known&source=offer&city=${encodeURIComponent(offer.city)}&country=${encodeURIComponent(offer.country)}&kind=${offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package"}&slug=${encodeURIComponent(offer.slug)}`}><PlusCircle size={17}/> Dodaj do planera</Link>
                   <small className="affiliate-note">Link partnerski. Możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.</small>
