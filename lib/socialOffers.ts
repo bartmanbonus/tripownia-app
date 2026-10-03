@@ -164,7 +164,7 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
     imageSrc: "https://img.exim.pl/hotels/720/recko/zakynthos/laganas/alexander-the-great-pl/2059/45e9beb214cd4fe4146_2-244.jpg",
     imageCountry: "Grecja",
     checkedAt: "2026-09-30T16:21:08+02:00",
-    status: "active",
+    status: "expired",
   },
   "durres-albanian-star-969": {
     slug: "durres-albanian-star-969",
@@ -1043,7 +1043,36 @@ function compactIso(value: string) {
   return `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
 }
 
-export function socialOfferDateRange(offer: Pick<SocialOffer, "affiliateUrl">) {
+function displayDateRange(value: string) {
+  const months: Record<string, string> = {
+    stycznia: "01", lutego: "02", marca: "03", kwietnia: "04", maja: "05", czerwca: "06",
+    lipca: "07", sierpnia: "08", wrzesnia: "09", "września": "09", pazdziernika: "10", "października": "10",
+    listopada: "11", grudnia: "12",
+  };
+  const normalized = value.trim().replace(/\s+/g, " ");
+  const sameMonth = normalized.match(/^(\d{1,2})\s*[–-]\s*(\d{1,2})\s+([A-Za-ząćęłńóśźżĄĆĘŁŃÓŚŹŻ]+)\s+(20\d{2})$/);
+  if (sameMonth) {
+    const month = months[sameMonth[3].toLowerCase()];
+    if (!month) return { start: "", end: "" };
+    return {
+      start: `${sameMonth[4]}-${month}-${sameMonth[1].padStart(2, "0")}`,
+      end: `${sameMonth[4]}-${month}-${sameMonth[2].padStart(2, "0")}`,
+    };
+  }
+  const crossMonth = normalized.match(/^(\d{1,2})\s+([A-Za-ząćęłńóśźżĄĆĘŁŃÓŚŹŻ]+)\s*[–-]\s*(\d{1,2})\s+([A-Za-ząćęłńóśźżĄĆĘŁŃÓŚŹŻ]+)\s+(20\d{2})$/);
+  if (crossMonth) {
+    const startMonth = months[crossMonth[2].toLowerCase()];
+    const endMonth = months[crossMonth[4].toLowerCase()];
+    if (!startMonth || !endMonth) return { start: "", end: "" };
+    return {
+      start: `${crossMonth[5]}-${startMonth}-${crossMonth[1].padStart(2, "0")}`,
+      end: `${crossMonth[5]}-${endMonth}-${crossMonth[3].padStart(2, "0")}`,
+    };
+  }
+  return { start: "", end: "" };
+}
+
+export function socialOfferDateRange(offer: Pick<SocialOffer, "affiliateUrl" | "dates">) {
   const decoded = decodedAffiliateUrl(offer.affiliateUrl || "");
   const firstParam = (keys: string[]) => {
     for (const key of keys) {
@@ -1062,6 +1091,12 @@ export function socialOfferDateRange(offer: Pick<SocialOffer, "affiliateUrl">) {
     const uniqueDates = Array.from(new Set(compactDates));
     if (!start && uniqueDates.length) start = uniqueDates[0];
     if (!end && uniqueDates.length > 1) end = uniqueDates[uniqueDates.length - 1];
+  }
+
+  if (!start || !end) {
+    const display = displayDateRange(offer.dates || "");
+    if (!start) start = display.start;
+    if (!end) end = display.end;
   }
 
   if (!/^20\d{2}-\d{2}-\d{2}$/.test(start) || !/^20\d{2}-\d{2}-\d{2}$/.test(end)) {
