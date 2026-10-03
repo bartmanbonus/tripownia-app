@@ -37,9 +37,22 @@ const DESTINATIONS: Record<string, string> = {
   verona: "ci-VRN",
 };
 
+function eskyDestinationKey(query = "") {
+  return query.split(",")[0].trim().toLowerCase().replace(/ł/g, "l").normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/\s+/g, "_");
+}
+
+const MULTI_DESTINATIONS: Record<string, string[]> = {
+  sycylia: ["ci-CTA", "ci-PMO"],
+  sicily: ["ci-CTA", "ci-PMO"],
+};
+
+export function eskyArrivals(query = "") {
+  const primary = eskyDestinationKey(query);
+  return MULTI_DESTINATIONS[primary] || (DESTINATIONS[primary] ? [DESTINATIONS[primary]] : []);
+}
+
 export function eskyArrival(query = "") {
-  const primary = query.split(",")[0].trim().toLowerCase().replace(/ł/g, "l").normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/\s+/g, "_");
-  return DESTINATIONS[primary] || "";
+  return eskyArrivals(query)[0] || "";
 }
 
 export function eskyDepartures(departure = "") {
