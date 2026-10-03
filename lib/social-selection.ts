@@ -110,8 +110,10 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
     items.push({ offer:flight, time:times[0], label:"✈️ PERŁKA LOTNICZA", kind:"flight", tone:"daily", priceGem:flightAssessment(flight) });
   }
 
+  const cheapCitySlot = { test:(offer:Offer)=>isCityBreak(offer) && offer.price > 0 && offer.price <= 1300, kind:"city" as const, tone:"short" as const, fallback:"Tani city break" };
   const slots: Array<{test:(offer:Offer)=>boolean; kind:SocialSlotKind; tone:SocialTone; fallback:string}> = [
-    { test:(offer)=>isCityBreak(offer) && offer.price > 0 && offer.price <= 1300, kind:"city", tone:"short", fallback:"Tani city break" },
+    cheapCitySlot,
+    ...(flight ? [] : [{ ...cheapCitySlot, fallback:"Drugi tani city break" }]),
     { test:(offer)=>offer.nights>=6, kind:"market", tone:"sales", fallback:"Wakacje 6+ nocy" },
     { test:(offer)=>isSeasonalForDate(offer, planDate), kind:"seasonal", tone:"sales", fallback:"Kierunek sezonowy" },
     { test:()=>true, kind:"market", tone:"daily", fallback:"Najmocniejsza cena dnia" },
