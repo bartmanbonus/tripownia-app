@@ -153,8 +153,12 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Które lotniska w Polsce zniosły limit 100 ml? Aktualna lista: Kraków, Poznań, Rzeszów, Gdańsk oraz zasady we Wrocławiu i Katowicach.",
   },
   "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych": {
-    title: "Ile bagażu podręcznego można zabrać do samolotu? Zasady 2026 | Tripownia",
-    description: "Ile bagaży podręcznych można mieć i czy linie je ważą? Sprawdź, od czego zależą liczba sztuk, waga i wymiary bagażu przed lotem.",
+    title: "Czy bagaż podręczny jest ważony? Waga i liczba sztuk 2026 | Tripownia",
+    description: "Czy linie lotnicze ważą bagaż podręczny? Sprawdź limity wagi, wymiary, liczbę sztuk i co może się wydarzyć przy kontroli przed wejściem na pokład.",
+  },
+  "/czy-warto-kupic-ubezpieczenie-podrozne-co-obejmuje-i-ile-kosztuje": {
+    title: "Ubezpieczenie podróżne 2026 – ile kosztuje i co obejmuje? | Tripownia",
+    description: "Ubezpieczenie podróżne: sprawdź koszty leczenia, assistance, NNW, bagaż i najważniejsze wyłączenia przed wyjazdem za granicę.",
   },
   "/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad": {
     title: "Czy można wnieść jedzenie do samolotu? Co wolno zabrać w 2026 | Tripownia",
