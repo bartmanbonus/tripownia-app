@@ -56,9 +56,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const description = isBariAlberobello
     ? "City break do Apulii z wylotem z Warszawy. 20–23 października 2026, 2 noce, śniadanie."
     : `${offer.hotel} • ${offer.dates} • ${offer.nights} nocy • wylot: ${offer.departure}. Sprawdź konkretną ofertę na Tripowni.`;
-  const image = isBariAlberobello
-    ? "/social/bari-alberobello-669/preview"
-    : `/api/social-card/${offer.slug}?format=feed`;
+  const image = `/o/${offer.slug}/opengraph-image`;
   const pageUrl = `/o/${offer.slug}`;
 
   return {
@@ -73,7 +71,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: pageUrl,
       title,
       description,
-      images: [{ url: image, width: 1080, height: 1080, alt: `${offer.city} — Tripownia.pl` }],
+      images: [{ url: image, width: 1200, height: 630, alt: `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł — Tripownia.pl` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -219,8 +217,8 @@ export default async function ShortSocialOfferPage({
           />
         )}
       </div>
+      <section className="section shell"><FacebookFollowCTA placement="social_offer_after_details" compact /></section>
       {!offer.expired && <CompleteTripSales city={offer.city} country={offer.country} source="social_offer" />}
-      <section className="section shell"><FacebookFollowCTA placement="social_offer" compact /></section>
       <SiteFooter />
     </main>
   );
