@@ -9,6 +9,7 @@ import LiveSalesRail from "@/components/LiveSalesRail";
 import { homepageFallbackOffers } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
+import ReadySearchGrid from "@/components/ReadySearchGrid";
 import styles from "../conversion-pages.module.css";
 
 export const metadata: Metadata = {
@@ -123,27 +124,29 @@ export default function CityBreakPage() {
     <section className={[styles.shell, styles.section].join(" ")}><FacebookFollowCTA placement="city_break_after_offers" compact /></section>
 
     <section className={[styles.shell, styles.section].join(" ")}>
-      <div className={styles.sectionCard}>
-        <div className={styles.kicker}>POPULARNE KIERUNKI LOT + HOTEL</div>
-        <h2>Przejdź od razu do konkretnego miasta</h2>
-        <p>Bez pustej wyszukiwarki: wybierz kierunek i zobacz aktualne propozycje, budżet oraz sensowną długość pobytu.</p>
-        <div className={styles.linkPills}>
-          <Link href="/podroze/city-break-rzym-lot-hotel">Rzym · lot + hotel</Link>
-          <Link href="/podroze/city-break-bari-lot-hotel">Bari · lot + hotel</Link>
-          <Link href="/podroze/city-break-malta-lot-hotel">Malta · lot + hotel</Link>
-          <Link href="/podroze/city-break-barcelona-lot-hotel">Barcelona · lot + hotel</Link>
+      <div className={styles.sectionHead}>
+        <div>
+          <div className={styles.kicker}>GOTOWE CITY BREAKI</div>
+          <h2>Wybierz konkretny kierunek — parametry już ustawione</h2>
+          <p>Klikasz i od razu dostajesz wyniki dla kierunku, długości pobytu i budżetu. Nie wracasz do pustej wyszukiwarki.</p>
         </div>
       </div>
+      <ReadySearchGrid items={[
+        { href: "/szukaj?destination=Rzym&duration=3-4&budget=1500&tab=City%20break", eyebrow: "RZYM · 3–4 NOCE · DO 1 500 ZŁ", title: "Rzym lot + hotel", meta: "Krótki city break, aktualne warianty z polskich lotnisk." },
+        { href: "/szukaj?destination=Bari&duration=2-4&budget=1500&tab=City%20break", eyebrow: "BARI · 2–4 NOCE · DO 1 500 ZŁ", title: "Bari i Apulia", meta: "Bari jako baza na krótki wyjazd po południu Włoch." },
+        { href: "/szukaj?destination=Malta&duration=3-5&budget=1500&tab=City%20break", eyebrow: "MALTA · 3–5 NOCY · DO 1 500 ZŁ", title: "Malta lot + hotel", meta: "Valletta, Sliema i krótki wyjazd bez składania planu od zera." },
+        { href: "/szukaj?destination=Barcelona&duration=3-4&budget=1500&tab=City%20break", eyebrow: "BARCELONA · 3–4 NOCE · DO 1 500 ZŁ", title: "Barcelona lot + hotel", meta: "Miasto, dobre połączenia i konkretne krótkie terminy." },
+      ]} />
     </section>
 
     <section className={[styles.shell, styles.section].join(" ")}>
       <div className={styles.sectionHead}><div><div className={styles.kicker}>WIĘCEJ POMYSŁÓW</div><h2>Nie ograniczamy city breaku do aktualnych kart</h2><p>Te kierunki służą jako szybki start do własnego wyszukiwania.</p></div></div>
       <div className={styles.imageCardGrid}>
         {cityBreakIdeas.map(item => (
-          <a key={item.city} className={styles.imageCard} href="#szukaj-city-break">
+          <Link key={item.city} className={styles.imageCard} href={`/szukaj?destination=${encodeURIComponent(item.city)}&duration=3-4&tab=City%20break`}>
             <div className={styles.imageWrap}><Image src={item.image} alt={item.city + ", " + item.country} fill sizes="(max-width:640px) 100vw, (max-width:980px) 50vw, 25vw"/></div>
             <div className={styles.imageBody}><small>{item.country}</small><strong>{item.city}</strong><p>{item.text}</p><b>Szukaj city breaku →</b></div>
-          </a>
+          </Link>
         ))}
       </div>
     </section>
