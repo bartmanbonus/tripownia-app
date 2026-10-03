@@ -1,32 +1,17 @@
-import type { Metadata } from "next";
 import DepartureDealsPage from "@/components/DepartureDealsPage";
+import { departureHubMetadata } from "@/lib/departureHubMetadata";
 
-export const metadata: Metadata = {
-  title: "Tani City Break z Krakowa, Last Minute i wakacje z KRK",
-  description: "Tani City Break z Krakowa-Balic, Last Minute, All Inclusive i wakacje z KRK. Porównaj aktualne kierunki, ceny i lot + hotel z Balic.",
-  alternates: { canonical: "/z-krakowa" },
-  openGraph: {
-    type: "website",
-    locale: "pl_PL",
-    siteName: "Tripownia",
-    title: "Tani City Break z Krakowa, Last Minute i wakacje z KRK | Tripownia.pl",
-    description: "Wyjazdy z Krakowa-Balic: City Break, Last Minute, All Inclusive i wakacje z KRK. Sprawdź aktualne oferty i porównaj różne kierunki.",
-    url: "/z-krakowa",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Wakacje z Krakowa, City Break i Last Minute | Tripownia.pl",
-    description: "Wyjazdy z Krakowa-Balic: City Break, Last Minute, All Inclusive i wakacje z KRK. Sprawdź aktualne oferty i porównaj różne kierunki.",
-    images: ["/opengraph-image"],
-  },
-};
+export const metadata = departureHubMetadata({
+  title: "Wakacje z Krakowa — Last Minute, All Inclusive i lot + hotel | Tripownia.pl",
+  description: "Wakacje i wyjazdy z Krakowa-Balic (KRK): Last Minute, All Inclusive i lot + hotel. Porównaj aktualne kierunki, ceny i terminy z Balic.",
+  path: "/z-krakowa",
+});
 
 export default function Page() {
   return <DepartureDealsPage
     city="Krakowa"
     airportCodes={["KRK"]}
-    intro="Kraków ma duży potencjał na krótkie wyjazdy i wakacyjne pakiety. Zebraliśmy w jednym miejscu City Break, Last Minute, All Inclusive i wakacje z Balic, żeby szybciej przejść od pomysłu do konkretnej oferty."
+    intro="Wyjazdy z Krakowa-Balic w jednej ścieżce: wakacje, Last Minute, All Inclusive i lot + hotel. Krótkie city breaki są oddzielone, żeby łatwiej porównać wyjazdy na 2–5 dni."
     cityBreakHref="/podroze/city-break-z-krakowa"
     holidaysHref="/podroze/wakacje-z-krakowa"
     lastMinuteHref="/podroze/last-minute-z-krakowa"
