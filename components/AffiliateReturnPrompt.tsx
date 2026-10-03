@@ -25,6 +25,17 @@ export default function AffiliateReturnPrompt() {
           setContext(null);
           return;
         }
+
+        const currentOfferMatch = window.location.pathname.match(/^\\/o\\/([^/?#]+)/);
+        const currentOfferSlug = currentOfferMatch?.[1] ? decodeURIComponent(currentOfferMatch[1]).toLocaleLowerCase("pl") : "";
+        const storedOfferSlug = parsed.slug ? String(parsed.slug).toLocaleLowerCase("pl") : "";
+
+        if (currentOfferSlug && storedOfferSlug && currentOfferSlug !== storedOfferSlug) {
+          localStorage.removeItem(AFFILIATE_RETURN_STORAGE_KEY);
+          setContext(null);
+          return;
+        }
+
         setContext(parsed);
       } catch {
         localStorage.removeItem(AFFILIATE_RETURN_STORAGE_KEY);
