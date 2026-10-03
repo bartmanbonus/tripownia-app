@@ -408,6 +408,23 @@ export default function DealsPage({
         </div>
       ) : null}
 
+      {!destination && (
+        <div className="deals-facebook-cta">
+          <div>
+            <strong>Chcesz dostawać tylko najlepsze okazje?</strong>
+            <span>Na Facebooku publikujemy konkretne kierunki, ceny i terminy — bez przypadkowych inspiracji.</span>
+          </div>
+          <a
+            href="https://www.facebook.com/987707741084438"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => trackEvent("facebook_follow_click", { placement: "deals_after_results" })}
+          >
+            Obserwuj Tripownię na Facebooku →
+          </a>
+        </div>
+      )}
+
       <div className="deals-simple-bottom">
         <span>Nie widzisz nic dla siebie?</span>
         <Link href="/#wyszukiwarka">Ustaw kierunek, budżet i długość pobytu</Link>
@@ -603,6 +620,39 @@ export default function DealsPage({
         gap: 16px;
       }
 
+      .deals-facebook-cta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        margin-top: 26px;
+        padding: 18px 20px;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        background: #f9fafb;
+      }
+
+      .deals-facebook-cta > div {
+        display: grid;
+        gap: 3px;
+      }
+
+      .deals-facebook-cta strong {
+        font-size: 16px;
+      }
+
+      .deals-facebook-cta span {
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .deals-facebook-cta a {
+        flex: 0 0 auto;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
       .deals-simple-bottom {
         display: flex;
         align-items: center;
@@ -706,6 +756,16 @@ export default function DealsPage({
 
         .deals-simple-grid {
           gap: 12px;
+        }
+
+        .deals-facebook-cta {
+          display: grid;
+          gap: 12px;
+          padding: 16px;
+        }
+
+        .deals-facebook-cta a {
+          display: inline-flex;
         }
 
         .deals-simple-bottom {
