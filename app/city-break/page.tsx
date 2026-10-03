@@ -51,12 +51,12 @@ const seasonalCityBreaks = [
 ];
 
 const airportCityBreaks = [
-  { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
   { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
   { href: "/podroze/city-break-z-lublina", label: "City break z Lublina" },
-  { href: "/podroze/city-break-z-katowic", label: "City break z Katowic" },
+  { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
   { href: "/podroze/city-break-z-gdanska", label: "City break z Gdańska" },
   { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa" },
+  { href: "/podroze/city-break-z-katowic", label: "City break z Katowic" },
   { href: "/podroze/city-break-z-wroclawia", label: "City break z Wrocławia" },
   { href: "/podroze/city-break-z-rzeszowa", label: "City break z Rzeszowa" },
   { href: "/podroze/city-break-ze-szczecina", label: "City break ze Szczecina" },
@@ -137,10 +137,10 @@ export default function CityBreakPage() {
     <section className={styles.shell}>
       <div className={styles.sectionCard}>
         <div className={styles.kicker}>SZUKAJ WG TERMINU LUB LOTNISKA</div>
-        <h2>City break z Warszawy, Poznania, Krakowa i innych lotnisk</h2>
+        <h2>Najczęściej szukane city breaki z polskich lotnisk</h2>
         <p>Wybierz lotnisko startowe i przejdź od razu do krótkich wyjazdów z tego miasta. Osobne strony pomagają znaleźć realne kierunki i porównać pełny koszt lotu + hotelu.</p>
         <ProgressiveLinkCloud
-          visible={8}
+          visible={10}
           items={[
             ...seasonalCityBreaks,
             ...airportCityBreaks,
