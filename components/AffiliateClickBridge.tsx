@@ -119,20 +119,52 @@ function createClickId() {
 }
 
 function visitAttribution() {
+  const current = new URLSearchParams(window.location.search);
+  const fromUrl = {
+    source: (current.get("utm_source") || "").toLowerCase(),
+    medium: (current.get("utm_medium") || "").toLowerCase(),
+    campaign: current.get("utm_campaign") || "",
+    content: current.get("utm_content") || "",
+    landing: window.location.pathname,
+  };
+  if (fromUrl.source || fromUrl.medium || fromUrl.campaign) return fromUrl;
+
   try {
     const raw = sessionStorage.getItem("tripownia-attribution-v1");
     const value = raw ? JSON.parse(raw) as Record<string, unknown> : null;
-    if (!value) return null;
-    return {
-      source: typeof value.source === "string" ? value.source : "",
-      medium: typeof value.medium === "string" ? value.medium : "",
-      campaign: typeof value.campaign === "string" ? value.campaign : "",
-      content: typeof value.content === "string" ? value.content : "",
-      landing: typeof value.landing === "string" ? value.landing : "",
-    };
-  } catch {
-    return null;
-  }
+    if (value) {
+      const stored = {
+        source: typeof value.source === "string" ? value.source : "",
+        medium: typeof value.medium === "string" ? value.medium : "",
+        campaign: typeof value.campaign === "string" ? value.campaign : "",
+        content: typeof value.content === "string" ? value.content : "",
+        landing: typeof value.landing === "string" ? value.landing : window.location.pathname,
+      };
+      if (stored.source || stored.medium || stored.campaign) return stored;
+    }
+  } catch {}
+
+  try {
+    const referrer = document.referrer ? new URL(document.referrer) : null;
+    const host = referrer?.hostname.toLowerCase() || "";
+    if (/facebook\.com$|\.facebook\.com$|fb\.com$|\.fb\.com$|l\.facebook\.com$/.test(host)) {
+      return { source: "facebook", medium: "organic_social", campaign: "", content: "", landing: window.location.pathname };
+    }
+    if (/instagram\.com$|\.instagram\.com$/.test(host)) {
+      return { source: "instagram", medium: "organic_social", campaign: "", content: "", landing: window.location.pathname };
+    }
+    if (/tiktok\.com$|\.tiktok\.com$/.test(host)) {
+      return { source: "tiktok", medium: "organic_social", campaign: "", content: "", landing: window.location.pathname };
+    }
+    if (/google\./.test(host)) {
+      return { source: "google", medium: "organic", campaign: "", content: "", landing: window.location.pathname };
+    }
+    if (host && host !== window.location.hostname.toLowerCase()) {
+      return { source: host, medium: "referral", campaign: "", content: "", landing: window.location.pathname };
+    }
+  } catch {}
+
+  return { source: "direct", medium: "(none)", campaign: "", content: "", landing: window.location.pathname };
 }
 
 function trackedHref(anchor: HTMLAnchorElement) {
