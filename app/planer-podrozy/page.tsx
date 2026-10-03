@@ -5,8 +5,8 @@ import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import styles from "../conversion-pages.module.css";
 
-const title = "Planer podróży online za darmo – zaplanuj cały wyjazd";
-const description = "Darmowy planer podróży online: lot, nocleg, atrakcje, transfer, plan dnia i checklista w jednym miejscu. Zaplanuj wyjazd krok po kroku z Tripownią.";
+const title = "Planer podróży online za darmo – indywidualne planowanie wyjazdu";
+const description = "Darmowy planer podróży online do indywidualnego planowania wyjazdu: lot, nocleg, atrakcje, transfer, plan dnia i checklista w jednym miejscu.";
 
 export const metadata: Metadata = {
   title,
@@ -71,9 +71,9 @@ export default function TravelPlannerGuide() {
         <div className={styles.plannerHeroGrid}>
           <div className={styles.plannerIntro}>
             <div className={styles.kicker}>DARMOWY PLANER PODRÓŻY</div>
-            <h1>Plan wyjazdu zaczynasz od jednego wyboru.</h1>
+            <h1>Indywidualne planowanie podróży w jednym darmowym planerze</h1>
             <p>
-              Nie musisz mieć gotowego pomysłu ani wszystkich rezerwacji. Wybierz, na jakim etapie jesteś,
+              Nie musisz mieć gotowego pomysłu ani wszystkich rezerwacji. Planer podróży prowadzi Cię od pomysłu do gotowego wyjazdu. Wybierz, na jakim etapie jesteś,
               a Tripownia poprowadzi Cię dalej bez pustych formularzy i bez zaczynania od zera.
             </p>
 
