@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
@@ -111,6 +112,30 @@ const practicalGuides: Record<string, PracticalGuide> = {
     ],
   },
 };
+
+function landingHeroVisual(query: string) {
+  const normalized = query.toLocaleLowerCase("pl");
+
+  const exact: Record<string, { src: string; alt: string }> = {
+    "malta": { src: "/images/destinations/valletta.jpg", alt: "Valletta na Malcie" },
+    "egipt": { src: "/images/destinations/marsa-alam.jpg", alt: "Wybrzeże Marsa Alam w Egipcie" },
+    "bułgaria": { src: "/images/destinations/sloneczny-brzeg.jpg", alt: "Słoneczny Brzeg w Bułgarii" },
+    "hiszpania": { src: "/images/destinations/majorka.jpg", alt: "Majorka w Hiszpanii" },
+    "wyspy kanaryjskie": { src: "/images/destinations/fuerteventura.jpg", alt: "Fuerteventura na Wyspach Kanaryjskich" },
+    "madera": { src: "/images/destinations/madera.jpg", alt: "Madera" },
+    "rzym": { src: "/images/destinations/rzym.jpg", alt: "Rzym" },
+    "barcelona": { src: "/images/destinations/barcelona.jpg", alt: "Barcelona" },
+    "cypr": { src: "/images/destinations/pafos.jpg", alt: "Pafos na Cyprze" },
+    "teneryfa": { src: "/images/destinations/teneryfa.jpg", alt: "Teneryfa" },
+  };
+
+  if (exact[normalized]) return exact[normalized];
+  if (normalized.includes("city break")) return { src: "/images/destinations/rzym.jpg", alt: "Inspiracja na krótki city break" };
+  if (normalized.includes("last minute")) return { src: "/images/destinations/fuerteventura.jpg", alt: "Inspiracja na słoneczny wyjazd Last Minute" };
+  if (normalized.includes("all inclusive")) return { src: "/images/destinations/marsa-alam.jpg", alt: "Inspiracja na wakacje All Inclusive" };
+  if (normalized.includes("wakacje")) return { src: "/images/destinations/rodos.jpg", alt: "Inspiracja na wakacyjny wyjazd" };
+  return { src: "/images/destinations/porto.jpg", alt: "Inspiracja podróżnicza Tripowni" };
+}
 
 function getPracticalGuide(query: string): PracticalGuide {
   if (practicalGuides[query]) return practicalGuides[query];
@@ -262,6 +287,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
   const startDate = typeof rawStartDate === "string" ? rawStartDate : undefined;
   const endDate = typeof rawEndDate === "string" ? rawEndDate : undefined;
   const guide = getPracticalGuide(page.query);
+  const heroVisual = landingHeroVisual(page.query);
   const faqItems = landingFaq(page.query, page.departure);
   const faqSchema = {
     "@context": "https://schema.org",
@@ -382,13 +408,25 @@ export default async function SeoLandingPage({ params }: PageProps) {
             </div>
           </div>
 
-          <div className="seo-intent-facts" aria-label="Parametry wyjazdu">
-            {quickFacts.map((fact) => (
-              <div key={fact.label}>
-                <small>{fact.label}</small>
-                <strong>{fact.value}</strong>
-              </div>
-            ))}
+          <div className="seo-intent-aside">
+            <div className="seo-intent-photo">
+              <Image
+                src={heroVisual.src}
+                alt={heroVisual.alt}
+                fill
+                sizes="(max-width: 980px) 100vw, 420px"
+                priority
+              />
+              <span>Aktualne oferty poniżej</span>
+            </div>
+            <div className="seo-intent-facts" aria-label="Parametry wyjazdu">
+              {quickFacts.map((fact) => (
+                <div key={fact.label}>
+                  <small>{fact.label}</small>
+                  <strong>{fact.value}</strong>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
