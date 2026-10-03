@@ -13,9 +13,9 @@ export default function FacebookFollowCTA({
   return (
     <div className={`facebook-growth-strip${compact ? " facebook-growth-strip-compact" : ""}`}>
       <div>
-        <small>OKAZJE, KTÓRE WARTO ZŁAPAĆ</small>
-        <strong>Obserwuj Tripownię — codziennie pokazujemy konkretne wyjazdy z ceną i terminem.</strong>
-        <span>Tanie city breaki, wakacje i loty w jednym miejscu — bez przypadkowych inspiracji i bez szukania od zera.</span>
+        <small>NIE PRZEGAP KOLEJNEJ CENY</small>
+        <strong>Obserwuj Tripownię — publikujemy konkretne okazje z ceną, terminem i miejscem wylotu.</strong>
+        <span>City breaki, Last Minute, wakacje i loty. Gdy trafiamy na dobrą cenę, pokazujemy konkretny wyjazd — nie samą inspirację.</span>
       </div>
       <a
         href="https://www.facebook.com/987707741084438"
