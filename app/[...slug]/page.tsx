@@ -370,7 +370,7 @@ export default async function RoutePage({ params }: { params: Promise<{ slug: st
   };
   if (legacyRedirects[path]) permanentRedirect(legacyRedirects[path]);
 
-  if (path === "/indywidualne-planowanie-podrozy-bez-ukrytych-kosztow") permanentRedirect("/okazje");
+  if (path === "/indywidualne-planowanie-podrozy-bez-ukrytych-kosztow") permanentRedirect("/planer-podrozy");
   if (path === "/grecja-2") permanentRedirect("/grecja");
   if (path === "/czy-mozna-miec-dwa-bagaze-podreczne-samolocie-zasady-w-liniach-lotniczych") {
     permanentRedirect("/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych");
