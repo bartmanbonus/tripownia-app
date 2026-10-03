@@ -37,6 +37,7 @@ function one(value: string | string[] | undefined, fallback = "") {
 }
 
 function safeTarget(value: string) {
+  if (!value || value.length > 8192) return null;
   try {
     const url = new URL(value);
     if (url.protocol !== "https:") return null;
@@ -96,7 +97,9 @@ export default async function SocialOfferLanding({
   const offerId = one(query.offer);
   const nights = Math.max(1, Math.min(30, Number(one(query.nights, "7")) || 7));
   const price = safePrice(one(query.price));
-  const target = safeTarget(one(query.target));
+  // Affiliate booking URLs can be much longer than labels/copy. Do not truncate them.
+  const rawTarget = Array.isArray(query.target) ? query.target[0] : query.target || "";
+  const target = safeTarget(rawTarget.trim());
   const note = one(query.note, "Tripownia znalazła tę ofertę u sprawdzonego partnera. Cena i dostępność mogą się zmienić.");
   if (!target) return notFound();
 
