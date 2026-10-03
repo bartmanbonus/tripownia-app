@@ -11,8 +11,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
 
   const url = new URL(request.url);
   const raw = url.searchParams.get("format") || "feed";
-  const format: SocialCardFormat = raw === "story" || raw === "tiktok" ? raw : "feed";
-  const size = format === "feed" ? { width: 1080, height: 1080 } : { width: 1080, height: 1920 };
+  const format: SocialCardFormat = raw === "story" || raw === "tiktok" || raw === "facebook" ? raw : "feed";
+  const size = format === "facebook"
+    ? { width: 1200, height: 630 }
+    : format === "feed"
+      ? { width: 1080, height: 1080 }
+      : { width: 1080, height: 1920 };
 
   return new ImageResponse(
     SocialCardImage({ offer, origin: url.origin, format }),
