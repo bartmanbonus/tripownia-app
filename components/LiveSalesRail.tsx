@@ -99,14 +99,30 @@ export default function LiveSalesRail({
       if (!initialOffers.length) setLoading(true);
       try {
         if (mode === "citybreak") {
-          const data = await fetchEskyBrowserPackages({ cityBreak: true }, controller.signal);
-          if (!cancelled) setPool(data.offers);
+          const [eskyResult, dealsResult] = await Promise.allSettled([
+            fetchEskyBrowserPackages({ cityBreak: true }, controller.signal),
+            fetch(`/api/deals?refresh=${Date.now()}`, { cache: "no-store", signal: controller.signal })
+              .then(async (response) => {
+                if (!response.ok) throw new Error("live deals unavailable");
+                return await response.json() as ApiResponse;
+              }),
+          ]);
+
+          const mixed: LiveOffer[] = [];
+          if (eskyResult.status === "fulfilled" && Array.isArray(eskyResult.value.offers)) {
+            mixed.push(...eskyResult.value.offers);
+          }
+          if (dealsResult.status === "fulfilled" && Array.isArray(dealsResult.value.offers)) {
+            mixed.push(...dealsResult.value.offers);
+          }
+
+          if (!cancelled && mixed.length) setPool(mixed);
           return;
         }
         const response = await fetch(`/api/deals?refresh=${Date.now()}`, { cache: "no-store", signal: controller.signal });
         if (!response.ok) throw new Error("live deals unavailable");
         const data = (await response.json()) as ApiResponse;
-        if (!cancelled) setPool(Array.isArray(data.offers) ? data.offers : []);
+        if (!cancelled && Array.isArray(data.offers) && data.offers.length) setPool(data.offers);
       } catch {
         if (!cancelled && !initialOffers.length) setPool([]);
       } finally {
