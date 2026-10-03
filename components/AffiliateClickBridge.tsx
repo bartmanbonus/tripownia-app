@@ -113,6 +113,26 @@ function destinationFor(anchor: HTMLAnchorElement) {
   return "";
 }
 
+function currentOfferReturnDetails() {
+  const params = new URLSearchParams(window.location.search);
+  const path = window.location.pathname;
+  const slug = path.startsWith("/o/") ? decodeURIComponent(path.slice(3).split("/")[0] || "") : (params.get("slug") || "");
+
+  if (path !== "/okazja" && !path.startsWith("/o/")) {
+    return { slug };
+  }
+
+  return {
+    slug,
+    start: params.get("start") || "",
+    end: params.get("end") || "",
+    departure: params.get("departure") || "",
+    hotel: params.get("hotel") || "",
+    board: params.get("board") || "",
+    nights: params.get("nights") || "",
+  };
+}
+
 function createClickId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID().slice(0, 18);
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
@@ -277,6 +297,7 @@ export default function AffiliateClickBridge() {
             source,
             offerId,
             price,
+            ...currentOfferReturnDetails(),
           });
           trackEvent("affiliate_click", {
             partner,
