@@ -10,8 +10,8 @@ import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 
 export const metadata: Metadata = {
-  title: "Tanie Last Minute 2026 — wakacje i All Inclusive",
-  description: "Sprawdź aktualne Last Minute 2026: wakacje, All Inclusive i pakiety z polskich lotnisk. Porównaj kierunki, terminy i przejdź do aktualnej rezerwacji.",
+  title: "Tanie Last Minute 2026 — lot + hotel i All Inclusive",
+  description: "Oferty Last Minute lot + hotel, wakacje i All Inclusive z polskich lotnisk. Porównaj aktualne ceny, terminy i przejdź do rezerwacji.",
   alternates: { canonical: "/last-minute" },
   openGraph: {
     type: "website",
@@ -33,7 +33,7 @@ export default function LastMinuteOffersPage() {
     <section className="shopping-hero shell last-minute-shopping-hero">
       <div>
         <div className="kicker">⚡ LAST MINUTE 2026</div>
-        <h1>Last Minute 2026: aktualne wakacje i All Inclusive do sprawdzenia teraz.</h1>
+        <h1>Last Minute 2026: lot + hotel, wakacje i All Inclusive do sprawdzenia teraz.</h1>
         <p>Porównaj konkretne pakiety z ceną, terminem i kierunkiem. Tripownia pokazuje najtańsze sensowne opcje na początku i pozwala przeszukać szerszą bazę bez skakania między wieloma stronami.</p>
       </div>
       <Link className="editorial-link" href="/magazyn-podrozniczy/last-minute-2026">📚 Jak kupować last minute — poradnik →</Link>

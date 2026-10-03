@@ -14,6 +14,7 @@ import { cheapestPerDestination as selectCheapestPerDestination } from "@/lib/of
 import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
 import { trackEvent } from "@/lib/analytics";
 import { eskySearchUrl } from "@/lib/eskySearch";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -422,22 +423,7 @@ export default function DealsPage({
         </div>
       ) : null}
 
-      {!destination && (
-        <div className="deals-facebook-cta">
-          <div>
-            <strong>Chcesz dostawać tylko najlepsze okazje?</strong>
-            <span>Na Facebooku publikujemy konkretne kierunki, ceny i terminy — bez przypadkowych inspiracji.</span>
-          </div>
-          <a
-            href="https://www.facebook.com/987707741084438"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => trackEvent("facebook_follow_click", { placement: "deals_after_results" })}
-          >
-            Obserwuj Tripownię na Facebooku →
-          </a>
-        </div>
-      )}
+      {!destination && <FacebookFollowCTA placement="deals_after_results" compact />}
 
       <div className="deals-simple-bottom">
         <span>Nie widzisz nic dla siebie?</span>

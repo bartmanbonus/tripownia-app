@@ -3,9 +3,9 @@ import type { SeoLanding } from "@/lib/seoLandings";
 export const seoAirportWave26: SeoLanding[] = [
   {
     slug: "all-inclusive-z-katowic",
-    title: "All Inclusive z Katowic — tanie wakacje z KTW",
+    title: "All Inclusive wylot z Katowic — tanie wakacje z KTW",
     eyebrow: "ALL INCLUSIVE Z KATOWIC / PYRZOWIC",
-    lead: "All Inclusive z Katowic (KTW): tanie wakacje z lotem, hotelem i wyżywieniem z Pyrzowic. Porównaj aktualne ceny, kierunki i standard hoteli.",
+    lead: "All Inclusive z wylotem z Katowic (KTW): tanie wakacje z lotem, hotelem i wyżywieniem z Pyrzowic. Porównaj aktualne ceny, kierunki i standard hoteli.",
     query: "All Inclusive",
     departure: "Katowice",
     departureCode: "KTW",
