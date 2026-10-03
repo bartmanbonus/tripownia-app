@@ -7,6 +7,7 @@ import styles from "./AdminSocialWeekPlanner.module.css";
 import { adminFetch } from "@/lib/adminClient";
 import { findSocialOfferForCatalogOffer } from "@/lib/socialOffers";
 import type { Offer } from "@/lib/offers";
+import { destinationRotationKey } from "@/lib/destination-rotation";
 
 type Status = "proposal" | "approved" | "published";
 
@@ -16,10 +17,10 @@ function dateFromKey(value:string){ const [y,m,d]=value.split("-").map(Number); 
 function monday(date:Date){ const d=new Date(date); const offset=(d.getDay()+6)%7; d.setDate(d.getDate()-offset); d.setHours(12,0,0,0); return d; }
 function addDays(date:Date, amount:number){ const d=new Date(date); d.setDate(d.getDate()+amount); return d; }
 function normalizeHistoryValue(value:string){
-  return value.toLocaleLowerCase("pl").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  return value.toLocaleLowerCase("pl").replace(/ł/g,"l").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 }
 function offerDestinationKey(offer:Offer){
-  return normalizeHistoryValue(`${offer.city}-${offer.country}`);
+  return destinationRotationKey(offer);
 }
 function offerHotelKey(offer:Offer){
   return normalizeHistoryValue(offer.hotel||"");
