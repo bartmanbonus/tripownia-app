@@ -15,6 +15,7 @@ import { trackEvent } from "@/lib/analytics";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { offerSourceIsFallback } from "@/lib/offerEngine";
 import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
 const SearchHub = dynamic(() => import("@/components/SearchHub"));
 const SalesVisualShortcuts = dynamic(() => import("@/components/SalesVisualShortcuts"));
@@ -766,6 +767,7 @@ export default function Home() {
         <OfferRail kicker="💸 NAJTANIEJ TERAZ" title="Najniższe ceny na pierwszy rzut" description="Najtańsze sensowne propozycje pokazujemy pierwsze — po jednym wariancie na kierunek." items={themedRails.cheapest}/>
         <OfferRail kicker="🏙 CITY BREAK" title="Na kilka dni" description="Krótkie wyjazdy bez powielania kierunków z sekcji najtańszych." items={themedRails.city}/>
         <OfferRail kicker="☀️ WAKACJE" title="Słońce i dłuższy odpoczynek" description="Dłuższe wyjazdy i ciepłe kierunki, których nie pokazaliśmy wyżej." items={themedRails.sun}/>
+        <FacebookFollowCTA placement="homepage_after_cheapest" compact />
       </section>
 
       <section className="section shell visual-chapter chapter-daily" id="okazje">
