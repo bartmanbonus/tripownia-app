@@ -10,7 +10,7 @@ import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 
 export const metadata: Metadata = {
-  title: "Last Minute 2026 — aktualne wakacje i All Inclusive",
+  title: "Tanie Last Minute 2026 — wakacje i All Inclusive",
   description: "Sprawdź aktualne Last Minute 2026: wakacje, All Inclusive i pakiety z polskich lotnisk. Porównaj kierunki, terminy i przejdź do aktualnej rezerwacji.",
   alternates: { canonical: "/last-minute" },
   openGraph: {
@@ -43,6 +43,7 @@ export default function LastMinuteOffersPage() {
       <div className="section-heading"><div><div className="kicker">WYBRANE PRZEZ TRIPOWNIĘ</div><h2>Aktualne oferty Last Minute</h2><p>Sortujemy od najniższej ceny. Sprawdź termin, liczbę nocy, wyżywienie i lotnisko wylotu przed przejściem do rezerwacji.</p></div></div>
       <LiveSalesRail mode="lastminute" limit={10} initialOffers={homepageFallbackOffers}/>
     </section>
+    <section className="section shell"><FacebookFollowCTA placement="last_minute_after_offers" compact /></section>
 
     <section className="section shell partner-search-shopping">
       <SearchHub embedded initialTab="Last minute" />
@@ -74,7 +75,6 @@ export default function LastMinuteOffersPage() {
         ]}
       />
     </section>
-    <section className="section shell"><FacebookFollowCTA placement="last_minute" compact /></section>
     <SiteFooter/>
   </main>;
 }
