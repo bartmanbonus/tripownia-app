@@ -66,7 +66,8 @@ function curatedSearchLink(item: CuratedIdea) {
     from: item.dates[0],
     to: item.dates[1],
   });
-  return `/sylwester?${params.toString()}#szukaj-sylwester`;
+  params.set("tab", "Lot + hotel");
+  return `/szukaj?${params.toString()}`;
 }
 
 function liveSearchLink(offer: Offer) {
@@ -74,7 +75,8 @@ function liveSearchLink(offer: Offer) {
     destination: offer.city,
     duration: String(offer.nights || "all"),
   });
-  return `/sylwester?${params.toString()}#szukaj-sylwester`;
+  params.set("tab", "Lot + hotel");
+  return `/szukaj?${params.toString()}`;
 }
 
 export default function NewYearOffers() {
