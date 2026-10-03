@@ -229,6 +229,8 @@ export default function AddTripPage() {
   const [step, setStep] = useState<1 | 2>(1);
   const [sourceType, setSourceType] = useState("");
   const [sourceKind, setSourceKind] = useState("");
+  const [sourceBoard, setSourceBoard] = useState("");
+  const [sourceNights, setSourceNights] = useState(0);
   const [sportMatch, setSportMatch] = useState("");
   const [sportVenue, setSportVenue] = useState("");
   const [sportTicket, setSportTicket] = useState("");
@@ -276,9 +278,15 @@ export default function AddTripPage() {
       const sourceStart = (params.get("start") || "").trim();
       const sourceEnd = (params.get("end") || "").trim();
       const sourceDeparture = (params.get("departure") || "").trim();
+      const sourceHotel = (params.get("hotel") || "").trim();
+      const sourceBoardValue = (params.get("board") || "").trim();
+      const sourceNightsValue = Math.max(0, Math.min(60, Number(params.get("nights") || 0) || 0));
       const isOwnedSource = source === "affiliate" || source === "external";
 
       setSourceKind(affiliateKind);
+      setSourceBoard(sourceBoardValue);
+      setSourceNights(sourceNightsValue);
+      if (sourceHotel) setHotel(sourceHotel);
       setDestinationMode("known");
       setSkipDestinationChoice(false);
       setCity(affiliateCity);
@@ -612,7 +620,7 @@ export default function AddTripPage() {
       airportCode: departureMode === "selected"
         ? originIata(departureOptions[0] || departure.trim())
         : "",
-      nights: dateMode === "range" ? nights : 0,
+      nights: dateMode === "range" ? nights : sourceNights,
       weather: "",
       score: 0,
       tag: "OKAZJA" as const,
@@ -622,7 +630,7 @@ export default function AddTripPage() {
       image: "/tripownia-app-icon-v2.png",
       category: [],
       hotel: hotel.trim() || (pieces.hotel ? "Nocleg użytkownika" : "Nocleg do wyboru"),
-      board: "",
+      board: sourceBoard,
       dates: dateMode === "range" ? dateLabel(startDate, endDate) : dateMode === "month" ? `${travelMonth} · ${flexNights} nocy${weekendRequired ? " · z weekendem" : ""}` : `Elastycznie · ${flexNights} nocy${weekendRequired ? " · z weekendem" : ""}`,
       partner: "kiwi" as const,
       affiliateUrl: "/moja-podroz",
