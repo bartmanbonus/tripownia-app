@@ -45,6 +45,7 @@ export default function SiteFooter() {
 
             <div className="footer-v2-column">
               <h3>Rezerwuj</h3>
+              <Link href="/lot-hotel">Lot + hotel</Link>
               <Link href="/city-break">City break</Link>
               <Link href="/last-minute">Last Minute</Link>
               <Link href="/tanie-all-inclusive">All Inclusive</Link>
