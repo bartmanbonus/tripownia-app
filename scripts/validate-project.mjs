@@ -133,7 +133,7 @@ requireText(
 requireText("components/AffiliateClickBridge.tsx", 'trackEvent("affiliate_click"', "brakuje pomiaru kliknięć afiliacyjnych w GA4");
 requireText("components/AffiliateClickBridge.tsx", 'return "planner_partner"', "planner nie ma osobnego źródła kliknięcia afiliacyjnego");
 requireText("components/AffiliateClickBridge.tsx", 'return "search_fallback"', "fallback wyszukiwarki nie ma osobnego źródła kliknięcia afiliacyjnego");
-requireText("components/AddTripPage.tsx", "Plan możesz ułożyć bez konta.", "planner ponownie wymusza konto");
+requireText("components/AddTripPage.tsx", "bez obowiązkowego konta", "planner ponownie wymusza konto");
 requireText("components/AddTripPage.tsx", "partners.fonia.buildUrl()", "planner stracił afiliację eSIM");
 requireText("components/AddTripPage.tsx", "partners.parklot.buildUrl()", "planner stracił afiliację parkingu");
 requireText("components/SearchHub.tsx", 'if (/\\bbergamo\\b/i.test(normalized)) return "Mediolan, Włochy";', "Bergamo nie jest mapowane na Mediolan");

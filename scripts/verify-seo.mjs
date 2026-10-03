@@ -47,7 +47,7 @@ assert.ok(organizer.headers.get("x-robots-tag")?.includes("noindex"));
 
 const redirects = [
   ["/city-break-2", "/city-break"],
-  ["/wakacje-z-gdanska-2", "/podroze/wakacje-z-gdanska"],
+  ["/wakacje-z-gdanska-2", "/z-gdanska"],
   ["/kategoria-produktu/all-inclusive", "/wakacje"],
   ["/wietnam/post_id", "/wietnam"],
 ];

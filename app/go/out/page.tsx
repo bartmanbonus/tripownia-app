@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useState } from "react";
 
 const ALLOWED_HOSTS = new Set([
   "reklamy.exim.pl",
@@ -60,21 +60,26 @@ function safeReturnPath(value: string) {
 }
 
 export default function PartnerExitPage() {
-  const params = useMemo(() => new URLSearchParams(window.location.search), []);
-  const target = safeExternalTarget(params.get("target") || "");
-  const returnPath = safeReturnPath(params.get("return") || "/");
+  const [target, setTarget] = useState("");
+  const [returnPath, setReturnPath] = useState("/");
 
   useEffect(() => {
-    if (!target) {
-      window.location.replace(returnPath || "/");
+    const params = new URLSearchParams(window.location.search);
+    const nextTarget = safeExternalTarget(params.get("target") || "");
+    const nextReturnPath = safeReturnPath(params.get("return") || "/");
+    setTarget(nextTarget);
+    setReturnPath(nextReturnPath);
+
+    if (!nextTarget) {
+      window.location.replace(nextReturnPath || "/");
       return;
     }
 
     // replace() is intentional: the technical Tripownia exit page must not
     // remain in browser history. Pressing Back at the partner returns to
     // the actual Tripownia page the user came from.
-    window.location.replace(target);
-  }, [target, returnPath]);
+    window.location.replace(nextTarget);
+  }, []);
 
   return (
     <main className="system-state-page" aria-live="polite">
