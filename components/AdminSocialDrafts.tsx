@@ -11,11 +11,17 @@ export default function AdminSocialDrafts(){
   const offer=useMemo(()=>offers.find(o=>o.id===id) ?? offers[0],[id]);
   if(!offer) return null;
   const curated=findSocialOfferForCatalogOffer({ affiliateUrl:offer.affiliateUrl, city:offer.city, hotel:offer.hotel, price:offer.price });
-  const url=curated
+  const baseUrl=curated
     ? `https://tripownia.pl/o/${curated.slug}`
     : offer.id >= 1_000_000
       ? "https://tripownia.pl/okazje"
       : `https://tripownia.pl/oferta/${offer.id}`;
+  const trackedUrl=new URL(baseUrl);
+  trackedUrl.searchParams.set("utm_source","facebook");
+  trackedUrl.searchParams.set("utm_medium","social");
+  trackedUrl.searchParams.set("utm_campaign","manual_draft");
+  trackedUrl.searchParams.set("utm_content",`${offer.city}-${offer.id}-comment`.toLowerCase().replace(/[^a-z0-9]+/g,"-"));
+  const url=trackedUrl.toString();
   const text=`${offer.flag} ${offer.city} z ${offer.departure} — ${offer.nights} nocy, od ${offer.price} zł/os. ✈️\n\n${offer.reason}\n\n👉 Link do oferty w pierwszym komentarzu.\n\n❤️ Obserwuj Tripownię, jeśli chcesz codziennie dostawać konkretne wyjazdy z ceną i terminem.\n\n#Tripownia #Podróże #${offer.city.toLowerCase().replace(/\s+/g,"-")}`;
   const comment=`👉 ${url}`;
   async function copy(kind:"post"|"comment"){ await navigator.clipboard.writeText(kind==="post"?text:comment); setCopied(kind); setTimeout(()=>setCopied(null),1500); }
