@@ -19,6 +19,11 @@ export const metadata: Metadata = {
     description: "All Inclusive, lot + hotel, rodzinne wakacje i egzotyka — porównaj aktualne propozycje w jednym miejscu.",
     url: "https://tripownia.pl/wakacje",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Wakacje 2026 — aktualne oferty | Tripownia.pl",
+    description: "All Inclusive, lot + hotel, rodzinne wakacje i egzotyka — porównaj aktualne propozycje w jednym miejscu.",
+  },
 };
 
 export default function WakacjePage() {
