@@ -62,6 +62,7 @@ function formatShortDate(value: string) {
 function curatedSearchLink(item: CuratedIdea) {
   const params = new URLSearchParams({
     destination: item.city,
+    duration: String(nightsFromDates(item.dates)),
     from: item.dates[0],
     to: item.dates[1],
   });
@@ -69,7 +70,10 @@ function curatedSearchLink(item: CuratedIdea) {
 }
 
 function liveSearchLink(offer: Offer) {
-  const params = new URLSearchParams({ destination: offer.city });
+  const params = new URLSearchParams({
+    destination: offer.city,
+    duration: String(offer.nights || "all"),
+  });
   return `/sylwester?${params.toString()}#szukaj-sylwester`;
 }
 
