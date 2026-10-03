@@ -15,7 +15,8 @@ function visualType(slug: string): VisualType {
     slug === "sal-riu-funana-3927" ||
     slug === "marsa-utopia-1970" ||
     slug === "kreta-heronissos-1599" ||
-    slug === "teneryfa-suneo-2689"
+    slug === "teneryfa-suneo-2689" ||
+    slug === "algarve-plaza-real-1159"
   ) return "holiday";
   return "city";
 }
@@ -61,6 +62,11 @@ function dateShort(offer: SocialOffer) {
     "28 października – 5 listopada 2026": "28.10–05.11 2026",
     "3–11 grudnia 2026": "03–11.12 2026",
     "29 marca – 5 kwietnia 2027": "29.03–05.04 2027",
+    "3–6 listopada 2026": "03–06.11 2026",
+    "23–28 listopada 2026": "23–28.11 2026",
+    "23–26 listopada 2026": "23–26.11 2026",
+    "10–13 grudnia 2026": "10–13.12 2026",
+    "16–23 listopada 2026": "16–23.11 2026",
   };
   return exact[offer.dates] || offer.dates;
 }
