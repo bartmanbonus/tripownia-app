@@ -7114,3 +7114,65 @@ body {
   .travel-hub-filters a{flex:0 0 auto}
   .travel-hub-more .seo-related-links{grid-template-columns:1fr}
 }
+
+
+/* V157 — concrete New Year ready searches */
+.newyear-ready-searches{
+  padding-top:24px;
+}
+.newyear-ready-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.newyear-ready-card{
+  display:flex;
+  min-height:178px;
+  flex-direction:column;
+  padding:22px;
+  border:1px solid #e7ddd6;
+  border-radius:22px;
+  background:linear-gradient(145deg,#fff,#fff9f5);
+  color:var(--ink);
+  text-decoration:none;
+  box-shadow:0 12px 28px rgba(41,29,20,.04);
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.newyear-ready-card:hover{
+  transform:translateY(-2px);
+  border-color:#f0b39d;
+  box-shadow:0 16px 34px rgba(41,29,20,.07);
+}
+.newyear-ready-card small{
+  color:#a5573d;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.newyear-ready-card strong{
+  margin-top:9px;
+  font-size:22px;
+  line-height:1.12;
+  letter-spacing:-.5px;
+}
+.newyear-ready-card span{
+  margin-top:9px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+}
+.newyear-ready-card b{
+  margin-top:auto;
+  padding-top:18px;
+  color:#ff542f;
+  font-size:13px;
+}
+@media(max-width:700px){
+  .newyear-ready-grid{grid-template-columns:1fr}
+  .newyear-ready-card{
+    min-height:150px;
+    padding:18px;
+    border-radius:18px;
+  }
+  .newyear-ready-card strong{font-size:20px}
+}
