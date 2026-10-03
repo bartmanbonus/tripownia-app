@@ -19,6 +19,11 @@ export const metadata: Metadata = {
     description: "Aktualne Last Minute, All Inclusive i wakacyjne pakiety z konkretną ceną, terminem i kierunkiem.",
     url: "https://tripownia.pl/last-minute",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Last Minute 2026 — aktualne wakacje | Tripownia.pl",
+    description: "Aktualne Last Minute, All Inclusive i wakacyjne pakiety z konkretną ceną, terminem i kierunkiem.",
+  },
 };
 
 export default function LastMinuteOffersPage() {
