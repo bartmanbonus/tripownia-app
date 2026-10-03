@@ -102,7 +102,7 @@ export async function fetchEskyPackages(search: EskySearch = {}): Promise<{ offe
       try {
         const requestTimeout = Math.min(search.timeoutMs ? 4_000 : 12_000, Math.max(1, deadline - Date.now()));
         const response = await fetch(eskyInventoryUrl(search, place, cursor), {
-          headers: { "x-via": "minilisting-widget-TRIPOWNIAPLPACKAGES", Accept: "application/json" },
+          headers: { "x-via": "minilisting-widget-ESKYPLPACKAGES", Accept: "application/json" },
           next: { revalidate: 300 }, signal: AbortSignal.timeout(requestTimeout),
         });
         if (response.status === 401 || response.status === 403) {
