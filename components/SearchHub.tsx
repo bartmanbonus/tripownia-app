@@ -1527,8 +1527,13 @@ export default function SearchHub({
                 <option value="15+">15+ nocy</option>
                 <option disabled>──────────</option>
                 <option value="1-2">1–2 noce</option>
+                <option value="2-4">2–4 noce</option>
                 <option value="3-4">3–4 noce</option>
+                <option value="3-5">3–5 nocy</option>
+                <option value="3-6">3–6 nocy</option>
                 <option value="5-7">5–7 nocy</option>
+                <option value="5-9">5–9 nocy</option>
+                <option value="7-12">7–12 nocy</option>
                 <option value="8-10">8–10 nocy</option>
                 <option value="11-14">11–14 nocy</option>
               </select>
@@ -1560,7 +1565,8 @@ export default function SearchHub({
               >
                 <option value="all">Dowolny</option>
                 <option value="750">do 750 zł</option><option value="1000">do 1 000 zł</option><option value="1500">do 1 500 zł</option>
-                <option value="2000">do 2 000 zł</option><option value="3000">do 3 000 zł</option><option value="5000">do 5 000 zł</option>
+                <option value="2000">do 2 000 zł</option><option value="2500">do 2 500 zł</option><option value="3000">do 3 000 zł</option>
+                <option value="3500">do 3 500 zł</option><option value="4000">do 4 000 zł</option><option value="5000">do 5 000 zł</option>
                 <option value="7500">do 7 500 zł</option><option value="10000">do 10 000 zł</option><option value="15000">do 15 000 zł</option>
                 <option value="custom">Własny zakres…</option>
               </select>
