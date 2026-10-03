@@ -221,6 +221,22 @@ export async function requestMagicLink(email: string, redirectTo: string) {
   }
 }
 
+export async function resendSignupConfirmation(email: string, redirectTo = "https://tripownia.pl/konto") {
+  if (!isAccountAuthConfigured()) throw new Error("Rejestracja nie jest jeszcze podłączona.");
+  const safeRedirect = redirectTo.startsWith("https://tripownia.pl/")
+    ? redirectTo
+    : "https://tripownia.pl/konto";
+  const response = await fetch(`${authBaseUrl()}/auth/v1/resend?redirect_to=${encodeURIComponent(safeRedirect)}`, {
+    method: "POST",
+    headers: publicHeaders(),
+    body: JSON.stringify({ type: "signup", email: email.trim().toLowerCase() }),
+  });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(friendlyAuthError(payload, "Nie udało się ponownie wysłać potwierdzenia konta."));
+  }
+}
+
 export function socialLoginUrl(provider: "google" | "apple", redirectTo: string) {
   if (!isAccountAuthConfigured()) return "";
   const url = new URL(`${authBaseUrl()}/auth/v1/authorize`);

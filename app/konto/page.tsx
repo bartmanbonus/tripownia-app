@@ -22,6 +22,7 @@ import {
   readAccountSession,
   requestMagicLink,
   requestPasswordReset,
+  resendSignupConfirmation,
   saveTripowniaUserState,
   signInWithPassword,
   signOutAccount,
@@ -50,6 +51,8 @@ export default function AccountPage() {
   const [message, setMessage] = useState("");
   const [magicCooldown, setMagicCooldown] = useState(0);
   const [resetCooldown, setResetCooldown] = useState(0);
+  const [confirmationEmail, setConfirmationEmail] = useState("");
+  const [confirmationCooldown, setConfirmationCooldown] = useState(0);
   const [recoveryMode, setRecoveryMode] = useState(false);
   const [recoveryPassword, setRecoveryPassword] = useState("");
   const [recoveryPasswordConfirm, setRecoveryPasswordConfirm] = useState("");
@@ -150,6 +153,12 @@ export default function AccountPage() {
     return () => window.clearTimeout(timer);
   }, [resetCooldown]);
 
+  useEffect(() => {
+    if (confirmationCooldown <= 0) return;
+    const timer = window.setTimeout(() => setConfirmationCooldown((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearTimeout(timer);
+  }, [confirmationCooldown]);
+
   async function submitPasswordAuth(event: FormEvent) {
     event.preventDefault();
     const cleanEmail = email.trim();
@@ -186,7 +195,10 @@ export default function AccountPage() {
         } else {
           trackEvent("sign_up", { method: "password", confirmation_required: true });
           trackMetaCustomEvent("AccountCreated", { method: "password", confirmation_required: true });
-          setMessage("Jeśli to nowy adres, sprawdź e-mail i potwierdź konto. Jeśli konto na ten adres już istnieje, przejdź do logowania albo użyj jednorazowego linku e-mail.");
+          setConfirmationEmail(cleanEmail);
+          setConfirmationCooldown(60);
+          setPassword("");
+          setMessage("");
         }
       } else {
         const logged = await signInWithPassword(cleanEmail, password);
@@ -220,6 +232,24 @@ export default function AccountPage() {
       }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Nie udało się zalogować.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function resendConfirmation() {
+    if (!confirmationEmail || confirmationCooldown > 0 || busy) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      const next = safeNextPath();
+      const redirect = `https://tripownia.pl/konto${next ? `?next=${encodeURIComponent(next)}` : ""}`;
+      await resendSignupConfirmation(confirmationEmail, redirect);
+      setConfirmationCooldown(60);
+      trackEvent("signup_confirmation_resent", { method: "email" });
+      setMessage("Nowy link potwierdzający został wysłany. Sprawdź skrzynkę i folder spam/oferty.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Nie udało się ponownie wysłać potwierdzenia.");
     } finally {
       setBusy(false);
     }
@@ -458,47 +488,79 @@ export default function AccountPage() {
         ) : (
           <div className="account-grid">
             <div className="account-card account-login-card">
-              <div className="account-card-title"><Mail size={21}/><div><small>TWOJE KONTO</small><strong>{authMode === "register" ? "Utwórz konto Tripowni" : "Zaloguj się do Tripowni"}</strong></div></div>
-              <p>{authMode === "register" ? "Załóż konto raz i wracaj do swoich podróży, profilu, checklist, rezerwacji i ulubionych na webie oraz w aplikacji." : "Zaloguj się tym samym kontem na webie i w aplikacji. Twoje podróże i preferencje będą w jednym miejscu."}</p>
-
-              <div className="account-auth-tabs">
-                <button type="button" className={authMode === "login" ? "active" : ""} onClick={() => setAuthMode("login")}>Logowanie</button>
-                <button type="button" className={authMode === "register" ? "active" : ""} onClick={() => setAuthMode("register")}>Nowe konto</button>
-              </div>
-
-              <form onSubmit={submitPasswordAuth} className="account-password-form">
-                <label className="account-auth-field">
-                  <span>E-mail</span>
-                  <input name="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="twoj@email.pl" autoComplete="email" required />
-                </label>
-                <label className="account-auth-field">
-                  <span>Hasło</span>
-                  <input name="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={authMode === "register" ? "Minimum 10 znaków" : "Wpisz hasło"} autoComplete={authMode === "register" ? "new-password" : "current-password"} minLength={authMode === "register" ? 10 : 1} required />
-                  {authMode === "register" && <small>Minimum 10 znaków, w tym co najmniej jedna litera i jedna cyfra.</small>}
-                </label>
-                <button type="submit" disabled={busy}>{busy ? "Chwila…" : authMode === "register" ? "Utwórz konto" : "Zaloguj się"}</button>
-                {authMode === "login" && (
+              {confirmationEmail ? (
+                <>
+                  <div className="account-card-title"><CheckCircle2 size={21}/><div><small>JESZCZE JEDEN KROK</small><strong>Sprawdź e-mail</strong></div></div>
+                  <p>Wysłaliśmy link potwierdzający na <strong>{confirmationEmail}</strong>. Kliknij go, żeby aktywować konto Tripowni.</p>
+                  <div className="account-message" role="status">
+                    Nie widzisz wiadomości? Sprawdź spam i zakładki Oferty/Powiadomienia.
+                  </div>
                   <button
                     type="button"
-                    className="account-reset-link"
-                    onClick={sendPasswordReset}
-                    disabled={busy || resetCooldown > 0}
+                    className="account-primary-button"
+                    onClick={resendConfirmation}
+                    disabled={busy || confirmationCooldown > 0}
                   >
-                    {resetCooldown > 0 ? `Wyślij ponownie za ${resetCooldown}s` : "Nie pamiętam hasła"}
+                    <Mail size={17}/>
+                    {busy ? "Wysyłam…" : confirmationCooldown > 0 ? `Wyślij ponownie za ${confirmationCooldown}s` : "Wyślij potwierdzenie ponownie"}
                   </button>
-                )}
-              </form>
+                  <button
+                    type="button"
+                    className="account-social-button"
+                    onClick={() => {
+                      setConfirmationEmail("");
+                      setAuthMode("login");
+                      setMessage("");
+                    }}
+                  >
+                    Mam już potwierdzone konto — przejdź do logowania
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="account-card-title"><Mail size={21}/><div><small>TWOJE KONTO</small><strong>{authMode === "register" ? "Utwórz konto Tripowni" : "Zaloguj się do Tripowni"}</strong></div></div>
+                  <p>{authMode === "register" ? "Załóż konto raz i wracaj do swoich podróży, profilu, checklist, rezerwacji i ulubionych na webie oraz w aplikacji." : "Zaloguj się tym samym kontem na webie i w aplikacji. Twoje podróże i preferencje będą w jednym miejscu."}</p>
 
-              <div className="account-divider"><span>albo bez hasła</span></div>
-              <form onSubmit={sendMagicLink} className="account-magic-form">
-                <button type="submit" disabled={busy || !email.trim() || magicCooldown > 0}>
-                  {magicCooldown > 0 ? `Wyślij ponownie za ${magicCooldown}s` : "Wyślij jednorazowy link na ten e-mail"}
-                </button>
-              </form>
+                  <div className="account-auth-tabs">
+                    <button type="button" className={authMode === "login" ? "active" : ""} onClick={() => setAuthMode("login")}>Logowanie</button>
+                    <button type="button" className={authMode === "register" ? "active" : ""} onClick={() => setAuthMode("register")}>Nowe konto</button>
+                  </div>
 
-              {(googleEnabled || appleEnabled) && <div className="account-divider"><span>lub</span></div>}
-              {googleEnabled && <a className="account-social-button" href={socialLoginUrl("google", authRedirect)}>Kontynuuj z Google</a>}
-              {appleEnabled && <a className="account-social-button" href={socialLoginUrl("apple", authRedirect)}>Kontynuuj z Apple</a>}
+                  <form onSubmit={submitPasswordAuth} className="account-password-form">
+                    <label className="account-auth-field">
+                      <span>E-mail</span>
+                      <input name="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="twoj@email.pl" autoComplete="email" required />
+                    </label>
+                    <label className="account-auth-field">
+                      <span>Hasło</span>
+                      <input name="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={authMode === "register" ? "Minimum 10 znaków" : "Wpisz hasło"} autoComplete={authMode === "register" ? "new-password" : "current-password"} minLength={authMode === "register" ? 10 : 1} required />
+                      {authMode === "register" && <small>Minimum 10 znaków, w tym co najmniej jedna litera i jedna cyfra.</small>}
+                    </label>
+                    <button type="submit" disabled={busy}>{busy ? "Chwila…" : authMode === "register" ? "Utwórz konto" : "Zaloguj się"}</button>
+                    {authMode === "login" && (
+                      <button
+                        type="button"
+                        className="account-reset-link"
+                        onClick={sendPasswordReset}
+                        disabled={busy || resetCooldown > 0}
+                      >
+                        {resetCooldown > 0 ? `Wyślij ponownie za ${resetCooldown}s` : "Nie pamiętam hasła"}
+                      </button>
+                    )}
+                  </form>
+
+                  <div className="account-divider"><span>albo bez hasła</span></div>
+                  <form onSubmit={sendMagicLink} className="account-magic-form">
+                    <button type="submit" disabled={busy || !email.trim() || magicCooldown > 0}>
+                      {magicCooldown > 0 ? `Wyślij ponownie za ${magicCooldown}s` : "Wyślij jednorazowy link na ten e-mail"}
+                    </button>
+                  </form>
+
+                  {(googleEnabled || appleEnabled) && <div className="account-divider"><span>lub</span></div>}
+                  {googleEnabled && <a className="account-social-button" href={socialLoginUrl("google", authRedirect)}>Kontynuuj z Google</a>}
+                  {appleEnabled && <a className="account-social-button" href={socialLoginUrl("apple", authRedirect)}>Kontynuuj z Apple</a>}
+                </>
+              )}
             </div>
 
             <div className="account-card account-benefits-card">
