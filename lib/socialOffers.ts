@@ -164,7 +164,7 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
     imageSrc: "https://img.exim.pl/hotels/720/recko/zakynthos/laganas/alexander-the-great-pl/2059/45e9beb214cd4fe4146_2-244.jpg",
     imageCountry: "Grecja",
     checkedAt: "2026-09-30T16:21:08+02:00",
-    status: "active",
+    status: "expired",
   },
   "durres-albanian-star-969": {
     slug: "durres-albanian-star-969",
@@ -1022,6 +1022,97 @@ export function findSocialOfferForCatalogOffer(input: {
     && normalize(offer.hotel) === hotel
     && Number(offer.price) === price
   ) || null;
+}
+
+function decodedAffiliateUrl(value: string) {
+  let current = value;
+  for (let index = 0; index < 3; index++) {
+    try {
+      const next = decodeURIComponent(current);
+      if (next === current) break;
+      current = next;
+    } catch {
+      break;
+    }
+  }
+  return current;
+}
+
+function compactIso(value: string) {
+  if (!/^20\d{6}$/.test(value)) return "";
+  return `${value.slice(0, 4)}-${value.slice(4, 6)}-${value.slice(6, 8)}`;
+}
+
+function displayDateRange(value: string) {
+  const months: Record<string, string> = {
+    stycznia: "01", lutego: "02", marca: "03", kwietnia: "04", maja: "05", czerwca: "06",
+    lipca: "07", sierpnia: "08", wrzesnia: "09", "września": "09", pazdziernika: "10", "października": "10",
+    listopada: "11", grudnia: "12",
+  };
+  const normalized = value.trim().replace(/\s+/g, " ");
+  const sameMonth = normalized.match(/^(\d{1,2})\s*[–-]\s*(\d{1,2})\s+([A-Za-ząćęłńóśźżĄĆĘŁŃÓŚŹŻ]+)\s+(20\d{2})$/);
+  if (sameMonth) {
+    const month = months[sameMonth[3].toLowerCase()];
+    if (!month) return { start: "", end: "" };
+    return {
+      start: `${sameMonth[4]}-${month}-${sameMonth[1].padStart(2, "0")}`,
+      end: `${sameMonth[4]}-${month}-${sameMonth[2].padStart(2, "0")}`,
+    };
+  }
+  const crossMonth = normalized.match(/^(\d{1,2})\s+([A-Za-ząćęłńóśźżĄĆĘŁŃÓŚŹŻ]+)\s*[–-]\s*(\d{1,2})\s+([A-Za-ząćęłńóśźżĄĆĘŁŃÓŚŹŻ]+)\s+(20\d{2})$/);
+  if (crossMonth) {
+    const startMonth = months[crossMonth[2].toLowerCase()];
+    const endMonth = months[crossMonth[4].toLowerCase()];
+    if (!startMonth || !endMonth) return { start: "", end: "" };
+    return {
+      start: `${crossMonth[5]}-${startMonth}-${crossMonth[1].padStart(2, "0")}`,
+      end: `${crossMonth[5]}-${endMonth}-${crossMonth[3].padStart(2, "0")}`,
+    };
+  }
+  return { start: "", end: "" };
+}
+
+export function socialOfferDateRange(offer: Pick<SocialOffer, "affiliateUrl" | "dates">) {
+  const decoded = decodedAffiliateUrl(offer.affiliateUrl || "");
+  const firstParam = (keys: string[]) => {
+    for (const key of keys) {
+      const match = decoded.match(new RegExp(`(?:[?&]|\\b)${key}=((?:20\\d{2}-\\d{2}-\\d{2}))`, "i"));
+      if (match?.[1]) return match[1];
+    }
+    return "";
+  };
+
+  let start = firstParam(["destinationDepartureDate", "departure", "DD", "checkInDate"]);
+  let end = firstParam(["returnArrivalDate", "return", "RD", "checkOutDate"]);
+
+  if (!start || !end) {
+    const compactDates = Array.from(decoded.matchAll(/20\d{6}/g), (match) => compactIso(match[0]))
+      .filter(Boolean);
+    const uniqueDates = Array.from(new Set(compactDates));
+    if (!start && uniqueDates.length) start = uniqueDates[0];
+    if (!end && uniqueDates.length > 1) end = uniqueDates[uniqueDates.length - 1];
+  }
+
+  if (!start || !end) {
+    const display = displayDateRange(offer.dates || "");
+    if (!start) start = display.start;
+    if (!end) end = display.end;
+  }
+
+  if (!/^20\d{2}-\d{2}-\d{2}$/.test(start) || !/^20\d{2}-\d{2}-\d{2}$/.test(end)) {
+    return { start: "", end: "" };
+  }
+  if (Date.parse(end) < Date.parse(start)) return { start: "", end: "" };
+  return { start, end };
+}
+
+export function getSocialOfferForLanding(slug: string): SocialOffer | null {
+  const normalizedSlug = slug.toLocaleLowerCase("pl");
+  const offer = SOCIAL_OFFERS[normalizedSlug] || null;
+  if (!offer) return null;
+  if (!validAffiliateUrl(offer.affiliateUrl)) return null;
+  if (!validImageCountry(offer)) return null;
+  return offer;
 }
 
 export function getSocialOffer(slug: string): SocialOffer | null {

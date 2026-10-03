@@ -6,7 +6,7 @@ import { ArrowLeft, BadgeCheck, CalendarDays, MapPin, Moon, Plane, PlusCircle, U
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AffiliateOfferLink from "@/components/AffiliateOfferLink";
-import { getSocialOffer, type SocialOffer } from "@/lib/socialOffers";
+import { getSocialOfferForLanding, socialOfferDateRange, type SocialOffer } from "@/lib/socialOffers";
 import CompleteTripSales from "@/components/CompleteTripSales";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
@@ -36,7 +36,7 @@ const LEGACY_RZYM_529: SocialOfferPage = {
 function getOfferForPage(slug: string): SocialOfferPage | null {
   const normalizedSlug = slug.toLocaleLowerCase("pl");
   if (normalizedSlug === "rzym-529") return LEGACY_RZYM_529;
-  return getSocialOffer(slug);
+  return getSocialOfferForLanding(slug);
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -96,6 +96,7 @@ export default async function ShortSocialOfferPage({
   if (!offer) return notFound();
 
   const tripKind = offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package";
+  const dateRange = socialOfferDateRange(offer);
   const directAffiliateHref = (() => {
     if (!offer.affiliateUrl || offer.partner === "other") return offer.affiliateUrl;
     const value = (key: string) => {
@@ -134,6 +135,8 @@ export default async function ShortSocialOfferPage({
     hotel: offer.hotel,
     board: offer.board,
     nights: String(offer.nights),
+    ...(dateRange.start ? { start: dateRange.start } : {}),
+    ...(dateRange.end ? { end: dateRange.end } : {}),
   });
   const plannerHref = `/dodaj-podroz?${plannerParams.toString()}`;
 
@@ -192,6 +195,8 @@ export default async function ShortSocialOfferPage({
                     hotel={offer.hotel}
                     board={offer.board}
                     nights={offer.nights}
+                    start={dateRange.start}
+                    end={dateRange.end}
                   />
                   <OfferAlternativeJump />
                   <Link className="btn secondary" href={plannerHref}><PlusCircle size={17}/> Dodaj do planera</Link>
