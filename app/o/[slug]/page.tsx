@@ -140,7 +140,7 @@ export default async function ShortSocialOfferPage({
   const plannerHref = `/dodaj-podroz?${plannerParams.toString()}`;
 
   return (
-    <main>
+    <main className="social-offer-page">
       <SiteHeader />
       <div className="shell">
         <div className="offer-detail-top">
