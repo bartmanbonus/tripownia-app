@@ -7276,3 +7276,32 @@ body {
   }
   .ready-search-page-head p{font-size:15px}
 }
+
+
+/* V158 — concrete discovery search cards */
+.seo-discovery-grid a{
+  justify-content:flex-start;
+  gap:8px;
+}
+.seo-discovery-grid a small{
+  color:#8a766b;
+  font-size:10px;
+  font-weight:850;
+  line-height:1.4;
+  letter-spacing:.03em;
+}
+.seo-discovery-grid a strong{
+  margin:2px 0 6px;
+  font-size:15px;
+}
+.seo-discovery-grid a span{
+  margin-top:auto;
+  padding-top:8px;
+}
+@media(max-width:700px){
+  .seo-discovery-grid a{
+    min-height:118px;
+    padding:15px;
+  }
+  .seo-discovery-grid a strong{font-size:16px}
+}
