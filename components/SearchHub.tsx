@@ -25,6 +25,7 @@ type Props = {
   initialAirports?: string[];
   initialDestinations?: string[];
   initialDuration?: string;
+  initialBudget?: string;
   searchRequest?: number;
   initialTab?: string;
   initialBoard?: string;
@@ -317,6 +318,7 @@ export default function SearchHub({
   initialAirports = [],
   initialDestinations = [],
   initialDuration = "all",
+  initialBudget = "all",
   searchRequest = 0,
   initialTab = "Lot + hotel",
   initialBoard = "all",
@@ -344,7 +346,7 @@ export default function SearchHub({
   const [dateFrom, setDateFrom] = useState(initialDateFrom);
   const [dateTo, setDateTo] = useState(initialDateTo);
   const [duration, setDuration] = useState(initialDuration || "all");
-  const [budget, setBudget] = useState("all");
+  const [budget, setBudget] = useState(initialBudget || "all");
   const [customBudgetMin, setCustomBudgetMin] = useState("");
   const [customBudgetMax, setCustomBudgetMax] = useState("");
   const [board, setBoard] = useState(initialBoard);
@@ -452,6 +454,7 @@ export default function SearchHub({
     setSelectedDestinations(initialDestinations);
     setDepartures(initialAirports);
     setDuration(initialDuration || "all");
+    setBudget(initialBudget || "all");
     setActiveTab(initialTab);
     setBoard(initialBoard);
     setDateMode(initialDateMode);
@@ -464,6 +467,7 @@ export default function SearchHub({
     initialAirports.join("|"),
     initialDestinations.join("|"),
     initialDuration,
+    initialBudget,
     initialTab,
     initialBoard,
     initialDateMode,
