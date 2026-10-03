@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, BadgeCheck, Scale, MapPinned, BadgePercent } from "lucide-react";
+import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, Scale, MapPinned, BadgePercent } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import TravelImage from "@/components/TravelImage";
@@ -9,11 +9,10 @@ import { useEffect, useRef, useState } from "react";
 import { getOfferOverride, type OfferOverride } from "@/lib/clientOfferOverrides";
 import { isPriceStale } from "@/lib/offerQuality";
 import { isOfferExpired } from "@/lib/offers";
-import { getDealScore } from "@/lib/dealScore";
 import { ANALYTICS_CONSENT_EVENT, getAnalyticsConsent, trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { readAccountSession } from "@/lib/accountAuth";
-import { customerDealVerdict, customerOfferReason } from "@/lib/customerOfferCopy";
+import { customerOfferReason } from "@/lib/customerOfferCopy";
 import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
 import {
   COMPARE_OFFER_SNAPSHOTS_KEY,
@@ -135,9 +134,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
   const availabilityStatus = override.availabilityStatus ?? publishedOverride.availabilityStatus ?? offer.availabilityStatus ?? "unknown";
   const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
   const stalePrice = !isExpired && priceStale;
-  const deal = getDealScore(offer, displayPrice, isLiveExact);
   const customerReason = customerOfferReason(override.note || publishedOverride.note || offer.reason);
-  const customerVerdict = customerDealVerdict(deal.verdict);
 
   const offerSnapshot: Offer = {
     ...offer,
@@ -320,15 +317,6 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
         </div>
 
         {offer.hotel && <p className="offer-hotel-name">{offer.hotel}</p>}
-
-        {!isExpired && (
-          <div className={`deal-score deal-score-compact deal-score-${deal.verdict === "BIERZ" ? "buy" : deal.verdict === "DOBRA OPCJA" ? "good" : "check"}`} title={`Pewność oceny: ${deal.confidence}${stalePrice ? " · cena może być nieaktualna" : ""}`}>
-            <BadgeCheck size={15} />
-            <span>Ocena okazji</span>
-            <strong>{deal.score}/100</strong>
-            <em>{customerVerdict}</em>
-          </div>
-        )}
 
         {priceHighlight && !isExpired && (
           <div className="offer-price-highlight">
