@@ -51,7 +51,7 @@ function dateLabel(start: string, end: string) {
 }
 
 function nightsBetween(start: string, end: string) {
-  if (!start || !end) return 1;
+  if (!start || !end) return 0;
   const from = new Date(`${start}T12:00:00`).getTime();
   const to = new Date(`${end}T12:00:00`).getTime();
   return Math.max(1, Math.round((to - from) / 86400000));
@@ -126,11 +126,15 @@ type EditableTrip = {
     weekendRequired?: boolean;
     departureMode?: "any" | "selected";
     departureOptions?: string[];
+    startDate?: string;
+    endDate?: string;
+    ownedMode?: boolean;
   };
 };
 
 function originIata(value: string): string {
   const n = norm(value);
+  if (!n) return "";
   if (n.includes("modlin") || /\bwmi\b/.test(n)) return "WMI";
   if (n.includes("radom") || /\brdo\b/.test(n)) return "RDO";
   if (n.includes("chopin") || /\bwaw\b/.test(n) || n === "warszawa") return "WAW";
@@ -144,7 +148,7 @@ function originIata(value: string): string {
   if (n.includes("szczec") || /\bszz\b/.test(n)) return "SZZ";
   if (n.includes("lodz") || n.includes("łodz") || n.includes("łódź") || /\blcj\b/.test(n)) return "LCJ";
   if (n.includes("warsz")) return "WAW";
-  return "WAW";
+  return "";
 }
 
 function buildSuggestions(city: string, country: string, start: string, end: string, departure: string) {
@@ -236,9 +240,12 @@ export default function AddTripPage() {
   const [sportTicket, setSportTicket] = useState("");
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
+  const suggestionStart = dateMode === "range" ? startDate : "";
+  const suggestionEnd = dateMode === "range" ? endDate : "";
+  const suggestionDeparture = departureMode === "selected" ? (departureOptions[0] || departure) : "";
   const suggestions = useMemo(
-    () => buildSuggestions(city, country, startDate, endDate, departure),
-    [city, country, startDate, endDate, departure],
+    () => buildSuggestions(city, country, suggestionStart, suggestionEnd, suggestionDeparture),
+    [city, country, suggestionStart, suggestionEnd, suggestionDeparture],
   );
   const openOfferSuggestions = useMemo(
     () => [...offers]
@@ -337,17 +344,23 @@ export default function AddTripPage() {
           setCountry(["Dowolny kierunek", "Do wyboru"].includes(snapshot.country || "") ? "" : snapshot.country || "");
 
           const prefs = saved.searchPreferences || {};
+          const journey = saved.journeyPieces || {};
+          const restoredOwnedMode = typeof prefs.ownedMode === "boolean"
+            ? prefs.ownedMode
+            : Boolean(saved.flight || saved.hotel || journey.flight?.status === "owned" || journey.hotel?.status === "owned");
+          setOwnedMode(restoredOwnedMode);
           setDateMode(prefs.dateMode || (snapshot.dates?.startsWith("Elastycznie") ? "flexible" : "flexible"));
           setTravelMonth(prefs.travelMonth || "");
           setFlexNights(prefs.flexNights || "3-7");
           setWeekendRequired(Boolean(prefs.weekendRequired));
           setDepartureMode(prefs.departureMode || "any");
           setDepartureOptions(Array.isArray(prefs.departureOptions) ? prefs.departureOptions : []);
+          setStartDate(prefs.startDate || "");
+          setEndDate(prefs.endDate || "");
 
           setFlight(saved.flight || "");
           setHotel(saved.hotel || "");
           setNotes(saved.notes || "");
-          const journey = saved.journeyPieces || {};
           setPieces({
             flight: Boolean(saved.flight) || journey.flight?.status === "owned",
             hotel: Boolean(saved.hotel) || journey.hotel?.status === "owned",
@@ -398,17 +411,22 @@ export default function AddTripPage() {
       setSignedIn(Boolean(currentSession));
       setAuthReady(true);
 
-      if (currentSession && !hasExplicitSourceDestination) {
+      if (!hasExplicitSourceDestination) {
         try {
           const raw = sessionStorage.getItem("tripownia-pending-offer-v1");
           const pending = raw ? JSON.parse(raw) as Record<string, unknown> : null;
           if (pending) {
             if (typeof pending.city === "string") setCity(pending.city);
             if (typeof pending.country === "string") setCountry(pending.country);
-            if (typeof pending.departure === "string") setDeparture(pending.departure);
+            if (typeof pending.departure === "string") {
+              setDeparture(pending.departure);
+              setDepartureMode("selected");
+              setDepartureOptions([pending.departure]);
+            }
             if (typeof pending.hotel === "string") setHotel(pending.hotel);
             if (typeof pending.startDateISO === "string") setStartDate(pending.startDateISO);
             if (typeof pending.endDateISO === "string") setEndDate(pending.endDateISO);
+            if (typeof pending.startDateISO === "string" || typeof pending.endDateISO === "string") setDateMode("range");
             setPieces({
               flight: true,
               hotel: true,
@@ -613,7 +631,7 @@ export default function AddTripPage() {
       ...(editingTrip?.offerSnapshot || {}),
       id: offerId,
       flag: editingTrip?.offerSnapshot?.flag || "🌍",
-      city: city.trim() || "Kierunek jeszcze nie wybrany",
+      city: city.trim() || (resolvedCountry ? "" : "Kierunek jeszcze nie wybrany"),
       country: resolvedCountry,
       price: editingTrip?.offerSnapshot?.price || 0,
       departure: departureMode === "any" ? "Polska — dowolne lotnisko" : (departureOptions.join(", ") || departure.trim() || "Do ustalenia"),
@@ -665,7 +683,22 @@ export default function AddTripPage() {
       suggestedLinks: suggestions,
     };
 
-    const tripWithPreferences = { ...trip, searchPreferences: { destinationMode, dateMode, travelMonth, flexNights, weekendRequired, departureMode, departureOptions, destinationPending } };
+    const tripWithPreferences = {
+      ...trip,
+      searchPreferences: {
+        destinationMode,
+        dateMode,
+        travelMonth,
+        flexNights,
+        weekendRequired,
+        departureMode,
+        departureOptions,
+        destinationPending,
+        startDate,
+        endDate,
+        ownedMode,
+      },
+    };
     localStorage.setItem(ACTIVE_TRIP_KEY, JSON.stringify(tripWithPreferences));
     upsertTripArchive(tripWithPreferences);
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
