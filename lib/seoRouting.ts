@@ -19,6 +19,7 @@ export const LEGACY_CATEGORY_REDIRECTS: Record<string, string> = {
 };
 
 export const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
+  "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem": "/lot-hotel",
   "/wakacje-z-gdanska-2": "/z-gdanska",
   "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-rzeszowa",
   "/wakacje-ze-szczecina-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-szczecina",
