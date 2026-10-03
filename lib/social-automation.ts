@@ -44,13 +44,25 @@ function alignTripowniaLinks(text: string, trackingUrl: string) {
   );
 }
 
-export function socialTrackingUrl(offer: Offer, source: "facebook" | "instagram") {
+export function socialTrackingUrl(
+  offer: Offer,
+  source: "facebook" | "instagram",
+  placement: "post" | "comment" = "post"
+) {
   const url = new URL(socialLandingPath(offer), SITE_URL);
   url.searchParams.set("utm_source", source);
   url.searchParams.set("utm_medium", "social");
   url.searchParams.set("utm_campaign", offer.category.includes("flight") ? "perelka_lotnicza" : "oferta_dnia");
-  url.searchParams.set("utm_content", `${offer.city}-${offer.id}`.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+  url.searchParams.set("utm_content", `${offer.city}-${offer.id}-${placement}`.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
   return url.toString();
+}
+
+function stripTripowniaLinks(text: string) {
+  return text
+    .replace(/https:\/\/(?:www\.)?tripownia\.pl\/(?:o\/[^\s]+|oferta\/\d+|okazje|tanie-loty)(?:\?[^\s]*)?/gi, "")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 async function graphPost(path: string, params: URLSearchParams) {
@@ -67,7 +79,11 @@ async function graphPost(path: string, params: URLSearchParams) {
   return data;
 }
 
-export async function publishFacebook(offer: Offer, approvedText: string): Promise<SocialPublishResult> {
+export async function publishFacebook(
+  offer: Offer,
+  approvedText: string,
+  linkPlacement: "post" | "comment" = "post"
+): Promise<SocialPublishResult> {
   const pageId = process.env.META_FACEBOOK_PAGE_ID;
   const token = process.env.META_PAGE_ACCESS_TOKEN;
   if (!pageId || !token) {
@@ -75,15 +91,22 @@ export async function publishFacebook(offer: Offer, approvedText: string): Promi
   }
 
   try {
-    const trackingUrl = socialTrackingUrl(offer, "facebook");
-    const data = await graphPost(
-      `${pageId}/feed`,
-      new URLSearchParams({
-        access_token: token,
-        message: alignTripowniaLinks(approvedText, trackingUrl),
-        link: trackingUrl,
-      })
-    );
+    const trackingUrl = socialTrackingUrl(offer, "facebook", linkPlacement);
+    const params = new URLSearchParams({
+      access_token: token,
+      message: linkPlacement === "post"
+        ? alignTripowniaLinks(approvedText, trackingUrl)
+        : stripTripowniaLinks(approvedText),
+    });
+    if (linkPlacement === "post") params.set("link", trackingUrl);
+
+    const data = await graphPost(`${pageId}/feed`, params);
+    if (linkPlacement === "comment" && data.id) {
+      await graphPost(
+        `${data.id}/comments`,
+        new URLSearchParams({ access_token: token, message: trackingUrl })
+      );
+    }
     return { platform: "facebook", ok: true, id: data.id, trackingUrl };
   } catch (error) {
     return { platform: "facebook", ok: false, error: error instanceof Error ? error.message : String(error) };
