@@ -107,7 +107,7 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
     partner: "esky",
     partnerLabel: "eSky",
     affiliateUrl: "https://www2.esky.pl/lot+hotel/portfolio/details/select-room?arrivalPlaces=ci-AGP&context=pl-packages&datesTab=months&departureDate=2026-11-01&departurePlaces=ap-WAW,ap-WMI&mustIncludeWeekend=true&partner_id=TRIPOWNIAPLPACKAGES&portfolioToken=8cee4294-841e-48ac-b437-ad0f10a091a5&returnDate=2026-11-30&rooms%5B0%5D%5Badults%5D=2&sort%5BTotalPrice%5D=asc&stayLength=5:7&utm_source=chatgpt.com&packageId=MjYxMTIxOjU6cGw6Mzc0NDY1&flightOptionId=V0FXQUdQMjYxMTIxNzh8fEZSMTM5NzowOjAsQUdQV0FXMjYxMTI2NzhJfHxGUjEzOTY6MDox&departureCode=WAW&arrivalCode=AGP&checkInDate=2026-11-21&checkOutDate=2026-11-26&destinationDepartureDate=2026-11-21&returnArrivalDate=2026-11-26&metaCode=374465&pricePresentation=perpax&selectedDeparturePlaces=ap-WAW,ap-WMI",
-    imageSrc: "https://images.unsplash.com/photo-1509840841025-9088ba78a826?auto=format&fit=crop&w=1600&q=80",
+    imageSrc: "/images/destinations/malaga.jpg",
     imageCountry: "Hiszpania",
     checkedAt: "2026-10-03T10:40:00+02:00",
     status: "active",
