@@ -15,6 +15,7 @@ import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealP
 import { trackEvent } from "@/lib/analytics";
 import { eskySearchUrl } from "@/lib/eskySearch";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
+import ReadySearchGrid, { type ReadySearchItem } from "@/components/ReadySearchGrid";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -101,6 +102,7 @@ export default function DealsPage({
   pageLead = "Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność są regularnie odświeżane.",
   kicker = "OKAZJE TRIPOWNI",
   initialOffers = [],
+  readySearchItems = [],
 }: {
   destination?: string;
   dealType?: "" | "allinclusive";
@@ -108,6 +110,7 @@ export default function DealsPage({
   pageLead?: string;
   kicker?: string;
   initialOffers?: Offer[];
+  readySearchItems?: ReadySearchItem[];
 }) {
   const now = useMemo(() => new Date(), []);
   const currentYear = now.getFullYear();
@@ -273,6 +276,19 @@ export default function DealsPage({
           <Search size={16}/> Wyszukaj po swojemu
         </Link>
       </div>
+
+      {readySearchItems.length > 0 && (
+        <section className="deals-ready-searches">
+          <div className="section-heading">
+            <div>
+              <div className="kicker">GOTOWE WYSZUKIWANIA</div>
+              <h2>Wybierz konkretny wariant</h2>
+              <p>Lotnisko, budżet i długość pobytu są już ustawione. Kliknięcie uruchamia wyniki, nie kolejną stronę kategorii.</p>
+            </div>
+          </div>
+          <ReadySearchGrid items={readySearchItems} />
+        </section>
+      )}
 
       <div className="deals-simple-controls">
         <div className="deals-simple-topline">
