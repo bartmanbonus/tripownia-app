@@ -1,7 +1,7 @@
 import React from "react";
 import type { SocialOffer } from "@/lib/socialOffers";
 
-export type SocialCardFormat = "feed" | "story" | "tiktok";
+export type SocialCardFormat = "feed" | "story" | "tiktok" | "facebook";
 type VisualType = "city" | "holiday" | "exotic";
 
 const SAL_IMAGE = "https://r.cdn.redgalaxy.com/scale/o2/TUI/hotels/SID10006/S26/35351876.jpg?dstw=1200&dsth=644.0795159896282&srcw=1157&srch=621&srcx=1%2F2&srcy=1%2F2&srcmode=3&type=1&quality=80";
@@ -133,6 +133,43 @@ function CoreCard({ offer, origin, width, height }: { offer: SocialOffer; origin
   );
 }
 
+function FacebookCard({ offer, origin }: { offer: SocialOffer; origin: string }) {
+  const type = visualType(offer.slug);
+  const c = colors(type);
+  const destination = displayDestination(offer);
+  const priceText = offer.price.toLocaleString("pl-PL").replace(/\u00A0/g, " ");
+  const src = imageUrl(offer, origin);
+
+  return (
+    <div style={{ ...wrap, width: 1200, height: 630, background: c.bg, color: c.fg, flexDirection: "row" }}>
+      <div style={{ display: "flex", flexDirection: "column", width: 690, height: 630, padding: "46px 52px 40px" }}>
+        <Wordmark fg={c.fg} scale={1.05} />
+        <div style={{ display: "flex", marginTop: 28, fontSize: 20, letterSpacing: 7, fontWeight: 600, borderBottom: `2px solid ${c.fg}`, paddingBottom: 10, width: "82%" }}>
+          {category(type)}
+        </div>
+        <div style={{ display: "flex", fontFamily: "Georgia, serif", fontWeight: 800, fontSize: destination.length > 12 ? 66 : destination.length > 8 ? 76 : 86, lineHeight: .94, marginTop: 22, letterSpacing: -3 }}>
+          {destination}
+        </div>
+        <div style={{ display: "flex", alignItems: "baseline", marginTop: 8, color: c.price }}>
+          <div style={{ display: "flex", fontFamily: "Georgia, serif", fontWeight: 800, fontSize: 78, lineHeight: 1 }}>{priceText}</div>
+          <div style={{ display: "flex", color: c.fg, fontSize: 24, fontWeight: 700, marginLeft: 12 }}>zł/os.</div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 9, marginTop: 22, fontSize: 21, fontWeight: 700 }}>
+          <div style={{ display: "flex" }}>▦ {dateShort(offer)} · ☾ {offer.nights} {offer.nights === 1 ? "noc" : "nocy"}</div>
+          <div style={{ display: "flex" }}>✈ Wylot z {offer.departure.replace("m.in. ", "")}</div>
+        </div>
+      </div>
+      <div style={{ display: "flex", position: "relative", width: 510, height: 630, overflow: "hidden" }}>
+        <img src={src} width="510" height="630" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        <div style={{ display: "flex", position: "absolute", inset: 0, background: "linear-gradient(90deg, rgba(0,0,0,.12), rgba(0,0,0,0))" }} />
+        <div style={{ display: "flex", position: "absolute", bottom: 34, left: 42, right: 42, justifyContent: "center", background: c.cta, color: "#fff", borderRadius: 28, padding: "16px 28px", fontSize: 23, fontWeight: 800 }}>
+          Sprawdź ofertę →
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Story({ offer, origin }: { offer: SocialOffer; origin: string }) {
   const src = imageUrl(offer, origin);
   return (
@@ -212,6 +249,7 @@ function TikTok({ offer, origin }: { offer: SocialOffer; origin: string }) {
 }
 
 export function SocialCardImage({ offer, origin, format }: { offer: SocialOffer; origin: string; format: SocialCardFormat }) {
+  if (format === "facebook") return <FacebookCard offer={offer} origin={origin} />;
   if (format === "story") return <Story offer={offer} origin={origin} />;
   if (format === "tiktok") return <TikTokFull offer={offer} origin={origin} />;
   return <CoreCard offer={offer} origin={origin} width={1080} height={1080} />;
