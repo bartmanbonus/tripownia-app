@@ -40,6 +40,7 @@ const primaryItems = [
 ] as const;
 
 const bookingItems = [
+  { href: "/lot-hotel", label: "Lot + hotel", icon: Ticket },
   { href: "/hotele", label: "Hotele", icon: BedDouble },
   { href: "/loty", label: "Loty", icon: Plane },
   { href: "/wynajem-auta", label: "Wynajem auta", icon: Car },
@@ -131,7 +132,7 @@ export default function SiteHeader() {
     if (href === "/okazje") return pathname === "/okazje" || pathname.startsWith("/oferta/");
     return pathname === href || pathname.startsWith(`${href}/`);
   };
-  const bookingActive = pathname.startsWith("/hotele") || pathname.startsWith("/loty") || pathname.startsWith("/atrakcje") || pathname.startsWith("/wynajem-auta") || pathname.startsWith("/transfery") || pathname.startsWith("/parkingi") || pathname.startsWith("/esim") || pathname.startsWith("/ubezpieczenia");
+  const bookingActive = pathname.startsWith("/lot-hotel") || pathname.startsWith("/hotele") || pathname.startsWith("/loty") || pathname.startsWith("/atrakcje") || pathname.startsWith("/wynajem-auta") || pathname.startsWith("/transfery") || pathname.startsWith("/parkingi") || pathname.startsWith("/esim") || pathname.startsWith("/ubezpieczenia");
   const moreActive = ["/z-warszawy", "/z-krakowa", "/podroze-po-przezycia", "/dalekie-podroze", "/sylwester", "/inspiracje"].some((path) => pathname === path || pathname.startsWith(`${path}/`));
 
   const siteSchema = {
@@ -184,6 +185,7 @@ export default function SiteHeader() {
                 </div>
                 <div className="trip-mobile-menu-section">
                   <strong>Rezerwuj</strong>
+                  <Link href="/lot-hotel"><Ticket size={18} /><span>Lot + hotel</span></Link>
                   <Link href="/loty"><Plane size={18} /><span>Loty</span></Link>
                   <Link href="/hotele"><BedDouble size={18} /><span>Hotele</span></Link>
                   <Link href="/atrakcje"><Building2 size={18} /><span>Atrakcje</span></Link>
