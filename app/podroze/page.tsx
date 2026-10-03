@@ -41,6 +41,7 @@ function fallbackVisual(slug: string) {
 }
 
 const prioritySlugs = [
+  "city-break-listopad-2026",
   "city-break-rzym-lot-hotel",
   "city-break-bari-lot-hotel",
   "city-break-malta-lot-hotel",
@@ -53,7 +54,7 @@ const prioritySlugs = [
   "city-break-do-1000-zl",
   "last-minute-do-2000-zl",
   "all-inclusive-z-warszawy",
-];
+].slice(0, 12);
 
 function cleanTitle(title: string) {
   return title.replace(" z Warszawy — ", " — ").replace(" z Warszawy", "");
