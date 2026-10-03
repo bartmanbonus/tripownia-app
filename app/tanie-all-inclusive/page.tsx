@@ -37,34 +37,18 @@ export default function CheapAllInclusivePage() {
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c") }} />
-    <section className="section shell">
-      <div className="section-heading">
-        <div>
-          <div className="kicker">ALL INCLUSIVE Z LOTNISKA</div>
-          <h2>Wybierz miasto wylotu</h2>
-          <p>Osobne strony zbierają aktualne pakiety All Inclusive z konkretnych polskich lotnisk.</p>
-        </div>
-      </div>
-      <div className="seo-related-links">
-        <a href="/podroze/all-inclusive-z-katowic">All Inclusive z Katowic →</a>
-        <a href="/podroze/all-inclusive-z-poznania">All Inclusive z Poznania →</a>
-        <a href="/podroze/all-inclusive-z-krakowa">All Inclusive z Krakowa →</a>
-        <a href="/podroze/all-inclusive-z-warszawy">All Inclusive z Warszawy →</a>
-        <a href="/podroze/all-inclusive-z-gdanska">All Inclusive z Gdańska →</a>
-        <a href="/podroze/all-inclusive-z-wroclawia">All Inclusive z Wrocławia →</a>
-        <a href="/podroze/all-inclusive-do-2000-zl">All Inclusive do 2000 zł →</a>
-        <a href="/podroze/all-inclusive-do-2500-zl">All Inclusive do 2500 zł →</a>
-        <a href="/podroze/all-inclusive-do-3000-zl">All Inclusive do 3000 zł →</a>
-        <a href="/podroze/wyspy-kanaryjskie-all-inclusive">Wyspy Kanaryjskie All Inclusive →</a>
-        <a href="/podroze/hiszpania-all-inclusive">Hiszpania All Inclusive →</a>
-        <a href="/podroze/wyspy-zielonego-przyladka-wakacje">Wyspy Zielonego Przylądka All Inclusive →</a>
-      </div>
-    </section>
     <DealsPage
       dealType="allinclusive"
       kicker="TANIE ALL INCLUSIVE 🔥"
       pageTitle="Najtańsze All Inclusive teraz."
       pageLead="Tylko potwierdzone pakiety z All Inclusive. Sortujemy od najniższej ceny i zostawiamy najtańszą ofertę dla każdego kierunku."
+      readySearchItems={[
+        { href: "/szukaj?airport=KTW&budget=2500&duration=7&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "KATOWICE · 7 NOCY · DO 2 500 ZŁ", title: "All Inclusive z Katowic", meta: "Ciepłe kierunki · pełne wyżywienie · najtańsze najpierw" },
+        { href: "/szukaj?airport=WAWA&budget=3000&duration=7&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "WARSZAWA · 7 NOCY · DO 3 000 ZŁ", title: "All Inclusive z Warszawy", meta: "WAW + WMI · aktualne pakiety" },
+        { href: "/szukaj?airport=POZ&budget=3000&duration=7&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "POZNAŃ · 7 NOCY · DO 3 000 ZŁ", title: "All Inclusive z Poznania", meta: "Aktualne kierunki z POZ" },
+        { href: "/szukaj?destination=Egipt&budget=3000&duration=7&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "EGIPT · 7 NOCY · DO 3 000 ZŁ", title: "Egipt All Inclusive", meta: "Różne polskie lotniska · pełne wyżywienie" },
+        { href: "/szukaj?destination=Wyspy%20Kanaryjskie&budget=3500&duration=7&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "KANARY · 7 NOCY", title: "Wyspy Kanaryjskie All Inclusive", meta: "Słońce zimą · aktualne warianty" },
+      ]}
     />
   </>;
 }
