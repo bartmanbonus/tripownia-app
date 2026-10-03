@@ -13,6 +13,7 @@ import { useLiveOffers } from "@/lib/useLiveOffers";
 import { cheapestPerDestination as selectCheapestPerDestination } from "@/lib/offerEngine";
 import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
 import { trackEvent } from "@/lib/analytics";
+import { eskySearchUrl } from "@/lib/eskySearch";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -150,6 +151,18 @@ export default function DealsPage({
     () => destination ? `/hotele?q=${encodeURIComponent(destination)}` : "",
     [destination]
   );
+  const destinationPackageHref = useMemo(() => {
+    if (!destination) return "";
+    const target = eskySearchUrl({ query: destination });
+    const params = new URLSearchParams({
+      partner: "esky",
+      target,
+      source: "deals_empty_package",
+      destination,
+      page: "/okazje",
+    });
+    return `/go/live?${params.toString()}`;
+  }, [destination]);
   const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
   const poolHighlights = useMemo(() => source === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source]);
 
@@ -401,6 +414,7 @@ export default function DealsPage({
           </span>
           {destination && (
             <div className="deals-empty-actions">
+              <a href={destinationPackageHref} rel="sponsored">🧳 Sprawdź pakiety lot + hotel</a>
               <Link href={"/loty?destination=" + encodeURIComponent(destination)}>✈️ Porównaj loty</Link>
               <Link href={destinationHotelHref}>🏨 Sprawdź hotele</Link>
             </div>
