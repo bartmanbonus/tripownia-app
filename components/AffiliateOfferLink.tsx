@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
+import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 
 type Props = {
   href: string;
@@ -9,24 +10,25 @@ type Props = {
   slug: string;
   destination: string;
   tripKind?: "flight" | "hotel" | "package";
+  departure?: string;
+  hotel?: string;
+  board?: string;
+  nights?: number;
 };
 
-export default function AffiliateOfferLink({ href, partner, slug, destination, tripKind = "package" }: Props) {
+export default function AffiliateOfferLink({ href, partner, slug, destination, tripKind = "package", departure, hotel, board, nights }: Props) {
   function rememberTripContext() {
-    try {
-      const [city = "", country = ""] = destination.split(",").map((part) => part.trim());
-      localStorage.setItem("tripownia-affiliate-return-v1", JSON.stringify({
-        savedAt: new Date().toISOString(),
-        slug,
-        partner,
-        destination,
-        city,
-        country,
-        tripKind,
-      }));
-    } catch {
-      // Brak localStorage nie może blokować przejścia do partnera.
-    }
+    saveAffiliateReturnContext({
+      slug,
+      partner,
+      destination,
+      source: "social_offer",
+      tripKind,
+      departure,
+      hotel,
+      board,
+      nights,
+    });
     trackEvent("affiliate_click", { partner, offer_slug: slug, destination, source: "social_offer", trip_kind: tripKind });
   }
 
@@ -34,8 +36,7 @@ export default function AffiliateOfferLink({ href, partner, slug, destination, t
     <a
       className="primary-cta"
       href={href}
-      target="_blank"
-      rel="sponsored noopener noreferrer"
+      rel="sponsored"
       onClick={rememberTripContext}
     >
       Sprawdź ofertę <ArrowRight size={18}/>
