@@ -185,7 +185,7 @@ export async function GET(request: NextRequest) {
   // short EXIM city breaks. We deduplicate only after the combined pool is loaded,
   // so a temporarily partial provider response cannot be mistaken for the cheapest deal.
   const results = await Promise.all([
-    loadSource(request, "combined-packages", destination ? { mode: "search", q: destination, fast: "1" } : { mode: "search", broad: "1", fast: "1" }),
+    loadSource(request, "combined-packages", destination ? { mode: "search", q: destination, fast: "1", skipEsky: "1" } : { mode: "search", broad: "1", fast: "1", skipEsky: "1" }),
     loadSource(request, "combined-citybreaks", destination ? { mode: "citybreak", q: destination, fast: "1", skipEsky: "1" } : { mode: "citybreak", fast: "1", skipEsky: "1" }),
   ]);
 
