@@ -1,8 +1,9 @@
 export function normalizeDestinationKey(value: string) {
   return String(value || "")
+    .toLowerCase()
+    .replace(/ł/g, "l")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
