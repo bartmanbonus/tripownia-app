@@ -26,7 +26,7 @@ export default function AffiliateReturnPrompt() {
           return;
         }
 
-        const currentOfferMatch = window.location.pathname.match(/^\\/o\\/([^/?#]+)/);
+        const currentOfferMatch = window.location.pathname.match(/^\/o\/([^/?#]+)/);
         const currentOfferSlug = currentOfferMatch?.[1] ? decodeURIComponent(currentOfferMatch[1]).toLocaleLowerCase("pl") : "";
         const storedOfferSlug = parsed.slug ? String(parsed.slug).toLocaleLowerCase("pl") : "";
 
