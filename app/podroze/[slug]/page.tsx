@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SeoEximOffers from "@/components/SeoEximOffers";
 import { partners } from "@/lib/partners";
 import { allSeoLandings, getAllSeoLanding } from "@/lib/allSeoLandings";
+import type { SeoLanding } from "@/lib/seoLandings";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
@@ -240,6 +241,61 @@ function landingFaq(query: string, departure?: string) {
   ];
 }
 
+function compactDate(value?: string) {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return "";
+  const [year, month, day] = value.split("-");
+  return `${day}.${month}.${year}`;
+}
+
+const GENERIC_SEARCH_QUERIES = new Set([
+  "city break", "tanie loty", "wakacje", "last minute", "all inclusive", "ciepłe wakacje",
+]);
+
+function searchTabForLanding(item: SeoLanding) {
+  const query = item.query.toLocaleLowerCase("pl");
+  if (query.includes("tanie loty")) return "Loty";
+  if (query.includes("city break")) return "City break";
+  if (query.includes("all inclusive")) return "All Inclusive";
+  return "Lot + hotel";
+}
+
+function readySearchHref(item: SeoLanding) {
+  const params = new URLSearchParams();
+  const query = item.query.trim();
+  if (query && !GENERIC_SEARCH_QUERIES.has(query.toLocaleLowerCase("pl"))) params.set("destination", query);
+
+  const airport = item.departure === "Warszawa" ? "WAWA" : item.departureCode;
+  if (airport) params.set("airport", airport);
+  if (item.maxPrice) params.set("budget", String(item.maxPrice));
+
+  if (item.minNights && item.maxNights) {
+    params.set("duration", item.minNights === item.maxNights ? String(item.minNights) : `${item.minNights}-${item.maxNights}`);
+  } else if (item.maxNights) {
+    params.set("duration", `1-${item.maxNights}`);
+  } else if (item.minNights) {
+    params.set("duration", item.minNights >= 15 ? "15+" : `${item.minNights}-14`);
+  }
+
+  if (item.startDate) params.set("from", item.startDate);
+  if (item.endDate) params.set("to", item.endDate);
+  params.set("tab", searchTabForLanding(item));
+  return `/szukaj?${params.toString()}`;
+}
+
+function readySearchMeta(item: SeoLanding) {
+  const parts: string[] = [];
+  if (item.departure) parts.push(`wylot: ${item.departure}`);
+  if (item.startDate || item.endDate) {
+    const date = [compactDate(item.startDate), compactDate(item.endDate)].filter(Boolean).join("–");
+    if (date) parts.push(date);
+  }
+  if (item.minNights && item.maxNights) parts.push(`${item.minNights}–${item.maxNights} nocy`);
+  else if (item.maxNights) parts.push(`do ${item.maxNights} nocy`);
+  else if (item.minNights) parts.push(`od ${item.minNights} nocy`);
+  if (item.maxPrice) parts.push(`do ${item.maxPrice.toLocaleString("pl-PL")} zł/os.`);
+  return parts.length ? parts.join(" · ") : "gotowe parametry wyszukiwania";
+}
+
 function formatDate(value?: string) {
   if (!value) return null;
   return new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "long", year: "numeric" }).format(new Date(`${value}T12:00:00Z`));
@@ -383,6 +439,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
   const discoveryLinks = [...airportCluster, ...commercialSiblingLinks, ...related]
     .filter((item, index, items) => items.findIndex((candidate) => candidate.slug === item.slug) === index)
     .slice(0, 8);
+  const currentReadySearchHref = readySearchHref(page);
 
   return (
     <main className="seo-travel-landing-v3">
@@ -403,7 +460,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
             <p>{page.lead}</p>
             <div className="seo-hero-actions">
               <a className="primary-cta" href="#aktualne-oferty">Zobacz aktualne oferty ↓</a>
-              <Link className="secondary-cta" href="/#wyszukiwarka">Zmień parametry</Link>
+              <Link className="secondary-cta" href={currentReadySearchHref}>Zmień parametry</Link>
               <Link className="secondary-cta" href={`/alerty?${alertParams.toString()}`}>Ustaw alert</Link>
               {departureHubHref && <Link className="secondary-cta" href={departureHubHref}>Wszystkie wyjazdy z {page.departure}</Link>}
             </div>
@@ -441,7 +498,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
               ? "Pokazujemy propozycje zgodne z okresem tej strony. Jeśli nie ma dobrego dopasowania, nie podmieniamy terminu na przypadkowy."
               : "Pokazujemy bieżące propozycje dla tych parametrów i aktualnej dostępności."}</p>
           </div>
-          <Link href="/#wyszukiwarka">Wyszukaj po swojemu →</Link>
+          <Link href={currentReadySearchHref}>Wyszukaj po swojemu →</Link>
         </div>
 
         <SeoEximOffers
@@ -506,7 +563,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
             <small>Porównaj koszt hotelu osobno</small>
             <b>Sprawdź →</b>
           </a>
-          <Link href="/#wyszukiwarka">
+          <Link href={currentReadySearchHref}>
             <span>🔎</span>
             <strong>Zmień parametry</strong>
             <small>Termin, kierunek, lotnisko lub budżet</small>
@@ -545,9 +602,10 @@ export default async function SeoLandingPage({ params }: PageProps) {
           </div>
           <div className="seo-discovery-grid">
             {discoveryLinks.map((item) => (
-              <Link key={item.slug} href={`/podroze/${item.slug}`}>
+              <Link key={item.slug} href={readySearchHref(item)}>
+                <small>{readySearchMeta(item)}</small>
                 <strong>{item.title}</strong>
-                <span>Sprawdź →</span>
+                <span>Pokaż gotowe wyniki →</span>
               </Link>
             ))}
           </div>
