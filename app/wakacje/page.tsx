@@ -39,6 +39,7 @@ export default function WakacjePage() {
       <LiveSalesRail mode="vacation" limit={10} initialOffers={homepageFallbackOffers}/>
       <div className="single-partner-search-wrap"><SearchHub embedded initialTab="Wakacje" /></div>
     </section>
+    <section className="section shell"><FacebookFollowCTA placement="wakacje_after_offers" compact /></section>
     <section className="shell seo-related-block">
       <div className="kicker">SZUKAJ DOKŁADNIEJ</div>
       <h2>Wakacje według budżetu, lotniska i terminu</h2>
@@ -93,7 +94,6 @@ export default function WakacjePage() {
         ]}
       />
     </section>
-    <section className="section shell"><FacebookFollowCTA placement="wakacje" compact /></section>
     <SiteFooter/>
   </main>;
 }
