@@ -98,12 +98,14 @@ export default function DealsPage({
   pageTitle = "Najpierw cena. Potem kierunek.",
   pageLead = "Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność są regularnie odświeżane.",
   kicker = "OKAZJE TRIPOWNI",
+  initialOffers = [],
 }: {
   destination?: string;
   dealType?: "" | "allinclusive";
   pageTitle?: string;
   pageLead?: string;
   kicker?: string;
+  initialOffers?: Offer[];
 }) {
   const now = useMemo(() => new Date(), []);
   const currentYear = now.getFullYear();
@@ -127,7 +129,11 @@ export default function DealsPage({
     return query ? `/api/deals?${query}` : "/api/deals";
   }, [destination, dealType, airport, month, year]);
 
-  const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(endpoint);
+  const { offers, source, loading, checkedAt, notice, refresh } = useLiveOffers(
+    endpoint,
+    5 * 60 * 1000,
+    endpoint === "/api/deals" ? initialOffers : []
+  );
   const todayOffers: Offer[] = [];
   const todayLoading = false;
   const todayCheckedAt: string | null = null;
