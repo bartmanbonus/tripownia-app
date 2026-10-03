@@ -23,6 +23,27 @@ const airportCards = [
   },
 ];
 
+const budgetCards = [
+  {
+    href: "/podroze/city-break-do-700-zl",
+    label: "DO 700 ZŁ",
+    title: "Tani city break",
+    image: "/images/destinations/rzym.jpg",
+  },
+  {
+    href: "/podroze/wakacje-do-1500-zl",
+    label: "DO 1500 ZŁ",
+    title: "Tanie wakacje",
+    image: "/images/destinations/malta.jpg",
+  },
+  {
+    href: "/podroze/all-inclusive-do-2000-zl",
+    label: "DO 2000 ZŁ",
+    title: "All Inclusive",
+    image: "/images/destinations/teneryfa.jpg",
+  },
+];
+
 const seasonalCards = [
   {
     href: "/podroze/sylwester-z-warszawy-do-2000-zl",
@@ -45,7 +66,7 @@ const seasonalCards = [
 ];
 
 export default function SalesVisualShortcuts() {
-  function track(kind: "airport" | "seasonal", href: string) {
+  function track(kind: "airport" | "seasonal" | "budget", href: string) {
     trackEvent("homepage_sales_shortcut_click", { kind, href });
   }
 
@@ -74,6 +95,32 @@ export default function SalesVisualShortcuts() {
                 <small>{card.label}</small>
                 <strong>{card.title}</strong>
                 <span className={styles.airportText}>{card.text}</span>
+                <b>Zobacz oferty <ArrowRight size={14}/></b>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        <div className={styles.rowHeadSecondary}>
+          <div>
+            <small>SZUKAJ PO BUDŻECIE</small>
+            <h3>Najpierw cena, potem kierunek.</h3>
+          </div>
+        </div>
+
+        <div className={styles.seasonalGrid}>
+          {budgetCards.map((card) => (
+            <Link
+              key={card.href}
+              href={card.href}
+              className={styles.seasonalCard}
+              onClick={() => track("budget", card.href)}
+            >
+              <Image src={card.image} alt="" fill sizes="(max-width: 620px) 82vw, (max-width: 980px) 46vw, 33vw" className={styles.image}/>
+              <span className={styles.scrim} aria-hidden="true"/>
+              <div className={styles.cardCopy}>
+                <small>{card.label}</small>
+                <strong>{card.title}</strong>
                 <b>Zobacz oferty <ArrowRight size={14}/></b>
               </div>
             </Link>
