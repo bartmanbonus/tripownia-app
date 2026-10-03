@@ -3,9 +3,9 @@ import type { SeoLanding } from "@/lib/seoLandings";
 export const seoAirportWave25: SeoLanding[] = [
   {
     slug: "last-minute-z-poznania",
-    title: "Last Minute z Poznania — wakacje i All Inclusive z POZ",
+    title: "Last Minute z Poznania — tanie wakacje, loty i All Inclusive z POZ",
     eyebrow: "LAST MINUTE Z POZNANIA / ŁAWICY",
-    lead: "Last Minute z Poznania (POZ): aktualne wakacje, All Inclusive i ciepłe kierunki z Ławicy. Porównaj najbliższe terminy, ceny i pełny zakres pakietu.",
+    lead: "Last Minute z Poznania (POZ): aktualne wakacje, loty last minute, All Inclusive i ciepłe kierunki z Ławicy. Porównaj najbliższe terminy, ceny i pełny zakres pakietu.",
     query: "Last Minute",
     departure: "Poznań",
     departureCode: "POZ",
@@ -18,9 +18,9 @@ export const seoAirportWave25: SeoLanding[] = [
   },
   {
     slug: "last-minute-z-krakowa",
-    title: "Last Minute z Krakowa — wakacje i All Inclusive z KRK",
+    title: "Last Minute z Krakowa — tanie wakacje, loty i All Inclusive z KRK",
     eyebrow: "LAST MINUTE Z KRAKOWA / BALIC",
-    lead: "Last Minute z Krakowa-Balic (KRK): aktualne wakacje, All Inclusive i ciepłe kierunki na najbliższe terminy. Porównaj ceny i standard hoteli.",
+    lead: "Last Minute z Krakowa-Balic (KRK): aktualne wakacje, loty last minute, All Inclusive i ciepłe kierunki na najbliższe terminy. Porównaj ceny i standard hoteli.",
     query: "Last Minute",
     departure: "Kraków",
     departureCode: "KRK",
@@ -93,7 +93,7 @@ export const seoAirportWave25: SeoLanding[] = [
   },
   {
     slug: "last-minute-z-gdanska",
-    title: "Last Minute z Gdańska — wakacje i All Inclusive z GDN",
+    title: "Last Minute z Gdańska — tanie wakacje, loty i All Inclusive z GDN",
     eyebrow: "LAST MINUTE Z GDAŃSKA / TRÓJMIASTA",
     lead: "Last Minute z Gdańska (GDN): aktualne wakacje, All Inclusive i ciepłe kierunki z Trójmiasta. Sprawdź najbliższe terminy i potwierdzone ceny.",
     query: "Last Minute",
