@@ -146,6 +146,8 @@ export default function CityBreakPage() {
             ...airportCityBreaks,
             { href: "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych", label: "Bagaż podręczny" },
             { href: "/sylwester", label: "City break na Sylwestra 2026/2027" },
+            { href: "/podroze/city-break-do-500-zl", label: "City break do 500 zł" },
+            { href: "/podroze/city-break-do-700-zl", label: "City break do 700 zł" },
             { href: "/podroze/city-break-do-1000-zl", label: "City break do 1000 zł" },
             { href: "/podroze/city-break-do-1500-zl", label: "City break do 1500 zł" },
             { href: "/podroze/city-break-z-warszawy-do-1500-zl", label: "City break z Warszawy do 1500 zł" },
