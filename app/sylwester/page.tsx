@@ -5,7 +5,6 @@ import SiteFooter from "@/components/SiteFooter";
 import NewYearOffers from "@/components/NewYearOffers";
 import SearchHub from "@/components/SearchHub";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
-import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 
 const title = "City break Sylwester 2026/2027 — lot + hotel za granicą";
@@ -59,6 +58,10 @@ export const metadata: Metadata = {
 type PageProps = {
   searchParams: Promise<{
     destination?: string;
+    airport?: string;
+    budget?: string;
+    duration?: string;
+    board?: string;
     from?: string;
     to?: string;
   }>;
@@ -67,8 +70,13 @@ type PageProps = {
 export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
   const selectedDestination = typeof params.destination === "string" ? params.destination : "";
+  const selectedAirports = typeof params.airport === "string" ? params.airport.split(",").map((item) => item.trim()).filter(Boolean) : [];
+  const selectedBudget = typeof params.budget === "string" ? params.budget : "all";
+  const selectedDuration = typeof params.duration === "string" ? params.duration : "all";
+  const selectedBoard = typeof params.board === "string" ? params.board : "all";
   const selectedFrom = typeof params.from === "string" ? params.from : "2026-12-27";
   const selectedTo = typeof params.to === "string" ? params.to : "2027-01-03";
+  const hasReadySearch = Boolean(selectedDestination || selectedAirports.length || selectedBudget !== "all" || selectedDuration !== "all" || selectedBoard !== "all");
 
   return (
     <main>
@@ -96,14 +104,18 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
         <div className="single-partner-search-wrap">
           <SearchHub
-            key={`${selectedDestination}|${selectedFrom}|${selectedTo}`}
+            key={`${selectedDestination}|${selectedAirports.join(",")}|${selectedBudget}|${selectedDuration}|${selectedBoard}|${selectedFrom}|${selectedTo}`}
             embedded
             initialTab="Lot + hotel"
             initialDestinations={selectedDestination ? [selectedDestination] : []}
+            initialAirports={selectedAirports}
+            initialBudget={selectedBudget}
+            initialDuration={selectedDuration}
+            initialBoard={selectedBoard}
             initialDateMode="range"
             initialDateFrom={selectedFrom}
             initialDateTo={selectedTo}
-            searchRequest={selectedDestination ? 1 : 0}
+            searchRequest={hasReadySearch ? 1 : 0}
           />
         </div>
       </section>
@@ -111,30 +123,52 @@ export default async function Page({ searchParams }: PageProps) {
       <NewYearOffers />
       <section className="section shell"><FacebookFollowCTA placement="sylwester_after_offers" compact /></section>
 
-      <section className="section shell">
+      <section className="section shell newyear-ready-searches">
         <div className="section-heading">
           <div>
-            <div className="kicker">NAJCZĘŚCIEJ SZUKANE NA SYLWESTRA</div>
-            <h2>Wybierz wariant bez wracania do początku</h2>
-            <p>Najpierw budżet, lotnisko albo styl wyjazdu. Pozostałe warianty są schowane, żeby strona nie zamieniała się w ścianę linków.</p>
+            <div className="kicker">GOTOWE WYSZUKIWANIA</div>
+            <h2>Nie klikaj w ciemno — wybierz już ustawiony wyjazd</h2>
+            <p>Każdy kafel ma konkretny kierunek albo lotnisko, daty, długość pobytu i budżet. Kliknięcie od razu uruchamia wyszukiwanie z tymi parametrami.</p>
           </div>
         </div>
-        <ProgressiveLinkCloud
-          visible={6}
-          moreLabel="Pokaż więcej wariantów sylwestrowych"
-          items={[
-            { href: "/podroze/sylwester-z-warszawy-do-2000-zl", label: "Sylwester z Warszawy do 2000 zł" },
-            { href: "/podroze/grudzien-2026-all-inclusive-do-3000-zl", label: "All Inclusive w grudniu do 3000 zł" },
-            { href: "/podroze/city-break-grudzien-2026", label: "City break grudzień 2026" },
-            { href: "/podroze/cieple-wakacje-grudzien-2026", label: "Ciepłe wakacje w grudniu 2026" },
-            { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
-            { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
-            { href: "/sylwester-all-inclusive-2026-2027-egipt-czy-wyspy-kanaryjskie", label: "Sylwester All Inclusive: Egipt czy Kanary?" },
-            { href: "/city-break", label: "City break 2–5 dni" },
-            { href: "/lot-hotel", label: "Lot + hotel" },
-            { href: "/planer-podrozy", label: "Ułóż wyjazd w darmowym planerze" },
-          ]}
-        />
+        <div className="newyear-ready-grid">
+          <Link className="newyear-ready-card" href="/sylwester?airport=WAWA&budget=2000&duration=3-6&from=2026-12-27&to=2027-01-03#szukaj-sylwester">
+            <small>WARSZAWA · DO 2 000 ZŁ/OS.</small>
+            <strong>Najtańszy city break na Sylwestra</strong>
+            <span>27.12–03.01 · 3–6 nocy · WAW + WMI</span>
+            <b>Pokaż wyniki od najtańszych →</b>
+          </Link>
+          <Link className="newyear-ready-card" href="/sylwester?destination=Budapeszt&duration=4&from=2026-12-30&to=2027-01-03#szukaj-sylwester">
+            <small>BUDAPESZT · 4 NOCE</small>
+            <strong>Budapeszt na przełom roku</strong>
+            <span>30.12–03.01 · termy · Dunaj · centrum</span>
+            <b>Znajdź lot + hotel →</b>
+          </Link>
+          <Link className="newyear-ready-card" href="/sylwester?destination=Rzym&duration=4&from=2026-12-29&to=2027-01-02#szukaj-sylwester">
+            <small>RZYM · 4 NOCE</small>
+            <strong>Rzym na Sylwestra</strong>
+            <span>29.12–02.01 · lot + hotel · city break</span>
+            <b>Pokaż dostępne warianty →</b>
+          </Link>
+          <Link className="newyear-ready-card" href="/sylwester?destination=Malta&duration=5&from=2026-12-29&to=2027-01-03#szukaj-sylwester">
+            <small>MALTA · 5 NOCY</small>
+            <strong>Malta — trochę cieplej, nadal krótko</strong>
+            <span>29.12–03.01 · Valletta · Sliema · lot + hotel</span>
+            <b>Znajdź aktualne oferty →</b>
+          </Link>
+          <Link className="newyear-ready-card" href="/sylwester?airport=WAWA&budget=3000&duration=7-12&board=all%20inclusive&from=2026-12-27&to=2027-01-05#szukaj-sylwester">
+            <small>CIEPŁO · ALL INCLUSIVE · DO 3 000 ZŁ/OS.</small>
+            <strong>Tydzień w cieple z Warszawy</strong>
+            <span>27.12–05.01 · 7–12 nocy · All Inclusive</span>
+            <b>Pokaż najtańsze ciepłe opcje →</b>
+          </Link>
+          <Link className="newyear-ready-card" href="/sylwester?airport=POZ&budget=2000&duration=3-6&from=2026-12-27&to=2027-01-03#szukaj-sylwester">
+            <small>POZNAŃ · DO 2 000 ZŁ/OS.</small>
+            <strong>Sylwester z Poznania</strong>
+            <span>27.12–03.01 · 3–6 nocy · różne kierunki</span>
+            <b>Pokaż realne wyniki z POZ →</b>
+          </Link>
+        </div>
       </section>
 
       <section className="section shell">
