@@ -132,37 +132,37 @@ export default async function Page({ searchParams }: PageProps) {
           </div>
         </div>
         <div className="newyear-ready-grid">
-          <Link className="newyear-ready-card" href="/sylwester?airport=WAWA&budget=2000&duration=3-6&from=2026-12-27&to=2027-01-03#szukaj-sylwester">
+          <Link className="newyear-ready-card" href="/szukaj?airport=WAWA&budget=2000&duration=3-6&tab=Lot%20%2B%20hotel&from=2026-12-27&to=2027-01-03">
             <small>WARSZAWA · DO 2 000 ZŁ/OS.</small>
             <strong>Najtańszy city break na Sylwestra</strong>
             <span>27.12–03.01 · 3–6 nocy · WAW + WMI</span>
             <b>Pokaż wyniki od najtańszych →</b>
           </Link>
-          <Link className="newyear-ready-card" href="/sylwester?destination=Budapeszt&duration=4&from=2026-12-30&to=2027-01-03#szukaj-sylwester">
+          <Link className="newyear-ready-card" href="/szukaj?destination=Budapeszt&duration=4&tab=Lot%20%2B%20hotel&from=2026-12-30&to=2027-01-03">
             <small>BUDAPESZT · 4 NOCE</small>
             <strong>Budapeszt na przełom roku</strong>
             <span>30.12–03.01 · termy · Dunaj · centrum</span>
             <b>Znajdź lot + hotel →</b>
           </Link>
-          <Link className="newyear-ready-card" href="/sylwester?destination=Rzym&duration=4&from=2026-12-29&to=2027-01-02#szukaj-sylwester">
+          <Link className="newyear-ready-card" href="/szukaj?destination=Rzym&duration=4&tab=Lot%20%2B%20hotel&from=2026-12-29&to=2027-01-02">
             <small>RZYM · 4 NOCE</small>
             <strong>Rzym na Sylwestra</strong>
             <span>29.12–02.01 · lot + hotel · city break</span>
             <b>Pokaż dostępne warianty →</b>
           </Link>
-          <Link className="newyear-ready-card" href="/sylwester?destination=Malta&duration=5&from=2026-12-29&to=2027-01-03#szukaj-sylwester">
+          <Link className="newyear-ready-card" href="/szukaj?destination=Malta&duration=5&tab=Lot%20%2B%20hotel&from=2026-12-29&to=2027-01-03">
             <small>MALTA · 5 NOCY</small>
             <strong>Malta — trochę cieplej, nadal krótko</strong>
             <span>29.12–03.01 · Valletta · Sliema · lot + hotel</span>
             <b>Znajdź aktualne oferty →</b>
           </Link>
-          <Link className="newyear-ready-card" href="/sylwester?airport=WAWA&budget=3000&duration=7-12&board=all%20inclusive&from=2026-12-27&to=2027-01-05#szukaj-sylwester">
+          <Link className="newyear-ready-card" href="/szukaj?airport=WAWA&budget=3000&duration=7-12&board=all%20inclusive&tab=All%20Inclusive&from=2026-12-27&to=2027-01-05">
             <small>CIEPŁO · ALL INCLUSIVE · DO 3 000 ZŁ/OS.</small>
             <strong>Tydzień w cieple z Warszawy</strong>
             <span>27.12–05.01 · 7–12 nocy · All Inclusive</span>
             <b>Pokaż najtańsze ciepłe opcje →</b>
           </Link>
-          <Link className="newyear-ready-card" href="/sylwester?airport=POZ&budget=2000&duration=3-6&from=2026-12-27&to=2027-01-03#szukaj-sylwester">
+          <Link className="newyear-ready-card" href="/szukaj?airport=POZ&budget=2000&duration=3-6&tab=Lot%20%2B%20hotel&from=2026-12-27&to=2027-01-03">
             <small>POZNAŃ · DO 2 000 ZŁ/OS.</small>
             <strong>Sylwester z Poznania</strong>
             <span>27.12–03.01 · 3–6 nocy · różne kierunki</span>
