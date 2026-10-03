@@ -7,6 +7,7 @@ import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
+import ReadySearchGrid from "@/components/ReadySearchGrid";
 import { homepageFallbackOffers } from "@/lib/offers";
 import styles from "../conversion-pages.module.css";
 
@@ -120,25 +121,21 @@ export default function LotHotelPage() {
     </section>
 
     <section className={[styles.shell, styles.section].join(" ")}>
-      <div className={styles.sectionCard}>
-        <div className={styles.kicker}>LOT + HOTEL WG BUDŻETU I STYLU</div>
-        <h2>Przejdź od razu do konkretnego typu wyjazdu</h2>
-        <p>Te skróty prowadzą do stron z aktualnymi ofertami i filtrem ceny — bez ściany tekstu przed wynikami.</p>
-        <div className={styles.linkPills}>
-          <Link href="/podroze/city-break-rzym-lot-hotel">Rzym · lot + hotel</Link>
-          <Link href="/podroze/city-break-bari-lot-hotel">Bari · lot + hotel</Link>
-          <Link href="/podroze/city-break-malta-lot-hotel">Malta · lot + hotel</Link>
-          <Link href="/podroze/city-break-barcelona-lot-hotel">Barcelona · lot + hotel</Link>
-          <Link href="/podroze/city-break-do-700-zl">City break do 700 zł</Link>
-          <Link href="/podroze/city-break-do-1000-zl">City break do 1000 zł</Link>
-          <Link href="/podroze/city-break-do-1500-zl">City break do 1500 zł</Link>
-          <Link href="/podroze/last-minute-do-2000-zl">Last Minute do 2000 zł</Link>
-          <Link href="/podroze/last-minute-do-3000-zl">Last Minute do 3000 zł</Link>
-          <Link href="/tanie-all-inclusive">Tanie All Inclusive</Link>
-          <Link href="/wakacje">Wakacje</Link>
-          <Link href="/okazje">Aktualne okazje</Link>
+      <div className={styles.sectionHead}>
+        <div>
+          <div className={styles.kicker}>GOTOWE LOT + HOTEL</div>
+          <h2>Nie wybieraj kategorii — wybierz konkretny wyjazd</h2>
+          <p>Każdy wariant otwiera już ustawione wyszukiwanie z kierunkiem, długością i budżetem.</p>
         </div>
       </div>
+      <ReadySearchGrid items={[
+        { href: "/szukaj?destination=Rzym&duration=3-4&budget=1500&tab=Lot%20%2B%20hotel", eyebrow: "RZYM · 3–4 NOCE · DO 1 500 ZŁ", title: "Rzym lot + hotel", meta: "Aktualne pakiety i warianty z polskich lotnisk" },
+        { href: "/szukaj?destination=Bari&duration=2-4&budget=1500&tab=Lot%20%2B%20hotel", eyebrow: "BARI · 2–4 NOCE · DO 1 500 ZŁ", title: "Bari lot + hotel", meta: "Krótki wyjazd do Apulii bez składania rezerwacji od zera" },
+        { href: "/szukaj?destination=Malta&duration=3-5&budget=1500&tab=Lot%20%2B%20hotel", eyebrow: "MALTA · 3–5 NOCY · DO 1 500 ZŁ", title: "Malta lot + hotel", meta: "Valletta i okolice · aktualne opcje" },
+        { href: "/szukaj?destination=Barcelona&duration=3-4&budget=1500&tab=Lot%20%2B%20hotel", eyebrow: "BARCELONA · 3–4 NOCE · DO 1 500 ZŁ", title: "Barcelona lot + hotel", meta: "Krótki city break · pełny pakiet" },
+        { href: "/szukaj?budget=1000&duration=2-4&tab=City%20break", eyebrow: "GDZIEKOLWIEK · DO 1 000 ZŁ", title: "Najtańszy city break", meta: "2–4 noce · różne kierunki · sortowanie po cenie" },
+        { href: "/szukaj?airport=WAWA&budget=2000&duration=5-9&tab=Last%20minute", eyebrow: "WARSZAWA · DO 2 000 ZŁ", title: "Last Minute lot + hotel", meta: "5–9 nocy · WAW + WMI · aktualne pakiety" },
+      ]} />
     </section>
 
     <section className={[styles.shell, styles.section].join(" ")}>
