@@ -15,6 +15,15 @@ function key(date:Date){ return `${date.getFullYear()}-${pad(date.getMonth()+1)}
 function dateFromKey(value:string){ const [y,m,d]=value.split("-").map(Number); return new Date(y,m-1,d,12); }
 function monday(date:Date){ const d=new Date(date); const offset=(d.getDay()+6)%7; d.setDate(d.getDate()-offset); d.setHours(12,0,0,0); return d; }
 function addDays(date:Date, amount:number){ const d=new Date(date); d.setDate(d.getDate()+amount); return d; }
+function normalizeHistoryValue(value:string){
+  return value.toLocaleLowerCase("pl").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+}
+function offerDestinationKey(offer:Offer){
+  return normalizeHistoryValue(`${offer.city}-${offer.country}`);
+}
+function offerHotelKey(offer:Offer){
+  return normalizeHistoryValue(offer.hotel||"");
+}
 function publicOfferUrl(
   item: ReturnType<typeof getSocialDailyPlan>["items"][number],
   placement: "post"|"comment" = "post"
@@ -73,16 +82,25 @@ export default function AdminSocialWeekPlanner(){
   const [liveOffers,setLiveOffers]=useState<Offer[]>([]);
   const [liveLoading,setLiveLoading]=useState(true);
   const [liveError,setLiveError]=useState("");
+  const [recentDestinationKeys,setRecentDestinationKeys]=useState<string[]>([]);
+  const [recentHotelKeys,setRecentHotelKeys]=useState<string[]>([]);
 
   useEffect(()=>{
     let active=true;
     setLiveLoading(true);
-    fetch("/api/today-offers?fast=1&skipEsky=1",{cache:"no-store"})
-      .then(async(response)=>{
-        const data=await response.json();
-        if(!response.ok||!data?.ok) throw new Error(data?.error||"Nie udało się pobrać dzisiejszych ofert");
+    Promise.all([
+      fetch("/api/today-offers?fast=1&skipEsky=1",{cache:"no-store"}),
+      adminFetch("/api/admin/social-publish?days=7"),
+    ])
+      .then(async([liveResponse,historyResponse])=>{
+        const [liveData,historyData]=await Promise.all([liveResponse.json(),historyResponse.json()]);
+        if(!liveResponse.ok||!liveData?.ok) throw new Error(liveData?.error||"Nie udało się pobrać dzisiejszych ofert");
+        if(!historyResponse.ok||!historyData?.ok) throw new Error(historyData?.error||"Nie udało się pobrać historii publikacji");
         if(active){
-          setLiveOffers(Array.isArray(data.offers)?data.offers:[]);
+          setLiveOffers(Array.isArray(liveData.offers)?liveData.offers:[]);
+          const rows=Array.isArray(historyData.rows)?historyData.rows:[];
+          setRecentDestinationKeys(Array.from(new Set(rows.map((row:{destination_key?:string})=>String(row.destination_key||"")).filter(Boolean))));
+          setRecentHotelKeys(Array.from(new Set(rows.map((row:{hotel?:string})=>normalizeHistoryValue(String(row.hotel||""))).filter(Boolean))));
           setLiveError("");
         }
       })
@@ -93,9 +111,15 @@ export default function AdminSocialWeekPlanner(){
     return ()=>{ active=false; };
   },[]);
 
+  const eligibleLiveOffers=useMemo(()=>liveOffers.filter((offer)=>{
+    const destinationKey=offerDestinationKey(offer);
+    const hotelKey=offerHotelKey(offer);
+    return !recentDestinationKeys.includes(destinationKey) && (!hotelKey || !recentHotelKeys.includes(hotelKey));
+  }),[liveOffers,recentDestinationKeys,recentHotelKeys]);
+
   const days=useMemo(()=>Array.from({length:7},(_,i)=>addDays(weekStart,i)),[weekStart]);
   const selectedDate=dateFromKey(selected);
-  const plan=useMemo(()=>getSocialDailyPlan(liveOffers,selectedDate),[selected,liveOffers]);
+  const plan=useMemo(()=>getSocialDailyPlan(eligibleLiveOffers,selectedDate),[selected,eligibleLiveOffers]);
 
   function moveWeek(amount:number){
     const next=addDays(weekStart,amount*7);
@@ -115,6 +139,9 @@ export default function AdminSocialWeekPlanner(){
       const data=await response.json();
       if(!response.ok||!data.ok) throw new Error(data.error||"Publikacja nie powiodła się");
       setStatuses((current)=>({...current,[item.offer.id]:"published"}));
+      setRecentDestinationKeys((current)=>Array.from(new Set([...current,offerDestinationKey(item.offer)])));
+      const hotelKey=offerHotelKey(item.offer);
+      if(hotelKey) setRecentHotelKeys((current)=>Array.from(new Set([...current,hotelKey])));
     }catch(error){ alert(error instanceof Error?error.message:String(error)); }
     finally{ setPublishing(null); }
   }
@@ -154,6 +181,7 @@ export default function AdminSocialWeekPlanner(){
           {selected===key(today) && liveError && <p style={{margin:"6px 0 0"}}>Live feed: {liveError}</p>}
           <h2>{plan.theme}</h2>
           <p>{plan.description}</p>
+          {selected===key(today) && <p style={{margin:"6px 0 0",fontSize:12}}>Wykluczono {Math.max(0,liveOffers.length-eligibleLiveOffers.length)} ofert przez historię kierunku/hotelu z ostatnich 7 dni.</p>}
         </div>
         <div>
           <div className={styles.ready}>Poranny skan: 07:00</div>
