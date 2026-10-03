@@ -1521,6 +1521,10 @@ export default function SearchHub({
               <span>Na jak długo?</span>
               <select value={duration} onChange={(event) => setDuration(event.target.value)}>
                 <option value="all">Dowolnie</option>
+                {/* dynamiczny zakres z gotowego wyszukiwania */}
+                {duration !== "all" && duration !== "15+" && !/^\d+$/.test(duration)
+                  && !["1-2","2-4","3-4","3-5","3-6","5-7","5-9","7-12","8-10","11-14"].includes(duration)
+                  && <option value={duration}>{nightsLabel(duration)}</option>}
                 {Array.from({ length: 14 }, (_, index) => index + 1).map((value) => (
                   <option key={value} value={String(value)}>{nightsLabel(String(value))}</option>
                 ))}
@@ -1564,6 +1568,10 @@ export default function SearchHub({
                 }}
               >
                 <option value="all">Dowolny</option>
+                {/* dynamiczny budżet z gotowego wyszukiwania */}
+                {budget !== "all" && budget !== "custom"
+                  && !["750","1000","1500","2000","2500","3000","3500","4000","5000","7500","10000","15000"].includes(budget)
+                  && <option value={budget}>do {Number(budget).toLocaleString("pl-PL")} zł</option>}
                 <option value="750">do 750 zł</option><option value="1000">do 1 000 zł</option><option value="1500">do 1 500 zł</option>
                 <option value="2000">do 2 000 zł</option><option value="2500">do 2 500 zł</option><option value="3000">do 3 000 zł</option>
                 <option value="3500">do 3 500 zł</option><option value="4000">do 4 000 zł</option><option value="5000">do 5 000 zł</option>
