@@ -46,6 +46,7 @@ export default function AdminSocialWeekPlanner(){
   const [selected,setSelected]=useState(()=>key(today));
   const [statuses,setStatuses]=useState<Record<number,Status>>({});
   const [publishing,setPublishing]=useState<number|null>(null);
+  const [linkPlacement,setLinkPlacement]=useState<"post"|"comment">("post");
 
   const days=useMemo(()=>Array.from({length:7},(_,i)=>addDays(weekStart,i)),[weekStart]);
   const selectedDate=dateFromKey(selected);
@@ -64,7 +65,7 @@ export default function AdminSocialWeekPlanner(){
       const response=await adminFetch("/api/admin/social-publish",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({offerId:item.offer.id,text:buildText(item),approved:true,channels:["facebook","instagram"]})
+        body:JSON.stringify({offerId:item.offer.id,text:buildText(item),approved:true,channels:["facebook","instagram"],linkPlacement})
       });
       const data=await response.json();
       if(!response.ok||!data.ok) throw new Error(data.error||"Publikacja nie powiodła się");
@@ -107,7 +108,16 @@ export default function AdminSocialWeekPlanner(){
           <h2>{plan.theme}</h2>
           <p>{plan.description}</p>
         </div>
-        <div className={styles.ready}>Poranny skan: 07:00</div>
+        <div>
+          <div className={styles.ready}>Poranny skan: 07:00</div>
+          <label style={{display:"grid",gap:4,marginTop:8,fontSize:12,fontWeight:700}}>
+            Link na Facebooku
+            <select value={linkPlacement} onChange={(event)=>setLinkPlacement(event.target.value==="comment"?"comment":"post")} style={{padding:"7px 9px",border:"1px solid #dfe3e8",borderRadius:10,background:"#fff"}}>
+              <option value="post">W poście — domyślnie</option>
+              <option value="comment">W 1. komentarzu — test</option>
+            </select>
+          </label>
+        </div>
       </div>
 
       {!plan.items.length ? <div className={styles.empty}>Brak zaplanowanych ofert. Ten dzień zostanie uzupełniony po swoim porannym skanie.</div> :
