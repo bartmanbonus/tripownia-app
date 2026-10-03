@@ -7176,3 +7176,103 @@ body {
   }
   .newyear-ready-card strong{font-size:20px}
 }
+
+
+/* V158 — reusable concrete search cards */
+.ready-search-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+}
+.ready-search-card{
+  display:flex;
+  min-height:164px;
+  min-width:0;
+  flex-direction:column;
+  padding:21px;
+  border:1px solid #e7ddd6;
+  border-radius:20px;
+  background:linear-gradient(145deg,#fff,#fff9f5);
+  color:var(--ink);
+  text-decoration:none;
+  box-shadow:0 10px 26px rgba(41,29,20,.04);
+  transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;
+}
+.ready-search-card:hover{
+  transform:translateY(-2px);
+  border-color:#efad95;
+  box-shadow:0 15px 34px rgba(41,29,20,.07);
+}
+.ready-search-card small{
+  color:#a5573d;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.08em;
+  line-height:1.35;
+}
+.ready-search-card strong{
+  margin-top:8px;
+  font-size:22px;
+  line-height:1.12;
+  letter-spacing:-.5px;
+  overflow-wrap:anywhere;
+}
+.ready-search-card span{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.5;
+}
+.ready-search-card b{
+  margin-top:auto;
+  padding-top:16px;
+  color:var(--accent);
+  font-size:13px;
+  line-height:1.35;
+}
+.ready-search-page{
+  padding:34px 0 64px;
+}
+.ready-search-page-head{
+  max-width:840px;
+  margin-bottom:22px;
+}
+.ready-search-page-head h1{
+  margin:8px 0 10px;
+  font-size:clamp(38px,5vw,62px);
+  line-height:1.02;
+  letter-spacing:-2.5px;
+}
+.ready-search-page-head p{
+  margin:0;
+  max-width:720px;
+  color:var(--muted);
+  font-size:17px;
+  line-height:1.55;
+}
+.deals-ready-searches{
+  margin:10px 0 24px;
+}
+.deals-ready-searches .section-heading{
+  margin-bottom:14px;
+}
+.deals-ready-searches .section-heading h2{
+  font-size:clamp(28px,3vw,38px);
+}
+@media(max-width:700px){
+  .ready-search-grid{grid-template-columns:1fr}
+  .ready-search-card{
+    min-height:142px;
+    padding:17px;
+    border-radius:17px;
+  }
+  .ready-search-card strong{font-size:20px}
+  .ready-search-page{
+    padding:22px 0 44px;
+  }
+  .ready-search-page-head h1{
+    font-size:38px;
+    letter-spacing:-1.8px;
+  }
+  .ready-search-page-head p{font-size:15px}
+}
