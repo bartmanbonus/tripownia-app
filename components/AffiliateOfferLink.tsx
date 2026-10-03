@@ -13,9 +13,11 @@ type Props = {
   hotel?: string;
   board?: string;
   nights?: number;
+  start?: string;
+  end?: string;
 };
 
-export default function AffiliateOfferLink({ href, partner, slug, destination, tripKind = "package", departure, hotel, board, nights }: Props) {
+export default function AffiliateOfferLink({ href, partner, slug, destination, tripKind = "package", departure, hotel, board, nights, start, end }: Props) {
   function rememberTripContext() {
     saveAffiliateReturnContext({
       slug,
@@ -27,6 +29,8 @@ export default function AffiliateOfferLink({ href, partner, slug, destination, t
       hotel,
       board,
       nights,
+      start,
+      end,
     });
   }
 
