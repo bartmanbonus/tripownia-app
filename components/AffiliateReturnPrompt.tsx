@@ -51,6 +51,12 @@ export default function AffiliateReturnPrompt() {
       country: context.country || "",
       kind: context.tripKind || "package",
       slug: context.slug || "",
+      ...(context.start ? { start: context.start } : {}),
+      ...(context.end ? { end: context.end } : {}),
+      ...(context.departure ? { departure: context.departure } : {}),
+      ...(context.hotel ? { hotel: context.hotel } : {}),
+      ...(context.board ? { board: context.board } : {}),
+      ...(context.nights ? { nights: context.nights } : {}),
     });
     return `/dodaj-podroz?${params.toString()}`;
   }, [context]);

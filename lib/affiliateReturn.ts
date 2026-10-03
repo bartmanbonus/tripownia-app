@@ -11,6 +11,12 @@ export type AffiliateReturnContext = {
   source?: string;
   offerId?: string;
   price?: string;
+  start?: string;
+  end?: string;
+  departure?: string;
+  hotel?: string;
+  board?: string;
+  nights?: string;
   returnPath?: string;
 };
 
@@ -31,6 +37,12 @@ export function saveAffiliateReturnContext(input: {
   price?: string | number;
   slug?: string;
   tripKind?: AffiliateTripKind;
+  start?: string;
+  end?: string;
+  departure?: string;
+  hotel?: string;
+  board?: string;
+  nights?: string | number;
 }) {
   if (typeof window === "undefined") return;
 
@@ -48,6 +60,12 @@ export function saveAffiliateReturnContext(input: {
       offerId: input.offerId == null ? "" : String(input.offerId),
       price: input.price == null ? "" : String(input.price),
       slug: input.slug || "",
+      start: input.start || "",
+      end: input.end || "",
+      departure: input.departure || "",
+      hotel: input.hotel || "",
+      board: input.board || "",
+      nights: input.nights == null ? "" : String(input.nights),
       returnPath: `${window.location.pathname}${window.location.search}`,
     };
     localStorage.setItem(AFFILIATE_RETURN_STORAGE_KEY, JSON.stringify(payload));
