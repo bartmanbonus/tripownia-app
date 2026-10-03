@@ -773,7 +773,7 @@ export default function SearchHub({
           setNotice(rows.length
             ? "Mamy wyniki eSky — sprawdzamy jeszcze inne źródła, żeby pokazać więcej opcji."
             : "eSky nie zwróciło teraz potwierdzonych pakietów — sprawdzamy pozostałych partnerów.");
-          await fetchBatch(rows.length ? 1 : 0, false, false, false, "backup");
+          await fetchBatch(0, false, false, false, "backup");
         }
       } else {
         await fetchBatch();
