@@ -95,6 +95,7 @@ export default async function ShortSocialOfferPage({
   const offer = getOfferForPage(slug);
   if (!offer) return notFound();
 
+  const tripKind = offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package";
   const directAffiliateHref = (() => {
     if (!offer.affiliateUrl || offer.partner === "other") return offer.affiliateUrl;
     const value = (key: string) => {
@@ -121,6 +122,20 @@ export default async function ShortSocialOfferPage({
     if (utmContent) tracked.set("utmContent", utmContent);
     return `/go/live?${tracked.toString()}`;
   })();
+
+  const plannerParams = new URLSearchParams({
+    mode: "known",
+    source: "offer",
+    city: offer.city,
+    country: offer.country,
+    kind: tripKind,
+    slug: offer.slug,
+    departure: offer.departure,
+    hotel: offer.hotel,
+    board: offer.board,
+    nights: String(offer.nights),
+  });
+  const plannerHref = `/dodaj-podroz?${plannerParams.toString()}`;
 
   return (
     <main>
@@ -167,9 +182,19 @@ export default async function ShortSocialOfferPage({
               <>
                 <div className="detail-source">Najpierw oglądasz szczegóły w Tripowni. Rezerwacja i płatność odbywają się bezpośrednio u partnera.</div>
                 <div className="detail-action-box">
-                  <AffiliateOfferLink href={directAffiliateHref} partner={offer.partnerLabel} slug={offer.slug} destination={`${offer.city}, ${offer.country}`} tripKind={offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package"} />
+                  <AffiliateOfferLink
+                    href={directAffiliateHref}
+                    partner={offer.partnerLabel}
+                    slug={offer.slug}
+                    destination={`${offer.city}, ${offer.country}`}
+                    tripKind={tripKind}
+                    departure={offer.departure}
+                    hotel={offer.hotel}
+                    board={offer.board}
+                    nights={offer.nights}
+                  />
                   <OfferAlternativeJump />
-                  <Link className="btn secondary" href={`/dodaj-podroz?mode=known&source=offer&city=${encodeURIComponent(offer.city)}&country=${encodeURIComponent(offer.country)}&kind=${offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package"}&slug=${encodeURIComponent(offer.slug)}`}><PlusCircle size={17}/> Dodaj do planera</Link>
+                  <Link className="btn secondary" href={plannerHref}><PlusCircle size={17}/> Dodaj do planera</Link>
                   <small className="affiliate-note">Link partnerski. Możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.</small>
                 </div>
               </>
