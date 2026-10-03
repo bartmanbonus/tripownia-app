@@ -1,4 +1,4 @@
 import type { Metadata } from "next";
 import DepartureDealsPage from "@/components/DepartureDealsPage";
-export const metadata: Metadata = { title: { absolute: "City Break i Last Minute z Wrocławia — wakacje z WRO | Tripownia.pl" }, description: "City Break z Wrocławia, Last Minute, All Inclusive i wakacje z WRO. Porównaj aktualne kierunki i krótkie wyjazdy z lokalnego lotniska.", alternates: { canonical: "/z-wroclawia" } };
+export const metadata: Metadata = { title: { absolute: "Tani City Break z Wrocławia, Last Minute i wakacje z WRO | Tripownia.pl" }, description: "Tani City Break z Wrocławia, Last Minute, All Inclusive i wakacje z WRO. Porównaj ceny, kierunki i lot + hotel z lokalnego lotniska.", alternates: { canonical: "/z-wroclawia" } };
 export default function Page(){return <DepartureDealsPage city="Wrocławia" airportCodes={["WRO"]} intro="City Break i Last Minute z Wrocławia: wakacje, krótkie wyjazdy i All Inclusive z WRO w jednej uporządkowanej puli." cityBreakHref="/podroze/city-break-z-wroclawia" holidaysHref="/podroze/wakacje-z-wroclawia" lastMinuteHref="/podroze/last-minute-z-wroclawia" allInclusiveHref="/podroze/all-inclusive-z-wroclawia"/>}

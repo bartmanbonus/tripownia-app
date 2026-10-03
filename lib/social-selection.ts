@@ -130,51 +130,64 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
   const items: SocialPlanItem[] = [];
 
   const flight = poolData.flightGemId ? pool.find((offer) => offer.id === poolData.flightGemId) : undefined;
-  if (flight && isDestinationInRotationWindow(flight, evaluationNow)) {
-    picked.push(flight);
-    items.push({ offer:flight, time:times[0], label:"✈️ PERŁKA LOTNICZA", kind:"flight", tone:"daily", priceGem:flightAssessment(flight) });
-  }
+  const validFlight = flight && isDestinationInRotationWindow(flight, evaluationNow) ? flight : undefined;
 
   const cheapCity = (offer: Offer) => isCityBreak(offer) && offer.price > 0 && offer.price <= 1300;
   const followerMagnetCity = (offer: Offer) => isCityBreak(offer) && offer.price > 0 && offer.price <= 1000;
   const durableCheapCity = (offer: Offer) => followerMagnetCity(offer) && hasDurableSocialLanding(offer);
-  const feedSlotsNeeded = flight ? 1 : 2;
-  const durableFeedCount = pool.filter(durableCheapCity).length;
-  const durableSlots = Math.min(feedSlotsNeeded, durableFeedCount);
-  const fallbackCheapSlots = feedSlotsNeeded - durableSlots;
 
-  const slots: Array<{
+  // The first two items are the feed slots in the social planner.
+  // Prioritize concrete low-price city breaks because they generate the strongest
+  // clicks and follower growth. A flight gem moves to Stories after both feed slots.
+  for (let index = 0; index < 2; index += 1) {
+    const offer =
+      choose(pool, picked, durableCheapCity, evaluationNow, { strict:true, cheapestFirst:true }) ||
+      choose(pool, picked, followerMagnetCity, evaluationNow, { strict:true, cheapestFirst:true }) ||
+      choose(pool, picked, cheapCity, evaluationNow, { strict:true, cheapestFirst:true }) ||
+      choose(pool, picked, isCityBreak, evaluationNow, { strict:true, cheapestFirst:true });
+    if (!offer) break;
+    picked.push(offer);
+    const priceGem = assessPriceGem(offer, pool, evaluationNow);
+    items.push({
+      offer,
+      time:times[items.length],
+      label:priceGem.level === "unverified"
+        ? `⚪ ${index === 0 ? "Tani city break" : "Drugi tani city break"}`
+        : `${priceGem.emoji} ${priceGem.label}`,
+      kind:"city",
+      tone:"short",
+      priceGem,
+    });
+  }
+
+  if (validFlight && items.length < 5) {
+    picked.push(validFlight);
+    items.push({
+      offer:validFlight,
+      time:times[items.length],
+      label:"✈️ PERŁKA LOTNICZA",
+      kind:"flight",
+      tone:"daily",
+      priceGem:flightAssessment(validFlight),
+    });
+  }
+
+  type SecondarySlot = {
     test:(offer:Offer)=>boolean;
     kind:SocialSlotKind;
     tone:SocialTone;
     fallback:string;
-    strict?:boolean;
-    cheapestFirst?:boolean;
     preferDurable?:boolean;
-  }> = [
-    ...Array.from({ length: durableSlots }, (_, index) => ({
-      test: durableCheapCity,
-      kind:"city" as const,
-      tone:"short" as const,
-      fallback:index === 0 ? "Tani city break" : "Drugi tani city break",
-      strict:true,
-      cheapestFirst:true,
-    })),
-    ...Array.from({ length: fallbackCheapSlots }, (_, index) => ({
-      test: cheapCity,
-      kind:"city" as const,
-      tone:"short" as const,
-      fallback:index === 0 && durableSlots === 0 ? "Tani city break" : "Drugi tani city break",
-      strict:true,
-      cheapestFirst:true,
-    })),
+  };
+
+  const secondarySlots: SecondarySlot[] = [
     { test:(offer)=>offer.nights>=6, kind:"market", tone:"sales", fallback:"Wakacje 6+ nocy", preferDurable:true },
     { test:(offer)=>isSeasonalForDate(offer, planDate), kind:"seasonal", tone:"sales", fallback:"Kierunek sezonowy", preferDurable:true },
     { test:()=>true, kind:"market", tone:"daily", fallback:"Najmocniejsza cena dnia", preferDurable:true },
     { test:()=>true, kind:"market", tone:"short", fallback:"Druga mocna oferta", preferDurable:true },
   ];
 
-  for (const slot of slots) {
+  for (const slot of secondarySlots) {
     if (items.length >= 5) break;
     const durableOffer = slot.preferDurable
       ? choose(
@@ -185,14 +198,18 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
           { strict:true }
         )
       : undefined;
-    const offer = durableOffer || choose(pool, picked, slot.test, evaluationNow, {
-      strict: slot.strict,
-      cheapestFirst: slot.cheapestFirst,
-    });
+    const offer = durableOffer || choose(pool, picked, slot.test, evaluationNow);
     if (!offer) continue;
     picked.push(offer);
     const priceGem = assessPriceGem(offer, pool, evaluationNow);
-    items.push({ offer, time:times[items.length], label:priceGem.level === "unverified" ? `⚪ ${slot.fallback}` : `${priceGem.emoji} ${priceGem.label}`, kind:slot.kind, tone:slot.tone, priceGem });
+    items.push({
+      offer,
+      time:times[items.length],
+      label:priceGem.level === "unverified" ? `⚪ ${slot.fallback}` : `${priceGem.emoji} ${priceGem.label}`,
+      kind:slot.kind,
+      tone:slot.tone,
+      priceGem,
+    });
   }
 
   const verified = items.filter((item) => item.priceGem.level !== "unverified").length;

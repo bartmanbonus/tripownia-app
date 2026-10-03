@@ -1,4 +1,4 @@
 import type { Metadata } from "next";
 import DepartureDealsPage from "@/components/DepartureDealsPage";
-export const metadata: Metadata = { title: { absolute: "City Break i wakacje z Gdańska — Last Minute z GDN | Tripownia.pl" }, description: "City Break z Gdańska, Last Minute, All Inclusive i wakacje z GDN. Porównaj aktualne kierunki, ceny i krótkie wyjazdy z Trójmiasta.", alternates: { canonical: "/z-gdanska" } };
+export const metadata: Metadata = { title: { absolute: "Tani City Break z Gdańska, Last Minute i wakacje z GDN | Tripownia.pl" }, description: "Tani City Break z Gdańska, Last Minute, All Inclusive i wakacje z GDN. Porównaj aktualne kierunki, ceny i lot + hotel z Trójmiasta.", alternates: { canonical: "/z-gdanska" } };
 export default function Page(){return <DepartureDealsPage city="Gdańska" airportCodes={["GDN"]} intro="City Break i wakacje z Gdańska: krótkie wyjazdy, Last Minute i All Inclusive z konkretnymi cenami, terminami i aktualnymi kierunkami." cityBreakHref="/podroze/city-break-z-gdanska" holidaysHref="/podroze/wakacje-z-gdanska" lastMinuteHref="/podroze/last-minute-z-gdanska" allInclusiveHref="/podroze/all-inclusive-z-gdanska"/>}

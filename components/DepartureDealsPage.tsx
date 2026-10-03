@@ -56,11 +56,11 @@ export default function DepartureDealsPage({
     <section className={styles.section} id="oferty"><div className={styles.shell}>
       <div className={styles.heading}><div><span className={styles.kicker}>AKTUALNA PULA</span><h2>Najpierw konkretne oferty z {city}</h2><p>Pokazujemy różne kierunki zamiast kilku wariantów tego samego miejsca. Wybierasz ofertę i przechodzisz dalej do szczegółów rezerwacji.</p></div><Link href="/okazje">Wszystkie okazje <ArrowRight size={16}/></Link></div>
       <LiveDepartureDeals airportCodes={airportCodes}/>
+      <FacebookFollowCTA placement={`departure_hub_after_offers_${airportCodes.join("_")}`} compact />
     </div></section>
     <section className={styles.ctaSection}><div className={styles.shell}><div className={styles.cta}>
       <Sparkles size={30}/><div><span className={styles.kicker}>NIE ODKŁADAJ DOBREJ OFERTY</span><h2>Sprawdź szczegóły, a potem ułóż całą podróż w Tripowni.</h2><p>Ceny i dostępność mogą się zmieniać. Najpierw wybierz wyjazd, później dodaj lot, hotel, transfer, atrakcje i checklistę do planu.</p></div><div className={styles.ctaActions}><a href="#oferty">Wróć do ofert <ArrowRight size={17}/></a><Link href="/dodaj-podroz">Plan za 0 zł</Link></div>
     </div></div></section>
-    <section className={styles.section}><div className={styles.shell}><FacebookFollowCTA placement="departure_hub" compact /></div></section>
     <SiteFooter />
   </main>;
 }
