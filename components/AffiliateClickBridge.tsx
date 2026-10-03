@@ -236,6 +236,7 @@ function enrichTrackedLiveHref(anchor: HTMLAnchorElement) {
     if (!url.searchParams.get("utmContent") && attribution?.content) url.searchParams.set("utmContent", attribution.content);
     if (!url.searchParams.get("landing")) url.searchParams.set("landing", attribution?.landing || window.location.pathname);
     anchor.href = url.pathname + "?" + url.searchParams.toString();
+    anchor.removeAttribute("target");
     anchor.dataset.tripowniaOutboundWrapped = "1";
     return true;
   } catch {
@@ -257,7 +258,9 @@ function wrapAnchor(anchor: HTMLAnchorElement) {
   const href = trackedHref(anchor);
   if (!href) return;
   anchor.href = href;
-  // Preserve the link target so search results remain available in their tab.
+  // Keep the purchase flow in one tab. The return prompt restores Tripownia context
+  // after the user comes back from the partner.
+  anchor.removeAttribute("target");
   anchor.dataset.tripowniaOutboundWrapped = "1";
 }
 
