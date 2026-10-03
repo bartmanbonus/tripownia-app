@@ -750,7 +750,7 @@ export default function SearchHub({
           setNotice(rows.length
             ? "Mamy wyniki eSky — sprawdzamy jeszcze inne źródła, żeby pokazać więcej opcji."
             : "eSky nie zwróciło teraz potwierdzonych pakietów — sprawdzamy pozostałych partnerów.");
-          await fetchBatch(0, false, false, false, "backup");
+          await fetchBatch(rows.length ? 1 : 0, false, false, false, "backup");
         }
       } else {
         await fetchBatch();
@@ -765,13 +765,13 @@ export default function SearchHub({
       if (rows.length < 12 && (secondaryFilters || hasDates)) {
         setExpanding(true);
         setNotice("Sprawdzamy też oznaczone alternatywy z tych samych lotnisk i w Twoim budżecie.");
-        await fetchBatch(1, hasDates, secondaryFilters, false, activeMode === "City break" ? "all" : "all");
+        await fetchBatch(activeMode === "City break" ? 2 : 1, hasDates, secondaryFilters, false, "all");
         if (runId !== searchRunRef.current) return;
       }
       if (rows.length === 0 && departures.length) {
         setExpanding(true);
         setNotice("Nie kończymy na pustej liście — sprawdzamy ten sam kierunek i budżet także z innych polskich lotnisk.");
-        await fetchBatch(2, hasDates, secondaryFilters, true, activeMode === "City break" ? "all" : "all");
+        await fetchBatch(activeMode === "City break" ? 3 : 2, hasDates, secondaryFilters, true, "all");
         if (runId !== searchRunRef.current) return;
       }
       const alternatives = rows.length - exactCount;
