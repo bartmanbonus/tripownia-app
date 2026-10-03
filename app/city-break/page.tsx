@@ -12,14 +12,14 @@ import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 import styles from "../conversion-pages.module.css";
 
 export const metadata: Metadata = {
-  title: "City break lot + hotel 2026 — tanie pakiety na 2–5 dni",
+  title: "Tanie city break lot + hotel 2026 — pakiety na 2–5 dni",
   description: "City break lot + hotel, loty z noclegiem i krótkie wyjazdy na 2–5 dni. Ustaw kierunek, termin oraz lotnisko i porównaj aktualne propozycje.",
   alternates: { canonical: "/city-break" },
   openGraph: {
     type: "website",
     locale: "pl_PL",
     siteName: "Tripownia",
-    title: "City break lot + hotel 2026 — tanie pakiety na 2–5 dni",
+    title: "Tanie city break lot + hotel 2026 — pakiety na 2–5 dni",
     description: "City break lot + hotel, loty z noclegiem i krótkie wyjazdy na 2–5 dni. Porównaj aktualne propozycje.",
     url: "/city-break",
     images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
@@ -120,6 +120,7 @@ export default function CityBreakPage() {
       </div>
       <LiveSalesRail mode="citybreak" limit={8} initialOffers={homepageFallbackOffers}/>
     </section>
+    <section className={[styles.shell, styles.section].join(" ")}><FacebookFollowCTA placement="city_break_after_offers" compact /></section>
 
     <section className={[styles.shell, styles.section].join(" ")}>
       <div className={styles.sectionHead}><div><div className={styles.kicker}>WIĘCEJ POMYSŁÓW</div><h2>Nie ograniczamy city breaku do aktualnych kart</h2><p>Te kierunki służą jako szybki start do własnego wyszukiwania.</p></div></div>
@@ -155,7 +156,6 @@ export default function CityBreakPage() {
       </div>
     </section>
 
-    <section className={[styles.shell, styles.section].join(" ")}><FacebookFollowCTA placement="city_break" compact /></section>
     <SiteFooter/>
   </main>;
 }
