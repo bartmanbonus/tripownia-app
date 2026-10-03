@@ -23,7 +23,15 @@ export type SocialDailyPlan = {
   items: SocialPlanItem[];
 };
 
-const TIMES = ["08:30", "11:30", "14:30", "18:00", "20:30"];
+const WEEKDAY_TIMES = ["09:17", "10:11", "11:43", "12:17", "17:19"];
+const SATURDAY_TIMES = ["08:47", "10:07", "11:41", "16:17", "18:31"];
+const SUNDAY_TIMES = ["09:11", "10:17", "12:13", "17:43", "18:19"];
+
+function publishingTimes(weekday: number) {
+  if (weekday === 0) return SUNDAY_TIMES;
+  if (weekday === 6) return SATURDAY_TIMES;
+  return WEEKDAY_TIMES;
+}
 const DAY_NAMES: Record<number, string> = { 0:"Niedziela",1:"Poniedziałek",2:"Wtorek",3:"Środa",4:"Czwartek",5:"Piątek",6:"Sobota" };
 
 function normalize(value: string) {
@@ -80,6 +88,7 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
   const planKey = dateKeyInWarsaw(planDate);
   const todayKey = dateKeyInWarsaw(evaluationNow);
   const weekday = weekdayInWarsaw(planDate);
+  const times = publishingTimes(weekday);
 
   if (planKey !== todayKey) {
     return { dayName:DAY_NAMES[weekday], theme:"Czeka na poranny skan", description:"Oferty pojawią się tego dnia o 07:00 po świeżym skanie. Nie planujemy przyszłych perełek na podstawie starych cen.", dateKey:planKey, items:[] };
@@ -93,11 +102,11 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
   const flight = poolData.flightGemId ? pool.find((offer) => offer.id === poolData.flightGemId) : undefined;
   if (flight && isDestinationInRotationWindow(flight, evaluationNow)) {
     picked.push(flight);
-    items.push({ offer:flight, time:TIMES[0], label:"✈️ PERŁKA LOTNICZA", kind:"flight", tone:"daily", priceGem:flightAssessment(flight) });
+    items.push({ offer:flight, time:times[0], label:"✈️ PERŁKA LOTNICZA", kind:"flight", tone:"daily", priceGem:flightAssessment(flight) });
   } else {
     const fallbackFlight = getFallbackFlightOffer(evaluationNow);
     picked.push(fallbackFlight);
-    items.push({ offer:fallbackFlight, time:TIMES[0], label:"✈️ LOT DO SPRAWDZENIA", kind:"flight", tone:"daily", priceGem:fallbackFlightAssessment(fallbackFlight) });
+    items.push({ offer:fallbackFlight, time:times[0], label:"✈️ LOT DO SPRAWDZENIA", kind:"flight", tone:"daily", priceGem:fallbackFlightAssessment(fallbackFlight) });
   }
 
   const slots: Array<{test:(offer:Offer)=>boolean; kind:SocialSlotKind; tone:SocialTone; fallback:string}> = [
@@ -114,7 +123,7 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
     if (!offer) continue;
     picked.push(offer);
     const priceGem = assessPriceGem(offer, pool, evaluationNow);
-    items.push({ offer, time:TIMES[items.length], label:priceGem.level === "unverified" ? `⚪ ${slot.fallback}` : `${priceGem.emoji} ${priceGem.label}`, kind:slot.kind, tone:slot.tone, priceGem });
+    items.push({ offer, time:times[items.length], label:priceGem.level === "unverified" ? `⚪ ${slot.fallback}` : `${priceGem.emoji} ${priceGem.label}`, kind:slot.kind, tone:slot.tone, priceGem });
   }
 
   const verified = items.filter((item) => item.priceGem.level !== "unverified").length;
