@@ -224,7 +224,7 @@ export default function MyTrip() {
   }, [trip.checklist, trip.dayPlan, trip.suggestedLinks, flightReady, hotelReady, transferReady, attractionsReady]);
 
   useEffect(() => {
-    if (!offer?.city) {
+    if (!offer?.city || destinationPending) {
       setWeather(null);
       return;
     }
