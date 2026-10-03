@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
+import { homepageFallbackOffers } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 
@@ -30,7 +31,7 @@ export default function WakacjePage() {
     </section>
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">WYBRANE PRZEZ NAS</div><h2>Aktualne wakacje warte sprawdzenia</h2><p>Porównuj nie tylko cenę startową, ale też termin, liczbę nocy, wyżywienie i koszt całej podróży.</p></div></div>
-      <LiveSalesRail mode="vacation" limit={10}/>
+      <LiveSalesRail mode="vacation" limit={10} initialOffers={homepageFallbackOffers}/>
       <div className="single-partner-search-wrap"><SearchHub embedded initialTab="Wakacje" /></div>
     </section>
     <section className="shell seo-related-block">

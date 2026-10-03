@@ -124,6 +124,37 @@ function normalizeDateText(value: string) {
   return value.toLocaleLowerCase("pl").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
+export function inferOfferStartDate(value?: string): Date | null {
+  if (!value) return null;
+  const raw = normalizeDateText(value).replace(/[–—]/g, "-");
+
+  const isoDates = raw.match(/20\d{2}-\d{2}-\d{2}/g);
+  if (isoDates?.length) {
+    const start = new Date(`${isoDates[0]}T00:00:00Z`);
+    if (!Number.isNaN(start.getTime())) return start;
+  }
+
+  const crossMonth = raw.match(/(\d{1,2})\s+([a-z]+)\s*-\s*\d{1,2}\s+[a-z]+\s+(20\d{2})/);
+  if (crossMonth) {
+    const month = POLISH_MONTHS[crossMonth[2]];
+    if (month !== undefined) return new Date(Date.UTC(Number(crossMonth[3]), month, Number(crossMonth[1])));
+  }
+
+  const exact = raw.match(/(\d{1,2})\s*-\s*\d{1,2}\s+([a-z]+)\s+(20\d{2})/)
+    || raw.match(/(\d{1,2})\s+([a-z]+)\s+(20\d{2})/);
+  if (exact) {
+    const month = POLISH_MONTHS[exact[2]];
+    if (month !== undefined) return new Date(Date.UTC(Number(exact[3]), month, Number(exact[1])));
+  }
+
+  const monthOnly = raw.match(/\b([a-z]+)\s+(20\d{2})\b/);
+  if (monthOnly) {
+    const month = POLISH_MONTHS[monthOnly[1]];
+    if (month !== undefined) return new Date(Date.UTC(Number(monthOnly[2]), month, 1));
+  }
+  return null;
+}
+
 export function inferOfferEndDate(value?: string): Date | null {
   if (!value) return null;
   const raw = normalizeDateText(value).replace(/[–—]/g, "-");

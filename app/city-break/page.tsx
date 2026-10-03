@@ -6,6 +6,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
+import { homepageFallbackOffers } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 import styles from "../conversion-pages.module.css";
@@ -117,7 +118,7 @@ export default function CityBreakPage() {
         <div><div className={styles.kicker}>AKTUALNE PROPOZYCJE</div><h2>Najtańsze city breaki teraz</h2><p>Aktualne ceny z bieżących źródeł. Sortujemy od najniższej ceny i pokazujemy krótkie wyjazdy.</p></div>
         <Link href="/okazje">Wszystkie okazje →</Link>
       </div>
-      <LiveSalesRail mode="citybreak" limit={8}/>
+      <LiveSalesRail mode="citybreak" limit={8} initialOffers={homepageFallbackOffers}/>
     </section>
 
     <section className={[styles.shell, styles.section].join(" ")}>
