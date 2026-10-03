@@ -153,7 +153,7 @@ async function fetchProducts(query: string, token: string) {
 function tuiFallback(request: NextRequest, destination: string, reason: string) {
   const fallback = new URL("/okazje", request.url);
   fallback.searchParams.set("tui", reason);
-  if (destination) fallback.searchParams.set("kierunek", destination);
+  if (destination) fallback.searchParams.set("destination", destination);
   return NextResponse.redirect(fallback, 307);
 }
 
