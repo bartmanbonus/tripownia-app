@@ -4,10 +4,14 @@ const config: CapacitorConfig = {
   appId: 'pl.tripownia.app',
   appName: 'Tripownia',
   webDir: 'www',
+  loggingBehavior: 'debug',
   server: {
+    // Existing online shell. Assess TWA before public production release;
+    // Capacitor documents server.url as a development/live-reload option.
     url: 'https://tripownia.pl/app',
     cleartext: false,
-    allowNavigation: ['tripownia.pl', '*.tripownia.pl'],
+    allowNavigation: ['tripownia.pl'],
+    errorPath: 'offline.html',
   },
   ios: {
     contentInset: 'automatic',
