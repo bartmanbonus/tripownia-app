@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { publishFacebook, publishInstagram } from "@/lib/social-automation";
 import { getSocialOfferById } from "@/lib/social-offer-pool";
+import { getLinkMatch, isOfferExpired, type Offer } from "@/lib/offers";
 import { adminAuthError, verifyAdminRequest } from "@/lib/adminAuthServer";
 import { getRecentSocialPublicationEvents, recordSocialPublicationEvents } from "@/lib/socialPublicationStore";
 
@@ -35,6 +36,7 @@ export async function POST(request: NextRequest) {
       approved?: boolean;
       channels?: Array<"facebook" | "instagram">;
       linkPlacement?: "post" | "comment";
+      offer?: Offer;
     };
 
     if (body.approved !== true) {
@@ -46,9 +48,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "Treść posta jest pusta lub zbyt krótka." }, { status: 400 });
     }
 
-    const offer = getSocialOfferById(Number(body.offerId));
-    if (!offer || offer.availabilityStatus === "expired") {
-      return NextResponse.json({ ok: false, error: "Oferta nie istnieje lub wygasła." }, { status: 404 });
+    const offerId = Number(body.offerId);
+    const suppliedOffer = body.offer && Number(body.offer.id) === offerId ? body.offer : null;
+    const offer = getSocialOfferById(offerId) || suppliedOffer;
+    if (!offer || isOfferExpired(offer) || getLinkMatch(offer) === "unsafe") {
+      return NextResponse.json({ ok: false, error: "Oferta nie istnieje, wygasła lub ma niespójny link." }, { status: 404 });
     }
 
     const channels = Array.isArray(body.channels) && body.channels.length
