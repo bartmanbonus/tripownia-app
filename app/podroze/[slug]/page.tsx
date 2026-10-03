@@ -8,6 +8,7 @@ import { partners } from "@/lib/partners";
 import { allSeoLandings, getAllSeoLanding } from "@/lib/allSeoLandings";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
+import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -305,6 +306,10 @@ export default async function SeoLandingPage({ params }: PageProps) {
   const departureHubHref =
     page.departure === "Warszawa" ? "/z-warszawy" :
     page.departure === "Kraków" ? "/z-krakowa" :
+    page.departure === "Poznań" ? "/z-poznania" :
+    page.departure === "Gdańsk" ? "/z-gdanska" :
+    page.departure === "Katowice" ? "/z-katowic" :
+    page.departure === "Wrocław" ? "/z-wroclawia" :
     undefined;
 
   const airportCluster = page.departure
@@ -355,6 +360,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
   return (
     <main className="seo-travel-landing-v3">
       <SiteHeader />
+      <SalesCollectionSchema name={page.title} description={page.lead} path={`/podroze/${page.slug}`} about={[page.query, page.departure ? `${page.query} z ${page.departure}` : "tanie podróże"]} />
       <BreadcrumbSchema items={[
         { name: "Tripownia", url: "https://tripownia.pl/" },
         { name: "Pomysły na podróże", url: "https://tripownia.pl/podroze" },
