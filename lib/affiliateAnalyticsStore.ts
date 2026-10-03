@@ -118,23 +118,34 @@ export async function getAdminAffiliateRows(accessToken: string, days: number) {
     select: "created_at,click_id,partner,source,offer_id,destination,price,page,utm_source,utm_medium,utm_campaign",
     created_at: `gte.${since}`,
     order: "created_at.desc",
-    limit: "5000",
   });
 
-  const response = await fetch(`${supabaseUrl()}/rest/v1/affiliate_click_events?${query.toString()}`, {
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${accessToken}`,
-    },
-    cache: "no-store",
-  });
+  const pageSize = 1000;
+  const maxRows = 50_000;
+  const rows: AffiliateAnalyticsRow[] = [];
+  let truncated = false;
 
-  if (!response.ok) {
-    const detail = (await response.text().catch(() => "")).slice(0, 240);
-    console.warn("[affiliate_analytics_admin]", response.status, detail);
-    return { status: response.status as number, rows: [] as AffiliateAnalyticsRow[] };
+  for (let offset = 0; offset < maxRows; offset += pageSize) {
+    const response = await fetch(`${supabaseUrl()}/rest/v1/affiliate_click_events?${query.toString()}`, {
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${accessToken}`,
+        Range: `${offset}-${offset + pageSize - 1}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      const detail = (await response.text().catch(() => "")).slice(0, 240);
+      console.warn("[affiliate_analytics_admin]", response.status, detail);
+      return { status: response.status as number, rows: [] as AffiliateAnalyticsRow[], truncated: false };
+    }
+
+    const page = await response.json() as AffiliateAnalyticsRow[];
+    rows.push(...page);
+    if (page.length < pageSize) break;
+    if (offset + pageSize >= maxRows) truncated = true;
   }
 
-  const rows = await response.json() as AffiliateAnalyticsRow[];
-  return { status: 200 as const, rows };
+  return { status: 200 as const, rows, truncated };
 }

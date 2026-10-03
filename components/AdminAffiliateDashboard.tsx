@@ -24,6 +24,7 @@ type Stats = {
   scope?: "global" | "local";
   days?: number;
   authStatus?: "admin" | "signed_out" | "forbidden" | "unauthorized" | "error";
+  truncated?: boolean;
 };
 
 const empty: Stats = { total: 0, byPartner: {}, bySource: {}, byOffer: {}, recent: [], byDay: {} };
@@ -168,6 +169,12 @@ export default function AdminAffiliateDashboard() {
           </span>
         )}
       </div>
+
+      {stats.truncated && (
+        <div className="admin-local-warning">
+          <span><Database size={16}/> <strong>Raport osiągnął limit 50 tys. rekordów.</strong> Skróć zakres do 7 lub 30 dni, żeby zobaczyć pełne dane bez zaniżania.</span>
+        </div>
+      )}
 
       <div className="affiliate-kpis">
         <div><small>KLIKNIĘCIA</small><strong>{stats.total}</strong><span>{isGlobal ? `wszyscy użytkownicy · ${days} dni` : "ta przeglądarka"}</span></div>
