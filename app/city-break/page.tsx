@@ -123,6 +123,20 @@ export default function CityBreakPage() {
     <section className={[styles.shell, styles.section].join(" ")}><FacebookFollowCTA placement="city_break_after_offers" compact /></section>
 
     <section className={[styles.shell, styles.section].join(" ")}>
+      <div className={styles.sectionCard}>
+        <div className={styles.kicker}>POPULARNE KIERUNKI LOT + HOTEL</div>
+        <h2>Przejdź od razu do konkretnego miasta</h2>
+        <p>Bez pustej wyszukiwarki: wybierz kierunek i zobacz aktualne propozycje, budżet oraz sensowną długość pobytu.</p>
+        <div className={styles.linkPills}>
+          <Link href="/podroze/city-break-rzym-lot-hotel">Rzym · lot + hotel</Link>
+          <Link href="/podroze/city-break-bari-lot-hotel">Bari · lot + hotel</Link>
+          <Link href="/podroze/city-break-malta-lot-hotel">Malta · lot + hotel</Link>
+          <Link href="/podroze/city-break-barcelona-lot-hotel">Barcelona · lot + hotel</Link>
+        </div>
+      </div>
+    </section>
+
+    <section className={[styles.shell, styles.section].join(" ")}>
       <div className={styles.sectionHead}><div><div className={styles.kicker}>WIĘCEJ POMYSŁÓW</div><h2>Nie ograniczamy city breaku do aktualnych kart</h2><p>Te kierunki służą jako szybki start do własnego wyszukiwania.</p></div></div>
       <div className={styles.imageCardGrid}>
         {cityBreakIdeas.map(item => (
