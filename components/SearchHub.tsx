@@ -214,6 +214,26 @@ function isoMs(value: string) {
   return Number.isFinite(ms) ? ms : Number.NaN;
 }
 
+function exactNightsBetween(from: string, to: string) {
+  const start = isoMs(from);
+  const end = isoMs(to);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) return 0;
+  return Math.round((end - start) / 86_400_000);
+}
+
+function nightsLabel(value: string) {
+  if (value === "all") return "dowolna długość";
+  if (value === "15+") return "15+ nocy";
+  if (/^\d+$/.test(value)) {
+    const nights = Number(value);
+    if (nights === 1) return "1 noc";
+    if ([2, 3, 4].includes(nights)) return `${nights} noce`;
+    return `${nights} nocy`;
+  }
+  if (/^\d+-\d+$/.test(value)) return `${value.replace("-", "–")} nocy`;
+  return value;
+}
+
 function offerStartMs(offer: any) {
   return isoMs(String(offer?.startDateISO || ""));
 }
@@ -688,7 +708,9 @@ export default function SearchHub({
           if (!relaxDates) {
             if (apiDates.start) params.set("start", apiDates.start);
             if (apiDates.end) params.set("end", apiDates.end);
-            if (apiDates.start || apiDates.end) params.set("dateKind", "departure");
+            if (apiDates.start || apiDates.end) {
+              params.set("dateKind", datePreference.mode === "range" ? "stay" : "departure");
+            }
           }
           if (!relaxFilters) {
             if (activeDuration !== "all") params.set("nights", activeDuration);
@@ -708,6 +730,7 @@ export default function SearchHub({
                   nights: relaxFilters ? "all" : activeDuration,
                   start: relaxDates ? "" : apiDates.start,
                   end: relaxDates ? "" : apiDates.end,
+                  stayWithinWindow: !relaxDates && datePreference.mode === "range",
                   minPrice: activeMinBudget,
                   maxPrice: activeMaxBudget,
                   board: params.get("board") || undefined,
@@ -750,7 +773,7 @@ export default function SearchHub({
           setNotice(rows.length
             ? "Mamy wyniki eSky — sprawdzamy jeszcze inne źródła, żeby pokazać więcej opcji."
             : "eSky nie zwróciło teraz potwierdzonych pakietów — sprawdzamy pozostałych partnerów.");
-          await fetchBatch(rows.length ? 1 : 0, false, false, false, "backup");
+          await fetchBatch(0, false, false, false, "backup");
         }
       } else {
         await fetchBatch();
@@ -842,11 +865,15 @@ export default function SearchHub({
         setDateTo("");
         return;
       }
-      if (iso < dateFrom) {
-        setDateTo(dateFrom);
-        setDateFrom(iso);
-      } else {
-        setDateTo(iso);
+
+      const nextFrom = iso < dateFrom ? iso : dateFrom;
+      const nextTo = iso < dateFrom ? dateFrom : iso;
+      setDateFrom(nextFrom);
+      setDateTo(nextTo);
+
+      if (activeTab !== "Loty" && activeTab !== "Hotele") {
+        const exactNights = exactNightsBetween(nextFrom, nextTo);
+        if (exactNights > 0) setDuration(exactNights >= 15 ? "15+" : String(exactNights));
       }
       return;
     }
@@ -1060,6 +1087,8 @@ export default function SearchHub({
     }
     return "Elastycznie";
   }, [dateMode, month, dateFrom, dateTo]);
+
+  const durationSummary = useMemo(() => nightsLabel(duration), [duration]);
 
   const budgetSummary = useMemo(() => {
     if (budget === "all") return "dowolny budżet";
@@ -1375,7 +1404,7 @@ export default function SearchHub({
                   </div>
                   <div className="search-picker-nav">
                     <button type="button" aria-label="Poprzednie miesiące" disabled={visibleCalendarMonth <= localMonthKey()} onClick={() => setCalendarMonth(addMonths(visibleCalendarMonth, -1))}><ChevronLeft size={18}/></button>
-                    <span>{activeTab === "Loty" ? (dateMode === "range" ? "Wybierz datę wylotu, a potem powrotu" : "Wybierz datę wylotu") : activeTab === "Hotele" ? "Wybierz zameldowanie, a potem wymeldowanie" : (dateMode === "range" ? "Wybierz najwcześniejszy i najpóźniejszy wylot" : "Wybierz dzień wylotu")}</span>
+                    <span>{activeTab === "Loty" ? (dateMode === "range" ? "Wybierz datę wylotu, a potem powrotu" : "Wybierz datę wylotu") : activeTab === "Hotele" ? "Wybierz zameldowanie, a potem wymeldowanie" : (dateMode === "range" ? "Wybierz początek i koniec wyjazdu" : "Wybierz dzień wylotu")}</span>
                     <button type="button" aria-label="Następne miesiące" onClick={() => setCalendarMonth(addMonths(visibleCalendarMonth, 1))}><ChevronRight size={18}/></button>
                   </div>
                 </>}
@@ -1458,7 +1487,9 @@ export default function SearchHub({
                     <strong>Wybierz liczbę nocy</strong>
                     <div>
                       {[
-                        ["all","Dowolnie"],["1","1"],["2","2"],["3","3"],["4","4"],["5-7","5–7"],["8-10","8–10"],["11-14","11–14"],["15+","15+"]
+                        ["all","Dowolnie"],
+                        ...Array.from({ length: 14 }, (_, index) => [String(index + 1), String(index + 1)]),
+                        ["15+","15+"],
                       ].map(([value,label]) => (
                         <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label}</button>
                       ))}
@@ -1470,7 +1501,7 @@ export default function SearchHub({
             )}
           </div>
 
-          {simpleHomePackage ? null : activeTab === "Hotele" ? null : activeTab === "Loty" ? (
+          {activeTab === "Hotele" ? null : activeTab === "Loty" ? (
             <label className="search-v3-field search-v3-duration">
               <span>Podróżni</span>
               <select value={flightAdults} onChange={(event) => setFlightAdults(Number(event.target.value))}>
@@ -1482,16 +1513,19 @@ export default function SearchHub({
             </label>
           ) : (
             <label className="search-v3-field search-v3-duration">
-              <span>Na ile?</span>
+              <span>Na jak długo?</span>
               <select value={duration} onChange={(event) => setDuration(event.target.value)}>
                 <option value="all">Dowolnie</option>
-                <option value="1">1 noc</option><option value="2">2 noce</option><option value="3">3 noce</option><option value="4">4 noce</option>
+                {Array.from({ length: 14 }, (_, index) => index + 1).map((value) => (
+                  <option key={value} value={String(value)}>{nightsLabel(String(value))}</option>
+                ))}
+                <option value="15+">15+ nocy</option>
+                <option disabled>──────────</option>
                 <option value="1-2">1–2 noce</option>
                 <option value="3-4">3–4 noce</option>
                 <option value="5-7">5–7 nocy</option>
                 <option value="8-10">8–10 nocy</option>
                 <option value="11-14">11–14 nocy</option>
-                <option value="15+">15+ nocy</option>
               </select>
               <ChevronDown size={15} className="search-v3-chevron"/>
             </label>
@@ -1627,7 +1661,7 @@ export default function SearchHub({
           <div className="search-v3-results">
             <div className="search-v3-active-summary">
               <strong>{selectedDestinations.length ? selectedDestinations.join(" + ") : "Gdziekolwiek"}</strong>
-              <span>{departures.length ? departures.length === 1 ? "1 wybrane lotnisko" : `${departures.length} wybrane lotniska` : "Wszystkie lotniska"} · {dateSummary} · {budgetSummary}</span>
+              <span>{departures.length ? departures.length === 1 ? "1 wybrane lotnisko" : `${departures.length} wybrane lotniska` : "Wszystkie lotniska"} · {dateSummary} · {durationSummary} · {budgetSummary}</span>
             </div>
             <div className="search-v3-results-head" role="status" aria-live="polite">
               <div><small>WYNIKI</small><h3>{expanding ? (visibleResults.length ? `Mamy ${visibleResults.length} ofert — szukamy jeszcze szerzej…` : "Szukamy szerzej…") : loading ? "Sprawdzamy aktualne oferty…" : visibleResults.length ? `Znalezione oferty: ${visibleResults.length}` : "Sprawdź dostępne pakiety lot + hotel"}</h3></div>

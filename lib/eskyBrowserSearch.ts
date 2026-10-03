@@ -13,6 +13,7 @@ export type BrowserEskySearch = EskySearch & {
   board?: string;
   weekendOnly?: boolean;
   lastMinuteOnly?: boolean;
+  stayWithinWindow?: boolean;
 };
 
 export type BrowserEskyPackage = Offer & {
@@ -186,7 +187,7 @@ export function matchesEskyBrowserSearch(offer: BrowserEskyPackage, search: Brow
   if (offer.nights < nights.from || offer.nights > nights.to) return false;
 
   if (search.start && offer.startDateISO < search.start) return false;
-  if (search.end && offer.startDateISO > search.end) return false;
+  if (search.end && (search.stayWithinWindow ? offer.endDateISO > search.end : offer.startDateISO > search.end)) return false;
   if (search.minPrice && offer.price < search.minPrice) return false;
   if (search.maxPrice && offer.price > search.maxPrice) return false;
   if (!boardMatches(offer.board, search.board)) return false;

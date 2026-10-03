@@ -289,12 +289,13 @@ main > .self-search-home-stage{display:none!important}
   padding-bottom:14px!important;
 }
 #wyszukiwarka .search-v3-simple .search-v3-form{
-  grid-template-columns:minmax(300px,1.7fr) minmax(200px,1fr) minmax(200px,1fr) minmax(190px,.9fr)!important;
+  grid-template-columns:minmax(280px,1.55fr) minmax(180px,.95fr) minmax(190px,1fr) minmax(155px,.78fr) minmax(180px,.9fr)!important;
   align-items:stretch!important;
 }
 #wyszukiwarka .search-v3-simple .search-v3-destination,
 #wyszukiwarka .search-v3-simple .search-v3-departure,
 #wyszukiwarka .search-v3-simple .search-v3-date,
+#wyszukiwarka .search-v3-simple .search-v3-duration,
 #wyszukiwarka .search-v3-simple .search-v3-submit{
   grid-column:auto!important;
 }
@@ -315,6 +316,7 @@ main > .self-search-home-stage{display:none!important}
   #wyszukiwarka .search-v3-simple .search-v3-destination,
   #wyszukiwarka .search-v3-simple .search-v3-departure,
   #wyszukiwarka .search-v3-simple .search-v3-date,
+  #wyszukiwarka .search-v3-simple .search-v3-duration,
   #wyszukiwarka .search-v3-simple .search-v3-submit{
     grid-column:auto!important;
   }
@@ -332,6 +334,7 @@ main > .self-search-home-stage{display:none!important}
   #wyszukiwarka .search-v3-simple .search-v3-destination,
   #wyszukiwarka .search-v3-simple .search-v3-departure,
   #wyszukiwarka .search-v3-simple .search-v3-date,
+  #wyszukiwarka .search-v3-simple .search-v3-duration,
   #wyszukiwarka .search-v3-simple .search-v3-submit{
     grid-column:1!important;
   }
