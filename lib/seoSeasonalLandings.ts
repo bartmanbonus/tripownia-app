@@ -16,16 +16,16 @@ export const seoSeasonalLandings = [
   },
   {
     slug: "city-break-listopad-2026",
-    title: "City break listopad 2026 — tanie loty + hotel na 2–5 dni",
+    title: "City break listopad 2026 — tani lot + hotel na 2–5 dni",
     eyebrow: "CITY BREAK LISTOPAD 2026",
-    lead: "City break listopad 2026: tani weekend na 2–5 dni, lot + hotel i aktualne kierunki z Polski. Porównaj Maltę, Cypr, Hiszpanię, Portugalię, Pragę, Wiedeń i inne miasta.",
+    lead: "City break listopad 2026: tani lot + hotel na 2–5 dni i aktualne kierunki z polskich lotnisk. Porównaj ceny, godziny lotów i noclegi na Malcie, Cyprze, w Hiszpanii, Portugalii oraz popularnych miastach Europy.",
     query: "City break",
     minNights: 2,
     maxNights: 5,
     startDate: "2026-11-01",
     endDate: "2026-11-30",
     paragraphs: [
-      "Listopadowy city break najlepiej planować pod realny czas na miejscu. Przy 2–5 dniach godziny lotów, dojazd z lotniska i położenie hotelu często mają większe znaczenie niż sama cena biletu.",
+      "Listopadowy city break najlepiej planować pod realny czas na miejscu i pełny koszt lot + hotel. Przy 2–5 dniach godziny lotów, dojazd z lotniska i położenie hotelu często mają większe znaczenie niż sama cena biletu.",
       "Jeśli zależy Ci na cieple, porównaj Maltę, Cypr, południe Hiszpanii i Portugalię. Jeśli wolisz klimat miasta i jarmarków, sprawdź Pragę, Wiedeń, Budapeszt lub Kopenhagę. Przy elastycznym terminie porównaj kilka dni tygodnia — różnice w cenach lotu i hotelu potrafią być duże."
     ],
   },
