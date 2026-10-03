@@ -40,10 +40,21 @@ function lastMinuteFallbackSearches() {
   });
 }
 
+function destinationKey(offer: LiveOffer) {
+  const normalize = (value: string) => value
+    .toLocaleLowerCase("pl")
+    .replace(/ł/g, "l")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  return `${normalize(offer.city)}|${normalize(offer.country)}`;
+}
+
 function uniqueOffers(items: LiveOffer[]) {
   const seen = new Set<string>();
   return items.filter((offer) => {
-    const key = `${offer.affiliateUrl}|${offer.hotel}|${offer.dates}`;
+    const key = destinationKey(offer) || `${offer.affiliateUrl}|${offer.hotel}|${offer.dates}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -140,9 +151,11 @@ export default function LiveSalesRail({
   }, [initialOffers.length, mode]);
 
   const offers = useMemo(
-    () => uniqueOffers(pool.filter((offer) => isPromotableOffer(offer) && matchesMode(offer, mode)))
-      .sort((a, b) => Number(a.price) - Number(b.price))
-      .slice(0, limit),
+    () => uniqueOffers(
+      pool
+        .filter((offer) => isPromotableOffer(offer) && matchesMode(offer, mode))
+        .sort((a, b) => Number(a.price) - Number(b.price))
+    ).slice(0, limit),
     [pool, mode, limit]
   );
 
