@@ -34,7 +34,7 @@ const budgetCards = [
     href: "/podroze/wakacje-do-1500-zl",
     label: "DO 1500 ZŁ",
     title: "Tanie wakacje",
-    image: "/images/destinations/malta.jpg",
+    image: "/images/destinations/valletta.jpg",
   },
   {
     href: "/podroze/all-inclusive-do-2000-zl",
