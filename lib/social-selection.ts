@@ -88,6 +88,11 @@ function choose(
   const rotationCandidates = candidates.filter((offer) => isDestinationInRotationWindow(offer, now));
   const preferred = rotationCandidates.length >= 3 ? rotationCandidates : candidates;
 
+  if (options.cheapestFirst) {
+    const cheapestMatch = preferred.find(test);
+    if (cheapestMatch) return cheapestMatch;
+  }
+
   for (const level of ["gem","very-good","good","unverified"] as const) {
     const found = preferred.find((offer) => assessPriceGem(offer, pool, now).level === level && test(offer));
     if (found) return found;
