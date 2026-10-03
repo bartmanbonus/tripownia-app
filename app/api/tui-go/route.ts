@@ -211,6 +211,8 @@ export async function GET(request: NextRequest) {
     tracked.searchParams.set("partner", "tui");
     tracked.searchParams.set("source", "tui_resolver");
     tracked.searchParams.set("destination", target.destination);
+    const returnPath = params.get("return");
+    if (returnPath?.startsWith("/") && !returnPath.startsWith("//")) tracked.searchParams.set("return", returnPath);
     return NextResponse.redirect(tracked, 307);
   } catch (error) {
     console.error("[tripownia_tui_feed]", error);

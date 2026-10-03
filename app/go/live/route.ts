@@ -372,7 +372,13 @@ export async function GET(request: NextRequest) {
     });
   });
 
-  const response = NextResponse.redirect(target, 307);
+  const returnPathRaw = request.nextUrl.searchParams.get("return") || request.nextUrl.searchParams.get("page") || "/";
+  const returnPath = returnPathRaw.startsWith("/") && !returnPathRaw.startsWith("//") ? returnPathRaw : "/";
+  const exit = new URL("/go/out", request.url);
+  exit.searchParams.set("target", target.toString());
+  exit.searchParams.set("return", returnPath);
+
+  const response = NextResponse.redirect(exit, 307);
   response.headers.set("Cache-Control", "no-store");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 

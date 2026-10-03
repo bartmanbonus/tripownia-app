@@ -65,6 +65,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       from: o.airportCode || "WAW",
       nights: String(o.nights || ""),
       board: o.board || "",
+      return: `/oferta/${o.id}`,
     });
     if (o.destinationUrl) {
       try { qs.set("path", new URL(o.destinationUrl).pathname); } catch {}
@@ -77,6 +78,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       departure: o.airportCode || "WAW",
       duration: String(o.nights || ""),
       board: o.board || "",
+      return: `/oferta/${o.id}`,
     }).toString()}`;
   }
   const linkMatch = getLinkMatch(o);

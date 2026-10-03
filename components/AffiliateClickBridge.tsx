@@ -199,6 +199,7 @@ function trackedHref(anchor: HTMLAnchorElement) {
     source: sourceFor(anchor),
     page: window.location.pathname,
     clickId: createClickId(),
+    return: `${window.location.pathname}${window.location.search}`,
   });
   const destination = destinationFor(anchor);
   if (destination) params.set("destination", destination);
@@ -235,6 +236,7 @@ function enrichTrackedLiveHref(anchor: HTMLAnchorElement) {
     if (!url.searchParams.get("utmCampaign") && attribution?.campaign) url.searchParams.set("utmCampaign", attribution.campaign);
     if (!url.searchParams.get("utmContent") && attribution?.content) url.searchParams.set("utmContent", attribution.content);
     if (!url.searchParams.get("landing")) url.searchParams.set("landing", attribution?.landing || window.location.pathname);
+    if (!url.searchParams.get("return")) url.searchParams.set("return", `${window.location.pathname}${window.location.search}`);
     anchor.href = url.pathname + "?" + url.searchParams.toString();
     anchor.removeAttribute("target");
     anchor.dataset.tripowniaOutboundWrapped = "1";
