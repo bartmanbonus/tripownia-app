@@ -165,7 +165,7 @@ export default function CityBreakPage() {
             { href: "/podroze/city-break-do-1000-zl", label: "City break do 1000 zł" },
             { href: "/podroze/city-break-do-1500-zl", label: "City break do 1500 zł" },
             { href: "/podroze/city-break-z-warszawy-do-1500-zl", label: "City break z Warszawy do 1500 zł" },
-            { href: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem", label: "Lot + hotel" },
+            { href: "/lot-hotel", label: "Lot + hotel" },
             { href: "/planer-podrozy", label: "Darmowy planer podróży" },
           ]}
         />
