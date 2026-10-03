@@ -13,6 +13,10 @@ export const metadata: Metadata = {
 };
 
 const landingVisuals: Record<string, { image: string; region: string; type: string; nights: string }> = {
+  "city-break-rzym-lot-hotel": { image: "/images/destinations/rzym.jpg", region: "Włochy", type: "Lot + hotel", nights: "2–5 nocy" },
+  "city-break-bari-lot-hotel": { image: "/images/destinations/neapol.jpg", region: "Apulia", type: "Lot + hotel", nights: "2–5 nocy" },
+  "city-break-malta-lot-hotel": { image: "/images/destinations/valletta.jpg", region: "Malta", type: "Lot + hotel", nights: "3–5 nocy" },
+  "city-break-barcelona-lot-hotel": { image: "/images/destinations/barcelona.jpg", region: "Hiszpania", type: "Lot + hotel", nights: "2–5 nocy" },
   "malta-z-warszawy": { image: "/images/destinations/valletta.jpg", region: "Europa", type: "City break", nights: "3–7 nocy" },
   "rzym-z-warszawy": { image: "/images/destinations/rzym.jpg", region: "Europa", type: "City break", nights: "2–5 nocy" },
   "barcelona-z-warszawy": { image: "/images/destinations/barcelona.jpg", region: "Europa", type: "City break", nights: "3–5 nocy" },
@@ -37,18 +41,18 @@ function fallbackVisual(slug: string) {
 }
 
 const prioritySlugs = [
+  "city-break-rzym-lot-hotel",
+  "city-break-bari-lot-hotel",
+  "city-break-malta-lot-hotel",
+  "city-break-barcelona-lot-hotel",
   "city-break-z-poznania",
-  "city-break-z-lublina",
   "city-break-z-warszawy",
   "last-minute-z-poznania",
   "last-minute-z-krakowa",
   "city-break-do-700-zl",
   "city-break-do-1000-zl",
   "last-minute-do-2000-zl",
-  "last-minute-do-3000-zl",
   "all-inclusive-z-warszawy",
-  "all-inclusive-z-katowic",
-  "wakacje-z-poznania",
 ];
 
 function cleanTitle(title: string) {
