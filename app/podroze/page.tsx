@@ -4,6 +4,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { allSeoLandings } from "@/lib/allSeoLandings";
+import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 
 export const metadata: Metadata = {
   title: "Tanie podróże z Polski — city break, wakacje i loty",
@@ -35,11 +36,32 @@ function fallbackVisual(slug: string) {
   return { image: "/images/destinations/rodos.jpg", region: "Wakacje", type: "Wakacje", nights: "5–10 nocy" };
 }
 
+const prioritySlugs = [
+  "city-break-z-poznania",
+  "city-break-z-lublina",
+  "city-break-z-warszawy",
+  "last-minute-z-poznania",
+  "last-minute-z-krakowa",
+  "city-break-do-700-zl",
+  "city-break-do-1000-zl",
+  "last-minute-do-2000-zl",
+  "last-minute-do-3000-zl",
+  "all-inclusive-z-warszawy",
+  "all-inclusive-z-katowic",
+  "wakacje-z-poznania",
+];
+
 function cleanTitle(title: string) {
   return title.replace(" z Warszawy — ", " — ").replace(" z Warszawy", "");
 }
 
 export default function TravelIdeasPage() {
+  const featuredLandings = prioritySlugs
+    .map((slug) => allSeoLandings.find((item) => item.slug === slug))
+    .filter(Boolean) as typeof allSeoLandings;
+  const featuredSet = new Set(featuredLandings.map((item) => item.slug));
+  const otherLandings = allSeoLandings.filter((item) => !featuredSet.has(item.slug));
+
   return (
     <main>
       <SiteHeader/>
@@ -59,11 +81,25 @@ export default function TravelIdeasPage() {
         </div>
 
         <div className="travel-hub-filters" aria-label="Kategorie podróży">
-          <span className="active">🌐 Wszystkie</span><span>✈ Tanie loty</span><span>⚡ Last minute</span><span>▦ City break</span><span>△ Wakacje</span><span>◉ All Inclusive</span>
+          <span className="active">🌐 Wszystkie</span>
+          <Link href="/tanie-loty">✈ Tanie loty</Link>
+          <Link href="/last-minute">⚡ Last minute</Link>
+          <Link href="/city-break">▦ City break</Link>
+          <Link href="/wakacje">△ Wakacje</Link>
+          <Link href="/tanie-all-inclusive">◉ All Inclusive</Link>
+          <Link href="/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem">＋ Lot + hotel</Link>
+        </div>
+
+        <div className="travel-hub-section-head">
+          <div>
+            <div className="kicker">NAJCZĘŚCIEJ SZUKANE</div>
+            <h2>Najpierw konkretne wyjazdy i budżety</h2>
+            <p>Wybraliśmy strony najbliżej decyzji zakupowej: lotnisko, typ wyjazdu i budżet. Pozostałe warianty znajdziesz niżej bez przewijania setek dużych kart.</p>
+          </div>
         </div>
 
         <div className="travel-hub-grid">
-          {allSeoLandings.map((item) => {
+          {featuredLandings.map((item) => {
             const visual = landingVisuals[item.slug] || fallbackVisual(item.slug);
             return (
               <Link className="travel-hub-card" href={`/podroze/${item.slug}`} key={item.slug}>
@@ -81,6 +117,24 @@ export default function TravelIdeasPage() {
             );
           })}
         </div>
+
+        <section className="travel-hub-more">
+          <div className="travel-hub-section-head">
+            <div>
+              <div className="kicker">WIĘCEJ WARIANTÓW</div>
+              <h2>Lotnisko, kierunek, termin albo budżet</h2>
+              <p>Pełna baza pozostaje dostępna dla Google i użytkownika, ale nie zasypuje ekranu dziesiątkami dużych kart.</p>
+            </div>
+          </div>
+          <ProgressiveLinkCloud
+            visible={12}
+            moreLabel="Pokaż wszystkie pozostałe warianty"
+            items={otherLandings.map((item) => ({
+              href: `/podroze/${item.slug}`,
+              label: cleanTitle(item.title),
+            }))}
+          />
+        </section>
 
         <div className="travel-hub-trust">
           <div><i>◉</i><span><strong>Sprawdzone kierunki</strong><small>Tylko miejsca, które polecamy</small></span></div>
