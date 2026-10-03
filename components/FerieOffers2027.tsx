@@ -16,6 +16,7 @@ import {
 import SearchHub from "@/components/SearchHub";
 import TravelImage from "@/components/TravelImage";
 import type { Offer } from "@/lib/offers";
+import { eskySearchUrl } from "@/lib/eskySearch";
 
 type LiveOffer = Offer & {
   startDateISO?: string;
@@ -29,6 +30,8 @@ type FerieTurn = {
   from: string;
   to: string;
   regions: string;
+  airports: string[];
+  airportLabel: string;
 };
 
 type PresetResult = {
@@ -123,6 +126,8 @@ const FERIE_TURNS: FerieTurn[] = [
     from: "2027-01-18",
     to: "2027-01-31",
     regions: "podkarpackie, podlaskie, dolnośląskie, łódzkie, śląskie, opolskie",
+    airports: ["KTW", "WRO", "RZE", "LCJ"],
+    airportLabel: "Katowice, Wrocław, Rzeszów, Łódź",
   },
   {
     id: "turn-2",
@@ -131,6 +136,8 @@ const FERIE_TURNS: FerieTurn[] = [
     from: "2027-02-01",
     to: "2027-02-14",
     regions: "mazowieckie, pomorskie, świętokrzyskie, lubelskie",
+    airports: ["WAWA", "GDN", "LUZ"],
+    airportLabel: "Warszawa, Gdańsk, Lublin",
   },
   {
     id: "turn-3",
@@ -139,6 +146,8 @@ const FERIE_TURNS: FerieTurn[] = [
     from: "2027-02-15",
     to: "2027-02-28",
     regions: "lubuskie, kujawsko-pomorskie, warmińsko-mazurskie, wielkopolskie, zachodniopomorskie, małopolskie",
+    airports: ["KRK", "POZ", "SZZ", "BZG", "SZY", "IEG"],
+    airportLabel: "Kraków, Poznań, Szczecin, Bydgoszcz, Olsztyn, Zielona Góra",
   },
   {
     id: "all",
@@ -147,8 +156,34 @@ const FERIE_TURNS: FerieTurn[] = [
     from: "2027-01-18",
     to: "2027-02-28",
     regions: "wszystkie województwa",
+    airports: [],
+    airportLabel: "cała Polska",
   },
 ];
+
+function staticPresetPayload(turn: FerieTurn): FeriePresetPayload {
+  return {
+    ok: true,
+    airports: turn.airports,
+    airportLabel: turn.airportLabel,
+    presets: FERIE_DESTINATIONS.map((preset) => ({
+      id: preset.id,
+      query: preset.label,
+      label: preset.label,
+      offer: null,
+      regionalDeparture: false,
+      airportLabel: turn.airportLabel,
+      searchUrl: eskySearchUrl({
+        query: preset.label,
+        departure: turn.airports.join(","),
+        minNights: 5,
+        maxNights: 9,
+        start: turn.from,
+        end: turn.to,
+      }),
+    })),
+  };
+}
 
 function inRange(offer: LiveOffer, from: string, to: string) {
   if (!offer.startDateISO) return false;
@@ -253,16 +288,17 @@ function CompactOfferCard({
 export default function FerieOffers2027() {
   const [selectedId, setSelectedId] = useState("all");
   const [selectedVoivodeship, setSelectedVoivodeship] = useState("");
-  const [presetPayload, setPresetPayload] = useState<FeriePresetPayload | null>(null);
-  const [presetStatus, setPresetStatus] = useState<"loading" | "ready" | "error">("loading");
+  const initialTurn = FERIE_TURNS.find((turn) => turn.id === "all") || FERIE_TURNS[0];
+  const [presetPayload, setPresetPayload] = useState<FeriePresetPayload>(() => staticPresetPayload(initialTurn));
+  const [presetStatus, setPresetStatus] = useState<"loading" | "ready" | "error">("ready");
   const [offers, setOffers] = useState<LiveOffer[]>([]);
   const [offersStatus, setOffersStatus] = useState<"loading" | "ready" | "error">("loading");
   const selected = FERIE_TURNS.find((turn) => turn.id === selectedId) || FERIE_TURNS[0];
 
   useEffect(() => {
     const controller = new AbortController();
-    setPresetStatus("loading");
-    setPresetPayload(null);
+    setPresetStatus("ready");
+    setPresetPayload(staticPresetPayload(selected));
 
     fetch(`/api/ferie-2027-offers?turn=${encodeURIComponent(selected.id)}`, {
       signal: controller.signal,
@@ -275,7 +311,10 @@ export default function FerieOffers2027() {
         setPresetStatus("ready");
       })
       .catch(() => {
-        if (!controller.signal.aborted) setPresetStatus("error");
+        if (!controller.signal.aborted) {
+          setPresetPayload(staticPresetPayload(selected));
+          setPresetStatus("ready");
+        }
       });
 
     return () => controller.abort();
@@ -448,17 +487,7 @@ export default function FerieOffers2027() {
                 </div>
               </div>
 
-              {presetStatus === "loading" ? (
-                <div className="ferie-preset-skeleton">
-                  <div/>
-                  <span><RefreshCw size={17} className="ferie-spin"/> Szukamy najlepszej opcji w tej turze…</span>
-                </div>
-              ) : presetStatus === "error" ? (
-                <div className="ferie-preset-empty ferie-preset-empty-v2">
-                  <strong>Nie udało się teraz odświeżyć tego kierunku.</strong>
-                  <a href="#szukaj-w-tej-turze">Szukaj ręcznie <ArrowRight size={14}/></a>
-                </div>
-              ) : offer ? (
+              {offer ? (
                 <CompactOfferCard
                   offer={offer}
                   badge={result?.regionalDeparture ? "DOPASOWANY WYLOT" : "NAJLEPSZA CENA"}
@@ -484,13 +513,6 @@ export default function FerieOffers2027() {
         </div>
         <span>{selected.dates} 2027</span>
       </div>
-
-      {offersStatus === "loading" && (
-        <div className="ferie-live-state">
-          <RefreshCw size={20} className="ferie-spin"/>
-          <div><strong>Sprawdzamy pozostałe oferty…</strong><span>Sortujemy je od najniższej ceny i usuwamy powtórki kierunków.</span></div>
-        </div>
-      )}
 
       {offersStatus === "ready" && visibleOffers.length > 0 && (
         <div className="ferie-more-grid">
