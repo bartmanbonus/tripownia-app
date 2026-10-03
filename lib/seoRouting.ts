@@ -38,6 +38,7 @@ export const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/planer": "/planer-podrozy",
   "/poradniki/lotniska-w-polsce-bez-limitu-100-ml-plynow": "/lotniska-w-polsce-bez-limitu-100-ml-plynow",
   "/jedna-cena-za-calosc-zero-niespodzianek-dlaczego-tripownia-pl-wygrywa-z-konkurencja✈️💰": "/okazje",
+  "/jedna-cena-za-calosc-zero-niespodzianek-dlaczego-tripownia-pl-wygrywa-z-konkurencja%E2%9C%88%EF%B8%8F%F0%9F%92%B0": "/okazje",
 };
 
 const SEO_CANONICAL_PATHS = {
