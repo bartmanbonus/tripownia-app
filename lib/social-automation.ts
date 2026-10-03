@@ -1,9 +1,11 @@
 import type { Offer } from "@/lib/offers";
+import { findSocialOfferForCatalogOffer } from "@/lib/socialOffers";
 
 export type SocialPublishResult = {
   platform: "facebook" | "instagram";
   ok: boolean;
   id?: string;
+  trackingUrl?: string;
   error?: string;
 };
 
@@ -17,14 +19,29 @@ function absoluteImageUrl(image: string) {
 }
 
 function socialLandingPath(offer: Offer) {
+  const curated = findSocialOfferForCatalogOffer({
+    affiliateUrl: offer.affiliateUrl,
+    city: offer.city,
+    hotel: offer.hotel,
+    price: offer.price,
+  });
+  if (curated) return `/o/${curated.slug}`;
+
   const isDynamicFeedOffer = offer.id >= 1_000_000;
   const isFlight = offer.category.includes("flight") || offer.hotel === "Tylko lot";
 
   // Dynamic feed IDs are replaced by the next daily snapshot. Linking them to
   // /oferta/:id would create dead social URLs later. Keep those posts pointed
-  // at durable, indexable hubs instead; static catalog offers keep detail URLs.
+  // at durable hubs unless a verified /o/<slug> page exists.
   if (isDynamicFeedOffer) return isFlight ? "/tanie-loty" : "/okazje";
   return `/oferta/${offer.id}`;
+}
+
+function alignTripowniaLinks(text: string, trackingUrl: string) {
+  return text.replace(
+    /https:\/\/(?:www\.)?tripownia\.pl\/(?:o\/[^\s]+|oferta\/\d+|okazje|tanie-loty)(?:\?[^\s]*)?/gi,
+    trackingUrl
+  );
 }
 
 export function socialTrackingUrl(offer: Offer, source: "facebook" | "instagram") {
@@ -58,15 +75,16 @@ export async function publishFacebook(offer: Offer, approvedText: string): Promi
   }
 
   try {
+    const trackingUrl = socialTrackingUrl(offer, "facebook");
     const data = await graphPost(
       `${pageId}/feed`,
       new URLSearchParams({
         access_token: token,
-        message: approvedText,
-        link: socialTrackingUrl(offer, "facebook"),
+        message: alignTripowniaLinks(approvedText, trackingUrl),
+        link: trackingUrl,
       })
     );
-    return { platform: "facebook", ok: true, id: data.id };
+    return { platform: "facebook", ok: true, id: data.id, trackingUrl };
   } catch (error) {
     return { platform: "facebook", ok: false, error: error instanceof Error ? error.message : String(error) };
   }
@@ -80,12 +98,13 @@ export async function publishInstagram(offer: Offer, approvedText: string): Prom
   }
 
   try {
+    const trackingUrl = socialTrackingUrl(offer, "instagram");
     const container = await graphPost(
       `${instagramId}/media`,
       new URLSearchParams({
         access_token: token,
         image_url: absoluteImageUrl(offer.image),
-        caption: approvedText,
+        caption: alignTripowniaLinks(approvedText, trackingUrl),
       })
     );
     if (!container.id) throw new Error("Meta API nie zwróciło ID kontenera Instagrama");
@@ -94,7 +113,7 @@ export async function publishInstagram(offer: Offer, approvedText: string): Prom
       `${instagramId}/media_publish`,
       new URLSearchParams({ access_token: token, creation_id: container.id })
     );
-    return { platform: "instagram", ok: true, id: published.id };
+    return { platform: "instagram", ok: true, id: published.id, trackingUrl };
   } catch (error) {
     return { platform: "instagram", ok: false, error: error instanceof Error ? error.message : String(error) };
   }
