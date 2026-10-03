@@ -18,7 +18,7 @@ export const seoAirportWave24: SeoLanding[] = [
   },
   {
     slug: "city-break-z-lublina",
-    title: "City break z Lublina — tani weekend, lot + hotel z LUZ",
+    title: "City break z Lublina 2026 — tani weekend, lot + hotel z LUZ",
     eyebrow: "CITY BREAK Z LUBLINA",
     lead: "City break z Lublina (LUZ): krótkie wyjazdy na 2–5 dni, tani weekend samolotem i opcje lot + hotel z lokalnego lotniska.",
     query: "City break",
@@ -33,7 +33,7 @@ export const seoAirportWave24: SeoLanding[] = [
   },
   {
     slug: "city-break-z-katowic",
-    title: "City break z Katowic — tani weekend, lot + hotel z KTW",
+    title: "City break z Katowic 2026 — tani weekend, lot + hotel z KTW",
     eyebrow: "CITY BREAK Z KATOWIC / PYRZOWIC",
     lead: "City break z Katowic (KTW): tani weekend samolotem, krótkie wyjazdy i opcje lot + hotel na 2–5 dni z Pyrzowic.",
     query: "City break",
