@@ -609,16 +609,46 @@ export default function SearchHub({
 
     let rows: any[] = [];
     let failedSources = 0;
-    const fetchBatch = async (tier = 0, relaxDates = false, relaxFilters = false) => {
+    const selectedDepartureCodes = new Set(
+      departures.flatMap((code) => code === "WAWA" ? ["WAW", "WMI"] : [code]).map((code) => code.toUpperCase())
+    );
+    const inferredOfferAirport = (offer: any) => {
+      const explicit = String(offer?.airportCode || "").trim().toUpperCase();
+      if (explicit) return explicit;
+      const raw = String(offer?.departure || "").toLowerCase().replace(/ł/g, "l").normalize("NFD").replace(/\p{Diacritic}/gu, "");
+      if (/modlin|\bwmi\b/.test(raw)) return "WMI";
+      if (/radom|\brdo\b/.test(raw)) return "RDO";
+      if (/chopin|okecie|\bwaw\b/.test(raw)) return "WAW";
+      if (/krakow|balice|\bkrk\b/.test(raw)) return "KRK";
+      if (/katowice|pyrzowice|\bktw\b/.test(raw)) return "KTW";
+      if (/gdansk|rebiechowo|\bgdn\b/.test(raw)) return "GDN";
+      if (/wroclaw|strachowice|\bwro\b/.test(raw)) return "WRO";
+      if (/poznan|lawica|\bpoz\b/.test(raw)) return "POZ";
+      if (/rzeszow|jasionka|\brze\b/.test(raw)) return "RZE";
+      if (/lublin|swidnik|\bluz\b/.test(raw)) return "LUZ";
+      if (/szczecin|goleniow|\bszz\b/.test(raw)) return "SZZ";
+      if (/lodz|lublinek|\blcj\b/.test(raw)) return "LCJ";
+      if (/bydgoszcz|\bbzg\b/.test(raw)) return "BZG";
+      if (/zielona gora|babimost|\bieg\b/.test(raw)) return "IEG";
+      if (/olsztyn|szymany|\bszy\b/.test(raw)) return "SZY";
+      if (/warszawa/.test(raw)) return "WAW";
+      return "";
+    };
+
+    const fetchBatch = async (tier = 0, relaxDates = false, relaxFilters = false, relaxAirports = false) => {
       const jobs = targets.flatMap(target => ["esky", "exim", "tui"].map(provider => ({ target, provider })));
       const boardCodes: Record<string, string> = { "all inclusive": "allinclusive", "ultra all inclusive": "ultraallinclusive", "śniadanie": "breakfast", "half board": "halfboard", "full board": "fullboard", "bez wyżywienia": "roomonly" };
-      const alternative = [relaxDates ? "Inny termin" : "", relaxFilters ? "inna długość pobytu lub wyżywienie" : ""].filter(Boolean).join(" · ");
+      const alternative = [
+        relaxDates ? "Inny termin" : "",
+        relaxFilters ? "inna długość pobytu lub wyżywienie" : "",
+        relaxAirports ? "inne lotnisko" : "",
+      ].filter(Boolean).join(" · ");
       for (let index = 0; index < jobs.length; index += 6) {
         if (controller.signal.aborted) return;
         await Promise.all(jobs.slice(index, index + 6).map(async ({ target, provider }) => {
           const params = new URLSearchParams({ mode: activeMode === "City break" ? "citybreak" : "search", provider, strict: "1" });
           if (target) params.set("q", target); else params.set("broad", "1");
-          if (departures.length) params.set("from", departures.join(","));
+          if (departures.length && !relaxAirports) params.set("from", departures.join(","));
           if (activeMinBudget > 0) params.set("minPrice", String(activeMinBudget));
           if (activeMaxBudget > 0) params.set("maxPrice", String(activeMaxBudget));
           if (activeMode === "All Inclusive") params.set("board", "allinclusive");
@@ -644,6 +674,11 @@ export default function SearchHub({
             if (runId !== searchRunRef.current) return;
             if (data.partial) failedSources++;
             const found = cleanRows(Array.isArray(data.offers) ? data.offers : [], target)
+              .filter((offer) => {
+                if (!relaxAirports || selectedDepartureCodes.size === 0) return true;
+                const code = inferredOfferAirport(offer);
+                return !code || !selectedDepartureCodes.has(code);
+              })
               .map(offer => tier ? { ...offer, searchTier: tier, searchAlternative: alternative } : offer);
             rows = rankSearchOffers([...rows, ...found]);
             setResults(rows);
@@ -673,9 +708,15 @@ export default function SearchHub({
         await fetchBatch(1, hasDates, secondaryFilters);
         if (runId !== searchRunRef.current) return;
       }
+      if (rows.length === 0 && departures.length) {
+        setExpanding(true);
+        setNotice("Nie kończymy na pustej liście — sprawdzamy ten sam kierunek i budżet także z innych polskich lotnisk.");
+        await fetchBatch(2, hasDates, secondaryFilters, true);
+        if (runId !== searchRunRef.current) return;
+      }
       const alternatives = rows.length - exactCount;
       setNotice([
-        rows.length ? "Ceny za osobę. Najtańsze najpierw w każdej grupie dopasowania." : "Nie mamy teraz potwierdzonego pakietu dla tych ustawień. Sprawdź dostępność bezpośrednio u partnera lub zmień termin.",
+        rows.length ? "Ceny za osobę. Najtańsze najpierw w każdej grupie dopasowania." : "Nie mamy jeszcze potwierdzonej ceny w feedach dla tych ustawień. Możesz sprawdzić ten sam pakiet bezpośrednio w wyszukiwarce partnera lub porównać lot i nocleg.",
         alternatives > 0 ? `Dokładnych dopasowań: ${exactCount}. Alternatywy (${alternatives}) są oznaczone na kartach.` : "",
         failedSources ? "Część źródeł jest chwilowo niedostępna; lista może być niepełna." : "",
         requestedRaw.some(item => /bergamo/i.test(item)) ? "Bergamo uwzględniamy razem z Mediolanem." : "",
@@ -1564,7 +1605,7 @@ export default function SearchHub({
                 {visibleResults.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(visibleResults.length, count + 12))}>Pokaż kolejne oferty ({visibleResults.length - visibleCount})</button>}
               </>
             )}
-            {!loading && packageSearchLink && <div className="search-v3-empty-actions">
+            {!loading && packageSearchLink && results.length > 0 && <div className="search-v3-empty-actions">
               <a
                 href={`/go/live?${new URLSearchParams({
                   partner: "esky",
@@ -1580,9 +1621,22 @@ export default function SearchHub({
               const fallbackDestination = selectedDestinations[0] || destination;
               const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination) : null;
               return <div className="search-v3-empty">
-                <strong>{fallback ? `Nie mamy teraz gotowego pakietu dla „${fallbackDestination}”.` : "Nie znaleźliśmy dokładnego wariantu dla tych ustawień."}</strong>
-                <span>{fallback ? "Możesz sprawdzić loty i noclegi dla tego kierunku albo od razu poszerzyć termin." : "Poszerz termin lub zdejmij dodatkowe filtry — bez wpisywania wyszukiwania od nowa."}</span>
+                <strong>{fallbackDestination ? `Nie kończymy na 0 wyników dla „${fallbackDestination}”.` : "Nie kończymy na pustej liście."}</strong>
+                <span>Live feed nie potwierdził teraz dokładnej ceny. Zachowujemy Twój kierunek i dajemy kolejne ścieżki zakupu bez wpisywania wyszukiwania od nowa.</span>
                 <div className="search-v3-empty-actions">
+                  {packageSearchLink && (
+                    <a
+                      href={`/go/live?${new URLSearchParams({
+                        partner: "esky",
+                        target: packageSearchLink,
+                        source: "search_zero_rescue",
+                        destination: fallbackDestination || "",
+                      }).toString()}`}
+                      rel="sponsored"
+                    >
+                      Sprawdź pakiety lot + hotel
+                    </a>
+                  )}
                   <button type="button" onClick={searchNearestDates}>Pokaż inne terminy</button>
                   <button type="button" onClick={relaxSearchFilters}>Usuń dodatkowe filtry</button>
                   {fallbackDestination && <Link href={`/loty?destination=${encodeURIComponent(fallbackDestination)}`}>Sprawdź loty</Link>}
