@@ -169,6 +169,16 @@ function normalizeEskyPackage(row: any): BrowserEskyPackage | null {
 }
 
 export function matchesEskyBrowserSearch(offer: BrowserEskyPackage, search: BrowserEskySearch) {
+  if (search.query?.includes(",")) {
+    const requestedPrimary = normalizeText(search.query.split(",")[0] || "");
+    const mapped = eskyArrivals(search.query);
+    const countryFallback = mapped.length > 0 && mapped.every((value) => value.startsWith("co-"));
+    if (countryFallback && requestedPrimary) {
+      const location = normalizeText(`${offer.city} ${offer.hotel}`);
+      if (!location.includes(requestedPrimary)) return false;
+    }
+  }
+
   const departures = eskyDepartures(search.departure);
   if (departures.length && !departures.includes(offer.airportCode)) return false;
 
