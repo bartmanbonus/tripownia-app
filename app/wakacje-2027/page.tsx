@@ -4,9 +4,10 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SearchHub from "@/components/SearchHub";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
-const title = "Wakacje 2027 – tanie oferty, All Inclusive i lot + hotel";
-const description = "Wakacje 2027 z Polski: All Inclusive, last minute, lot + hotel i samodzielne wyjazdy. Porównaj kierunki, lotniska, terminy i pełny koszt podróży.";
+const title = "Wakacje 2027 – First Minute, All Inclusive i lot + hotel";
+const description = "Wakacje 2027 z Polski: First Minute, All Inclusive, lot + hotel i tanie wakacje. Porównaj kierunki, lotniska, terminy i pełny koszt podróży.";
 
 export const metadata: Metadata = {
   title,
@@ -38,7 +39,7 @@ export default function Wakacje2027Page() {
     ]}/>
     <section className="shopping-hero shell">
       <div className="kicker">WAKACJE 2027</div>
-      <h1>Wakacje 2027: porównaj All Inclusive, lot + hotel i samodzielny wyjazd.</h1>
+      <h1>Wakacje 2027: First Minute, All Inclusive i lot + hotel.</h1>
       <p>Sezon 2027 już pojawia się w sprzedaży. Tripownia pomaga porównać kierunek, lotnisko, długość pobytu i pełny koszt, zamiast patrzeć wyłącznie na cenę startową.</p>
     </section>
 
@@ -72,6 +73,7 @@ export default function Wakacje2027Page() {
       <div className="section-heading"><div><div className="kicker">PORÓWNAJ TERAZ</div><h2>Sprawdź aktualne wakacje</h2><p>Wyszukaj kierunek i termin, a przed zakupem porównaj końcową cenę oraz warunki u partnera.</p></div></div>
       <div className="single-partner-search-wrap"><SearchHub embedded initialTab="Wakacje" /></div>
     </section>
+    <section className="section shell"><FacebookFollowCTA placement="wakacje_2027_after_search" compact /></section>
 
     <section className="shell guides-checklist">
       <h2>Najczęstsze pytania o wakacje 2027</h2>
