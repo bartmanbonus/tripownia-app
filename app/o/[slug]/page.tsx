@@ -217,8 +217,8 @@ export default async function ShortSocialOfferPage({
           />
         )}
       </div>
+      <section className="section shell"><FacebookFollowCTA placement="social_offer_after_details" compact /></section>
       {!offer.expired && <CompleteTripSales city={offer.city} country={offer.country} source="social_offer" />}
-      <section className="section shell"><FacebookFollowCTA placement="social_offer" compact /></section>
       <SiteFooter />
     </main>
   );
