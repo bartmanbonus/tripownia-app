@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const description = isBariAlberobello
     ? "City break do Apulii z wylotem z Warszawy. 20–23 października 2026, 2 noce, śniadanie."
     : `${offer.hotel} • ${offer.dates} • ${offer.nights} nocy • wylot: ${offer.departure}. Sprawdź konkretną ofertę na Tripowni.`;
-  const image = `/o/${offer.slug}/opengraph-image`;
+  const image = offer.slug === "rzym-529" ? "/opengraph-image" : `/api/social-card/${offer.slug}?format=facebook`;
   const pageUrl = `/o/${offer.slug}`;
 
   return {
