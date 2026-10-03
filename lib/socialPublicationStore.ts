@@ -23,6 +23,7 @@ export type SocialPublicationEvent = {
   city: string;
   country: string | null;
   destination_key: string;
+  hotel: string | null;
   price: number | null;
   link_placement: string | null;
   tracking_url: string | null;
@@ -44,6 +45,7 @@ export async function recordSocialPublicationEvents(
       city: offer.city,
       country: offer.country || null,
       destination_key: destinationRotationKey(offer),
+      hotel: offer.hotel || null,
       price: offer.price,
       link_placement: result.platform === "facebook" ? linkPlacement : "post",
       tracking_url: result.trackingUrl || null,
@@ -77,7 +79,7 @@ export async function getRecentSocialPublicationEvents(accessToken: string, days
   const safeDays = Math.max(1, Math.min(30, Math.floor(days)));
   const since = new Date(Date.now() - safeDays * 86_400_000).toISOString();
   const query = new URLSearchParams({
-    select: "created_at,platform,external_id,offer_id,city,country,destination_key,price,link_placement,tracking_url",
+    select: "created_at,platform,external_id,offer_id,city,country,destination_key,hotel,price,link_placement,tracking_url",
     created_at: `gte.${since}`,
     order: "created_at.desc",
     limit: "300",
