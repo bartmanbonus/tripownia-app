@@ -150,8 +150,8 @@ export default function AdminSocialWeekPlanner(){
     <div className={styles.topbar}>
       <div>
         <div className="kicker">TYDZIEŃ PUBLIKACJI</div>
-        <h2>5 różnych powodów, żeby wejść dziś na Tripownię</h2>
-        <p>Każdego dnia miksujemy lot, city break, wakacje, kierunek sezonowy i najmocniejszą okazję. Bez pięciu identycznych postów z ceną.</p>
+        <h2>2 feedy + 3 Story na dziś</h2>
+        <p>Dwa najmocniejsze klikowo tematy trafiają do feedu, a trzy kolejne zostają kandydatami do Story. Bez powtórek kierunku i hotelu z ostatnich 7 dni.</p>
       </div>
       <div className={styles.nav}>
         <button onClick={()=>moveWeek(-1)} aria-label="Poprzedni tydzień"><ChevronLeft size={17}/></button>
@@ -163,7 +163,7 @@ export default function AdminSocialWeekPlanner(){
     <div className={styles.days}>
       {days.map((day)=>{
         const dayKey=key(day);
-        const p=getSocialDailyPlan([],day);
+        const p=getSocialDailyPlan(dayKey===key(today)?eligibleLiveOffers:[],day);
         const active=dayKey===selected;
         return <button key={dayKey} onClick={()=>setSelected(dayKey)} className={`${styles.day} ${active?styles.active:""}`}>
           <span>{new Intl.DateTimeFormat("pl-PL",{weekday:"short"}).format(day)}</span>
