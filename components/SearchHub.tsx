@@ -116,14 +116,32 @@ function canonicalSearchDestination(value: string) {
   return normalized;
 }
 
-function destinationPartnerLinks(destination: string) {
+function destinationPartnerLinks(
+  destination: string,
+  options?: { departures?: string[]; from?: string; to?: string },
+) {
   const query = destination.trim();
   if (!query) return null;
+
   const bookingBase = new URL("https://www.booking.com/searchresults.pl.html");
   bookingBase.searchParams.set("ss", query);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(options?.from || "")
+    && /^\d{4}-\d{2}-\d{2}$/.test(options?.to || "")
+    && String(options?.to) > String(options?.from)) {
+    bookingBase.searchParams.set("checkin", String(options?.from));
+    bookingBase.searchParams.set("checkout", String(options?.to));
+  }
+
   const kiwiBase = new URL("https://www.kiwi.com/pl/");
   kiwiBase.searchParams.set("destination", query);
+  const normalizedDepartures = (options?.departures || []).flatMap((code) => code === "WAWA" ? ["WAW", "WMI"] : [code]);
+  if (normalizedDepartures.length === 1) kiwiBase.searchParams.set("origin", normalizedDepartures[0]);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(options?.from || "")) kiwiBase.searchParams.set("outboundDate", String(options?.from));
+  if (/^\d{4}-\d{2}-\d{2}$/.test(options?.to || "") && options?.to !== options?.from) {
+    kiwiBase.searchParams.set("inboundDate", String(options?.to));
+  }
   kiwiBase.searchParams.set("currency", "PLN");
+
   return {
     booking: partners.booking.buildUrl(bookingBase.toString()),
     kiwi: partners.kiwi.buildUrl(kiwiBase.toString()),
@@ -732,7 +750,7 @@ export default function SearchHub({
           setNotice(rows.length
             ? "Mamy wyniki eSky — sprawdzamy jeszcze inne źródła, żeby pokazać więcej opcji."
             : "eSky nie zwróciło teraz potwierdzonych pakietów — sprawdzamy pozostałych partnerów.");
-          await fetchBatch(0, false, false, false, "backup");
+          await fetchBatch(rows.length ? 1 : 0, false, false, false, "backup");
         }
       } else {
         await fetchBatch();
@@ -747,13 +765,13 @@ export default function SearchHub({
       if (rows.length < 12 && (secondaryFilters || hasDates)) {
         setExpanding(true);
         setNotice("Sprawdzamy też oznaczone alternatywy z tych samych lotnisk i w Twoim budżecie.");
-        await fetchBatch(1, hasDates, secondaryFilters, false, activeMode === "City break" ? "all" : "all");
+        await fetchBatch(activeMode === "City break" ? 2 : 1, hasDates, secondaryFilters, false, "all");
         if (runId !== searchRunRef.current) return;
       }
       if (rows.length === 0 && departures.length) {
         setExpanding(true);
         setNotice("Nie kończymy na pustej liście — sprawdzamy ten sam kierunek i budżet także z innych polskich lotnisk.");
-        await fetchBatch(2, hasDates, secondaryFilters, true, activeMode === "City break" ? "all" : "all");
+        await fetchBatch(activeMode === "City break" ? 3 : 2, hasDates, secondaryFilters, true, "all");
         if (runId !== searchRunRef.current) return;
       }
       const alternatives = rows.length - exactCount;
@@ -1661,7 +1679,11 @@ export default function SearchHub({
             </div>}
             {!loading && results.length === 0 && !expanding && (() => {
               const fallbackDestination = selectedDestinations[0] || destination;
-              const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination) : null;
+              const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination, {
+                departures,
+                from: dateMode === "exact" || dateMode === "range" ? dateFrom : "",
+                to: dateMode === "range" ? dateTo : dateMode === "exact" ? dateFrom : "",
+              }) : null;
               return <div className="search-v3-empty">
                 <strong>{fallbackDestination ? `Nie kończymy na 0 wyników dla „${fallbackDestination}”.` : "Nie kończymy na pustej liście."}</strong>
                 <span>Live feed nie potwierdził teraz dokładnej ceny. Zachowujemy Twój kierunek i dajemy kolejne ścieżki zakupu bez wpisywania wyszukiwania od nowa.</span>
