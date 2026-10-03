@@ -5,7 +5,7 @@ type LiveOffer = Offer & {
   endDateISO?: string;
 };
 
-export function liveOfferLandingHref(offer: Offer, options?: { price?: number; note?: string }) {
+export function liveOfferLandingHref(offer: Offer, options?: { price?: number; note?: string; source?: string }) {
   const live = offer as LiveOffer;
   const params = new URLSearchParams({
     offer: String(offer.id),
@@ -20,6 +20,7 @@ export function liveOfferLandingHref(offer: Offer, options?: { price?: number; n
   });
 
   if (options?.note) params.set("note", options.note);
+  if (options?.source) params.set("source", options.source);
   if (offer.hotel) params.set("hotel", offer.hotel);
   if (offer.airportCode) params.set("airport", offer.airportCode);
   if (live.startDateISO) params.set("start", live.startDateISO);

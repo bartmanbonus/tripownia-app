@@ -268,7 +268,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
   if (override.hidden || publishedOverride.hidden) return null;
 
   const liveDetailHref = isLiveOffer && hasExternalAffiliateUrl
-    ? liveOfferLandingHref(offerSnapshot, { price: displayPrice, note: customerReason })
+    ? liveOfferLandingHref(offerSnapshot, { price: displayPrice, note: customerReason, source: sourceSurface || "offer_card" })
     : "";
   // Karta zawsze otwiera najpierw Tripownię. Wyjście do partnera następuje dopiero
   // z ekranu szczegółów, gdzie zachowujemy kontekst, planner i pomiar kliknięcia.

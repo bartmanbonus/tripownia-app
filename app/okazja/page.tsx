@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import Image from "next/image";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
+import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 
 export const metadata: Metadata = {
   title: "Okazja podróżnicza",
@@ -95,6 +96,7 @@ export default async function SocialOfferLanding({
   const start = one(query.start);
   const end = one(query.end);
   const offerId = one(query.offer);
+  const source = one(query.source, "live_offer");
   const nights = Math.max(1, Math.min(30, Number(one(query.nights, "7")) || 7));
   const price = safePrice(one(query.price));
   // Affiliate booking URLs can be much longer than labels/copy. Do not truncate them.
@@ -198,9 +200,25 @@ export default async function SocialOfferLanding({
             </div>
 
             <div className="detail-action-box">
-              <a className="primary-cta" href={outboundHref} rel="sponsored">
+              <TrackedPartnerLink
+                className="primary-cta"
+                href={outboundHref}
+                partner={target.partner.key}
+                offerId={Number(offerId) || 0}
+                destination={[city, country].filter(Boolean).join(", ")}
+                price={price || 0}
+                placement={source.includes("search") ? "search_live_offer_detail" : "live_offer_detail_primary"}
+                returnContext={{
+                  departure,
+                  hotel,
+                  board,
+                  nights,
+                  start,
+                  end,
+                }}
+              >
                 Sprawdź aktualną cenę <ExternalLink size={18}/>
-              </a>
+              </TrackedPartnerLink>
               <Link className="btn secondary" href={plannerHref}>
                 <PlusCircle size={17}/> Dodaj do planera
               </Link>

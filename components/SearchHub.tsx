@@ -19,6 +19,7 @@ import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { consumeRequestedSearchResume, saveSearchResumeContext, type SearchResumeContext } from "@/lib/searchResume";
+import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 
 type Props = {
   initialAirports?: string[];
@@ -1634,9 +1635,17 @@ export default function SearchHub({
                   const outboundParams = {
                     mode: "hotele",
                     destination: hotelSearchDestination,
-                    placement: "hotel_ready_step",
+                    placement: "hotel_search_ready",
                     partner: "booking",
                   };
+                  saveAffiliateReturnContext({
+                    partner: "booking",
+                    destination: hotelSearchDestination,
+                    source: "hotel_search_ready",
+                    tripKind: "hotel",
+                    start: dateFrom,
+                    end: dateTo,
+                  });
                   trackEvent("outbound_partner_click", outboundParams);
                   trackMetaCustomEvent("PartnerOutboundClick", outboundParams);
                 }}
@@ -1708,6 +1717,12 @@ export default function SearchHub({
                   destination: selectedDestinations[0] || destination.trim(),
                 }).toString()}`}
                 rel="sponsored"
+                onClick={() => saveAffiliateReturnContext({
+                  partner: "esky",
+                  destination: selectedDestinations[0] || destination.trim(),
+                  source: "search_more_packages",
+                  tripKind: "package",
+                })}
               >Sprawdź więcej pakietów lot + hotel</a>
               <span>Cena i dostępność są potwierdzane przy rezerwacji.</span>
             </div>}
@@ -1731,6 +1746,12 @@ export default function SearchHub({
                         destination: fallbackDestination || "",
                       }).toString()}`}
                       rel="sponsored"
+                      onClick={() => saveAffiliateReturnContext({
+                        partner: "esky",
+                        destination: fallbackDestination || "",
+                        source: "search_zero_rescue",
+                        tripKind: "package",
+                      })}
                     >
                       Sprawdź pakiety lot + hotel
                     </a>
@@ -1746,6 +1767,14 @@ export default function SearchHub({
                         destination: fallbackDestination || "",
                       }).toString()}`}
                       rel="sponsored"
+                      onClick={() => saveAffiliateReturnContext({
+                        partner: "kiwi",
+                        destination: fallbackDestination || "",
+                        source: "search_zero_flight_rescue",
+                        tripKind: "flight",
+                        start: dateFrom,
+                        end: dateTo,
+                      })}
                     >
                       Znajdź loty do tego kierunku
                     </a>
@@ -1759,6 +1788,14 @@ export default function SearchHub({
                         destination: fallbackDestination || "",
                       }).toString()}`}
                       rel="sponsored"
+                      onClick={() => saveAffiliateReturnContext({
+                        partner: "booking",
+                        destination: fallbackDestination || "",
+                        source: "search_zero_hotel_rescue",
+                        tripKind: "hotel",
+                        start: dateFrom,
+                        end: dateTo,
+                      })}
                     >
                       Znajdź nocleg w tym kierunku
                     </a>

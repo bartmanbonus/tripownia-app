@@ -26,6 +26,18 @@ export default function AffiliateReturnPrompt() {
           return;
         }
 
+        const currentPath = `${window.location.pathname}${window.location.search}`;
+        const storedReturnPath = typeof parsed.returnPath === "string" ? parsed.returnPath : "";
+
+        // Old/stale contexts caused prompts from a previous destination to appear
+        // on an unrelated offer. Only the exact page that initiated the partner
+        // click is allowed to display the return prompt.
+        if (!storedReturnPath || storedReturnPath !== currentPath) {
+          localStorage.removeItem(AFFILIATE_RETURN_STORAGE_KEY);
+          setContext(null);
+          return;
+        }
+
         const currentOfferMatch = window.location.pathname.match(/^\/o\/([^/?#]+)/);
         const currentOfferSlug = currentOfferMatch?.[1] ? decodeURIComponent(currentOfferMatch[1]).toLocaleLowerCase("pl") : "";
         const storedOfferSlug = parsed.slug ? String(parsed.slug).toLocaleLowerCase("pl") : "";
