@@ -17,6 +17,7 @@ import { seoDestinationAirportLandings } from "@/lib/seoDestinationAirportLandin
 import { seoCommercialIntentLandings } from "@/lib/seoCommercialIntentLandings";
 import { seoSeasonalCommercialLandings } from "@/lib/seoSeasonalCommercialLandings";
 import { seoSeasonalCommercialWave2 } from "@/lib/seoSeasonalCommercialWave2";
+import { seoSearchConsoleWave28 } from "@/lib/seoSearchConsoleWave28";
 
 type SeasonalSeoLanding = SeoLanding & {
   startDate?: string;
@@ -48,6 +49,7 @@ export const allSeoLandings = [
   ...seoCommercialIntentLandings,
   ...seoSeasonalCommercialLandings,
   ...seoSeasonalCommercialWave2,
+  ...seoSearchConsoleWave28,
 ];
 
 export function getAllSeoLanding(slug: string) {
