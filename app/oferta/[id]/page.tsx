@@ -115,7 +115,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           <div className="eyebrow">{o.flag} {o.country}</div>
           <h1>{o.city}</h1>
           <div className="detail-topline">
-            <div className="detail-score"><strong>{o.score}</strong><span>/10 Tripownia poleca</span></div>
+            <div className="detail-score"><span>Wybrana przez Tripownię</span></div>
             <FavoriteButton offerId={o.id}/>
           </div>
           <div className="detail-price-card">
