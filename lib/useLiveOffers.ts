@@ -100,12 +100,12 @@ function mergeOffers(primary: Offer[], supplement: Offer[]) {
   return Array.from(unique.values()).sort((a, b) => Number(a.price) - Number(b.price));
 }
 
-export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 1000) {
-  const [state, setState] = useState<LiveOffersState>({
-    offers: [],
+export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 1000, initialOffers: Offer[] = []) {
+  const [state, setState] = useState<LiveOffersState>(() => ({
+    offers: usableOffers(initialOffers),
     source: "fallback",
     loading: true,
-  });
+  }));
 
   const refresh = useCallback(async () => {
     const controller = new AbortController();
@@ -224,7 +224,7 @@ export function useLiveOffers(endpoint = DEFAULT_ENDPOINT, refreshMs = 5 * 60 * 
       // Endpoint changes when filters change. Never leave results from the
       // previous filter visible while the new request is loading.
       setState({
-        offers: [],
+        offers: usableOffers(initialOffers),
         source: "fallback",
         loading: true,
       });
