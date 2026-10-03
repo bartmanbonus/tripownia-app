@@ -2,6 +2,7 @@
 
 import { isPromotableOffer } from "@/lib/offerValuePolicy";
 import { fetchEskyBrowserPackages } from "@/lib/eskyBrowserSearch";
+import { eskySearchUrl } from "@/lib/eskySearch";
 import { useEffect, useMemo, useState } from "react";
 import OfferCard from "@/components/OfferCard";
 import { inferOfferEndDate, inferOfferStartDate, type Offer } from "@/lib/offers";
@@ -9,6 +10,35 @@ import { inferOfferEndDate, inferOfferStartDate, type Offer } from "@/lib/offers
 type LiveOffer = Offer & { startDateISO?: string };
 type Mode = "citybreak" | "vacation" | "lastminute";
 type ApiResponse = { ok?: boolean; offers?: LiveOffer[]; checkedAt?: string; notice?: string };
+
+function isoDate(date: Date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function lastMinuteFallbackSearches() {
+  const today = new Date();
+  const end = new Date(today);
+  end.setUTCDate(end.getUTCDate() + 45);
+  const start = isoDate(today);
+  const finish = isoDate(end);
+
+  return ["Egipt", "Turcja", "Tunezja", "Cypr"].map((destination) => {
+    const target = eskySearchUrl({
+      query: destination,
+      minNights: 5,
+      maxNights: 9,
+      start,
+      end: finish,
+    });
+    const href = `/go/live?${new URLSearchParams({
+      partner: "esky",
+      target,
+      source: "last_minute_first_paint",
+      destination,
+    }).toString()}`;
+    return { destination, href };
+  });
+}
 
 function uniqueOffers(items: LiveOffer[]) {
   const seen = new Set<string>();
@@ -114,7 +144,25 @@ export default function LiveSalesRail({
       </div>
     );
   }
-  if (!offers.length) return null;
+  if (!offers.length) {
+    if (mode === "lastminute") {
+      const searches = lastMinuteFallbackSearches();
+      return (
+        <div className="search-v3-empty last-minute-search-fallback">
+          <strong>Sprawdź aktualne Last Minute bez czekania na odświeżenie feedu.</strong>
+          <span>Nie pokazujemy starej ceny jako aktualnej. Otwórz gotowe wyszukiwanie na najbliższe 45 dni.</span>
+          <div className="search-v3-empty-actions">
+            {searches.map(({ destination, href }) => (
+              <a key={destination} href={href} rel="sponsored">
+                {destination} · 5–9 nocy
+              </a>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  }
 
   return (
     <div className="cards-grid seo-live-offers-grid">
