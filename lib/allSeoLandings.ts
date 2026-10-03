@@ -18,6 +18,7 @@ import { seoCommercialIntentLandings } from "@/lib/seoCommercialIntentLandings";
 import { seoSeasonalCommercialLandings } from "@/lib/seoSeasonalCommercialLandings";
 import { seoSeasonalCommercialWave2 } from "@/lib/seoSeasonalCommercialWave2";
 import { seoSearchConsoleWave28 } from "@/lib/seoSearchConsoleWave28";
+import { seoSalesWave29 } from "@/lib/seoSalesWave29";
 
 type SeasonalSeoLanding = SeoLanding & {
   startDate?: string;
@@ -50,6 +51,7 @@ const combinedSeoLandings = [
   ...seoSeasonalCommercialLandings,
   ...seoSeasonalCommercialWave2,
   ...seoSearchConsoleWave28,
+  ...seoSalesWave29,
 ];
 
 // Keep one canonical definition per slug. Later waves intentionally override
