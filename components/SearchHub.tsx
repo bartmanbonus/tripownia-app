@@ -11,6 +11,7 @@ import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/tr
 import { rankSearchOffers, searchTier } from "@/lib/searchOfferRanking";
 import { partners } from "@/lib/partners";
 import { eskySearchUrl } from "@/lib/eskySearch";
+import { fetchEskyBrowserPackages } from "@/lib/eskyBrowserSearch";
 import { isAffordableShortTrip } from "@/lib/offerValuePolicy";
 import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
 import TravelpayoutsFlightsWidget from "@/components/TravelpayoutsFlightsWidget";
@@ -636,7 +637,8 @@ export default function SearchHub({
     };
 
     const fetchBatch = async (tier = 0, relaxDates = false, relaxFilters = false, relaxAirports = false) => {
-      const jobs = targets.flatMap(target => ["esky", "exim", "tui"].map(provider => ({ target, provider })));
+      const providers = activeMode === "City break" ? ["esky"] : ["esky", "exim", "tui"];
+      const jobs = targets.flatMap(target => providers.map(provider => ({ target, provider })));
       const boardCodes: Record<string, string> = { "all inclusive": "allinclusive", "ultra all inclusive": "ultraallinclusive", "śniadanie": "breakfast", "half board": "halfboard", "full board": "fullboard", "bez wyżywienia": "roomonly" };
       const alternative = [
         relaxDates ? "Inny termin" : "",
@@ -668,9 +670,26 @@ export default function SearchHub({
           controller.signal.addEventListener("abort", abort, { once: true });
           const timer = window.setTimeout(abort, 55000);
           try {
-            const response = await fetch(`/api/today-offers?${params}`, { cache: "no-store", signal: timeout.signal });
-            const data = await response.json();
-            if (!response.ok || data?.ok === false) throw new Error("source_unavailable");
+            const data = provider === "esky"
+              ? await fetchEskyBrowserPackages({
+                  query: target,
+                  departure: relaxAirports ? "" : departures.join(","),
+                  cityBreak: activeMode === "City break",
+                  nights: relaxFilters ? "all" : activeDuration,
+                  start: relaxDates ? "" : apiDates.start,
+                  end: relaxDates ? "" : apiDates.end,
+                  minPrice: activeMinBudget,
+                  maxPrice: activeMaxBudget,
+                  board: params.get("board") || undefined,
+                  weekendOnly: params.get("weekend") === "1",
+                  lastMinuteOnly: params.get("lastMinute") === "1",
+                }, timeout.signal)
+              : await (async () => {
+                  const response = await fetch(`/api/today-offers?${params}`, { cache: "no-store", signal: timeout.signal });
+                  const payload = await response.json();
+                  if (!response.ok || payload?.ok === false) throw new Error("source_unavailable");
+                  return payload;
+                })();
             if (runId !== searchRunRef.current) return;
             if (data.partial) failedSources++;
             const found = cleanRows(Array.isArray(data.offers) ? data.offers : [], target)
@@ -1570,7 +1589,7 @@ export default function SearchHub({
               <span>{departures.length ? departures.length === 1 ? "1 wybrane lotnisko" : `${departures.length} wybrane lotniska` : "Wszystkie lotniska"} · {dateSummary} · {budgetSummary}</span>
             </div>
             <div className="search-v3-results-head" role="status" aria-live="polite">
-              <div><small>WYNIKI</small><h3>{expanding ? (visibleResults.length ? `Mamy ${visibleResults.length} ofert — szukamy jeszcze szerzej…` : "Szukamy szerzej…") : loading ? "Sprawdzamy aktualne oferty…" : visibleResults.length ? `Znalezione oferty: ${visibleResults.length}` : "Brak dokładnego dopasowania"}</h3></div>
+              <div><small>WYNIKI</small><h3>{expanding ? (visibleResults.length ? `Mamy ${visibleResults.length} ofert — szukamy jeszcze szerzej…` : "Szukamy szerzej…") : loading ? "Sprawdzamy aktualne oferty…" : visibleResults.length ? `Znalezione oferty: ${visibleResults.length}` : "Sprawdź dostępne pakiety lot + hotel"}</h3></div>
               {notice && <p>{notice}</p>}
             </div>
 
@@ -1614,7 +1633,7 @@ export default function SearchHub({
                   destination: selectedDestinations[0] || destination.trim(),
                 }).toString()}`}
                 rel="sponsored"
-              >Sprawdź więcej pakietów</a>
+              >Sprawdź więcej pakietów lot + hotel</a>
               <span>Cena i dostępność są potwierdzane przy rezerwacji.</span>
             </div>}
             {!loading && results.length === 0 && !expanding && (() => {

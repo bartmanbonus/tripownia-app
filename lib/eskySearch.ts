@@ -5,6 +5,9 @@ export type EskySearch = {
   minNights?: number; maxNights?: number; nights?: string;
   start?: string; end?: string; minPrice?: number; maxPrice?: number;
   timeoutMs?: number;
+  board?: string;
+  weekendOnly?: boolean;
+  lastMinuteOnly?: boolean;
 };
 
 const PL_AIRPORTS = new Set(["WAW", "WMI", "KRK", "KTW", "GDN", "WRO", "POZ", "RZE", "LUZ", "SZZ", "LCJ", "BZG", "SZY", "IEG", "RDO"]);
@@ -19,7 +22,11 @@ const DESTINATIONS: Record<string, string> = {
   sewilla: "ci-SVQ", amsterdam: "ci-AMS", kopenhaga: "ci-CPH", malaga: "ci-AGP", split: "ci-SPU",
   barcelona: "ci-BCN", madryt: "ci-MAD", ateny: "ci-ATH", porto: "ci-OPO", wenecja: "ci-VCE",
   alicante: "ci-ALC", walencja: "ci-VLC", nicea: "ci-NCE", berlin: "ci-BER", dublin: "ci-DUB",
-  bari: "ci-BRI",
+  bari: "ci-BRI", brindisi: "ci-BDS",
+  helsinki: "ci-HEL", oslo: "ci-OSL", zurych: "ci-ZRH", zurich: "ci-ZRH", genewa: "ci-GVA",
+  zadar: "ci-ZAD", marrakesz: "ci-RAK", marrakech: "ci-RAK",
+  larnaka: "ci-LCA", larnaca: "ci-LCA",
+  cagliari: "ci-CAG",
   bolonia: "ci-BLQ", bologna: "ci-BLQ",
   piza: "ci-PSA", pisa: "ci-PSA",
   turyn: "ci-TRN", turin: "ci-TRN",

@@ -1,6 +1,7 @@
 "use client";
 
 import { isPromotableOffer } from "@/lib/offerValuePolicy";
+import { fetchEskyBrowserPackages } from "@/lib/eskyBrowserSearch";
 import { useEffect, useMemo, useState } from "react";
 import OfferCard from "@/components/OfferCard";
 import { inferOfferEndDate, inferOfferStartDate, type Offer } from "@/lib/offers";
@@ -62,11 +63,17 @@ export default function LiveSalesRail({
 
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
 
     async function load() {
       if (!initialOffers.length) setLoading(true);
       try {
-        const response = await fetch(`/api/deals?refresh=${Date.now()}`, { cache: "no-store" });
+        if (mode === "citybreak") {
+          const data = await fetchEskyBrowserPackages({ cityBreak: true }, controller.signal);
+          if (!cancelled) setPool(data.offers);
+          return;
+        }
+        const response = await fetch(`/api/deals?refresh=${Date.now()}`, { cache: "no-store", signal: controller.signal });
         if (!response.ok) throw new Error("live deals unavailable");
         const data = (await response.json()) as ApiResponse;
         if (!cancelled) setPool(Array.isArray(data.offers) ? data.offers : []);
@@ -81,9 +88,10 @@ export default function LiveSalesRail({
     const timer = window.setInterval(load, 10 * 60 * 1000);
     return () => {
       cancelled = true;
+      controller.abort();
       window.clearInterval(timer);
     };
-  }, [initialOffers.length]);
+  }, [initialOffers.length, mode]);
 
   const offers = useMemo(
     () => uniqueOffers(pool.filter((offer) => isPromotableOffer(offer) && matchesMode(offer, mode)))

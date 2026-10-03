@@ -5,7 +5,7 @@ import { ArrowLeft, ExternalLink, MapPin, Moon, Plane, Sun, Utensils } from "luc
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TravelImage from "@/components/TravelImage";
-import { formatPriceCheckedAt, getLinkMatch, offers } from "@/lib/offers";
+import { formatPriceCheckedAt, getLinkMatch, homepageFallbackOffers as offers } from "@/lib/offers";
 import BeforeYouGo from "@/components/BeforeYouGo";
 import FavoriteButton from "@/components/FavoriteButton";
 import OfferCard from "@/components/OfferCard";
