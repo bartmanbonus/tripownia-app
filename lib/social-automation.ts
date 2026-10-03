@@ -18,6 +18,20 @@ function absoluteImageUrl(image: string) {
   return `${SITE_URL}${image.startsWith("/") ? image : `/${image}`}`;
 }
 
+function socialCardImageUrl(offer: Offer, format: "feed" | "story" | "tiktok" = "feed") {
+  const curated = findSocialOfferForCatalogOffer({
+    affiliateUrl: offer.affiliateUrl,
+    city: offer.city,
+    hotel: offer.hotel,
+    price: offer.price,
+  });
+  if (!curated) return absoluteImageUrl(offer.image);
+  if (curated.slug === "bari-alberobello-669" && format === "feed") {
+    return `${SITE_URL}/social/bari-alberobello-669/preview`;
+  }
+  return `${SITE_URL}/api/social-card/${curated.slug}?format=${format}`;
+}
+
 function socialLandingPath(offer: Offer) {
   const curated = findSocialOfferForCatalogOffer({
     affiliateUrl: offer.affiliateUrl,
@@ -126,7 +140,7 @@ export async function publishInstagram(offer: Offer, approvedText: string): Prom
       `${instagramId}/media`,
       new URLSearchParams({
         access_token: token,
-        image_url: absoluteImageUrl(offer.image),
+        image_url: socialCardImageUrl(offer, "feed"),
         caption: alignTripowniaLinks(approvedText, trackingUrl),
       })
     );
