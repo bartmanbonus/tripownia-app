@@ -7,14 +7,14 @@ import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import styles from "../conversion-pages.module.css";
 
 export const metadata: Metadata = {
-  title: { absolute: "Lot i hotel 2026 — lot + hotel, loty z noclegiem | Tripownia.pl" },
+  title: { absolute: "Lot i hotel 2026 — tani lot + hotel i loty z noclegiem | Tripownia.pl" },
   description: "Lot i hotel w jednym wyszukiwaniu: porównaj lot + hotel, loty z noclegiem, city break i krótkie wakacje z polskich lotnisk. Sprawdź pełny koszt wyjazdu.",
   alternates: { canonical: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem" },
   openGraph: {
     type: "website",
     locale: "pl_PL",
     siteName: "Tripownia",
-    title: "Lot i hotel — lot + hotel i loty z noclegiem | Tripownia.pl",
+    title: "Lot i hotel — tani lot + hotel i loty z noclegiem | Tripownia.pl",
     description: "Ustaw kierunek, daty i lotnisko. Tripownia pomoże znaleźć lot + hotel bez zaczynania od pustej wyszukiwarki.",
     url: "https://tripownia.pl/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem",
   },
@@ -44,7 +44,7 @@ export default function LotHotelPage() {
       <div className={styles.heroGrid}>
         <div className={styles.heroCopy}>
           <div className={styles.kicker}>LOT + HOTEL</div>
-          <h1>Lot i hotel: lot + hotel oraz loty z noclegiem w jednym wyszukiwaniu</h1>
+          <h1>Lot i hotel: tani lot + hotel oraz loty z noclegiem w jednym wyszukiwaniu</h1>
           <p>Wpisz kierunek, daty i lotnisko wylotu. Porównaj lot i hotel dla tego samego terminu: gotowy lot + hotel na city break, krótki urlop albo dłuższe wakacje bez przeklikiwania kilku osobnych stron.</p>
           <div className={styles.heroActions}>
             <a className={styles.primary} href="#szukaj-lot-hotel">Szukaj lot + hotel</a>
@@ -73,6 +73,7 @@ export default function LotHotelPage() {
         />
       </div>
     </section>
+    <section className={[styles.shell, styles.section].join(" ")}><FacebookFollowCTA placement="lot_hotel_after_search" compact /></section>
 
     <section className={[styles.shell, styles.section].join(" ")}>
       <div className={styles.sectionCard}>
@@ -96,7 +97,6 @@ export default function LotHotelPage() {
         {faq.map(([question, answer]) => <div key={question}><h3>{question}</h3><p>{answer}</p></div>)}
       </div>
     </section>
-    <section className={[styles.shell, styles.section].join(" ")}><FacebookFollowCTA placement="lot_hotel" compact /></section>
     <SiteFooter/>
   </main>;
 }
