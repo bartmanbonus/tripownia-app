@@ -3,7 +3,7 @@
 import { isPromotableOffer } from "@/lib/offerValuePolicy";
 import { useEffect, useMemo, useState } from "react";
 import OfferCard from "@/components/OfferCard";
-import { inferOfferStartDate, type Offer } from "@/lib/offers";
+import { inferOfferEndDate, inferOfferStartDate, type Offer } from "@/lib/offers";
 
 type LiveOffer = Offer & { startDateISO?: string };
 type Mode = "citybreak" | "vacation" | "lastminute";
@@ -32,10 +32,18 @@ function matchesMode(offer: LiveOffer, mode: Mode) {
     ? new Date(`${offer.startDateISO}T00:00:00Z`)
     : inferOfferStartDate(offer.dates);
   if (!start || Number.isNaN(start.getTime())) return false;
+
+  const inferredEnd = offer.startDateISO
+    ? new Date(start.getTime() + Math.max(1, offer.nights) * 86_400_000)
+    : inferOfferEndDate(offer.dates);
+  const end = inferredEnd && !Number.isNaN(inferredEnd.getTime()) ? inferredEnd : start;
+
   const now = new Date();
-  const max = new Date(now);
+  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const max = new Date(today);
   max.setUTCDate(max.getUTCDate() + 45);
-  return start >= new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+
+  return end >= today
     && start <= max
     && (offer.nights >= 5 || categories.some((item) => /wakacje|allinclusive|plaza|cieplo/i.test(item)));
 }
