@@ -70,7 +70,7 @@ export function eskyInventoryUrl(search: EskySearch, arrival = eskyArrival(searc
   const url = new URL("https://hotelsapi.esky.com/gateway/minilisting/packages");
   const p = url.searchParams;
   p.set("orientation", "vertical"); p.set("branding", "false"); p.set("limit", "15");
-  p.set("partnerCode", "TRIPOWNIAPLPACKAGES");
+  p.set("partnerCode", "ESKYPLPACKAGES");
   if (arrival) p.set("arrivals[0]", arrival);
   eskyDepartures(search.departure).forEach((code, i) => p.set(`departures[${i}]`, `ap-${code}`));
   const nights = eskyNights(search);
