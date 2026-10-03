@@ -48,8 +48,12 @@ export default function WakacjePage() {
         visible={8}
         items={[
           { href: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem", label: "Lot + hotel" },
+          { href: "/podroze/wakacje-do-1000-zl", label: "Wakacje do 1000 zł" },
+          { href: "/podroze/wakacje-do-1500-zl", label: "Wakacje do 1500 zł" },
           { href: "/podroze/wakacje-do-2000-zl", label: "Wakacje do 2000 zł" },
           { href: "/podroze/wakacje-do-2500-zl", label: "Wakacje do 2500 zł" },
+          { href: "/podroze/wakacje-do-3000-zl", label: "Wakacje do 3000 zł" },
+          { href: "/podroze/tanie-wycieczki-zagraniczne-do-1000-zl", label: "Wyjazdy za granicę do 1000 zł" },
           { href: "/wakacje-2027", label: "Wakacje 2027" },
           { href: "/wakacje-z-dziecmi", label: "Wakacje z dziećmi" },
           { href: "/podroze/malta-wakacje", label: "Malta wakacje" },
