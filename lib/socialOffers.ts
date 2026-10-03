@@ -944,6 +944,32 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
   },
 };
 
+export function findSocialOfferForCatalogOffer(input: {
+  affiliateUrl?: string;
+  city?: string;
+  hotel?: string;
+  price?: number;
+}): SocialOffer | null {
+  const candidates = Object.values(SOCIAL_OFFERS).filter(socialOfferReady);
+  const affiliateUrl = String(input.affiliateUrl || "").trim();
+
+  if (affiliateUrl) {
+    const exactUrl = candidates.find((offer) => offer.affiliateUrl.trim() === affiliateUrl);
+    if (exactUrl) return exactUrl;
+  }
+
+  const city = normalize(String(input.city || ""));
+  const hotel = normalize(String(input.hotel || ""));
+  const price = Number(input.price || 0);
+  if (!city || !hotel || !Number.isFinite(price) || price <= 0) return null;
+
+  return candidates.find((offer) =>
+    normalize(offer.city) === city
+    && normalize(offer.hotel) === hotel
+    && Number(offer.price) === price
+  ) || null;
+}
+
 export function getSocialOffer(slug: string): SocialOffer | null {
   const normalizedSlug = slug.toLocaleLowerCase("pl");
   const offer = SOCIAL_OFFERS[normalizedSlug] || null;
