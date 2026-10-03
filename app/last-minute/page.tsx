@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
+import { homepageFallbackOffers } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 
@@ -35,7 +36,7 @@ export default function LastMinuteOffersPage() {
 
     <section className="section shell last-minute-live-section">
       <div className="section-heading"><div><div className="kicker">WYBRANE PRZEZ TRIPOWNIĘ</div><h2>Aktualne oferty Last Minute</h2><p>Sortujemy od najniższej ceny. Sprawdź termin, liczbę nocy, wyżywienie i lotnisko wylotu przed przejściem do rezerwacji.</p></div></div>
-      <LiveSalesRail mode="lastminute" limit={10}/>
+      <LiveSalesRail mode="lastminute" limit={10} initialOffers={homepageFallbackOffers}/>
     </section>
 
     <section className="section shell partner-search-shopping">
