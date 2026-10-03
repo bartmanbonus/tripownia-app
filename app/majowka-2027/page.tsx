@@ -4,9 +4,10 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SearchHub from "@/components/SearchHub";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
-const title = "Majówka 2027 – gdzie lecieć? City break i ciepłe kierunki";
-const description = "Majówka 2027 za granicą: pomysły na city break, plażę i All Inclusive. Sprawdź kierunki, loty i wakacje na długi weekend majowy.";
+const title = "Majówka 2027 za granicą – city break, lot + hotel i All Inclusive";
+const description = "Majówka 2027 za granicą: city break, lot + hotel i All Inclusive. Porównaj kierunki, ceny i gotowe wyjazdy na długi weekend majowy.";
 
 export const metadata: Metadata = {
   title,
@@ -23,7 +24,7 @@ export default function Majowka2027Page() {
     ]}/>
     <section className="shopping-hero shell">
       <div className="kicker">MAJÓWKA 2027</div>
-      <h1>Majówka 2027: gdzie polecieć na kilka dni?</h1>
+      <h1>Majówka 2027: city break, lot + hotel czy All Inclusive?</h1>
       <p>Długi weekend majowy można wykorzystać na city break, kilka dni nad morzem albo pełny tydzień All Inclusive. Największą różnicę robi nie tylko kierunek, ale godziny lotów i liczba realnych dni na miejscu.</p>
     </section>
 
@@ -48,10 +49,11 @@ export default function Majowka2027Page() {
       </div>
     </section>
 
-    <section className="section shell">
+    <section className="section shell" id="majowka-oferty">
       <div className="section-heading"><div><div className="kicker">PORÓWNAJ WYJAZD</div><h2>Sprawdź aktualne opcje na majówkę</h2></div></div>
       <div className="single-partner-search-wrap"><SearchHub embedded initialTab="City break" initialDateMode="range" initialDateFrom="2027-04-29" initialDateTo="2027-05-05" /></div>
     </section>
+    <section className="section shell"><FacebookFollowCTA placement="majowka_2027_after_search" compact /></section>
 
     <section className="shell seo-copy-section">
       <h2>Jak nie przepłacić za majówkę?</h2>
