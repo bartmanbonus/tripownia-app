@@ -134,7 +134,7 @@ export default function AdminSocialWeekPlanner(){
       const response=await adminFetch("/api/admin/social-publish",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({offerId:item.offer.id,text:buildText(item,linkPlacement),approved:true,channels:["facebook","instagram"],linkPlacement})
+        body:JSON.stringify({offerId:item.offer.id,offer:item.offer,text:buildText(item,linkPlacement),approved:true,channels:["facebook","instagram"],linkPlacement})
       });
       const data=await response.json();
       if(!response.ok||!data.ok) throw new Error(data.error||"Publikacja nie powiodła się");
