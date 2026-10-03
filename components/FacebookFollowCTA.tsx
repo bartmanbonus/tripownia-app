@@ -13,9 +13,9 @@ export default function FacebookFollowCTA({
   return (
     <div className={`facebook-growth-strip${compact ? " facebook-growth-strip-compact" : ""}`}>
       <div>
-        <small>CODZIENNE OKAZJE NA FACEBOOKU</small>
-        <strong>Obserwuj Tripownię i wracaj tylko wtedy, gdy coś naprawdę Cię zainteresuje.</strong>
-        <span>Publikujemy konkretne kierunki, ceny i terminy — bez zasypywania przypadkowymi postami.</span>
+        <small>OKAZJE, KTÓRE WARTO ZŁAPAĆ</small>
+        <strong>Obserwuj Tripownię — codziennie pokazujemy konkretne wyjazdy z ceną i terminem.</strong>
+        <span>Tanie city breaki, wakacje i loty w jednym miejscu — bez przypadkowych inspiracji i bez szukania od zera.</span>
       </div>
       <a
         href="https://www.facebook.com/987707741084438"
@@ -23,7 +23,7 @@ export default function FacebookFollowCTA({
         rel="noopener noreferrer"
         onClick={() => { trackEvent("facebook_follow_click", { placement }); trackMetaCustomEvent("FacebookFollowClick", { placement }); }}
       >
-        Obserwuj Tripownię na Facebooku →
+        Obserwuj Tripownię →
       </a>
     </div>
   );

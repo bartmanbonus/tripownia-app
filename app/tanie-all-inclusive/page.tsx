@@ -55,6 +55,9 @@ export default function CheapAllInclusivePage() {
         <a href="/podroze/all-inclusive-do-2000-zl">All Inclusive do 2000 zł →</a>
         <a href="/podroze/all-inclusive-do-2500-zl">All Inclusive do 2500 zł →</a>
         <a href="/podroze/all-inclusive-do-3000-zl">All Inclusive do 3000 zł →</a>
+        <a href="/podroze/wyspy-kanaryjskie-all-inclusive">Wyspy Kanaryjskie All Inclusive →</a>
+        <a href="/podroze/hiszpania-all-inclusive">Hiszpania All Inclusive →</a>
+        <a href="/podroze/wyspy-zielonego-przyladka-wakacje">Wyspy Zielonego Przylądka All Inclusive →</a>
       </div>
     </section>
     <DealsPage

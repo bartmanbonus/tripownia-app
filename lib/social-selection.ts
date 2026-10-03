@@ -24,9 +24,9 @@ export type SocialDailyPlan = {
   items: SocialPlanItem[];
 };
 
-const WEEKDAY_TIMES = ["09:17", "10:11", "11:43", "12:17", "17:19"];
-const SATURDAY_TIMES = ["08:47", "10:07", "11:41", "16:17", "18:31"];
-const SUNDAY_TIMES = ["09:11", "10:17", "12:13", "17:43", "18:19"];
+const WEEKDAY_TIMES = ["10:07", "11:09", "12:17", "17:19", "18:11"];
+const SATURDAY_TIMES = ["09:47", "10:17", "11:41", "17:07", "18:31"];
+const SUNDAY_TIMES = ["09:41", "10:17", "12:13", "17:43", "18:19"];
 
 function publishingTimes(weekday: number) {
   if (weekday === 0) return SUNDAY_TIMES;
@@ -136,7 +136,8 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
   }
 
   const cheapCity = (offer: Offer) => isCityBreak(offer) && offer.price > 0 && offer.price <= 1300;
-  const durableCheapCity = (offer: Offer) => cheapCity(offer) && hasDurableSocialLanding(offer);
+  const followerMagnetCity = (offer: Offer) => isCityBreak(offer) && offer.price > 0 && offer.price <= 1000;
+  const durableCheapCity = (offer: Offer) => followerMagnetCity(offer) && hasDurableSocialLanding(offer);
   const feedSlotsNeeded = flight ? 1 : 2;
   const durableFeedCount = pool.filter(durableCheapCity).length;
   const durableSlots = Math.min(feedSlotsNeeded, durableFeedCount);

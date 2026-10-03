@@ -17,6 +17,7 @@ import { seoDestinationAirportLandings } from "@/lib/seoDestinationAirportLandin
 import { seoCommercialIntentLandings } from "@/lib/seoCommercialIntentLandings";
 import { seoSeasonalCommercialLandings } from "@/lib/seoSeasonalCommercialLandings";
 import { seoSeasonalCommercialWave2 } from "@/lib/seoSeasonalCommercialWave2";
+import { seoSearchConsoleWave28 } from "@/lib/seoSearchConsoleWave28";
 
 type SeasonalSeoLanding = SeoLanding & {
   startDate?: string;
@@ -41,14 +42,22 @@ const seoOverrides = new Map(overrideLandings.map((item) => [item.slug, item]));
 const baseSlugs = new Set(baseLandings.map((item) => item.slug));
 const supplementalOverrides = overrideLandings.filter((item) => !baseSlugs.has(item.slug));
 
-export const allSeoLandings = [
+const combinedSeoLandings = [
   ...baseLandings.map((item) => seoOverrides.get(item.slug) || item),
   ...supplementalOverrides,
   ...seoDestinationAirportLandings,
   ...seoCommercialIntentLandings,
   ...seoSeasonalCommercialLandings,
   ...seoSeasonalCommercialWave2,
+  ...seoSearchConsoleWave28,
 ];
+
+// Keep one canonical definition per slug. Later waves intentionally override
+// earlier SEO definitions so fresh Search Console work is not shadowed by
+// legacy copies and generateStaticParams stays duplicate-free.
+export const allSeoLandings = Array.from(
+  new Map(combinedSeoLandings.map((item) => [item.slug, item])).values()
+);
 
 export function getAllSeoLanding(slug: string) {
   return allSeoLandings.find((item) => item.slug === slug);

@@ -59,21 +59,22 @@ function buildText(
     ? "👇 Link do konkretnej oferty w pierwszym komentarzu."
     : `👉 Sprawdź konkretną ofertę: ${landing}`;
   const tags = item.kind === "city" ? "#Tripownia #CityBreak #TaniePodróże" : item.kind === "flight" ? "#Tripownia #TanieLoty #Podróże" : "#Tripownia #Wakacje #Podróże";
+  const followCta = "❤️ Obserwuj Tripownię, jeśli chcesz codziennie dostawać konkretne wyjazdy z ceną i terminem.";
 
   if(item.kind === "flight"){
     const hook=o.price>0 ? `${o.city} od ${o.price} zł. Taki lot dziś trafia na nasz radar. ✈️` : `${o.city} na radarze Tripowni. Dziś warto sprawdzić ceny lotów. ✈️`;
-    return `${hook}\n\nWylot: ${o.departure}\nTermin: ${o.dates}\n\n${o.reason}\n\n${postCta}\n\n${tags}`;
+    return `${hook}\n\nWylot: ${o.departure}\nTermin: ${o.dates}\n\n${o.reason}\n\n${postCta}\n\n${followCta}\n\n${tags}`;
   }
 
   if(item.kind === "city"){
-    return `${o.city} na krótki wyjazd? Dzisiaj znaleźliśmy opcję za ${price}.\n\n✈️ ${o.departure}\n📅 ${o.dates}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\n${postCta}\n\n${tags}`;
+    return `${o.city} na krótki wyjazd? Dzisiaj znaleźliśmy opcję za ${price}.\n\n✈️ ${o.departure}\n📅 ${o.dates}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\n${postCta}\n\n${followCta}\n\n${tags}`;
   }
 
   if(item.kind === "seasonal"){
-    return `Gdy w Polsce robi się chłodniej, ${o.city} wygląda coraz lepiej. ☀️\n\nCena: ${price}\nWylot: ${o.departure}\nTermin: ${o.dates}\nHotel: ${o.hotel}\n\n${o.reason}\n\n${postCta}\n\n${tags}`;
+    return `Gdy w Polsce robi się chłodniej, ${o.city} wygląda coraz lepiej. ☀️\n\nCena: ${price}\nWylot: ${o.departure}\nTermin: ${o.dates}\nHotel: ${o.hotel}\n\n${o.reason}\n\n${postCta}\n\n${followCta}\n\n${tags}`;
   }
 
-  return `${o.city} za ${price}. To jedna z mocniejszych ofert, które dziś wyłapała Tripownia.\n\n✈️ Wylot: ${o.departure}\n📅 ${o.dates}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\n${postCta}\n\n${tags}`;
+  return `${o.city} za ${price}. To jedna z mocniejszych ofert, które dziś wyłapała Tripownia.\n\n✈️ Wylot: ${o.departure}\n📅 ${o.dates}\n🏨 ${o.nights} nocy · ${o.hotel}\n🍽️ ${o.board}\n\n${o.reason}\n\n${postCta}\n\n${followCta}\n\n${tags}`;
 }
 
 export default function AdminSocialWeekPlanner(){
@@ -82,7 +83,7 @@ export default function AdminSocialWeekPlanner(){
   const [selected,setSelected]=useState(()=>key(today));
   const [statuses,setStatuses]=useState<Record<number,Status>>({});
   const [publishing,setPublishing]=useState<number|null>(null);
-  const [linkPlacement,setLinkPlacement]=useState<"post"|"comment">("post");
+  const [linkPlacement,setLinkPlacement]=useState<"post"|"comment">("comment");
   const [liveOffers,setLiveOffers]=useState<Offer[]>([]);
   const [liveLoading,setLiveLoading]=useState(true);
   const [liveError,setLiveError]=useState("");
@@ -192,8 +193,8 @@ export default function AdminSocialWeekPlanner(){
           <label style={{display:"grid",gap:4,marginTop:8,fontSize:12,fontWeight:700}}>
             Link na Facebooku
             <select value={linkPlacement} onChange={(event)=>setLinkPlacement(event.target.value==="comment"?"comment":"post")} style={{padding:"7px 9px",border:"1px solid #dfe3e8",borderRadius:10,background:"#fff"}}>
-              <option value="post">W poście — domyślnie</option>
-              <option value="comment">W 1. komentarzu — test</option>
+              <option value="comment">W 1. komentarzu — domyślnie</option>
+              <option value="post">W poście — test</option>
             </select>
           </label>
         </div>
@@ -217,6 +218,7 @@ export default function AdminSocialWeekPlanner(){
               <strong className={styles.price}>{flight && hasPrice ? `od ${item.offer.price} zł` : hasPrice ? `od ${item.offer.price} zł/os.` : "sprawdź ceny lotów"}</strong>
               <p>📅 {item.offer.dates}<br/>✈️ {item.offer.departure}{flight?` → ${item.offer.city}`:` · ${item.offer.nights} nocy`}</p>
               <div className={styles.reason}>{item.priceGem.reason}</div>
+              {index<2 && <details style={{marginTop:10}}><summary style={{cursor:"pointer",fontWeight:800}}>Podgląd treści posta</summary><pre style={{whiteSpace:"pre-wrap",fontFamily:"inherit",fontSize:12,lineHeight:1.5,margin:"8px 0 0"}}>{buildText(item,linkPlacement)}</pre></details>}
               <div className={styles.actions}>
                 {index<2 && status==="proposal" && <button onClick={()=>setStatuses((s)=>({...s,[item.offer.id]:"approved"}))}><Check size={15}/> {manualFlight?"Zatwierdź po sprawdzeniu":"Zatwierdź feed"}</button>}
                 {index<2 && status==="approved" && <button onClick={()=>publish(item)} disabled={publishing===item.offer.id}><Send size={15}/> {publishing===item.offer.id?"Publikuję…":"Publikuj FB + IG"}</button>}

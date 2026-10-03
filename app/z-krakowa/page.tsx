@@ -2,14 +2,14 @@ import type { Metadata } from "next";
 import DepartureDealsPage from "@/components/DepartureDealsPage";
 
 export const metadata: Metadata = {
-  title: "Wakacje z Krakowa, City Break i Last Minute",
-  description: "Wyjazdy z Krakowa-Balic: City Break, Last Minute, All Inclusive i wakacje z KRK. Sprawdź aktualne oferty i porównaj różne kierunki.",
+  title: "City Break z Krakowa, Last Minute i wakacje z KRK",
+  description: "City Break z Krakowa-Balic, Last Minute, All Inclusive i wakacje z KRK. Porównaj aktualne kierunki, ceny i lot + hotel z Balic.",
   alternates: { canonical: "/z-krakowa" },
   openGraph: {
     type: "website",
     locale: "pl_PL",
     siteName: "Tripownia",
-    title: "Wakacje z Krakowa, City Break i Last Minute | Tripownia.pl",
+    title: "City Break z Krakowa, Last Minute i wakacje z KRK | Tripownia.pl",
     description: "Wyjazdy z Krakowa-Balic: City Break, Last Minute, All Inclusive i wakacje z KRK. Sprawdź aktualne oferty i porównaj różne kierunki.",
     url: "/z-krakowa",
     images: [{ url: "/opengraph-image", width: 1200, height: 630 }],

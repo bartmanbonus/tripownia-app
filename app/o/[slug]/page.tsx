@@ -10,6 +10,7 @@ import { getSocialOfferForLanding, socialOfferDateRange, type SocialOffer } from
 import CompleteTripSales from "@/components/CompleteTripSales";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
 type SocialOfferPage = SocialOffer & { expired?: boolean };
 
@@ -219,6 +220,7 @@ export default async function ShortSocialOfferPage({
         )}
       </div>
       {!offer.expired && <CompleteTripSales city={offer.city} country={offer.country} source="social_offer" />}
+      <section className="section shell"><FacebookFollowCTA placement="social_offer" compact /></section>
       <SiteFooter />
     </main>
   );

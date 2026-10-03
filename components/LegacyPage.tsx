@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import ArticlePartnerSearch from "@/components/ArticlePartnerSearch";
 import ArticleDeepDiveBlock from "@/components/ArticleDeepDiveBlock";
 import ArticleShare from "@/components/ArticleShare";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import DestinationLandingPanel, { hasDestinationLanding } from "@/components/DestinationLandingPanel";
 import type { LegacyItem } from "@/lib/legacy";
 import { legacyCanonicalPath } from "@/lib/legacy";
@@ -725,6 +726,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
       </section>}
 
       {(isPost || isDestination) && <RelatedTravelGuides path={canonicalPath} title={item.title} isDestination={isDestination} />}
+      {(isPost || isDestination) && <section className="section shell"><FacebookFollowCTA placement={isDestination ? "destination_legacy" : "article_legacy"} compact /></section>}
     </div>
     <SiteFooter/>
   </main>;
