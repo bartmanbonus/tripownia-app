@@ -636,8 +636,20 @@ export default function SearchHub({
       return "";
     };
 
-    const fetchBatch = async (tier = 0, relaxDates = false, relaxFilters = false, relaxAirports = false) => {
-      const providers = ["esky", "exim", "tui"];
+    const fetchBatch = async (
+      tier = 0,
+      relaxDates = false,
+      relaxFilters = false,
+      relaxAirports = false,
+      providerScope: "primary" | "backup" | "all" = "all",
+    ) => {
+      const providers = activeMode === "City break"
+        ? providerScope === "primary"
+          ? ["esky"]
+          : providerScope === "backup"
+            ? ["exim", "tui"]
+            : ["esky", "exim", "tui"]
+        : ["esky", "exim", "tui"];
       const jobs = targets.flatMap(target => providers.map(provider => ({ target, provider })));
       const boardCodes: Record<string, string> = { "all inclusive": "allinclusive", "ultra all inclusive": "ultraallinclusive", "śniadanie": "breakfast", "half board": "halfboard", "full board": "fullboard", "bez wyżywienia": "roomonly" };
       const alternative = [
@@ -713,7 +725,18 @@ export default function SearchHub({
     };
 
     try {
-      await fetchBatch();
+      if (activeMode === "City break") {
+        await fetchBatch(0, false, false, false, "primary");
+        if (runId !== searchRunRef.current) return;
+        if (rows.length < 12) {
+          setNotice(rows.length
+            ? "Mamy wyniki eSky — sprawdzamy jeszcze inne źródła, żeby pokazać więcej opcji."
+            : "eSky nie zwróciło teraz potwierdzonych pakietów — sprawdzamy pozostałych partnerów.");
+          await fetchBatch(0, false, false, false, "backup");
+        }
+      } else {
+        await fetchBatch();
+      }
       if (runId !== searchRunRef.current) return;
       const exactCount = rows.length;
       setLoading(false);
@@ -724,13 +747,13 @@ export default function SearchHub({
       if (rows.length < 12 && (secondaryFilters || hasDates)) {
         setExpanding(true);
         setNotice("Sprawdzamy też oznaczone alternatywy z tych samych lotnisk i w Twoim budżecie.");
-        await fetchBatch(1, hasDates, secondaryFilters);
+        await fetchBatch(1, hasDates, secondaryFilters, false, activeMode === "City break" ? "all" : "all");
         if (runId !== searchRunRef.current) return;
       }
       if (rows.length === 0 && departures.length) {
         setExpanding(true);
         setNotice("Nie kończymy na pustej liście — sprawdzamy ten sam kierunek i budżet także z innych polskich lotnisk.");
-        await fetchBatch(2, hasDates, secondaryFilters, true);
+        await fetchBatch(2, hasDates, secondaryFilters, true, activeMode === "City break" ? "all" : "all");
         if (runId !== searchRunRef.current) return;
       }
       const alternatives = rows.length - exactCount;
@@ -1658,8 +1681,34 @@ export default function SearchHub({
                   )}
                   <button type="button" onClick={searchNearestDates}>Pokaż inne terminy</button>
                   <button type="button" onClick={relaxSearchFilters}>Usuń dodatkowe filtry</button>
-                  {fallbackDestination && <Link href={`/loty?destination=${encodeURIComponent(fallbackDestination)}`}>Sprawdź loty</Link>}
-                  {fallbackDestination && <Link href={`/hotele?destination=${encodeURIComponent(fallbackDestination)}`}>Sprawdź noclegi</Link>}
+                  {fallback?.kiwi && (
+                    <a
+                      href={`/go/live?${new URLSearchParams({
+                        partner: "kiwi",
+                        target: fallback.kiwi,
+                        source: "search_zero_flight_rescue",
+                        destination: fallbackDestination || "",
+                      }).toString()}`}
+                      rel="sponsored"
+                    >
+                      Znajdź loty do tego kierunku
+                    </a>
+                  )}
+                  {fallback?.booking && (
+                    <a
+                      href={`/go/live?${new URLSearchParams({
+                        partner: "booking",
+                        target: fallback.booking,
+                        source: "search_zero_hotel_rescue",
+                        destination: fallbackDestination || "",
+                      }).toString()}`}
+                      rel="sponsored"
+                    >
+                      Znajdź nocleg w tym kierunku
+                    </a>
+                  )}
+                  {fallbackDestination && <Link href={`/loty?destination=${encodeURIComponent(fallbackDestination)}`}>Porównaj loty w Tripowni</Link>}
+                  {fallbackDestination && <Link href={`/hotele?destination=${encodeURIComponent(fallbackDestination)}`}>Porównaj noclegi w Tripowni</Link>}
                 </div>
               </div>;
             })()}
