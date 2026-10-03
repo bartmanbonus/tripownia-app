@@ -91,8 +91,16 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
     return { dayName:DAY_NAMES[weekday], theme:"Czeka na poranny skan", description:"Oferty pojawią się tego dnia o 07:00 po świeżym skanie. Nie planujemy przyszłych perełek na podstawie starych cen.", dateKey:planKey, items:[] };
   }
 
-  const poolData = getSocialOfferPoolData(evaluationNow);
-  const pool = rankByPriceGem(poolData.offers.filter((offer) => getLinkMatch(offer) !== "unsafe"), evaluationNow);
+  const provided = _source.filter((offer) => getLinkMatch(offer) !== "unsafe");
+  const fallbackPool = provided.length ? null : getSocialOfferPoolData(evaluationNow);
+  const sourceOffers = provided.length ? provided : fallbackPool?.offers || [];
+  const poolData = {
+    offers: sourceOffers,
+    flightGemId: provided.length
+      ? sourceOffers.find((offer) => offer.category.includes("flight") && offer.price > 0)?.id ?? null
+      : fallbackPool?.flightGemId ?? null,
+  };
+  const pool = rankByPriceGem(sourceOffers, evaluationNow);
   const picked: Offer[] = [];
   const items: SocialPlanItem[] = [];
 
