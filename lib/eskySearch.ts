@@ -19,6 +19,22 @@ const DESTINATIONS: Record<string, string> = {
   sewilla: "ci-SVQ", amsterdam: "ci-AMS", kopenhaga: "ci-CPH", malaga: "ci-AGP", split: "ci-SPU",
   barcelona: "ci-BCN", madryt: "ci-MAD", ateny: "ci-ATH", porto: "ci-OPO", wenecja: "ci-VCE",
   alicante: "ci-ALC", walencja: "ci-VLC", nicea: "ci-NCE", berlin: "ci-BER", dublin: "ci-DUB",
+  bari: "ci-BRI",
+  bolonia: "ci-BLQ", bologna: "ci-BLQ",
+  piza: "ci-PSA", pisa: "ci-PSA",
+  turyn: "ci-TRN", turin: "ci-TRN",
+  palermo: "ci-PMO",
+  katania: "ci-CTA", catania: "ci-CTA",
+  stambul: "ci-IST", istanbul: "ci-IST",
+  pafos: "ci-PFO", paphos: "ci-PFO",
+  marsylia: "ci-MRS", marseille: "ci-MRS",
+  sztokholm: "ci-STO", stockholm: "ci-STO",
+  edynburg: "ci-EDI", edinburgh: "ci-EDI",
+  bruksela: "ci-BRU", brussels: "ci-BRU",
+  dubrownik: "ci-DBV", dubrovnik: "ci-DBV",
+  florencja: "ci-FLR", florence: "ci-FLR",
+  genua: "ci-GOA", genoa: "ci-GOA",
+  verona: "ci-VRN",
 };
 
 export function eskyArrival(query = "") {
