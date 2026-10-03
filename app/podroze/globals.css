@@ -6976,3 +6976,73 @@ body {
   .seo-intent-facts{grid-template-columns:1fr}
   .seo-intent-copy h1{font-size:36px}
 }
+
+
+/* V155 — commercial SEO travel visual */
+.seo-intent-aside{
+  display:grid;
+  gap:12px;
+}
+.seo-intent-photo{
+  position:relative;
+  min-height:220px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:#f2ece7;
+  box-shadow:0 16px 36px rgba(38,27,20,.06);
+}
+.seo-intent-photo img{
+  object-fit:cover;
+}
+.seo-intent-photo::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,transparent 52%,rgba(18,14,12,.38));
+  pointer-events:none;
+}
+.seo-intent-photo>span{
+  position:absolute;
+  z-index:2;
+  left:14px;
+  bottom:14px;
+  display:inline-flex;
+  align-items:center;
+  min-height:30px;
+  padding:0 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.94);
+  color:#352d28;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+.seo-intent-aside .seo-intent-facts{
+  grid-template-columns:1fr 1fr;
+}
+.seo-intent-aside .seo-intent-facts>div{
+  min-height:92px;
+}
+@media(max-width:980px){
+  .seo-intent-aside{
+    grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);
+    align-items:stretch;
+  }
+  .seo-intent-photo{min-height:250px}
+}
+@media(max-width:700px){
+  .seo-intent-aside{grid-template-columns:1fr}
+  .seo-intent-photo{
+    min-height:210px;
+    border-radius:18px;
+  }
+  .seo-intent-aside .seo-intent-facts{
+    grid-template-columns:1fr 1fr;
+  }
+}
+@media(max-width:390px){
+  .seo-intent-aside .seo-intent-facts{grid-template-columns:1fr}
+}
