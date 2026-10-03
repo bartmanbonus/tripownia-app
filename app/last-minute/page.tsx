@@ -66,6 +66,7 @@ export default function LastMinuteOffersPage() {
           { href: "/podroze/last-minute-z-wroclawia", label: "Last Minute z Wrocławia" },
           { href: "/podroze/last-minute-do-2000-zl", label: "Last Minute do 2000 zł" },
           { href: "/podroze/last-minute-do-2500-zl", label: "Last Minute do 2500 zł" },
+          { href: "/podroze/last-minute-do-3000-zl", label: "Last Minute do 3000 zł" },
           { href: "/podroze/last-minute-z-lublina", label: "Last Minute z Lublina" },
           { href: "/podroze/last-minute-z-rzeszowa", label: "Last Minute z Rzeszowa" },
           { href: "/podroze/last-minute-ze-szczecina", label: "Last Minute ze Szczecina" },
