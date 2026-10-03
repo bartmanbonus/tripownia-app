@@ -1,6 +1,7 @@
 import { getLinkMatch, type Offer } from "@/lib/offers";
 import { assessPriceGem, rankByPriceGem, type PriceGemAssessment } from "@/lib/price-gems";
 import { getSocialOfferPoolData } from "@/lib/social-offer-pool";
+import { findSocialOfferForCatalogOffer } from "@/lib/socialOffers";
 import { DESTINATION_COOLDOWN_DAYS, isDestinationInRotationWindow, rotationPriority } from "@/lib/destination-rotation";
 
 export type SocialTone = "short" | "sales" | "daily";
@@ -61,11 +62,28 @@ function isSeasonalForDate(offer: Offer, planDate: Date) {
 function diverse(offer: Offer, picked: Offer[]) {
   return !picked.some((item) => normalize(item.city) === normalize(offer.city) || normalize(item.country) === normalize(offer.country));
 }
-function choose(pool: Offer[], picked: Offer[], test: (offer: Offer) => boolean, now: Date) {
+function hasDurableSocialLanding(offer: Offer) {
+  return Boolean(findSocialOfferForCatalogOffer({
+    affiliateUrl: offer.affiliateUrl,
+    city: offer.city,
+    hotel: offer.hotel,
+    price: offer.price,
+  }));
+}
+
+function choose(
+  pool: Offer[],
+  picked: Offer[],
+  test: (offer: Offer) => boolean,
+  now: Date,
+  options: { strict?: boolean; cheapestFirst?: boolean } = {}
+) {
   const unused = pool.filter((offer) => !picked.some((item) => item.id === offer.id) && !offer.category.includes("flight"));
   const different = unused.filter((offer) => diverse(offer, picked));
-  const candidates = (different.length ? different : unused)
-    .sort((a, b) => rotationPriority(b, now) - rotationPriority(a, now));
+  const candidates = [...(different.length ? different : unused)]
+    .sort((a, b) => options.cheapestFirst
+      ? a.price - b.price || rotationPriority(b, now) - rotationPriority(a, now)
+      : rotationPriority(b, now) - rotationPriority(a, now) || a.price - b.price);
 
   const rotationCandidates = candidates.filter((offer) => isDestinationInRotationWindow(offer, now));
   const preferred = rotationCandidates.length >= 3 ? rotationCandidates : candidates;
@@ -74,7 +92,9 @@ function choose(pool: Offer[], picked: Offer[], test: (offer: Offer) => boolean,
     const found = preferred.find((offer) => assessPriceGem(offer, pool, now).level === level && test(offer));
     if (found) return found;
   }
-  return preferred.find(test) || preferred[0];
+  const matching = preferred.find(test);
+  if (matching) return matching;
+  return options.strict ? undefined : preferred[0];
 }
 function flightAssessment(offer: Offer): PriceGemAssessment {
   return { level:"gem", label:"PERŁKA LOTNICZA", emoji:"✈️", median:null, discountPct:null, percentile:null, comparableCount:0, fresh:true, exact:true, concreteDates:true, reason:offer.reason };
@@ -110,10 +130,37 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
     items.push({ offer:flight, time:times[0], label:"✈️ PERŁKA LOTNICZA", kind:"flight", tone:"daily", priceGem:flightAssessment(flight) });
   }
 
-  const cheapCitySlot = { test:(offer:Offer)=>isCityBreak(offer) && offer.price > 0 && offer.price <= 1300, kind:"city" as const, tone:"short" as const, fallback:"Tani city break" };
-  const slots: Array<{test:(offer:Offer)=>boolean; kind:SocialSlotKind; tone:SocialTone; fallback:string}> = [
-    cheapCitySlot,
-    ...(flight ? [] : [{ ...cheapCitySlot, fallback:"Drugi tani city break" }]),
+  const cheapCity = (offer: Offer) => isCityBreak(offer) && offer.price > 0 && offer.price <= 1300;
+  const durableCheapCity = (offer: Offer) => cheapCity(offer) && hasDurableSocialLanding(offer);
+  const feedSlotsNeeded = flight ? 1 : 2;
+  const durableFeedCount = pool.filter(durableCheapCity).length;
+  const durableSlots = Math.min(feedSlotsNeeded, durableFeedCount);
+  const fallbackCheapSlots = feedSlotsNeeded - durableSlots;
+
+  const slots: Array<{
+    test:(offer:Offer)=>boolean;
+    kind:SocialSlotKind;
+    tone:SocialTone;
+    fallback:string;
+    strict?:boolean;
+    cheapestFirst?:boolean;
+  }> = [
+    ...Array.from({ length: durableSlots }, (_, index) => ({
+      test: durableCheapCity,
+      kind:"city" as const,
+      tone:"short" as const,
+      fallback:index === 0 ? "Tani city break" : "Drugi tani city break",
+      strict:true,
+      cheapestFirst:true,
+    })),
+    ...Array.from({ length: fallbackCheapSlots }, (_, index) => ({
+      test: cheapCity,
+      kind:"city" as const,
+      tone:"short" as const,
+      fallback:index === 0 && durableSlots === 0 ? "Tani city break" : "Drugi tani city break",
+      strict:true,
+      cheapestFirst:true,
+    })),
     { test:(offer)=>offer.nights>=6, kind:"market", tone:"sales", fallback:"Wakacje 6+ nocy" },
     { test:(offer)=>isSeasonalForDate(offer, planDate), kind:"seasonal", tone:"sales", fallback:"Kierunek sezonowy" },
     { test:()=>true, kind:"market", tone:"daily", fallback:"Najmocniejsza cena dnia" },
@@ -122,7 +169,10 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
 
   for (const slot of slots) {
     if (items.length >= 5) break;
-    const offer = choose(pool, picked, slot.test, evaluationNow);
+    const offer = choose(pool, picked, slot.test, evaluationNow, {
+      strict: slot.strict,
+      cheapestFirst: slot.cheapestFirst,
+    });
     if (!offer) continue;
     picked.push(offer);
     const priceGem = assessPriceGem(offer, pool, evaluationNow);
