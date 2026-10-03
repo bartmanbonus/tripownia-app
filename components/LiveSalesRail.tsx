@@ -40,10 +40,21 @@ function lastMinuteFallbackSearches() {
   });
 }
 
+function destinationKey(offer: LiveOffer) {
+  const normalize = (value: string) => value
+    .toLocaleLowerCase("pl")
+    .replace(/ł/g, "l")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  return `${normalize(offer.city)}|${normalize(offer.country)}`;
+}
+
 function uniqueOffers(items: LiveOffer[]) {
   const seen = new Set<string>();
   return items.filter((offer) => {
-    const key = `${offer.affiliateUrl}|${offer.hotel}|${offer.dates}`;
+    const key = destinationKey(offer) || `${offer.affiliateUrl}|${offer.hotel}|${offer.dates}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -99,14 +110,30 @@ export default function LiveSalesRail({
       if (!initialOffers.length) setLoading(true);
       try {
         if (mode === "citybreak") {
-          const data = await fetchEskyBrowserPackages({ cityBreak: true }, controller.signal);
-          if (!cancelled) setPool(data.offers);
+          const [eskyResult, dealsResult] = await Promise.allSettled([
+            fetchEskyBrowserPackages({ cityBreak: true }, controller.signal),
+            fetch(`/api/deals?refresh=${Date.now()}`, { cache: "no-store", signal: controller.signal })
+              .then(async (response) => {
+                if (!response.ok) throw new Error("live deals unavailable");
+                return await response.json() as ApiResponse;
+              }),
+          ]);
+
+          const mixed: LiveOffer[] = [];
+          if (eskyResult.status === "fulfilled" && Array.isArray(eskyResult.value.offers)) {
+            mixed.push(...eskyResult.value.offers);
+          }
+          if (dealsResult.status === "fulfilled" && Array.isArray(dealsResult.value.offers)) {
+            mixed.push(...dealsResult.value.offers);
+          }
+
+          if (!cancelled && mixed.length) setPool(mixed);
           return;
         }
         const response = await fetch(`/api/deals?refresh=${Date.now()}`, { cache: "no-store", signal: controller.signal });
         if (!response.ok) throw new Error("live deals unavailable");
         const data = (await response.json()) as ApiResponse;
-        if (!cancelled) setPool(Array.isArray(data.offers) ? data.offers : []);
+        if (!cancelled && Array.isArray(data.offers) && data.offers.length) setPool(data.offers);
       } catch {
         if (!cancelled && !initialOffers.length) setPool([]);
       } finally {
@@ -124,9 +151,11 @@ export default function LiveSalesRail({
   }, [initialOffers.length, mode]);
 
   const offers = useMemo(
-    () => uniqueOffers(pool.filter((offer) => isPromotableOffer(offer) && matchesMode(offer, mode)))
-      .sort((a, b) => Number(a.price) - Number(b.price))
-      .slice(0, limit),
+    () => uniqueOffers(
+      pool
+        .filter((offer) => isPromotableOffer(offer) && matchesMode(offer, mode))
+        .sort((a, b) => Number(a.price) - Number(b.price))
+    ).slice(0, limit),
     [pool, mode, limit]
   );
 
