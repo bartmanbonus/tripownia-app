@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import TravelImage from "@/components/TravelImage";
-import type { Offer } from "@/lib/offers";
+import { inferOfferEndDate, inferOfferStartDate, type Offer } from "@/lib/offers";
 
 type CuratedIdea = {
   city: string;
@@ -59,6 +59,10 @@ function formatShortDate(value: string) {
   return new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(`${value}T00:00:00Z`));
 }
 
+function isoDateParam(value: Date | null) {
+  return value && !Number.isNaN(value.getTime()) ? value.toISOString().slice(0, 10) : "";
+}
+
 function curatedSearchLink(item: CuratedIdea) {
   const params = new URLSearchParams({
     destination: item.city,
@@ -75,7 +79,13 @@ function liveSearchLink(offer: Offer) {
     destination: offer.city,
     duration: String(offer.nights || "all"),
   });
-  params.set("tab", "Lot + hotel");
+  if (offer.airportCode) params.set("airport", offer.airportCode);
+  const from = isoDateParam(inferOfferStartDate(offer.dates));
+  const to = isoDateParam(inferOfferEndDate(offer.dates));
+  if (from) params.set("from", from);
+  if (to && to >= from) params.set("to", to);
+  if (/all\s*inclusive/i.test(offer.board || "")) params.set("board", "all inclusive");
+  params.set("tab", /all\s*inclusive/i.test(offer.board || "") ? "All Inclusive" : "Lot + hotel");
   return `/szukaj?${params.toString()}`;
 }
 
