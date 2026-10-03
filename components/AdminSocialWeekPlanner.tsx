@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, ChevronLeft, ChevronRight, ExternalLink, Send } from "lucide-react";
 import { getSocialDailyPlan } from "@/lib/social-selection";
 import styles from "./AdminSocialWeekPlanner.module.css";
 import { adminFetch } from "@/lib/adminClient";
 import { findSocialOfferForCatalogOffer } from "@/lib/socialOffers";
+import type { Offer } from "@/lib/offers";
 
 type Status = "proposal" | "approved" | "published";
 
@@ -69,10 +70,32 @@ export default function AdminSocialWeekPlanner(){
   const [statuses,setStatuses]=useState<Record<number,Status>>({});
   const [publishing,setPublishing]=useState<number|null>(null);
   const [linkPlacement,setLinkPlacement]=useState<"post"|"comment">("post");
+  const [liveOffers,setLiveOffers]=useState<Offer[]>([]);
+  const [liveLoading,setLiveLoading]=useState(true);
+  const [liveError,setLiveError]=useState("");
+
+  useEffect(()=>{
+    let active=true;
+    setLiveLoading(true);
+    fetch("/api/today-offers?fast=1&skipEsky=1",{cache:"no-store"})
+      .then(async(response)=>{
+        const data=await response.json();
+        if(!response.ok||!data?.ok) throw new Error(data?.error||"Nie udało się pobrać dzisiejszych ofert");
+        if(active){
+          setLiveOffers(Array.isArray(data.offers)?data.offers:[]);
+          setLiveError("");
+        }
+      })
+      .catch((error)=>{
+        if(active) setLiveError(error instanceof Error?error.message:String(error));
+      })
+      .finally(()=>{ if(active) setLiveLoading(false); });
+    return ()=>{ active=false; };
+  },[]);
 
   const days=useMemo(()=>Array.from({length:7},(_,i)=>addDays(weekStart,i)),[weekStart]);
   const selectedDate=dateFromKey(selected);
-  const plan=useMemo(()=>getSocialDailyPlan([],selectedDate),[selected]);
+  const plan=useMemo(()=>getSocialDailyPlan(liveOffers,selectedDate),[selected,liveOffers]);
 
   function moveWeek(amount:number){
     const next=addDays(weekStart,amount*7);
@@ -127,6 +150,8 @@ export default function AdminSocialWeekPlanner(){
       <div className={styles.dayHead}>
         <div>
           <div className="kicker">{plan.dayName.toLocaleUpperCase("pl")} · {selected}</div>
+          {selected===key(today) && liveLoading && <p style={{margin:"6px 0 0"}}>Pobieram świeże oferty…</p>}
+          {selected===key(today) && liveError && <p style={{margin:"6px 0 0"}}>Live feed: {liveError}</p>}
           <h2>{plan.theme}</h2>
           <p>{plan.description}</p>
         </div>
