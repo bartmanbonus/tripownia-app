@@ -5,9 +5,10 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import FerieOffers2027 from "@/components/FerieOffers2027";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
-const title = "Ferie zimowe 2027 – terminy i gotowe wyjazdy dla województw";
-const description = "Ferie zimowe 2027: wybierz swoją turę i zobacz konkretne wyjazdy dopasowane do dat ferii. Austria, Włochy, Egipt, Turcja i aktualne oferty z polskich lotnisk.";
+const title = "Ferie 2027 za granicą – All Inclusive, narty i gotowe wyjazdy";
+const description = "Ferie 2027 za granicą: All Inclusive, narty i gotowe wyjazdy dopasowane do terminów województw. Sprawdź konkretne oferty z polskich lotnisk.";
 
 export const metadata: Metadata = {
   title: { absolute: title },
@@ -54,6 +55,7 @@ export default function Ferie2027Page() {
     </section>
 
     <FerieOffers2027/>
+    <section className="section shell"><FacebookFollowCTA placement="ferie_2027_after_offers" compact /></section>
 
     <section className="shell ferie-section ferie-terms-section">
       <div className="ferie-section-head">
