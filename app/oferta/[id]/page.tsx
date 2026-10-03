@@ -165,6 +165,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
                 destination={o.city}
                 price={o.price}
                 placement="offer_detail_primary"
+                returnContext={{ departure: o.departure, hotel: o.hotel, board: o.board, nights: o.nights }}
               >
                 {o.partner === "exim" || o.partner === "tui" ? "Zobacz konkretną ofertę" : "Sprawdź aktualną cenę"} <ExternalLink size={18}/>
               </TrackedPartnerLink>
@@ -230,6 +231,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           destination={o.city}
           price={o.price}
           placement="offer_detail_mobile_bar"
+          returnContext={{ departure: o.departure, hotel: o.hotel, board: o.board, nights: o.nights }}
         >
           Sprawdź aktualną cenę <ExternalLink size={16}/>
         </TrackedPartnerLink>
