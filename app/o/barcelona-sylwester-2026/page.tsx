@@ -7,7 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import AffiliateOfferLink from "@/components/AffiliateOfferLink";
 
 const slug = "barcelona-sylwester-2026";
-const target = "https://www2.esky.pl/lot+hotel/portfolio/details/select-room?context=pl-packages&packageId=MjYxMjI4OjQ6cGw6MjIwNTUw&metaCode=220550&rooms%5B0%5D%5Badults%5D=2&departureCode=WAW&checkInDate=2026-12-28&checkOutDate=2027-01-01&destinationDepartureDate=2026-12-28&returnArrivalDate=2027-01-01&partner_id=TRIPOWNIAPLPACKAGES&departurePlaces=ap-WAW,ap-WMI&selectedDeparturePlaces=ap-WAW,ap-WMI";
+const target = "https://www2.esky.pl/lot+hotel/portfolio/details/select-room?rooms%5B0%5D%5Badults%5D=2&datesTab=flexDates&departureDate=2026-12-29&returnDate=2027-01-02&stayLength=4:4&departurePlaces=ap-WAW,ap-WMI&arrivalPlaces=ci-BCN&context=pl-packages&sort%5BTotalPrice%5D=asc&partner_id=TRIPOWNIAPLPACKAGES&portfolioToken=86ff5632-a69a-4df8-9b5a-b135797fdc90&packageId=MjYxMjI5OjQ6cGw6MjIwNTUw&flightOptionId=V0FXQkNOMjYxMjI5MjIzLjE3M3x8VzYxNDc1OjA6MCxCQ05XQVcyNzAxMDIyMjNJLjE3M3x8VzYxNDc2OjA6MQ&departureCode=WAW&arrivalCode=BCN&checkInDate=2026-12-29&checkOutDate=2027-01-02&destinationDepartureDate=2026-12-29&returnArrivalDate=2027-01-02&metaCode=220550&pricePresentation=perpax&selectedDeparturePlaces=ap-WAW,ap-WMI";
 
 const tracked = new URLSearchParams({
   target,
@@ -23,7 +23,7 @@ const affiliateHref = `/go/live?${tracked.toString()}`;
 
 export const metadata: Metadata = {
   title: { absolute: "Sylwester w Barcelonie | Tripownia.pl" },
-  description: "Barcelona na Sylwestra: 28 grudnia 2026 – 1 stycznia 2027, 4 noce, wylot z Warszawy. Sprawdź konkretny pakiet lot + hotel.",
+  description: "Barcelona na Sylwestra: 29 grudnia 2026 – 2 stycznia 2027, 4 noce, wylot z Warszawy. Sprawdź konkretny pakiet lot + hotel.",
   alternates: { canonical: `/o/${slug}` },
   robots: { index: false, follow: true },
   openGraph: {
@@ -32,13 +32,13 @@ export const metadata: Metadata = {
     locale: "pl_PL",
     url: `/o/${slug}`,
     title: "Sylwester w Barcelonie",
-    description: "28.12.2026–01.01.2027 • 4 noce • Warszawa • lot + hotel",
+    description: "29.12.2026–02.01.2027 • 4 noce • Warszawa • lot + hotel",
     images: [{ url: "/images/destinations/barcelona.jpg", width: 1600, height: 1000, alt: "Barcelona — Tripownia.pl" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Sylwester w Barcelonie",
-    description: "28.12.2026–01.01.2027 • 4 noce • Warszawa • lot + hotel",
+    description: "29.12.2026–02.01.2027 • 4 noce • Warszawa • lot + hotel",
     images: ["/images/destinations/barcelona.jpg"],
   },
 };
@@ -91,7 +91,7 @@ export default function BarcelonaNewYearOfferPage() {
             <div className="detail-meta">
               <span><Plane/> <b>Warszawa → Barcelona</b></span>
               <span><Moon/> <b>4 noce</b></span>
-              <span><CalendarDays/> <b>28 grudnia 2026 – 1 stycznia 2027</b></span>
+              <span><CalendarDays/> <b>29 grudnia 2026 – 2 stycznia 2027</b></span>
               <span><MapPin/> <b>Barcelona, Hiszpania</b></span>
             </div>
 
@@ -110,8 +110,8 @@ export default function BarcelonaNewYearOfferPage() {
                 hotel="Pakiet lot + hotel eSky"
                 board="Według wybranej oferty"
                 nights={4}
-                start="2026-12-28"
-                end="2027-01-01"
+                start="2026-12-29"
+                end="2027-01-02"
               />
               <small className="affiliate-note">Link partnerski. Możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.</small>
             </div>
