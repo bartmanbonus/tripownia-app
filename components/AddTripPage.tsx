@@ -26,6 +26,7 @@ import { ensureFreshAccountSession, readAccountSession, type AccountSession } fr
 import { offers, type Offer } from "@/lib/offers";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
+import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 import { partners } from "@/lib/partners";
 import styles from "@/components/AddTripPage.module.css";
 
@@ -238,6 +239,10 @@ export default function AddTripPage() {
   const [sportMatch, setSportMatch] = useState("");
   const [sportVenue, setSportVenue] = useState("");
   const [sportTicket, setSportTicket] = useState("");
+  const [sportFlightUrl, setSportFlightUrl] = useState("");
+  const [sportHotelUrl, setSportHotelUrl] = useState("");
+  const [sportPeople, setSportPeople] = useState(2);
+  const [sportKickoff, setSportKickoff] = useState("");
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
   const suggestionStart = dateMode === "range" ? startDate : "";
@@ -264,6 +269,29 @@ export default function AddTripPage() {
       : pieces.hotel
         ? "Nocleg jest już zaznaczony."
         : "Wyjazd jest gotowy do zapisania.";
+  const sportFlightHref = useMemo(() => {
+    if (!sportFlightUrl) return suggestions.flight;
+    const params = new URLSearchParams({
+      partner: "kiwi",
+      target: sportFlightUrl,
+      source: "sports_planner_flight",
+      destination: [city, country].filter(Boolean).join(", "),
+    });
+    return `/go/live?${params.toString()}`;
+  }, [sportFlightUrl, suggestions.flight, city, country]);
+  const sportHotelHref = useMemo(() => {
+    if (!sportHotelUrl) return suggestions.hotel;
+    const params = new URLSearchParams({
+      partner: "booking",
+      target: sportHotelUrl,
+      source: "sports_planner_hotel",
+      destination: [city, country].filter(Boolean).join(", "),
+    });
+    return `/go/live?${params.toString()}`;
+  }, [sportHotelUrl, suggestions.hotel, city, country]);
+  const sportHotelHint = sportVenue && norm(sportVenue) !== norm(city)
+    ? `Szukaj noclegu z prostym dojazdem do ${sportVenue}. Daty i miasto są już ustawione.`
+    : "Daty i miasto są już ustawione. Wybierz hotel z dobrym dojazdem na stadion i do centrum.";
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -485,10 +513,20 @@ export default function AddTripPage() {
     const match = (params.get("match") || "").trim();
     const venue = (params.get("venue") || "").trim();
     const ticket = (params.get("ticket") || "").trim();
+    const flightUrl = (params.get("flightUrl") || "").trim();
+    const hotelUrl = (params.get("hotelUrl") || "").trim();
+    const people = Math.max(1, Math.min(4, Number(params.get("people") || 2) || 2));
+    const tripNights = Math.max(1, Math.min(7, Number(params.get("nights") || 0) || nightsBetween(sportStart, sportEnd) || 1));
+    const kickoff = (params.get("kickoff") || "").trim();
 
     setSportMatch(match);
     setSportVenue(venue);
     setSportTicket(ticket);
+    setSportFlightUrl(flightUrl);
+    setSportHotelUrl(hotelUrl);
+    setSportPeople(people);
+    setSportKickoff(kickoff);
+    setSourceNights(tripNights);
 
     if (sportCity || sportCountry) {
       setDestinationMode("known");
@@ -537,6 +575,28 @@ export default function AddTripPage() {
       delete next[key];
       return next;
     });
+  }
+
+  function rememberSportPartnerClick(kind: "flight" | "hotel", partner: "kiwi" | "booking") {
+    setSelectedProvider((current) => ({ ...current, [kind]: partner }));
+    saveAffiliateReturnContext({
+      partner,
+      destination: [city, country].filter(Boolean).join(", "),
+      source: "sports_planner",
+      tripKind: kind,
+      start: startDate,
+      end: endDate,
+      departure: departureOptions.join(", ") || departure,
+      nights: sourceNights || nights,
+    });
+    trackEvent("sports_planner_partner_click", { piece: kind, partner, city });
+  }
+
+  function markSportOwned(kind: "flight" | "hotel") {
+    const partner = kind === "flight" ? "kiwi" : "booking";
+    setPieces((current) => ({ ...current, [kind]: true }));
+    setSelectedProvider((current) => ({ ...current, [kind]: partner }));
+    trackEvent("sports_planner_piece_owned", { piece: kind, partner, city });
   }
 
   function moveToStep(next: 1 | 2) {
@@ -741,24 +801,84 @@ export default function AddTripPage() {
                 {sportVenue && <span><MapPinned size={16}/> {sportVenue}</span>}
               </div>
 
-              <div className={styles.confirmHint}>
-                Termin i kierunek są już ustawione pod ten mecz. Nie wracamy do ogólnej wyszukiwarki.
+              <div className={styles.sportReadySummary}>
+                <strong>Wyjazd jest już ustawiony.</strong>
+                <span>
+                  {departure || "Wylot z Polski"} → {city || country} · {sourceNights || nights} {sourceNights === 1 || nights === 1 ? "noc" : "noce/nocy"} · {sportPeople} os.
+                </span>
+                {sportKickoff && <small>Mecz: {sportKickoff}</small>}
+                <small>Nie wpisujesz ponownie miasta, lotniska ani dat — przechodzisz od razu do gotowych wyników.</small>
               </div>
 
-              <div className="planner-preview-actions">
-                <Link className="secondary-cta" href={suggestions.flight}><Plane size={17}/> Sprawdź lot</Link>
-                <Link className="secondary-cta" href={suggestions.hotel}><BedDouble size={17}/> Znajdź nocleg</Link>
-                {sportTicket && (
-                  <a className="secondary-cta" href={sportTicket} rel="noopener noreferrer">
-                    <Ticket size={17}/> Oficjalne bilety
+              <div className={styles.sportBuyFlow}>
+                <section className={styles.sportBuyCard}>
+                  <div className={styles.sportBuyHead}>
+                    <span className={styles.sportBuyNumber}>1</span>
+                    <div><strong>Lot</strong><small>{departure || "Polska"} → {city || country}</small></div>
+                  </div>
+                  <p>Trasa i daty są już wpisane. Wybierz tylko konkretny lot z gotowej listy.</p>
+                  <a
+                    className={styles.sportBuyCta}
+                    href={sportFlightHref}
+                    rel="nofollow sponsored"
+                    onClick={() => rememberSportPartnerClick("flight", "kiwi")}
+                  >
+                    <Plane size={17}/> Pokaż gotowe loty <ArrowRight size={16}/>
                   </a>
+                  <button
+                    type="button"
+                    className={pieces.flight ? styles.sportOwnedButtonActive : styles.sportOwnedButton}
+                    onClick={() => markSportOwned("flight")}
+                  >
+                    {pieces.flight ? "✓ Lot dodany do planu" : "Mam już lot — oznacz w planie"}
+                  </button>
+                </section>
+
+                <section className={styles.sportBuyCard}>
+                  <div className={styles.sportBuyHead}>
+                    <span className={styles.sportBuyNumber}>2</span>
+                    <div><strong>Nocleg</strong><small>{city || country} · {dateLabel(startDate, endDate)}</small></div>
+                  </div>
+                  <p>{sportHotelHint}</p>
+                  <a
+                    className={styles.sportBuyCta}
+                    href={sportHotelHref}
+                    rel="nofollow sponsored"
+                    onClick={() => rememberSportPartnerClick("hotel", "booking")}
+                  >
+                    <BedDouble size={17}/> Pokaż gotowe hotele <ArrowRight size={16}/>
+                  </a>
+                  <button
+                    type="button"
+                    className={pieces.hotel ? styles.sportOwnedButtonActive : styles.sportOwnedButton}
+                    onClick={() => markSportOwned("hotel")}
+                  >
+                    {pieces.hotel ? "✓ Hotel dodany do planu" : "Mam już hotel — oznacz w planie"}
+                  </button>
+                </section>
+
+                {sportTicket && (
+                  <section className={styles.sportBuyCard}>
+                    <div className={styles.sportBuyHead}>
+                      <span className={styles.sportBuyNumber}>3</span>
+                      <div><strong>Bilet na mecz</strong><small>Oficjalny kanał klubu</small></div>
+                    </div>
+                    <p>Po locie i hotelu przejdź do oficjalnej sprzedaży biletów.</p>
+                    <a className={styles.sportBuyCta} href={sportTicket} rel="noopener noreferrer">
+                      <Ticket size={17}/> Oficjalne bilety <ArrowRight size={16}/>
+                    </a>
+                  </section>
                 )}
+              </div>
+
+              <div className={styles.sportReturnHint}>
+                Partner otworzy się w tej samej karcie. Po wyborze lub zakupie wróć strzałką przeglądarki — ten mecz nadal będzie ustawiony.
               </div>
 
               {error && <div className="add-trip-error" role="alert">{error}</div>}
 
               <button type="submit" className={"primary-cta " + styles.confirmPrimary}>
-                Dodaj ten mecz do planu <ArrowRight size={18}/>
+                Dodaj cały wyjazd do planu <ArrowRight size={18}/>
               </button>
 
               <Link href="/wydarzenia" className={styles.confirmHint}>← Wróć do listy meczów</Link>
