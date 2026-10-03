@@ -42,6 +42,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const weekendOnly = params.weekend === "1";
   const dateMode = month ? "month" : (from || to) ? "range" : "any";
   const hasPreset = Boolean(destinations.length || airports.length || budget !== "all" || duration !== "all" || board !== "all" || from || to || month || weekendOnly);
+  const searchKey = [tab, destinations.join("|"), airports.join(","), budget, duration, board, from, to, month, weekendOnly ? "1" : "0"].join("::");
 
   return (
     <main>
@@ -53,6 +54,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <p>Nie zaczynasz od zera. Zobacz wyniki od razu, a jeśli chcesz — zmień tylko jeden parametr.</p>
         </div>
         <SearchHub
+          key={searchKey}
           embedded
           initialTab={tab}
           initialDestinations={destinations}
