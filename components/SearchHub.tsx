@@ -637,7 +637,7 @@ export default function SearchHub({
     };
 
     const fetchBatch = async (tier = 0, relaxDates = false, relaxFilters = false, relaxAirports = false) => {
-      const providers = activeMode === "City break" ? ["esky"] : ["esky", "exim", "tui"];
+      const providers = ["esky", "exim", "tui"];
       const jobs = targets.flatMap(target => providers.map(provider => ({ target, provider })));
       const boardCodes: Record<string, string> = { "all inclusive": "allinclusive", "ultra all inclusive": "ultraallinclusive", "śniadanie": "breakfast", "half board": "halfboard", "full board": "fullboard", "bez wyżywienia": "roomonly" };
       const alternative = [
