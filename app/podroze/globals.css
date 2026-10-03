@@ -7046,3 +7046,71 @@ body {
 @media(max-width:390px){
   .seo-intent-aside .seo-intent-facts{grid-template-columns:1fr}
 }
+
+
+/* V156 — curated travel sales hub */
+.travel-hub-filters a{
+  display:inline-flex;
+  align-items:center;
+  min-height:38px;
+  padding:0 12px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:var(--ink);
+  text-decoration:none;
+  font-size:12px;
+  font-weight:850;
+  white-space:nowrap;
+}
+.travel-hub-filters a:hover{
+  border-color:#f1b39e;
+  background:#fff7f2;
+}
+.travel-hub-section-head{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:20px;
+  margin:28px 0 18px;
+}
+.travel-hub-section-head h2{
+  margin:6px 0 8px;
+  font-size:clamp(28px,3.4vw,42px);
+  line-height:1.05;
+  letter-spacing:-1.7px;
+}
+.travel-hub-section-head p{
+  max-width:800px;
+  margin:0;
+  color:var(--muted);
+  line-height:1.55;
+}
+.travel-hub-more{
+  padding:18px 0 34px;
+}
+.travel-hub-more .seo-related-links{
+  grid-template-columns:repeat(4,minmax(0,1fr));
+}
+.travel-hub-more .seo-related-links a{
+  min-height:64px;
+  background:#fff;
+}
+@media(max-width:900px){
+  .travel-hub-more .seo-related-links{grid-template-columns:1fr 1fr}
+}
+@media(max-width:620px){
+  .travel-hub-section-head{margin-top:22px}
+  .travel-hub-section-head h2{font-size:30px}
+  .travel-hub-section-head p{font-size:14px}
+  .travel-hub-filters{
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    padding-bottom:4px;
+    scrollbar-width:none;
+  }
+  .travel-hub-filters::-webkit-scrollbar{display:none}
+  .travel-hub-filters span,
+  .travel-hub-filters a{flex:0 0 auto}
+  .travel-hub-more .seo-related-links{grid-template-columns:1fr}
+}
