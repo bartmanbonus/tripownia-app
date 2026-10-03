@@ -3,7 +3,7 @@ import type { SeoLanding } from "@/lib/seoLandings";
 export const seoAirportWave24: SeoLanding[] = [
   {
     slug: "city-break-z-poznania",
-    title: "City break z Poznania — tani weekend, lot + hotel z POZ",
+    title: "City break z Poznania 2026 — tani weekend, lot + hotel z POZ",
     eyebrow: "CITY BREAK Z POZNANIA / ŁAWICY",
     lead: "City break z Poznania (POZ): tani weekend, lot + hotel i krótkie wyjazdy na 2–5 dni. Porównaj aktualne kierunki, godziny lotów i pełny koszt wyjazdu.",
     query: "City break",
@@ -48,7 +48,7 @@ export const seoAirportWave24: SeoLanding[] = [
   },
   {
     slug: "city-break-z-gdanska",
-    title: "City break z Gdańska — tani weekend, lot + hotel z GDN",
+    title: "City break z Gdańska 2026 — tani weekend, lot + hotel z GDN",
     eyebrow: "CITY BREAK Z GDAŃSKA / TRÓJMIASTA",
     lead: "City break z Gdańska (GDN): tani weekend, lot + hotel i krótkie wyjazdy na 2–5 dni. Porównaj aktualne kierunki z Trójmiasta.",
     query: "City break",
