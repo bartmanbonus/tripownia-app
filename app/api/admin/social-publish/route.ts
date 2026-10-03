@@ -2,10 +2,27 @@ import { NextRequest, NextResponse } from "next/server";
 import { publishFacebook, publishInstagram } from "@/lib/social-automation";
 import { getSocialOfferById } from "@/lib/social-offer-pool";
 import { adminAuthError, verifyAdminRequest } from "@/lib/adminAuthServer";
+import { getRecentSocialPublicationEvents, recordSocialPublicationEvents } from "@/lib/socialPublicationStore";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
+
+export async function GET(request: NextRequest) {
+  const auth = await verifyAdminRequest(request);
+  if (!auth.ok) return adminAuthError(auth);
+
+  const days = Math.max(1, Math.min(30, Number(request.nextUrl.searchParams.get("days") || 7)));
+  const history = await getRecentSocialPublicationEvents(auth.token, days);
+
+  return NextResponse.json(
+    { ok: history.ok, rows: history.rows },
+    {
+      status: history.ok ? 200 : 502,
+      headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" },
+    }
+  );
+}
 
 export async function POST(request: NextRequest) {
   const auth = await verifyAdminRequest(request);
@@ -46,11 +63,15 @@ export async function POST(request: NextRequest) {
     );
     const results = await Promise.all(jobs);
     const ok = results.some((result) => result.ok);
+    const historySaved = ok
+      ? await recordSocialPublicationEvents(auth.token, auth.user.id, offer, linkPlacement, results)
+      : false;
 
     return NextResponse.json({
       ok,
       offer: { id: offer.id, city: offer.city, price: offer.price },
       linkPlacement,
+      historySaved,
       results,
     }, { status: ok ? 200 : 502 });
   } catch (error) {
