@@ -125,6 +125,10 @@ export default function LotHotelPage() {
         <h2>Przejdź od razu do konkretnego typu wyjazdu</h2>
         <p>Te skróty prowadzą do stron z aktualnymi ofertami i filtrem ceny — bez ściany tekstu przed wynikami.</p>
         <div className={styles.linkPills}>
+          <Link href="/podroze/city-break-rzym-lot-hotel">Rzym · lot + hotel</Link>
+          <Link href="/podroze/city-break-bari-lot-hotel">Bari · lot + hotel</Link>
+          <Link href="/podroze/city-break-malta-lot-hotel">Malta · lot + hotel</Link>
+          <Link href="/podroze/city-break-barcelona-lot-hotel">Barcelona · lot + hotel</Link>
           <Link href="/podroze/city-break-do-700-zl">City break do 700 zł</Link>
           <Link href="/podroze/city-break-do-1000-zl">City break do 1000 zł</Link>
           <Link href="/podroze/city-break-do-1500-zl">City break do 1500 zł</Link>
