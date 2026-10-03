@@ -182,6 +182,11 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                   departure: activeDeparture.label,
                   match: `${trip.homeTeam} vs ${trip.awayTeam}`,
                   venue: trip.venue || trip.city,
+                  kickoff: formatKickoff(trip.kickoff),
+                  nights: String(selectedNights),
+                  people: String(selectedPeople),
+                  flightUrl: links.flightUrl,
+                  hotelUrl: links.hotelUrl,
                 });
                 if (links.ticketUrl) plannerParams.set("ticket", links.ticketUrl);
 
