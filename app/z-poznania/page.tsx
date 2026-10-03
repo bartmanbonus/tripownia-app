@@ -1,4 +1,20 @@
-import type { Metadata } from "next";
 import DepartureDealsPage from "@/components/DepartureDealsPage";
-export const metadata: Metadata = { title: { absolute: "Wakacje z Poznania, tani City Break i Last Minute z POZ | Tripownia.pl" }, description: "Wakacje z Poznania-Ławicy: tani City Break, Last Minute, All Inclusive i lot + hotel z POZ. Porównaj aktualne kierunki i ceny wyjazdów z Poznania.", alternates: { canonical: "/z-poznania" } };
-export default function Page(){return <DepartureDealsPage city="Poznania" airportCodes={["POZ"]} intro="Wakacje i City Break z Poznania bez przeglądania wielu serwisów. Porównaj Last Minute, All Inclusive i lot + hotel z Ławicy." cityBreakHref="/podroze/city-break-z-poznania" holidaysHref="/podroze/wakacje-z-poznania" lastMinuteHref="/podroze/last-minute-z-poznania" allInclusiveHref="/podroze/all-inclusive-z-poznania"/>}
+import { departureHubMetadata } from "@/lib/departureHubMetadata";
+
+export const metadata = departureHubMetadata({
+  title: "Wakacje z Poznania — Last Minute, All Inclusive i lot + hotel | Tripownia.pl",
+  description: "Wakacje i wyjazdy z Poznania-Ławicy (POZ): Last Minute, All Inclusive i lot + hotel. Porównaj aktualne kierunki, ceny i terminy z lokalnym wylotem.",
+  path: "/z-poznania",
+});
+
+export default function Page() {
+  return <DepartureDealsPage
+    city="Poznania"
+    airportCodes={["POZ"]}
+    intro="Wyjazdy z Poznania bez przeglądania wielu serwisów. Porównaj wakacje, Last Minute, All Inclusive i lot + hotel z Ławicy, a krótkie city breaki otwórz w dedykowanej sekcji."
+    cityBreakHref="/podroze/city-break-z-poznania"
+    holidaysHref="/podroze/wakacje-z-poznania"
+    lastMinuteHref="/podroze/last-minute-z-poznania"
+    allInclusiveHref="/podroze/all-inclusive-z-poznania"
+  />;
+}

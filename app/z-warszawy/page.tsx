@@ -1,32 +1,17 @@
-import type { Metadata } from "next";
 import DepartureDealsPage from "@/components/DepartureDealsPage";
+import { departureHubMetadata } from "@/lib/departureHubMetadata";
 
-export const metadata: Metadata = {
-  title: "Wakacje z Warszawy, City Break i Last Minute",
-  description: "Wyjazdy z Warszawy: City Break, Last Minute, All Inclusive i wakacje z Lotniska Chopina oraz Modlina. Sprawdź aktualne oferty z WAW i WMI.",
-  alternates: { canonical: "/z-warszawy" },
-  openGraph: {
-    type: "website",
-    locale: "pl_PL",
-    siteName: "Tripownia",
-    title: "Wakacje z Warszawy, City Break i Last Minute | Tripownia.pl",
-    description: "Wyjazdy z Warszawy: City Break, Last Minute, All Inclusive i wakacje z Lotniska Chopina oraz Modlina. Sprawdź aktualne oferty z WAW i WMI.",
-    url: "/z-warszawy",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Wakacje z Warszawy, City Break i Last Minute | Tripownia.pl",
-    description: "Wyjazdy z Warszawy: City Break, Last Minute, All Inclusive i wakacje z Lotniska Chopina oraz Modlina. Sprawdź aktualne oferty z WAW i WMI.",
-    images: ["/opengraph-image"],
-  },
-};
+export const metadata = departureHubMetadata({
+  title: "Wakacje z Warszawy — Last Minute, All Inclusive i lot + hotel | Tripownia.pl",
+  description: "Wakacje i wyjazdy z Warszawy: Last Minute, All Inclusive i lot + hotel z Lotniska Chopina oraz Modlina. Porównaj aktualne kierunki z WAW i WMI.",
+  path: "/z-warszawy",
+});
 
 export default function Page() {
   return <DepartureDealsPage
     city="Warszawy"
     airportCodes={["WAW", "WMI"]}
-    intro="Warszawa daje największy wybór kierunków w Tripowni. Porównaj City Break, Last Minute, All Inclusive i wakacje z Chopina oraz Modlina — bez przekopywania wielu osobnych wyszukiwarek."
+    intro="Warszawa daje największy wybór kierunków w Tripowni. Porównaj wakacje, Last Minute, All Inclusive i lot + hotel z Chopina oraz Modlina; city breaki mają własną, krótszą ścieżkę."
     cityBreakHref="/podroze/city-break-z-warszawy"
     holidaysHref="/podroze/wakacje-z-warszawy"
     lastMinuteHref="/podroze/last-minute-z-warszawy"
