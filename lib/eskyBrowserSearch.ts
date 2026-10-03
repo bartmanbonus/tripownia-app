@@ -222,6 +222,7 @@ export async function fetchEskyBrowserPackages(
   let partial = false;
   let hasMore = false;
   let error: string | undefined;
+  const deadline = Date.now() + 30_000;
 
   const scan = async (arrival: string) => {
     const seenCursors = new Set<string>();
@@ -230,11 +231,24 @@ export async function fetchEskyBrowserPackages(
 
     for (let page = 0; page < maxPages; page += 1) {
       if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+      if (Date.now() >= deadline) {
+        partial = true;
+        hasMore = true;
+        error ||= "timeout";
+        return;
+      }
+
+      const requestController = new AbortController();
+      const abort = () => requestController.abort();
+      signal?.addEventListener("abort", abort, { once: true });
+      const remaining = Math.max(1, deadline - Date.now());
+      const timer = window.setTimeout(abort, Math.min(8_000, remaining));
+
       try {
         const response = await fetch(eskyInventoryUrl(search, arrival, cursor), {
           cache: "no-store",
           credentials: "omit",
-          signal,
+          signal: requestController.signal,
           headers: { Accept: "application/json" },
         });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -256,8 +270,13 @@ export async function fetchEskyBrowserPackages(
       } catch (cause) {
         if (signal?.aborted) throw cause;
         partial = true;
-        error = cause instanceof Error ? cause.message.slice(0, 120) : "source_unavailable";
+        error = cause instanceof Error
+          ? (cause.name === "AbortError" ? "timeout" : cause.message.slice(0, 120))
+          : "source_unavailable";
         return;
+      } finally {
+        window.clearTimeout(timer);
+        signal?.removeEventListener("abort", abort);
       }
     }
     hasMore = Boolean(cursor) || hasMore;
