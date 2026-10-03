@@ -8,6 +8,7 @@ import LiveSalesRail from "@/components/LiveSalesRail";
 import { homepageFallbackOffers } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
+import ReadySearchGrid from "@/components/ReadySearchGrid";
 
 export const metadata: Metadata = {
   title: "Tanie wakacje 2026 — All Inclusive, last minute i lot + hotel",
@@ -40,6 +41,17 @@ export default function WakacjePage() {
       <div className="single-partner-search-wrap"><SearchHub embedded initialTab="Wakacje" /></div>
     </section>
     <section className="section shell"><FacebookFollowCTA placement="wakacje_after_offers" compact /></section>
+    <section className="section shell">
+      <div className="section-heading"><div><div className="kicker">GOTOWE WAKACJE</div><h2>Wybierz już ustawiony wariant</h2><p>Kierunek, lotnisko, budżet lub miesiąc są przekazane do wyszukiwarki automatycznie.</p></div></div>
+      <ReadySearchGrid items={[
+        { href: "/szukaj?destination=Egipt&airport=WAWA&budget=3000&duration=7&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "EGIPT · WARSZAWA · DO 3 000 ZŁ", title: "7 nocy All Inclusive", meta: "WAW + WMI · pełne wyżywienie · aktualne pakiety" },
+        { href: "/szukaj?destination=Malta&budget=2500&duration=5-7&tab=Lot%20%2B%20hotel", eyebrow: "MALTA · 5–7 NOCY · DO 2 500 ZŁ", title: "Malta na tydzień", meta: "Lot + hotel · różne polskie lotniska" },
+        { href: "/szukaj?airport=KTW&budget=2500&duration=7&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "KATOWICE · DO 2 500 ZŁ", title: "All Inclusive z Katowic", meta: "7 nocy · ciepłe kierunki · najtańsze najpierw" },
+        { href: "/szukaj?airport=POZ&budget=3000&duration=7&tab=Lot%20%2B%20hotel", eyebrow: "POZNAŃ · DO 3 000 ZŁ", title: "Wakacje z Poznania", meta: "7 nocy · różne kierunki · lot + hotel" },
+        { href: "/szukaj?destination=Egipt&month=2026-11&budget=3000&duration=7&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "LISTOPAD 2026 · EGIPT", title: "Ciepło w listopadzie", meta: "7 nocy · All Inclusive · do 3 000 zł/os." },
+        { href: "/szukaj?month=2026-12&budget=3000&duration=7&tab=Lot%20%2B%20hotel", eyebrow: "GRUDZIEŃ 2026 · DO 3 000 ZŁ", title: "Ciepłe wakacje w grudniu", meta: "7 nocy · różne kierunki z polskich lotnisk" },
+      ]} />
+    </section>
     <section className="shell seo-related-block">
       <div className="kicker">SZUKAJ DOKŁADNIEJ</div>
       <h2>Wakacje według budżetu, lotniska i terminu</h2>
@@ -47,7 +59,7 @@ export default function WakacjePage() {
       <ProgressiveLinkCloud
         visible={8}
         items={[
-          { href: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem", label: "Lot + hotel" },
+          { href: "/lot-hotel", label: "Lot + hotel" },
           { href: "/podroze/wakacje-do-1000-zl", label: "Wakacje do 1000 zł" },
           { href: "/podroze/wakacje-do-1500-zl", label: "Wakacje do 1500 zł" },
           { href: "/podroze/wakacje-do-2000-zl", label: "Wakacje do 2000 zł" },
