@@ -117,6 +117,7 @@ export default async function Page({ searchParams }: PageProps) {
       </section>
 
       <NewYearOffers />
+      <section className="section shell"><FacebookFollowCTA placement="sylwester_after_offers" compact /></section>
 
       <section className="section shell">
         <div className="section-heading">
@@ -135,7 +136,6 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
       </section>
 
-      <section className="section shell"><FacebookFollowCTA placement="sylwester" compact /></section>
       <SiteFooter />
     </main>
   );
