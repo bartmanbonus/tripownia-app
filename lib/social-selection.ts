@@ -149,6 +149,7 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
     fallback:string;
     strict?:boolean;
     cheapestFirst?:boolean;
+    preferDurable?:boolean;
   }> = [
     ...Array.from({ length: durableSlots }, (_, index) => ({
       test: durableCheapCity,
@@ -166,15 +167,24 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
       strict:true,
       cheapestFirst:true,
     })),
-    { test:(offer)=>offer.nights>=6, kind:"market", tone:"sales", fallback:"Wakacje 6+ nocy" },
-    { test:(offer)=>isSeasonalForDate(offer, planDate), kind:"seasonal", tone:"sales", fallback:"Kierunek sezonowy" },
-    { test:()=>true, kind:"market", tone:"daily", fallback:"Najmocniejsza cena dnia" },
-    { test:()=>true, kind:"market", tone:"short", fallback:"Druga mocna oferta" },
+    { test:(offer)=>offer.nights>=6, kind:"market", tone:"sales", fallback:"Wakacje 6+ nocy", preferDurable:true },
+    { test:(offer)=>isSeasonalForDate(offer, planDate), kind:"seasonal", tone:"sales", fallback:"Kierunek sezonowy", preferDurable:true },
+    { test:()=>true, kind:"market", tone:"daily", fallback:"Najmocniejsza cena dnia", preferDurable:true },
+    { test:()=>true, kind:"market", tone:"short", fallback:"Druga mocna oferta", preferDurable:true },
   ];
 
   for (const slot of slots) {
     if (items.length >= 5) break;
-    const offer = choose(pool, picked, slot.test, evaluationNow, {
+    const durableOffer = slot.preferDurable
+      ? choose(
+          pool,
+          picked,
+          (offer) => slot.test(offer) && hasDurableSocialLanding(offer),
+          evaluationNow,
+          { strict:true }
+        )
+      : undefined;
+    const offer = durableOffer || choose(pool, picked, slot.test, evaluationNow, {
       strict: slot.strict,
       cheapestFirst: slot.cheapestFirst,
     });
