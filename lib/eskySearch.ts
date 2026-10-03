@@ -81,6 +81,7 @@ const DESTINATIONS: Record<string, string> = {
   melbourne: "ci-MEL",
   sydney: "ci-SYD",
   tbilisi: "ci-TBS",
+  tahiti: "ci-PPT", papeete: "ci-PPT",
   madera: "ci-FNC", madeira: "ci-FNC", funchal: "ci-FNC",
 };
 
@@ -115,6 +116,7 @@ function eskyDestinationKey(query = "") {
 }
 
 const MULTI_DESTINATIONS: Record<string, string[]> = {
+  patagonia: ["co-AR", "co-CL"],
   sycylia: ["ci-CTA", "ci-PMO"],
   sicily: ["ci-CTA", "ci-PMO"],
 };
