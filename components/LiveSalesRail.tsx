@@ -3,7 +3,7 @@
 import { isPromotableOffer } from "@/lib/offerValuePolicy";
 import { useEffect, useMemo, useState } from "react";
 import OfferCard from "@/components/OfferCard";
-import type { Offer } from "@/lib/offers";
+import { inferOfferStartDate, type Offer } from "@/lib/offers";
 
 type LiveOffer = Offer & { startDateISO?: string };
 type Mode = "citybreak" | "vacation" | "lastminute";
@@ -28,9 +28,10 @@ function matchesMode(offer: LiveOffer, mode: Mode) {
     return offer.nights >= 5 || categories.some((item) => /wakacje|allinclusive|plaza|cieplo/i.test(item));
   }
 
-  if (!offer.startDateISO) return false;
-  const start = new Date(`${offer.startDateISO}T00:00:00Z`);
-  if (Number.isNaN(start.getTime())) return false;
+  const start = offer.startDateISO
+    ? new Date(`${offer.startDateISO}T00:00:00Z`)
+    : inferOfferStartDate(offer.dates);
+  if (!start || Number.isNaN(start.getTime())) return false;
   const now = new Date();
   const max = new Date(now);
   max.setUTCDate(max.getUTCDate() + 45);
@@ -39,22 +40,30 @@ function matchesMode(offer: LiveOffer, mode: Mode) {
     && (offer.nights >= 5 || categories.some((item) => /wakacje|allinclusive|plaza|cieplo/i.test(item)));
 }
 
-export default function LiveSalesRail({ mode, limit = 8 }: { mode: Mode; limit?: number }) {
-  const [pool, setPool] = useState<LiveOffer[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function LiveSalesRail({
+  mode,
+  limit = 8,
+  initialOffers = [],
+}: {
+  mode: Mode;
+  limit?: number;
+  initialOffers?: Offer[];
+}) {
+  const [pool, setPool] = useState<LiveOffer[]>(initialOffers);
+  const [loading, setLoading] = useState(initialOffers.length === 0);
 
   useEffect(() => {
     let cancelled = false;
 
     async function load() {
-      setLoading(true);
+      if (!initialOffers.length) setLoading(true);
       try {
         const response = await fetch(`/api/deals?refresh=${Date.now()}`, { cache: "no-store" });
         if (!response.ok) throw new Error("live deals unavailable");
         const data = (await response.json()) as ApiResponse;
         if (!cancelled) setPool(Array.isArray(data.offers) ? data.offers : []);
       } catch {
-        if (!cancelled) setPool([]);
+        if (!cancelled && !initialOffers.length) setPool([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -66,7 +75,7 @@ export default function LiveSalesRail({ mode, limit = 8 }: { mode: Mode; limit?:
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, []);
+  }, [initialOffers.length]);
 
   const offers = useMemo(
     () => uniqueOffers(pool.filter((offer) => isPromotableOffer(offer) && matchesMode(offer, mode)))
@@ -75,7 +84,7 @@ export default function LiveSalesRail({ mode, limit = 8 }: { mode: Mode; limit?:
     [pool, mode, limit]
   );
 
-  if (loading) {
+  if (loading && !offers.length) {
     return (
       <div className="seo-live-skeleton-grid" aria-label="Ładowanie aktualnych ofert">
         {[0,1,2].map((item) => (
