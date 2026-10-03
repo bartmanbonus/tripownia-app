@@ -194,6 +194,10 @@ const FLAGS: Record<string, string> = {
   albania: "🇦🇱",
   wlochy: "🇮🇹",
   włochy: "🇮🇹",
+  austria: "🇦🇹",
+  wegry: "🇭🇺",
+  węgry: "🇭🇺",
+  czechy: "🇨🇿",
 };
 
 function normalize(value: string | undefined | null) {
@@ -205,6 +209,30 @@ function normalize(value: string | undefined | null) {
     .replace(/[^a-z0-9]+/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function canonicalCountryForDestination(city: string, rawCountry: string) {
+  const destination = normalize(city);
+  if (!destination) return rawCountry;
+
+  const rules: Array<[RegExp, string]> = [
+    [/\b(neapol|napoli|bergamo|rzym|roma|rome|bari|taormina|katania|catania|sycylia|sicilia|kalabria|calabria|mediolan|milan|milano|wenecja|venezia|florencja|firenze|bolonia|bologna|piza|pisa|rimini)\b/, "Włochy"],
+    [/\b(alicante|malaga|barcelona|sewilla|sevilla|madryt|madrid|walencja|valencia|majorka|mallorca|teneryfa|tenerife|fuerteventura|gran canaria|lanzarote)\b/, "Hiszpania"],
+    [/\b(wieden|vienna|salzburg|innsbruck)\b/, "Austria"],
+    [/\b(porto|lizbona|lisboa|madera|madeira|funchal)\b/, "Portugalia"],
+    [/\b(malta|valletta|sliema|st julian|saint julian)\b/, "Malta"],
+    [/\b(ateny|athens|kreta|crete|rodos|rhodes|santorini|korfu|corfu|kos|zakynthos)\b/, "Grecja"],
+    [/\b(pafos|paphos|larnaka|larnaca|protaras|ayia napa)\b/, "Cypr"],
+    [/\b(budapeszt|budapest)\b/, "Węgry"],
+    [/\b(praga|prague)\b/, "Czechy"],
+    [/\b(marrakesz|marrakech|agadir)\b/, "Maroko"],
+    [/\b(stambul|istanbul|antalya|alanya|side|bodrum|marmaris)\b/, "Turcja"],
+  ];
+
+  for (const [pattern, country] of rules) {
+    if (pattern.test(destination)) return country;
+  }
+  return rawCountry;
 }
 
 function inferDepartureAirportCode(value: string | undefined | null) {
@@ -402,8 +430,9 @@ function fromExim(product: TdProduct): LiveCandidate | null {
 
   const destinationAddress = fields.DestinationAddress || product.description || "";
   const addressParts = destinationAddress.split(";").map((value) => value.trim()).filter(Boolean);
-  const country = addressParts.at(-1) || product.description?.split(",").at(0)?.trim() || "";
   const city = fields.DestinationName || addressParts[0] || product.name || "Wakacje";
+  const rawCountry = addressParts.at(-1) || product.description?.split(",").at(0)?.trim() || "";
+  const country = canonicalCountryForDestination(city, rawCountry);
   const board = boardFromEximUrl(productUrl);
   const departure = fields.Departue || fields.Departure || fields.DepartureCity || "Polska";
   const departureDate = destinationUrl?.searchParams.get("DD") ? new Date(`${destinationUrl.searchParams.get("DD")}T00:00:00Z`) : null;
@@ -463,8 +492,8 @@ function fromTui(product: TdProduct): LiveCandidate | null {
   const price = Math.round(rawPrice);
   if (!Number.isFinite(price) || price <= 0) return null;
 
-  const country = fields.Country || "";
   const city = fields.Region || fields.City || product.name || "Wakacje";
+  const country = canonicalCountryForDestination(city, fields.Country || "");
   const nights = Math.max(1, Number(fields.Duration || 7));
   const board = fields.ServiceDescription || product.description || "Wyżywienie wg oferty";
   const departure = fields.DepartureCity || fields.DeparturePlace || "Polska";
