@@ -1638,11 +1638,10 @@ export default function SearchHub({
             </div>}
             {!loading && results.length === 0 && !expanding && (() => {
               const fallbackDestination = selectedDestinations[0] || destination;
-              const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination) : null;
               return <div className="search-v3-empty">
-                <strong>{fallbackDestination ? `Nie kończymy na 0 wyników dla „${fallbackDestination}”.` : "Nie kończymy na pustej liście."}</strong>
-                <span>Live feed nie potwierdził teraz dokładnej ceny. Zachowujemy Twój kierunek i dajemy kolejne ścieżki zakupu bez wpisywania wyszukiwania od nowa.</span>
-                <div className="search-v3-empty-actions">
+                <strong>{fallbackDestination ? `Sprawdzamy „${fallbackDestination}” szerzej` : "Sprawdzamy szerzej"}</strong>
+                <span>Live feed nie potwierdził jeszcze dokładnej ceny, ale nie zatrzymujemy wyszukiwania. Wybierz pakiet, lot albo nocleg — zachowujemy Twój kierunek.</span>
+                <div className="search-v3-empty-actions" aria-label="Dostępne ścieżki rezerwacji">
                   {packageSearchLink && (
                     <a
                       href={`/go/live?${new URLSearchParams({
@@ -1653,13 +1652,13 @@ export default function SearchHub({
                       }).toString()}`}
                       rel="sponsored"
                     >
-                      Sprawdź pakiety lot + hotel
+                      Pakiet lot + hotel
                     </a>
                   )}
-                  <button type="button" onClick={searchNearestDates}>Pokaż inne terminy</button>
-                  <button type="button" onClick={relaxSearchFilters}>Usuń dodatkowe filtry</button>
-                  {fallbackDestination && <Link href={`/loty?destination=${encodeURIComponent(fallbackDestination)}`}>Sprawdź loty</Link>}
-                  {fallbackDestination && <Link href={`/hotele?destination=${encodeURIComponent(fallbackDestination)}`}>Sprawdź noclegi</Link>}
+                  {fallbackDestination && <Link href={`/loty?destination=${encodeURIComponent(fallbackDestination)}`}>Znajdź lot</Link>}
+                  {fallbackDestination && <Link href={`/hotele?destination=${encodeURIComponent(fallbackDestination)}`}>Znajdź nocleg</Link>}
+                  <button type="button" onClick={searchNearestDates}>Sprawdź inne terminy</button>
+                  <button type="button" onClick={relaxSearchFilters}>Poszerz filtry</button>
                 </div>
               </div>;
             })()}
