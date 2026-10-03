@@ -91,7 +91,7 @@ export default function TravelIdeasPage() {
           <Link href="/city-break">▦ City break</Link>
           <Link href="/wakacje">△ Wakacje</Link>
           <Link href="/tanie-all-inclusive">◉ All Inclusive</Link>
-          <Link href="/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem">＋ Lot + hotel</Link>
+          <Link href="/lot-hotel">＋ Lot + hotel</Link>
         </div>
 
         <div className="travel-hub-section-head">
