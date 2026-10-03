@@ -4,9 +4,10 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import NewYearOffers from "@/components/NewYearOffers";
 import SearchHub from "@/components/SearchHub";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
-const title = "City break na Sylwestra 2026/2027 — lot + hotel za granicą";
-const description = "City break na Sylwestra 2026/2027: lot + hotel, krótkie wyjazdy do Europy i ciepłe kierunki na przełom roku. Porównaj aktualne terminy i oferty.";
+const title = "City break Sylwester 2026/2027 — lot + hotel za granicą";
+const description = "City break na Sylwestra 2026/2027: lot + hotel, krótkie wyjazdy do Europy i ciepłe kierunki na przełom roku. Sprawdź aktualne terminy, ceny i gotowe wyjazdy.";
 
 const faqItems = [
   {
@@ -73,7 +74,7 @@ export default async function Page({ searchParams }: PageProps) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
       <section className="seasonal-hero shell newyear-hero-premium">
         <div className="kicker">CITY BREAK NA SYLWESTRA 2026/2027</div>
-        <h1>City break na Sylwestra 2026/2027 – lot + hotel i gotowe wyjazdy</h1>
+        <h1>City break Sylwester 2026/2027 – lot + hotel i gotowe wyjazdy</h1>
         <p>Porównaj krótkie city breaki, tydzień w cieple i dalsze wyjazdy na przełom roku. Najpierw realne terminy i ceny, potem wybór kierunku.</p>
         <div className="newyear-type-nav">
           <a href="#szukaj-sylwester">Znajdź wyjazd do swojego budżetu</a>
@@ -134,6 +135,7 @@ export default async function Page({ searchParams }: PageProps) {
         </div>
       </section>
 
+      <section className="section shell"><FacebookFollowCTA placement="sylwester" compact /></section>
       <SiteFooter />
     </main>
   );
