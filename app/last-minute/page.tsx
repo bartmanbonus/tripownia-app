@@ -8,6 +8,7 @@ import LiveSalesRail from "@/components/LiveSalesRail";
 import { homepageFallbackOffers } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
+import ReadySearchGrid from "@/components/ReadySearchGrid";
 
 export const metadata: Metadata = {
   title: "Last Minute 2026 — tanie wakacje lot + hotel i All Inclusive",
@@ -44,6 +45,16 @@ export default function LastMinuteOffersPage() {
       <LiveSalesRail mode="lastminute" limit={10} initialOffers={homepageFallbackOffers}/>
     </section>
     <section className="section shell"><FacebookFollowCTA placement="last_minute_after_offers" compact /></section>
+
+    <section className="section shell">
+      <div className="section-heading"><div><div className="kicker">GOTOWE LAST MINUTE</div><h2>Lotnisko i budżet już ustawione</h2><p>Zamiast klikać w ogólną kategorię, przechodzisz od razu do wyników dopasowanych do konkretnego wariantu.</p></div></div>
+      <ReadySearchGrid items={[
+        { href: "/szukaj?airport=WAWA&budget=2000&duration=5-9&tab=Last%20minute", eyebrow: "WARSZAWA · DO 2 000 ZŁ", title: "Last Minute z Warszawy", meta: "5–9 nocy · WAW + WMI · najtańsze najpierw" },
+        { href: "/szukaj?airport=KTW&budget=2000&duration=5-9&tab=Last%20minute", eyebrow: "KATOWICE · DO 2 000 ZŁ", title: "Last Minute z Katowic", meta: "5–9 nocy · różne ciepłe kierunki" },
+        { href: "/szukaj?airport=POZ&budget=2500&duration=5-9&tab=Last%20minute", eyebrow: "POZNAŃ · DO 2 500 ZŁ", title: "Last Minute z Poznania", meta: "5–9 nocy · aktualne dostępne pakiety" },
+        { href: "/szukaj?destination=Egipt&budget=3000&duration=7&board=all%20inclusive&tab=Last%20minute", eyebrow: "EGIPT · 7 NOCY · DO 3 000 ZŁ", title: "Egipt All Inclusive Last Minute", meta: "Pełne wyżywienie · różne lotniska wylotu" },
+      ]} />
+    </section>
 
     <section className="section shell partner-search-shopping">
       <SearchHub embedded initialTab="Last minute" />
