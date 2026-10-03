@@ -1,6 +1,6 @@
 import type { Offer } from "@/lib/offers";
 import { buildEskyPackagesUrl } from "@/lib/partners";
-import { eskyArrival, eskyInventoryUrl, eskyNights, eskySearchUrl, type EskySearch } from "@/lib/eskySearch";
+import { eskyArrivals, eskyInventoryUrl, eskyNights, eskySearchUrl, type EskySearch } from "@/lib/eskySearch";
 
 export type EskyPackage = Offer & {
   provider: "esky"; modifiedAt: number; sourceKey: string;
@@ -84,8 +84,8 @@ export async function fetchEskyPackages(search: EskySearch = {}): Promise<{ offe
   if (nights.from > nights.to) return { offers, partial: false, hasMore: false, searchUrl };
   // Country slices prevent the default portfolio (often Malta-heavy) from hiding
   // cheaper city breaks elsewhere. A specific query gets deeper cursor paging.
-  const arrival = eskyArrival(search.query);
-  const arrivals = arrival ? [arrival] : search.query ? [""] : search.cityBreak
+  const mappedArrivals = eskyArrivals(search.query);
+  const arrivals = mappedArrivals.length ? mappedArrivals : search.query ? [""] : search.cityBreak
     ? ["ci-ROM", "ci-MIL", "ci-BCN", "ci-LIS", "co-MT", "co-CY", "ci-PRG", "ci-BUD", "ci-VIE", "ci-PAR", "ci-LON", "ci-ATH"]
     : ["co-IT", "co-ES", "co-MT", "co-CY", "co-PT", "co-GR", "co-FR", "co-CZ", "co-HU", "co-AL", "co-GB", "co-AT"];
   const deadline = Date.now() + Math.max(3_000, Math.min(38_000, search.timeoutMs || 38_000));
