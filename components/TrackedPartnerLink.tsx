@@ -13,6 +13,14 @@ type Props = {
   price: number;
   placement: string;
   className?: string;
+  returnContext?: {
+    departure?: string;
+    hotel?: string;
+    board?: string;
+    nights?: number | string;
+    start?: string;
+    end?: string;
+  };
   children: ReactNode;
 };
 
@@ -24,6 +32,7 @@ export default function TrackedPartnerLink({
   price,
   placement,
   className,
+  returnContext,
   children,
 }: Props) {
   function handleClick() {
@@ -40,6 +49,12 @@ export default function TrackedPartnerLink({
       source: placement,
       offerId,
       price,
+      departure: returnContext?.departure,
+      hotel: returnContext?.hotel,
+      board: returnContext?.board,
+      nights: returnContext?.nights,
+      start: returnContext?.start,
+      end: returnContext?.end,
     });
     trackEvent("outbound_partner_click", params);
     trackMetaCustomEvent("PartnerOutboundClick", params);
@@ -49,8 +64,7 @@ export default function TrackedPartnerLink({
     <a
       className={className}
       href={href}
-      target="_blank"
-      rel="sponsored noopener noreferrer"
+      rel="sponsored"
       onClick={handleClick}
     >
       {children}
