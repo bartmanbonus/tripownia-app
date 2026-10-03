@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     : `${offer.hotel} • ${offer.dates} • ${offer.nights} nocy • wylot: ${offer.departure}. Sprawdź konkretną ofertę na Tripowni.`;
   const image = isBariAlberobello
     ? "/social/bari-alberobello-669/preview"
-    : `/o/${offer.slug}/opengraph-image`;
+    : `/api/social-card/${offer.slug}?format=feed`;
   const pageUrl = `/o/${offer.slug}`;
 
   return {
@@ -72,7 +72,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: pageUrl,
       title,
       description,
-      images: [{ url: image, width: 1200, height: 630, alt: `${offer.city} — Tripownia.pl` }],
+      images: [{ url: image, width: 1080, height: 1080, alt: `${offer.city} — Tripownia.pl` }],
     },
     twitter: {
       card: "summary_large_image",
