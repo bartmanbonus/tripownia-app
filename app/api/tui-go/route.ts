@@ -150,16 +150,14 @@ async function fetchProducts(query: string, token: string) {
   return Array.isArray(data?.products) ? (data.products as TdProduct[]) : [];
 }
 
+function tuiFallback(request: NextRequest, destination: string, reason: string) {
+  const fallback = new URL("/okazje", request.url);
+  fallback.searchParams.set("tui", reason);
+  if (destination) fallback.searchParams.set("kierunek", destination);
+  return NextResponse.redirect(fallback, 307);
+}
+
 export async function GET(request: NextRequest) {
-  const token = process.env.TRADEDOUBLER_TUI_TOKEN;
-
-  if (!token) {
-    return NextResponse.json(
-      { ok: false, error: "Brak TRADEDOUBLER_TUI_TOKEN w zmiennych środowiskowych Vercel." },
-      { status: 503 }
-    );
-  }
-
   const params = request.nextUrl.searchParams;
   const target = {
     destination: params.get("destination") || "",
@@ -170,9 +168,10 @@ export async function GET(request: NextRequest) {
     start: params.get("start") || "",
   };
 
-  if (!target.destination) {
-    return NextResponse.json({ ok: false, error: "Brak kierunku." }, { status: 400 });
-  }
+  const token = process.env.TRADEDOUBLER_TUI_TOKEN;
+  if (!token) return tuiFallback(request, target.destination, "zrodlo-niedostepne");
+
+  if (!target.destination) return NextResponse.redirect(new URL("/okazje", request.url), 307);
 
   try {
     let products: TdProduct[] = [];
@@ -204,10 +203,7 @@ export async function GET(request: NextRequest) {
     const bestUrl = best?.product.offers?.[0]?.productUrl || best?.product.offers?.[0]?.legacyProductUrl;
 
     if (!best || !bestUrl || best.score < 55) {
-      const fallback = new URL("/okazje", request.url);
-      fallback.searchParams.set("tui", "brak-dopasowania");
-      fallback.searchParams.set("kierunek", target.destination);
-      return NextResponse.redirect(fallback, 307);
+      return tuiFallback(request, target.destination, "brak-dopasowania");
     }
 
     const tracked = new URL("/go/live", request.url);
@@ -217,9 +213,7 @@ export async function GET(request: NextRequest) {
     tracked.searchParams.set("destination", target.destination);
     return NextResponse.redirect(tracked, 307);
   } catch (error) {
-    return NextResponse.json(
-      { ok: false, error: error instanceof Error ? error.message : "Nie udało się pobrać feedu TUI." },
-      { status: 502 }
-    );
+    console.error("[tripownia_tui_feed]", error);
+    return tuiFallback(request, target.destination, "blad-zrodla");
   }
 }
