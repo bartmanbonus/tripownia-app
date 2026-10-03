@@ -19,16 +19,17 @@ export const LEGACY_CATEGORY_REDIRECTS: Record<string, string> = {
 };
 
 export const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
-  "/wakacje-z-gdanska-2": "/z-gdanska",
+  "/wakacje-z-gdanska-2": "/podroze/city-break-z-gdanska",
   "/wakacje-z-rzeszowa-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-rzeszowa",
   "/wakacje-ze-szczecina-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-szczecina",
   "/lublin-wakacje-city-break": "/podroze/city-break-z-lublina",
-  "/wakacje-z-poznania": "/z-poznania",
+  "/alicante-czy-malaga": "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje",
+  "/wakacje-z-poznania": "/podroze/city-break-z-poznania",
   "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-olsztyna-mazur",
   "/wroclaw": "/z-wroclawia",
   "/krakow": "/z-krakowa",
   "/katowice": "/z-katowic",
-  "/city-break-2": "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem",
+  "/city-break-2": "/city-break",
   "/gdzie-na-sylwestra-2026-2027-15-kierunkow": "/sylwester",
   "/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok": "/sylwester",
   "/aletry-todroznicze": "/alerty",
