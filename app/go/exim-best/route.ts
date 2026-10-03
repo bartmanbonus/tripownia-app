@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 function noMatchRedirect(request: NextRequest, destination: string) {
   const fallback = new URL("/okazje", request.url);
   fallback.searchParams.set("exim", "brak-dopasowania");
-  if (destination) fallback.searchParams.set("kierunek", destination);
+  if (destination) fallback.searchParams.set("destination", destination);
   return NextResponse.redirect(fallback, 307);
 }
 
