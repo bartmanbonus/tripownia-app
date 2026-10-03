@@ -116,14 +116,32 @@ function canonicalSearchDestination(value: string) {
   return normalized;
 }
 
-function destinationPartnerLinks(destination: string) {
+function destinationPartnerLinks(
+  destination: string,
+  options?: { departures?: string[]; from?: string; to?: string },
+) {
   const query = destination.trim();
   if (!query) return null;
+
   const bookingBase = new URL("https://www.booking.com/searchresults.pl.html");
   bookingBase.searchParams.set("ss", query);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(options?.from || "")
+    && /^\d{4}-\d{2}-\d{2}$/.test(options?.to || "")
+    && String(options?.to) > String(options?.from)) {
+    bookingBase.searchParams.set("checkin", String(options?.from));
+    bookingBase.searchParams.set("checkout", String(options?.to));
+  }
+
   const kiwiBase = new URL("https://www.kiwi.com/pl/");
   kiwiBase.searchParams.set("destination", query);
+  const normalizedDepartures = (options?.departures || []).flatMap((code) => code === "WAWA" ? ["WAW", "WMI"] : [code]);
+  if (normalizedDepartures.length === 1) kiwiBase.searchParams.set("origin", normalizedDepartures[0]);
+  if (/^\d{4}-\d{2}-\d{2}$/.test(options?.from || "")) kiwiBase.searchParams.set("outboundDate", String(options?.from));
+  if (/^\d{4}-\d{2}-\d{2}$/.test(options?.to || "") && options?.to !== options?.from) {
+    kiwiBase.searchParams.set("inboundDate", String(options?.to));
+  }
   kiwiBase.searchParams.set("currency", "PLN");
+
   return {
     booking: partners.booking.buildUrl(bookingBase.toString()),
     kiwi: partners.kiwi.buildUrl(kiwiBase.toString()),
@@ -1661,7 +1679,11 @@ export default function SearchHub({
             </div>}
             {!loading && results.length === 0 && !expanding && (() => {
               const fallbackDestination = selectedDestinations[0] || destination;
-              const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination) : null;
+              const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination, {
+                departures,
+                from: dateMode === "exact" || dateMode === "range" ? apiDates.start : "",
+                to: dateMode === "range" ? apiDates.end : dateMode === "exact" ? apiDates.start : "",
+              }) : null;
               return <div className="search-v3-empty">
                 <strong>{fallbackDestination ? `Nie kończymy na 0 wyników dla „${fallbackDestination}”.` : "Nie kończymy na pustej liście."}</strong>
                 <span>Live feed nie potwierdził teraz dokładnej ceny. Zachowujemy Twój kierunek i dajemy kolejne ścieżki zakupu bez wpisywania wyszukiwania od nowa.</span>
