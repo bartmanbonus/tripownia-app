@@ -124,6 +124,7 @@ function landingHeroVisual(query: string) {
     "wyspy kanaryjskie": { src: "/images/destinations/fuerteventura.jpg", alt: "Fuerteventura na Wyspach Kanaryjskich" },
     "madera": { src: "/images/destinations/madera.jpg", alt: "Madera" },
     "rzym": { src: "/images/destinations/rzym.jpg", alt: "Rzym" },
+    "bari": { src: "/images/destinations/neapol.jpg", alt: "Południowe Włochy — inspiracja na city break w Bari" },
     "barcelona": { src: "/images/destinations/barcelona.jpg", alt: "Barcelona" },
     "cypr": { src: "/images/destinations/pafos.jpg", alt: "Pafos na Cyprze" },
     "teneryfa": { src: "/images/destinations/teneryfa.jpg", alt: "Teneryfa" },
