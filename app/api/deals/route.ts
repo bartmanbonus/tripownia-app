@@ -425,6 +425,45 @@ export async function GET(request: NextRequest) {
       : "Brak dokładnej kombinacji filtrów. Pokazujemy najtańsze aktualne okazje z całej potwierdzonej puli.";
   }
 
+  // A strict commercial landing should not go empty only because the live pool
+  // has no exact row at this moment. Before showing an empty state, reuse only
+  // non-expired published offers that still match the requested airport/date/type.
+  // We never widen to another departure city in this fallback.
+  if (strict && !offers.length && hasScopedFallbackFilter) {
+    const fallbackPool = (publishedOffers as DealsOffer[])
+      .filter(isUsablePublishedFallback)
+      .filter(polishDepartureMatches)
+      .filter((offer) => typeMatches(offer, type))
+      .filter((offer) => destinationMatches(offer, destination));
+    const fallbackExact = fallbackPool
+      .filter((offer) => requestedDepartureMatches(offer, airport))
+      .filter((offer) => dateMatches(offer, month, year));
+    const fallbackOffers = fallbackSelection(fallbackExact, destination);
+
+    if (fallbackOffers.length) {
+      return NextResponse.json(
+        {
+          ok: true,
+          checkedAt: new Date().toISOString(),
+          sourceCount: sourceOffers.length,
+          exactCount: fallbackExact.length,
+          destinationCount: fallbackOffers.length,
+          sort: "price_asc",
+          selection: destination ? "multiple_offers_for_destination" : "cheapest_per_destination",
+          sources: ["published-fallback"],
+          unavailableSources,
+          partial: true,
+          sourceType: "published_fallback",
+          matchMode: "fallback_exact",
+          filters: { destination: destination || null, type: type || null, airport: airport || null, month: month || null, year: year || null, strict },
+          notice: "Nie ma teraz świeższego wyniku live dla tych filtrów. Pokazujemy nadal aktualne propozycje Tripowni z tego samego lotniska i typu wyjazdu; finalną cenę i dostępność potwierdź u partnera.",
+          offers: fallbackOffers,
+        },
+        { headers: { "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0" } }
+      );
+    }
+  }
+
   if (strict && !offers.length) {
     matchMode = "strict_no_match";
     notice = airport
