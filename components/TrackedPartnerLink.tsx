@@ -65,6 +65,7 @@ export default function TrackedPartnerLink({
       className={className}
       href={href}
       rel="sponsored"
+      data-affiliate-source={placement}
       onClick={handleClick}
     >
       {children}

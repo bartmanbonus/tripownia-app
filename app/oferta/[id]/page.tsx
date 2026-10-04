@@ -205,7 +205,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           currentOfferId={o.id}
         />
       )}
-      {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item}/>)}</div></section>}
+      {o.availabilityStatus === "expired" && similar.length > 0 && <section className="similar-offers"><div className="section-heading"><div><div className="kicker">PODOBNE PROPOZYCJE</div><h2>Zobacz aktualne okazje</h2></div></div><div className="cards-grid">{similar.map(item => <OfferCard key={item.id} offer={item} sourceSurface="offer_detail_similar"/>)}</div></section>}
 
       {o.availabilityStatus !== "expired" && comparisonOffers.length > 0 && (
         <section className="similar-offers offer-comparison-section">
@@ -222,6 +222,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               return <OfferCard
                 key={item.id}
                 offer={item}
+                sourceSurface="offer_detail_compare"
                 priceHighlight={delta > 0
                   ? { label: "TAŃSZA ALTERNATYWA", detail: `${delta.toLocaleString("pl-PL")} zł mniej / os.` }
                   : { label: "PODOBNA OPCJA", detail: "Porównaj zakres i termin" }}
