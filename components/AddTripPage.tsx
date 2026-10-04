@@ -296,7 +296,7 @@ export default function AddTripPage() {
   const sportHeroImage = useMemo(() => {
     const destination = norm(city);
     if (destination.includes("mediolan") || destination.includes("milan")) {
-      return "https://commons.wikimedia.org/wiki/Special:Redirect/file/Scudo2009.jpg?width=2200";
+      return "https://commons.wikimedia.org/wiki/Special:Redirect/file/Stadio_San_Siro_Milano_panorama.jpg?width=2200";
     }
     return "";
   }, [city]);
