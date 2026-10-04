@@ -220,6 +220,7 @@ export default function AccountPage() {
           getAccountUser(logged),
           getTripowniaUserState(logged),
         ]);
+        if (!accountUser?.id) throw new Error("Nie udało się rozpoznać użytkownika.");
         setUser(accountUser);
         if (remote) {
           const localOwner = localStorage.getItem("tripownia-local-owner-v1") || "";
