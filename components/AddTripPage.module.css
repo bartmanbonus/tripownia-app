@@ -1043,3 +1043,32 @@
   .sportCard{grid-template-columns:minmax(340px,36%) minmax(0,1fr)}
   .sportContent{padding:42px 46px 34px}
 }
+
+
+/* Sports imagery: make the photo feel like a hero, not a vertical poster */
+.sportCard{
+  grid-template-columns:1fr;
+}
+.sportMedia{
+  min-height:0;
+  height:300px;
+  overflow:hidden;
+  border-bottom:1px solid #eadfd8;
+}
+.sportMedia img{
+  width:100%;
+  height:100%;
+  min-height:0;
+  object-fit:cover;
+  object-position:center 44%;
+}
+.sportContent{
+  padding:30px 36px 30px;
+}
+@media(min-width:980px){
+  .sportMedia{height:340px}
+}
+@media(max-width:760px){
+  .sportMedia{height:220px}
+  .sportMedia img{height:220px}
+}
