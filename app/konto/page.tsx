@@ -46,7 +46,10 @@ export default function AccountPage() {
   const [cloudState, setCloudState] = useState<TripowniaUserState | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [authMode, setAuthMode] = useState<"login" | "register">(() => {
+    if (typeof window === "undefined") return "login";
+    return new URLSearchParams(window.location.search).get("mode") === "register" ? "register" : "login";
+  });
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [magicCooldown, setMagicCooldown] = useState(0);
