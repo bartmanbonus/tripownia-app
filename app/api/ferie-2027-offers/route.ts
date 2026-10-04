@@ -47,6 +47,9 @@ const PRESETS = [
   { id: "austria", query: "Austria", label: "Austria", preferBoard: "" },
   { id: "egypt", query: "Egipt", label: "Egipt", preferBoard: "allinclusive" },
   { id: "turkey", query: "Turcja", label: "Turcja", preferBoard: "allinclusive" },
+  { id: "canary", query: "Wyspy Kanaryjskie", label: "Wyspy Kanaryjskie", preferBoard: "allinclusive" },
+  { id: "capeverde", query: "Wyspy Zielonego Przylądka", label: "Wyspy Zielonego Przylądka", preferBoard: "allinclusive" },
+  { id: "cyprus", query: "Cypr", label: "Cypr", preferBoard: "allinclusive" },
 ] as const;
 
 function inRange(offer: LiveOffer, turn: TurnConfig) {
@@ -197,7 +200,7 @@ export async function GET(request: NextRequest) {
     },
     {
       headers: {
-        "Cache-Control": "public, s-maxage=900, stale-while-revalidate=3600",
+        "Cache-Control": "public, s-maxage=300, stale-while-revalidate=900",
       },
     }
   );
