@@ -11,6 +11,7 @@ import CompleteTripSales from "@/components/CompleteTripSales";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
+import PurchaseChoices from "@/components/PurchaseChoices";
 
 type SocialOfferPage = SocialOffer & { expired?: boolean };
 
@@ -182,7 +183,7 @@ export default async function ShortSocialOfferPage({
               </>
             ) : (
               <>
-                <div className="detail-source">Najpierw oglądasz szczegóły w Tripowni. Rezerwacja i płatność odbywają się bezpośrednio u partnera.</div>
+                <div className="detail-source"><strong>Tripownia prowadzi Cię do wyboru.</strong> Rezerwację i płatność finalizujesz u partnera, a po powrocie kontynuujesz kompletowanie tej samej podróży.</div>
                 <div className="detail-action-box">
                   <AffiliateOfferLink
                     href={directAffiliateHref}
@@ -205,6 +206,16 @@ export default async function ShortSocialOfferPage({
             )}
           </div>
         </section>
+        {!(offer.expired || offer.status === "expired") && (
+          <PurchaseChoices
+            city={offer.city}
+            country={offer.country}
+            nights={offer.nights}
+            board={offer.board}
+            departure={offer.departure}
+            currentPrice={offer.price}
+          />
+        )}
         {!(offer.expired || offer.status === "expired") && (
           <OfferAlternativeFinder
             city={offer.city}
