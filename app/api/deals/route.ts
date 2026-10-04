@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { homepageFallbackOffers as publishedOffers, type Offer } from "@/lib/offers";
 import { cheapestPerDestination as selectCheapestPerDestination, dedupeOffersByIdentity, isUsableOffer } from "@/lib/offerEngine";
 import { GET as getTodayOffers } from "@/app/api/today-offers/route";
+import { destinationQueryMatches } from "@/lib/destinationAliases";
 
 type DealsOffer = Offer & {
   startDateISO?: string;
@@ -40,7 +41,10 @@ function destinationMatches(offer: DealsOffer, destination: string) {
   const query = normalize(destination);
   if (!query) return true;
   const haystack = normalize(`${offer.city || ""} ${offer.country || ""} ${offer.hotel || ""} ${offer.reason || ""}`);
-  return haystack.includes(query) || query.includes(normalize(offer.city)) || query.includes(normalize(offer.country));
+  return haystack.includes(query)
+    || query.includes(normalize(offer.city))
+    || query.includes(normalize(offer.country))
+    || destinationQueryMatches(destination, offer.city, offer.country, offer.hotel, offer.reason);
 }
 
 function typeMatches(offer: DealsOffer, type: string) {
