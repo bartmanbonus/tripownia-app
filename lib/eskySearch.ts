@@ -87,12 +87,13 @@ const DESTINATIONS: Record<string, string> = {
 
 
 const COUNTRY_CODES: Record<string, string> = {
-  albania: "AL", austria: "AT", belgia: "BE", belgium: "BE", bulgaria: "BG", chorwacja: "HR", croatia: "HR",
+  albania: "AL", aruba: "AW", austria: "AT", bahrajn: "BH", bahrain: "BH", belgia: "BE", belgium: "BE", bulgaria: "BG", chorwacja: "HR", croatia: "HR", curacao: "CW",
   cypr: "CY", czechy: "CZ", dania: "DK", denmark: "DK", egipt: "EG", egypt: "EG", estonia: "EE",
   finlandia: "FI", finland: "FI", francja: "FR", france: "FR", grecja: "GR", greece: "GR", hiszpania: "ES",
   spain: "ES", holandia: "NL", netherlands: "NL", irlandia: "IE", ireland: "IE", islandia: "IS", iceland: "IS",
   litwa: "LT", lithuania: "LT", lotwa: "LV", latvia: "LV", malta: "MT", niemcy: "DE", germany: "DE",
   norwegia: "NO", norway: "NO", polska: "PL", portugal: "PT", portugalia: "PT", rumunia: "RO", romania: "RO",
+  czarnogora: "ME", montenegro: "ME", macedonia: "MK", macedonia_polnocna: "MK", north_macedonia: "MK", madagaskar: "MG", madagascar: "MG",
   slowacja: "SK", slovakia: "SK", slowenia: "SI", slovenia: "SI", szwajcaria: "CH", switzerland: "CH",
   szwecja: "SE", sweden: "SE", turcja: "TR", turkey: "TR", ukraina: "UA", ukraine: "UA", wegry: "HU",
   hungary: "HU", wielka_brytania: "GB", united_kingdom: "GB", wlochy: "IT", italy: "IT",
@@ -108,7 +109,7 @@ const COUNTRY_CODES: Record<string, string> = {
   kostaryka: "CR", costa_rica: "CR", kuba: "CU", cuba: "CU", meksyk: "MX", mexico: "MX", usa: "US",
   stany_zjednoczone: "US", argentyna: "AR", argentina: "AR", brazylia: "BR", brazil: "BR", chile: "CL",
   kolumbia: "CO", colombia: "CO", peru: "PE", australia: "AU", nowa_zelandia: "NZ", new_zealand: "NZ",
-  fidzi: "FJ", fiji: "FJ", gruzja: "GE", georgia: "GE",
+  fidzi: "FJ", fiji: "FJ", gruzja: "GE", georgia: "GE", polinezja_francuska: "PF", french_polynesia: "PF",
 };
 
 function eskyDestinationKey(query = "") {
