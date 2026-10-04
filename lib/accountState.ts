@@ -10,6 +10,9 @@ const COMPARE_KEY = "tripownia-compare";
 const ALERTS_KEY = "tripownia-alert-settings";
 const TOOLKIT_PREFIX = "tripownia-trip-toolkit:";
 const ORGANIZER_PREFIX = "tripownia-organizer:";
+const LOCAL_OWNER_KEY = "tripownia-local-owner-v1";
+const GUEST_DATA_STARTED_AT_KEY = "tripownia-guest-data-started-at-v1";
+const GUEST_DATA_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 function parseJson<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -73,6 +76,42 @@ export function collectLocalAccountState(): Omit<TripowniaUserState, "user_id"> 
     toolkit_by_trip: toolkitByTrip(),
     organizer_by_trip: organizerByTrip(),
   };
+}
+
+export function getLocalAccountOwner() {
+  if (typeof window === "undefined") return "";
+  return localStorage.getItem(LOCAL_OWNER_KEY) || "";
+}
+
+export function prepareLocalStateForAccount(userId: string) {
+  if (typeof window === "undefined") return collectLocalAccountState();
+  const owner = getLocalAccountOwner();
+  if (owner && owner !== userId) {
+    clearLocalAccountState();
+  }
+  return collectLocalAccountState();
+}
+
+export function protectLocalAccountPrivacy() {
+  if (typeof window === "undefined") return false;
+
+  const owner = getLocalAccountOwner();
+  if (owner || !hasMeaningfulLocalAccountState()) {
+    localStorage.removeItem(GUEST_DATA_STARTED_AT_KEY);
+    return false;
+  }
+
+  const now = Date.now();
+  const startedAt = Number(localStorage.getItem(GUEST_DATA_STARTED_AT_KEY) || 0);
+  if (!startedAt || !Number.isFinite(startedAt)) {
+    localStorage.setItem(GUEST_DATA_STARTED_AT_KEY, String(now));
+    return false;
+  }
+
+  if (now - startedAt < GUEST_DATA_TTL_MS) return false;
+
+  clearLocalAccountState();
+  return true;
 }
 
 export function hasMeaningfulLocalAccountState() {
@@ -196,6 +235,9 @@ export function applyCloudAccountState(state: TripowniaUserState) {
     if (tripId) localStorage.setItem(`${ORGANIZER_PREFIX}${tripId}`, JSON.stringify(value));
   });
 
+  localStorage.setItem(LOCAL_OWNER_KEY, state.user_id);
+  localStorage.removeItem(GUEST_DATA_STARTED_AT_KEY);
+
   ["tripownia-profile-updated","tripownia-favorites-updated","tripownia-compare-updated","tripownia-my-trip-updated","tripownia-trips-updated","tripownia-alerts-updated","tripownia-toolkit-updated","tripownia-organizer-updated"]
     .forEach((name) => window.dispatchEvent(new Event(name)));
 }
@@ -213,7 +255,8 @@ export function clearLocalAccountState() {
     ALERTS_KEY,
     FAVORITE_OFFER_SNAPSHOTS_KEY,
     COMPARE_OFFER_SNAPSHOTS_KEY,
-    "tripownia-local-owner-v1",
+    LOCAL_OWNER_KEY,
+    GUEST_DATA_STARTED_AT_KEY,
     "tripownia-local-dirty-v1",
     "tripownia-alert-last-notified",
   ].forEach((key) => localStorage.removeItem(key));
