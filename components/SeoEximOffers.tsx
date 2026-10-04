@@ -86,6 +86,23 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   if (eskyDeparture) eskySearch.searchParams.set("departurePlaces", eskyDeparture === "WAWA" ? "ap-WAW,ap-WMI" : `ap-${eskyDeparture}`);
   const morePackagesUrl = buildEskyPackagesUrl(eskySearch.toString());
 
+  const readySearchParams = new URLSearchParams();
+  if (!GENERIC_TERMS.has(normalize(query))) readySearchParams.set("destination", query);
+  const readyAirport = departureCode(departure);
+  if (readyAirport) readySearchParams.set("airport", readyAirport);
+  if (typeof maxPrice === "number") readySearchParams.set("budget", String(maxPrice));
+  if (typeof minNights === "number" && typeof maxNights === "number") {
+    readySearchParams.set("duration", minNights === maxNights ? String(minNights) : `${minNights}-${maxNights}`);
+  } else if (typeof minNights === "number") {
+    readySearchParams.set("duration", `${minNights}-14`);
+  } else if (typeof maxNights === "number") {
+    readySearchParams.set("duration", `1-${maxNights}`);
+  }
+  if (startDate) readySearchParams.set("from", startDate);
+  if (endDate) readySearchParams.set("to", endDate);
+  readySearchParams.set("tab", normalize(query) === "all inclusive" ? "All Inclusive" : "Lot + hotel");
+  const readySearchHref = `/szukaj?${readySearchParams.toString()}`;
+
   const [offers, setOffers] = useState<SeasonalOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [relaxed, setRelaxed] = useState(false);
@@ -292,8 +309,8 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
         </div>
 
         <div className="seo-empty-offers-actions">
-          <Link href="/#wyszukiwarka" className="seo-empty-primary">
-            <CalendarRange size={17}/> Zmień termin lub parametry <ArrowRight size={16}/>
+          <Link href={readySearchHref} className="seo-empty-primary">
+            <CalendarRange size={17}/> Pokaż gotowe wyniki dla tych dat <ArrowRight size={16}/>
           </Link>
           <Link href="/gdzie-leciec" className="seo-empty-secondary">
             <Search size={17}/> Pokaż podobne kierunki
