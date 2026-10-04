@@ -116,11 +116,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: `${BASE_URL}${path}`, changeFrequency: "monthly", priority: .8,
   }));
 
-  const landingPages: MetadataRoute.Sitemap = allSeoLandings.map(page => ({
-    url: `${BASE_URL}/podroze/${page.slug}`,
-    changeFrequency: "weekly" as const,
-    priority: .82,
-  }));
+  const landingPages: MetadataRoute.Sitemap = allSeoLandings.map(page => {
+    const query = page.query.toLocaleLowerCase("pl");
+    const transactionalQuery =
+      query.includes("city break")
+      || query.includes("last minute")
+      || query.includes("all inclusive")
+      || query.includes("wakacje")
+      || query.includes("lot + hotel")
+      || query.includes("tanie loty");
+    const highIntent = Boolean(page.departure || page.maxPrice || transactionalQuery);
+    const veryHighIntent = Boolean(page.departure && (page.maxPrice || transactionalQuery));
+
+    return {
+      url: `${BASE_URL}/podroze/${page.slug}`,
+      changeFrequency: highIntent ? "daily" as const : "weekly" as const,
+      priority: veryHighIntent ? .91 : highIntent ? .88 : .82,
+    };
+  });
 
   // Transient /oferta/{id} pages intentionally stay out of the sitemap.
   // They can expire or carry an orientational price, while evergreen hubs and
