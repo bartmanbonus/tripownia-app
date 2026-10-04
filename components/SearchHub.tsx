@@ -255,6 +255,17 @@ function durationPickerRange(value: string) {
   return { min: 3, max: 5 };
 }
 
+function durationMatchesNights(nightsValue: unknown, durationValue: string) {
+  if (!durationValue || durationValue === "all") return true;
+  const nights = Number(nightsValue);
+  if (!Number.isFinite(nights) || nights <= 0) return false;
+  if (durationValue === "15+") return nights >= 15;
+  if (/^\d+$/.test(durationValue)) return nights === Number(durationValue);
+  const range = /^(\d+)-(\d+)$/.exec(durationValue);
+  if (range) return nights >= Number(range[1]) && nights <= Number(range[2]);
+  return true;
+}
+
 function offerStartMs(offer: any) {
   return isoMs(String(offer?.startDateISO || ""));
 }
@@ -467,10 +478,19 @@ export default function SearchHub({
     const displayRows = resultView === "destinations" ? cheapestDirectionRows(filtered) : filtered;
 
     if (resultSort === "price") return rankSearchOffers(displayRows);
-    if (resultSort === "rating") return [...displayRows].sort((a, b) => Number(b?.score || 0) - Number(a?.score || 0) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
-    if (resultSort === "nights") return [...displayRows].sort((a, b) => Number(a?.nights || Infinity) - Number(b?.nights || Infinity) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
+    if (resultSort === "rating") return [...displayRows].sort((a, b) => searchTier(a) - searchTier(b) || Number(b?.score || 0) - Number(a?.score || 0) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
+    if (resultSort === "nights") return [...displayRows].sort((a, b) => searchTier(a) - searchTier(b) || Number(a?.nights || Infinity) - Number(b?.nights || Infinity) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
     return displayRows;
   }, [results, resultLocation, resultSort, resultView]);
+
+  const exactVisibleResults = useMemo(
+    () => visibleResults.filter((offer) => searchTier(offer) === 0),
+    [visibleResults],
+  );
+  const alternativeVisibleResults = useMemo(
+    () => visibleResults.filter((offer) => searchTier(offer) > 0),
+    [visibleResults],
+  );
 
   useEffect(() => {
     setDestination("");
@@ -782,7 +802,29 @@ export default function SearchHub({
                 const code = inferredOfferAirport(offer);
                 return !code || !selectedDepartureCodes.has(code);
               })
-              .map(offer => tier ? { ...offer, searchTier: tier, searchAlternative: alternative } : offer);
+              .map((offer) => {
+                const reasons = alternative ? [alternative] : [];
+                let effectiveTier = tier;
+
+                if (!relaxFilters && activeDuration !== "all" && !durationMatchesNights(offer?.nights, activeDuration)) {
+                  effectiveTier = Math.max(effectiveTier, 1);
+                  reasons.push("inna długość pobytu");
+                }
+
+                if (!relaxDates && datePreference.mode === "range" && datePreference.from && datePreference.to) {
+                  const start = String(offer?.startDateISO || "");
+                  const end = String(offer?.endDateISO || "");
+                  if ((start && start < datePreference.from) || (end && end > datePreference.to)) {
+                    effectiveTier = Math.max(effectiveTier, 1);
+                    reasons.push("termin poza wybranym zakresem");
+                  }
+                }
+
+                const searchAlternative = Array.from(new Set(reasons.filter(Boolean))).join(" · ");
+                return effectiveTier
+                  ? { ...offer, searchTier: effectiveTier, searchAlternative: searchAlternative || "Alternatywa" }
+                  : { ...offer, searchTier: 0, searchAlternative: "" };
+              });
             rows = rankSearchOffers([...rows, ...found]);
             setResults(rows);
             if (rows.length) { setLoading(false); setExpanding(true); }
@@ -810,7 +852,7 @@ export default function SearchHub({
         await fetchBatch();
       }
       if (runId !== searchRunRef.current) return;
-      const exactCount = rows.length;
+      const exactCount = rows.filter((offer) => searchTier(offer) === 0).length;
       setLoading(false);
       const secondaryFilters = activeDuration !== "all" || activeWeekend || activeBoard !== "all";
       const hasDates = Boolean(apiDates.start || apiDates.end);
@@ -828,7 +870,7 @@ export default function SearchHub({
         await fetchBatch(activeMode === "City break" ? 3 : 2, hasDates, secondaryFilters, true, "all");
         if (runId !== searchRunRef.current) return;
       }
-      const alternatives = rows.length - exactCount;
+      const alternatives = rows.filter((offer) => searchTier(offer) > 0).length;
       setNotice([
         rows.length ? "Ceny za osobę. Najtańsze najpierw w każdej grupie dopasowania." : "Nie mamy jeszcze potwierdzonej ceny w feedach dla tych ustawień. Możesz sprawdzić ten sam pakiet bezpośrednio w wyszukiwarce partnera lub porównać lot i nocleg.",
         alternatives > 0 ? `Dokładnych dopasowań: ${exactCount}. Alternatywy (${alternatives}) są oznaczone na kartach.` : "",
@@ -1830,8 +1872,8 @@ export default function SearchHub({
             {!loading && results.length > 0 && (
               <>
                 <div className="search-v3-sales-sort" aria-label="Szybkie sortowanie ofert">
-                  <button type="button" className={resultSort === "recommended" ? "active" : ""} onClick={() => { setResultSort("recommended"); setVisibleCount(18); }}>Polecane</button>
                   <button type="button" className={resultSort === "price" ? "active" : ""} onClick={() => { setResultSort("price"); setVisibleCount(18); }}>Najtańsze</button>
+                  <button type="button" className={resultSort === "recommended" ? "active" : ""} onClick={() => { setResultSort("recommended"); setVisibleCount(18); }}>Polecane</button>
                   <button type="button" className={resultSort === "rating" ? "active" : ""} onClick={() => { setResultSort("rating"); setVisibleCount(18); }}>Najwyżej oceniane</button>
                   <button type="button" className={resultSort === "nights" ? "active" : ""} onClick={() => { setResultSort("nights"); setVisibleCount(18); }}>Najkrótsze</button>
                 </div>
@@ -1854,7 +1896,39 @@ export default function SearchHub({
                     </div>
                   </div>
                 )}
-                <div className="search-v3-results-grid">{visibleResults.slice(0, visibleCount).map((offer) => <div key={offer.id} className="search-v3-result-item">{offer.searchAlternative && <p className="search-v3-alternative-label">{offer.searchAlternative}</p>}<OfferCard offer={offer} sourceSurface="search_results"/></div>)}</div>
+                {exactVisibleResults.length > 0 && (
+                  <section className="search-v3-result-group search-v3-result-group-exact" aria-label="Dokładne dopasowania">
+                    <div className="search-v3-result-group-head">
+                      <div><small>DOKŁADNE DOPASOWANIA</small><strong>{exactVisibleResults.length} {exactVisibleResults.length === 1 ? "oferta zgodna" : "ofert zgodnych"} z filtrami</strong></div>
+                      <span>Najtańsze dokładne opcje pokazujemy jako pierwsze.</span>
+                    </div>
+                    <div className="search-v3-results-grid">
+                      {exactVisibleResults.slice(0, visibleCount).map((offer) => (
+                        <div key={offer.id} className="search-v3-result-item is-exact">
+                          <OfferCard offer={offer} sourceSurface="search_results"/>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {alternativeVisibleResults.length > 0 && visibleCount > exactVisibleResults.length && (
+                  <section className="search-v3-result-group search-v3-result-group-alternative" aria-label="Alternatywne oferty">
+                    <div className="search-v3-result-group-head">
+                      <div><small>ALTERNATYWY</small><strong>Podobne opcje, ale nie 1:1 z filtrami</strong></div>
+                      <span>Różnica jest zawsze opisana nad kartą.</span>
+                    </div>
+                    <div className="search-v3-results-grid">
+                      {alternativeVisibleResults.slice(0, Math.max(0, visibleCount - exactVisibleResults.length)).map((offer) => (
+                        <div key={offer.id} className="search-v3-result-item is-alternative">
+                          <p className="search-v3-alternative-label">Alternatywa: {offer.searchAlternative || "inne parametry"}</p>
+                          <OfferCard offer={offer} sourceSurface="search_results"/>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
                 {visibleResults.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(visibleResults.length, count + 12))}>Pokaż kolejne oferty ({visibleResults.length - visibleCount})</button>}
               </>
             )}
