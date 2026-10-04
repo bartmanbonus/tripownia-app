@@ -11,6 +11,7 @@ import { accountAuthEventName, ensureFreshAccountSession, readAccountSession } f
 import { estimateTripCost } from "@/lib/tripCost";
 import { getOfferOverride } from "@/lib/clientOfferOverrides";
 import { upsertTripArchive } from "@/lib/tripArchive";
+import { partners } from "@/lib/partners";
 
 type DayPlanItem = { id: string; time: string; title: string; note?: string };
 type WeatherDay = { date: string; min: number; max: number; code: number; rain: number };
@@ -244,6 +245,7 @@ export default function MyTrip() {
     { key: "parking" as const, label: "Parking", done: parkingReady, href: trip.suggestedLinks?.parking || "/przed-wyjazdem#parking", icon: Car },
   ], [flightReady, hotelReady, transferReady, attractionsReady, esimReady, parkingReady, trip.suggestedLinks]);
 
+  const airHelpHref = `/out/airhelp?url=${encodeURIComponent(partners.airhelp.buildUrl())}&source=my_trip_flight_help`;
   const nextCartStep = tripCartItems.find((item) => !item.done);
   const tripCartDone = tripCartItems.filter((item) => item.done).length;
 
@@ -633,6 +635,16 @@ export default function MyTrip() {
             </section>
 
             <TripToolkit city={offer.city || offer.country} country={offer.country} tripId={trip.tripId || `trip-${offer.id}`} />
+
+            {flightReady && (
+              <section className="my-trip-card" aria-label="Pomoc po problemach z lotem">
+                <div className="my-trip-card-head"><ShieldCheck size={20}/><h2>Lot opóźniony albo odwołany?</h2></div>
+                <p>Jeśli coś pójdzie nie tak z lotem, możesz od razu sprawdzić, czy przysługuje Ci odszkodowanie. To dodatkowa opcja — nie wpływa na Twój plan podróży.</p>
+                <div className="my-trip-quick-links">
+                  <Link href={airHelpHref} prefetch={false}><ExternalLink size={17}/> Sprawdź odszkodowanie</Link>
+                </div>
+              </section>
+            )}
 
             <section className="my-trip-card my-trip-notes"><div className="my-trip-card-head"><NotebookPen size={20}/><h2>Notatki</h2></div><textarea value={trip.notes || ""} onChange={(e) => save({ ...trip, notes: e.target.value })} placeholder="Restauracje, atrakcje, adresy, pomysły..." rows={5} /></section>
           </>
