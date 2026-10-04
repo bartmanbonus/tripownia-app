@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SearchHub from "@/components/SearchHub";
+import ReadySearchGrid from "@/components/ReadySearchGrid";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
@@ -50,22 +51,26 @@ export default function Wakacje2027Page() {
       <p>Przy rodzinnych wakacjach szczególnie ważne są godziny lotów, transfer, rodzaj pokoju, wyżywienie i rzeczywista odległość od plaży. Dla par i krótszych wyjazdów większe znaczenie może mieć lokalizacja hotelu i możliwość zwiedzania bez auta.</p>
     </section>
 
-    <section className="shell seo-related-block">
-      <div className="kicker">POPULARNE PUNKTY STARTU</div>
-      <h2>Wakacje 2027 według lotniska i typu wyjazdu</h2>
-      <div className="seo-related-links">
-        <Link href="/egipt-2027">Egipt 2027 →</Link>
-        <Link href="/turcja-2027">Turcja 2027 →</Link>
-        <Link href="/grecja-2027">Grecja 2027 →</Link>
-        <Link href="/wakacje-czerwiec-2027">Czerwiec 2027 →</Link>
-        <Link href="/wakacje-lipiec-2027">Lipiec 2027 →</Link>
-        <Link href="/wakacje-sierpien-2027">Sierpień 2027 →</Link>
-        <Link href="/podroze/wakacje-z-warszawy">Wakacje z Warszawy →</Link>
-        <Link href="/podroze/wakacje-z-krakowa">Wakacje z Krakowa →</Link>
-        <Link href="/podroze/wakacje-z-katowic">Wakacje z Katowic →</Link>
-        <Link href="/podroze/wakacje-z-gdanska">Wakacje z Gdańska →</Link>
-        <Link href="/podroze/all-inclusive-z-warszawy">All Inclusive z Warszawy →</Link>
-        <Link href="/last-minute">Last Minute →</Link>
+    <section className="section shell">
+      <div className="section-heading">
+        <div>
+          <div className="kicker">GOTOWE PUNKTY STARTU 2027</div>
+          <h2>Wybierz miesiąc, lotnisko albo kierunek — parametry są już ustawione</h2>
+          <p>Kliknięcie uruchamia wyszukiwanie zamiast przenosić do kolejnej strony opisowej.</p>
+        </div>
+      </div>
+      <ReadySearchGrid items={[
+        { href: "/szukaj?destination=Egipt&month=2027-06&duration=7&budget=3500&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "EGIPT · CZERWIEC 2027 · 7 NOCY", title: "Egipt All Inclusive", meta: "Do 3 500 zł/os. · różne lotniska" },
+        { href: "/szukaj?destination=Turcja&month=2027-06&duration=7&budget=3500&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "TURCJA · CZERWIEC 2027 · 7 NOCY", title: "Turcja All Inclusive", meta: "Do 3 500 zł/os. · aktualne pakiety" },
+        { href: "/szukaj?destination=Grecja&month=2027-06&duration=7&budget=3500&tab=Wakacje", eyebrow: "GRECJA · CZERWIEC 2027 · 7 NOCY", title: "Grecja 2027", meta: "Wyspy i kontynent · różne polskie lotniska" },
+        { href: "/szukaj?month=2027-07&duration=7&budget=3500&tab=Wakacje", eyebrow: "LIPIEC 2027 · 7 NOCY · DO 3 500 ZŁ", title: "Wakacje w lipcu", meta: "Różne kierunki · najtańsze najpierw" },
+        { href: "/szukaj?airport=WAWA&month=2027-07&duration=7&budget=3500&tab=Wakacje", eyebrow: "WARSZAWA · LIPIEC 2027", title: "Wakacje z Warszawy", meta: "7 nocy · WAW + WMI · do 3 500 zł/os." },
+        { href: "/szukaj?airport=KTW&month=2027-07&duration=7&budget=3500&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "KATOWICE · LIPIEC 2027", title: "All Inclusive z Katowic", meta: "7 nocy · do 3 500 zł/os. · różne kierunki" },
+      ]} />
+      <div className="seo-discovery-footer">
+        <Link href="/wakacje-czerwiec-2027">Poradnik: czerwiec 2027</Link>
+        <Link href="/wakacje-lipiec-2027">Poradnik: lipiec 2027</Link>
+        <Link href="/wakacje-sierpien-2027">Poradnik: sierpień 2027</Link>
       </div>
     </section>
 
