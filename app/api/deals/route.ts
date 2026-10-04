@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { homepageFallbackOffers as publishedOffers, type Offer } from "@/lib/offers";
-import { cheapestPerDestination as selectCheapestPerDestination, dedupeOffersByIdentity, isUsableOffer } from "@/lib/offerEngine";
+import { dedupeOffersByIdentity, isUsableOffer } from "@/lib/offerEngine";
 import { GET as getTodayOffers } from "@/app/api/today-offers/route";
 import { destinationQueryMatches } from "@/lib/destinationAliases";
 
@@ -22,9 +22,6 @@ type SourceResult = {
   payload: SourcePayload;
   label: string;
 };
-
-// Keep a broad enough live pool so valid affiliate deals are not hidden too early.
-const DEAL_LIMIT = 60;
 
 function normalize(value: string | undefined | null) {
   return (value || "")
@@ -183,30 +180,27 @@ function sortedDestinationOffers(
     .sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0));
 }
 
-function fallbackSelection(offers: DealsOffer[], destination: string, limit = DEAL_LIMIT) {
+function fallbackSelection(offers: DealsOffer[], destination: string) {
   if (destination) return sortedDestinationOffers(offers, "fallback");
-  return selectCheapestPerDestination(offers, { mode: "fallback", limit });
+  return dedupeOffersByIdentity(offers, "fallback")
+    .sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0));
 }
 
-function cheapestPerDestination(offers: DealsOffer[]) {
-  return selectCheapestPerDestination(offers, { mode: "live" });
-}
-
-function lowestPriceDeals(offers: DealsOffer[], destination: string, limit = DEAL_LIMIT) {
+function lowestPriceDeals(offers: DealsOffer[], destination: string) {
   if (destination) return sortedDestinationOffers(offers, "live");
-  return cheapestPerDestination(offers).slice(0, limit);
+  return dedupeOffersByIdentity(offers, "live")
+    .sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0));
 }
 
-function closestCheapDeals(offers: DealsOffer[], month: string, year: string, destination: string, limit = DEAL_LIMIT) {
+function closestCheapDeals(offers: DealsOffer[], month: string, year: string, destination: string) {
   const ranked = destination
     ? dedupeDestinationCatalogOffers(offers)
-    : cheapestPerDestination(offers);
+    : dedupeOffersByIdentity(offers, "live");
 
-  const sorted = ranked.sort((a, b) => {
+  return ranked.sort((a, b) => {
     const distance = monthDistance(a, month, year) - monthDistance(b, month, year);
     return distance || Number(a.price) - Number(b.price);
   });
-  return destination ? sorted : sorted.slice(0, limit);
 }
 
 async function loadSource(
@@ -288,7 +282,7 @@ export async function GET(request: NextRequest) {
           exactCount: fallbackExact.length,
           destinationCount: fallbackOffers.length,
           sort: "price_asc",
-          selection: destination ? "multiple_offers_for_destination" : "cheapest_per_destination",
+          selection: destination ? "multiple_offers_for_destination" : "all_available_offers",
           sources: ["published-fallback"],
           unavailableSources: results.map((item) => item.label),
           partial: true,
@@ -314,7 +308,7 @@ export async function GET(request: NextRequest) {
           exactCount: 0,
           destinationCount: 0,
           sort: "price_asc",
-          selection: destination ? "multiple_offers_for_destination" : "cheapest_per_destination",
+          selection: destination ? "multiple_offers_for_destination" : "all_available_offers",
           sources: [],
           unavailableSources: results.map((item) => item.label),
           partial: true,
@@ -366,7 +360,7 @@ export async function GET(request: NextRequest) {
           exactCount: fallbackExact.length,
           destinationCount: fallbackOffers.length,
           sort: "price_asc",
-          selection: destination ? "multiple_offers_for_destination" : "cheapest_per_destination",
+          selection: destination ? "multiple_offers_for_destination" : "all_available_offers",
           sources: ["published-fallback"],
           unavailableSources,
           partial: true,
@@ -408,7 +402,7 @@ export async function GET(request: NextRequest) {
           exactCount: fallbackExact.length,
           destinationCount: fallbackOffers.length,
           sort: "price_asc",
-          selection: destination ? "multiple_offers_for_destination" : "cheapest_per_destination",
+          selection: destination ? "multiple_offers_for_destination" : "all_available_offers",
           sources: ["published-fallback"],
           unavailableSources,
           partial: true,
@@ -429,8 +423,8 @@ export async function GET(request: NextRequest) {
     ? destination
       ? `Pokazujemy aktualne oferty dla kierunku: ${destination}. Najtańsze są na górze — nie ograniczamy listy do jednej oferty.`
       : type === "allinclusive"
-        ? "Najtańsze aktualne All Inclusive są na górze. Dla każdego kierunku zostawiamy najtańszą potwierdzoną ofertę."
-        : "Najtańsze znalezione ceny z polskich lotnisk są na górze. Dla każdego kierunku zostawiamy tylko najtańszą aktualną ofertę."
+        ? "Pokazujemy całą aktualną pulę All Inclusive. Najtańsze są na górze, bez limitu liczby ofert."
+        : "Pokazujemy całą aktualną pulę okazji z polskich lotnisk. Najtańsze są na górze, bez limitu liczby ofert."
     : "";
 
   if (!strict && !offers.length && (month || year)) {
@@ -449,7 +443,7 @@ export async function GET(request: NextRequest) {
     if (sameAirport.length) {
       offers = closestCheapDeals(sameAirport, month, year, destination);
       matchMode = "same_airport_nearby_date";
-      notice = "Brak dokładnego terminu. Pokazujemy najbliższe daty z tego lotniska, nadal od najniższej ceny w każdym kierunku.";
+      notice = "Brak dokładnego terminu. Pokazujemy wszystkie dostępne najbliższe daty z tego lotniska, od najniższej ceny.";
     }
   }
 
@@ -494,7 +488,7 @@ export async function GET(request: NextRequest) {
           exactCount: fallbackExact.length,
           destinationCount: fallbackOffers.length,
           sort: "price_asc",
-          selection: destination ? "multiple_offers_for_destination" : "cheapest_per_destination",
+          selection: destination ? "multiple_offers_for_destination" : "all_available_offers",
           sources: ["published-fallback"],
           unavailableSources,
           partial: true,
@@ -543,7 +537,7 @@ export async function GET(request: NextRequest) {
       exactCount: exact.length,
       destinationCount: offers.length,
       sort: "price_asc",
-      selection: destination ? "multiple_offers_for_destination" : "cheapest_per_destination",
+      selection: destination ? "multiple_offers_for_destination" : "all_available_offers",
       sources: successful.map((item) => item.label),
       unavailableSources,
       partial: unavailableSources.length > 0,
