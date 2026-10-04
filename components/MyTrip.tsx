@@ -230,6 +230,23 @@ export default function MyTrip() {
     return Boolean(status === "owned" || status === "selected" || trip.checklist?.["Zarezerwuj parking przy lotnisku"]);
   }, [trip.journeyPieces, trip.checklist]);
 
+  const esimReady = useMemo(() => {
+    const status = trip.journeyPieces?.esim?.status;
+    return Boolean(status === "owned" || status === "selected" || trip.checklist?.["Sprawdź internet / eSIM"]);
+  }, [trip.journeyPieces, trip.checklist]);
+
+  const tripCartItems = useMemo(() => [
+    { key: "flight" as const, label: "Lot / transport", done: flightReady, href: trip.suggestedLinks?.flight || "/loty", icon: Plane },
+    { key: "hotel" as const, label: "Nocleg", done: hotelReady, href: trip.suggestedLinks?.hotel || "/hotele", icon: BedDouble },
+    { key: "transfer" as const, label: "Transfer", done: transferReady, href: trip.suggestedLinks?.transfer || "/transfery", icon: Car },
+    { key: "attractions" as const, label: "Atrakcje", done: attractionsReady, href: trip.suggestedLinks?.attractions || "/atrakcje", icon: Ticket },
+    { key: "esim" as const, label: "Internet / eSIM", done: esimReady, href: trip.suggestedLinks?.esim || "/przed-wyjazdem#internet", icon: Wifi },
+    { key: "parking" as const, label: "Parking", done: parkingReady, href: trip.suggestedLinks?.parking || "/przed-wyjazdem#parking", icon: Car },
+  ], [flightReady, hotelReady, transferReady, attractionsReady, esimReady, parkingReady, trip.suggestedLinks]);
+
+  const nextCartStep = tripCartItems.find((item) => !item.done);
+  const tripCartDone = tripCartItems.filter((item) => item.done).length;
+
   const readiness = useMemo(() => {
     const checks = [
       flightReady,
@@ -348,6 +365,30 @@ export default function MyTrip() {
     window.dispatchEvent(new Event("tripownia-my-trip-updated"));
   }
 
+  function markJourneyPieceOwned(key: "flight" | "hotel" | "transfer" | "attractions" | "esim" | "parking") {
+    const checklistKey: Partial<Record<typeof key, string>> = {
+      transfer: "Sprawdź transfer z lotniska i taxi na miejscu",
+      attractions: "Zarezerwuj najważniejsze atrakcje",
+      esim: "Sprawdź internet / eSIM",
+      parking: "Zarezerwuj parking przy lotnisku",
+    };
+    const nextChecklist = { ...(trip.checklist || {}) };
+    const mappedChecklist = checklistKey[key];
+    if (mappedChecklist) nextChecklist[mappedChecklist] = true;
+
+    save({
+      ...trip,
+      checklist: nextChecklist,
+      journeyPieces: {
+        ...(trip.journeyPieces || {}),
+        [key]: {
+          ...(trip.journeyPieces?.[key] || {}),
+          status: "owned",
+        },
+      },
+    });
+  }
+
   async function enableReminders() {
     if (!("Notification" in window)) {
       setNotificationStatus("Ta przeglądarka nie obsługuje powiadomień.");
@@ -413,28 +454,45 @@ export default function MyTrip() {
           <section className="trip-cart" aria-label="Koszyk podróży">
             <div className="trip-cart-head">
               <div>
-                <small>KOSZYK PODRÓŻY</small>
-                <h2>Masz już część wyjazdu. Domknij tylko to, czego brakuje.</h2>
-                <p>Tripownia pamięta ten wyjazd, więc nie zaczynasz kolejnych wyszukiwań od zera.</p>
+                <small>KOSZYK PODRÓŻY · {tripCartDone}/{tripCartItems.length} GOTOWE</small>
+                <h2>{nextCartStep ? "Domknij wyjazd krok po kroku." : "Wyjazd jest kompletny."}</h2>
+                <p>{nextCartStep ? "Tripownia pamięta, co już masz i prowadzi tylko do kolejnego brakującego elementu." : "Lot, nocleg i dodatki są oznaczone jako gotowe. Teraz możesz skupić się już na samym wyjeździe."}</p>
               </div>
               <Link href="/dodaj-podroz?edit=active">Edytuj wyjazd</Link>
             </div>
+
+            {nextCartStep ? (
+              <div className="trip-cart-next">
+                <div className="trip-cart-next-copy">
+                  <span>NASTĘPNY KROK</span>
+                  <strong>{nextCartStep.label}</strong>
+                  <small>Najpierw domknij to. Potem pokażemy kolejny brakujący element.</small>
+                </div>
+                <div className="trip-cart-next-actions">
+                  <Link href={nextCartStep.href}>Dodaj teraz <ArrowRight size={15}/></Link>
+                  <button type="button" onClick={() => markJourneyPieceOwned(nextCartStep.key)}>Mam już</button>
+                </div>
+              </div>
+            ) : (
+              <div className="trip-cart-complete"><CheckCircle2 size={20}/><strong>Wszystkie elementy podróży oznaczone jako gotowe.</strong></div>
+            )}
+
             <div className="trip-cart-grid">
-              {[
-                { key:"flight", label:"Lot / transport", done:flightReady, href:trip.suggestedLinks?.flight || "/loty", icon:Plane },
-                { key:"hotel", label:"Nocleg", done:hotelReady, href:trip.suggestedLinks?.hotel || "/hotele", icon:BedDouble },
-                { key:"transfer", label:"Transfer", done:transferReady, href:trip.suggestedLinks?.transfer || "/transfery", icon:Car },
-                { key:"attractions", label:"Atrakcje", done:attractionsReady, href:trip.suggestedLinks?.attractions || "/atrakcje", icon:Ticket },
-                { key:"esim", label:"Internet / eSIM", done:Boolean(trip.journeyPieces?.esim?.status === "owned" || trip.journeyPieces?.esim?.status === "selected" || trip.checklist?.["Sprawdź internet / eSIM"]), href:trip.suggestedLinks?.esim || "/przed-wyjazdem#internet", icon:Wifi },
-                { key:"parking", label:"Parking", done:parkingReady, href:trip.suggestedLinks?.parking || "/przed-wyjazdem#parking", icon:Car },
-              ].map(({key,label,done,href,icon:Icon}) => (
-                <div key={key} className={`trip-cart-item ${done ? "is-done" : "is-missing"}`}>
+              {tripCartItems.map(({key,label,done,href,icon:Icon}) => (
+                <div key={key} className={`trip-cart-item ${done ? "is-done" : "is-missing"} ${nextCartStep?.key === key ? "is-next" : ""}`}>
                   <div className="trip-cart-item-icon"><Icon size={19}/></div>
                   <div className="trip-cart-item-copy">
                     <strong>{label}</strong>
-                    <span>{done ? "Masz" : "Brakuje"}</span>
+                    <span>{done ? "Masz" : nextCartStep?.key === key ? "Teraz to" : "Brakuje"}</span>
                   </div>
-                  {done ? <CheckCircle2 size={19}/> : <Link href={href}>Dodaj <ArrowRight size={14}/></Link>}
+                  {done ? (
+                    <CheckCircle2 size={19}/>
+                  ) : (
+                    <div className="trip-cart-item-actions">
+                      <Link href={href}>Dodaj <ArrowRight size={14}/></Link>
+                      <button type="button" onClick={() => markJourneyPieceOwned(key)}>Mam już</button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
