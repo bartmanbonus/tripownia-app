@@ -445,7 +445,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
   const isFerieAllInclusiveLanding = isFerie2027Landing && page.query.toLocaleLowerCase("pl").includes("all inclusive");
 
   return (
-    <main className="seo-travel-landing-v3">
+    <main className={`seo-travel-landing-v3 ${isFerie2027Landing ? "seo-travel-landing-ferie" : ""}`}>
       <SiteHeader />
       <SalesCollectionSchema name={page.title} description={page.lead} path={`/podroze/${page.slug}`} about={[page.query, page.departure ? `${page.query} z ${page.departure}` : "tanie podróże"]} />
       <BreadcrumbSchema items={[
