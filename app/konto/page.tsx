@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
-import { CheckCircle2, Cloud, Download, LogOut, Mail, ShieldCheck, Sparkles, Trash2, UserRound } from "lucide-react";
+import { CheckCircle2, Cloud, Download, Heart, LogOut, Mail, MapPinned, Plus, RefreshCw, ShieldCheck, Sparkles, Trash2, UserRound } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { readTravelProfile } from "@/lib/travelProfile";
@@ -405,12 +405,14 @@ export default function AccountPage() {
     <main>
       <SiteHeader />
       <section className="shell account-page">
-        <div className="account-hero">
+        <div className={`account-hero${session && user ? " is-logged" : ""}`}>
           <div className="account-hero-icon"><UserRound size={28}/></div>
           <div>
             <div className="kicker">TWOJA TRIPOWNIA</div>
-            <h1>Konto, które pamięta jak podróżujesz.</h1>
-            <p>Po zalogowaniu Tripownia synchronizuje profil, podróże, checklisty, rezerwacje, wydatki, alerty i zapisane oferty między urządzeniami.</p>
+            <h1>{session && user ? "Wszystko pod ręką." : "Konto, które pamięta jak podróżujesz."}</h1>
+            <p>{session && user
+              ? "Podróże, zapisane oferty i preferencje są zsynchronizowane z Twoim kontem."
+              : "Po zalogowaniu Tripownia synchronizuje profil, podróże, checklisty, rezerwacje, wydatki, alerty i zapisane oferty między urządzeniami."}</p>
           </div>
         </div>
 
@@ -461,33 +463,83 @@ export default function AccountPage() {
             </div>
           </div>
         ) : session && user ? (
-          <div className="account-grid">
-            <div className="account-card">
-              <div className="account-card-title"><CheckCircle2 size={21}/><div><small>ZALOGOWANO</small><strong>{user.email || "Konto Tripowni"}</strong></div></div>
-              <p>Synchronizacja działa automatycznie. Poniższe przyciski pozwalają też ręcznie wymusić zapis lub wczytanie danych.</p>
-              <button type="button" className="account-primary-button" onClick={syncLocalData} disabled={busy}><Cloud size={17}/>{busy ? "Synchronizuję…" : "Zapisz to urządzenie w chmurze"}</button>
-              {cloudState && <button type="button" className="account-social-button" onClick={restoreCloudData} disabled={busy}><Download size={16}/> Wczytaj dane z chmury na to urządzenie</button>}
-              <button type="button" className="account-logout" onClick={logout} disabled={busy}><LogOut size={16}/> Wyloguj</button>
-              <button type="button" className="account-delete" onClick={removeAccount} disabled={busy}><Trash2 size={16}/> Usuń konto i dane</button>
-            </div>
+          <div className="account-dashboard">
+            <section className="account-card account-dashboard-main">
+              <div className="account-dashboard-head">
+                <div>
+                  <div className="account-card-title account-card-title-compact">
+                    <Sparkles size={21}/>
+                    <div><small>TWOJA TRIPOWNIA</small><strong>Twój podróżniczy pulpit</strong></div>
+                  </div>
+                  <p>Wracaj do swoich planów bez szukania po całym serwisie.</p>
+                </div>
+                <div className="account-sync-status" aria-label="Status synchronizacji">
+                  <CheckCircle2 size={16}/>
+                  <span>{cloudState ? "Dane zsynchronizowane" : "Synchronizacja aktywna"}</span>
+                </div>
+              </div>
 
-            <div className="account-card">
-              <div className="account-card-title"><Sparkles size={21}/><div><small>TWOJE DANE</small><strong>{cloudState ? "Kopia w chmurze istnieje" : "Utwórz pierwszą kopię"}</strong></div></div>
-              <div className="account-local-stats account-local-stats-grid">
-                <span><b>{localStats.trips}</b> zapisanych podróży</span>
-                <span><b>{localStats.visited}</b> odwiedzonych krajów</span>
-                <span><b>{localStats.favorites}</b> ulubionych</span>
-                <span><b>{localStats.compare}</b> porównywanych</span>
+              <div className="account-stat-cards">
+                <Link href="/moje-podroze" className="account-stat-card">
+                  <span>Podróże</span><b>{localStats.trips}</b><small>zapisane wyjazdy</small>
+                </Link>
+                <Link href="/profil" className="account-stat-card">
+                  <span>Kraje</span><b>{localStats.visited}</b><small>odwiedzone</small>
+                </Link>
+                <Link href="/dla-ciebie" className="account-stat-card">
+                  <span>Ulubione</span><b>{localStats.favorites}</b><small>zapisane oferty</small>
+                </Link>
+                <Link href="/dla-ciebie" className="account-stat-card">
+                  <span>Porównania</span><b>{localStats.compare}</b><small>oferty do decyzji</small>
+                </Link>
               </div>
-              <div className="account-hub-links">
-                <Link href="/moje-podroze">Moje podróże →</Link>
-                <Link href="/dodaj-podroz">+ Dodaj podróż</Link>
-                <Link href="/profil">Mój profil →</Link>
-                <Link href="/dla-ciebie">Dla Ciebie →</Link>
-                {user.app_metadata?.role === "admin" && <Link href="/admin">Panel administratora →</Link>}
+
+              <div className="account-dashboard-actions">
+                <Link href="/moje-podroze" className="account-primary-link"><MapPinned size={18}/> Moje podróże</Link>
+                <Link href="/dodaj-podroz" className="account-action-link"><Plus size={18}/> Dodaj podróż</Link>
+                <Link href="/dla-ciebie" className="account-action-link"><Heart size={18}/> Dla Ciebie</Link>
+                <Link href="/profil" className="account-action-link"><UserRound size={18}/> Mój profil</Link>
+                {user.app_metadata?.role === "admin" && <Link href="/admin" className="account-action-link">Panel administratora</Link>}
               </div>
-              <small className="account-footnote">Dane kont są odseparowane regułami dostępu — zalogowany użytkownik widzi i zmienia wyłącznie swój zapis.</small>
-            </div>
+            </section>
+
+            <aside className="account-card account-account-panel">
+              <div className="account-card-title account-card-title-compact">
+                <UserRound size={21}/>
+                <div><small>KONTO</small><strong>{user.email || "Konto Tripowni"}</strong></div>
+              </div>
+
+              <div className="account-cloud-note">
+                <Cloud size={17}/>
+                <div>
+                  <strong>Synchronizacja działa automatycznie</strong>
+                  <span>Zmiany zapisują się na koncie i są dostępne na innych urządzeniach.</span>
+                </div>
+              </div>
+
+              <details className="account-sync-details">
+                <summary><RefreshCw size={16}/> Synchronizacja i bezpieczeństwo</summary>
+                <div className="account-sync-details-body">
+                  <p>Ręczne opcje są potrzebne tylko wtedy, gdy chcesz wymusić zapis lub przywrócić kopię na tym urządzeniu.</p>
+                  <button type="button" className="account-sync-button" onClick={syncLocalData} disabled={busy}>
+                    <Cloud size={16}/>{busy ? "Synchronizuję…" : "Zapisz teraz do chmury"}
+                  </button>
+                  {cloudState && (
+                    <button type="button" className="account-sync-button secondary" onClick={restoreCloudData} disabled={busy}>
+                      <Download size={16}/> Przywróć dane z chmury
+                    </button>
+                  )}
+                  <small>Przywrócenie kopii wczyta dane konta na tym urządzeniu.</small>
+                </div>
+              </details>
+
+              <div className="account-account-actions">
+                <button type="button" className="account-logout" onClick={logout} disabled={busy}><LogOut size={16}/> Wyloguj</button>
+                <button type="button" className="account-delete" onClick={removeAccount} disabled={busy}><Trash2 size={16}/> Usuń konto</button>
+              </div>
+
+              <small className="account-footnote">Twoje dane są przypisane wyłącznie do zalogowanego konta.</small>
+            </aside>
           </div>
         ) : (
           <div className="account-grid">
