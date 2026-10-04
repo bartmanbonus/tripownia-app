@@ -19,7 +19,7 @@ const FALLBACKS: Record<string, string[]> = {
   "wyspy zielonego przyladka": ["Wyspy Zielonego Przylądka", "Sal", "Boa Vista"],
   "city break": ["Malta", "Rzym", "Cypr", "Stambuł", "Wiedeń", "Praga", "Budapeszt"],
   "cieple wakacje": ["Egipt", "Teneryfa", "Fuerteventura", "Maroko", "Malta", "Cypr"],
-  "all inclusive": ["Egipt", "Turcja", "Tunezja"], egzotyka: ["Zanzibar", "Malediwy", "Tajlandia", "Dominikana", "Mauritius"],
+  "all inclusive": ["Egipt", "Turcja", "Tunezja", "Grecja", "Cypr", "Wyspy Kanaryjskie", "Maroko", "Wyspy Zielonego Przylądka"], egzotyka: ["Zanzibar", "Malediwy", "Tajlandia", "Dominikana", "Mauritius"],
   "last minute": ["Egipt", "Turcja", "Tunezja", "Cypr"], wakacje: ["Grecja", "Turcja", "Egipt", "Cypr"],
 };
 
@@ -152,6 +152,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     function seasonalScope(items: SeasonalOffer[]) { return items.filter(dateMatches); }
     function strictFilter(items: SeasonalOffer[]) {
       return seasonalScope(items).filter((offer) => {
+        if (normalize(query) === "all inclusive" && !termMatchesOffer("all inclusive", offer)) return false;
         if (typeof minNights === "number" && offer.nights < minNights) return false;
         if (typeof maxNights === "number" && offer.nights > maxNights) return false;
         if (typeof maxPrice === "number" && offer.price > maxPrice) return false;
@@ -166,8 +167,8 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
         const gathered: SeasonalOffer[] = [];
         for (const term of queries) {
           gathered.push(...(await fetchFor(term, from || undefined)));
-          if (strictFilter(uniqByProduct(gathered)).length >= 6) break;
-          if (cityBreakOverview || (GENERIC_TERMS.has(normalize(query)) && from)) break;
+          if (strictFilter(uniqByProduct(gathered)).length >= 18) break;
+          if (cityBreakOverview) break;
         }
 
         const unique = uniqByProduct(gathered).sort((a, b) => a.price - b.price);
@@ -180,12 +181,12 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
             if (seen.has(key)) return false;
             seen.add(key);
             return true;
-          }) : strict.slice(0, 6));
+          }) : strict.slice(0, 18));
           setRelaxed(false);
         } else {
           const seasonal = seasonalScope(unique);
           if (seasonal.length > 0 && !cityBreakOverview) {
-            setOffers(seasonal.slice(0, 6));
+            setOffers(seasonal.filter((offer) => normalize(query) !== "all inclusive" || termMatchesOffer("all inclusive", offer)).slice(0, 18));
             setRelaxed(true);
           } else {
             setOffers([]);
