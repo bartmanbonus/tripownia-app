@@ -409,6 +409,38 @@ export default function MyTrip() {
           </section>
         )}
 
+        {offer && (
+          <section className="trip-cart" aria-label="Koszyk podróży">
+            <div className="trip-cart-head">
+              <div>
+                <small>KOSZYK PODRÓŻY</small>
+                <h2>Masz już część wyjazdu. Domknij tylko to, czego brakuje.</h2>
+                <p>Tripownia pamięta ten wyjazd, więc nie zaczynasz kolejnych wyszukiwań od zera.</p>
+              </div>
+              <Link href="/dodaj-podroz?edit=active">Edytuj wyjazd</Link>
+            </div>
+            <div className="trip-cart-grid">
+              {[
+                { key:"flight", label:"Lot / transport", done:flightReady, href:trip.suggestedLinks?.flight || "/loty", icon:Plane },
+                { key:"hotel", label:"Nocleg", done:hotelReady, href:trip.suggestedLinks?.hotel || "/hotele", icon:BedDouble },
+                { key:"transfer", label:"Transfer", done:transferReady, href:trip.suggestedLinks?.transfer || "/transfery", icon:Car },
+                { key:"attractions", label:"Atrakcje", done:attractionsReady, href:trip.suggestedLinks?.attractions || "/atrakcje", icon:Ticket },
+                { key:"esim", label:"Internet / eSIM", done:Boolean(trip.journeyPieces?.esim?.status === "owned" || trip.journeyPieces?.esim?.status === "selected" || trip.checklist?.["Sprawdź internet / eSIM"]), href:trip.suggestedLinks?.esim || "/przed-wyjazdem#internet", icon:Wifi },
+                { key:"parking", label:"Parking", done:parkingReady, href:trip.suggestedLinks?.parking || "/przed-wyjazdem#parking", icon:Car },
+              ].map(({key,label,done,href,icon:Icon}) => (
+                <div key={key} className={`trip-cart-item ${done ? "is-done" : "is-missing"}`}>
+                  <div className="trip-cart-item-icon"><Icon size={19}/></div>
+                  <div className="trip-cart-item-copy">
+                    <strong>{label}</strong>
+                    <span>{done ? "Masz" : "Brakuje"}</span>
+                  </div>
+                  {done ? <CheckCircle2 size={19}/> : <Link href={href}>Dodaj <ArrowRight size={14}/></Link>}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {offer && accountStatus !== "loading" && (
           <section className={`trip-account-panel ${accountStatus === "signed-in" ? "is-synced" : "is-guest"}`} aria-label="Zapis planu na koncie">
             <div className="trip-account-panel-icon">{accountStatus === "signed-in" ? <Cloud size={21}/> : <UserRound size={21}/>}</div>
