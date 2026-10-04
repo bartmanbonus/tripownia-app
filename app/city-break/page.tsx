@@ -74,6 +74,15 @@ export default function CityBreakPage() {
       </div>
     </section>
 
+    <section className={[styles.shell, styles.section].join(" ")}>
+      <div className={styles.sectionHead}>
+        <div><div className={styles.kicker}>AKTUALNE PROPOZYCJE</div><h2>Najtańsze city breaki teraz</h2><p>Aktualne ceny z bieżących źródeł. Sortujemy od najniższej ceny i pokazujemy krótkie wyjazdy.</p></div>
+        <Link href="/okazje">Wszystkie okazje →</Link>
+      </div>
+      <LiveSalesRail mode="citybreak" limit={8} initialOffers={homepageFallbackOffers}/>
+    </section>
+    <section className={[styles.shell, styles.section].join(" ")}><FacebookFollowCTA placement="city_break_after_offers" compact /></section>
+
     <section className={styles.shell} id="szukaj-city-break">
       <div className={styles.searchPanel}>
         <div className={styles.searchPanelHead}>
@@ -89,15 +98,6 @@ export default function CityBreakPage() {
         />
       </div>
     </section>
-
-    <section className={[styles.shell, styles.section].join(" ")}>
-      <div className={styles.sectionHead}>
-        <div><div className={styles.kicker}>AKTUALNE PROPOZYCJE</div><h2>Najtańsze city breaki teraz</h2><p>Aktualne ceny z bieżących źródeł. Sortujemy od najniższej ceny i pokazujemy krótkie wyjazdy.</p></div>
-        <Link href="/okazje">Wszystkie okazje →</Link>
-      </div>
-      <LiveSalesRail mode="citybreak" limit={8} initialOffers={homepageFallbackOffers}/>
-    </section>
-    <section className={[styles.shell, styles.section].join(" ")}><FacebookFollowCTA placement="city_break_after_offers" compact /></section>
 
     <section className={[styles.shell, styles.section].join(" ")}>
       <div className={styles.sectionHead}>
