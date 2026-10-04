@@ -24,7 +24,7 @@ type SourceResult = {
 };
 
 // Keep a broad enough live pool so valid affiliate deals are not hidden too early.
-const DEAL_LIMIT = 36;
+const DEAL_LIMIT = 60;
 
 function normalize(value: string | undefined | null) {
   return (value || "")
@@ -120,6 +120,16 @@ function dateMatches(offer: DealsOffer, month: string, year: string) {
   return Boolean(monthName && dateText.includes(monthName));
 }
 
+function selectedMonthSourceParams(month: string, year: string): Record<string, string> {
+  if (!month || !year) return {};
+  const lastDay = new Date(Date.UTC(Number(year), Number(month), 0)).getUTCDate();
+  return {
+    start: `${year}-${month}-01`,
+    end: `${year}-${month}-${String(lastDay).padStart(2, "0")}`,
+    dateKind: "departure",
+  };
+}
+
 function monthDistance(offer: DealsOffer, month: string, year: string) {
   const parts = dateParts(offer);
   if (!parts) return Number.POSITIVE_INFINITY;
@@ -200,27 +210,35 @@ export async function GET(request: NextRequest) {
   const year = /^20\d{2}$/.test(rawYear) ? rawYear : "";
   const hasScopedFallbackFilter = Boolean(airport || month || year);
 
-  // Okazje use one combined live package pool across available providers plus
-  // short EXIM city breaks. We deduplicate only after the combined pool is loaded,
-  // so a temporarily partial provider response cannot be mistaken for the cheapest deal.
-  const results = await Promise.all([
-    // eSky is our strongest package source for long-tail directions. Keep it in
-    // destination searches instead of relying only on EXIM/TUI feeds.
+  // Destination pages must search the selected month at the provider, not filter
+  // one generic snapshot after the fact. Passing airport/date scope upstream makes
+  // long-tail directions (for example Jamaica) return real stock for that month.
+  const sourceScope: Record<string, string> = {
+    ...(airport ? { from: airport } : {}),
+    ...selectedMonthSourceParams(month, year),
+    ...(strict ? { strict: "1" } : {}),
+  };
+
+  const sourceRequests: Array<Promise<SourceResult>> = [
     loadSource(
       request,
       "combined-packages",
       destination
-        ? { mode: "search", q: destination, fast: "1" }
-        : { mode: "search", broad: "1", fast: "1" }
+        ? { mode: "search", q: destination, fast: "1", ...sourceScope }
+        : { mode: "search", broad: "1", fast: "1", ...sourceScope }
     ),
-    loadSource(
-      request,
-      "combined-citybreaks",
-      destination
-        ? { mode: "citybreak", q: destination, fast: "1" }
-        : { mode: "citybreak", fast: "1" }
-    ),
-  ]);
+  ];
+
+  // A typed destination search already contains short stays, so running a second
+  // city-break search only duplicates provider traffic and can trigger rate limits.
+  // Keep the extra pool only on the generic deals page, where it adds diversity.
+  if (!destination) {
+    sourceRequests.push(
+      loadSource(request, "combined-citybreaks", { mode: "citybreak", fast: "1", ...sourceScope })
+    );
+  }
+
+  const results = await Promise.all(sourceRequests);
 
   const successful = results.filter((item) => item.response.ok);
   const unavailableSources = results.filter((item) => !item.response.ok || item.payload.partial).map((item) => item.label);
