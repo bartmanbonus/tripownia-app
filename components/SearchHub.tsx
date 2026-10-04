@@ -394,6 +394,7 @@ export default function SearchHub({
   const [resultLocation, setResultLocation] = useState("");
   const [resultDestinationCount, setResultDestinationCount] = useState(0);
   const [resultView, setResultView] = useState<"all" | "destinations">("all");
+  const [resultMatchScope, setResultMatchScope] = useState<"exact" | "alternatives">("exact");
   const [packageSearchLink, setPackageSearchLink] = useState("");
   const [resultSort, setResultSort] = useState<"recommended" | "price" | "rating" | "nights">("price");
   const [visibleCount, setVisibleCount] = useState(18);
@@ -459,9 +460,22 @@ export default function SearchHub({
     };
   }, [destination]);
 
+  const exactResultCount = useMemo(
+    () => results.filter((offer) => searchTier(offer) === 0).length,
+    [results],
+  );
+  const alternativeResultCount = useMemo(
+    () => results.filter((offer) => searchTier(offer) > 0).length,
+    [results],
+  );
+  const scopedResults = useMemo(
+    () => results.filter((offer) => resultMatchScope === "exact" ? searchTier(offer) === 0 : searchTier(offer) > 0),
+    [results, resultMatchScope],
+  );
+
   const resultLocations = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const offer of results) {
+    for (const offer of scopedResults) {
       const label = String(offer?.city || offer?.country || "").trim();
       if (!label) continue;
       counts.set(label, (counts.get(label) || 0) + 1);
@@ -469,19 +483,19 @@ export default function SearchHub({
     return Array.from(counts.entries())
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pl"))
       .slice(0, 12);
-  }, [results]);
+  }, [scopedResults]);
 
   const visibleResults = useMemo(() => {
     const filtered = resultLocation
-      ? results.filter((offer) => String(offer?.city || offer?.country || "").trim() === resultLocation)
-      : [...results];
+      ? scopedResults.filter((offer) => String(offer?.city || offer?.country || "").trim() === resultLocation)
+      : [...scopedResults];
     const displayRows = resultView === "destinations" ? cheapestDirectionRows(filtered) : filtered;
 
     if (resultSort === "price") return rankSearchOffers(displayRows);
     if (resultSort === "rating") return [...displayRows].sort((a, b) => searchTier(a) - searchTier(b) || Number(b?.score || 0) - Number(a?.score || 0) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
     if (resultSort === "nights") return [...displayRows].sort((a, b) => searchTier(a) - searchTier(b) || Number(a?.nights || Infinity) - Number(b?.nights || Infinity) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
     return displayRows;
-  }, [results, resultLocation, resultSort, resultView]);
+  }, [scopedResults, resultLocation, resultSort, resultView]);
 
   const exactVisibleResults = useMemo(
     () => visibleResults.filter((offer) => searchTier(offer) === 0),
@@ -692,6 +706,7 @@ export default function SearchHub({
     setSearched(true);
     setResultDestinationCount(requested.length);
     setResultView(activeMode === "City break" && !requested.length ? "destinations" : "all");
+    setResultMatchScope("exact");
     setResults([]);
     setVisibleCount(18);
     setResultLocation("");
@@ -876,6 +891,7 @@ export default function SearchHub({
         if (runId !== searchRunRef.current) return;
       }
       const alternatives = rows.filter((offer) => searchTier(offer) > 0).length;
+      if (exactCount === 0 && alternatives > 0) setResultMatchScope("alternatives");
       setNotice([
         rows.length ? "Ceny za osobę. Najtańsze najpierw w każdej grupie dopasowania." : "Nie mamy jeszcze potwierdzonej ceny w feedach dla tych ustawień. Możesz sprawdzić ten sam pakiet bezpośrednio w wyszukiwarce partnera lub porównać lot i nocleg.",
         alternatives > 0 ? `Dokładnych dopasowań: ${exactCount}. Alternatywy (${alternatives}) są oznaczone na kartach.` : "",
@@ -1178,6 +1194,7 @@ export default function SearchHub({
     setResults([]);
     setResultLocation("");
     setResultDestinationCount(0);
+    setResultMatchScope("exact");
     setVisibleCount(18);
     setNotice("");
     setSearched(false);
@@ -1870,31 +1887,90 @@ export default function SearchHub({
               <span>{departures.length ? departures.length === 1 ? "1 wybrane lotnisko" : `${departures.length} wybrane lotniska` : "Wszystkie lotniska"} · {dateSummary} · {durationSummary} · {budgetSummary}</span>
             </div>
             <div className="search-v3-results-head" role="status" aria-live="polite">
-              <div><small>WYNIKI</small><h3>{expanding ? (visibleResults.length ? `Mamy ${visibleResults.length} ofert — szukamy jeszcze szerzej…` : "Szukamy szerzej…") : loading ? "Sprawdzamy aktualne oferty…" : visibleResults.length ? `Znalezione oferty: ${visibleResults.length}` : "Sprawdź dostępne pakiety lot + hotel"}</h3></div>
+              <div>
+                <small>WYNIKI</small>
+                <h3>{
+                  loading && results.length === 0
+                    ? "Sprawdzamy aktualne oferty…"
+                    : resultMatchScope === "exact"
+                      ? exactResultCount > 0 ? `Dokładnie w Twoich filtrach: ${exactResultCount}` : "Brak dokładnego dopasowania"
+                      : `Alternatywy: ${alternativeResultCount}`
+                }</h3>
+              </div>
               {notice && <p>{notice}</p>}
             </div>
 
             {!loading && results.length > 0 && (
               <>
-                <div className="search-v3-sales-sort" aria-label="Szybkie sortowanie ofert">
-                  <button type="button" className={resultSort === "price" ? "active" : ""} onClick={() => { setResultSort("price"); setVisibleCount(18); }}>Najtańsze</button>
-                  <button type="button" className={resultSort === "recommended" ? "active" : ""} onClick={() => { setResultSort("recommended"); setVisibleCount(18); }}>Polecane</button>
-                  <button type="button" className={resultSort === "rating" ? "active" : ""} onClick={() => { setResultSort("rating"); setVisibleCount(18); }}>Najwyżej oceniane</button>
-                  <button type="button" className={resultSort === "nights" ? "active" : ""} onClick={() => { setResultSort("nights"); setVisibleCount(18); }}>Najkrótsze</button>
+                <div className="search-v3-match-tabs" aria-label="Zakres dopasowania wyników">
+                  <button
+                    type="button"
+                    className={resultMatchScope === "exact" ? "active" : ""}
+                    aria-pressed={resultMatchScope === "exact"}
+                    disabled={exactResultCount === 0}
+                    onClick={() => {
+                      setResultMatchScope("exact");
+                      setResultLocation("");
+                      setResultView("all");
+                      setVisibleCount(18);
+                    }}
+                  >
+                    <span>Twój termin i filtry</span>
+                    <b>{exactResultCount}</b>
+                  </button>
+                  {alternativeResultCount > 0 && (
+                    <button
+                      type="button"
+                      className={resultMatchScope === "alternatives" ? "active" : ""}
+                      aria-pressed={resultMatchScope === "alternatives"}
+                      onClick={() => {
+                        setResultMatchScope("alternatives");
+                        setResultLocation("");
+                        setResultView("all");
+                        setVisibleCount(18);
+                      }}
+                    >
+                      <span>Inne terminy / parametry</span>
+                      <b>{alternativeResultCount}</b>
+                    </button>
+                  )}
                 </div>
-                <div className="search-v3-sales-sort" aria-label="Widok wyników">
-                  <button type="button" className={resultView === "all" ? "active" : ""} onClick={() => { setResultView("all"); setVisibleCount(18); }}>Wszystkie oferty ({results.length})</button>
-                  <button type="button" className={resultView === "destinations" ? "active" : ""} onClick={() => { setResultView("destinations"); setVisibleCount(18); }}>Różne kierunki ({cheapestDirectionRows(results).length})</button>
+
+                <div className="search-v3-results-controls">
+                  <div className="search-v3-sales-sort" aria-label="Szybkie sortowanie ofert">
+                    <button type="button" className={resultSort === "price" ? "active" : ""} onClick={() => { setResultSort("price"); setVisibleCount(18); }}>Najtańsze</button>
+                    <button type="button" className={resultSort === "recommended" ? "active" : ""} onClick={() => { setResultSort("recommended"); setVisibleCount(18); }}>Polecane</button>
+                    <button type="button" className={resultSort === "rating" ? "active" : ""} onClick={() => { setResultSort("rating"); setVisibleCount(18); }}>Ocena</button>
+                    <button type="button" className={resultSort === "nights" ? "active" : ""} onClick={() => { setResultSort("nights"); setVisibleCount(18); }}>Najkrótsze</button>
+                  </div>
+                  <div className="search-v3-sales-sort search-v3-view-switch" aria-label="Widok wyników">
+                    <button type="button" className={resultView === "all" ? "active" : ""} onClick={() => { setResultView("all"); setVisibleCount(18); }}>
+                      Wszystkie ({scopedResults.length})
+                    </button>
+                    <button type="button" className={resultView === "destinations" ? "active" : ""} onClick={() => { setResultView("destinations"); setResultLocation(""); setVisibleCount(18); }}>
+                      1 na kierunek ({cheapestDirectionRows(scopedResults).length})
+                    </button>
+                  </div>
                 </div>
-                {resultLocations.length > 1 && (
+
+                {resultLocations.length > 1 && resultView === "all" && (
                   <div className="search-v3-results-toolbar">
                     <div className="search-v3-result-filters" aria-label="Filtruj wyniki po miejscowości">
-                      <span>Miejscowość</span>
+                      <span>{resultMatchScope === "exact" ? "Miejsce w Twoim terminie" : "Miejsce w alternatywach"}</span>
                       <button type="button" className={!resultLocation ? "active" : ""} onClick={() => { setResultLocation(""); setVisibleCount(18); }}>
-                        Wszystkie <b>{results.length}</b>
+                        Wszystkie <b>{scopedResults.length}</b>
                       </button>
                       {resultLocations.map(([location, count]) => (
-                        <button type="button" key={location} className={resultLocation === location ? "active" : ""} onClick={() => { setResultLocation(location); setVisibleCount(18); }}>
+                        <button
+                          type="button"
+                          key={location}
+                          className={resultLocation === location ? "active" : ""}
+                          onClick={() => {
+                            setResultLocation(location);
+                            setResultView("all");
+                            setVisibleCount(18);
+                          }}
+                        >
                           {location} <b>{count}</b>
                         </button>
                       ))}
@@ -1904,8 +1980,8 @@ export default function SearchHub({
                 {exactVisibleResults.length > 0 && (
                   <section className="search-v3-result-group search-v3-result-group-exact" aria-label="Dokładne dopasowania">
                     <div className="search-v3-result-group-head">
-                      <div><small>DOKŁADNE DOPASOWANIA</small><strong>{exactVisibleResults.length} {exactVisibleResults.length === 1 ? "oferta zgodna" : "ofert zgodnych"} z filtrami</strong></div>
-                      <span>Najtańsze dokładne opcje pokazujemy jako pierwsze.</span>
+                      <div><small>TWÓJ TERMIN</small><strong>{resultLocation ? `${resultLocation}: ${exactVisibleResults.length}` : `Oferty zgodne z terminem i filtrami: ${exactVisibleResults.length}`}</strong></div>
+                      <span>Tu nie mieszamy ofert z innymi datami.</span>
                     </div>
                     <div className="search-v3-results-grid">
                       {exactVisibleResults.slice(0, visibleCount).map((offer) => (
@@ -1917,14 +1993,14 @@ export default function SearchHub({
                   </section>
                 )}
 
-                {alternativeVisibleResults.length > 0 && visibleCount > exactVisibleResults.length && (
+                {alternativeVisibleResults.length > 0 && (
                   <section className="search-v3-result-group search-v3-result-group-alternative" aria-label="Alternatywne oferty">
                     <div className="search-v3-result-group-head">
-                      <div><small>ALTERNATYWY</small><strong>Podobne opcje, ale nie 1:1 z filtrami</strong></div>
-                      <span>Różnica jest zawsze opisana nad kartą.</span>
+                      <div><small>INNE TERMINY / PARAMETRY</small><strong>{resultLocation ? `${resultLocation}: ${alternativeVisibleResults.length}` : `Alternatywy: ${alternativeVisibleResults.length}`}</strong></div>
+                      <span>Każda różnica względem wyszukiwania jest opisana nad kartą.</span>
                     </div>
                     <div className="search-v3-results-grid">
-                      {alternativeVisibleResults.slice(0, Math.max(0, visibleCount - exactVisibleResults.length)).map((offer) => (
+                      {alternativeVisibleResults.slice(0, visibleCount).map((offer) => (
                         <div key={offer.id} className="search-v3-result-item is-alternative" onClickCapture={() => updateSearchResumeScroll(window.scrollY)}>
                           <p className="search-v3-alternative-label">Alternatywa: {offer.searchAlternative || "inne parametry"}</p>
                           <OfferCard offer={offer} sourceSurface="search_results"/>
