@@ -90,7 +90,7 @@ function offerStoryHook(offer: Offer) {
 }
 
 
-export default function OfferCard({ offer, priceHighlight, sourceSurface }: { offer: Offer; priceHighlight?: PriceHighlight; sourceSurface?: string }) {
+export default function OfferCard({ offer, priceHighlight, sourceSurface, showIndicativePrice = false }: { offer: Offer; priceHighlight?: PriceHighlight; sourceSurface?: string; showIndicativePrice?: boolean }) {
   const [liked, setLiked] = useState(false);
   const [compared, setCompared] = useState(false);
   const [compareCount, setCompareCount] = useState(0);
@@ -297,7 +297,9 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
   const trustText = isExpired
     ? "Oferta wygasła"
     : isUnverifiedEximPrice
-      ? "Cena z feedu partnera nie jest potwierdzona live"
+      ? showIndicativePrice && checkedAt
+        ? `Ostatni odczyt: ${checkedAt} · potwierdź aktualną cenę przed rezerwacją`
+        : "Cena z feedu partnera nie jest potwierdzona live"
       : checkedAt
         ? `Cena sprawdzona: ${checkedAt}`
         : isLiveOffer || isExactLink
@@ -343,8 +345,10 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
           </div>
         )}
 
-        {isUnverifiedEximPrice ? (
+        {isUnverifiedEximPrice && !showIndicativePrice ? (
           <div className="price"><strong>Sprawdź aktualną cenę</strong></div>
+        ) : isUnverifiedEximPrice ? (
+          <div className="price"><small>ostatnio od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
         ) : (
           <div className="price"><small>od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
         )}
