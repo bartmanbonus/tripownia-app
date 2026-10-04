@@ -8,7 +8,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { readTravelProfile } from "@/lib/travelProfile";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
-import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState, hasMeaningfulLocalAccountState, mergeAnonymousAccountState } from "@/lib/accountState";
+import { applyCloudAccountState, clearLocalAccountState, collectLocalAccountState, hasMeaningfulLocalAccountState, mergeAnonymousAccountState, prepareLocalStateForAccount, protectLocalAccountPrivacy } from "@/lib/accountState";
 import {
   accountAuthEventName,
   consumeAccountAuthErrorFromUrl,
@@ -63,6 +63,10 @@ export default function AccountPage() {
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("mode") === "register") setAuthMode("register");
+    if (protectLocalAccountPrivacy()) {
+      setMessage("Dane planera gościa wygasły po 30 dniach i zostały usunięte z tego urządzenia.");
+      setSynced((value) => value + 1);
+    }
   }, []);
 
   useEffect(() => {
@@ -118,10 +122,13 @@ export default function AccountPage() {
           getAccountUser(current),
           getTripowniaUserState(current),
         ]);
+        if (!accountUser?.id) throw new Error("Nie udało się rozpoznać użytkownika.");
+        const safeLocalState = prepareLocalStateForAccount(accountUser.id);
         let remote = existingRemote;
         if (!remote) {
-          remote = await saveTripowniaUserState(current, collectLocalAccountState()).catch(() => null);
+          remote = await saveTripowniaUserState(current, safeLocalState).catch(() => null);
         }
+        if (remote) applyCloudAccountState(remote);
         if (!cancelled) {
           setUser(accountUser);
           setCloudState(remote);
@@ -187,9 +194,11 @@ export default function AccountPage() {
         const result = await signUpWithPassword(cleanEmail, password, confirmRedirect);
         if (result.session) {
           const remote = await getTripowniaUserState(result.session).catch(() => null);
-          if (!remote) await saveTripowniaUserState(result.session, collectLocalAccountState());
           setSession(result.session);
           const accountUser = await getAccountUser(result.session);
+          if (!accountUser?.id) throw new Error("Nie udało się rozpoznać użytkownika.");
+          const saved = remote || await saveTripowniaUserState(result.session, prepareLocalStateForAccount(accountUser.id));
+          if (saved) applyCloudAccountState(saved);
           setUser(accountUser);
           trackEvent("sign_up", { method: "password", confirmation_required: false });
           trackMetaCustomEvent("AccountCreated", { method: "password" });
@@ -226,7 +235,8 @@ export default function AccountPage() {
             setCloudState(remote);
           }
         } else {
-          const saved = await saveTripowniaUserState(logged, collectLocalAccountState());
+          const saved = await saveTripowniaUserState(logged, prepareLocalStateForAccount(accountUser.id));
+          if (saved) applyCloudAccountState(saved);
           setCloudState(saved);
         }
         trackEvent("login", { method: "password" });
@@ -367,6 +377,14 @@ export default function AccountPage() {
     setSynced((value) => value + 1);
     setBusy(false);
     setMessage("Wylogowano. Prywatne dane podróży zostały usunięte z tego urządzenia; kopia konta pozostaje w chmurze.");
+  }
+
+  function clearDeviceData() {
+    const confirmed = window.confirm("Usunąć z tego urządzenia lokalny planer, podróże, profil, ulubione i alerty? Danych zapisanych na koncie w chmurze to nie usunie.");
+    if (!confirmed) return;
+    clearLocalAccountState();
+    setSynced((value) => value + 1);
+    setMessage("Prywatne dane Tripowni zostały usunięte z tego urządzenia.");
   }
 
   async function removeAccount() {
@@ -630,7 +648,12 @@ export default function AccountPage() {
                 <li>alerty podróżnicze</li>
                 <li>personalizowane rekomendacje</li>
               </ul>
-              <small className="account-footnote">Nie potrzebujesz konta, żeby przeglądać Tripownię. Konto służy do synchronizacji i personalizacji.</small>
+              <small className="account-footnote">Nie potrzebujesz konta, żeby przeglądać Tripownię. Bez logowania planer zapisuje dane tylko na tym urządzeniu i usuwa nieużywane dane gościa po 30 dniach.</small>
+              {hasMeaningfulLocalAccountState() && (
+                <button type="button" className="account-delete" onClick={clearDeviceData}>
+                  <Trash2 size={16}/> Wyczyść moje dane z tego urządzenia
+                </button>
+              )}
             </div>
           </div>
         )}
