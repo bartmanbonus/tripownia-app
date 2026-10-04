@@ -807,6 +807,8 @@ export default function AddTripPage() {
                 city={city}
                 country={country}
                 alt={[city, country].filter(Boolean).join(", ")}
+                searchQuery={[sportVenue || city, "football stadium exterior", country].filter(Boolean).join(" ")}
+                preferDynamic
               />
             </div>
 
