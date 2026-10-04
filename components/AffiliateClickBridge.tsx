@@ -61,6 +61,11 @@ function partnerFromUrl(value: string): Partner | null {
 }
 
 function sourceFor(anchor: HTMLAnchorElement) {
+  const explicitSource = anchor.dataset.affiliateSource
+    || anchor.closest<HTMLElement>("[data-affiliate-source]")?.dataset.affiliateSource
+    || "";
+  if (explicitSource) return explicitSource;
+
   const offerCard = anchor.closest<HTMLElement>(".offer-card");
   const offerSurface = offerCard?.dataset.offerSurface || "";
   if (anchor.classList.contains("card-cta")) return offerSurface ? `offer_card:${offerSurface}` : "offer_card";
