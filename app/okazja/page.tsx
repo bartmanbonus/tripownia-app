@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, MapPin, Plane, Moon, Utensils, CalendarDays, BadgeCheck, PlusCircle, MousePointerClick, RotateCcw, ShieldCheck } from "lucide-react";
+import { ArrowLeft, MapPin, Plane, Moon, Utensils, CalendarDays, BadgeCheck, PlusCircle } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Image from "next/image";
@@ -11,7 +11,7 @@ import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 
 export const metadata: Metadata = {
   title: "Okazja podróżnicza",
-  description: "Sprawdź szczegóły okazji znalezionej przez Tripownię i przejdź do rezerwacji u partnera.",
+  description: "Sprawdź szczegóły okazji znalezionej przez Tripownię i zarezerwuj wyjazd.",
   robots: { index: false, follow: true },
 };
 
@@ -157,7 +157,7 @@ export default async function SocialOfferLanding({
   // Affiliate booking URLs can be much longer than labels/copy. Do not truncate them.
   const rawTarget = Array.isArray(query.target) ? query.target[0] : query.target || "";
   const target = safeTarget(rawTarget.trim());
-  const note = one(query.note, "Tripownia znalazła tę ofertę u sprawdzonego partnera. Cena i dostępność mogą się zmienić.");
+  const note = one(query.note, "Tripownia znalazła tę ofertę. Cena i dostępność mogą się zmienić.");
   if (!target) return notFound();
 
   const imageSrc = destinationImage(city, country);
@@ -236,7 +236,7 @@ export default async function SocialOfferLanding({
             <div className="detail-topline">
               <div className="detail-score">
                 <BadgeCheck size={18}/>
-                <span>Najpierw Tripownia, potem rezerwacja</span>
+                <span>Oferta wybrana przez Tripownię</span>
               </div>
             </div>
 
@@ -264,19 +264,9 @@ export default async function SocialOfferLanding({
               <span><MapPin/> <b>{[city, country].filter(Boolean).join(", ")}</b></span>
             </div>
 
-            <div className="detail-source">
-              To strona pośrednia Tripowni: dzięki niej mierzymy zainteresowanie ofertą i kliknięcia wychodzące. Rezerwacja i płatność nadal odbywają się bezpośrednio u partnera.
-            </div>
-
-            <div className="tracking-strip" aria-label="Jak działa przejście do rezerwacji">
-              <span><MousePointerClick size={15}/> mierzymy kliknięcie</span>
-              <span><RotateCcw size={15}/> łatwy powrót do Tripowni</span>
-              <span><ShieldCheck size={15}/> bez dodatkowej opłaty</span>
-            </div>
-
-            <div className="detail-action-box">
+            <div className="tripownia-purchase-actions">
               <TrackedPartnerLink
-                className="primary-cta"
+                className="primary-cta tripownia-buy-cta"
                 href={outboundHref}
                 partner={target.partner.key}
                 offerId={Number(offerId) || 0}
@@ -292,14 +282,16 @@ export default async function SocialOfferLanding({
                   end,
                 }}
               >
-                Sprawdź aktualną cenę <ExternalLink size={18}/>
+                Biorę tę ofertę
               </TrackedPartnerLink>
-              <Link className="btn secondary" href={plannerHref}>
-                <PlusCircle size={17}/> Dodaj do planera
-              </Link>
-              <OfferAlternativeJump />
-              <small className="affiliate-note">
-                Kliknięcie jest mierzone przez Tripownię. Rezerwacja i płatność są u partnera; link partnerski może wygenerować dla nas prowizję bez dodatkowego kosztu dla Ciebie.
+              <div className="tripownia-purchase-secondary">
+                <Link className="btn secondary" href={plannerHref}>
+                  <PlusCircle size={17}/> Dodaj do mojego planu
+                </Link>
+                <OfferAlternativeJump />
+              </div>
+              <small className="affiliate-note tripownia-disclosure">
+                Tripownia może otrzymać wynagrodzenie za rezerwację. Cena dla Ciebie się nie zmienia.
               </small>
             </div>
           </div>
