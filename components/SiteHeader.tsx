@@ -31,6 +31,7 @@ import {
   Music2,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
+import { destinationDealsHref, eximDestinations } from "@/lib/eximDestinations";
 
 const primaryItems = [
   { href: "/#wyszukiwarka", label: "Znajdź wyjazd" },
@@ -38,6 +39,12 @@ const primaryItems = [
   { href: "/kierunki", label: "Kierunki" },
   { href: "/wydarzenia", label: "Mecze i eventy" },
 ] as const;
+
+const destinationColumns = [
+  eximDestinations.slice(0, 15),
+  eximDestinations.slice(15, 30),
+  eximDestinations.slice(30),
+];
 
 const bookingItems = [
   { href: "/lot-hotel", label: "Lot + hotel", icon: Ticket },
@@ -182,6 +189,17 @@ export default function SiteHeader() {
                   <Link href="/city-break"><Building2 size={18} /><span>City break</span></Link>
                   <Link href="/last-minute"><Zap size={18} /><span>Last minute</span></Link>
                   <Link href="/kierunki"><Compass size={18} /><span>Kierunki</span></Link>
+                  <details className="trip-mobile-destinations">
+                    <summary><Globe2 size={18} /><span>Lista krajów</span><ChevronDown size={14} /></summary>
+                    <div className="trip-mobile-destinations-grid">
+                      <Link className="trip-mobile-destination-featured" href="/okazje?source=kierunki_menu_bestsellery"><span>Bestsellerowe kierunki</span></Link>
+                      {eximDestinations.map((destination) => (
+                        <Link key={destination.label} href={destinationDealsHref(destination, "mobile_kierunki_menu")} onClick={() => trackEvent("destination_menu_click", { destination: destination.label, placement: "mobile_header" })}>
+                          <span>{destination.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  </details>
                 </div>
                 <div className="trip-mobile-menu-section">
                   <strong>Rezerwuj</strong>
@@ -230,7 +248,35 @@ export default function SiteHeader() {
           <nav className="trip-header-nav" aria-label="Główne kategorie podróży">
             {primaryItems.map((item) => {
               const active = isActive(item.href);
-              return <Link key={item.href} className={`trip-header-nav-link${active ? " is-active" : ""}`} href={item.href} aria-current={active ? "page" : undefined}><span>{item.label}</span></Link>;
+              if (item.href !== "/kierunki") {
+                return <Link key={item.href} className={`trip-header-nav-link${active ? " is-active" : ""}`} href={item.href} aria-current={active ? "page" : undefined}><span>{item.label}</span></Link>;
+              }
+              return (
+                <div className="trip-header-destination-nav" key={item.href}>
+                  <Link className={`trip-header-nav-link${active ? " is-active" : ""}`} href={item.href} aria-current={active ? "page" : undefined}><span>{item.label}</span></Link>
+                  <details className="trip-header-menu trip-header-destinations">
+                    <summary aria-label="Rozwiń listę kierunków"><ChevronDown size={14} strokeWidth={2.2} /></summary>
+                    <div className="trip-destinations-mega">
+                      <div className="trip-destinations-mega-head">
+                        <div><strong>Wybierz kierunek</strong><span>Od razu pokażemy aktualne oferty i najtańsze dostępne warianty.</span></div>
+                        <Link href="/kierunki">Przegląd kierunków →</Link>
+                      </div>
+                      <div className="trip-destinations-grid">
+                        {destinationColumns.map((column, index) => (
+                          <div className="trip-destinations-column" key={index}>
+                            {index === 0 && <Link className="trip-destination-featured" href="/okazje?source=kierunki_menu_bestsellery"><span aria-hidden="true">›</span><strong>Bestsellerowe kierunki</strong></Link>}
+                            {column.map((destination) => (
+                              <Link key={destination.label} href={destinationDealsHref(destination)} onClick={() => trackEvent("destination_menu_click", { destination: destination.label, placement: "desktop_header" })}>
+                                <span aria-hidden="true">›</span><strong>{destination.label}</strong>
+                              </Link>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </details>
+                </div>
+              );
             })}
           </nav>
           <div className="trip-header-tools">
