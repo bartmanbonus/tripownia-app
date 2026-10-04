@@ -1149,8 +1149,8 @@ export default function SearchHub({
 
   const simpleHomePackage = !embedded && activeTab !== "Loty" && activeTab !== "Hotele";
   const visibleTabs = embedded
-    ? ["Loty", "Hotele", "All Inclusive", "City break", "Lot + hotel"]
-    : ["Lot + hotel", "City break", "Loty", "Hotele"];
+    ? ["Lot + hotel", "City break", "Last minute", "Wakacje", "All Inclusive", "Loty", "Hotele"]
+    : ["Lot + hotel", "City break", "Last minute", "Wakacje", "Loty", "Hotele"];
 
   return (
     <section className={embedded ? "search-v3-section search-v3-embedded" : "section shell search-v3-section"} id={embedded ? undefined : "wyszukiwarka"}>
