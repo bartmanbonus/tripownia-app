@@ -24,7 +24,7 @@ type SourceResult = {
 };
 
 // Keep a broad enough live pool so valid affiliate deals are not hidden too early.
-const DEAL_LIMIT = 36;
+const DEAL_LIMIT = 60;
 
 function normalize(value: string | undefined | null) {
   return (value || "")
@@ -120,6 +120,16 @@ function dateMatches(offer: DealsOffer, month: string, year: string) {
   return Boolean(monthName && dateText.includes(monthName));
 }
 
+function selectedMonthSourceParams(month: string, year: string): Record<string, string> {
+  if (!month || !year) return {};
+  const lastDay = new Date(Date.UTC(Number(year), Number(month), 0)).getUTCDate();
+  return {
+    start: `${year}-${month}-01`,
+    end: `${year}-${month}-${String(lastDay).padStart(2, "0")}`,
+    dateKind: "departure",
+  };
+}
+
 function monthDistance(offer: DealsOffer, month: string, year: string) {
   const parts = dateParts(offer);
   if (!parts) return Number.POSITIVE_INFINITY;
@@ -136,6 +146,28 @@ function isUsableDeal(offer: DealsOffer) {
   return isUsableOffer(offer, "live");
 }
 
+function isUsableDestinationCatalogOffer(offer: DealsOffer) {
+  return Boolean(
+    offer
+    && Number.isFinite(Number(offer.price))
+    && Number(offer.price) > 0
+    && offer.affiliateUrl
+    && offer.linkMatch !== "unsafe"
+    && offer.availabilityStatus !== "expired"
+  );
+}
+
+function dedupeDestinationCatalogOffers(offers: DealsOffer[]) {
+  const unique = new Map<string, DealsOffer>();
+  for (const offer of offers) {
+    if (!isUsableDestinationCatalogOffer(offer)) continue;
+    const key = `${offer.partner}:${offer.id}`;
+    const current = unique.get(key);
+    if (!current || Number(offer.price) < Number(current.price)) unique.set(key, offer);
+  }
+  return Array.from(unique.values());
+}
+
 function isUsablePublishedFallback(offer: DealsOffer) {
   return isUsableOffer(offer, "fallback");
 }
@@ -145,7 +177,10 @@ function sortedDestinationOffers(
   mode: "live" | "fallback",
   limit = DEAL_LIMIT
 ) {
-  return dedupeOffersByIdentity(offers, mode)
+  const usable = mode === "live"
+    ? dedupeDestinationCatalogOffers(offers)
+    : dedupeOffersByIdentity(offers, mode);
+  return usable
     .sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0))
     .slice(0, limit);
 }
@@ -166,7 +201,7 @@ function lowestPriceDeals(offers: DealsOffer[], destination: string, limit = DEA
 
 function closestCheapDeals(offers: DealsOffer[], month: string, year: string, destination: string, limit = DEAL_LIMIT) {
   const ranked = destination
-    ? dedupeOffersByIdentity(offers, "live")
+    ? dedupeDestinationCatalogOffers(offers)
     : cheapestPerDestination(offers);
 
   return ranked.sort((a, b) => {
@@ -200,27 +235,33 @@ export async function GET(request: NextRequest) {
   const year = /^20\d{2}$/.test(rawYear) ? rawYear : "";
   const hasScopedFallbackFilter = Boolean(airport || month || year);
 
-  // Okazje use one combined live package pool across available providers plus
-  // short EXIM city breaks. We deduplicate only after the combined pool is loaded,
-  // so a temporarily partial provider response cannot be mistaken for the cheapest deal.
-  const results = await Promise.all([
-    // eSky is our strongest package source for long-tail directions. Keep it in
-    // destination searches instead of relying only on EXIM/TUI feeds.
+  // Push airport/month scope into provider queries so destination pages search
+  // the requested inventory instead of filtering one generic snapshot afterwards.
+  const sourceScope: Record<string, string> = {
+    ...(airport ? { from: airport } : {}),
+    ...selectedMonthSourceParams(month, year),
+    ...(strict ? { strict: "1" } : {}),
+  };
+
+  const sourceRequests: Array<Promise<SourceResult>> = [
     loadSource(
       request,
       "combined-packages",
       destination
-        ? { mode: "search", q: destination, fast: "1" }
-        : { mode: "search", broad: "1", fast: "1" }
+        ? { mode: "search", q: destination, ...sourceScope }
+        : { mode: "search", broad: "1", fast: "1", ...sourceScope }
     ),
-    loadSource(
-      request,
-      "combined-citybreaks",
-      destination
-        ? { mode: "citybreak", q: destination, fast: "1" }
-        : { mode: "citybreak", fast: "1" }
-    ),
-  ]);
+  ];
+
+  // Typed destination search already includes short stays. Avoid a duplicate
+  // city-break request for the same destination, which can trigger provider limits.
+  if (!destination) {
+    sourceRequests.push(
+      loadSource(request, "combined-citybreaks", { mode: "citybreak", fast: "1", ...sourceScope })
+    );
+  }
+
+  const results = await Promise.all(sourceRequests);
 
   const successful = results.filter((item) => item.response.ok);
   const unavailableSources = results.filter((item) => !item.response.ok || item.payload.partial).map((item) => item.label);
@@ -297,7 +338,12 @@ export async function GET(request: NextRequest) {
   }
 
   const combined = successful.flatMap((item) => Array.isArray(item.payload.offers) ? item.payload.offers : []);
-  const sourceOffers = dedupeOffersByIdentity(combined, "live")
+  // Destination catalogue pages are search surfaces, not editorial "top deal" rails.
+  // Keep exact affiliate inventory even when it is expensive or the upstream feed
+  // marks availability as "unknown"; otherwise valid long-haul stock disappears.
+  const sourceOffers = (destination
+    ? dedupeDestinationCatalogOffers(combined)
+    : dedupeOffersByIdentity(combined, "live"))
     .filter(polishDepartureMatches)
     .filter((offer) => typeMatches(offer, type))
     .filter((offer) => destinationMatches(offer, destination));
