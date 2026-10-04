@@ -29,3 +29,10 @@
 @keyframes skeletonMove{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @media(max-width:940px){.loadingGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:620px){.loadingGrid{grid-template-columns:1fr}.skeletonCard:nth-child(n+3){display:none}}
+
+
+.emptyActions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.emptyActions a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 13px;border-radius:999px;text-decoration:none;font-size:11px;font-weight:900}
+.emptyActions a:first-child{background:#f47721;color:#fff}
+.emptyActions a:last-child{border:1px solid #dfe5ed;background:#fff;color:#284166}
+@media(max-width:620px){.emptyActions{display:grid;grid-template-columns:1fr}.emptyActions a{width:100%}}
