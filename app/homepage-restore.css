@@ -753,7 +753,7 @@ body:has(.dream-hero) #wyszukiwarka .search-v3-tabs button{
 }
 body:has(.dream-hero) #wyszukiwarka .search-v3-form{
   display:grid!important;
-  grid-template-columns:minmax(280px,1.55fr) minmax(190px,.85fr) minmax(190px,.85fr) 150px!important;
+  grid-template-columns:minmax(300px,1.7fr) minmax(185px,.9fr) minmax(190px,.95fr) minmax(145px,.7fr) minmax(185px,.85fr)!important;
   gap:8px!important;
   align-items:stretch!important;
   padding:0 18px 12px!important;
@@ -775,10 +775,16 @@ body:has(.dream-hero) #wyszukiwarka .search-v3-date-trigger strong{
   font-size:12px!important;
 }
 body:has(.dream-hero) #wyszukiwarka .search-v3-submit{
+  grid-column:auto!important;
+  width:100%!important;
+  min-width:0!important;
   min-height:58px!important;
   height:58px!important;
+  padding:0 18px!important;
   border-radius:12px!important;
   font-size:12px!important;
+  white-space:nowrap!important;
+  box-shadow:0 12px 24px rgba(244,81,44,.24)!important;
 }
 body:has(.dream-hero) #wyszukiwarka .search-v3-quick{
   display:flex!important;
@@ -898,6 +904,18 @@ body:has(.dream-hero) .homepage-football-steps b{
 /* Budget block should not claim zero options when homepage fallback has matching prices. */
 body:has(.dream-hero) .surprise-result{
   border-radius:14px!important;
+}
+
+@media(min-width:901px) and (max-width:1180px){
+  body:has(.dream-hero) #wyszukiwarka .search-v3-form{
+    grid-template-columns:minmax(260px,1.45fr) minmax(170px,.9fr) minmax(170px,.9fr)!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-duration{
+    grid-column:auto!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-submit{
+    grid-column:span 2!important;
+  }
 }
 
 @media(max-width:900px){
