@@ -166,6 +166,10 @@ const SEARCH_ALIASES: Record<string, string[]> = {
   oman: ["Oman", "Maskat", "Muscat"],
   maskat: ["Maskat", "Muscat", "Oman"],
   muscat: ["Muscat", "Maskat", "Oman"],
+  malezja: ["Malezja", "Malaysia", "Kuala Lumpur", "Langkawi"],
+  malaysia: ["Malaysia", "Malezja", "Kuala Lumpur", "Langkawi"],
+  kuala_lumpur: ["Kuala Lumpur", "Malezja", "Malaysia"],
+  langkawi: ["Langkawi", "Malezja", "Malaysia"],
 };
 
 function expandSearchTerms(rawTerms: string[]) {
