@@ -9,7 +9,7 @@ import { buildEskyPackagesUrl } from "@/lib/partners";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type SeasonalOffer = Offer & { startDateISO?: string; endDateISO?: string };
-type Props = { query: string; departure?: string; minNights?: number; maxNights?: number; maxPrice?: number; startDate?: string; endDate?: string };
+type Props = { query: string; departure?: string; minNights?: number; maxNights?: number; maxPrice?: number; startDate?: string; endDate?: string; board?: "allinclusive" };
 type ApiResponse = { ok?: boolean; offers?: SeasonalOffer[]; checkedAt?: string; notice?: string; matchMode?: string };
 
 const FALLBACKS: Record<string, string[]> = {
@@ -75,7 +75,7 @@ function uniqByProduct(items: SeasonalOffer[]) {
   return result;
 }
 
-export default function SeoEximOffers({ query, departure, minNights, maxNights, maxPrice, startDate, endDate }: Props) {
+export default function SeoEximOffers({ query, departure, minNights, maxNights, maxPrice, startDate, endDate, board }: Props) {
   const cityBreakOverview = normalize(query) === "city break";
   const eskySearch = new URL("https://www2.esky.pl/lot+hotel/portfolio");
   eskySearch.searchParams.set("rooms[0][adults]", "2");
@@ -122,7 +122,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
         }
 
         const params = new URLSearchParams({ from: from || "", strict: "1" });
-        if (normalizedTerm === "all inclusive") params.set("type", "allinclusive");
+        if (normalizedTerm === "all inclusive" || board === "allinclusive") params.set("type", "allinclusive");
         const response = await fetch(`/api/deals?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
         if (!response.ok) return [] as SeasonalOffer[];
         const data = (await response.json()) as ApiResponse;
@@ -155,6 +155,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
         if (typeof minNights === "number" && offer.nights < minNights) return false;
         if (typeof maxNights === "number" && offer.nights > maxNights) return false;
         if (typeof maxPrice === "number" && offer.price > maxPrice) return false;
+        if (board === "allinclusive" && !(offer.category.includes("allinclusive") || normalize(offer.board).includes("all inclusive"))) return false;
         return true;
       });
     }
@@ -202,7 +203,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     void load();
     const timer = window.setInterval(load, 10 * 60 * 1000);
     return () => { cancelled = true; window.clearInterval(timer); };
-  }, [queries, departure, minNights, maxNights, maxPrice, startDate, endDate, cityBreakOverview]);
+  }, [queries, departure, minNights, maxNights, maxPrice, startDate, endDate, board, cityBreakOverview]);
 
   if (loading) {
     return (
