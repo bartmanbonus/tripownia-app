@@ -297,9 +297,9 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
   const trustText = isExpired
     ? "Oferta wygasła"
     : isUnverifiedEximPrice
-      ? showIndicativePrice && checkedAt
-        ? `Ostatni odczyt: ${checkedAt} · potwierdź aktualną cenę przed rezerwacją`
-        : "Cena z feedu partnera nie jest potwierdzona live"
+      ? checkedAt
+        ? `Cena z feedu · odczyt: ${checkedAt} · potwierdź przed rezerwacją`
+        : "Cena z feedu partnera · potwierdź przed rezerwacją"
       : checkedAt
         ? `Cena sprawdzona: ${checkedAt}`
         : isLiveOffer || isExactLink
@@ -345,10 +345,8 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
           </div>
         )}
 
-        {isUnverifiedEximPrice && !showIndicativePrice ? (
-          <div className="price"><strong>Sprawdź aktualną cenę</strong></div>
-        ) : isUnverifiedEximPrice ? (
-          <div className="price"><small>ostatnio od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
+        {isUnverifiedEximPrice ? (
+          <div className="price"><small>od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
         ) : (
           <div className="price"><small>od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
         )}
