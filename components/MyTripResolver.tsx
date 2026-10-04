@@ -43,15 +43,16 @@ function PlannerEmptyState({ signedIn }: { signedIn: boolean }) {
             ? "Dodaj pierwszy wyjazd. Zapiszemy go na Twoim koncie razem z planem dnia, checklistą, rezerwacjami, wydatkami i organizerem."
             : "Dodaj wyjazd lokalnie albo zaloguj się, żeby zachować podróże i wracać do nich na innych urządzeniach."}</p>
           <div className="planner-preview-actions">
-            <Link className="primary-cta" href="/dodaj-podroz">+ Dodaj podróż</Link>
-            <Link className="secondary-cta" href="/#wyszukiwarka">Znajdź wyjazd</Link>
+            <Link className="primary-cta" href="/dodaj-podroz?mode=open">Zaplanuj nową podróż <ArrowRight size={17}/></Link>
+            <Link className="secondary-cta" href="/dodaj-podroz?mode=owned">Dodaj kupiony wyjazd</Link>
+            <Link className="secondary-cta" href="/#wyszukiwarka">Znajdź gotową okazję</Link>
           </div>
         </div>
       </div>
 
       <div className="favorites-empty">
-        <h2>Twoje plany pojawią się tutaj.</h2>
-        <p>Każda podróż ma własny plan, checklistę, notatki, rezerwacje, wydatki i przygotowanie. Możesz mieć ich kilka i wracać do nich później.</p>
+        <h2>Wybierz najprostszy start.</h2>
+        <p>Nie musisz wiedzieć wszystkiego od razu. Możesz zacząć od pomysłu, dodać wyjazd kupiony gdzie indziej albo wybrać gotową ofertę Tripowni.</p>
         {!signedIn && <Link href="/konto?next=/moja-podroz">Zaloguj się, aby synchronizować między urządzeniami →</Link>}
       </div>
     </section>
