@@ -29,7 +29,7 @@ type TripState = {
   checklist?: Record<string, boolean>;
   dayPlan?: DayPlanItem[];
   remindersEnabled?: boolean;
-  journeyPieces?: Partial<Record<"flight" | "hotel" | "transfer" | "attractions" | "esim" | "parking", { status?: "owned" | "selected" | "missing"; provider?: string }>>;
+  journeyPieces?: Partial<Record<"flight" | "hotel" | "transfer" | "attractions" | "esim" | "parking", { status?: "owned" | "selected" | "missing"; provider?: string; label?: string; price?: number; href?: string; selectedAt?: string; bookedAt?: string }>>;
   suggestedLinks?: Partial<Record<"flight" | "hotel" | "transfer" | "transferAlt" | "attractions" | "esim" | "parking", string>>;
   searchPreferences?: { startDate?: string; endDate?: string; dateMode?: string; destinationPending?: boolean };
 };
@@ -478,23 +478,35 @@ export default function MyTrip() {
             )}
 
             <div className="trip-cart-grid">
-              {tripCartItems.map(({key,label,done,href,icon:Icon}) => (
-                <div key={key} className={`trip-cart-item ${done ? "is-done" : "is-missing"} ${nextCartStep?.key === key ? "is-next" : ""}`}>
-                  <div className="trip-cart-item-icon"><Icon size={19}/></div>
-                  <div className="trip-cart-item-copy">
-                    <strong>{label}</strong>
-                    <span>{done ? "Masz" : nextCartStep?.key === key ? "Teraz to" : "Brakuje"}</span>
-                  </div>
-                  {done ? (
-                    <CheckCircle2 size={19}/>
-                  ) : (
-                    <div className="trip-cart-item-actions">
-                      <Link href={href}>Dodaj <ArrowRight size={14}/></Link>
-                      <button type="button" onClick={() => markJourneyPieceOwned(key)}>Mam już</button>
+              {tripCartItems.map(({key,label,done,href,icon:Icon}) => {
+                const piece = trip.journeyPieces?.[key];
+                const providerLabel = piece?.provider
+                  ? piece.provider === "booking" ? "Booking"
+                    : piece.provider === "getyourguide" ? "GetYourGuide"
+                    : piece.provider === "kiwitaxi" ? "KiwiTaxi"
+                    : piece.provider === "gettransfer" ? "GetTransfer"
+                    : piece.provider.toUpperCase()
+                  : "";
+                const detail = [providerLabel, piece?.label, piece?.price ? `${piece.price.toLocaleString("pl-PL")} zł` : ""].filter(Boolean).join(" · ");
+                return (
+                  <div key={key} className={`trip-cart-item ${done ? "is-done" : "is-missing"} ${nextCartStep?.key === key ? "is-next" : ""}`}>
+                    <div className="trip-cart-item-icon"><Icon size={19}/></div>
+                    <div className="trip-cart-item-copy">
+                      <strong>{label}</strong>
+                      <span>{done ? "Masz" : piece?.status === "selected" ? "Wybrane · czeka na potwierdzenie" : nextCartStep?.key === key ? "Teraz to" : "Brakuje"}</span>
+                      {detail && <small>{detail}</small>}
                     </div>
-                  )}
-                </div>
-              ))}
+                    {done ? (
+                      <CheckCircle2 size={19}/>
+                    ) : (
+                      <div className="trip-cart-item-actions">
+                        <Link href={piece?.href || href}>{piece?.status === "selected" ? "Wróć do oferty" : "Dodaj"} <ArrowRight size={14}/></Link>
+                        <button type="button" onClick={() => markJourneyPieceOwned(key)}>Mam już</button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </section>
         )}
