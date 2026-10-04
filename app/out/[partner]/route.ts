@@ -16,6 +16,7 @@ const allowedHosts: Record<string, string[]> = {
   rentacar: ["getrentacar.tpk.lv"],
   kiwitaxi: ["kiwitaxi.tpk.lv"],
   gettransfer: ["gettransfer.tpk.lv"],
+  airhelp: ["airhelp.tpk.lv"],
 };
 
 function hostAllowed(partner: string, url: URL) {
