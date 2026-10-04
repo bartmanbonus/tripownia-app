@@ -212,7 +212,12 @@ export default function DealsPage({
       const lastDay = new Date(searchYear, searchMonth, 0).getDate();
       const start = `${searchYear}-${monthValue}-01`;
       const end = `${searchYear}-${monthValue}-${String(lastDay).padStart(2, "0")}`;
-      const target = eskySearchUrl({ query: destination, start, end });
+      const target = eskySearchUrl({
+        query: destination,
+        start,
+        end,
+        departure: airport !== "any" ? airport : "",
+      });
       const params = new URLSearchParams({
         partner: "esky",
         target,
@@ -226,7 +231,7 @@ export default function DealsPage({
         href: `/go/live?${params.toString()}`,
       };
     });
-  }, [destination, currentYear, currentMonth]);
+  }, [destination, currentYear, currentMonth, airport]);
   const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
   const poolHighlights = useMemo(() => source === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source]);
 
@@ -296,7 +301,9 @@ export default function DealsPage({
       ? `Aktualne${checkedLabel ? ` · ${checkedLabel}` : ""}`
       : offers.length
         ? "Ostatnio sprawdzone · potwierdź cenę przed rezerwacją"
-        : "Brak aktualnych danych";
+        : destination
+          ? "12 gotowych terminów · sprawdź dostępność"
+          : "Brak aktualnych danych";
 
   const airportLabel = AIRPORTS.find((item) => item.value === airport)?.label || "Wszystkie lotniska";
   const monthLabel = MONTH_OPTIONS.find((item) => item.value === month)?.label || "dowolny miesiąc";
@@ -328,7 +335,9 @@ export default function DealsPage({
             {source === "fallback" && offers.length
               ? "Źródła live są chwilowo ograniczone. Pokazujemy nieprzeterminowane propozycje orientacyjne — finalną cenę potwierdź u partnera."
               : destination
-                ? "Pokazujemy tylko aktualne oferty dla tego kierunku — bez przypadkowych zamienników."
+                ? (rows.length
+                    ? "Pokazujemy tylko aktualne oferty dla tego kierunku — bez przypadkowych zamienników."
+                    : "Jeśli feed nie zwraca dziś gotowej karty, dajemy od razu 12 wyszukiwań miesiąc po miesiącu — bez pustej strony.")
                 : "Jedna najtańsza oferta na kierunek, bez duplikatów. Najtańsze pokazujemy jako pierwsze."}
           </p>
         </div>
@@ -467,7 +476,7 @@ export default function DealsPage({
             {loading && !rows.length
               ? "Szukamy najlepszych cen…"
               : destination
-                ? offerCountLabel(rows.length)
+                ? (rows.length ? offerCountLabel(rows.length) : "12 gotowych terminów")
                 : rows.length + " " + (rows.length === 1 ? "kierunek" : "kierunków")}
           </strong>
           <span>{filtering ? filterSummary : "Wszystkie lotniska · dowolny termin"}</span>
