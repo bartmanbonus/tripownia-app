@@ -17,6 +17,7 @@ export type SocialOffer = {
   imageCountry?: string;
   checkedAt: string;
   status: "active" | "expired";
+  included?: string[];
 };
 
 const ALLOWED_PARTNER_HOSTS = [
@@ -77,6 +78,25 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "costa-brava-tossa-1139": {
+    slug: "costa-brava-tossa-1139",
+    city: "Tossa de Mar",
+    country: "Hiszpania",
+    price: 1139,
+    departure: "Warszawa–Modlin",
+    nights: 4,
+    dates: "26–30 października 2026",
+    board: "Bez wyżywienia",
+    hotel: "Don Juan Tossa 4★",
+    partner: "exim",
+    partnerLabel: "EXIM Tours",
+    affiliateUrl: "https://www.exim.pl/kierunki/hiszpania/costa-brava/tossa-de-mar/don-juan-tossa-hotel?KEY=MjMyNTk2OHwzNDY0MjA4MTM2fDExNjQ1MDQ&DS=1024&GIATA=6281&D=63242&HID=422275&MT=6&DI=GT06-AO&NN=4&MNN=0%7C1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7C10%7C11%7C12%7C13%7C14%7C15%7C16%7C17%7C18%7C19%7C20%7C21&NNM=0%7C1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7C10%7C11%7C12%7C13%7C14%7C15%7C16%7C17%7C18%7C19%7C20%7C21&DF=2026-10-19%7C2026-11-13&RD=2026-10-30&DD=2026-10-26&ERM=0&AC1=2&KC1=0&IC1=0&TO=4380&TT=1&PID=422275&DPR=EXIM+TOURS+POLAND&PC=4-2026-10-26&IFC=RlJ8NDA4NHwyMDI2LTEwLTMwVDEwOjMw&OFC=RlJ8NDA4M3wyMDI2LTEwLTI2VDE2OjA1&utm_term=feed&tduid=1c28f57c22c93726771b26b5ccaac104&utm_source=Tradedoubler_3487177&utm_medium=Affiliate&utm_campaign=Ongoing_P_TD",
+    imageSrc: "https://img.exim.pl/hotels/300/spanelsko/costa-brava/tossa-de-mar/don-juan-tossa-pl/7710/6eeca13bf8747636a7341e8204850334_ludi2400-244.jpg",
+    imageCountry: "Hiszpania",
+    checkedAt: "2026-10-04T18:06:00+02:00",
+    status: "active",
+    included: ["Transfer", "Ubezpieczenie", "Opieka organizatora"],
+  },
   "bari-alberobello-669": {
     slug: "bari-alberobello-669",
     city: "Bari + Alberobello",
