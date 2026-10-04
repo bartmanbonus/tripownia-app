@@ -854,11 +854,12 @@ export async function GET(request: NextRequest) {
       if (minNights && offer.nights < minNights) return false;
       if (maxNights && offer.nights > maxNights) return false;
       if (/^\d+$/.test(nightsFilter)) return offer.nights === Number(nightsFilter);
-      if (nightsFilter === "1-2") return offer.nights >= 1 && offer.nights <= 2;
-      if (nightsFilter === "3-4") return offer.nights >= 3 && offer.nights <= 4;
-      if (nightsFilter === "5-7") return offer.nights >= 5 && offer.nights <= 7;
-      if (nightsFilter === "8-10") return offer.nights >= 8 && offer.nights <= 10;
-      if (nightsFilter === "11-14") return offer.nights >= 11 && offer.nights <= 14;
+      const range = /^(\d+)-(\d+)$/.exec(nightsFilter);
+      if (range) {
+        const min = Math.min(Number(range[1]), Number(range[2]));
+        const max = Math.max(Number(range[1]), Number(range[2]));
+        return offer.nights >= min && offer.nights <= max;
+      }
       if (nightsFilter === "15+") return offer.nights >= 15;
       return true;
     };
@@ -1069,11 +1070,12 @@ export async function GET(request: NextRequest) {
       if (minNights && offer.nights < minNights) return false;
       if (maxNights && offer.nights > maxNights) return false;
       if (/^\d+$/.test(nightsFilter)) return offer.nights === Number(nightsFilter);
-      if (nightsFilter === "1-2") return offer.nights >= 1 && offer.nights <= 2;
-      if (nightsFilter === "3-4") return offer.nights >= 3 && offer.nights <= 4;
-      if (nightsFilter === "5-7") return offer.nights >= 5 && offer.nights <= 7;
-      if (nightsFilter === "8-10") return offer.nights >= 8 && offer.nights <= 10;
-      if (nightsFilter === "11-14") return offer.nights >= 11 && offer.nights <= 14;
+      const range = /^(\d+)-(\d+)$/.exec(nightsFilter);
+      if (range) {
+        const min = Math.min(Number(range[1]), Number(range[2]));
+        const max = Math.max(Number(range[1]), Number(range[2]));
+        return offer.nights >= min && offer.nights <= max;
+      }
       if (nightsFilter === "15+") return offer.nights >= 15;
       return true;
     };
