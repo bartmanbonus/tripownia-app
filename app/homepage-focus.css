@@ -644,7 +644,7 @@ body:has(.dream-hero) .homepage-phenomena .experience-teaser-media{
   aspect-ratio:16/10!important;
   border-radius:0!important;
   overflow:hidden!important;
-  background:#eee8e3!important;
+  background-color:#eee8e3!important;
 }
 body:has(.dream-hero) .homepage-phenomena .experience-teaser-media img,
 body:has(.dream-hero) .homepage-phenomena .experience-teaser-skeleton{
