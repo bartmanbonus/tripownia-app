@@ -15,3 +15,12 @@
 .trip-cart-item>a{display:inline-flex;align-items:center;gap:4px;color:#d6502d;font-size:9px;font-weight:900;text-decoration:none}
 @media(max-width:900px){.trip-cart-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:600px){.trip-cart{padding:14px}.trip-cart-head{grid-template-columns:1fr;align-items:start}.trip-cart-head>a{justify-self:start}.trip-cart-grid{grid-template-columns:1fr}.trip-cart-item{min-height:68px}}
+
+.trip-cart-next{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;margin:0 0 14px;padding:15px 16px;border:1px solid #f2c8b8;border-radius:16px;background:#fff4ee}
+.trip-cart-next-copy{display:grid;gap:3px}.trip-cart-next-copy>span{font-size:8px;font-weight:950;letter-spacing:.12em;color:#d6502d}.trip-cart-next-copy strong{font-size:16px}.trip-cart-next-copy small{font-size:9px;color:#7a6d65;line-height:1.4}
+.trip-cart-next-actions{display:flex;gap:7px;align-items:center}.trip-cart-next-actions a,.trip-cart-next-actions button{min-height:38px;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 12px;border-radius:10px;font:inherit;font-size:9px;font-weight:900;text-decoration:none;cursor:pointer}
+.trip-cart-next-actions a{border:0;background:#f25f37;color:#fff}.trip-cart-next-actions button{border:1px solid #dccfc7;background:#fff;color:#413831}
+.trip-cart-complete{display:flex;align-items:center;gap:8px;margin:0 0 14px;padding:13px 14px;border:1px solid #d7e6d4;border-radius:14px;background:#f5faf3;color:#456a42;font-size:11px}
+.trip-cart-item.is-next{border-color:#efb8a4;box-shadow:0 8px 22px rgba(214,80,45,.08)}
+.trip-cart-item-actions{display:grid;gap:4px;justify-items:end}.trip-cart-item-actions a,.trip-cart-item-actions button{display:inline-flex;align-items:center;gap:3px;border:0;background:transparent;font:inherit;font-size:8px;font-weight:900;cursor:pointer;text-decoration:none}.trip-cart-item-actions a{color:#d6502d}.trip-cart-item-actions button{color:#756a63}
+@media(max-width:700px){.trip-cart-next{grid-template-columns:1fr}.trip-cart-next-actions{display:grid;grid-template-columns:1fr 1fr}.trip-cart-next-actions a,.trip-cart-next-actions button{width:100%}}
