@@ -9,19 +9,19 @@ import LiveSalesRail from "@/components/LiveSalesRail";
 import { homepageFallbackOffers } from "@/lib/offers";
 
 export const metadata: Metadata = {
-  title: "Inspiracje podróżnicze | Tripownia.pl",
+  title: "Inspiracje podróżnicze",
   description: "Pomysły na wyjazd według nastroju, sezonu i stylu podróżowania. Tripownia podpowiada, od czego zacząć.",
   alternates: { canonical: "/inspiracje" },
 };
 
 const moods = [
   {
-    href: "/szukaj?tab=City%20break&duration=3-4&budget=1200&weekend=1",
-    kicker: "DOBRA CENA",
-    title: "Ciepło teraz",
-    text: "Krótki wyjazd do 1 200 zł/os. — parametry są już ustawione.",
-    image: "/images/destinations/teneryfa.jpg",
-    imageAlt: "Teneryfa — słoneczny kierunek na ciepły wyjazd",
+    href: "/sylwester",
+    kicker: "SEZONOWO",
+    title: "Sylwester bez kombinowania",
+    text: "Gotowe miasta i kierunki na przełom roku — bez zaczynania od pustej wyszukiwarki.",
+    image: "/images/destinations/praga.jpg",
+    imageAlt: "Praga — inspiracja na zimowy city break i Sylwestra",
     imagePosition: "center 48%",
     icon: Flame,
     tone: "warm",
@@ -61,13 +61,6 @@ const moods = [
   },
 ];
 
-const quick = [
-  { href: "/szukaj?tab=City%20break&duration=3-4&budget=1200&weekend=1", icon: "✦", title: "Mam tylko 3–4 dni", text: "Gotowe: weekend, 3–4 noce, do 1 200 zł/os." },
-  { href: "/szukaj?destination=Praga%7CWiede%C5%84%7CBerlin&duration=2-3&budget=1200&tab=City%20break", icon: "🎄", title: "Chcę poczuć sezon", text: "Praga, Wiedeń i Berlin — 2–3 noce, wyniki od razu." },
-  { href: "/sylwester", icon: "✨", title: "Chcę wyjechać na Sylwestra", text: "Gotowe kierunki i terminy na przełom roku." },
-  { href: "/szukaj?destination=Bangkok%7CBali%7CMalediwy%7CZanzibar&duration=7-14&budget=5500&tab=Lot%20%2B%20hotel", icon: "🌴", title: "Chcę gdzieś naprawdę daleko", text: "4 kierunki, 7–14 nocy, budżet do 5 500 zł/os." },
-];
-
 function monthKey(offset: number) {
   const now = new Date();
   const value = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + offset, 1));
@@ -90,18 +83,18 @@ export default function InspirationsPage() {
       <div className="shell inspo-premium-hero-inner">
         <div className="inspo-premium-copy">
           <span className="inspo-eyebrow"><Sparkles size={15} /> INSPIRACJE TRIPOWNI</span>
-          <h1>Powiedz tylko, <em>jak chcesz odpocząć.</em><br />Resztę ustawimy za Ciebie.</h1>
-          <p>Nie każemy Ci wymyślać kierunku, terminu i filtrów od zera. Wybierz klimat i lotnisko — Tripownia ustawi sensowny budżet, długość pobytu i pokaże gotowe wyniki.</p>
+          <h1>Nie wiesz jeszcze dokąd?<br /><em>Wybierz tylko, czego potrzebujesz.</em></h1>
+          <p>Weekend, ciepło, najniższa cena czy All Inclusive? Tripownia ustawi sensowny termin, długość i budżet, a Ty przejdziesz od razu do gotowych wyników.</p>
           <div className="inspo-hero-actions">
-            <Link href="#gotowce">Pokaż gotowe warianty <ArrowRight size={17} /></Link>
-            <Link href="/#wyszukiwarka">Wiem dokładnie, czego chcę</Link>
+            <Link href="#gotowce">Dobierz mi wyjazd <ArrowRight size={17} /></Link>
+            <Link href="/#wyszukiwarka">Mam konkretny kierunek</Link>
           </div>
         </div>
         <div className="inspo-premium-orbit" aria-hidden="true">
-          <div><span>1</span><b>Wybierz klimat</b></div>
+          <div><span>1</span><b>Wybierz potrzebę</b></div>
           <div><span>2</span><b>Wskaż lotnisko</b></div>
-          <div><span>3</span><b>Zobacz gotowe wyniki</b></div>
-          <div><span>✓</span><b>Kliknij ofertę</b></div>
+          <div><span>3</span><b>Dostajesz gotowce</b></div>
+          <div><span>✓</span><b>Wybierasz ofertę</b></div>
         </div>
       </div>
     </section>
@@ -114,7 +107,7 @@ export default function InspirationsPage() {
     />
 
     <section className="shell inspo-premium-section" id="wybierz-nastroj">
-      <div className="inspo-section-head"><div><span>JESZCZE 4 PROSTE ŚCIEŻKI</span><h2>Wybierz pomysł — nie pustą kategorię</h2></div><Map size={28} /></div>
+      <div className="inspo-section-head"><div><span>MASZ KONKRETNY MOTYW WYJAZDU?</span><h2>Wybierz temat — nie pustą kategorię</h2></div><Map size={28} /></div>
       <div className="inspo-mood-grid">
         {moods.map((item) => {
           const Icon = item.icon;
@@ -134,24 +127,17 @@ export default function InspirationsPage() {
       </div>
     </section>
 
-    <section className="shell inspo-quick-section">
-      <div className="inspo-section-head"><div><span>SZYBKI START</span><h2>Powiedz tylko, czego potrzebujesz</h2></div></div>
-      <div className="inspo-quick-grid">
-        {quick.map(item => <Link href={item.href} key={item.title}><i>{item.icon}</i><div><strong>{item.title}</strong><p>{item.text}</p></div><ArrowRight size={18} /></Link>)}
-      </div>
-    </section>
-
     <section className="shell inspo-live-section">
       <div className="inspo-section-head">
-        <div><span>MOŻESZ TEŻ NIC NIE USTAWIAĆ</span><h2>Najtańsze krótkie wyjazdy, które Tripownia widzi teraz</h2></div>
+        <div><span>ALBO OD RAZU KONKRET</span><h2>Najtańsze krótkie wyjazdy, które Tripownia widzi teraz</h2></div>
       </div>
       <p className="inspo-live-lead">Jeśli któryś Ci pasuje, nie musisz wracać do wyszukiwarki — kliknij ofertę i sprawdź szczegóły.</p>
       <LiveSalesRail mode="citybreak" limit={6} initialOffers={homepageFallbackOffers} />
     </section>
 
     <section className="shell inspo-premium-cta">
-      <div><span>✦ ZERO FORMULARZY</span><h2>Nie chcesz już nic ustawiać? Pokażemy Ci najtańsze dostępne opcje.</h2><p>Lista jest sortowana od najniższej ceny, a parametry oferty widzisz przed kliknięciem.</p></div>
-      <Link href="/szukaj?tab=City%20break&duration=3-5&budget=1500">Pokaż mi najlepsze <ArrowRight size={18} /></Link>
+      <div><span>✦ MASZ JUŻ KONKRET</span><h2>Wiesz dokąd i kiedy? Przejdź od razu do pełnej wyszukiwarki.</h2><p>Ustawisz własny kierunek, termin, długość pobytu i lotnisko — bez przechodzenia przez inspiracje.</p></div>
+      <Link href="/#wyszukiwarka">Wyszukaj po swojemu <ArrowRight size={18} /></Link>
     </section>
     <SiteFooter />
   </main>;
