@@ -278,6 +278,7 @@ function readySearchHref(item: SeoLanding) {
 
   if (item.startDate) params.set("from", item.startDate);
   if (item.endDate) params.set("to", item.endDate);
+  if (item.board === "allinclusive") params.set("board", "all inclusive");
   params.set("tab", searchTabForLanding(item));
   return `/szukaj?${params.toString()}`;
 }
@@ -367,6 +368,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
         ? `do ${page.maxNights} nocy`
         : "Dobierz w wyszukiwarce";
   const budgetLabel = page.maxPrice ? `do ${page.maxPrice.toLocaleString("pl-PL")} zł/os.` : "Porównaj pełny koszt";
+  const isLastMinuteLanding = page.query.toLocaleLowerCase("pl").includes("last minute");
 
   const bookingUrl = partners.booking.buildUrl(
     `https://www.booking.com/searchresults.pl.html?ss=${encodeURIComponent(page.query)}`
@@ -434,6 +436,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
     { label: "POBYT", value: stayRange },
     { label: "WYLOT", value: page.departure || "Wybierz lotnisko" },
     { label: "BUDŻET", value: budgetLabel },
+    ...(page.board === "allinclusive" ? [{ label: "WYŻYWIENIE", value: "All Inclusive" }] : []),
   ];
 
   const discoveryLinks = [...airportCluster, ...commercialSiblingLinks, ...related]
@@ -507,11 +510,49 @@ export default async function SeoLandingPage({ params }: PageProps) {
           minNights={page.minNights}
           maxNights={page.maxNights}
           maxPrice={page.maxPrice}
+          board={page.board}
           startDate={startDate}
           endDate={endDate}
         />
       </section>
+
+      {isLastMinuteLanding && (
+        <nav className="shell seo-discovery-footer seo-last-minute-switcher" aria-label="Szybkie warianty Last Minute">
+          <Link href="/podroze/last-minute-do-2000-zl">Do 2000 zł</Link>
+          <Link href="/podroze/last-minute-do-2500-zl">Do 2500 zł</Link>
+          <Link href="/podroze/last-minute-do-3000-zl">Do 3000 zł</Link>
+          <Link href="/podroze/tanie-last-minute-all-inclusive">All Inclusive</Link>
+          <Link href="/last-minute">Wszystkie Last Minute</Link>
+        </nav>
+      )}
+
       <section className="section shell seo-social-after-offers"><FacebookFollowCTA placement="seo_landing_after_offers" compact /></section>
+
+      {isLastMinuteLanding && (
+        <section className="shell seo-search-wider">
+          <div className="seo-landing-section-head">
+            <div>
+              <div className="kicker">NIE PASUJE?</div>
+              <h2>Zmień jeden parametr zamiast zaczynać od zera</h2>
+              <p>Lotnisko, budżet albo sposób rezerwacji — resztę zachowaj bez ponownego szukania całego wyjazdu.</p>
+            </div>
+          </div>
+          <div className="seo-search-wider-grid">
+            <a href={kiwiUrl} rel="sponsored noreferrer">
+              <span>✈️</span><strong>Porównaj loty</strong><small>{page.departure ? `Wylot: ${page.departure}` : "Wybierz lotnisko i kierunek"}</small><b>Sprawdź →</b>
+            </a>
+            <a href={bookingUrl} rel="sponsored noreferrer">
+              <span>🏨</span><strong>Sprawdź noclegi</strong><small>Porównaj koszt hotelu osobno</small><b>Sprawdź →</b>
+            </a>
+            <Link href={currentReadySearchHref}>
+              <span>🔎</span><strong>Zmień parametry</strong><small>Termin, kierunek, lotnisko lub budżet</small><b>Wyszukaj →</b>
+            </Link>
+            <Link href={`/alerty?${alertParams.toString()}`}>
+              <span>🔔</span><strong>Ustaw alert</strong><small>Wróć, gdy pojawi się lepsza cena</small><b>Ustaw →</b>
+            </Link>
+          </div>
+        </section>
+      )}
 
       <section className="shell seo-decision-section">
         <div className="seo-decision-head">
@@ -541,42 +582,44 @@ export default async function SeoLandingPage({ params }: PageProps) {
         )}
       </section>
 
-      <section className="shell seo-search-wider">
-        <div className="seo-landing-section-head">
-          <div>
-            <div className="kicker">NIE PASUJE?</div>
-            <h2>Poszerz wyszukiwanie, ale zachowaj kontrolę nad budżetem</h2>
-            <p>Sprawdź osobno loty i noclegi albo zmień parametry w wyszukiwarce Tripowni.</p>
+      {!isLastMinuteLanding && (
+        <section className="shell seo-search-wider">
+          <div className="seo-landing-section-head">
+            <div>
+              <div className="kicker">NIE PASUJE?</div>
+              <h2>Poszerz wyszukiwanie, ale zachowaj kontrolę nad budżetem</h2>
+              <p>Sprawdź osobno loty i noclegi albo zmień parametry w wyszukiwarce Tripowni.</p>
+            </div>
           </div>
-        </div>
 
-        <div className="seo-search-wider-grid">
-          <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer">
-            <span>✈️</span>
-            <strong>Porównaj loty</strong>
-            <small>{page.departure ? `Wylot: ${page.departure}` : "Wybierz lotnisko i kierunek"}</small>
-            <b>Sprawdź →</b>
-          </a>
-          <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer">
-            <span>🏨</span>
-            <strong>Sprawdź noclegi</strong>
-            <small>Porównaj koszt hotelu osobno</small>
-            <b>Sprawdź →</b>
-          </a>
-          <Link href={currentReadySearchHref}>
-            <span>🔎</span>
-            <strong>Zmień parametry</strong>
-            <small>Termin, kierunek, lotnisko lub budżet</small>
-            <b>Wyszukaj →</b>
-          </Link>
-          <Link href={`/alerty?${alertParams.toString()}`}>
-            <span>🔔</span>
-            <strong>Ustaw alert</strong>
-            <small>Wróć do tematu, gdy pojawi się lepsza opcja</small>
-            <b>Ustaw →</b>
-          </Link>
-        </div>
-      </section>
+          <div className="seo-search-wider-grid">
+            <a href={kiwiUrl} rel="sponsored noreferrer">
+              <span>✈️</span>
+              <strong>Porównaj loty</strong>
+              <small>{page.departure ? `Wylot: ${page.departure}` : "Wybierz lotnisko i kierunek"}</small>
+              <b>Sprawdź →</b>
+            </a>
+            <a href={bookingUrl} rel="sponsored noreferrer">
+              <span>🏨</span>
+              <strong>Sprawdź noclegi</strong>
+              <small>Porównaj koszt hotelu osobno</small>
+              <b>Sprawdź →</b>
+            </a>
+            <Link href={currentReadySearchHref}>
+              <span>🔎</span>
+              <strong>Zmień parametry</strong>
+              <small>Termin, kierunek, lotnisko lub budżet</small>
+              <b>Wyszukaj →</b>
+            </Link>
+            <Link href={`/alerty?${alertParams.toString()}`}>
+              <span>🔔</span>
+              <strong>Ustaw alert</strong>
+              <small>Wróć do tematu, gdy pojawi się lepsza opcja</small>
+              <b>Ustaw →</b>
+            </Link>
+          </div>
+        </section>
+      )}
 
       <section className="shell seo-faq-section">
         <div className="kicker">PYTANIA I ODPOWIEDZI</div>

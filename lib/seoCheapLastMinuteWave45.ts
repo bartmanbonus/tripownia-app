@@ -61,6 +61,7 @@ export const seoCheapLastMinuteWave45: SeoLanding[] = [
     maxPrice: 3000,
     minNights: 5,
     maxNights: 10,
+    board: "allinclusive",
     paragraphs: [
       "Przy tanim All Inclusive porównuj dokładny zakres wyżywienia, standard pokoju i odległość od plaży. Dwie podobne ceny mogą oznaczać bardzo różny poziom hotelu.",
       "Jeżeli termin jest elastyczny, porównaj kilka kierunków i lotnisk wylotu. Końcówki sprzedaży potrafią zmieniać ceny z dnia na dzień."

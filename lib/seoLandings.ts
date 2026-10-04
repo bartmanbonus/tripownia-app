@@ -14,6 +14,7 @@ export type SeoLanding = {
   maxNights?: number;
   startDate?: string;
   endDate?: string;
+  board?: "allinclusive";
   paragraphs: string[];
 };
 
