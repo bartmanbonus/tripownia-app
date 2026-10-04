@@ -69,6 +69,13 @@ export default function TravelImage({ city, country, alt, className = "", overri
   }, [cacheKey, localCandidate, overrideSrc, city, country]);
 
   function loadDynamicFallback() {
+    if (localCandidate && src !== localCandidate) {
+      setSrc(localCandidate);
+      setTriedLocal(true);
+      setFailed(false);
+      return;
+    }
+
     if (triedLocal) {
       setFailed(true);
       return;
