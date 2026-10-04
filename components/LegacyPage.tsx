@@ -643,12 +643,29 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
           </section>
         )}
 
-        {!isAirportLiquidsGuide && (
-          <section className={`article-longform${deepDive ? " article-longform-after-answer" : ""}`}>
-            {deepDive && <div className="article-longform-label">PEŁNY PORADNIK</div>}
-            <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
-          </section>
+        {isAirportLiquidsGuide && (
+          <>
+            <section className="article-action-rail" aria-label="Przejście od zasad lotniskowych do konkretnego wyjazdu">
+              <div className="article-action-rail-copy">
+                <div className="kicker">MASZ JUŻ ZASADY</div>
+                <strong>Teraz sprawdź konkretny wyjazd z polskiego lotniska</strong>
+                <span>Porównaj city breaki i tanie loty, zanim zaczniesz szukać pojedynczych biletów w kilku miejscach.</span>
+              </div>
+              <nav className="article-action-rail-links" aria-label="Oferty z polskich lotnisk">
+                <Link className="article-action-rail-primary" href="/city-break" data-article-cta="liquids_city_break">🏙️ City break</Link>
+                <Link href="/tanie-loty" data-article-cta="liquids_flights">✈️ Tanie loty</Link>
+                <Link href="/z-warszawy" data-article-cta="liquids_warsaw">Wyloty z Warszawy</Link>
+                <Link href="/z-poznania" data-article-cta="liquids_poznan">Wyloty z Poznania</Link>
+              </nav>
+            </section>
+            <section className="section shell"><FacebookFollowCTA placement="airport_liquids_after_action" compact /></section>
+          </>
         )}
+
+        <section className={`article-longform${deepDive ? " article-longform-after-answer" : ""}`}>
+          {deepDive && <div className="article-longform-label">PEŁNY PORADNIK</div>}
+          <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
+        </section>
       </article>
 
       {deepDive && <ArticleDeepDiveBlock deepDive={deepDive} hideIntro />}
@@ -678,12 +695,15 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         </section>
       )}
 
-      {seoOpportunity && !isAirportLiquidsGuide && <section className="article-context-card">
-        <div className="kicker">NAJWAŻNIEJSZE W TYM TEMACIE</div>
-        <h2>{seoOpportunity.title}</h2>
-        <p>{seoOpportunity.lead}</p>
-        <div className="article-context-links">{seoOpportunity.links.slice(0, 4).map(link => <Link key={link.href} href={link.href}>{link.label} →</Link>)}</div>
-      </section>}
+      {seoOpportunity && !isAirportLiquidsGuide && <>
+        <section className="article-context-card">
+          <div className="kicker">NAJWAŻNIEJSZE W TYM TEMACIE</div>
+          <h2>{seoOpportunity.title}</h2>
+          <p>{seoOpportunity.lead}</p>
+          <div className="article-context-links">{seoOpportunity.links.slice(0, 4).map(link => <Link key={link.href} href={link.href}>{link.label} →</Link>)}</div>
+        </section>
+        <section className="section shell"><FacebookFollowCTA placement="article_opportunity_after_links" compact /></section>
+      </>}
 
       {shouldRenderSearch && (
         <section className="legacy-article-search article-search-section">
@@ -708,7 +728,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
 
       {related.length > 0 && <section className="legacy-offers article-related-offers">
         <div className="section-heading"><div><div className="kicker">AKTUALNE PROPOZYCJE</div><h2>{effectiveDestination ? `Sprawdź: ${effectiveDestination}` : "Oferty pasujące do tego poradnika"}</h2></div><Link href="/okazje">Wszystkie okazje →</Link></div>
-        <div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o}/>)}</div>
+        <div className="cards-grid">{related.map(o=><OfferCard key={o.id} offer={o} sourceSurface="article_related" />)}</div>
       </section>}
 
       {isPost && !isAirportLiquidsGuide && <section className="article-next-steps" aria-label="Co dalej">
@@ -726,7 +746,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
       </section>}
 
       {(isPost || isDestination) && <RelatedTravelGuides path={canonicalPath} title={item.title} isDestination={isDestination} />}
-      {(isPost || isDestination) && <section className="section shell"><FacebookFollowCTA placement={isDestination ? "destination_legacy" : "article_legacy"} compact /></section>}
+      {(isDestination || (isPost && !seoOpportunity && !isAirportLiquidsGuide)) && <section className="section shell"><FacebookFollowCTA placement={isDestination ? "destination_legacy" : "article_legacy"} compact /></section>}
     </div>
     <SiteFooter/>
   </main>;
