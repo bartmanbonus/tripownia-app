@@ -9,7 +9,7 @@ import { buildEskyPackagesUrl } from "@/lib/partners";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type SeasonalOffer = Offer & { startDateISO?: string; endDateISO?: string };
-type Props = { query: string; departure?: string; minNights?: number; maxNights?: number; maxPrice?: number; startDate?: string; endDate?: string };
+type Props = { query: string; departure?: string; minNights?: number; maxNights?: number; maxPrice?: number; startDate?: string; endDate?: string; searchHref?: string };
 type ApiResponse = { ok?: boolean; offers?: SeasonalOffer[]; checkedAt?: string; notice?: string; matchMode?: string };
 
 const FALLBACKS: Record<string, string[]> = {
@@ -75,7 +75,7 @@ function uniqByProduct(items: SeasonalOffer[]) {
   return result;
 }
 
-export default function SeoEximOffers({ query, departure, minNights, maxNights, maxPrice, startDate, endDate }: Props) {
+export default function SeoEximOffers({ query, departure, minNights, maxNights, maxPrice, startDate, endDate, searchHref }: Props) {
   const cityBreakOverview = normalize(query) === "city break";
   const eskySearch = new URL("https://www2.esky.pl/lot+hotel/portfolio");
   eskySearch.searchParams.set("rooms[0][adults]", "2");
@@ -283,17 +283,17 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
           <div className="seo-empty-offers-icon"><Search size={24}/></div>
           <div>
             <small>NIC NA SIŁĘ</small>
-            <h3>Nie ma teraz dobrej oferty dla tych parametrów.</h3>
+            <h3>Nie ma teraz potwierdzonej oferty dokładnie dla tych parametrów.</h3>
             <p>
               Nie podmieniamy lotniska, miesiąca ani kierunku tylko po to, żeby zapełnić stronę.
-              Najszybciej zwiększysz szansę, rozszerzając termin albo wyszukując podobny wariant.
+              Wyszukiwarka jest już ustawiona za Ciebie — możesz od razu zobaczyć najbliższe dostępne warianty i zmienić tylko to, co chcesz.
             </p>
           </div>
         </div>
 
         <div className="seo-empty-offers-actions">
-          <Link href="/#wyszukiwarka" className="seo-empty-primary">
-            <CalendarRange size={17}/> Zmień termin lub parametry <ArrowRight size={16}/>
+          <Link href={searchHref || "/#wyszukiwarka"} className="seo-empty-primary">
+            <CalendarRange size={17}/> Pokaż gotowe wyniki <ArrowRight size={16}/>
           </Link>
           <Link href="/gdzie-leciec" className="seo-empty-secondary">
             <Search size={17}/> Pokaż podobne kierunki
