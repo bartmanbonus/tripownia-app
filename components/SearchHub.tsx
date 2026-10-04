@@ -20,6 +20,7 @@ import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { consumeRequestedSearchResume, saveSearchResumeContext, updateSearchResumeScroll, type SearchResumeContext } from "@/lib/searchResume";
 import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
+import { updateActiveTripJourneyPiece } from "@/lib/tripJourney";
 
 type Props = {
   initialAirports?: string[];
@@ -1852,11 +1853,19 @@ export default function SearchHub({
                     placement: "hotel_search_ready",
                     partner: "booking",
                   };
+                  updateActiveTripJourneyPiece("hotel", {
+                    status: "selected",
+                    provider: "booking",
+                    label: `Nocleg w ${hotelSearchDestination}`,
+                    href: hotelSearchHref,
+                    selectedAt: new Date().toISOString(),
+                  }, { destination: hotelSearchDestination });
                   saveAffiliateReturnContext({
                     partner: "booking",
                     destination: hotelSearchDestination,
                     source: "hotel_search_ready",
                     tripKind: "hotel",
+                    piece: "hotel",
                     start: dateFrom,
                     end: dateTo,
                   });
