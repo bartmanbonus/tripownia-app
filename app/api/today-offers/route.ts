@@ -473,6 +473,12 @@ function fromExim(product: TdProduct): LiveCandidate | null {
   const daysOut = departureDate ? Math.max(0, Math.round((departureDate.getTime() - Date.now()) / 86400000)) : 120;
   const rating = Number(fields.Stars || 0);
   const modifiedAt = Number(offer?.modified || 0);
+  // TradeDoubler product data is not a real-time booking API. Use the
+  // partner-feed modification timestamp as the price timestamp instead of
+  // pretending that a fresh HTTP fetch means a fresh price.
+  const sourceUpdatedAt = modifiedAt > 0 ? new Date(modifiedAt).toISOString() : undefined;
+  const sourceAgeMs = modifiedAt > 0 ? Math.max(0, Date.now() - modifiedAt) : Number.POSITIVE_INFINITY;
+  const sourceFresh = sourceAgeMs <= 6 * 60 * 60 * 1000;
   const sourceKey = `${offer?.sourceProductId || ""}:${productUrl}`;
 
   if (departureDate) {
@@ -487,8 +493,8 @@ function fromExim(product: TdProduct): LiveCandidate | null {
     city,
     country,
     price,
-    priceCheckedAt: new Date().toISOString(),
-    availabilityStatus: "available",
+    priceCheckedAt: sourceUpdatedAt,
+    availabilityStatus: sourceFresh ? "available" : "unknown",
     departure,
     airportCode: inferDepartureAirportCode(departure),
     nights,
