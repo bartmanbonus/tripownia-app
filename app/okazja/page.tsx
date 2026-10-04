@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, MapPin, Plane, Moon, Utensils, CalendarDays, BadgeCheck, PlusCircle } from "lucide-react";
+import { ArrowLeft, ExternalLink, MapPin, Plane, Moon, Utensils, CalendarDays, BadgeCheck, PlusCircle, MousePointerClick, RotateCcw, ShieldCheck } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Image from "next/image";
@@ -76,7 +76,62 @@ const COUNTRY_IMAGE: Record<string, string> = {
   "Włochy": "/images/destinations/rzym.jpg",
 };
 
-function countryImage(country: string) {
+const DESTINATION_IMAGE: Record<string, string> = {
+  "sloneczny brzeg": "/images/destinations/sloneczny-brzeg.jpg",
+  "sunny beach": "/images/destinations/sloneczny-brzeg.jpg",
+  "hammamet": "/images/destinations/hammamet.jpg",
+  "djerba": "/images/destinations/djerba.jpg",
+  "pafos": "/images/destinations/pafos.jpg",
+  "rodos": "/images/destinations/rodos.jpg",
+  "santorini": "/images/destinations/santorini.jpg",
+  "teneryfa": "/images/destinations/teneryfa.jpg",
+  "fuerteventura": "/images/destinations/fuerteventura.jpg",
+  "barcelona": "/images/destinations/barcelona.jpg",
+  "walencja": "/images/destinations/walencja.jpg",
+  "alicante": "/images/destinations/alicante.jpg",
+  "sewilla": "/images/destinations/sewilla.jpg",
+  "lizbona": "/images/destinations/lizbona.jpg",
+  "porto": "/images/destinations/porto.jpg",
+  "rzym": "/images/destinations/rzym.jpg",
+  "bergamo": "/images/destinations/bergamo.jpg",
+  "wenecja": "/images/destinations/wenecja.jpg",
+  "florencja": "/images/destinations/florencja.jpg",
+  "split": "/images/destinations/split.jpg",
+  "dubrownik": "/images/destinations/dubrownik.jpg",
+  "zadar": "/images/destinations/zadar.jpg",
+  "marrakesz": "/images/destinations/marrakesz.jpg",
+  "valletta": "/images/destinations/valletta.jpg",
+  "praga": "/images/destinations/praga.jpg",
+  "wieden": "/images/destinations/wieden.jpg",
+  "budapeszt": "/images/destinations/budapeszt.jpg",
+  "amsterdam": "/images/destinations/amsterdam.jpg",
+  "paryz": "/images/destinations/paryz.jpg",
+  "londyn": "/images/destinations/londyn.jpg",
+  "dublin": "/images/destinations/dublin.jpg",
+  "stambul": "/images/destinations/stambul.jpg",
+  "kair": "/images/destinations/kair.jpg",
+  "dubaj": "/images/destinations/dubaj.jpg",
+};
+
+function normalizeLocation(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function destinationImage(city: string, country: string) {
+  const normalizedCity = normalizeLocation(city);
+  const direct = DESTINATION_IMAGE[normalizedCity];
+  if (direct) return direct;
+
+  const fuzzy = Object.entries(DESTINATION_IMAGE).find(([key]) =>
+    normalizedCity.includes(key) || key.includes(normalizedCity)
+  );
+  if (fuzzy) return fuzzy[1];
+
   return COUNTRY_IMAGE[country] || null;
 }
 
@@ -105,7 +160,7 @@ export default async function SocialOfferLanding({
   const note = one(query.note, "Tripownia znalazła tę ofertę u sprawdzonego partnera. Cena i dostępność mogą się zmienić.");
   if (!target) return notFound();
 
-  const imageSrc = countryImage(country);
+  const imageSrc = destinationImage(city, country);
   const tripKind = target.partner.key === "kiwi" ? "flight" : target.partner.key === "booking" ? "hotel" : "package";
   const outboundSource = source.startsWith("seo_")
     ? `seo_detail:${source}`
@@ -166,6 +221,12 @@ export default async function SocialOfferLanding({
               </div>
             )}
             <span className="badge hot">OKAZJA TRIPOWNI</span>
+            {imageSrc && (
+              <div className="detail-image-caption">
+                <strong>{city}</strong>
+                <span>{country || "kierunek podróży"}</span>
+              </div>
+            )}
           </div>
 
           <div className="detail-copy">
@@ -175,7 +236,7 @@ export default async function SocialOfferLanding({
             <div className="detail-topline">
               <div className="detail-score">
                 <BadgeCheck size={18}/>
-                <span>Oferta znaleziona przez Tripownię</span>
+                <span>Najpierw Tripownia, potem rezerwacja</span>
               </div>
             </div>
 
@@ -204,7 +265,13 @@ export default async function SocialOfferLanding({
             </div>
 
             <div className="detail-source">
-              Najpierw oglądasz szczegóły w Tripowni. Rezerwacja i płatność odbywają się bezpośrednio u partnera.
+              To strona pośrednia Tripowni: dzięki niej mierzymy zainteresowanie ofertą i kliknięcia wychodzące. Rezerwacja i płatność nadal odbywają się bezpośrednio u partnera.
+            </div>
+
+            <div className="tracking-strip" aria-label="Jak działa przejście do rezerwacji">
+              <span><MousePointerClick size={15}/> mierzymy kliknięcie</span>
+              <span><RotateCcw size={15}/> łatwy powrót do Tripowni</span>
+              <span><ShieldCheck size={15}/> bez dodatkowej opłaty</span>
             </div>
 
             <div className="detail-action-box">
@@ -232,7 +299,7 @@ export default async function SocialOfferLanding({
               </Link>
               <OfferAlternativeJump />
               <small className="affiliate-note">
-                Rezerwacja i płatność są u partnera. Link partnerski — możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.
+                Kliknięcie jest mierzone przez Tripownię. Rezerwacja i płatność są u partnera; link partnerski może wygenerować dla nas prowizję bez dodatkowego kosztu dla Ciebie.
               </small>
             </div>
           </div>
