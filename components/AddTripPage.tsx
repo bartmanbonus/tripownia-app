@@ -293,6 +293,14 @@ export default function AddTripPage() {
     ? `Szukaj noclegu z prostym dojazdem do ${sportVenue}. Daty i miasto są już ustawione.`
     : "Daty i miasto są już ustawione. Wybierz hotel z dobrym dojazdem na stadion i do centrum.";
 
+  const sportHeroImage = useMemo(() => {
+    const destination = norm(city);
+    if (destination.includes("mediolan") || destination.includes("milan")) {
+      return "https://commons.wikimedia.org/wiki/Special:Redirect/file/Scudo2009.jpg?width=2200";
+    }
+    return "";
+  }, [city]);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
@@ -807,6 +815,7 @@ export default function AddTripPage() {
                 city={city}
                 country={country}
                 alt={[city, country].filter(Boolean).join(", ")}
+                overrideSrc={sportHeroImage || undefined}
                 searchQuery={[sportVenue || city, "football stadium exterior", country].filter(Boolean).join(" ")}
                 preferDynamic
               />
