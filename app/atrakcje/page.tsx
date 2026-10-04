@@ -4,6 +4,7 @@ import { ArrowRight, MapPin, Sparkles, TicketCheck } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { partners } from "@/lib/partners";
+import TripPiecePartnerLink from "@/components/TripPiecePartnerLink";
 
 export const metadata: Metadata = {
   title: "Atrakcje i bilety w podróży",
@@ -61,9 +62,17 @@ export default async function AttractionsPage({ searchParams }: Props) {
               <h2>{query}</h2>
               <p>Sprawdź bilety, wycieczki i aktywności. Przed zakupem porównaj godzinę, miejsce zbiórki i zasady anulacji.</p>
             </div>
-            <a className="primary-cta" href={outboundHref} target="_blank" rel="sponsored noopener noreferrer">
+            <TripPiecePartnerLink
+              className="primary-cta"
+              href={outboundHref}
+              piece="attractions"
+              partner="getyourguide"
+              destination={query}
+              label={`Atrakcje w ${query}`}
+              source="attractions_page"
+            >
               Pokaż aktualne atrakcje <TicketCheck size={17}/>
-            </a>
+            </TripPiecePartnerLink>
           </section>
         )}
 
