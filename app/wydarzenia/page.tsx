@@ -204,8 +204,11 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                 }).toString()}`;
                 const kickoffLabel = formatKickoff(trip.kickoff);
                 const kickoffParts = kickoffLabel.match(/^(.*)\s(\d{1,2}:\d{2})$/);
-                const kickoffDate = kickoffParts?.[1] || kickoffLabel;
+                const kickoffDateLabel = kickoffParts?.[1] || kickoffLabel;
                 const kickoffTime = kickoffParts?.[2] || "";
+                const commaIndex = kickoffDateLabel.indexOf(",");
+                const kickoffWeekday = commaIndex >= 0 ? kickoffDateLabel.slice(0, commaIndex).trim() : "";
+                const kickoffDate = commaIndex >= 0 ? kickoffDateLabel.slice(commaIndex + 1).trim() : kickoffDateLabel;
 
                 return (
                   <article className={styles.card} key={trip.clubSlug + "-" + trip.id}>
@@ -217,6 +220,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                       <div className={styles.team}><TeamCrest src={trip.homeCrest} name={trip.homeTeam}/><strong>{trip.homeTeam}</strong></div>
                       <div className={styles.vs}>
                         <strong>vs</strong>
+                        {kickoffWeekday && <div className={styles.matchWeekday}>{kickoffWeekday}</div>}
                         <div className={styles.matchDate}>{kickoffDate}</div>
                         {kickoffTime && <div className={styles.matchTime}>{kickoffTime}</div>}
                       </div>
