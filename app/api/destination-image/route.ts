@@ -62,6 +62,7 @@ async function searchWikimedia(query: string) {
 export async function GET(request: NextRequest) {
   const city = request.nextUrl.searchParams.get("city")?.trim() || "";
   const country = request.nextUrl.searchParams.get("country")?.trim() || "";
+  const customQuery = request.nextUrl.searchParams.get("q")?.trim() || "";
 
   if (!city) {
     return NextResponse.json(
@@ -71,20 +72,23 @@ export async function GET(request: NextRequest) {
   }
 
   const rule = getDestinationImageRule(city, country);
-  const image = rule.localPath
-    ? {
-        url: rule.localPath,
-        source: "local" as const,
-        sourcePage: null,
-        title: rule.label,
-      }
-    : await searchWikimedia(rule.query);
+  const query = customQuery || rule.query;
+  const image = customQuery
+    ? await searchWikimedia(query)
+    : rule.localPath
+      ? {
+          url: rule.localPath,
+          source: "local" as const,
+          sourcePage: null,
+          title: rule.label,
+        }
+      : await searchWikimedia(query);
 
   return NextResponse.json(
     {
       image,
       destination: rule.label,
-      query: rule.query,
+      query,
     },
     {
       headers: {
