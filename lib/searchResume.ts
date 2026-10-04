@@ -34,7 +34,7 @@ function safeArray(value: unknown, maxItems = 12) {
     : [];
 }
 
-export function saveSearchResumeContext(input: Omit<SearchResumeContext, "savedAt">) {
+export function saveSearchResumeContext(input: Omit<SearchResumeContext, "savedAt" | "scrollY"> & { scrollY?: number }) {
   if (typeof window === "undefined") return;
   try {
     const payload: SearchResumeContext = {
