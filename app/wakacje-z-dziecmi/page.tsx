@@ -5,6 +5,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SearchHub from "@/components/SearchHub";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
+import ReadySearchGrid from "@/components/ReadySearchGrid";
 import styles from "../conversion-pages.module.css";
 
 const title = "Wakacje z dziećmi 2027 – rodzinne All Inclusive i kierunki";
@@ -27,10 +28,10 @@ export const metadata: Metadata = {
 };
 
 const familyDestinations = [
-  { name: "Egipt", label: "All Inclusive + słońce", href: "/egipt", image: "/images/destinations/marsa-alam.jpg", text: "Dużo hoteli resortowych. Przed rezerwacją sprawdź czas transferu, podgrzewanie basenów i dokładny typ pokoju." },
-  { name: "Wyspy Kanaryjskie", label: "Łagodny klimat", href: "/wyspy-kanaryjskie-wakacje-all-inclusive-i-last-minute", image: "/images/destinations/teneryfa.jpg", text: "Dobry kierunek, gdy chcesz połączyć hotel, plażę i zwiedzanie bez bardzo egzotycznej logistyki." },
-  { name: "Grecja", label: "Plaże + krótszy wyjazd", href: "/grecja-2027", image: "/images/destinations/rodos.jpg", text: "Duży wybór wysp i hoteli. Przy dzieciach porównaj lotnisko, transfer oraz odległość od plaży." },
-  { name: "Bułgaria", label: "Budżet + plaża", href: "/bulgaria", image: "/images/destinations/sloneczny-brzeg.jpg", text: "Warto porównywać pełny koszt rodzinnego pokoju i faktyczną lokalizację hotelu, nie tylko cenę od osoby." },
+  { name: "Egipt", label: "All Inclusive + słońce", href: "/szukaj?destination=Egipt&duration=7&budget=3000&board=all%20inclusive&tab=All%20Inclusive", image: "/images/destinations/marsa-alam.jpg", text: "Dużo hoteli resortowych. Przed rezerwacją sprawdź czas transferu, podgrzewanie basenów i dokładny typ pokoju." },
+  { name: "Wyspy Kanaryjskie", label: "Łagodny klimat", href: "/szukaj?destination=Wyspy%20Kanaryjskie&duration=7&budget=3500&tab=Wakacje", image: "/images/destinations/teneryfa.jpg", text: "Dobry kierunek, gdy chcesz połączyć hotel, plażę i zwiedzanie bez bardzo egzotycznej logistyki." },
+  { name: "Grecja", label: "Plaże + krótszy wyjazd", href: "/szukaj?destination=Grecja&duration=7&budget=3000&tab=Wakacje", image: "/images/destinations/rodos.jpg", text: "Duży wybór wysp i hoteli. Przy dzieciach porównaj lotnisko, transfer oraz odległość od plaży." },
+  { name: "Bułgaria", label: "Budżet + plaża", href: "/szukaj?destination=Bułgaria&duration=7&budget=2500&tab=Wakacje", image: "/images/destinations/sloneczny-brzeg.jpg", text: "Warto porównywać pełny koszt rodzinnego pokoju i faktyczną lokalizację hotelu, nie tylko cenę od osoby." },
 ] as const;
 
 const faq = [
@@ -114,7 +115,7 @@ export default function FamilyHolidaysPage() {
         {familyDestinations.map((item) => (
           <Link href={item.href} className={styles.imageCard} key={item.name}>
             <div className={styles.imageWrap}><Image src={item.image} alt={item.name} fill sizes="(max-width: 640px) 100vw, (max-width: 980px) 50vw, 25vw"/></div>
-            <div className={styles.imageBody}><small>{item.label}</small><strong>{item.name}</strong><p>{item.text}</p><b>Sprawdź kierunek →</b></div>
+            <div className={styles.imageBody}><small>{item.label}</small><strong>{item.name}</strong><p>{item.text}</p><b>Pokaż gotowe wyniki →</b></div>
           </Link>
         ))}
       </div>
@@ -130,13 +131,12 @@ export default function FamilyHolidaysPage() {
           <div className={styles.guideCard}><h3>Plaża i dojście</h3><p>„Blisko plaży” może oznaczać spacer pod górę, przejście przez ulicę albo hotelowy bus.</p></div>
           <div className={styles.guideCard}><h3>Pełny koszt wyjazdu</h3><p>Dolicz bagaż, parking, dojazd na lotnisko, transfer i ewentualny nocleg przed wylotem.</p></div>
         </div>
-        <div className={styles.linkPills}>
-          <Link href="/podroze/wakacje-do-2000-zl">Wakacje do 2000 zł</Link>
-          <Link href="/podroze/wakacje-do-2500-zl">Wakacje do 2500 zł</Link>
-          <Link href="/podroze/all-inclusive-do-2000-zl">All Inclusive do 2000 zł</Link>
-          <Link href="/ferie-2027">Ferie 2027</Link>
-          <Link href="/kierunki">Wszystkie kierunki</Link>
-        </div>
+        <ReadySearchGrid items={[
+          { href: "/szukaj?budget=2000&duration=7&tab=Wakacje", eyebrow: "RODZINNIE · 7 NOCY · DO 2 000 ZŁ", title: "Najtańsze wakacje rodzinne", meta: "Różne kierunki i lotniska · sortowanie od ceny" },
+          { href: "/szukaj?budget=2500&duration=7&tab=Wakacje", eyebrow: "RODZINNIE · 7 NOCY · DO 2 500 ZŁ", title: "Większy wybór hoteli", meta: "Różne kierunki · lot + hotel" },
+          { href: "/szukaj?budget=3000&duration=7&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "ALL INCLUSIVE · 7 NOCY · DO 3 000 ZŁ", title: "Rodzinne All Inclusive", meta: "Pełne wyżywienie · ciepłe kierunki" },
+          { href: "/szukaj?airport=WAWA&budget=3000&duration=7&tab=Wakacje", eyebrow: "WARSZAWA · 7 NOCY · DO 3 000 ZŁ", title: "Rodzinne wakacje z Warszawy", meta: "WAW + WMI · różne kierunki" },
+        ]} />
       </div>
     </section>
 
