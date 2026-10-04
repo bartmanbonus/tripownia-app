@@ -232,8 +232,27 @@ function nightsLabel(value: string) {
     if ([2, 3, 4].includes(nights)) return `${nights} noce`;
     return `${nights} nocy`;
   }
-  if (/^\d+-\d+$/.test(value)) return `${value.replace("-", "–")} nocy`;
+  const range = /^(\d+)-(\d+)$/.exec(value);
+  if (range) {
+    const to = Number(range[2]);
+    return `${range[1]}–${range[2]} ${to <= 4 ? "noce" : "nocy"}`;
+  }
   return value;
+}
+
+function durationPickerRange(value: string) {
+  if (/^\d+$/.test(value)) {
+    const nights = Math.min(14, Math.max(1, Number(value)));
+    return { min: nights, max: nights };
+  }
+  const range = /^(\d+)-(\d+)$/.exec(value);
+  if (range) {
+    const first = Math.min(14, Math.max(1, Number(range[1])));
+    const second = Math.min(14, Math.max(1, Number(range[2])));
+    return { min: Math.min(first, second), max: Math.max(first, second) };
+  }
+  if (value === "15+") return { min: 14, max: 14 };
+  return { min: 3, max: 5 };
 }
 
 function offerStartMs(offer: any) {
@@ -346,6 +365,9 @@ export default function SearchHub({
   const [dateFrom, setDateFrom] = useState(initialDateFrom);
   const [dateTo, setDateTo] = useState(initialDateTo);
   const [duration, setDuration] = useState(initialDuration || "all");
+  const [durationOpen, setDurationOpen] = useState(false);
+  const [durationDraftMin, setDurationDraftMin] = useState(() => durationPickerRange(initialDuration || "all").min);
+  const [durationDraftMax, setDurationDraftMax] = useState(() => durationPickerRange(initialDuration || "all").max);
   const [budget, setBudget] = useState(initialBudget || "all");
   const [customBudgetMin, setCustomBudgetMin] = useState("");
   const [customBudgetMax, setCustomBudgetMax] = useState("");
@@ -372,6 +394,7 @@ export default function SearchHub({
   const destinationRef = useRef<HTMLDivElement>(null);
   const departureRef = useRef<HTMLDivElement>(null);
   const dateRef = useRef<HTMLDivElement>(null);
+  const durationRef = useRef<HTMLDivElement>(null);
   const searchRunRef = useRef(0);
   const searchAbortRef = useRef<AbortController | null>(null);
   useEffect(() => () => { searchRunRef.current += 1; searchAbortRef.current?.abort(); }, []);
@@ -520,6 +543,7 @@ export default function SearchHub({
       if (destinationRef.current && !destinationRef.current.contains(event.target as Node)) setSuggestionsOpen(false);
       if (departureRef.current && !departureRef.current.contains(event.target as Node)) setDepartureOpen(false);
       if (dateRef.current && !dateRef.current.contains(event.target as Node)) setDateOpen(false);
+      if (durationRef.current && !durationRef.current.contains(event.target as Node)) setDurationOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
@@ -527,19 +551,20 @@ export default function SearchHub({
 
   // Keep keyboard users inside the open picker and return to its trigger on close.
   useEffect(() => {
-    const host = dateOpen ? dateRef.current : departureOpen ? departureRef.current : suggestionsOpen ? destinationRef.current : null;
+    const host = dateOpen ? dateRef.current : durationOpen ? durationRef.current : departureOpen ? departureRef.current : suggestionsOpen ? destinationRef.current : null;
     const panel = host?.querySelector<HTMLElement>('[role="dialog"]');
     if (!panel) return;
     const trigger = host?.querySelector<HTMLElement>('input, button');
     const focusable = () => Array.from(panel.querySelectorAll<HTMLElement>('button:not(:disabled), input, select, a[href], [tabindex="0"]')).filter(node => node.getClientRects().length > 0);
     if (!suggestionsOpen) focusable()[0]?.focus({ preventScroll: true });
     const previousOverflow = document.body.style.overflow;
-    const fullscreen = window.matchMedia('(max-width: 640px)').matches && (dateOpen || departureOpen);
+    const fullscreen = window.matchMedia('(max-width: 640px)').matches && (dateOpen || departureOpen || durationOpen);
     if (fullscreen) document.body.style.overflow = 'hidden';
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault();
         setDateOpen(false);
+        setDurationOpen(false);
         setDepartureOpen(false);
         setSuggestionsOpen(false);
       }
@@ -556,7 +581,7 @@ export default function SearchHub({
       if (fullscreen) document.body.style.overflow = previousOverflow;
       if (panel.contains(document.activeElement) || document.activeElement === document.body) trigger?.focus({ preventScroll: true });
     };
-  }, [dateOpen, departureOpen, suggestionsOpen]);
+  }, [dateOpen, durationOpen, departureOpen, suggestionsOpen]);
 
   useEffect(() => {
     if (searchRequest > 0) void runSearch();
@@ -649,6 +674,7 @@ export default function SearchHub({
     setSuggestionsOpen(false);
     setDepartureOpen(false);
     setDateOpen(false);
+    setDurationOpen(false);
     setNotice("");
 
     let rows: any[] = [];
@@ -817,18 +843,21 @@ export default function SearchHub({
   function openDestinationPanel() {
     setDepartureOpen(false);
     setDateOpen(false);
+    setDurationOpen(false);
     setSuggestionsOpen(true);
   }
 
   function toggleDeparturePanel() {
     setSuggestionsOpen(false);
     setDateOpen(false);
+    setDurationOpen(false);
     setDepartureOpen((open) => !open);
   }
 
   function toggleDatePanel() {
     setSuggestionsOpen(false);
     setDepartureOpen(false);
+    setDurationOpen(false);
     setDateOpen((open) => {
       const next = !open;
       if (next && !calendarMonth) {
@@ -836,6 +865,36 @@ export default function SearchHub({
       }
       return next;
     });
+  }
+
+  function toggleDurationPanel() {
+    setSuggestionsOpen(false);
+    setDepartureOpen(false);
+    setDateOpen(false);
+    setDurationOpen((open) => {
+      const next = !open;
+      if (next) {
+        const current = durationPickerRange(duration);
+        setDurationDraftMin(current.min);
+        setDurationDraftMax(current.max);
+      }
+      return next;
+    });
+  }
+
+  function applyDurationRange() {
+    const min = Math.min(durationDraftMin, durationDraftMax);
+    const max = Math.max(durationDraftMin, durationDraftMax);
+    setDuration(min === max ? String(min) : `${min}-${max}`);
+    setDurationOpen(false);
+  }
+
+  function chooseDurationPreset(value: string) {
+    setDuration(value);
+    const next = durationPickerRange(value);
+    setDurationDraftMin(next.min);
+    setDurationDraftMax(next.max);
+    setDurationOpen(false);
   }
 
   function selectDateMode(mode: DateMode) {
@@ -1000,6 +1059,7 @@ export default function SearchHub({
     setSuggestionsOpen(false);
     setDepartureOpen(false);
     setDateOpen(false);
+    setDurationOpen(false);
     setActiveTab(tab);
     if (tab === "Hotele") { setDateMode("range"); setMonth(""); setSelectedDestinations((current) => current.slice(0, 1)); }
     setDuration("all");
@@ -1026,6 +1086,7 @@ export default function SearchHub({
     setSuggestionsOpen(false);
     setDepartureOpen(false);
     setDateOpen(false);
+    setDurationOpen(false);
     setSelectedDestinations([canonicalLabel]);
     setDestination("");
     setDuration(nextDuration);
@@ -1053,6 +1114,7 @@ export default function SearchHub({
     setDepartures([]);
     setDepartureOpen(false);
     setDateOpen(false);
+    setDurationOpen(false);
     setDateMode("any");
     setMonth("");
     setCalendarMonth("");
@@ -1094,6 +1156,9 @@ export default function SearchHub({
   }, [dateMode, month, dateFrom, dateTo]);
 
   const durationSummary = useMemo(() => nightsLabel(duration), [duration]);
+  const selectedStayNights = dateMode === "range" && dateFrom && dateTo ? exactNightsBetween(dateFrom, dateTo) : 0;
+  const durationLocked = activeTab !== "Hotele" && activeTab !== "Loty" && selectedStayNights > 0;
+  const durationFieldLabel = duration === "all" ? "Dowolnie" : nightsLabel(duration);
 
   const budgetSummary = useMemo(() => {
     if (budget === "all") return "dowolny budżet";
@@ -1380,7 +1445,7 @@ export default function SearchHub({
                   </button>
                   <div className="search-v3-esky-summary">
                     <small>{activeTab === "Loty" ? "Podróż" : "Na jak długo?"}</small>
-                    <strong>{activeTab === "Loty" ? (flightTripType === "round" ? "W obie strony" : "W jedną stronę") : (duration === "all" ? "Dowolnie" : duration.replace("-", " – ") + (duration === "1-2" ? " noce" : " nocy"))}</strong>
+                    <strong>{activeTab === "Loty" ? (flightTripType === "round" ? "W obie strony" : "W jedną stronę") : durationFieldLabel}</strong>
                   </div>
                   <button
                     type="button"
@@ -1489,16 +1554,24 @@ export default function SearchHub({
                     <em>Nowość</em>
                   </button>
                   <div className="search-v3-esky-nights">
-                    <strong>Wybierz liczbę nocy</strong>
-                    <div>
-                      {[
-                        ["all","Dowolnie"],
-                        ...Array.from({ length: 14 }, (_, index) => [String(index + 1), String(index + 1)]),
-                        ["15+","15+"],
-                      ].map(([value,label]) => (
-                        <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label}</button>
-                      ))}
-                    </div>
+                    <strong>{durationLocked ? "Długość wynika z terminu" : "Popularna długość"}</strong>
+                    {durationLocked ? (
+                      <div className="search-v3-esky-nights-locked"><span>{durationFieldLabel}</span><small>Zmień daty, aby ustawić inną długość.</small></div>
+                    ) : (
+                      <div>
+                        {[
+                          ["all","Dowolnie"],
+                          ["2-3","2–3"],
+                          ["3-4","3–4"],
+                          ["5-7","5–7"],
+                          ["7-10","7–10"],
+                          ["11-14","11–14"],
+                          ["15+","15+"],
+                        ].map(([value,label]) => (
+                          <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label}</button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <button type="button" className="search-v3-esky-apply" disabled={dateMode === "range" && (!dateFrom || !dateTo)} onClick={() => setDateOpen(false)}>Zastosuj</button>
                 </div>
@@ -1517,32 +1590,91 @@ export default function SearchHub({
               <ChevronDown size={15} className="search-v3-chevron"/>
             </label>
           ) : (
-            <label className="search-v3-field search-v3-duration">
-              <span>Na jak długo?</span>
-              <select value={duration} onChange={(event) => setDuration(event.target.value)}>
-                <option value="all">Dowolnie</option>
-                {/* dynamiczny zakres z gotowego wyszukiwania */}
-                {duration !== "all" && duration !== "15+" && !/^\d+$/.test(duration)
-                  && !["1-2","2-4","3-4","3-5","3-6","5-7","5-9","7-12","8-10","11-14"].includes(duration)
-                  && <option value={duration}>{nightsLabel(duration)}</option>}
-                {Array.from({ length: 14 }, (_, index) => index + 1).map((value) => (
-                  <option key={value} value={String(value)}>{nightsLabel(String(value))}</option>
-                ))}
-                <option value="15+">15+ nocy</option>
-                <option disabled>──────────</option>
-                <option value="1-2">1–2 noce</option>
-                <option value="2-4">2–4 noce</option>
-                <option value="3-4">3–4 noce</option>
-                <option value="3-5">3–5 nocy</option>
-                <option value="3-6">3–6 nocy</option>
-                <option value="5-7">5–7 nocy</option>
-                <option value="5-9">5–9 nocy</option>
-                <option value="7-12">7–12 nocy</option>
-                <option value="8-10">8–10 nocy</option>
-                <option value="11-14">11–14 nocy</option>
-              </select>
-              <ChevronDown size={15} className="search-v3-chevron"/>
-            </label>
+            <div className={`search-v3-field search-v3-duration search-v3-duration-picker${durationOpen ? " is-open" : ""}${durationLocked ? " is-locked" : ""}`} ref={durationRef}>
+              <span>Na jak długo? {durationLocked && <small>z wybranego terminu</small>}</span>
+              <button
+                type="button"
+                className="search-v3-duration-trigger"
+                onClick={toggleDurationPanel}
+                aria-expanded={durationOpen}
+                aria-disabled={durationLocked}
+                disabled={durationLocked}
+              >
+                <strong>{durationFieldLabel}</strong>
+                {durationLocked ? <Check size={15}/> : <ChevronDown size={15}/>}
+              </button>
+
+              {durationOpen && (
+                <div className="search-v3-duration-popover" role="dialog" aria-label="Wybierz długość wyjazdu">
+                  <div className="search-v3-panel-head">
+                    <div><strong>Jak długo chcesz wyjechać?</strong><small>Wybierz gotowy wariant albo ustaw własny zakres.</small></div>
+                    <button type="button" className="search-v3-panel-close" aria-label="Zamknij wybór długości" onClick={() => setDurationOpen(false)}><X size={18}/></button>
+                  </div>
+
+                  <div className="search-v3-duration-presets" role="group" aria-label="Popularne długości wyjazdu">
+                    {[
+                      ["all","Dowolnie"],
+                      ["2-3","Weekend · 2–3"],
+                      ["3-4","3–4 noce"],
+                      ["5-7","5–7 nocy"],
+                      ["7-10","7–10 nocy"],
+                      ["11-14","11–14 nocy"],
+                      ["15+","15+ nocy"],
+                    ].map(([value,label]) => (
+                      <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => chooseDurationPreset(value)}>{label}</button>
+                    ))}
+                  </div>
+
+                  <div className="search-v3-duration-custom">
+                    <div className="search-v3-duration-custom-head">
+                      <div><small>Własny zakres</small><strong>{durationDraftMin === durationDraftMax ? nightsLabel(String(durationDraftMin)) : nightsLabel(`${durationDraftMin}-${durationDraftMax}`)}</strong></div>
+                      <span>{durationDraftMin}–{durationDraftMax}</span>
+                    </div>
+
+                    <label className="search-v3-duration-range-row">
+                      <span><b>Od</b><output>{nightsLabel(String(durationDraftMin))}</output></span>
+                      <input
+                        type="range"
+                        min="1"
+                        max="14"
+                        step="1"
+                        value={durationDraftMin}
+                        aria-label="Minimalna liczba nocy"
+                        onChange={(event) => {
+                          const next = Number(event.target.value);
+                          setDurationDraftMin(next);
+                          if (next > durationDraftMax) setDurationDraftMax(next);
+                        }}
+                      />
+                    </label>
+
+                    <label className="search-v3-duration-range-row">
+                      <span><b>Do</b><output>{nightsLabel(String(durationDraftMax))}</output></span>
+                      <input
+                        type="range"
+                        min="1"
+                        max="14"
+                        step="1"
+                        value={durationDraftMax}
+                        aria-label="Maksymalna liczba nocy"
+                        onChange={(event) => {
+                          const next = Number(event.target.value);
+                          setDurationDraftMax(next);
+                          if (next < durationDraftMin) setDurationDraftMin(next);
+                        }}
+                      />
+                    </label>
+
+                    <div className="search-v3-duration-scale" aria-hidden="true"><span>1</span><span>7</span><span>14 nocy</span></div>
+                  </div>
+
+                  <div className="search-v3-duration-actions">
+                    <button type="button" className="search-v3-duration-clear" onClick={() => chooseDurationPreset("all")}>Dowolnie</button>
+                    <button type="button" className="search-v3-duration-apply" onClick={applyDurationRange}>Zastosuj {durationDraftMin === durationDraftMax ? nightsLabel(String(durationDraftMin)) : nightsLabel(`${durationDraftMin}-${durationDraftMax}`)}</button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           {simpleHomePackage ? null : activeTab === "Hotele" ? null : activeTab === "Loty" ? (
