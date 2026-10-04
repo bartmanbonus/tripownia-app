@@ -174,19 +174,17 @@ function isUsablePublishedFallback(offer: DealsOffer) {
 
 function sortedDestinationOffers(
   offers: DealsOffer[],
-  mode: "live" | "fallback",
-  limit = DEAL_LIMIT
+  mode: "live" | "fallback"
 ) {
   const usable = mode === "live"
     ? dedupeDestinationCatalogOffers(offers)
     : dedupeOffersByIdentity(offers, mode);
   return usable
-    .sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0))
-    .slice(0, limit);
+    .sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0));
 }
 
 function fallbackSelection(offers: DealsOffer[], destination: string, limit = DEAL_LIMIT) {
-  if (destination) return sortedDestinationOffers(offers, "fallback", limit);
+  if (destination) return sortedDestinationOffers(offers, "fallback");
   return selectCheapestPerDestination(offers, { mode: "fallback", limit });
 }
 
@@ -195,7 +193,7 @@ function cheapestPerDestination(offers: DealsOffer[]) {
 }
 
 function lowestPriceDeals(offers: DealsOffer[], destination: string, limit = DEAL_LIMIT) {
-  if (destination) return sortedDestinationOffers(offers, "live", limit);
+  if (destination) return sortedDestinationOffers(offers, "live");
   return cheapestPerDestination(offers).slice(0, limit);
 }
 
@@ -204,10 +202,11 @@ function closestCheapDeals(offers: DealsOffer[], month: string, year: string, de
     ? dedupeDestinationCatalogOffers(offers)
     : cheapestPerDestination(offers);
 
-  return ranked.sort((a, b) => {
+  const sorted = ranked.sort((a, b) => {
     const distance = monthDistance(a, month, year) - monthDistance(b, month, year);
     return distance || Number(a.price) - Number(b.price);
-  }).slice(0, limit);
+  });
+  return destination ? sorted : sorted.slice(0, limit);
 }
 
 async function loadSource(
