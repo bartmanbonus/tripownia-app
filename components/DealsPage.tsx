@@ -501,38 +501,51 @@ export default function DealsPage({
           )}
         </>
       ) : !loading ? (
-        <div className="self-search-empty deals-simple-empty">
-          <strong>{destination ? "Sprawdź pełną dostępność dla: " + destination : "Brak ofert dla tych filtrów."}</strong>
-          <span>
-            {destination
-              ? "Nie pokazujemy fikcyjnej ceny, gdy feed nie zwraca dziś konkretnej karty. Poniżej masz gotowe wyszukiwania na każdy z kolejnych 12 miesięcy."
-              : "Zmień jeden filtr albo wyczyść ustawienia — nie pokazujemy sztucznych wyników."}
-          </span>
-          {destination && (
-            <>
-              <div className="destination-month-fallback" aria-label={"Gotowe miesiące dla " + destination}>
-                {destinationMonthSearches.map((item) => (
-                  <a
-                    key={item.key}
-                    href={item.href}
-                    rel="sponsored"
-                    onClick={() => trackEvent("destination_month_fallback_click", { destination, month: item.key })}
-                  >
-                    <CalendarDays size={15}/>
-                    <span>{item.label}</span>
-                    <ArrowRight size={15}/>
-                  </a>
-                ))}
+        destination ? (
+          <section className="destination-monthly-results" aria-label={"Gotowe miesięczne wyszukiwania dla " + destination}>
+            <div className="destination-monthly-head">
+              <div>
+                <strong>12 gotowych opcji dla: {destination}</strong>
+                <span>Feed partnerów nie zwrócił dziś gotowej karty z ceną, więc zamiast pustego wyniku dajemy gotowe wyszukiwania lot + hotel na każdy kolejny miesiąc.</span>
               </div>
-              <div className="deals-empty-actions">
-                {destinationEximHref && <a href={destinationEximHref} rel="sponsored" onClick={() => trackEvent("destination_more_packages_click", { destination, source: "exim_empty" })}>🌴 Wszystkie wakacje</a>}
-                <a href={destinationPackageHref} rel="sponsored">🧳 Lot + hotel</a>
-                <Link href={"/loty?destination=" + encodeURIComponent(destination)}>✈️ Loty</Link>
-                <Link href={destinationHotelHref}>🏨 Hotele</Link>
-              </div>
-            </>
-          )}
-        </div>
+            </div>
+            <div className="destination-monthly-grid">
+              {destinationMonthSearches.map((item) => (
+                <a
+                  className="destination-month-card"
+                  key={item.key}
+                  href={item.href}
+                  rel="sponsored"
+                  onClick={() => trackEvent("destination_month_fallback_click", { destination, month: item.key })}
+                >
+                  <div className="destination-month-card-top">
+                    <span className="destination-month-card-badge">LOT + HOTEL</span>
+                    <CalendarDays size={18}/>
+                  </div>
+                  <div className="destination-month-card-main">
+                    <small>{destination}</small>
+                    <strong>{item.label}</strong>
+                    <span>Sprawdź aktualne ceny i dostępne terminy</span>
+                  </div>
+                  <div className="destination-month-card-cta">
+                    Sprawdź oferty <ArrowRight size={16}/>
+                  </div>
+                </a>
+              ))}
+            </div>
+            <div className="deals-empty-actions">
+              {destinationEximHref && <a href={destinationEximHref} rel="sponsored" onClick={() => trackEvent("destination_more_packages_click", { destination, source: "exim_empty" })}>🌴 Wszystkie wakacje</a>}
+              <a href={destinationPackageHref} rel="sponsored">🧳 Lot + hotel</a>
+              <Link href={"/loty?destination=" + encodeURIComponent(destination)}>✈️ Loty</Link>
+              <Link href={destinationHotelHref}>🏨 Hotele</Link>
+            </div>
+          </section>
+        ) : (
+          <div className="self-search-empty deals-simple-empty">
+            <strong>Brak ofert dla tych filtrów.</strong>
+            <span>Zmień jeden filtr albo wyczyść ustawienia — nie pokazujemy sztucznych wyników.</span>
+          </div>
+        )
       ) : null}
 
       {!destination && <FacebookFollowCTA placement="deals_after_results" compact />}
@@ -734,6 +747,7 @@ export default function DealsPage({
 
       .deals-more-destination{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:16px;padding:14px 16px;border:1px solid #e6e2df;border-radius:15px;background:#faf8f6}.deals-more-destination>div{display:grid;gap:3px}.deals-more-destination strong{color:#24211f;font-size:14px}.deals-more-destination span{color:#74706c;font-size:12px}.deals-more-destination>a{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 13px;border-radius:11px;background:#111827;color:#fff;font-size:13px;font-weight:850;text-decoration:none}
       .destination-month-fallback{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;margin-top:14px}.destination-month-fallback a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:0 12px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;color:#111827;font-size:13px;font-weight:800;text-decoration:none}.destination-month-fallback a:hover{border-color:#111827}
+      .destination-monthly-results{display:grid;gap:18px;margin-top:18px}.destination-monthly-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-end}.destination-monthly-head>div{display:grid;gap:5px}.destination-monthly-head strong{font-size:20px;color:#1f2937}.destination-monthly-head span{font-size:13px;color:#6b7280;max-width:760px;line-height:1.5}.destination-monthly-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.destination-month-card{display:grid;gap:16px;padding:16px;border:1px solid #e5e7eb;border-radius:16px;background:#fff;color:#111827;text-decoration:none;box-shadow:0 8px 22px rgba(17,24,39,.06);transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}.destination-month-card:hover{transform:translateY(-2px);border-color:#9ca3af;box-shadow:0 12px 28px rgba(17,24,39,.1)}.destination-month-card-top{display:flex;justify-content:space-between;align-items:center}.destination-month-card-badge{font-size:11px;font-weight:900;letter-spacing:.06em;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;border-radius:999px;padding:5px 8px}.destination-month-card-main{display:grid;gap:4px}.destination-month-card-main small{font-size:12px;color:#6b7280}.destination-month-card-main strong{font-size:18px}.destination-month-card-main span{font-size:12px;line-height:1.45;color:#6b7280}.destination-month-card-cta{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:900;color:#111827}
 
       .deals-facebook-cta {
         display: flex;
@@ -875,6 +889,7 @@ export default function DealsPage({
 
         .deals-more-destination{display:grid;gap:10px}.deals-more-destination>a{width:100%;justify-content:center}
         .destination-month-fallback{grid-template-columns:1fr 1fr}
+        .destination-monthly-grid{grid-template-columns:1fr 1fr}
 
         .deals-facebook-cta {
           display: grid;
