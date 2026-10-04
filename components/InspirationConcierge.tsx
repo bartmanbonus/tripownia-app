@@ -52,7 +52,7 @@ export default function InspirationConcierge({
     } catch {}
   }, []);
 
-  const scenarios = useMemo<Scenario[]>(() => [
+  const scenarios = useMemo((): Scenario[] => [
     {
       id: "city-weekend",
       eyebrow: "KRÓTKO I TANIO",
