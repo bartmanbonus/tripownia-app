@@ -89,7 +89,7 @@ function closeOpenMenus(except?: HTMLDetailsElement | null) {
 export default function SiteHeader() {
   const pathname = usePathname();
   const inApp = isAppPath(pathname);
-  const mobileHomeHref = inApp ? "/app" : "/";
+  const mobileHomeHref = "/";
   const searchHref = inApp ? "/app#wyszukiwarka" : "/#wyszukiwarka";
 
   useEffect(() => {
@@ -148,7 +148,7 @@ export default function SiteHeader() {
     <header className="trip-header">
       <div className="trip-header-shell">
         <div className="trip-mobile-top">
-          <Link className="trip-mobile-brand" href={mobileHomeHref} aria-label={inApp ? "Tripownia — start aplikacji" : "Tripownia.pl — strona główna"}>
+          <Link className="trip-mobile-brand" href={mobileHomeHref} aria-label="Tripownia.pl — strona główna">
             <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={64} height={64} priority />
           </Link>
           <div className="trip-mobile-top-actions">
@@ -205,7 +205,7 @@ export default function SiteHeader() {
         </div>
 
         <div className="trip-header-main">
-          <Link className="trip-header-brand" href={inApp ? "/app" : "/"} aria-label={inApp ? "Tripownia — start aplikacji" : "Tripownia.pl — strona główna"}>
+          <Link className="trip-header-brand" href="/" aria-label="Tripownia.pl — strona główna">
             <Image src="/tripownia-logo.webp" alt="Tripownia.pl" width={68} height={68} priority />
           </Link>
           <Link className="trip-header-search" href={searchHref} aria-label="Przejdź do wyszukiwarki wyjazdów">
