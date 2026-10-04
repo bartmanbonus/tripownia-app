@@ -17,6 +17,7 @@ import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 import { customerOfferReason } from "@/lib/customerOfferCopy";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
+import PurchaseChoices from "@/components/PurchaseChoices";
 
 export async function generateStaticParams(){ return offers.map(o=>({id:String(o.id)})); }
 export async function generateMetadata({params}:{params:Promise<{id:string}>}):Promise<Metadata>{
@@ -164,7 +165,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <span>Przed płatnością sprawdź finalną cenę, bagaż, warunki zmiany lub anulacji i dokładny zakres świadczeń.</span>
           </div>
 
-          <div className="detail-source">Po kliknięciu sprawdzisz finalną cenę, dostępność i warunki rezerwacji.</div>
+          <div className="detail-source"><strong>Tripownia wybiera i porównuje. Partner finalizuje płatność.</strong> Po kliknięciu zachowamy ten wyjazd, żeby po powrocie od razu dobrać nocleg, transfer i atrakcje.</div>
           {o.availabilityStatus === "expired" ? (
             <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
           ) : (
@@ -179,7 +180,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
                 placement="offer_detail_primary"
                 returnContext={{ departure: o.departure, hotel: o.hotel, board: o.board, nights: o.nights }}
               >
-                {o.partner === "exim" || o.partner === "tui" ? "Zobacz konkretną ofertę" : "Sprawdź aktualną cenę"} <ExternalLink size={18}/>
+                {o.partner === "exim" || o.partner === "tui" ? "Biorę tę ofertę" : "Przejdź do rezerwacji"} <ExternalLink size={18}/>
               </TrackedPartnerLink>
               <OfferAlternativeJump />
               <small className="booking-note">Cena i dostępność mogą zmienić się do momentu rezerwacji. Sprawdź finalne warunki przed płatnością.</small>
@@ -192,6 +193,18 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           />
         </div>
       </section>
+      {o.availabilityStatus !== "expired" && (
+        <PurchaseChoices
+          city={o.city}
+          country={o.country}
+          nights={o.nights}
+          board={o.board}
+          departure={o.departure}
+          airportCode={o.airportCode}
+          currentOfferId={o.id}
+          currentPrice={o.price}
+        />
+      )}
       {o.availabilityStatus !== "expired" && (
         <OfferAlternativeFinder
           city={o.city}
@@ -246,7 +259,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           placement="offer_detail_mobile_bar"
           returnContext={{ departure: o.departure, hotel: o.hotel, board: o.board, nights: o.nights }}
         >
-          Sprawdź aktualną cenę <ExternalLink size={16}/>
+          Przejdź do rezerwacji <ExternalLink size={16}/>
         </TrackedPartnerLink>
       </div>}
       <CompleteTripSales city={o.city} country={o.country} source="offer_detail" />
