@@ -10,6 +10,8 @@ type Props = {
   alt: string;
   className?: string;
   overrideSrc?: string;
+  searchQuery?: string;
+  preferDynamic?: boolean;
 };
 
 type ApiResponse = {
@@ -19,10 +21,10 @@ type ApiResponse = {
 
 const memoryCache = new Map<string, string>();
 
-export default function TravelImage({ city, country, alt, className = "", overrideSrc }: Props) {
-  const cacheKey = `${city}|${country}`;
+export default function TravelImage({ city, country, alt, className = "", overrideSrc, searchQuery = "", preferDynamic = false }: Props) {
+  const cacheKey = `${city}|${country}|${searchQuery}`;
   const rule = useMemo(() => getDestinationImageRule(city, country), [city, country]);
-  const localCandidate = rule.localPath || "";
+  const localCandidate = preferDynamic ? "" : (rule.localPath || "");
   const [src, setSrc] = useState<string>(() => overrideSrc || memoryCache.get(cacheKey) || localCandidate);
   const [triedLocal, setTriedLocal] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -53,7 +55,9 @@ export default function TravelImage({ city, country, alt, className = "", overri
     setTriedLocal(true);
     setFailed(false);
     const controller = new AbortController();
-    fetch(`/api/destination-image?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`, {
+    const params = new URLSearchParams({ city, country });
+    if (searchQuery) params.set("q", searchQuery);
+    fetch(`/api/destination-image?${params.toString()}`, {
       signal: controller.signal,
     })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
@@ -66,7 +70,7 @@ export default function TravelImage({ city, country, alt, className = "", overri
       .catch(() => setFailed(true));
 
     return () => controller.abort();
-  }, [cacheKey, localCandidate, overrideSrc, city, country]);
+  }, [cacheKey, localCandidate, overrideSrc, city, country, searchQuery]);
 
   function loadDynamicFallback() {
     if (localCandidate && src !== localCandidate) {
@@ -83,7 +87,9 @@ export default function TravelImage({ city, country, alt, className = "", overri
 
     setTriedLocal(true);
     const controller = new AbortController();
-    fetch(`/api/destination-image?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`, {
+    const params = new URLSearchParams({ city, country });
+    if (searchQuery) params.set("q", searchQuery);
+    fetch(`/api/destination-image?${params.toString()}`, {
       signal: controller.signal,
     })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
