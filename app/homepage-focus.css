@@ -1820,3 +1820,125 @@ body:has(.dream-hero) .homepage-trip-type-card>svg{
     white-space:nowrap!important;
   }
 }
+
+
+/* 2026-10-04 compact desktop calendar — preserve the flow, reduce visual footprint */
+@media(min-width:641px){
+  .search-v3-calendar-popover.search-v3-calendar-esky{
+    width:min(590px,calc(100vw - 40px))!important;
+    max-height:min(720px,82vh)!important;
+    border-radius:18px!important;
+  }
+  .search-v3-esky-top{
+    grid-template-columns:30px minmax(0,1fr) minmax(0,1fr) 30px!important;
+    gap:8px!important;
+    padding:12px 14px 10px!important;
+  }
+  .search-v3-esky-back,.search-v3-esky-clear{
+    min-height:36px!important;
+  }
+  .search-v3-esky-summary{
+    min-height:50px!important;
+    padding:6px 10px!important;
+    border-radius:12px!important;
+  }
+  .search-v3-esky-summary small{font-size:10px!important}
+  .search-v3-esky-summary strong{font-size:14px!important}
+  .search-v3-esky-tabs{
+    margin:0 14px 9px!important;
+    padding:4px!important;
+    border-radius:12px!important;
+  }
+  .search-v3-esky-tabs button{
+    min-height:38px!important;
+    border-radius:9px!important;
+    font-size:13px!important;
+  }
+  .search-picker-modes{
+    gap:7px!important;
+    margin:0 14px 8px!important;
+  }
+  .search-picker-modes button{
+    min-height:38px!important;
+    padding:0 10px!important;
+    border-radius:11px!important;
+    font-size:12px!important;
+  }
+  .search-picker-nav{
+    grid-template-columns:36px 1fr 36px!important;
+    gap:8px!important;
+    margin:0 14px 5px!important;
+  }
+  .search-picker-nav button{
+    width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    border-radius:10px!important;
+  }
+  .search-picker-nav span{font-size:12px!important}
+  .search-v3-esky-calendar-scroll{
+    max-height:330px!important;
+    padding:2px 14px 116px!important;
+    scrollbar-width:thin!important;
+  }
+  .search-v3-esky-month{margin-bottom:14px!important}
+  .search-v3-esky-month h3{
+    margin:7px 0 9px!important;
+    font-size:16px!important;
+  }
+  .search-v3-esky-month .search-v3-calendar-weekdays{
+    padding:0 6px 4px!important;
+  }
+  .search-v3-esky-month .search-v3-calendar-weekdays span{
+    padding:2px 0!important;
+    font-size:9px!important;
+  }
+  .search-v3-esky-month .search-v3-calendar-grid{
+    gap:1px!important;
+    padding:7px 6px!important;
+    border-radius:10px!important;
+  }
+  .search-v3-esky-month .search-v3-calendar-grid>button,
+  .search-v3-esky-month .search-v3-calendar-grid>.empty{
+    min-height:32px!important;
+    aspect-ratio:auto!important;
+  }
+  .search-v3-esky-month .search-v3-calendar-grid>button{
+    border-radius:8px!important;
+    font-size:11px!important;
+  }
+  .search-v3-esky-bottom{
+    padding:7px 14px 10px!important;
+  }
+  .search-v3-esky-weekend{
+    min-height:34px!important;
+    padding:0 12px!important;
+    font-size:10px!important;
+  }
+  .search-v3-esky-nights{margin-top:6px!important}
+  .search-v3-esky-nights>strong{font-size:11px!important}
+  .search-v3-esky-nights>div{
+    gap:5px!important;
+    padding:5px 0 6px!important;
+  }
+  .search-v3-esky-nights button{
+    min-width:32px!important;
+    min-height:32px!important;
+    padding:0 8px!important;
+    font-size:10px!important;
+  }
+  .search-v3-esky-apply{
+    min-height:42px!important;
+    font-size:14px!important;
+  }
+  .search-v3-esky-months-grid{
+    max-height:330px!important;
+    gap:7px!important;
+    padding:8px 14px 112px!important;
+  }
+  .search-v3-esky-months-grid button{
+    min-height:52px!important;
+    padding:7px 11px!important;
+    border-radius:11px!important;
+  }
+}
