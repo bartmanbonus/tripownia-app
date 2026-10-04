@@ -202,6 +202,31 @@ export default function DealsPage({
     const params = new URLSearchParams({ partner: "exim", target, source: "destination_directory_more", destination, page: "/okazje" });
     return `/go/live?${params.toString()}`;
   }, [destination]);
+  const destinationMonthSearches = useMemo(() => {
+    if (!destination) return [];
+    return Array.from({ length: 12 }, (_, index) => {
+      const date = new Date(currentYear, currentMonth - 1 + index, 1);
+      const searchYear = date.getFullYear();
+      const searchMonth = date.getMonth() + 1;
+      const monthValue = String(searchMonth).padStart(2, "0");
+      const lastDay = new Date(searchYear, searchMonth, 0).getDate();
+      const start = `${searchYear}-${monthValue}-01`;
+      const end = `${searchYear}-${monthValue}-${String(lastDay).padStart(2, "0")}`;
+      const target = eskySearchUrl({ query: destination, start, end });
+      const params = new URLSearchParams({
+        partner: "esky",
+        target,
+        source: "destination_month_fallback",
+        destination,
+        page: "/okazje",
+      });
+      return {
+        key: `${searchYear}-${monthValue}`,
+        label: `${MONTH_NAMES[searchMonth - 1]} ${searchYear}`,
+        href: `/go/live?${params.toString()}`,
+      };
+    });
+  }, [destination, currentYear, currentMonth]);
   const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
   const poolHighlights = useMemo(() => source === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source]);
 
@@ -468,19 +493,35 @@ export default function DealsPage({
         </>
       ) : !loading ? (
         <div className="self-search-empty deals-simple-empty">
-          <strong>{destination ? "Brak aktualnej oferty dla: " + destination : "Brak ofert dla tych filtrów."}</strong>
+          <strong>{destination ? "Sprawdź pełną dostępność dla: " + destination : "Brak ofert dla tych filtrów."}</strong>
           <span>
             {destination
-              ? "Nie podstawiamy innego kierunku. Zmień termin albo sprawdź lot i hotel osobno."
+              ? "Nie pokazujemy fikcyjnej ceny, gdy feed nie zwraca dziś konkretnej karty. Poniżej masz gotowe wyszukiwania na każdy z kolejnych 12 miesięcy."
               : "Zmień jeden filtr albo wyczyść ustawienia — nie pokazujemy sztucznych wyników."}
           </span>
           {destination && (
-            <div className="deals-empty-actions">
-              {destinationEximHref && <a href={destinationEximHref} rel="sponsored" onClick={() => trackEvent("destination_more_packages_click", { destination, source: "exim_empty" })}>🌴 Sprawdź więcej wakacji</a>}
-              <a href={destinationPackageHref} rel="sponsored">🧳 Sprawdź pakiety lot + hotel</a>
-              <Link href={"/loty?destination=" + encodeURIComponent(destination)}>✈️ Porównaj loty</Link>
-              <Link href={destinationHotelHref}>🏨 Sprawdź hotele</Link>
-            </div>
+            <>
+              <div className="destination-month-fallback" aria-label={"Gotowe miesiące dla " + destination}>
+                {destinationMonthSearches.map((item) => (
+                  <a
+                    key={item.key}
+                    href={item.href}
+                    rel="sponsored"
+                    onClick={() => trackEvent("destination_month_fallback_click", { destination, month: item.key })}
+                  >
+                    <CalendarDays size={15}/>
+                    <span>{item.label}</span>
+                    <ArrowRight size={15}/>
+                  </a>
+                ))}
+              </div>
+              <div className="deals-empty-actions">
+                {destinationEximHref && <a href={destinationEximHref} rel="sponsored" onClick={() => trackEvent("destination_more_packages_click", { destination, source: "exim_empty" })}>🌴 Wszystkie wakacje</a>}
+                <a href={destinationPackageHref} rel="sponsored">🧳 Lot + hotel</a>
+                <Link href={"/loty?destination=" + encodeURIComponent(destination)}>✈️ Loty</Link>
+                <Link href={destinationHotelHref}>🏨 Hotele</Link>
+              </div>
+            </>
           )}
         </div>
       ) : null}
@@ -683,6 +724,7 @@ export default function DealsPage({
       }
 
       .deals-more-destination{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:16px;padding:14px 16px;border:1px solid #e6e2df;border-radius:15px;background:#faf8f6}.deals-more-destination>div{display:grid;gap:3px}.deals-more-destination strong{color:#24211f;font-size:14px}.deals-more-destination span{color:#74706c;font-size:12px}.deals-more-destination>a{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 13px;border-radius:11px;background:#111827;color:#fff;font-size:13px;font-weight:850;text-decoration:none}
+      .destination-month-fallback{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%;margin-top:14px}.destination-month-fallback a{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:0 12px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;color:#111827;font-size:13px;font-weight:800;text-decoration:none}.destination-month-fallback a:hover{border-color:#111827}
 
       .deals-facebook-cta {
         display: flex;
@@ -823,6 +865,7 @@ export default function DealsPage({
         }
 
         .deals-more-destination{display:grid;gap:10px}.deals-more-destination>a{width:100%;justify-content:center}
+        .destination-month-fallback{grid-template-columns:1fr 1fr}
 
         .deals-facebook-cta {
           display: grid;
