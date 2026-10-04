@@ -54,9 +54,10 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     title: "Czy loty do Katanii są odwołane?",
     lead: "Nie da się odpowiedzieć jednym stałym komunikatem — status zmienia się zależnie od aktywności Etny i konkretnego rejsu. Sprawdź numer lotu u przewoźnika i w oficjalnym flight trackingu lotniska Catania-Fontanarossa przed wyjazdem na lotnisko.",
     links: [
-      { href: "/tanie-loty", label: "Sprawdź alternatywne loty" },
+      { href: "/szukaj?destination=Sycylia&airport=WAWA&tab=City+break&duration=2-5", label: "Sycylia z Warszawy — gotowe wyniki" },
+      { href: "/szukaj?destination=Katania&airport=WAWA&tab=Loty", label: "Loty do Katanii" },
       { href: "/ubezpieczenia", label: "Ubezpieczenie podróżne" },
-      { href: "/alerty", label: "Ustaw alert podróżniczy" },
+      { href: "/alerty?destination=Sycylia", label: "Ustaw alert na Sycylię" },
     ],
   },
   "/wyspy-zielonego-przyladka": {
@@ -522,9 +523,10 @@ function contextualGrowthLinks(item: LegacyItem): GrowthLink[] {
     { href: "/ubezpieczenia", label: "Ubezpieczenie podróżne" },
   ];
   if (hay.includes("etna") || hay.includes("sycyli") || hay.includes("katanii")) return [
-    { href: "/tanie-loty", label: "Sprawdź aktualne loty" },
+    { href: "/szukaj?destination=Sycylia&airport=WAWA&tab=City+break&duration=2-5", label: "Sycylia z Warszawy — gotowe wyniki" },
+    { href: "/szukaj?destination=Katania&airport=WAWA&tab=Loty", label: "Loty do Katanii" },
     { href: "/ubezpieczenia", label: "Ubezpieczenie podróżne" },
-    { href: "/alerty", label: "Ustaw alert podróżniczy" },
+    { href: "/alerty?destination=Sycylia", label: "Ustaw alert na Sycylię" },
   ];
   if (hay.includes("dojechac") || hay.includes("dojechać") || hay.includes("dostać się z lotniska")) return [
     { href: "/transfery", label: "Transfery lotniskowe" },
