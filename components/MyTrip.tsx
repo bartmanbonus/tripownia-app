@@ -51,6 +51,7 @@ const checklistItems = [
   "Sprawdź transfer z lotniska i taxi na miejscu",
   "Zarezerwuj najważniejsze atrakcje",
   "Sprawdź internet / eSIM",
+  "Zarezerwuj parking przy lotnisku",
   "Sprawdź prognozę pogody",
   "Zapisz najważniejsze adresy i numery rezerwacji",
   "Dodaj miejsca na jedzenie i zakupy",
@@ -224,6 +225,11 @@ export default function MyTrip() {
     return Boolean(status === "owned" || status === "selected" || trip.checklist?.["Zarezerwuj najważniejsze atrakcje"]);
   }, [trip.journeyPieces, trip.checklist]);
 
+  const parkingReady = useMemo(() => {
+    const status = trip.journeyPieces?.parking?.status;
+    return Boolean(status === "owned" || status === "selected" || trip.checklist?.["Zarezerwuj parking przy lotnisku"]);
+  }, [trip.journeyPieces, trip.checklist]);
+
   const readiness = useMemo(() => {
     const checks = [
       flightReady,
@@ -235,11 +241,12 @@ export default function MyTrip() {
       transferReady,
       attractionsReady,
       Boolean(trip.checklist?.["Sprawdź internet / eSIM"]),
+      parkingReady,
       Boolean(trip.checklist?.["Przygotuj checklistę bagażu"]),
     ];
     const done = checks.filter(Boolean).length;
     return { done, total: checks.length, percent: Math.round((done / checks.length) * 100) };
-  }, [flightReady, hotelReady, trip.departureAt, trip.dayPlan, trip.checklist, transferReady, attractionsReady]);
+  }, [flightReady, hotelReady, trip.departureAt, trip.dayPlan, trip.checklist, transferReady, attractionsReady, parkingReady]);
   const nextSteps = useMemo(() => {
     const steps = [
       { done: flightReady, label: "Znajdź lub dodaj lot", href: trip.suggestedLinks?.flight || "/loty", icon: Plane },
@@ -249,10 +256,11 @@ export default function MyTrip() {
       { done: transferReady, label: "Sprawdź transfer i taxi", href: "/transfery", icon: Car },
       { done: Boolean(trip.checklist?.["Sprawdź internet / eSIM"]), label: "Przygotuj internet / eSIM", href: "/esim", icon: Wifi },
       { done: attractionsReady, label: "Dodaj najważniejsze atrakcje", href: "/atrakcje", icon: Ticket },
+      { done: parkingReady, label: "Ogarnij parking przy lotnisku", href: "/parkingi", icon: Car },
       { done: Boolean((trip.dayPlan || []).length), label: "Dodaj pierwszy punkt planu dnia", href: "#plan-dnia", icon: MapPinned },
     ];
     return steps.filter((step) => !step.done).slice(0, 4);
-  }, [trip.checklist, trip.dayPlan, trip.suggestedLinks, flightReady, hotelReady, transferReady, attractionsReady]);
+  }, [trip.checklist, trip.dayPlan, trip.suggestedLinks, flightReady, hotelReady, transferReady, attractionsReady, parkingReady]);
 
   useEffect(() => {
     let cancelled = false;
@@ -492,6 +500,9 @@ export default function MyTrip() {
                 {attractionsReady
                   ? <div className="trip-essential-done"><Ticket size={20}/><span><strong>Atrakcje</strong><small>Wybrane / już masz ✓</small></span><CheckCircle2 size={15}/></div>
                   : <Link href="/atrakcje"><Ticket size={20}/><span><strong>Atrakcje</strong><small>Bilety i rezerwacje</small></span><ArrowRight size={15}/></Link>}
+                {parkingReady
+                  ? <div className="trip-essential-done"><Car size={20}/><span><strong>Parking</strong><small>Już ogarnięty ✓</small></span><CheckCircle2 size={15}/></div>
+                  : <Link href={trip.suggestedLinks?.parking || "/parkingi"}><Car size={20}/><span><strong>Parking</strong><small>Przy lotnisku</small></span><ArrowRight size={15}/></Link>}
                 <Link href="/wynajem-auta"><Car size={20}/><span><strong>Auto</strong><small>Wynajem na miejscu</small></span><ArrowRight size={15}/></Link>
                 <Link href="/przed-wyjazdem"><FileCheck2 size={20}/><span><strong>Dokumenty</strong><small>Co sprawdzić</small></span><ArrowRight size={15}/></Link>
               </div>
