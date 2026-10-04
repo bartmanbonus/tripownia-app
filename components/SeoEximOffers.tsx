@@ -238,7 +238,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     }
 
     void load();
-    const timer = window.setInterval(load, 10 * 60 * 1000);
+    const timer = window.setInterval(load, 5 * 60 * 1000);
     return () => { cancelled = true; window.clearInterval(timer); };
   }, [queries, departure, minNights, maxNights, maxPrice, startDate, endDate, cityBreakOverview]);
 
