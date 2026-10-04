@@ -24,3 +24,6 @@
 .trip-cart-item.is-next{border-color:#efb8a4;box-shadow:0 8px 22px rgba(214,80,45,.08)}
 .trip-cart-item-actions{display:grid;gap:4px;justify-items:end}.trip-cart-item-actions a,.trip-cart-item-actions button{display:inline-flex;align-items:center;gap:3px;border:0;background:transparent;font:inherit;font-size:8px;font-weight:900;cursor:pointer;text-decoration:none}.trip-cart-item-actions a{color:#d6502d}.trip-cart-item-actions button{color:#756a63}
 @media(max-width:700px){.trip-cart-next{grid-template-columns:1fr}.trip-cart-next-actions{display:grid;grid-template-columns:1fr 1fr}.trip-cart-next-actions a,.trip-cart-next-actions button{width:100%}}
+
+.trip-cart-item-copy small{display:block;margin-top:2px;color:#655b55;font-size:8px;line-height:1.35}
+.trip-cart-item.is-missing .trip-cart-item-copy small{color:#7d7169}
