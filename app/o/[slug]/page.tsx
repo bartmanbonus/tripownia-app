@@ -187,8 +187,9 @@ export default async function ShortSocialOfferPage({
                 <div className="detail-action-box">
                   <AffiliateOfferLink
                     href={directAffiliateHref}
-                    partner={offer.partnerLabel}
+                    partner={offer.partner}
                     slug={offer.slug}
+                    price={offer.price}
                     destination={`${offer.city}, ${offer.country}`}
                     tripKind={tripKind}
                     departure={offer.departure}
