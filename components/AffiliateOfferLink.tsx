@@ -7,6 +7,7 @@ type Props = {
   href: string;
   partner: string;
   slug: string;
+  price?: number;
   destination: string;
   tripKind?: "flight" | "hotel" | "package";
   departure?: string;
@@ -17,13 +18,14 @@ type Props = {
   end?: string;
 };
 
-export default function AffiliateOfferLink({ href, partner, slug, destination, tripKind = "package", departure, hotel, board, nights, start, end }: Props) {
+export default function AffiliateOfferLink({ href, partner, slug, price, destination, tripKind = "package", departure, hotel, board, nights, start, end }: Props) {
   function rememberTripContext() {
     saveAffiliateReturnContext({
       slug,
       partner,
       destination,
       source: "social_offer",
+      price,
       tripKind,
       departure,
       hotel,
