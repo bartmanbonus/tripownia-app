@@ -134,6 +134,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
   const availabilityStatus = override.availabilityStatus ?? publishedOverride.availabilityStatus ?? offer.availabilityStatus ?? "unknown";
   const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
   const stalePrice = !isExpired && priceStale;
+  const isUnverifiedEximPrice = offer.partner === "exim" && availabilityStatus !== "available";
   const customerReason = customerOfferReason(override.note || publishedOverride.note || offer.reason);
 
   const offerSnapshot: Offer = {
@@ -282,11 +283,13 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
   const ctaText = isExpired ? "Zobacz podobne oferty" : "Sprawdź ofertę";
   const trustText = isExpired
     ? "Oferta wygasła"
-    : checkedAt
-      ? `Cena sprawdzona: ${checkedAt}`
-      : isLiveOffer || isExactLink
-        ? "Aktualna cena może się zmienić do momentu rezerwacji"
-        : "Cena orientacyjna · sprawdź aktualną przed rezerwacją";
+    : isUnverifiedEximPrice
+      ? "Cena z feedu partnera nie jest potwierdzona live"
+      : checkedAt
+        ? `Cena sprawdzona: ${checkedAt}`
+        : isLiveOffer || isExactLink
+          ? "Aktualna cena może się zmienić do momentu rezerwacji"
+          : "Cena orientacyjna · sprawdź aktualną przed rezerwacją";
 
   return (
     <article
@@ -326,7 +329,11 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
           </div>
         )}
 
-        <div className="price"><small>od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
+        {isUnverifiedEximPrice ? (
+          <div className="price"><strong>Sprawdź aktualną cenę</strong></div>
+        ) : (
+          <div className="price"><small>od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
+        )}
         <div className="offer-trust-line"><Clock3 size={12} /> {trustText}</div>
         <div className="offer-date-line"><CalendarDays size={15} /> <strong>{offer.dates}</strong></div>
         <div className="meta">
