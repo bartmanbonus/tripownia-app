@@ -279,7 +279,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
   const buyHref = cardHref;
   const detailHref = cardHref;
   const nightsLabel = offer.nights === 1 ? "noc" : offer.nights % 10 >= 2 && offer.nights % 10 <= 4 && !(offer.nights % 100 >= 12 && offer.nights % 100 <= 14) ? "noce" : "nocy";
-  const ctaText = isExpired ? "Zobacz podobne oferty" : isLiveOffer ? "Zobacz szczegóły" : "Zobacz ofertę";
+  const ctaText = isExpired ? "Zobacz podobne oferty" : "Sprawdź ofertę";
   const trustText = isExpired
     ? "Oferta wygasła"
     : checkedAt
