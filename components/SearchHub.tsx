@@ -18,7 +18,7 @@ import TravelpayoutsFlightsWidget from "@/components/TravelpayoutsFlightsWidget"
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
-import { consumeRequestedSearchResume, saveSearchResumeContext, type SearchResumeContext } from "@/lib/searchResume";
+import { consumeRequestedSearchResume, saveSearchResumeContext, updateSearchResumeScroll, type SearchResumeContext } from "@/lib/searchResume";
 import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 
 type Props = {
@@ -551,7 +551,11 @@ export default function SearchHub({
     setResultView(restored.resultView);
     void resumedSearch.finally(() => {
       window.requestAnimationFrame(() => {
-        document.getElementById("wyszukiwarka")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        if (restored.scrollY > 0) {
+          window.scrollTo({ top: restored.scrollY, behavior: "auto" });
+        } else {
+          document.getElementById("wyszukiwarka")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       });
     });
     // Run once after all restored form state is committed.
@@ -674,6 +678,7 @@ export default function SearchHub({
       weekendOnly: activeWeekend,
       resultSort,
       resultView,
+      scrollY: typeof window !== "undefined" ? window.scrollY : 0,
     });
 
     setPackageSearchLink(eskySearchUrl({ query: requested[0], departure: departures.join(","), cityBreak: activeMode === "City break",
@@ -1904,7 +1909,7 @@ export default function SearchHub({
                     </div>
                     <div className="search-v3-results-grid">
                       {exactVisibleResults.slice(0, visibleCount).map((offer) => (
-                        <div key={offer.id} className="search-v3-result-item is-exact">
+                        <div key={offer.id} className="search-v3-result-item is-exact" onClickCapture={() => updateSearchResumeScroll(window.scrollY)}>
                           <OfferCard offer={offer} sourceSurface="search_results"/>
                         </div>
                       ))}
@@ -1920,7 +1925,7 @@ export default function SearchHub({
                     </div>
                     <div className="search-v3-results-grid">
                       {alternativeVisibleResults.slice(0, Math.max(0, visibleCount - exactVisibleResults.length)).map((offer) => (
-                        <div key={offer.id} className="search-v3-result-item is-alternative">
+                        <div key={offer.id} className="search-v3-result-item is-alternative" onClickCapture={() => updateSearchResumeScroll(window.scrollY)}>
                           <p className="search-v3-alternative-label">Alternatywa: {offer.searchAlternative || "inne parametry"}</p>
                           <OfferCard offer={offer} sourceSurface="search_results"/>
                         </div>
