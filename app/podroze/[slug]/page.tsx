@@ -11,6 +11,7 @@ import type { SeoLanding } from "@/lib/seoLandings";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
+import FerieOffers2027 from "@/components/FerieOffers2027";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -440,6 +441,8 @@ export default async function SeoLandingPage({ params }: PageProps) {
     .filter((item, index, items) => items.findIndex((candidate) => candidate.slug === item.slug) === index)
     .slice(0, 8);
   const currentReadySearchHref = readySearchHref(page);
+  const isFerie2027Landing = page.slug.startsWith("ferie-2027");
+  const isFerieAllInclusiveLanding = isFerie2027Landing && page.query.toLocaleLowerCase("pl").includes("all inclusive");
 
   return (
     <main className="seo-travel-landing-v3">
@@ -490,28 +493,32 @@ export default async function SeoLandingPage({ params }: PageProps) {
         </div>
       </section>
 
-      <section className="shell seo-primary-offers" id="aktualne-oferty">
-        <div className="seo-landing-section-head seo-primary-offers-head">
-          <div>
-            <div className="kicker">AKTUALNE OFERTY</div>
-            <h2>Najpierw konkrety</h2>
-            <p>{startDate || endDate
-              ? "Pokazujemy propozycje zgodne z okresem tej strony. Jeśli nie ma dobrego dopasowania, nie podmieniamy terminu na przypadkowy."
-              : "Pokazujemy bieżące propozycje dla tych parametrów i aktualnej dostępności."}</p>
+      {isFerie2027Landing ? (
+        <FerieOffers2027 focus={isFerieAllInclusiveLanding ? "allinclusive" : "all"} />
+      ) : (
+        <section className="shell seo-primary-offers" id="aktualne-oferty">
+          <div className="seo-landing-section-head seo-primary-offers-head">
+            <div>
+              <div className="kicker">AKTUALNE OFERTY</div>
+              <h2>Najpierw konkrety</h2>
+              <p>{startDate || endDate
+                ? "Pokazujemy propozycje zgodne z okresem tej strony. Jeśli nie ma dobrego dopasowania, nie podmieniamy terminu na przypadkowy."
+                : "Pokazujemy bieżące propozycje dla tych parametrów i aktualnej dostępności."}</p>
+            </div>
+            <Link href={currentReadySearchHref}>Wyszukaj po swojemu →</Link>
           </div>
-          <Link href={currentReadySearchHref}>Wyszukaj po swojemu →</Link>
-        </div>
 
-        <SeoEximOffers
-          query={page.query}
-          departure={page.departure}
-          minNights={page.minNights}
-          maxNights={page.maxNights}
-          maxPrice={page.maxPrice}
-          startDate={startDate}
-          endDate={endDate}
-        />
-      </section>
+          <SeoEximOffers
+            query={page.query}
+            departure={page.departure}
+            minNights={page.minNights}
+            maxNights={page.maxNights}
+            maxPrice={page.maxPrice}
+            startDate={startDate}
+            endDate={endDate}
+          />
+        </section>
+      )}
       <section className="section shell seo-social-after-offers"><FacebookFollowCTA placement="seo_landing_after_offers" compact /></section>
 
       <section className="shell seo-decision-section">
