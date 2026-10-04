@@ -431,7 +431,7 @@ async function fetchProducts(provider: "exim" | "tui", query: string, token: str
     const path = `https://api.tradedoubler.com/1.0/products.json;fid=${fid};q=${encodeURIComponent(query)};orderBy=priceAsc;page=${page};pageSize=100?token=${encodeURIComponent(token)}`;
     const response = await fetch(path, {
       headers: { Accept: "application/json" },
-      next: { revalidate: 300 },
+      next: { revalidate: 60 },
       signal: AbortSignal.timeout(6000),
     });
     if (!response.ok) throw new Error(`${provider.toUpperCase()} feed ${response.status}`);

@@ -39,7 +39,7 @@ export default function DestinationLiveOffers({ destination, allInclusive = fals
     }
 
     void load();
-    const timer = window.setInterval(load, 10 * 60 * 1000);
+    const timer = window.setInterval(load, 5 * 60 * 1000);
     return () => {
       cancelled = true;
       window.clearInterval(timer);

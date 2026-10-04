@@ -28,18 +28,31 @@ export default function EximLivePrice({ destination, country, from, nights, boar
   useEffect(() => {
     const controller = new AbortController();
     const qs = new URLSearchParams({ destination, country, from, nights: String(nights), board });
-    setLoading(true);
-    fetch(`/api/exim/best?${qs.toString()}`, { cache: "no-store", signal: controller.signal })
-      .then((r) => r.json())
-      .then((value: ApiResult) => {
-        setData(value);
-        const price = value.pricePerPerson;
-        const isStillDeal = Boolean(value.available && price && price <= Math.round(fallbackPrice * 1.3));
-        onStateChange?.({ loading: false, available: Boolean(value.available), price, isStillDeal });
-      })
-      .catch(() => onStateChange?.({ loading: false, available: false }))
-      .finally(() => setLoading(false));
-    return () => controller.abort();
+
+    const load = () => {
+      setLoading(true);
+      fetch(`/api/exim/best?${qs.toString()}&refresh=${Date.now()}`, { cache: "no-store", signal: controller.signal })
+        .then((r) => r.json())
+        .then((value: ApiResult) => {
+          setData(value);
+          const price = value.pricePerPerson;
+          const isStillDeal = Boolean(value.available && price && price <= Math.round(fallbackPrice * 1.3));
+          onStateChange?.({ loading: false, available: Boolean(value.available), price, isStillDeal });
+        })
+        .catch(() => {
+          if (!controller.signal.aborted) onStateChange?.({ loading: false, available: false });
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setLoading(false);
+        });
+    };
+
+    load();
+    const timer = window.setInterval(load, 3 * 60 * 1000);
+    return () => {
+      controller.abort();
+      window.clearInterval(timer);
+    };
   }, [destination, country, from, nights, board, fallbackPrice, onStateChange]);
 
   if (loading) {

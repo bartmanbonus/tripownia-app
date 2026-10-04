@@ -50,30 +50,35 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
       : "departure_hub";
 
   useEffect(() => {
-    const controller = new AbortController();
-    const key = new Intl.DateTimeFormat("en-CA", {
-      timeZone: "Europe/Warsaw",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(new Date());
+    let active = true;
 
-    const params = new URLSearchParams({ key, mode: "search", hub: "1" });
-    if (airportParam) params.set("from", airportParam);
+    const load = async () => {
+      const controller = new AbortController();
+      const key = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Europe/Warsaw",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date());
 
-    fetch("/api/today-offers?" + params.toString(), { cache: "no-store", signal: controller.signal })
-      .then(async (response) => {
+      const params = new URLSearchParams({ key, mode: "search", hub: "1", refresh: String(Date.now()) });
+      if (airportParam) params.set("from", airportParam);
+
+      try {
+        const response = await fetch("/api/today-offers?" + params.toString(), { cache: "no-store", signal: controller.signal });
         const data = await response.json();
         const result = Array.isArray(data?.offers) ? data.offers as Offer[] : [];
         if (response.ok && data?.ok !== false && result.length) {
-          setRows(result);
-          setStatus("live");
+          if (active) {
+            setRows(result);
+            setStatus("live");
+          }
           return;
         }
 
         // Some partner feeds temporarily return no results for a broad airport query
         // even though the daily pool still contains a verified departure from that airport.
-        const dailyResponse = await fetch(`/api/today-offers?key=${encodeURIComponent(key)}`, {
+        const dailyResponse = await fetch(`/api/today-offers?key=${encodeURIComponent(key)}&refresh=${Date.now()}`, {
           cache: "no-store",
           signal: controller.signal,
         });
@@ -81,20 +86,27 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
         const dailyRows = Array.isArray(dailyData?.offers) ? dailyData.offers as Offer[] : [];
         const airportRows = dailyRows.filter((offer) => matchesAirport(offer, airportCodes));
         if (dailyResponse.ok && airportRows.length) {
-          setRows(airportRows);
-          setStatus("live");
+          if (active) {
+            setRows(airportRows);
+            setStatus("live");
+          }
           return;
         }
 
         throw new Error("today-offers");
-      })
-      .catch(() => {
-        if (controller.signal.aborted) return;
+      } catch {
+        if (!active) return;
         setRows(offers);
         setStatus("fallback");
-      });
+      }
+    };
 
-    return () => controller.abort();
+    void load();
+    const timer = window.setInterval(load, 5 * 60 * 1000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
   }, [airportParam]);
 
   const available = useMemo(() => {
