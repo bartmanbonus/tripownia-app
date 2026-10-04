@@ -271,7 +271,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   return <>
     {cityBreakOverview && <p className="seo-live-note">{offers.length} różnych kierunków · od najniższej ceny · najtańsza dostępna oferta dla każdego kierunku</p>}
     {relaxed && <div className="seo-live-note">Lotnisko i główny typ wyjazdu się zgadzają. Pokazujemy najbliższe aktualne propozycje — cena lub długość pobytu może różnić się od dodatkowego filtra strony.</div>}
-    <div className="cards-grid seo-live-offers-grid">{offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} />)}</div>
-    {cityBreakOverview && !startDate && !endDate && <div className="seo-empty-offers-actions"><a href={morePackagesUrl} target="_blank" rel="nofollow sponsored noopener noreferrer" className="seo-empty-secondary">Porównaj więcej pakietów lot + hotel <ArrowRight size={16}/></a></div>}
+    <div className="cards-grid seo-live-offers-grid">{offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} sourceSurface="seo_landing" />)}</div>
+    {cityBreakOverview && !startDate && !endDate && <div className="seo-empty-offers-actions"><a href={morePackagesUrl} rel="nofollow sponsored" className="seo-empty-secondary">Porównaj więcej pakietów lot + hotel <ArrowRight size={16}/></a></div>}
   </>;
 }

@@ -107,10 +107,18 @@ export default async function SocialOfferLanding({
 
   const imageSrc = countryImage(country);
   const tripKind = target.partner.key === "kiwi" ? "flight" : target.partner.key === "booking" ? "hotel" : "package";
+  const outboundSource = source.startsWith("seo_")
+    ? `seo_detail:${source}`
+    : source.includes("search")
+      ? "search_live_offer_detail"
+      : source.includes("social")
+        ? "social_offer_detail"
+        : "live_offer_detail";
+
   const outboundParams = new URLSearchParams({
     partner: target.partner.key,
     target: target.url,
-    source: "live_offer_detail",
+    source: outboundSource,
     destination: [city, country].filter(Boolean).join(", "),
     ...(offerId ? { offer: offerId } : {}),
     ...(price ? { price: String(price) } : {}),
@@ -207,7 +215,7 @@ export default async function SocialOfferLanding({
                 offerId={Number(offerId) || 0}
                 destination={[city, country].filter(Boolean).join(", ")}
                 price={price || 0}
-                placement={source.includes("search") ? "search_live_offer_detail" : "live_offer_detail_primary"}
+                placement={outboundSource}
                 returnContext={{
                   departure,
                   hotel,

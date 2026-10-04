@@ -61,6 +61,11 @@ function partnerFromUrl(value: string): Partner | null {
 }
 
 function sourceFor(anchor: HTMLAnchorElement) {
+  const explicitSource = anchor.dataset.affiliateSource
+    || anchor.closest<HTMLElement>("[data-affiliate-source]")?.dataset.affiliateSource
+    || "";
+  if (explicitSource) return explicitSource;
+
   const offerCard = anchor.closest<HTMLElement>(".offer-card");
   const offerSurface = offerCard?.dataset.offerSurface || "";
   if (anchor.classList.contains("card-cta")) return offerSurface ? `offer_card:${offerSurface}` : "offer_card";
@@ -75,6 +80,8 @@ function sourceFor(anchor: HTMLAnchorElement) {
   if (anchor.closest(".search-v3-empty-actions")) return "search_fallback";
   if (anchor.closest(".favorites-page")) return "favorites";
   if (anchor.closest(".compare-page")) return "compare";
+  if (anchor.closest(".seo-travel-landing-v3")) return "seo_landing";
+  if (anchor.closest(".social-offer-page")) return "social_offer_addon";
   if (offerCard) return offerSurface ? `offer_image:${offerSurface}` : "offer_image";
   return "site_outbound";
 }
