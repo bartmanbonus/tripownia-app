@@ -510,6 +510,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
           maxPrice={page.maxPrice}
           startDate={startDate}
           endDate={endDate}
+          searchHref={currentReadySearchHref}
         />
       </section>
       <section className="section shell seo-social-after-offers"><FacebookFollowCTA placement="seo_landing_after_offers" compact /></section>
