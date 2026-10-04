@@ -101,7 +101,7 @@ function buildReminders(departureAt?: string): ReminderItem[] {
 
 function attractionPicks(city: string, categories: string[]): AttractionPick[] {
   const picks: AttractionPick[] = [
-    { title: `Najważniejsze miejsca w ${city}`, subtitle: "Top atrakcje i bilety bez szukania po wielu stronach", query: `${city} top attractions`, icon: "landmark" },
+    { title: `Najważniejsze miejsca: ${city}`, subtitle: "Top atrakcje i bilety bez szukania po wielu stronach", query: `${city} top attractions`, icon: "landmark" },
     { title: "Jedzenie i lokalne smaki", subtitle: "Food tour, degustacje i miejsca warte zapisania", query: `${city} food tour`, icon: "food" },
   ];
   if (categories.includes("plaza") || categories.includes("cieplo")) picks.push({ title: "Woda i aktywności", subtitle: "Rejsy, snorkeling, plaże i wycieczki po okolicy", query: `${city} boat tour water activities`, icon: "water" });
@@ -630,7 +630,7 @@ export default function MyTrip() {
             </section>
 
             <section className="my-trip-card trip-attractions">
-              <div className="my-trip-card-head"><Sparkles size={20}/><h2>Co warto zrobić w {destinationName}</h2></div>
+              <div className="my-trip-card-head"><Sparkles size={20}/><h2>Co warto zrobić — {destinationName}</h2></div>
               <div className="trip-attraction-grid">{attractions.map((pick) => { const Icon = pick.icon === "landmark" ? Landmark : pick.icon === "food" ? UtensilsCrossed : pick.icon === "water" ? Waves : Sparkles; const href = `/atrakcje?q=${encodeURIComponent(pick.query)}`; return <Link key={pick.title} href={href}><Icon size={20}/><div><strong>{pick.title}</strong><span>{pick.subtitle}</span></div><ArrowRight size={16}/></Link>; })}</div>
             </section>
 
