@@ -1,0 +1,141 @@
+import type { SeoLanding } from "@/lib/seoLandings";
+
+/**
+ * Cheap Last Minute cluster.
+ * Budget pages are new URLs; airport entries intentionally override older
+ * definitions so the same canonical URLs own "tanie Last Minute z..." queries.
+ */
+export const seoCheapLastMinuteWave45: SeoLanding[] = [
+  {
+    slug: "last-minute-do-2000-zl",
+    title: "Tanie Last Minute do 2000 zł — wakacje i All Inclusive",
+    eyebrow: "TANIE LAST MINUTE DO 2000 ZŁ",
+    lead: "Tanie Last Minute do 2000 zł za osobę: wakacje, All Inclusive i pakiety lot + hotel z polskich lotnisk. Porównaj aktualne terminy i najtańsze dostępne opcje.",
+    query: "Last Minute",
+    categoryKeywords: ["lastminute", "wakacje", "allinclusive", "plaza", "cieplo", "tanio"],
+    maxPrice: 2000,
+    minNights: 5,
+    maxNights: 10,
+    paragraphs: [
+      "Przy budżecie do 2000 zł największą szansę daje elastyczny kierunek i kilka lotnisk wylotu. Porównuj kilka krajów dla tego samego tygodnia zamiast zaczynać od jednego hotelu.",
+      "Sprawdź pełny koszt z bagażem, transferem i wyżywieniem. Cena Last Minute może zmienić się szybko, dlatego przed płatnością potwierdź finalne warunki u partnera."
+    ],
+  },
+  {
+    slug: "last-minute-do-2500-zl",
+    title: "Tanie Last Minute do 2500 zł — wakacje lot + hotel",
+    eyebrow: "TANIE LAST MINUTE DO 2500 ZŁ",
+    lead: "Last Minute do 2500 zł za osobę: tanie wakacje, lot + hotel i All Inclusive. Sprawdź aktualne ceny z polskich lotnisk i porównaj pełny koszt wyjazdu.",
+    query: "Last Minute",
+    categoryKeywords: ["lastminute", "wakacje", "allinclusive", "plaza", "cieplo", "tanio", "lot-hotel"],
+    maxPrice: 2500,
+    minNights: 5,
+    maxNights: 10,
+    paragraphs: [
+      "Budżet do 2500 zł daje większy wybór hoteli i terminów, ale nadal warto porównywać kilka kierunków jednocześnie. Najtańsza opcja w jednym kraju może być słabsza od lepszego hotelu w innym.",
+      "Porównaj godziny lotów, bagaż, transfer i wyżywienie. Przy Last Minute realna wartość oferty zależy od całego pakietu, nie tylko ceny startowej."
+    ],
+  },
+  {
+    slug: "last-minute-do-3000-zl",
+    title: "Tanie Last Minute do 3000 zł — All Inclusive i lot + hotel",
+    eyebrow: "TANIE LAST MINUTE DO 3000 ZŁ",
+    lead: "Last Minute do 3000 zł za osobę: tanie wakacje, All Inclusive i lot + hotel z polskich lotnisk. Porównaj kierunki, hotele i najbliższe terminy.",
+    query: "Last Minute",
+    categoryKeywords: ["lastminute", "wakacje", "allinclusive", "plaza", "cieplo", "tanio", "lot-hotel"],
+    maxPrice: 3000,
+    minNights: 5,
+    maxNights: 10,
+    paragraphs: [
+      "Do 3000 zł warto już mocniej patrzeć na jakość hotelu i rozkład lotów. Niewielka różnica ceny może oznaczać lepszy standard, więcej pełnych dni na miejscu albo wygodniejszy transfer.",
+      "Zawsze sprawdź końcową cenę, zakres All Inclusive, bagaż i warunki rezerwacji u partnera przed płatnością."
+    ],
+  },
+  {
+    slug: "tanie-last-minute-all-inclusive",
+    title: "Tanie Last Minute All Inclusive — aktualne wakacje",
+    eyebrow: "TANIE LAST MINUTE ALL INCLUSIVE",
+    lead: "Tanie Last Minute All Inclusive z polskich lotnisk: porównaj aktualne pakiety z lotem, hotelem i wyżywieniem. Najtańsze sensowne oferty pokazujemy na początku.",
+    query: "Last Minute",
+    categoryKeywords: ["lastminute", "allinclusive", "wakacje", "plaza", "cieplo", "tanio"],
+    maxPrice: 3000,
+    minNights: 5,
+    maxNights: 10,
+    paragraphs: [
+      "Przy tanim All Inclusive porównuj dokładny zakres wyżywienia, standard pokoju i odległość od plaży. Dwie podobne ceny mogą oznaczać bardzo różny poziom hotelu.",
+      "Jeżeli termin jest elastyczny, porównaj kilka kierunków i lotnisk wylotu. Końcówki sprzedaży potrafią zmieniać ceny z dnia na dzień."
+    ],
+  },
+  {
+    slug: "last-minute-z-warszawy",
+    title: "Tanie Last Minute z Warszawy — wakacje i All Inclusive z WAW",
+    eyebrow: "TANIE LAST MINUTE Z WARSZAWY",
+    lead: "Tanie Last Minute z Warszawy (WAW): wakacje, All Inclusive i ciepłe kierunki na najbliższe terminy. Porównaj aktualne ceny i hotele.",
+    query: "Last Minute",
+    departure: "Warszawa",
+    departureCode: "WAW",
+    categoryKeywords: ["lastminute", "wakacje", "allinclusive", "plaza", "cieplo", "tanio"],
+    minNights: 5,
+    paragraphs: ["Warszawa daje szeroki wybór czarterów, dlatego warto porównywać kilka krajów dla tego samego tygodnia.", "Sprawdź godziny lotów, bagaż, transfer i wyżywienie, zanim wybierzesz najtańszy pakiet."],
+  },
+  {
+    slug: "last-minute-z-katowic",
+    title: "Tanie Last Minute z Katowic — wakacje i All Inclusive z KTW",
+    eyebrow: "TANIE LAST MINUTE Z KATOWIC / PYRZOWIC",
+    lead: "Tanie Last Minute z Katowic (KTW): wakacje, All Inclusive i czartery z Pyrzowic. Porównaj aktualne ceny i kierunki na najbliższe terminy.",
+    query: "Last Minute",
+    departure: "Katowice",
+    departureCode: "KTW",
+    categoryKeywords: ["lastminute", "wakacje", "allinclusive", "plaza", "cieplo", "tanio"],
+    minNights: 5,
+    paragraphs: ["Pyrzowice mają szeroką ofertę czarterową, więc przy Last Minute opłaca się porównywać kilka krajów jednocześnie.", "Do ceny dolicz dojazd do lotniska i sprawdź pełny zakres pakietu."],
+  },
+  {
+    slug: "last-minute-z-poznania",
+    title: "Tanie Last Minute z Poznania — wakacje i All Inclusive z POZ",
+    eyebrow: "TANIE LAST MINUTE Z POZNANIA / ŁAWICY",
+    lead: "Tanie Last Minute z Poznania (POZ): wakacje, All Inclusive i ciepłe kierunki z Ławicy. Porównaj aktualne ceny i najbliższe terminy.",
+    query: "Last Minute",
+    departure: "Poznań",
+    departureCode: "POZ",
+    categoryKeywords: ["lastminute", "wakacje", "allinclusive", "plaza", "cieplo", "tanio"],
+    minNights: 5,
+    paragraphs: ["Przy Last Minute z Poznania porównuj kilka kierunków dla tego samego tygodnia.", "Sprawdź bagaż, transfer i liczbę pełnych dni na miejscu przed rezerwacją."],
+  },
+  {
+    slug: "last-minute-z-krakowa",
+    title: "Tanie Last Minute z Krakowa — wakacje i All Inclusive z KRK",
+    eyebrow: "TANIE LAST MINUTE Z KRAKOWA / BALIC",
+    lead: "Tanie Last Minute z Krakowa-Balic (KRK): wakacje, All Inclusive i ciepłe kierunki na najbliższe terminy. Porównaj aktualne ceny i hotele.",
+    query: "Last Minute",
+    departure: "Kraków",
+    departureCode: "KRK",
+    categoryKeywords: ["lastminute", "wakacje", "allinclusive", "plaza", "cieplo", "tanio"],
+    minNights: 5,
+    paragraphs: ["Przy Last Minute z Krakowa warto porównywać kilka krajów jednocześnie.", "Najlepsza cena ma sens dopiero po sprawdzeniu hotelu, wyżywienia, bagażu i transferu."],
+  },
+  {
+    slug: "last-minute-z-gdanska",
+    title: "Tanie Last Minute z Gdańska — wakacje i All Inclusive z GDN",
+    eyebrow: "TANIE LAST MINUTE Z GDAŃSKA / TRÓJMIASTA",
+    lead: "Tanie Last Minute z Gdańska (GDN): wakacje, All Inclusive i ciepłe kierunki z Trójmiasta. Porównaj najbliższe terminy i aktualne ceny.",
+    query: "Last Minute",
+    departure: "Gdańsk",
+    departureCode: "GDN",
+    categoryKeywords: ["lastminute", "wakacje", "allinclusive", "plaza", "cieplo", "tanio"],
+    minNights: 5,
+    paragraphs: ["Gdańsk warto traktować jako osobny rynek cenowy, bo dostępność czarterów różni się od południa Polski.", "Porównaj kilka krajów i pełny koszt pakietu dla tych samych dat."],
+  },
+  {
+    slug: "last-minute-z-wroclawia",
+    title: "Tanie Last Minute z Wrocławia — wakacje i All Inclusive z WRO",
+    eyebrow: "TANIE LAST MINUTE Z WROCŁAWIA",
+    lead: "Tanie Last Minute z Wrocławia (WRO): wakacje, All Inclusive i ciepłe kierunki na najbliższe terminy. Porównaj aktualne pakiety z lokalnego lotniska.",
+    query: "Last Minute",
+    departure: "Wrocław",
+    departureCode: "WRO",
+    categoryKeywords: ["lastminute", "wakacje", "allinclusive", "plaza", "cieplo", "tanio"],
+    minNights: 5,
+    paragraphs: ["Przy Last Minute z Wrocławia elastyczny kierunek daje największą szansę na dobrą cenę.", "Sprawdź bagaż, transfer, wyżywienie i godziny lotów przed rezerwacją."],
+  },
+];
