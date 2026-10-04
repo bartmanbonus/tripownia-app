@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, MapPin, Moon, Plane, Sun, Utensils } from "lucide-react";
+import { ArrowLeft, ExternalLink, MapPin, Moon, Plane, Sun, Utensils, Bell } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TravelImage from "@/components/TravelImage";
@@ -89,6 +89,19 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
   void isParameterized;
   const checkedAt = formatPriceCheckedAt(o.priceCheckedAt);
   const customerReason = customerOfferReason(o.reason);
+  const alertHref = `/alerty?${new URLSearchParams({
+    destination: o.city,
+    departure: o.departure,
+    maxPrice: String(Math.ceil(o.price * 1.08)),
+  }).toString()}`;
+  const airportChoices = [
+    { code: "WAWA", label: "Warszawa", activeCodes: ["WAW","WMI"] },
+    { code: "KRK", label: "Kraków", activeCodes: ["KRK"] },
+    { code: "KTW", label: "Katowice", activeCodes: ["KTW"] },
+    { code: "WRO", label: "Wrocław", activeCodes: ["WRO"] },
+    { code: "GDN", label: "Gdańsk", activeCodes: ["GDN"] },
+    { code: "POZ", label: "Poznań", activeCodes: ["POZ"] },
+  ];
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -163,6 +176,24 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <small>DLACZEGO WARTO TO SPRAWDZIĆ</small>
             <strong>{customerReason}</strong>
             <span>Przed płatnością sprawdź finalną cenę, bagaż, warunki zmiany lub anulacji i dokładny zakres świadczeń.</span>
+          </div>
+
+          <div className="offer-detail-alert">
+            <div><strong>Chcesz podobną cenę, ale z innego terminu albo lotniska?</strong><span>Zapisz alert dla {o.city}. Tripownia będzie porównywać kolejne trafienia z Twoim budżetem.</span></div>
+            <Link href={alertHref}><Bell size={15}/> Ustaw alert</Link>
+          </div>
+
+          <div className="offer-airport-choices">
+            <small>SPRAWDŹ TEN KIERUNEK Z INNEGO LOTNISKA</small>
+            <div className="offer-airport-choice-grid">
+              {airportChoices.map(item => (
+                <Link
+                  className={item.activeCodes.includes(o.airportCode) ? "active" : ""}
+                  href={`/szukaj?${new URLSearchParams({ destination: o.city, airport: item.code, duration: `${Math.max(2,o.nights-1)}-${Math.min(14,o.nights+1)}`, tab: "Lot + hotel" }).toString()}`}
+                  key={item.code}
+                ><Plane size={13}/>{item.label}</Link>
+              ))}
+            </div>
           </div>
 
           <div className="detail-source"><strong>Tripownia wybiera i porównuje. Partner finalizuje płatność.</strong> Po kliknięciu zachowamy ten wyjazd, żeby po powrocie od razu dobrać nocleg, transfer i atrakcje.</div>
