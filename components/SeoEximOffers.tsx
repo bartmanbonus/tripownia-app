@@ -131,6 +131,17 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
           : [];
       }
 
+      if (normalize(query) === "all inclusive") {
+        const params = new URLSearchParams({ q: term, type: "allinclusive", strict: "1" });
+        if (from) params.set("from", from);
+        const response = await fetch(`/api/deals?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
+        if (!response.ok) return [] as SeasonalOffer[];
+        const data = (await response.json()) as ApiResponse;
+        return Array.isArray(data.offers)
+          ? data.offers.filter((offer) => termMatchesOffer("all inclusive", offer))
+          : [];
+      }
+
       const params = new URLSearchParams({ mode: "search", q: term });
       if (from) params.set("from", from);
       const response = await fetch(`/api/today-offers?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
@@ -167,12 +178,38 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
         const gathered: SeasonalOffer[] = [];
         for (const term of queries) {
           gathered.push(...(await fetchFor(term, from || undefined)));
-          if (strictFilter(uniqByProduct(gathered)).length >= 18) break;
+          if (strictFilter(uniqByProduct(gathered)).length >= 30) break;
           if (cityBreakOverview) break;
         }
 
         const unique = uniqByProduct(gathered).sort((a, b) => a.price - b.price);
         const strict = strictFilter(unique);
+
+        const diversify = (items: SeasonalOffer[], limit = 24) => {
+          if (normalize(query) !== "all inclusive") return items.slice(0, limit);
+          const buckets = new Map<string, SeasonalOffer[]>();
+          for (const offer of items) {
+            const key = normalize(offer.country || offer.city || "inne");
+            const bucket = buckets.get(key) || [];
+            if (bucket.length < 5) bucket.push(offer);
+            buckets.set(key, bucket);
+          }
+          const result: SeasonalOffer[] = [];
+          let round = 0;
+          while (result.length < limit) {
+            let added = false;
+            for (const bucket of buckets.values()) {
+              if (bucket[round]) {
+                result.push(bucket[round]);
+                added = true;
+                if (result.length >= limit) break;
+              }
+            }
+            if (!added) break;
+            round += 1;
+          }
+          return result;
+        };
         if (cancelled) return;
         if (strict.length > 0) {
           const seen = new Set<string>();
@@ -181,12 +218,12 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
             if (seen.has(key)) return false;
             seen.add(key);
             return true;
-          }) : strict.slice(0, 18));
+          }) : diversify(strict, 24));
           setRelaxed(false);
         } else {
           const seasonal = seasonalScope(unique);
           if (seasonal.length > 0 && !cityBreakOverview) {
-            setOffers(seasonal.filter((offer) => normalize(query) !== "all inclusive" || termMatchesOffer("all inclusive", offer)).slice(0, 18));
+            setOffers(diversify(seasonal.filter((offer) => normalize(query) !== "all inclusive" || termMatchesOffer("all inclusive", offer)), 24));
             setRelaxed(true);
           } else {
             setOffers([]);
