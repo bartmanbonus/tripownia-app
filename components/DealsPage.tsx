@@ -16,6 +16,7 @@ import { trackEvent } from "@/lib/analytics";
 import { eskySearchUrl } from "@/lib/eskySearch";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ReadySearchGrid, { type ReadySearchItem } from "@/components/ReadySearchGrid";
+import { eximDestinationTarget } from "@/lib/eximDestinations";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -165,6 +166,13 @@ export default function DealsPage({
       destination,
       page: "/okazje",
     });
+    return `/go/live?${params.toString()}`;
+  }, [destination]);
+  const destinationEximHref = useMemo(() => {
+    if (!destination) return "";
+    const target = eximDestinationTarget(destination);
+    if (!target) return "";
+    const params = new URLSearchParams({ partner: "exim", target, source: "destination_directory_more", destination, page: "/okazje" });
     return `/go/live?${params.toString()}`;
   }, [destination]);
   const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
@@ -416,11 +424,19 @@ export default function DealsPage({
       {notice && <div className="deals-filter-notice">{notice}</div>}
 
       {rows.length > 0 ? (
-        <div className="cards-grid deals-premium-grid deals-simple-grid">
-          {rows.map((offer) => (
-            <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)} sourceSurface="okazje" />
-          ))}
-        </div>
+        <>
+          <div className="cards-grid deals-premium-grid deals-simple-grid">
+            {rows.map((offer) => (
+              <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)} sourceSurface="okazje" />
+            ))}
+          </div>
+          {destinationEximHref && (
+            <div className="deals-more-destination">
+              <div><strong>Chcesz zobaczyć szerszą pulę dla: {destination}?</strong><span>Przejdź do pełnej dostępności pakietów. Wrócisz do Tripowni przyciskiem Wstecz.</span></div>
+              <a href={destinationEximHref} rel="sponsored" onClick={() => trackEvent("destination_more_packages_click", { destination, source: "exim" })}>Więcej pakietów <ArrowRight size={16}/></a>
+            </div>
+          )}
+        </>
       ) : !loading ? (
         <div className="self-search-empty deals-simple-empty">
           <strong>{destination ? "Brak aktualnej oferty dla: " + destination : "Brak ofert dla tych filtrów."}</strong>
@@ -431,6 +447,7 @@ export default function DealsPage({
           </span>
           {destination && (
             <div className="deals-empty-actions">
+              {destinationEximHref && <a href={destinationEximHref} rel="sponsored" onClick={() => trackEvent("destination_more_packages_click", { destination, source: "exim_empty" })}>🌴 Sprawdź więcej wakacji</a>}
               <a href={destinationPackageHref} rel="sponsored">🧳 Sprawdź pakiety lot + hotel</a>
               <Link href={"/loty?destination=" + encodeURIComponent(destination)}>✈️ Porównaj loty</Link>
               <Link href={destinationHotelHref}>🏨 Sprawdź hotele</Link>
@@ -636,6 +653,8 @@ export default function DealsPage({
         gap: 16px;
       }
 
+      .deals-more-destination{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-top:16px;padding:14px 16px;border:1px solid #e6e2df;border-radius:15px;background:#faf8f6}.deals-more-destination>div{display:grid;gap:3px}.deals-more-destination strong{color:#24211f;font-size:14px}.deals-more-destination span{color:#74706c;font-size:12px}.deals-more-destination>a{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 13px;border-radius:11px;background:#111827;color:#fff;font-size:13px;font-weight:850;text-decoration:none}
+
       .deals-facebook-cta {
         display: flex;
         align-items: center;
@@ -773,6 +792,8 @@ export default function DealsPage({
         .deals-simple-grid {
           gap: 12px;
         }
+
+        .deals-more-destination{display:grid;gap:10px}.deals-more-destination>a{width:100%;justify-content:center}
 
         .deals-facebook-cta {
           display: grid;
