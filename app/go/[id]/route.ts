@@ -1,12 +1,10 @@
-import { randomUUID } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { offers } from "@/lib/offers";
-import { recordClick } from "@/lib/clickStats";
 
 function safeExternalUrl(value: string) {
   try {
     const url = new URL(value);
-    return url.protocol === "https:" || url.protocol === "http:" ? url : null;
+    return url.protocol === "https:" ? url : null;
   } catch {
     return null;
   }
@@ -24,63 +22,25 @@ export async function GET(
   }
 
   const offer = offers.find((item) => item.id === offerId);
-
   if (!offer || offer.availabilityStatus === "expired") {
     return NextResponse.redirect(new URL(`/oferta/${offerId}`, request.url), 307);
   }
 
   const target = safeExternalUrl(offer.affiliateUrl);
-
   if (!target) {
     return NextResponse.redirect(new URL(`/oferta/${offerId}`, request.url), 307);
   }
 
-  const source = request.nextUrl.searchParams.get("source") || "offer_detail";
-  const clickId = randomUUID().slice(0, 18);
-  const page = request.headers.get("referer") || request.nextUrl.pathname;
+  const tracked = new URL("/go/live", request.url);
+  tracked.searchParams.set("target", target.toString());
+  tracked.searchParams.set("partner", offer.partner);
+  tracked.searchParams.set("source", request.nextUrl.searchParams.get("source") || "offer_detail");
+  tracked.searchParams.set("offer", String(offer.id));
+  tracked.searchParams.set("destination", `${offer.city}, ${offer.country}`);
+  if (offer.price) tracked.searchParams.set("price", String(offer.price));
+  tracked.searchParams.set("page", request.headers.get("referer") || request.nextUrl.pathname);
 
-  console.info(
-    "[tripownia_affiliate_click]",
-    JSON.stringify({
-      event: "affiliate_click",
-      ts: new Date().toISOString(),
-      partner: offer.partner,
-      source,
-      offer: offer.id,
-      destination: `${offer.city}, ${offer.country}`,
-      price: offer.price,
-      page,
-      clickId,
-      targetHost: target.hostname,
-      live: false,
-      path: request.nextUrl.pathname,
-    })
-  );
-
-  const response = NextResponse.redirect(target, 307);
+  const response = NextResponse.redirect(tracked, 307);
   response.headers.set("Cache-Control", "no-store");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-
-  recordClick(request, response, {
-    partner: offer.partner,
-    source,
-    offer: String(offer.id),
-    destination: `${offer.city}, ${offer.country}`,
-    price: String(offer.price || ""),
-    page,
-    clickId,
-  });
-
-  const cookieName = `tripownia_click_${offerId}`;
-  const previous = Number(request.cookies.get(cookieName)?.value || "0");
-
-  response.cookies.set(cookieName, String(Math.min(previous + 1, 999)), {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 30,
-    path: "/",
-  });
-
   return response;
 }
