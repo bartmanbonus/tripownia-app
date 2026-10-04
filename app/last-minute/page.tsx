@@ -7,7 +7,6 @@ import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
 import { homepageFallbackOffers } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
-import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 import ReadySearchGrid from "@/components/ReadySearchGrid";
 
 export const metadata: Metadata = {
@@ -52,7 +51,9 @@ export default function LastMinuteOffersPage() {
         { href: "/szukaj?airport=WAWA&budget=2000&duration=5-9&tab=Last%20minute", eyebrow: "WARSZAWA · DO 2 000 ZŁ", title: "Last Minute z Warszawy", meta: "5–9 nocy · WAW + WMI · najtańsze najpierw" },
         { href: "/szukaj?airport=KTW&budget=2000&duration=5-9&tab=Last%20minute", eyebrow: "KATOWICE · DO 2 000 ZŁ", title: "Last Minute z Katowic", meta: "5–9 nocy · różne ciepłe kierunki" },
         { href: "/szukaj?airport=POZ&budget=2500&duration=5-9&tab=Last%20minute", eyebrow: "POZNAŃ · DO 2 500 ZŁ", title: "Last Minute z Poznania", meta: "5–9 nocy · aktualne dostępne pakiety" },
+        { href: "/szukaj?airport=KRK&budget=2500&duration=5-9&tab=Last%20minute", eyebrow: "KRAKÓW · DO 2 500 ZŁ", title: "Last Minute z Krakowa", meta: "5–9 nocy · KRK · najtańsze najpierw" },
         { href: "/szukaj?destination=Egipt&budget=3000&duration=7&board=all%20inclusive&tab=Last%20minute", eyebrow: "EGIPT · 7 NOCY · DO 3 000 ZŁ", title: "Egipt All Inclusive Last Minute", meta: "Pełne wyżywienie · różne lotniska wylotu" },
+        { href: "/szukaj?budget=2000&duration=5-9&tab=Last%20minute", eyebrow: "DO 2 000 ZŁ · 5–9 NOCY", title: "Najtańsze Last Minute", meta: "Bez wskazywania kierunku · sortowanie od najniższej ceny" },
       ]} />
     </section>
 
@@ -63,29 +64,7 @@ export default function LastMinuteOffersPage() {
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">NIE MA NIC NA JUŻ?</div><h2>Sprawdź szerszą bazę i sąsiednie terminy</h2><p>Nie oznaczamy zwykłych wakacji jako Last Minute. Jeśli nie ma wyjazdu w najbliższych 45 dniach, użyj wyszukiwarki powyżej.</p></div></div>
     </section>
-    <section className="shell seo-related-block">
-      <div className="kicker">SZUKAJ DOKŁADNIEJ</div>
-      <h2>Last Minute według lotniska i budżetu</h2>
-      <ProgressiveLinkCloud
-        visible={8}
-        items={[
-          { href: "/podroze/last-minute-z-poznania", label: "Last Minute z Poznania" },
-          { href: "/podroze/last-minute-z-krakowa", label: "Last Minute z Krakowa" },
-          { href: "/podroze/last-minute-z-gdanska", label: "Last Minute z Gdańska" },
-          { href: "/podroze/last-minute-z-warszawy", label: "Last Minute z Warszawy" },
-          { href: "/podroze/last-minute-z-katowic", label: "Last Minute z Katowic" },
-          { href: "/podroze/last-minute-z-wroclawia", label: "Last Minute z Wrocławia" },
-          { href: "/podroze/last-minute-do-2000-zl", label: "Last Minute do 2000 zł" },
-          { href: "/podroze/last-minute-do-2500-zl", label: "Last Minute do 2500 zł" },
-          { href: "/podroze/last-minute-do-3000-zl", label: "Last Minute do 3000 zł" },
-          { href: "/podroze/last-minute-z-lublina", label: "Last Minute z Lublina" },
-          { href: "/podroze/last-minute-z-rzeszowa", label: "Last Minute z Rzeszowa" },
-          { href: "/podroze/last-minute-ze-szczecina", label: "Last Minute ze Szczecina" },
-          { href: "/podroze/last-minute-z-warszawy-do-2000-zl", label: "Z Warszawy do 2000 zł" },
-          { href: "/podroze/last-minute-z-katowic-do-2000-zl", label: "Z Katowic do 2000 zł" },
-        ]}
-      />
-    </section>
+
     <SiteFooter/>
   </main>;
 }
