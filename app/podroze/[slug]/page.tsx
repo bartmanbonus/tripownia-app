@@ -134,7 +134,7 @@ function landingHeroVisual(query: string) {
   if (exact[normalized]) return exact[normalized];
   if (normalized.includes("city break")) return { src: "/images/destinations/rzym.jpg", alt: "Inspiracja na krótki city break" };
   if (normalized.includes("last minute")) return { src: "/images/destinations/fuerteventura.jpg", alt: "Inspiracja na słoneczny wyjazd Last Minute" };
-  if (normalized.includes("all inclusive")) return { src: "/images/destinations/marsa-alam.jpg", alt: "Inspiracja na wakacje All Inclusive" };
+  if (normalized.includes("all inclusive")) return { src: "/images/destinations/riwiera-albanska.jpg", alt: "Inspiracja na wakacje All Inclusive" };
   if (normalized.includes("wakacje")) return { src: "/images/destinations/rodos.jpg", alt: "Inspiracja na wakacyjny wyjazd" };
   return { src: "/images/destinations/porto.jpg", alt: "Inspiracja podróżnicza Tripowni" };
 }
@@ -474,6 +474,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
                 fill
                 sizes="(max-width: 980px) 100vw, 420px"
                 priority
+                quality={90}
               />
               <span>Aktualne oferty poniżej</span>
             </div>
