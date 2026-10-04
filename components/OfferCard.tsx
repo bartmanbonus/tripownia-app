@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, Scale, MapPinned, BadgePercent } from "lucide-react";
+import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, Scale, MapPinned, BadgePercent, Bell } from "lucide-react";
 import type { Offer } from "@/lib/offers";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import TravelImage from "@/components/TravelImage";
@@ -79,6 +79,14 @@ function readTrip() {
     localStorage.removeItem("tripownia-my-trip");
     return null;
   }
+}
+
+function offerStoryHook(offer: Offer) {
+  const categories = (offer.category || []).join(" ").toLowerCase();
+  if (/all inclusive/i.test(offer.board || "")) return `🔥 ${offer.nights} nocy All Inclusive — gotowy pakiet na urlop`;
+  if (offer.nights <= 4 && /city|weekend|tanio/.test(categories)) return `✈️ Krótki wypad na ${offer.nights} ${offer.nights === 1 ? "noc" : "noce"} — bez długiego urlopu`;
+  if (/cieplo|plaza/.test(categories)) return `☀️ Słońce, ${offer.nights} nocy i konkretny termin`;
+  return `✨ ${offer.nights} nocy · ${offer.board}`;
 }
 
 
@@ -279,6 +287,11 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
     : `/oferta/${offer.id}`;
   const buyHref = cardHref;
   const detailHref = cardHref;
+  const alertHref = `/alerty?${new URLSearchParams({
+    destination: offer.city,
+    departure: offer.departure,
+    maxPrice: String(Math.ceil(displayPrice * 1.08)),
+  }).toString()}`;
   const nightsLabel = offer.nights === 1 ? "noc" : offer.nights % 10 >= 2 && offer.nights % 10 <= 4 && !(offer.nights % 100 >= 12 && offer.nights % 100 <= 14) ? "noce" : "nocy";
   const ctaText = isExpired ? "Zobacz podobne oferty" : "Sprawdź ofertę";
   const trustText = isExpired
@@ -318,6 +331,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
         <div className="offer-topline">
           <div><div className="eyebrow">{offer.flag} {offer.country}</div><h3>{offer.city}</h3></div>
         </div>
+        <p className="offer-story-hook">{offerStoryHook(offer)}</p>
 
         {offer.hotel && <p className="offer-hotel-name">{offer.hotel}</p>}
 
@@ -349,6 +363,12 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface }: { of
           href={buyHref}
           onClick={() => trackOfferClick("card_cta", false)}
         >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></Link>
+
+        {!isExpired && (
+          <Link className="offer-alert-link" href={alertHref} onClick={() => trackEvent("offer_alert_click", eventBase)}>
+            <Bell size={13}/> Powiadom mnie, gdy pojawi się podobna cena
+          </Link>
+        )}
 
         {!isExpired && (
           <div className="offer-actions-row offer-actions-secondary">
