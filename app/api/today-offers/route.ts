@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchEskyPackages } from "@/lib/eskyPackages";
 import { isAffordableShortTrip, isPromotableOffer } from "@/lib/offerValuePolicy";
 import { rankSearchOffers } from "@/lib/searchOfferRanking";
+import { destinationQueryMatches } from "@/lib/destinationAliases";
 
 export const maxDuration = 60;
 
@@ -160,12 +161,40 @@ const SEARCH_ALIASES: Record<string, string[]> = {
   gambia: ["Gambia", "The Gambia", "Banjul"],
   kenia: ["Kenia", "Kenya", "Mombasa", "Nairobi"],
   kenya: ["Kenya", "Kenia", "Mombasa", "Nairobi"],
+  mauritius: ["Mauritius"],
+  meksyk: ["Meksyk", "Mexico"],
+  niemcy: ["Niemcy", "Germany", "Deutschland"],
+  polinezja_francuska: ["Polinezja Francuska", "French Polynesia", "Tahiti"],
+  seszele: ["Seszele", "Seychelles"],
+  slowacja: ["Słowacja", "Slovakia"],
+  slowenia: ["Słowenia", "Slovenia"],
+  sri_lanka: ["Sri Lanka"],
+  stany_zjednoczone: ["Stany Zjednoczone", "United States", "USA"],
+  szwajcaria: ["Szwajcaria", "Switzerland"],
+  tanzania: ["Tanzania"],
+  wietnam: ["Wietnam", "Vietnam"],
+  zjednoczone_emiraty_arabskie: ["Zjednoczone Emiraty Arabskie", "United Arab Emirates", "UAE", "ZEA"],
   rpa: ["RPA", "Republika Południowej Afryki", "South Africa", "Kapsztad", "Cape Town"],
   republika_poludniowej_afryki: ["Republika Południowej Afryki", "South Africa", "RPA", "Kapsztad", "Cape Town"],
   south_africa: ["South Africa", "Republika Południowej Afryki", "RPA", "Cape Town", "Kapsztad"],
   oman: ["Oman", "Maskat", "Muscat"],
   maskat: ["Maskat", "Muscat", "Oman"],
   muscat: ["Muscat", "Maskat", "Oman"],
+  aruba: ["Aruba"],
+  bahrajn: ["Bahrajn", "Bahrain"],
+  bahrain: ["Bahrain", "Bahrajn"],
+  bulgaria: ["Bułgaria", "Bulgaria"],
+  chorwacja: ["Chorwacja", "Croatia", "Hrvatska"],
+  curacao: ["Curaçao", "Curacao"],
+  czarnogora: ["Czarnogóra", "Montenegro"],
+  dominikana: ["Dominikana", "Dominican Republic"],
+  filipiny: ["Filipiny", "Philippines"],
+  indonezja: ["Indonezja", "Indonesia", "Bali"],
+  jamajka: ["Jamajka", "Jamaica"],
+  macedonia: ["Macedonia", "North Macedonia", "Macedonia Północna"],
+  macedonia_polnocna: ["Macedonia Północna", "North Macedonia", "Macedonia"],
+  madagaskar: ["Madagaskar", "Madagascar"],
+  malediwy: ["Malediwy", "Maldives"],
   malezja: ["Malezja", "Malaysia", "Kuala Lumpur", "Langkawi"],
   malaysia: ["Malaysia", "Malezja", "Kuala Lumpur", "Langkawi"],
   kuala_lumpur: ["Kuala Lumpur", "Malezja", "Malaysia"],
@@ -598,6 +627,7 @@ function candidateMatchesSingleQuery(offer: LiveCandidate, query: string) {
 
   const haystack = normalize(`${offer.city} ${offer.country} ${offer.hotel}`);
   if (haystack.includes(primary)) return true;
+  if (destinationQueryMatches(query, offer.city, offer.country, offer.hotel)) return true;
 
   // Milan city-break searches should also include the practical Milan gateway area.
   // Bergamo is a common low-cost airport/base for Milan trips, while broad "Italy"
