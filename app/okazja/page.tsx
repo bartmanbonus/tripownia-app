@@ -8,6 +8,7 @@ import Image from "next/image";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
+import EximLivePrice from "@/components/EximLivePrice";
 
 export const metadata: Metadata = {
   title: "Okazja podróżnicza",
@@ -241,16 +242,32 @@ export default async function SocialOfferLanding({
             </div>
 
             <div className="detail-price-card">
-              {price ? (
-                <div className="detail-price">
-                  <small>znaleźliśmy od</small> <strong>{price.toLocaleString("pl-PL")} zł</strong> / os.
-                </div>
+              {target.partner.key === "exim" ? (
+                <EximLivePrice
+                  destination={city}
+                  country={country}
+                  from={airport || "WAW"}
+                  nights={nights}
+                  board={board}
+                  fallbackPrice={price || 0}
+                />
+              ) : price ? (
+                <>
+                  <div className="detail-price">
+                    <small>znaleźliśmy od</small> <strong>{price.toLocaleString("pl-PL")} zł</strong> / os.
+                  </div>
+                  <div className="price-status detail-price-status">
+                    Finalną cenę i dostępność potwierdzisz przy rezerwacji.
+                  </div>
+                </>
               ) : (
-                <div className="detail-price"><strong>Sprawdź aktualną cenę</strong></div>
+                <>
+                  <div className="detail-price"><strong>Sprawdź aktualną cenę</strong></div>
+                  <div className="price-status detail-price-status">
+                    Finalną cenę i dostępność potwierdzisz przy rezerwacji.
+                  </div>
+                </>
               )}
-              <div className="price-status detail-price-status">
-                Finalną cenę i dostępność potwierdzisz przy rezerwacji.
-              </div>
             </div>
 
             <p className="detail-lead">{note}</p>
