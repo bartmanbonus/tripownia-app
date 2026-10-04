@@ -16,7 +16,6 @@ import { trackEvent } from "@/lib/analytics";
 import { eskySearchUrl } from "@/lib/eskySearch";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ReadySearchGrid, { type ReadySearchItem } from "@/components/ReadySearchGrid";
-import { eximDestinationTarget } from "@/lib/eximDestinations";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -65,7 +64,7 @@ function cheapestUnique(rows: DealsOffer[], liveOnly = true) {
   );
 }
 
-function destinationOfferRows(rows: DealsOffer[], limit = 36) {
+function destinationOfferRows(rows: DealsOffer[]) {
   const unique = new Map<number, DealsOffer>();
   rows
     .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
@@ -75,8 +74,7 @@ function destinationOfferRows(rows: DealsOffer[], limit = 36) {
     });
 
   return Array.from(unique.values())
-    .sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0))
-    .slice(0, limit);
+    .sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0));
 }
 
 function offerCountLabel(count: number) {
@@ -193,13 +191,6 @@ export default function DealsPage({
       destination,
       page: "/okazje",
     });
-    return `/go/live?${params.toString()}`;
-  }, [destination]);
-  const destinationEximHref = useMemo(() => {
-    if (!destination) return "";
-    const target = eximDestinationTarget(destination);
-    if (!target) return "";
-    const params = new URLSearchParams({ partner: "exim", target, source: "destination_directory_more", destination, page: "/okazje" });
     return `/go/live?${params.toString()}`;
   }, [destination]);
   const destinationMonthSearches = useMemo(() => {
@@ -511,10 +502,12 @@ export default function DealsPage({
               <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)} sourceSurface="okazje" />
             ))}
           </div>
-          {destinationEximHref && (
-            <div className="deals-more-destination">
-              <div><strong>Chcesz zobaczyć szerszą pulę dla: {destination}?</strong><span>Przejdź do pełnej dostępności pakietów. Wrócisz do Tripowni przyciskiem Wstecz.</span></div>
-              <a href={destinationEximHref} rel="sponsored" onClick={() => trackEvent("destination_more_packages_click", { destination, source: "exim" })}>Więcej pakietów <ArrowRight size={16}/></a>
+          {destination && (
+            <div className="deals-more-destination deals-full-pool-note">
+              <div>
+                <strong>Pokazujemy pełną pulę, którą zwracają podpięte źródła dla: {destination}.</strong>
+                <span>Nie ukrywamy dalszych ofert za przyciskiem „więcej” i nie przenosimy Cię do partnera po samą listę.</span>
+              </div>
             </div>
           )}
         </>
@@ -556,8 +549,7 @@ export default function DealsPage({
               ))}
             </div>
             <div className="deals-empty-actions">
-              {destinationEximHref && <a href={destinationEximHref} rel="sponsored" onClick={() => trackEvent("destination_more_packages_click", { destination, source: "exim_empty" })}>🌴 Wszystkie wakacje</a>}
-              <a href={destinationPackageHref} rel="sponsored">🧳 Lot + hotel</a>
+              <a href={destinationPackageHref} rel="sponsored">🧳 Sprawdź lot + hotel</a>
               <Link href={"/loty?destination=" + encodeURIComponent(destination)}>✈️ Loty</Link>
               <Link href={destinationHotelHref}>🏨 Hotele</Link>
             </div>
