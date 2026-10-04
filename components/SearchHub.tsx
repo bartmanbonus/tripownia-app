@@ -468,11 +468,6 @@ export default function SearchHub({
     () => visibleResults.filter((offer) => searchTier(offer) > 0),
     [visibleResults],
   );
-  const exactResultsCount = useMemo(
-    () => results.filter((offer) => searchTier(offer) === 0).length,
-    [results],
-  );
-
   useEffect(() => {
     setDestination("");
     setSelectedDestinations(initialDestinations);
@@ -1771,7 +1766,7 @@ export default function SearchHub({
                 {exactVisibleResults.length > 0 && (
                   <section className="search-v3-result-group search-v3-result-group-exact" aria-label="Dokładne dopasowania">
                     <div className="search-v3-result-group-head">
-                      <div><small>DOKŁADNE DOPASOWANIA</small><strong>{exactResultsCount} {exactResultsCount === 1 ? "oferta zgodna" : "ofert zgodnych"} z filtrami</strong></div>
+                      <div><small>DOKŁADNE DOPASOWANIA</small><strong>{exactVisibleResults.length} {exactVisibleResults.length === 1 ? "oferta zgodna" : "ofert zgodnych"} z filtrami</strong></div>
                       <span>Najtańsze dokładne opcje pokazujemy jako pierwsze.</span>
                     </div>
                     <div className="search-v3-results-grid">
