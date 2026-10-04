@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, MapPin, Plane, Moon, Utensils, CalendarDays, BadgeCheck, PlusCircle } from "lucide-react";
+import { ArrowLeft, MapPin, Plane, Moon, Utensils, CalendarDays, BadgeCheck, PlusCircle, Bell } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import Image from "next/image";
@@ -191,6 +191,17 @@ export default async function SocialOfferLanding({
     ...(airport ? { departure: airport } : {}),
   });
   const plannerHref = `/dodaj-podroz?${plannerParams.toString()}`;
+  const alertParams = new URLSearchParams({ destination: city, departure });
+  if (price) alertParams.set("maxPrice", String(Math.ceil(price * 1.08)));
+  const alertHref = `/alerty?${alertParams.toString()}`;
+  const airportChoices = [
+    { code: "WAWA", label: "Warszawa", activeCodes: ["WAW","WMI","WAWA"] },
+    { code: "KRK", label: "Kraków", activeCodes: ["KRK"] },
+    { code: "KTW", label: "Katowice", activeCodes: ["KTW"] },
+    { code: "WRO", label: "Wrocław", activeCodes: ["WRO"] },
+    { code: "GDN", label: "Gdańsk", activeCodes: ["GDN"] },
+    { code: "POZ", label: "Poznań", activeCodes: ["POZ"] },
+  ];
 
   return (
     <main>
@@ -279,6 +290,24 @@ export default async function SocialOfferLanding({
               <span><CalendarDays/> <b>{dates}</b></span>
               <span><Utensils/> <b>{board}</b></span>
               <span><MapPin/> <b>{[city, country].filter(Boolean).join(", ")}</b></span>
+            </div>
+
+            <div className="offer-detail-alert">
+              <div><strong>Ta cena Cię interesuje?</strong><span>Ustaw alert dla {city}. Jeśli pojawi się podobna opcja, łatwo wrócisz do porównania.</span></div>
+              <Link href={alertHref}><Bell size={15}/> Ustaw alert</Link>
+            </div>
+
+            <div className="offer-airport-choices">
+              <small>SPRAWDŹ TEN KIERUNEK Z INNEGO LOTNISKA</small>
+              <div className="offer-airport-choice-grid">
+                {airportChoices.map(item => (
+                  <Link
+                    className={item.activeCodes.includes(airport) ? "active" : ""}
+                    href={`/szukaj?${new URLSearchParams({ destination: city, airport: item.code, duration: `${Math.max(2,nights-1)}-${Math.min(14,nights+1)}`, tab: "Lot + hotel" }).toString()}`}
+                    key={item.code}
+                  ><Plane size={13}/>{item.label}</Link>
+                ))}
+              </div>
             </div>
 
             <div className="tripownia-purchase-actions">
