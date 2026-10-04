@@ -38,7 +38,7 @@
 .crest{width:44px;height:44px;display:grid;place-items:center;overflow:hidden;border:1px solid #ece5df;border-radius:50%;background:#fff}
 .crest img{width:34px;height:34px;object-fit:contain}
 .crestFallback{font-size:11px;font-weight:900}
-.vs{text-align:center}.vs strong{display:block;font-size:12px}.vs small{display:block;margin-top:7px;color:#5f554f;font-size:13px;line-height:1.35;font-weight:800}
+.vs{text-align:center;min-width:138px}.vs strong{display:block;font-size:12px}.matchDate{margin-top:7px;color:#5f554f;font-size:13px;line-height:1.28;font-weight:800}.matchTime{margin-top:3px;color:#171717;font-size:16px;line-height:1.1;font-weight:950}
 .meta{display:grid;gap:5px;color:#665d57;font-size:11px}
 .trip{margin:14px 0;padding:11px;border-radius:14px;background:#faf7f4}
 .trip strong,.trip span{display:block}.trip strong{font-size:12px}.trip span{margin-top:4px;color:#756b64;font-size:10px}
