@@ -121,7 +121,7 @@ export default async function Page({ searchParams }: PageProps) {
       </section>
 
       <NewYearOffers />
-      <section className="section shell"><FacebookFollowCTA placement="sylwester_after_offers" compact /></section>
+      <section className="section shell newyear-follow-section"><FacebookFollowCTA placement="sylwester_after_offers" compact /></section>
 
       <section className="section shell newyear-ready-searches">
         <div className="section-heading">
