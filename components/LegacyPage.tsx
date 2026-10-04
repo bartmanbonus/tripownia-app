@@ -314,6 +314,39 @@ function norm(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
+function readyArticleSearchHref(item: LegacyItem, context: ArticleContext, destination?: string) {
+  if (!destination && !context.hasUsefulSearchContext) return "/#wyszukiwarka";
+
+  const params = new URLSearchParams();
+  const haystack = `${item.title} ${item.path} ${item.description || ""}`.toLocaleLowerCase("pl");
+
+  if (destination) params.set("destination", destination);
+  if (context.departureCode) params.set("airport", context.departureCode);
+  if (context.startDate) params.set("from", context.startDate);
+  if (context.endDate) params.set("to", context.endDate);
+
+  if (context.weekendOnly) params.set("weekend", "1");
+
+  if (context.mode === "city") {
+    params.set("tab", "City break");
+    params.set("duration", "2-5");
+  } else if (/all[ -]?inclusive/.test(haystack)) {
+    params.set("tab", "All Inclusive");
+    params.set("duration", "5-14");
+    params.set("board", "allinclusive");
+  } else if (context.mode === "lastminute") {
+    params.set("tab", "Lot + hotel");
+    params.set("duration", "5-10");
+  } else if (context.mode === "holiday") {
+    params.set("tab", "Lot + hotel");
+    params.set("duration", "5-14");
+  } else {
+    params.set("tab", "Lot + hotel");
+  }
+
+  return `/szukaj?${params.toString()}`;
+}
+
 function checkedAtIso(value?: string) {
   if (!value) return undefined;
   const match = value.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
@@ -530,13 +563,13 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     : undefined;
   const isPost = item.type === "post";
   const isAirportLiquidsGuide = canonicalPath === "/lotniska-w-polsce-bez-limitu-100-ml-plynow";
-  const effectiveDestination = context.destination || deepDive?.searchPresets?.[0];
+  const effectiveDestination = context.destination || (deepDive?.searchPresets?.length === 1 ? deepDive.searchPresets[0] : undefined);
   const comparisonDestinations = canonicalPath === "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje"
     ? ["Alicante", "Malaga"]
     : [];
   const salesDestination = comparisonDestinations.length ? "" : (effectiveDestination || "").trim();
   const articleDealsHref = salesDestination ? `/okazje?q=${encodeURIComponent(salesDestination)}` : "/okazje";
-  const articleSearchHref = "/#wyszukiwarka";
+  const articleSearchHref = readyArticleSearchHref(item, context, effectiveDestination);
   const articleCityBreakHref = "/city-break";
   const articleCheapFlightsHref = "/tanie-loty";
   const related = relatedOffers(context, effectiveDestination);
@@ -635,7 +668,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
               <span>Przejdź od poradnika do konkretów bez szukania po całym serwisie.</span>
             </div>
             <nav className="article-action-rail-links" aria-label="Wyszukiwanie podróży">
-              <Link className="article-action-rail-primary" href={articleSearchHref} data-article-cta="search">🔎 Wyszukiwarka</Link>
+              <Link className="article-action-rail-primary" href={articleSearchHref} data-article-cta="search">🔎 {articleSearchHref.startsWith("/szukaj?") ? "Pokaż gotowe wyniki" : "Wyszukiwarka"}</Link>
               <Link href={articleCheapFlightsHref} data-article-cta="cheap_flights">✈️ Tanie loty</Link>
               <Link href={articleCityBreakHref} data-article-cta="city_break">🏙️ City break</Link>
               <Link href={articleDealsHref} data-article-cta="offers">🔥 Okazje</Link>
