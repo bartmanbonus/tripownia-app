@@ -65,6 +65,28 @@ function cheapestUnique(rows: DealsOffer[], liveOnly = true) {
   );
 }
 
+function destinationOfferRows(rows: DealsOffer[], limit = 36) {
+  const unique = new Map<number, DealsOffer>();
+  rows
+    .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
+    .forEach((offer) => {
+      const current = unique.get(offer.id);
+      if (!current || Number(offer.price) < Number(current.price)) unique.set(offer.id, offer);
+    });
+
+  return Array.from(unique.values())
+    .sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0))
+    .slice(0, limit);
+}
+
+function offerCountLabel(count: number) {
+  if (count === 1) return "1 oferta";
+  const lastTwo = count % 100;
+  const last = count % 10;
+  if (last >= 2 && last <= 4 && (lastTwo < 12 || lastTwo > 14)) return `${count} oferty`;
+  return `${count} ofert`;
+}
+
 function buildPoolHighlights(rows: DealsOffer[]) {
   const highlights = new Map<number, PriceHighlight>();
   if (rows.length < 5) return highlights;
@@ -151,7 +173,12 @@ export default function DealsPage({
     if (quickFilter === "under2000") return sourceRows.filter((offer) => Number(offer.price) <= 2000);
     return sourceRows;
   }, [offers, quickFilter]);
-  const rows = useMemo(() => cheapestUnique(quickFilteredOffers, source === "live"), [quickFilteredOffers, source]);
+  const rows = useMemo(
+    () => destination
+      ? destinationOfferRows(quickFilteredOffers)
+      : cheapestUnique(quickFilteredOffers, source === "live"),
+    [quickFilteredOffers, source, destination]
+  );
   const destinationHotelHref = useMemo(
     () => destination ? `/hotele?q=${encodeURIComponent(destination)}` : "",
     [destination]
@@ -414,7 +441,9 @@ export default function DealsPage({
           <strong>
             {loading && !rows.length
               ? "Szukamy najlepszych cen…"
-              : rows.length + " " + (rows.length === 1 ? "kierunek" : "kierunków")}
+              : destination
+                ? offerCountLabel(rows.length)
+                : rows.length + " " + (rows.length === 1 ? "kierunek" : "kierunków")}
           </strong>
           <span>{filtering ? filterSummary : "Wszystkie lotniska · dowolny termin"}</span>
         </div>
