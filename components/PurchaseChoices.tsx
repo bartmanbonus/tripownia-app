@@ -83,7 +83,8 @@ export default function PurchaseChoices({
     const params = new URLSearchParams({
       mode: "search",
       q: [city, country].filter(Boolean).join(", "),
-      nights: String(Math.max(1, nights || 1)),
+      minNights: String(Math.max(1, (nights || 1) - 1)),
+      maxNights: String(Math.max(2, (nights || 1) + 2)),
       fast: "1",
     });
 
