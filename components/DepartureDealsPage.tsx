@@ -36,7 +36,7 @@ export default function DepartureDealsPage({
     <SiteHeader />
     <section className={styles.hero}><div className={styles.shell}>
       <span className={styles.kicker}><MapPin size={15}/> OKAZJE Z LOTNISKA</span>
-      <h1>Wyjazdy z {city}</h1><p>{intro}</p>
+      <h1>Wakacje i wyjazdy z {city}</h1><p>{intro}</p>
       <div className={styles.actions}><a href="#oferty"><Plane size={18}/> Zobacz aktualne oferty</a><Link href="/alerty"><Bell size={18}/> Ustaw alert z {city}</Link></div>
       <div className={styles.intentGrid} aria-label={`Typy wyjazdów z ${city}`}>
         {intentCards.map((item) => (
