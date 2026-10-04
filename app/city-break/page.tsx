@@ -8,7 +8,6 @@ import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
 import { homepageFallbackOffers } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
-import ProgressiveLinkCloud from "@/components/ProgressiveLinkCloud";
 import ReadySearchGrid from "@/components/ReadySearchGrid";
 import styles from "../conversion-pages.module.css";
 
@@ -42,29 +41,6 @@ const cityBreakIdeas = [
   {city:"Walencja", country:"Hiszpania", image:"/images/destinations/walencja.jpg", text:"Miasto i plaża w jednym krótkim wyjeździe."},
   {city:"Porto", country:"Portugalia", image:"/images/destinations/porto.jpg", text:"Jedzenie, wino i spacerowanie bez gonitwy."},
   {city:"Stambuł", country:"Turcja", image:"/images/destinations/stambul.jpg", text:"Europa i Azja w jednym bardzo intensywnym city breaku."},
-];
-
-const seasonalCityBreaks = [
-  { href: "/podroze/city-break-pazdziernik-2026", label: "City break październik 2026" },
-  { href: "/podroze/city-break-listopad-2026", label: "City break listopad 2026" },
-  { href: "/podroze/city-break-grudzien-2026", label: "City break grudzień 2026" },
-  { href: "/sylwester", label: "City break na Sylwestra 2026/2027" },
-];
-
-const airportCityBreaks = [
-  { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
-  { href: "/podroze/city-break-z-lublina", label: "City break z Lublina" },
-  { href: "/podroze/city-break-z-warszawy", label: "City break z Warszawy" },
-  { href: "/podroze/city-break-z-gdanska", label: "City break z Gdańska" },
-  { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa" },
-  { href: "/podroze/city-break-z-katowic", label: "City break z Katowic" },
-  { href: "/podroze/city-break-z-wroclawia", label: "City break z Wrocławia" },
-  { href: "/podroze/city-break-z-rzeszowa", label: "City break z Rzeszowa" },
-  { href: "/podroze/city-break-ze-szczecina", label: "City break ze Szczecina" },
-  { href: "/podroze/city-break-z-lodzi", label: "City break z Łodzi" },
-  { href: "/podroze/city-break-z-bydgoszczy", label: "City break z Bydgoszczy" },
-  { href: "/podroze/city-break-z-olsztyna-mazur", label: "City break z Olsztyna-Mazur" },
-  { href: "/podroze/city-break-z-modlina", label: "City break z Modlina" },
 ];
 
 export default function CityBreakPage() {
@@ -151,27 +127,27 @@ export default function CityBreakPage() {
       </div>
     </section>
 
-    <section className={styles.shell}>
-      <div className={styles.sectionCard}>
-        <div className={styles.kicker}>SZUKAJ WG TERMINU LUB LOTNISKA</div>
-        <h2>Najczęściej szukane city breaki z polskich lotnisk</h2>
-        <p>Wybierz lotnisko startowe i przejdź od razu do krótkich wyjazdów z tego miasta. Osobne strony pomagają znaleźć realne kierunki i porównać pełny koszt lotu + hotelu.</p>
-        <ProgressiveLinkCloud
-          visible={10}
-          items={[
-            ...seasonalCityBreaks,
-            ...airportCityBreaks,
-            { href: "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych", label: "Bagaż podręczny" },
-            { href: "/sylwester", label: "City break na Sylwestra 2026/2027" },
-            { href: "/podroze/city-break-do-500-zl", label: "City break do 500 zł" },
-            { href: "/podroze/city-break-do-700-zl", label: "City break do 700 zł" },
-            { href: "/podroze/city-break-do-1000-zl", label: "City break do 1000 zł" },
-            { href: "/podroze/city-break-do-1500-zl", label: "City break do 1500 zł" },
-            { href: "/podroze/city-break-z-warszawy-do-1500-zl", label: "City break z Warszawy do 1500 zł" },
-            { href: "/lot-hotel", label: "Lot + hotel" },
-            { href: "/planer-podrozy", label: "Darmowy planer podróży" },
-          ]}
-        />
+    <section className={[styles.shell, styles.section].join(" ")}>
+      <div className={styles.sectionHead}>
+        <div>
+          <div className={styles.kicker}>TERMIN, LOTNISKO LUB BUDŻET</div>
+          <h2>Wybierz konkretny wariant — wyniki otworzą się od razu</h2>
+          <p>Tu nie przechodzisz do kolejnej strony opisowej. Kafel ustawia lotnisko, miesiąc, długość pobytu albo budżet i uruchamia wyszukiwanie.</p>
+        </div>
+      </div>
+      <ReadySearchGrid items={[
+        { href: "/szukaj?airport=WAWA&duration=3-4&budget=1500&tab=City%20break", eyebrow: "WARSZAWA · 3–4 NOCE · DO 1 500 ZŁ", title: "City break z Warszawy", meta: "WAW + WMI · różne kierunki · najtańsze najpierw" },
+        { href: "/szukaj?airport=POZ&duration=3-4&budget=1500&tab=City%20break", eyebrow: "POZNAŃ · 3–4 NOCE · DO 1 500 ZŁ", title: "City break z Poznania", meta: "POZ · różne kierunki · lot + hotel" },
+        { href: "/szukaj?airport=KRK&duration=3-4&budget=1500&tab=City%20break", eyebrow: "KRAKÓW · 3–4 NOCE · DO 1 500 ZŁ", title: "City break z Krakowa", meta: "KRK · aktualne krótkie wyjazdy" },
+        { href: "/szukaj?month=2026-11&duration=3-4&budget=1500&tab=City%20break", eyebrow: "LISTOPAD 2026 · 3–4 NOCE", title: "City break w listopadzie", meta: "Różne lotniska i kierunki · do 1 500 zł/os." },
+        { href: "/szukaj?month=2026-12&duration=3-4&budget=1500&tab=City%20break", eyebrow: "GRUDZIEŃ 2026 · 3–4 NOCE", title: "City break w grudniu", meta: "Jarmarki, miasta i cieplejsze kierunki" },
+        { href: "/szukaj?duration=3-4&budget=1000&tab=City%20break", eyebrow: "DO 1 000 ZŁ/OS. · 3–4 NOCE", title: "Najtańszy city break", meta: "Bez wskazywania kierunku · sortowanie od najniższej ceny" },
+      ]} />
+      <div className={styles.linkPills}>
+        <Link href="/sylwester">Sylwester 2026/2027</Link>
+        <Link href="/lot-hotel">Lot + hotel</Link>
+        <Link href="/planer-podrozy">Darmowy planer</Link>
+        <Link href="/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych">Bagaż podręczny</Link>
       </div>
     </section>
 
