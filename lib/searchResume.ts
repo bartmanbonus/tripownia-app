@@ -17,6 +17,7 @@ export type SearchResumeContext = {
   weekendOnly: boolean;
   resultSort: "recommended" | "price" | "rating" | "nights";
   resultView: "all" | "destinations";
+  scrollY: number;
 };
 
 export const SEARCH_RESUME_STORAGE_KEY = "tripownia-search-resume-v1";
@@ -33,7 +34,7 @@ function safeArray(value: unknown, maxItems = 12) {
     : [];
 }
 
-export function saveSearchResumeContext(input: Omit<SearchResumeContext, "savedAt">) {
+export function saveSearchResumeContext(input: Omit<SearchResumeContext, "savedAt" | "scrollY"> & { scrollY?: number }) {
   if (typeof window === "undefined") return;
   try {
     const payload: SearchResumeContext = {
@@ -43,11 +44,23 @@ export function saveSearchResumeContext(input: Omit<SearchResumeContext, "savedA
       destinationInput: input.destinationInput.slice(0, 180),
       selectedDestinations: input.selectedDestinations.slice(0, 12),
       departures: input.departures.slice(0, 12),
+      scrollY: Math.max(0, Number(input.scrollY || 0)),
     };
     sessionStorage.setItem(SEARCH_RESUME_STORAGE_KEY, JSON.stringify(payload));
   } catch {
     // Resume is an enhancement only; search must continue without storage.
   }
+}
+
+export function updateSearchResumeScroll(scrollY: number) {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = sessionStorage.getItem(SEARCH_RESUME_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) as Partial<SearchResumeContext> : null;
+    if (!parsed) return;
+    parsed.scrollY = Math.max(0, Number(scrollY || 0));
+    sessionStorage.setItem(SEARCH_RESUME_STORAGE_KEY, JSON.stringify(parsed));
+  } catch {}
 }
 
 export function readSearchResumeContext() {
@@ -89,6 +102,7 @@ export function readSearchResumeContext() {
       weekendOnly: Boolean(parsed.weekendOnly),
       resultSort,
       resultView,
+      scrollY: Math.max(0, Number(parsed.scrollY || 0)),
     } satisfies SearchResumeContext;
   } catch {
     sessionStorage.removeItem(SEARCH_RESUME_STORAGE_KEY);
