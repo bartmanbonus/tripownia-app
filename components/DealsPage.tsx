@@ -204,34 +204,52 @@ export default function DealsPage({
   }, [destination]);
   const destinationMonthSearches = useMemo(() => {
     if (!destination) return [];
-    return Array.from({ length: 12 }, (_, index) => {
-      const date = new Date(currentYear, currentMonth - 1 + index, 1);
-      const searchYear = date.getFullYear();
-      const searchMonth = date.getMonth() + 1;
+
+    const monthSlots = month !== "any" && year !== "any"
+      ? [{ year: Number(year), month: Number(month) }]
+      : Array.from({ length: 12 }, (_, index) => {
+          const date = new Date(currentYear, currentMonth - 1 + index, 1);
+          return { year: date.getFullYear(), month: date.getMonth() + 1 };
+        });
+
+    const stayVariants = [
+      { minNights: 4, maxNights: 6, stayLabel: "4–6 nocy" },
+      { minNights: 7, maxNights: 9, stayLabel: "7–9 nocy" },
+      { minNights: 10, maxNights: 14, stayLabel: "10–14 nocy" },
+    ];
+
+    return monthSlots.flatMap(({ year: searchYear, month: searchMonth }) => {
       const monthValue = String(searchMonth).padStart(2, "0");
       const lastDay = new Date(searchYear, searchMonth, 0).getDate();
       const start = `${searchYear}-${monthValue}-01`;
       const end = `${searchYear}-${monthValue}-${String(lastDay).padStart(2, "0")}`;
-      const target = eskySearchUrl({
-        query: destination,
-        start,
-        end,
-        departure: airport !== "any" ? airport : "",
+      const monthLabel = `${MONTH_NAMES[searchMonth - 1]} ${searchYear}`;
+
+      return stayVariants.map(({ minNights, maxNights, stayLabel }) => {
+        const target = eskySearchUrl({
+          query: destination,
+          start,
+          end,
+          minNights,
+          maxNights,
+          departure: airport !== "any" ? airport : "",
+        });
+        const params = new URLSearchParams({
+          partner: "esky",
+          target,
+          source: "destination_month_fallback",
+          destination,
+          page: "/okazje",
+        });
+        return {
+          key: `${searchYear}-${monthValue}-${minNights}-${maxNights}`,
+          label: monthLabel,
+          stayLabel,
+          href: `/go/live?${params.toString()}`,
+        };
       });
-      const params = new URLSearchParams({
-        partner: "esky",
-        target,
-        source: "destination_month_fallback",
-        destination,
-        page: "/okazje",
-      });
-      return {
-        key: `${searchYear}-${monthValue}`,
-        label: `${MONTH_NAMES[searchMonth - 1]} ${searchYear}`,
-        href: `/go/live?${params.toString()}`,
-      };
     });
-  }, [destination, currentYear, currentMonth, airport]);
+  }, [destination, currentYear, currentMonth, airport, month, year]);
   const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
   const poolHighlights = useMemo(() => source === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source]);
 
@@ -302,7 +320,7 @@ export default function DealsPage({
       : offers.length
         ? "Ostatnio sprawdzone · potwierdź cenę przed rezerwacją"
         : destination
-          ? "12 gotowych terminów · sprawdź dostępność"
+          ? `${destinationMonthSearches.length} gotowych opcji · sprawdź dostępność`
           : "Brak aktualnych danych";
 
   const airportLabel = AIRPORTS.find((item) => item.value === airport)?.label || "Wszystkie lotniska";
@@ -337,7 +355,7 @@ export default function DealsPage({
               : destination
                 ? (rows.length
                     ? "Pokazujemy tylko aktualne oferty dla tego kierunku — bez przypadkowych zamienników."
-                    : "Jeśli feed nie zwraca dziś gotowej karty, dajemy od razu 12 wyszukiwań miesiąc po miesiącu — bez pustej strony.")
+                    : "Jeśli feed nie zwraca dziś gotowej karty, pokazujemy kilka gotowych wariantów na każdy miesiąc — bez pustej strony.")
                 : "Jedna najtańsza oferta na kierunek, bez duplikatów. Najtańsze pokazujemy jako pierwsze."}
           </p>
         </div>
@@ -476,7 +494,7 @@ export default function DealsPage({
             {loading && !rows.length
               ? "Szukamy najlepszych cen…"
               : destination
-                ? (rows.length ? offerCountLabel(rows.length) : "12 gotowych terminów")
+                ? (rows.length ? offerCountLabel(rows.length) : `${destinationMonthSearches.length} gotowych opcji`)
                 : rows.length + " " + (rows.length === 1 ? "kierunek" : "kierunków")}
           </strong>
           <span>{filtering ? filterSummary : "Wszystkie lotniska · dowolny termin"}</span>
@@ -505,8 +523,12 @@ export default function DealsPage({
           <section className="destination-monthly-results" aria-label={"Gotowe miesięczne wyszukiwania dla " + destination}>
             <div className="destination-monthly-head">
               <div>
-                <strong>12 gotowych opcji dla: {destination}</strong>
-                <span>Feed partnerów nie zwrócił dziś gotowej karty z ceną, więc zamiast pustego wyniku dajemy gotowe wyszukiwania lot + hotel na każdy kolejny miesiąc.</span>
+                <strong>{destinationMonthSearches.length} gotowych opcji dla: {destination}</strong>
+                <span>
+                  {month !== "any" && year !== "any"
+                    ? "Dla wybranego miesiąca pokazujemy 3 długości pobytu: krótki, tygodniowy i dłuższy."
+                    : "Na każdy z kolejnych 12 miesięcy pokazujemy 3 długości pobytu: 4–6, 7–9 i 10–14 nocy."}
+                </span>
               </div>
             </div>
             <div className="destination-monthly-grid">
@@ -525,7 +547,7 @@ export default function DealsPage({
                   <div className="destination-month-card-main">
                     <small>{destination}</small>
                     <strong>{item.label}</strong>
-                    <span>Sprawdź aktualne ceny i dostępne terminy</span>
+                    <span>{item.stayLabel} · sprawdź aktualne ceny i terminy</span>
                   </div>
                   <div className="destination-month-card-cta">
                     Sprawdź oferty <ArrowRight size={16}/>
