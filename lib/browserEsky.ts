@@ -31,7 +31,9 @@ function hash(value: string) {
   return n >>> 0;
 }
 
-function normalizeRow(row: any): Offer | null {
+type BrowserEskyOffer = Offer & { startDateISO?: string; endDateISO?: string };
+
+function normalizeRow(row: any): BrowserEskyOffer | null {
   const price = Number(row?.pricePerPax?.amount);
   const airportCode = String(row?.departureAirportCode || "");
   const start = String(row?.stayInformation?.checkInDate || "");
@@ -94,6 +96,8 @@ function normalizeRow(row: any): Offer | null {
     affiliateUrl: buildEskyPackagesUrl(url.toString()),
     linkType: "exact",
     linkMatch: "exact",
+    startDateISO: start,
+    endDateISO: end,
   };
 }
 
@@ -162,10 +166,10 @@ async function fetchOne(search: EskySearch, arrival: string) {
       mode: "cors",
       signal: controller.signal,
     });
-    if (!response.ok) return [] as Offer[];
+    if (!response.ok) return [] as BrowserEskyOffer[];
     const payload = await response.json();
     if (!Array.isArray(payload?.offers)) return [] as Offer[];
-    return payload.offers.map(normalizeRow).filter((offer: Offer | null): offer is Offer => Boolean(offer));
+    return payload.offers.map(normalizeRow).filter((offer: BrowserEskyOffer | null): offer is BrowserEskyOffer => Boolean(offer));
   } catch {
     return [] as Offer[];
   } finally {
