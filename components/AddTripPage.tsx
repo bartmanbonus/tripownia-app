@@ -728,7 +728,7 @@ export default function AddTripPage() {
       checklist: editingTrip?.checklist || {
         "Sprawdź transfer z lotniska i taxi na miejscu": pieces.transfer,
         "Zarezerwuj najważniejsze atrakcje": pieces.attractions,
-        "Sprawdź internet / eSIM na wyjazd": pieces.esim,
+        "Sprawdź internet / eSIM": pieces.esim,
         "Zarezerwuj parking przy lotnisku": pieces.parking,
       },
       dayPlan: editingTrip?.dayPlan || [],
