@@ -10,7 +10,6 @@ import type { Offer } from "@/lib/offers";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { useLiveOffers } from "@/lib/useLiveOffers";
-import { cheapestPerDestination as selectCheapestPerDestination } from "@/lib/offerEngine";
 import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
 import { trackEvent } from "@/lib/analytics";
 import { eskySearchUrl } from "@/lib/eskySearch";
@@ -57,11 +56,17 @@ function buildYearOptions(count = 3) {
   return Array.from({ length: count }, (_, index) => String(currentYear + index));
 }
 
-function cheapestUnique(rows: DealsOffer[], liveOnly = true) {
-  return selectCheapestPerDestination(
-    rows.filter((offer) => isTravelDestinationAllowed(offer.city, offer.country)),
-    { mode: liveOnly ? "live" : "fallback", limit: 20 }
-  );
+function allOfferRows(rows: DealsOffer[]) {
+  const unique = new Map<number, DealsOffer>();
+  rows
+    .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
+    .forEach((offer) => {
+      const current = unique.get(offer.id);
+      if (!current || Number(offer.price) < Number(current.price)) unique.set(offer.id, offer);
+    });
+
+  return Array.from(unique.values())
+    .sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0));
 }
 
 function destinationOfferRows(rows: DealsOffer[]) {
@@ -174,7 +179,7 @@ export default function DealsPage({
   const rows = useMemo(
     () => destination
       ? destinationOfferRows(quickFilteredOffers)
-      : cheapestUnique(quickFilteredOffers, source === "live"),
+      : allOfferRows(quickFilteredOffers),
     [quickFilteredOffers, source, destination]
   );
   const destinationHotelHref = useMemo(
@@ -241,7 +246,7 @@ export default function DealsPage({
       });
     });
   }, [destination, currentYear, currentMonth, airport, month, year]);
-  const todayRows = useMemo(() => cheapestUnique(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
+  const todayRows = useMemo(() => allOfferRows(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
   const poolHighlights = useMemo(() => source === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source]);
 
   useEffect(() => {
@@ -347,7 +352,7 @@ export default function DealsPage({
                 ? (rows.length
                     ? "Pokazujemy tylko aktualne oferty dla tego kierunku — bez przypadkowych zamienników."
                     : "Jeśli feed nie zwraca dziś gotowej karty, pokazujemy kilka gotowych wariantów na każdy miesiąc — bez pustej strony.")
-                : "Jedna najtańsza oferta na kierunek, bez duplikatów. Najtańsze pokazujemy jako pierwsze."}
+                : "Pokazujemy całą aktualną pulę ofert, bez sztucznego limitu. Najtańsze są na górze, a duplikaty tej samej oferty usuwamy."}
           </p>
         </div>
         <Link className="primary-cta deals-simple-search" href="/#wyszukiwarka">
@@ -486,7 +491,7 @@ export default function DealsPage({
               ? "Szukamy najlepszych cen…"
               : destination
                 ? (rows.length ? offerCountLabel(rows.length) : `${destinationMonthSearches.length} gotowych opcji`)
-                : rows.length + " " + (rows.length === 1 ? "kierunek" : "kierunków")}
+                : rows.length + " " + (rows.length === 1 ? "oferta" : "ofert")}
           </strong>
           <span>{filtering ? filterSummary : "Wszystkie lotniska · dowolny termin"}</span>
         </div>
