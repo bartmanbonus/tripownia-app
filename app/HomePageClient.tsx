@@ -407,16 +407,16 @@ function OfferRail({ kicker, title, description, items, moreHref = "/okazje" }: 
 }
 
 const approvedExperienceSpritePositions = [
-  "0% 0%",
-  "33.333333% 0%",
-  "66.666667% 0%",
-  "100% 0%",
-  "0% 50%",
-  "33.333333% 50%",
-  "66.666667% 50%",
-  "100% 50%",
-  "0% 100%",
-  "33.333333% 100%",
+  "0.527426% 0.249377%",
+  "33.438819% 0.249377%",
+  "66.350211% 0.249377%",
+  "99.156118% 0.249377%",
+  "0.527426% 49.376559%",
+  "33.438819% 49.376559%",
+  "66.350211% 49.376559%",
+  "99.156118% 49.376559%",
+  "0.527426% 98.503741%",
+  "33.438819% 98.503741%",
 ] as const;
 
 function ExperienceTeaserImage({ city, country, title, fallbackSrc, approvedSpriteIndex }: { city: string; country: string; title: string; fallbackSrc?: string; approvedSpriteIndex?: number }) {
@@ -459,7 +459,7 @@ function ExperienceTeaserImage({ city, country, title, fallbackSrc, approvedSpri
         style={{
           backgroundImage: 'url("/images/seasons/approved-experiences.webp")',
           backgroundRepeat: "no-repeat",
-          backgroundSize: "400% 300%",
+          backgroundSize: "464.615385% 346.012270%",
           backgroundPosition: approvedSpritePosition,
         }}
       >
