@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { destinationDealsHref, eximDestinations } from "@/lib/eximDestinations";
+import { protectLocalAccountPrivacy } from "@/lib/accountState";
 
 const primaryItems = [
   { href: "/#wyszukiwarka", label: "Znajdź wyjazd" },
@@ -100,6 +101,8 @@ export default function SiteHeader() {
   const searchHref = inApp ? "/app#wyszukiwarka" : "/#wyszukiwarka";
 
   useEffect(() => {
+    protectLocalAccountPrivacy();
+
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
