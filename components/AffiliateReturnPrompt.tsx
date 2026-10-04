@@ -11,6 +11,7 @@ import {
 import { trackEvent } from "@/lib/analytics";
 import { readSearchResumeContext, requestSearchResume } from "@/lib/searchResume";
 import { ACTIVE_TRIP_KEY, upsertTripArchive } from "@/lib/tripArchive";
+import { activeTripMatchesDestination, readActiveTripJourney, updateActiveTripJourneyPiece } from "@/lib/tripJourney";
 
 export default function AffiliateReturnPrompt() {
   const [context, setContext] = useState<AffiliateReturnContext | null>(null);
@@ -84,6 +85,30 @@ export default function AffiliateReturnPrompt() {
 
   function confirmBookedTrip() {
     if (!context) return;
+
+    if (context.piece) {
+      const activeTrip = readActiveTripJourney();
+      const matches = Boolean(activeTrip && activeTripMatchesDestination(context.destination));
+      if (matches) {
+        updateActiveTripJourneyPiece(context.piece, {
+          status: "owned",
+          provider: context.partner || "",
+          label: context.hotel || context.destination || context.piece,
+          price: Math.max(0, Number(context.price || 0)) || undefined,
+          bookedAt: new Date().toISOString(),
+        }, { destination: context.destination });
+
+        trackEvent("affiliate_return_piece_booked", {
+          destination: context.destination || "",
+          partner: context.partner || "",
+          piece: context.piece,
+          updated_existing_trip: true,
+        });
+        clearContext();
+        window.location.assign("/moja-podroz");
+        return;
+      }
+    }
 
     const createdAt = Date.now();
     const price = Math.max(0, Number(context.price || 0));
@@ -201,11 +226,13 @@ export default function AffiliateReturnPrompt() {
       </button>
       <div className="affiliate-return-icon"><CheckCircle2 size={22}/></div>
       <div className="affiliate-return-copy">
-        <strong>Udało się zarezerwować?</strong>
+        <strong>{context.piece ? "Udało się kupić ten element?" : "Udało się zarezerwować?"}</strong>
         <span>
-          {context.destination
-            ? `Jeśli tak, dodaj ${context.destination} do planera. Jeśli nie — pokażemy podobne aktualne oferty.`
-            : "Jeśli tak, dodaj wyjazd do planera. Jeśli nie — wróć do aktualnych okazji."}
+          {context.piece
+            ? "Jeśli tak, dopiszemy go do obecnej podróży i od razu pokażemy kolejny brakujący element."
+            : context.destination
+              ? `Jeśli tak, dodaj ${context.destination} do planera. Jeśli nie — pokażemy podobne aktualne oferty.`
+              : "Jeśli tak, dodaj wyjazd do planera. Jeśli nie — wróć do aktualnych okazji."}
         </span>
       </div>
       <div className="affiliate-return-actions">
