@@ -48,6 +48,7 @@ const destinationRules: Array<{ terms: string[]; destination: string }> = [
   { terms: ["sewill"], destination: "Sewilla" },
   { terms: ["hiszpan"], destination: "Hiszpania" },
   { terms: ["rzym", "rome"], destination: "Rzym" },
+  { terms: ["sycyli", "katania", "etna"], destination: "Sycylia" },
   { terms: ["bergamo"], destination: "Bergamo" },
   { terms: ["mediolan"], destination: "Mediolan" },
   { terms: ["wloch", "włoch"], destination: "Włochy" },
@@ -125,6 +126,11 @@ const destinationFocus: Record<string, string[]> = {
     "Porównaj oba główne lotniska i koszt transferu do centrum przed wyborem najtańszego biletu.",
     "Wylot w czwartek lub powrót w poniedziałek często daje lepszy układ godzin niż klasyczny piątek–niedziela.",
   ],
+  Sycylia: [
+    "Przy locie do Katanii sprawdź bieżący status konkretnego rejsu i lotniska, szczególnie przy wzmożonej aktywności Etny.",
+    "Na krótki wyjazd porównaj Katanię i wschodnią Sycylię pod godziny lotów, transfer oraz lokalizację noclegu.",
+    "Jeśli termin jest elastyczny, porównaj sąsiednie daty zamiast rezygnować z całego kierunku po pojedynczym odwołanym rejsie.",
+  ],
   Barcelona: [
     "Barcelona łączy zwiedzanie i morze, więc warto wybrać dzielnicę pod plan wyjazdu, a nie tylko cenę hotelu.",
     "Sprawdź lotnisko przylotu i realny transfer do miasta — „Barcelona” w ofercie lotniczej nie zawsze oznacza BCN.",
@@ -173,7 +179,14 @@ function inferMode(haystack: string): ArticleSearchMode {
 
 export function getArticleContext(item: LegacyItem): ArticleContext {
   const haystack = norm(`${item.title} ${item.path} ${item.description || ""}`);
-  const destination = inferDestination(haystack);
+  const broadMultiDestinationArticle =
+    haystack.includes("gdzie jest cieplo")
+    || haystack.includes("gdzie na wakacje")
+    || haystack.includes("gdzie poleciec na weekend")
+    || haystack.includes("gdzie na sylwestra")
+    || haystack.includes("12 kierunkow")
+    || haystack.includes("15 kierunkow");
+  const destination = broadMultiDestinationArticle ? undefined : inferDestination(haystack);
   const departure = inferDeparture(haystack);
   const dates = inferDates(haystack);
   const mode = inferMode(haystack);
