@@ -4,7 +4,7 @@ import { isPromotableOffer } from "@/lib/offerValuePolicy";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { useEffect, useMemo, useState } from "react";
 import OfferCard from "@/components/OfferCard";
-import { offers, isOfferExpired, type Offer } from "@/lib/offers";
+import { homepageFallbackOffers, isOfferExpired, type Offer } from "@/lib/offers";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { trackEvent } from "@/lib/analytics";
 import styles from "./LiveDepartureDeals.module.css";
@@ -14,12 +14,20 @@ type ViewMode = "best" | "cheap" | "city" | "holiday";
 
 function uniqueDirections(rows: Offer[]) {
   const seen = new Set<string>();
-  return [...rows].sort((a, b) => a.price - b.price).filter((offer) => {
+  return rows.filter((offer) => {
     const key = touristDestinationKey(offer);
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
+}
+
+function isHubDisplayable(offer: Offer) {
+  if (!offer || !offer.id || !Number.isFinite(offer.price) || offer.price <= 0 || !offer.affiliateUrl) return false;
+  if (offer.availabilityStatus === "expired" || isOfferExpired(offer)) return false;
+  if (!isTravelDestinationAllowed(offer.city, offer.country)) return false;
+  if (offer.linkMatch === "unsafe") return false;
+  return true;
 }
 
 function normalizeAirportText(value: string) {
@@ -96,7 +104,7 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
         throw new Error("today-offers");
       } catch {
         if (!active) return;
-        setRows(offers);
+        setRows(homepageFallbackOffers);
         setStatus("fallback");
       }
     };
@@ -110,14 +118,27 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
   }, [airportParam]);
 
   const available = useMemo(() => {
-    const result = rows
-      .filter((offer) => offer && offer.id && offer.price > 0 && offer.affiliateUrl)
-      .filter((offer) => !isOfferExpired(offer) && isPromotableOffer(offer))
-      .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
+    const filterForHub = (source: Offer[]) => source
+      .filter(isHubDisplayable)
       .filter((offer) => matchesAirport(offer, airportCodes))
       .filter((offer) => !weekendOnly || (offer.nights >= 2 && offer.nights <= 4));
 
-    return uniqueDirections(result);
+    const liveRows = filterForHub(rows);
+    const publishedRows = filterForHub(homepageFallbackOffers);
+
+    // First show genuinely fresh, exact offers. If the partner feed is older than
+    // the strict promo window, keep the concrete hotel/date/airport result visible
+    // and label its price as the last seen price instead of collapsing the page to zero.
+    const fresh = liveRows
+      .filter(isPromotableOffer)
+      .sort((a, b) => a.price - b.price || b.score - a.score);
+    const feedResults = liveRows
+      .filter((offer) => !isPromotableOffer(offer))
+      .sort((a, b) => a.price - b.price || b.score - a.score);
+    const published = publishedRows
+      .sort((a, b) => a.price - b.price || b.score - a.score);
+
+    return uniqueDirections([...fresh, ...feedResults, ...published]);
   }, [rows, airportParam, weekendOnly, status]);
 
   const counts = useMemo(() => ({
@@ -166,15 +187,41 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
       ))}
     </div>
   );
-  if (!available.length) return <div className={styles.empty}><strong>Nie ma teraz potwierdzonej oferty spełniającej te warunki.</strong><span>Nie podstawiamy starej ceny tylko po to, żeby zapełnić listę. Zajrzyj później albo ustaw alert.</span></div>;
+  if (!available.length) {
+    const airport = airportCodes.includes("WAW") || airportCodes.includes("WMI") ? "WAWA" : (airportCodes[0] || "");
+    const searchHref = `/szukaj?${new URLSearchParams({ airport, tab: "Lot + hotel" }).toString()}`;
+    const alertDeparture = airportCodes.includes("KRK") ? "Kraków"
+      : airportCodes.some((code) => code === "WAW" || code === "WMI") ? "Warszawa"
+      : airportCodes.includes("KTW") ? "Katowice"
+      : airportCodes.includes("GDN") ? "Gdańsk"
+      : airportCodes.includes("WRO") ? "Wrocław"
+      : airportCodes.includes("POZ") ? "Poznań"
+      : "";
+    const alertHref = `/alerty?${new URLSearchParams({ departure: alertDeparture }).toString()}`;
+    return <div className={styles.empty}>
+      <strong>Sprawdź pełne wyszukiwanie z tego lotniska.</strong>
+      <span>Feed tej sekcji nie zwrócił teraz bezpiecznej karty do pokazania. Nie kończymy ścieżki — uruchom wyszukiwanie wszystkich partnerów albo ustaw alert.</span>
+      <div className={styles.emptyActions}>
+        <a href={searchHref}>Przeszukaj oferty teraz</a>
+        <a href={alertHref}>Ustaw alert</a>
+      </div>
+    </div>;
+  }
 
-  const cheapest = Math.min(...available.map((offer) => offer.price));
+  const confirmedCount = available.filter(isPromotableOffer).length;
+  const confirmedCheapest = confirmedCount
+    ? Math.min(...available.filter(isPromotableOffer).map((offer) => offer.price))
+    : null;
 
   return <>
     <div className={styles.toolbar}>
       <div className={styles.status}>
-        <strong>{status === "live" ? "● aktualne oferty" : "ostatnio sprawdzone oferty"}</strong>
-        <span>{available.length} kierunków · od {cheapest.toLocaleString("pl-PL")} zł/os.</span>
+        <strong>{confirmedCount ? "● świeżo potwierdzone oferty" : status === "live" ? "● konkretne oferty z feedu partnera" : "ostatnio opublikowane propozycje"}</strong>
+        <span>
+          {confirmedCount && confirmedCheapest
+            ? `${available.length} kierunków · potwierdzone od ${confirmedCheapest.toLocaleString("pl-PL")} zł/os.`
+            : `${available.length} kierunków · ceny pokazujemy jako ostatnio znalezione i potwierdzasz je przed rezerwacją`}
+        </span>
       </div>
 
       <div className={styles.filters} aria-label="Filtruj oferty z lotniska">
@@ -198,7 +245,7 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
     ) : (
       <div className={styles.grid}>
         {filtered.map((offer) => (
-          <OfferCard offer={offer} key={offer.id} sourceSurface={sourceSurface} />
+          <OfferCard offer={offer} key={offer.id} sourceSurface={sourceSurface} showIndicativePrice />
         ))}
       </div>
     )}
