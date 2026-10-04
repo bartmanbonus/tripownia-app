@@ -2,17 +2,19 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, Clock3, Map, Plus, Trash2, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves, ShieldCheck, Wifi, Car, Camera, FileCheck2 } from "lucide-react";
+import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards, NotebookPen, ArrowRight, Clock3, Map, Plus, Trash2, CloudSun, BellRing, ExternalLink, Sparkles, Landmark, UtensilsCrossed, Waves, ShieldCheck, Wifi, Car, Camera, FileCheck2, Cloud, UserRound, RefreshCw } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TripToolkit from "@/components/TripToolkit";
-import { offers, publishedOfferOverrides, type Offer } from "@/lib/offers";
+import { inferOfferStartDate, offers, publishedOfferOverrides, type Offer } from "@/lib/offers";
+import { accountAuthEventName, ensureFreshAccountSession, readAccountSession } from "@/lib/accountAuth";
 import { estimateTripCost } from "@/lib/tripCost";
 import { getOfferOverride } from "@/lib/clientOfferOverrides";
 import { upsertTripArchive } from "@/lib/tripArchive";
 
 type DayPlanItem = { id: string; time: string; title: string; note?: string };
-type WeatherState = { temperature: number; apparent: number; code: number; wind: number; loading?: boolean; error?: string } | null;
+type WeatherDay = { date: string; min: number; max: number; code: number; rain: number };
+type WeatherState = { temperature: number; apparent: number; code: number; wind: number; location?: string; daily?: WeatherDay[]; loading?: boolean; error?: string } | null;
 type ReminderItem = { label: string; due: string; active: boolean };
 type AttractionPick = { title: string; subtitle: string; query: string; icon: "landmark" | "food" | "water" | "sparkles" };
 
@@ -29,6 +31,7 @@ type TripState = {
   remindersEnabled?: boolean;
   journeyPieces?: Partial<Record<"flight" | "hotel" | "transfer" | "attractions" | "esim" | "parking", { status?: "owned" | "selected" | "missing"; provider?: string }>>;
   suggestedLinks?: Partial<Record<"flight" | "hotel" | "transfer" | "transferAlt" | "attractions" | "esim" | "parking", string>>;
+  searchPreferences?: { startDate?: string; endDate?: string; dateMode?: string; destinationPending?: boolean };
 };
 
 const LEGACY_TOOLKIT_KEY = "tripownia-trip-toolkit";
@@ -109,6 +112,9 @@ export default function MyTrip() {
   const [newTime, setNewTime] = useState("10:00");
   const [newTitle, setNewTitle] = useState("");
   const [weather, setWeather] = useState<WeatherState>(null);
+  const [weatherRefresh, setWeatherRefresh] = useState(0);
+  const [accountStatus, setAccountStatus] = useState<"loading" | "guest" | "signed-in">("loading");
+  const [accountEmail, setAccountEmail] = useState("");
   const [notificationStatus, setNotificationStatus] = useState("");
   const [offerRevision, setOfferRevision] = useState(0);
 
@@ -142,7 +148,8 @@ export default function MyTrip() {
     () => offers.find((item) => item.id === trip.offerId) || trip.offerSnapshot,
     [trip.offerId, trip.offerSnapshot]
   );
-  const destinationPending = Boolean(offer?.manual && (!offer.city || offer.city === "Gdziekolwiek" || offer.city === "Kierunek jeszcze nie wybrany" || offer.country === "Dowolny kierunek"));
+  const destinationPending = Boolean(offer?.manual && ((!offer.city && !offer.country) || offer.city === "Gdziekolwiek" || offer.city === "Kierunek jeszcze nie wybrany" || offer.country === "Dowolny kierunek"));
+  const destinationName = offer ? (offer.city?.trim() || offer.country?.trim() || "") : "";
   const destinationTitle = !offer
     ? "Twój darmowy plan podróży"
     : destinationPending
@@ -162,7 +169,31 @@ export default function MyTrip() {
   const dayPlan = useMemo(() => [...(trip.dayPlan || [])].sort((a, b) => a.time.localeCompare(b.time)), [trip.dayPlan]);
   const reminder = reminderText(trip.departureAt);
   const reminders = useMemo(() => buildReminders(trip.departureAt), [trip.departureAt]);
-  const attractions = useMemo(() => offer ? attractionPicks(offer.city, offer.category) : [], [offer]);
+  const attractions = useMemo(() => offer && destinationName ? attractionPicks(destinationName, offer.category) : [], [offer, destinationName]);
+  const tripStartDate = useMemo(() => {
+    const stored = trip.searchPreferences?.startDate?.trim();
+    if (stored && /^\d{4}-\d{2}-\d{2}$/.test(stored)) return stored;
+    const inferred = inferOfferStartDate(offer?.dates);
+    return inferred && !Number.isNaN(inferred.getTime()) ? inferred.toISOString().slice(0, 10) : "";
+  }, [trip.searchPreferences?.startDate, offer?.dates]);
+  const tripEndDate = useMemo(() => {
+    const stored = trip.searchPreferences?.endDate?.trim();
+    if (stored && /^\d{4}-\d{2}-\d{2}$/.test(stored)) return stored;
+    if (!tripStartDate || !offer?.nights) return tripStartDate;
+    const date = new Date(`${tripStartDate}T12:00:00Z`);
+    date.setUTCDate(date.getUTCDate() + Math.max(0, offer.nights));
+    return date.toISOString().slice(0, 10);
+  }, [trip.searchPreferences?.endDate, tripStartDate, offer?.nights]);
+  const daysUntilTrip = useMemo(() => {
+    if (!tripStartDate) return null;
+    const start = new Date(`${tripStartDate}T12:00:00`).getTime();
+    return Number.isNaN(start) ? null : Math.ceil((start - Date.now()) / 86400000);
+  }, [tripStartDate]);
+  const tripForecastDays = useMemo(() => {
+    if (!weather?.daily?.length || !tripStartDate) return [];
+    const end = tripEndDate || tripStartDate;
+    return weather.daily.filter((day) => day.date >= tripStartDate && day.date <= end).slice(0, 4);
+  }, [weather?.daily, tripStartDate, tripEndDate]);
   const transferReady = useMemo(() => {
     const status = trip.journeyPieces?.transfer?.status;
     return Boolean(offer?.transferIncluded || status === "owned" || status === "selected" || trip.checklist?.["Sprawdź transfer z lotniska i taxi na miejscu"]);
@@ -224,7 +255,29 @@ export default function MyTrip() {
   }, [trip.checklist, trip.dayPlan, trip.suggestedLinks, flightReady, hotelReady, transferReady, attractionsReady]);
 
   useEffect(() => {
-    if (!offer?.city || destinationPending) {
+    let cancelled = false;
+
+    async function refreshAccount() {
+      const session = await ensureFreshAccountSession(readAccountSession()).catch(() => null);
+      if (cancelled) return;
+      setAccountStatus(session ? "signed-in" : "guest");
+      setAccountEmail(session?.user?.email || "");
+    }
+
+    const handleAccountChange = () => { void refreshAccount(); };
+    void refreshAccount();
+    const authEvent = accountAuthEventName();
+    window.addEventListener(authEvent, handleAccountChange);
+    window.addEventListener("storage", handleAccountChange);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(authEvent, handleAccountChange);
+      window.removeEventListener("storage", handleAccountChange);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!offer || !destinationName || destinationPending) {
       setWeather(null);
       return;
     }
@@ -233,22 +286,51 @@ export default function MyTrip() {
     async function loadWeather() {
       setWeather({ temperature: 0, apparent: 0, code: 0, wind: 0, loading: true });
       try {
-        const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(offer!.city)}&count=1&language=pl&format=json`);
-        const geo = await geoResponse.json();
-        const place = geo?.results?.[0];
+        const candidates = Array.from(new Set([offer!.city?.trim(), offer!.country?.trim()].filter(Boolean) as string[]));
+        let place: { latitude: number; longitude: number; name?: string; country?: string } | null = null;
+
+        for (const candidate of candidates) {
+          const geoResponse = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(candidate)}&count=5&language=pl&format=json`);
+          if (!geoResponse.ok) continue;
+          const geo = await geoResponse.json();
+          const results = Array.isArray(geo?.results) ? geo.results : [];
+          place = results[0] || null;
+          if (place) break;
+        }
+
         if (!place) throw new Error("Nie znaleziono lokalizacji");
-        const forecastResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto`);
+        const forecastResponse = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=16&timezone=auto`);
+        if (!forecastResponse.ok) throw new Error("Brak odpowiedzi pogodowej");
         const forecast = await forecastResponse.json();
         if (cancelled) return;
-        setWeather({ temperature: Math.round(forecast.current.temperature_2m), apparent: Math.round(forecast.current.apparent_temperature), code: forecast.current.weather_code, wind: Math.round(forecast.current.wind_speed_10m) });
+
+        const times = Array.isArray(forecast.daily?.time) ? forecast.daily.time : [];
+        const daily: WeatherDay[] = times.map((date: string, index: number) => ({
+          date,
+          min: Math.round(Number(forecast.daily?.temperature_2m_min?.[index] ?? 0)),
+          max: Math.round(Number(forecast.daily?.temperature_2m_max?.[index] ?? 0)),
+          code: Number(forecast.daily?.weather_code?.[index] ?? 0),
+          rain: Math.round(Number(forecast.daily?.precipitation_probability_max?.[index] ?? 0)),
+        }));
+
+        const current = forecast.current || {};
+        const fallbackTemperature = daily.length ? Math.round((daily[0].min + daily[0].max) / 2) : 0;
+        setWeather({
+          temperature: Math.round(Number(current.temperature_2m ?? fallbackTemperature)),
+          apparent: Math.round(Number(current.apparent_temperature ?? current.temperature_2m ?? fallbackTemperature)),
+          code: Number(current.weather_code ?? daily[0]?.code ?? 0),
+          wind: Math.round(Number(current.wind_speed_10m ?? 0)),
+          location: place.name || destinationName,
+          daily,
+        });
       } catch {
-        if (!cancelled) setWeather({ temperature: 0, apparent: 0, code: 0, wind: 0, error: "Nie udało się pobrać pogody." });
+        if (!cancelled) setWeather({ temperature: 0, apparent: 0, code: 0, wind: 0, error: "Nie udało się teraz pobrać aktualnej pogody." });
       }
     }
 
-    loadWeather();
+    void loadWeather();
     return () => { cancelled = true; };
-  }, [offer?.city]);
+  }, [offer?.city, offer?.country, destinationName, destinationPending, weatherRefresh]);
 
   function save(next: TripState) {
     const normalized: TripState = { ...next, tripId: next.tripId || trip.tripId || createTripId(next.offerId) };
@@ -319,6 +401,20 @@ export default function MyTrip() {
           </section>
         )}
 
+        {offer && accountStatus !== "loading" && (
+          <section className={`trip-account-panel ${accountStatus === "signed-in" ? "is-synced" : "is-guest"}`} aria-label="Zapis planu na koncie">
+            <div className="trip-account-panel-icon">{accountStatus === "signed-in" ? <Cloud size={21}/> : <UserRound size={21}/>}</div>
+            <div className="trip-account-panel-copy">
+              <small>{accountStatus === "signed-in" ? "PLAN ZABEZPIECZONY" : "NIE ZGUB TEGO PLANU"}</small>
+              <strong>{accountStatus === "signed-in" ? "Ta podróż zapisuje się na Twoim koncie." : "Zapisz podróż na darmowym koncie Tripowni."}</strong>
+              <p>{accountStatus === "signed-in" ? `${accountEmail ? `${accountEmail} · ` : ""}checklista, notatki, plan dnia i organizer synchronizują się automatycznie.` : "Po założeniu konta wrócisz dokładnie do tego planu. Zachowamy podróż, checklistę, notatki, plan dnia i organizer także na innych urządzeniach."}</p>
+            </div>
+            <Link href={accountStatus === "signed-in" ? "/konto" : "/konto?mode=register&next=/moja-podroz"}>
+              {accountStatus === "signed-in" ? "Konto" : "Załóż konto"} <ArrowRight size={15}/>
+            </Link>
+          </section>
+        )}
+
         {!offer ? (
           <div className="favorites-empty"><MapPinned size={30} /><h2>Zacznij od wyjazdu, który już masz — albo znajdź nowy.</h2><p>Nie musisz kupować przez Tripownię. Dodaj kierunek i termin, a potem ogarniaj dokumenty, pogodę, transport, atrakcje, jedzenie, checklistę i plan dnia w jednym miejscu.</p><div className="my-trip-empty-actions"><Link className="primary-cta" href="/dodaj-podroz">+ Dodaj własny wyjazd</Link><Link className="secondary-cta" href="/gdzie-leciec">Znajdź wyjazd <ArrowRight size={17}/></Link></div></div>
         ) : (
@@ -332,9 +428,32 @@ export default function MyTrip() {
                 {notificationStatus && <small>{notificationStatus}</small>}
               </div>
 
-              <div className="trip-mode-card">
-                <div className="trip-mode-title"><CloudSun size={20}/><strong>Pogoda teraz</strong></div>
-                {destinationPending ? <p>Wybierz kierunek, żeby sprawdzić pogodę.</p> : weather?.loading ? <p>Sprawdzam pogodę w {offer.city}…</p> : weather?.error ? <p>{weather.error}</p> : weather ? <div className="trip-weather"><strong>{weather.temperature}°C</strong><div><span>{weatherLabel(weather.code)}</span><small>Odczuwalna {weather.apparent}°C · wiatr {weather.wind} km/h</small></div></div> : <p>Brak danych pogodowych.</p>}
+              <div className="trip-mode-card trip-weather-card">
+                <div className="trip-mode-title"><CloudSun size={20}/><strong>Pogoda dla wyjazdu</strong>{!weather?.loading && !destinationPending && <button type="button" className="trip-weather-refresh" onClick={() => setWeatherRefresh((value) => value + 1)} aria-label="Odśwież pogodę"><RefreshCw size={14}/></button>}</div>
+                {destinationPending ? (
+                  <p>Wybierz kierunek, a pokażemy aktualną pogodę i prognozę na termin podróży.</p>
+                ) : weather?.loading ? (
+                  <p>Sprawdzam pogodę w {destinationName}…</p>
+                ) : weather?.error ? (
+                  <div className="trip-weather-message">
+                    <p>{offer.weather ? `Orientacyjnie dla kierunku: ${offer.weather}. Dokładną prognozę pobierzemy przy kolejnym odświeżeniu.` : weather.error}</p>
+                    <button type="button" onClick={() => setWeatherRefresh((value) => value + 1)}>Spróbuj ponownie</button>
+                  </div>
+                ) : weather ? (
+                  <>
+                    <div className="trip-weather"><strong>{weather.temperature}°C</strong><div><span>{weatherLabel(weather.code)}{weather.location ? ` · ${weather.location}` : ""}</span><small>Odczuwalna {weather.apparent}°C · wiatr {weather.wind} km/h</small></div></div>
+                    {tripForecastDays.length > 0 ? (
+                      <div className="trip-weather-forecast" aria-label="Prognoza na wyjazd">
+                        <div className="trip-weather-forecast-title">Na termin wyjazdu</div>
+                        <div className="trip-weather-days">{tripForecastDays.map((day) => <div key={day.date}><span>{new Date(`${day.date}T12:00:00`).toLocaleDateString("pl-PL", { weekday: "short", day: "numeric", month: "short" })}</span><strong>{day.max}° / {day.min}°</strong><small>{weatherLabel(day.code)}{day.rain > 0 ? ` · deszcz ${day.rain}%` : ""}</small></div>)}</div>
+                      </div>
+                    ) : tripStartDate && daysUntilTrip !== null && daysUntilTrip > 15 ? (
+                      <div className="trip-weather-note"><strong>Dokładna prognoza pojawi się bliżej wyjazdu.</strong><span>Termin: {new Date(`${tripStartDate}T12:00:00`).toLocaleDateString("pl-PL", { day: "numeric", month: "long" })}{tripEndDate && tripEndDate !== tripStartDate ? ` – ${new Date(`${tripEndDate}T12:00:00`).toLocaleDateString("pl-PL", { day: "numeric", month: "long" })}` : ""}. Teraz pokazujemy warunki na miejscu.</span>{offer.weather && <small>Orientacyjnie dla kierunku: {offer.weather}</small>}</div>
+                    ) : offer.weather ? (
+                      <div className="trip-weather-note"><span>Orientacyjnie dla kierunku: <strong>{offer.weather}</strong>. Dane aktualne są powyżej.</span></div>
+                    ) : null}
+                  </>
+                ) : <p>Odśwież pogodę, żeby pobrać dane dla {destinationName}.</p>}
               </div>
 
               <div className="trip-mode-card">
@@ -381,7 +500,7 @@ export default function MyTrip() {
             {reminders.length > 0 && <section className="trip-reminders-strip">{reminders.map((item) => <div key={item.label} className={item.active ? "active" : ""}><span>{item.due}</span><strong>{item.label}</strong>{item.active && <em>TERAZ</em>}</div>)}</section>}
 
             <div className="my-trip-grid">
-              <section className="my-trip-card" id="transport"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p><strong>{offer.departure}</strong> → {destinationPending ? "kierunek do wyboru" : offer.city}</p><input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="Dodaj numer lotu / godzinę" />{!flightReady && <Link className="my-trip-card-action" href={trip.suggestedLinks?.flight || "/loty"}>Znajdź lot dla tej podróży <ArrowRight size={15}/></Link>}</section>
+              <section className="my-trip-card" id="transport"><div className="my-trip-card-head"><Plane size={20}/><h2>Transport</h2></div><p><strong>{offer.departure}</strong> → {destinationPending ? "kierunek do wyboru" : destinationName}</p><input value={trip.flight || ""} onChange={(e) => save({ ...trip, flight: e.target.value })} placeholder="Dodaj numer lotu / godzinę" />{!flightReady && <Link className="my-trip-card-action" href={trip.suggestedLinks?.flight || "/loty"}>Znajdź lot dla tej podróży <ArrowRight size={15}/></Link>}</section>
               <section className="my-trip-card"><div className="my-trip-card-head"><BedDouble size={20}/><h2>Nocleg</h2></div><p><strong>{offer.hotel}</strong>{offer.board ? ` · ${offer.board}` : ""}</p><input value={trip.hotel || ""} onChange={(e) => save({ ...trip, hotel: e.target.value })} placeholder="Dodaj nazwę / numer rezerwacji" />{!hotelReady && <Link className="my-trip-card-action" href={trip.suggestedLinks?.hotel || "/hotele"}>Znajdź nocleg dla tej podróży <ArrowRight size={15}/></Link>}</section>
               <section className="my-trip-card"><div className="my-trip-card-head"><WalletCards size={20}/><h2>Budżet</h2></div>{offer.manual || offer.id < 0 ? <p>Własny wyjazd — dodawaj koszty poniżej w sekcji wydatków.</p> : <><div className="my-trip-budget"><span>Oferta</span><strong>{displayPrice.toLocaleString("pl-PL")} zł</strong></div>{cost && <div className="my-trip-budget total"><span>Szacowany pełny koszt</span><strong>{cost.total.toLocaleString("pl-PL")} zł / os.</strong></div>}<Link href="/porownaj">Porównaj z innymi ofertami →</Link></>}</section>
               <section className="my-trip-card"><div className="my-trip-card-head"><Ticket size={20}/><h2>Co ogarnąć</h2></div><div className="my-trip-checklist">{checklistItems.map((item) => { const checked = Boolean(trip.checklist?.[item]); return <button key={item} onClick={() => toggleChecklist(item)}>{checked ? <CheckCircle2 size={18}/> : <Circle size={18}/>}<span>{item}</span></button>; })}</div></section>
@@ -392,15 +511,15 @@ export default function MyTrip() {
               <p className="my-trip-subcopy">Ułóż prosty plan dnia i miej go pod ręką w telefonie.</p>
               <div className="my-trip-plan-add"><input type="time" value={newTime} onChange={(e) => setNewTime(e.target.value)} aria-label="Godzina" /><input value={newTitle} onChange={(e) => setNewTitle(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") addPlanItem(); }} placeholder="np. Koloseum, plaża, kolacja w centrum" /><button onClick={addPlanItem}><Plus size={17}/> Dodaj</button></div>
               {dayPlan.length ? <div className="my-trip-timeline">{dayPlan.map((item) => <div className="my-trip-timeline-item" key={item.id}><span className="my-trip-time">{item.time}</span><div><strong>{item.title}</strong>{item.note ? <small>{item.note}</small> : null}</div><button onClick={() => removePlanItem(item.id)} aria-label={`Usuń ${item.title}`}><Trash2 size={16}/></button></div>)}</div> : <div className="my-trip-empty-line">Dodaj pierwszy punkt dnia.</div>}
-              <div className="my-trip-quick-links"><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${offer.city} attractions`)}`} target="_blank" rel="noopener noreferrer"><Map size={17}/> Atrakcje na mapie</a><Link href="/inspiracje"><Ticket size={17}/> Inspiracje Tripowni</Link></div>
+              <div className="my-trip-quick-links"><a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${destinationName} attractions`)}`} target="_blank" rel="noopener noreferrer"><Map size={17}/> Atrakcje na mapie</a><Link href="/inspiracje"><Ticket size={17}/> Inspiracje Tripowni</Link></div>
             </section>
 
             <section className="my-trip-card trip-attractions">
-              <div className="my-trip-card-head"><Sparkles size={20}/><h2>Co warto zrobić w {offer.city}</h2></div>
+              <div className="my-trip-card-head"><Sparkles size={20}/><h2>Co warto zrobić w {destinationName}</h2></div>
               <div className="trip-attraction-grid">{attractions.map((pick) => { const Icon = pick.icon === "landmark" ? Landmark : pick.icon === "food" ? UtensilsCrossed : pick.icon === "water" ? Waves : Sparkles; const href = `/atrakcje?q=${encodeURIComponent(pick.query)}`; return <Link key={pick.title} href={href}><Icon size={20}/><div><strong>{pick.title}</strong><span>{pick.subtitle}</span></div><ArrowRight size={16}/></Link>; })}</div>
             </section>
 
-            <TripToolkit city={offer.city} country={offer.country} tripId={trip.tripId || `trip-${offer.id}`} />
+            <TripToolkit city={offer.city || offer.country} country={offer.country} tripId={trip.tripId || `trip-${offer.id}`} />
 
             <section className="my-trip-card my-trip-notes"><div className="my-trip-card-head"><NotebookPen size={20}/><h2>Notatki</h2></div><textarea value={trip.notes || ""} onChange={(e) => save({ ...trip, notes: e.target.value })} placeholder="Restauracje, atrakcje, adresy, pomysły..." rows={5} /></section>
           </>
