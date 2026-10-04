@@ -10,6 +10,7 @@ import {
 } from "@/lib/affiliateReturn";
 import { trackEvent } from "@/lib/analytics";
 import { readSearchResumeContext, requestSearchResume } from "@/lib/searchResume";
+import { ACTIVE_TRIP_KEY, upsertTripArchive } from "@/lib/tripArchive";
 
 export default function AffiliateReturnPrompt() {
   const [context, setContext] = useState<AffiliateReturnContext | null>(null);
@@ -100,6 +101,108 @@ export default function AffiliateReturnPrompt() {
     setContext(null);
   }
 
+  function confirmBookedTrip() {
+    if (!context) return;
+
+    const createdAt = Date.now();
+    const price = Math.max(0, Number(context.price || 0));
+    const nights = Math.max(0, Number(context.nights || 0));
+    const start = context.start || "";
+    const end = context.end || "";
+    const dateLabel = start && end ? `${start} – ${end}` : start || "Termin z rezerwacji";
+    const partner = ["esky","wakacje","exim","tui","kiwi","booking","holidaypark"].includes(String(context.partner || ""))
+      ? String(context.partner)
+      : (context.tripKind === "hotel" ? "booking" : context.tripKind === "flight" ? "kiwi" : "esky");
+
+    const hasFlight = context.tripKind === "flight" || context.tripKind === "package";
+    const hasHotel = context.tripKind === "hotel" || context.tripKind === "package";
+    const place = [context.city, context.country].filter(Boolean).join(", ");
+
+    const hotelParams = new URLSearchParams();
+    if (place) hotelParams.set("q", place);
+    if (start) hotelParams.set("from", start);
+    if (end) hotelParams.set("to", end);
+
+    const attractionParams = new URLSearchParams();
+    if (place) attractionParams.set("q", place);
+
+    const transferParams = new URLSearchParams();
+    if (place) transferParams.set("destination", place);
+
+    const trip = {
+      tripId: `trip-booked-${createdAt}-${Math.random().toString(36).slice(2, 8)}`,
+      offerId: -createdAt,
+      offerSnapshot: {
+        id: -createdAt,
+        flag: "🌍",
+        city: context.city || context.destination || "Twój wyjazd",
+        country: context.country || "",
+        price,
+        departure: context.departure || "",
+        airportCode: "",
+        nights,
+        weather: "sprawdź",
+        score: 0,
+        tag: "DOBRA OPCJA",
+        reason: "Rezerwacja potwierdzona po przejściu z Tripowni.",
+        image: "",
+        category: [],
+        hotel: context.hotel || "",
+        board: context.board || "",
+        dates: dateLabel,
+        partner,
+        affiliateUrl: "",
+        manual: true,
+      },
+      flight: hasFlight ? (context.departure || "Lot / transport zarezerwowany") : "",
+      hotel: hasHotel ? (context.hotel || "Nocleg zarezerwowany") : "",
+      notes: "Rezerwacja rozpoczęta przez Tripownię.",
+      checklist: {
+        "Sprawdź transfer z lotniska i taxi na miejscu": false,
+        "Zarezerwuj najważniejsze atrakcje": false,
+        "Sprawdź internet / eSIM": false,
+        "Zarezerwuj parking przy lotnisku": false,
+      },
+      dayPlan: [],
+      journeyPieces: {
+        flight: { status: hasFlight ? "owned" : "missing", provider: hasFlight ? partner : "" },
+        hotel: { status: hasHotel ? "owned" : "missing", provider: hasHotel ? partner : "" },
+        transfer: { status: "missing", provider: "" },
+        attractions: { status: "missing", provider: "" },
+        esim: { status: "missing", provider: "" },
+        parking: { status: "missing", provider: "" },
+      },
+      suggestedLinks: {
+        flight: "/loty",
+        hotel: `/hotele?${hotelParams.toString()}`,
+        transfer: `/transfery?${transferParams.toString()}`,
+        transferAlt: `/transfery?${transferParams.toString()}`,
+        attractions: `/atrakcje?${attractionParams.toString()}`,
+        esim: "/przed-wyjazdem#internet",
+        parking: "/przed-wyjazdem#parking",
+      },
+      searchPreferences: {
+        destinationMode: "known",
+        dateMode: start && end ? "range" : "flexible",
+        startDate: start,
+        endDate: end,
+        ownedMode: true,
+      },
+    };
+
+    localStorage.setItem(ACTIVE_TRIP_KEY, JSON.stringify(trip));
+    upsertTripArchive(trip);
+    window.dispatchEvent(new Event("tripownia-my-trip-updated"));
+    trackEvent("affiliate_return_booked", {
+      destination: context.destination || "",
+      partner: context.partner || "",
+      trip_kind: context.tripKind,
+      auto_created_trip: true,
+    });
+    clearContext();
+    window.location.assign("/moja-podroz");
+  }
+
   if (!context) return null;
 
   return (
@@ -125,16 +228,13 @@ export default function AffiliateReturnPrompt() {
         </span>
       </div>
       <div className="affiliate-return-actions">
-        <Link
+        <button
+          type="button"
           className="affiliate-return-primary"
-          href={plannerHref}
-          onClick={() => {
-            trackEvent("affiliate_return_booked", { destination: context.destination || "", partner: context.partner || "" });
-            clearContext();
-          }}
+          onClick={confirmBookedTrip}
         >
           <CheckCircle2 size={16}/> Tak, mam rezerwację
-        </Link>
+        </button>
         <Link
           className="affiliate-return-secondary"
           href={retryHref}
