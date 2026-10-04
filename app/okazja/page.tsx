@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 import { ArrowLeft, MapPin, Plane, Moon, Utensils, CalendarDays, BadgeCheck, PlusCircle, Bell } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -21,7 +21,7 @@ type Search = Record<string, string | string[] | undefined>;
 const PARTNERS = [
   { key: "esky", label: "eSky", hosts: ["www2.esky.pl", "www.esky.pl"] },
   { key: "exim", label: "EXIM Tours", hosts: ["exim.pl", "www.exim.pl", "reklamy.exim.pl"] },
-  { key: "tui", label: "TUI", hosts: ["tui.pl", "www.tui.pl", "clk.tradedoubler.com"] },
+  { key: "tui", label: "TUI", hosts: ["tui.pl", "www.tui.pl", "clk.tradedoubler.com", "pdt.tradedoubler.com"] },
   { key: "wakacje", label: "Wakacje.pl", hosts: ["wakacje.pl", "www.wakacje.pl"] },
   { key: "fly", label: "Fly.pl", hosts: ["fly.pl", "www.fly.pl"] },
   { key: "kiwi", label: "Kiwi.com", hosts: ["kiwi.com", "www.kiwi.com", "kiwi.tpk.lv", "c111.travelpayouts.com"] },
@@ -159,7 +159,7 @@ export default async function SocialOfferLanding({
   const rawTarget = Array.isArray(query.target) ? query.target[0] : query.target || "";
   const target = safeTarget(rawTarget.trim());
   const note = one(query.note, "Tripownia znalazła tę ofertę. Cena i dostępność mogą się zmienić.");
-  if (!target) return notFound();
+  if (!target) redirect(city && city !== "Wybrany kierunek" ? `/okazje?destination=${encodeURIComponent(city)}` : "/okazje");
 
   const imageSrc = destinationImage(city, country);
   const tripKind = target.partner.key === "kiwi" ? "flight" : target.partner.key === "booking" ? "hotel" : "package";

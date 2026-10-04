@@ -27,6 +27,7 @@ const ALLOWED_HOSTS = new Set([
   "www.esky.pl",
   "exim.pl",
   "clk.tradedoubler.com",
+  "pdt.tradedoubler.com",
   "www.tui.pl",
   "tui.pl",
   "www.wakacje.pl",
@@ -157,7 +158,7 @@ function belongsToPartner(partner: PartnerKey, target: URL) {
 
   if (partner === "tui") {
     if (host === "tui.pl" || host === "www.tui.pl") return true;
-    return host === "clk.tradedoubler.com" && validTradeDoublerWrapper(partner, target, ["tui.pl", "www.tui.pl"]);
+    return ["clk.tradedoubler.com", "pdt.tradedoubler.com"].includes(host) && validTradeDoublerWrapper(partner, target, ["tui.pl", "www.tui.pl"]);
   }
 
   if (partner === "getyourguide") {
@@ -215,7 +216,7 @@ function affiliateTarget(partner: PartnerKey, target: URL) {
     }
 
     if (partner === "tui") {
-      if (host === "clk.tradedoubler.com") return target;
+      if (["clk.tradedoubler.com", "pdt.tradedoubler.com"].includes(host)) return target;
       return new URL(partners.tui.buildUrl(original));
     }
 
