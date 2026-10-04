@@ -33,7 +33,7 @@
   gap:8px;
   align-items:center;
 }
-.affiliate-return-actions a{
+.affiliate-return-actions a,.affiliate-return-actions button{
   min-height:42px;
   display:inline-flex;
   align-items:center;
@@ -47,6 +47,9 @@
   white-space:nowrap;
 }
 .affiliate-return-primary{
+  border:0;
+  cursor:pointer;
+  font-family:inherit;
   background:#f26a21;
   color:#fff;
 }
@@ -87,5 +90,5 @@
 }
 @media (max-width: 520px) {
   .affiliate-return-actions{grid-template-columns:1fr}
-  .affiliate-return-actions a{width:100%}
+  .affiliate-return-actions a,.affiliate-return-actions button{width:100%}
 }
