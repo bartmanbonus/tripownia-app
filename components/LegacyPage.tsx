@@ -27,8 +27,8 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     title: "Gdzie na babski weekend za granicą?",
     lead: "Na 2–4 dni najlepiej sprawdzają się kierunki z prostym lotem, szybkim transferem i dużym wyborem restauracji, atrakcji oraz noclegów. Porównaj kilka miast dla tego samego terminu zamiast zaczynać od jednego kierunku.",
     links: [
-      { href: "/city-break", label: "Aktualne city breaki" },
-      { href: "/malta", label: "Malta na babski weekend" },
+      { href: "/podroze/city-break-do-700-zl", label: "City break do 700 zł" },
+      { href: "/podroze/city-break-do-1000-zl", label: "City break do 1000 zł" },
       { href: "/podroze/city-break-z-poznania", label: "City break z Poznania" },
       { href: "/podroze/city-break-z-katowic", label: "City break z Katowic" },
     ],
@@ -37,9 +37,9 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     title: "Malaga czy Alicante — co wybrać i czy Alicante leży w Andaluzji?",
     lead: "Alicante nie leży w Andaluzji — znajduje się we Wspólnocie Walenckiej. Malaga leży w Andaluzji i daje dostęp do Costa del Sol. Na krótki city break Alicante jest kompaktowe, a Malaga daje więcej opcji na dłuższe zwiedzanie regionu.",
     links: [
-      { href: "/hiszpania", label: "Hiszpania — porównaj regiony" },
-      { href: "/city-break", label: "Aktualne city breaki" },
-      { href: "/podroze/city-break-listopad-2026", label: "City break — listopad 2026" },
+      { href: "/podroze/city-break-do-1000-zl", label: "City break do 1000 zł" },
+      { href: "/podroze/hiszpania-all-inclusive", label: "Hiszpania All Inclusive" },
+      { href: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem", label: "Porównaj lot + hotel" },
     ],
   },
   "/sagrada-familia-osiagnela-maksymalna-wysokosc-20-lutego-2026-historyczna-data-dla-barcelony": {
@@ -256,10 +256,10 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     title: "Masz już zasady bagażu? Sprawdź teraz konkretny lot lub city break",
     lead: "Po sprawdzeniu limitów bagażu przejdź od razu do ceny całej podróży. Porównaj loty i city breaki, pamiętając, że dopłata za bagaż może zmienić pozornie najtańszą ofertę.",
     links: [
-      { href: "/tanie-loty", label: "Porównaj tanie loty" },
-      { href: "/city-break", label: "Znajdź city break" },
+      { href: "/podroze/city-break-do-700-zl", label: "City break do 700 zł" },
+      { href: "/podroze/city-break-do-1000-zl", label: "City break do 1000 zł" },
       { href: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem", label: "Lot + hotel" },
-      { href: "/przed-wyjazdem", label: "Checklista przed wylotem" },
+      { href: "/tanie-loty", label: "Porównaj tanie loty" },
     ],
   },
   "/jak-dojechac-z-lotniska-do-centrum-miasta-najtansze-opcje-transportu": {
