@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { recordClick } from "@/lib/clickStats";
 
 const allowedHosts: Record<string, string[]> = {
   // eSky is now a legacy alias that resolves to the Kiwi affiliate programme.
@@ -45,27 +44,15 @@ export async function GET(
     return NextResponse.redirect(new URL("/", request.url), 307);
   }
 
-  console.info("[tripownia_affiliate_click]", JSON.stringify({
-    event: "affiliate_click",
-    ts: new Date().toISOString(),
-    partner,
-    source,
-    offer: offer || null,
-    destination: destination || null,
-    targetHost: target.hostname,
-    path: request.nextUrl.pathname,
-  }));
+  const tracked = new URL("/go/live", request.url);
+  tracked.searchParams.set("target", target.toString());
+  tracked.searchParams.set("partner", partner);
+  tracked.searchParams.set("source", source);
+  if (offer) tracked.searchParams.set("offer", offer);
+  if (destination) tracked.searchParams.set("destination", destination);
+  tracked.searchParams.set("page", request.headers.get("referer") || request.nextUrl.pathname);
 
-  const response = NextResponse.redirect(target, 307);
+  const response = NextResponse.redirect(tracked, 307);
   response.headers.set("Cache-Control", "no-store");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-
-  recordClick(request, response, {
-    partner,
-    source,
-    offer: offer || null,
-    destination: destination || null,
-  });
-
   return response;
 }
