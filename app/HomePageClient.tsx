@@ -16,6 +16,7 @@ import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { offerSourceIsFallback } from "@/lib/offerEngine";
 import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
+import TripowniaLive from "@/components/TripowniaLive";
 
 const SearchHub = dynamic(() => import("@/components/SearchHub"));
 const SalesVisualShortcuts = dynamic(() => import("@/components/SalesVisualShortcuts"));
@@ -747,8 +748,27 @@ export default function Home() {
       </section>
 
       <SearchHub />
+      <TripowniaLive />
       <SalesVisualShortcuts />
       <RecentlyViewedOffers />
+
+      <section className="section shell deal-motifs" aria-labelledby="deal-motifs-title">
+        <div className="deal-motifs-head">
+          <div className="kicker">SZUKAJ PO POTRZEBIE, NIE PO KATALOGU</div>
+          <h2 id="deal-motifs-title">Jaki wyjazd chcesz znaleźć?</h2>
+          <p>Budżet, sezon i styl wyjazdu ustawiamy od razu. Klikasz motyw i dostajesz konkretne propozycje zamiast pustej kategorii.</p>
+        </div>
+        <div className="deal-motif-grid">
+          <Link href="/motywy/do-1000-zl"><small>BUDŻET</small><strong>Wyjazdy do 1 000 zł</strong><span>Najtańsze sensowne opcje →</span></Link>
+          <Link href="/motywy/3-4-dni"><small>KRÓTKO</small><strong>3–4 dni bez długiego urlopu</strong><span>City break i szybkie wypady →</span></Link>
+          <Link href="/motywy/cieplo-zima"><small>SŁOŃCE</small><strong>Ciepło zimą</strong><span>Ucieczka od polskiej pogody →</span></Link>
+          <Link href="/motywy/all-inclusive"><small>WYGODNIE</small><strong>All Inclusive</strong><span>Pakiety bez kombinowania →</span></Link>
+          <Link href="/motywy/dla-dwojga"><small>WE DWOJE</small><strong>Wyjazdy dla dwojga</strong><span>Weekend, SPA i city break →</span></Link>
+          <Link href="/motywy/z-dziecmi"><small>RODZINNIE</small><strong>Wakacje z dziećmi</strong><span>Wygodne kierunki i pakiety →</span></Link>
+          <Link href="/motywy/bez-paszportu"><small>PROŚCIEJ</small><strong>Bez paszportu</strong><span>Kierunki na dowód osobisty →</span></Link>
+          <Link href="/motywy/egzotyka-do-5000"><small>DALEJ</small><strong>Egzotyka do 5 000 zł</strong><span>Daleko, ale z limitem budżetu →</span></Link>
+        </div>
+      </section>
 
       <section className="section shell homepage-curated-trips" aria-labelledby="curated-trips-title">
         <div className="section-heading">
