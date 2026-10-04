@@ -1,4 +1,5 @@
 export type AffiliateTripKind = "flight" | "hotel" | "package";
+export type AffiliateJourneyPiece = "flight" | "hotel" | "transfer" | "attractions" | "esim" | "parking";
 
 export type AffiliateReturnContext = {
   savedAt: string;
@@ -17,6 +18,7 @@ export type AffiliateReturnContext = {
   hotel?: string;
   board?: string;
   nights?: string;
+  piece?: AffiliateJourneyPiece;
   returnPath?: string;
 };
 
@@ -43,6 +45,7 @@ export function saveAffiliateReturnContext(input: {
   hotel?: string;
   board?: string;
   nights?: string | number;
+  piece?: AffiliateJourneyPiece;
 }) {
   if (typeof window === "undefined") return;
 
@@ -66,6 +69,7 @@ export function saveAffiliateReturnContext(input: {
       hotel: input.hotel || "",
       board: input.board || "",
       nights: input.nights == null ? "" : String(input.nights),
+      piece: input.piece,
       returnPath: `${window.location.pathname}${window.location.search}`,
     };
     localStorage.setItem(AFFILIATE_RETURN_STORAGE_KEY, JSON.stringify(payload));
