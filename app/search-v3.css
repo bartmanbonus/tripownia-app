@@ -1034,3 +1034,80 @@
   .search-v3-result-group-head strong{font-size:15px}
   .search-v3-result-group-head>span{max-width:none;text-align:left}
 }
+
+
+/* 2026-10-04 search results UX — exact dates first, alternatives explicitly separate */
+.search-v3-match-tabs{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:0 0 14px;
+}
+.search-v3-match-tabs button{
+  min-height:54px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:10px 14px;
+  border:1px solid #ded3cb;
+  border-radius:15px;
+  background:#fff;
+  color:#5b514b;
+  font-size:11px;
+  font-weight:850;
+  text-align:left;
+  cursor:pointer;
+}
+.search-v3-match-tabs button b{
+  min-width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:#f3ede9;
+  color:#5f554f;
+  font-size:10px;
+}
+.search-v3-match-tabs button.active{
+  border-color:#e89f82;
+  background:#fff2ec;
+  color:#bd4325;
+  box-shadow:0 5px 16px rgba(201,71,38,.08);
+}
+.search-v3-match-tabs button.active b{
+  background:#ef5b35;
+  color:#fff;
+}
+.search-v3-match-tabs button:disabled{
+  opacity:.46;
+  cursor:not-allowed;
+}
+.search-v3-results-controls{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:4px;
+}
+.search-v3-results-controls .search-v3-sales-sort{margin-bottom:10px}
+.search-v3-view-switch{margin-left:auto}
+.search-v3-results-toolbar{margin-top:2px}
+.search-v3-results-head{
+  margin-bottom:16px;
+}
+.search-v3-results-head h3{
+  max-width:760px;
+}
+.search-v3-active-summary{
+  margin-bottom:14px;
+}
+.search-v3-result-group{
+  margin-top:12px;
+}
+@media(max-width:760px){
+  .search-v3-match-tabs{grid-template-columns:1fr}
+  .search-v3-results-controls{display:block}
+  .search-v3-view-switch{margin-left:0}
+}
