@@ -231,7 +231,7 @@ export default function AddTripPage() {
   const [ownedMode, setOwnedMode] = useState(false);
   const [session, setSession] = useState<AccountSession | null>(null);
   const [editingTrip, setEditingTrip] = useState<EditableTrip | null>(null);
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [sourceType, setSourceType] = useState("");
   const [sourceKind, setSourceKind] = useState("");
   const [sourceBoard, setSourceBoard] = useState("");
@@ -599,7 +599,7 @@ export default function AddTripPage() {
     trackEvent("sports_planner_piece_owned", { piece: kind, partner, city });
   }
 
-  function moveToStep(next: 1 | 2) {
+  function moveToStep(next: 1 | 2 | 3 | 4) {
     setStep(next);
     setError("");
     if (typeof window !== "undefined") {
@@ -622,11 +622,24 @@ export default function AddTripPage() {
   }
 
   function handlePlannerBack() {
-    if (step === 2) {
-      moveToStep(1);
+    if (step > 1) {
+      moveToStep((step - 1) as 1 | 2 | 3 | 4);
       return;
     }
     leavePlanner();
+  }
+
+  function choosePlannerPath(hasTrip: boolean) {
+    setOwnedMode(hasTrip);
+    if (hasTrip) {
+      setDestinationMode("known");
+      setDateMode("range");
+    } else {
+      setDestinationMode("open");
+      setDateMode("flexible");
+    }
+    trackEvent("planner_path_selected", { has_trip: hasTrip });
+    moveToStep(2);
   }
 
   function continueToPieces() {
@@ -653,7 +666,13 @@ export default function AddTripPage() {
     }
 
     trackEvent("planner_step_1_complete", { destination_mode: destinationMode, date_mode: dateMode, owned_mode: ownedMode });
-    moveToStep(2);
+    moveToStep(3);
+  }
+
+  function continueToReview() {
+    setError("");
+    trackEvent("planner_step_3_complete", { owned_mode: ownedMode, missing_count: missingCount });
+    moveToStep(4);
   }
 
   async function submit(event: FormEvent) {
@@ -979,12 +998,13 @@ export default function AddTripPage() {
           <button type="button" className={styles.mobileProcessBack} onClick={handlePlannerBack}>
             <ArrowLeft size={15}/> Wstecz
           </button>
-          <div className={styles.progress} aria-label={"Krok " + step + " z 2"}>
-            <span className={step === 1 ? styles.progressActive : styles.progressDone}><b>1</b> Podstawy</span>
-            <span className={styles.progressLine} />
-            <span className={step === 2 ? styles.progressActive : styles.progressIdle}><b>2</b> Co już masz</span>
+          <div className={styles.progress} aria-label={"Krok " + step + " z 4"}>
+            {["Start", "Gdzie i kiedy", "Co już masz", "Gotowe"].map((label, index) => {
+              const number = (index + 1) as 1 | 2 | 3 | 4;
+              return <span key={label} className={step === number ? styles.progressActive : step > number ? styles.progressDone : styles.progressIdle}><b>{number}</b> {label}</span>;
+            })}
           </div>
-          <span className={styles.mobileStepLabel}>Krok {step} z 2</span>
+          <span className={styles.mobileStepLabel}>Krok {step} z 4</span>
           <span className={styles.freeBadge}>Plan 0 zł</span>
         </div>
 
@@ -1016,8 +1036,34 @@ export default function AddTripPage() {
               <div className={styles.sectionHead}>
                 <span className={styles.stepNumber}>1</span>
                 <div>
-                  <strong>Podstawy</strong>
-                  <span>{ownedMode ? "Sprawdź kierunek i dodaj termin, jeśli go znasz." : "Gdzie i kiedy?"}</span>
+                  <strong>Od czego zaczynamy?</strong>
+                  <span>Wybierz jedną opcję. Pokażemy tylko to, czego potrzebujesz.</span>
+                </div>
+              </div>
+
+              <div className={styles.fieldBlock}>
+                <div className={"planner-mode-row " + styles.modeRow}>
+                  <button type="button" onClick={() => choosePlannerPath(false)}>
+                    ✨ Dopiero szukam wyjazdu
+                  </button>
+                  <button type="button" onClick={() => choosePlannerPath(true)}>
+                    🧳 Mam już wyjazd
+                  </button>
+                </div>
+                <div className={styles.skippedLine}>
+                  <span>{signedIn ? "Plan zapisze się na Twoim koncie." : "Możesz zacząć bez konta i zalogować się później."}</span>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {step === 3 && (
+            <section className={"add-trip-section " + styles.stepCard}>
+              <div className={styles.sectionHead}>
+                <span className={styles.stepNumber}>2</span>
+                <div>
+                  <strong>{ownedMode ? "Dodaj swój wyjazd" : "Gdzie i kiedy?"}</strong>
+                  <span>{ownedMode ? "Podaj tylko dane, które już znasz." : "Wybierz kierunek i termin — resztę podpowiemy."}</span>
                 </div>
               </div>
 
@@ -1136,7 +1182,7 @@ export default function AddTripPage() {
           {step === 2 && (
             <section className={"add-trip-section " + styles.stepCard}>
               <div className={styles.sectionHead}>
-                <span className={styles.stepNumber}>2</span>
+                <span className={styles.stepNumber}>3</span>
                 <div>
                   <strong>Co już masz?</strong>
                   <span>Kliknij elementy, które są już załatwione.</span>
@@ -1175,8 +1221,47 @@ export default function AddTripPage() {
               {error && <div className="add-trip-error" role="alert">{error}</div>}
 
               <div className={styles.finalActions}>
-                <button type="button" className={styles.backButton} onClick={() => moveToStep(1)}><ArrowLeft size={17}/> Wstecz</button>
-                <button type="submit" className={"primary-cta " + styles.primaryButton}>{editingTrip ? "Zapisz plan" : "Utwórz plan"} <ArrowRight size={17}/></button>
+                <button type="button" className={styles.backButton} onClick={() => moveToStep(2)}><ArrowLeft size={17}/> Wstecz</button>
+                <button type="button" className={"primary-cta " + styles.primaryButton} onClick={continueToReview}>Dalej <ArrowRight size={17}/></button>
+              </div>
+            </section>
+          )}
+
+          {step === 4 && (
+            <section className={"add-trip-section " + styles.stepCard}>
+              <div className={styles.sectionHead}>
+                <span className={styles.stepNumber}>4</span>
+                <div>
+                  <strong>Gotowe do utworzenia</strong>
+                  <span>Sprawdź tylko najważniejsze informacje. Resztę możesz uzupełnić później.</span>
+                </div>
+              </div>
+
+              <div className={styles.prefilled}>
+                <MapPinned size={20}/>
+                <div>
+                  <small>Kierunek</small>
+                  <strong>{[city, country].filter(Boolean).join(", ") || "Wybierzemy później"}</strong>
+                </div>
+              </div>
+
+              <div className={styles.prefilled}>
+                <CalendarDays size={20}/>
+                <div>
+                  <small>Termin</small>
+                  <strong>{dateMode === "range" ? dateLabel(startDate, endDate) : dateMode === "month" ? (travelMonth || "Miesiąc do wyboru") : "Termin elastyczny"}</strong>
+                </div>
+              </div>
+
+              <div className={styles.skippedLine}>
+                <span>{missingCount === 0 ? "Masz już wszystkie główne elementy wyjazdu." : `Brakuje ${missingCount} elementów — Tripownia podpowie je w gotowym planie.`}</span>
+              </div>
+
+              {error && <div className="add-trip-error" role="alert">{error}</div>}
+
+              <div className={styles.finalActions}>
+                <button type="button" className={styles.backButton} onClick={() => moveToStep(3)}><ArrowLeft size={17}/> Wstecz</button>
+                <button type="submit" className={"primary-cta " + styles.primaryButton}>{editingTrip ? "Zapisz plan" : "Utwórz mój plan"} <ArrowRight size={17}/></button>
               </div>
             </section>
           )}
