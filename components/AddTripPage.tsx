@@ -800,9 +800,9 @@ export default function AddTripPage() {
           <span className={styles.mobileStepLabel}>Plan meczu</span>
           <span className={styles.mobileFreeBadge}>0 zł</span>
         </div>
-        <section className={"shell add-trip-page " + styles.confirmPage}>
-          <form className={styles.confirmCard} onSubmit={submit}>
-            <div className={styles.confirmMedia}>
+        <section className={"shell add-trip-page " + styles.confirmPage + " " + styles.sportPage}>
+          <form className={styles.confirmCard + " " + styles.sportCard} onSubmit={submit}>
+            <div className={styles.confirmMedia + " " + styles.sportMedia}>
               <TravelImage
                 city={city}
                 country={country}
@@ -810,7 +810,7 @@ export default function AddTripPage() {
               />
             </div>
 
-            <div className={styles.confirmContent}>
+            <div className={styles.confirmContent + " " + styles.sportContent}>
               <div className={styles.confirmEyebrow}>WYJAZD NA MECZ</div>
               <h1>{sportMatch || `Mecz w ${city || country}`}</h1>
               <div className={styles.confirmCountry}>{[city, country].filter(Boolean).join(", ")}</div>
