@@ -9,6 +9,9 @@ export type EximLiveResult = {
   nights?: number;
   board?: string;
   checkedAt: string;
+  priceSource?: "partner_feed";
+  priceVerified?: boolean;
+  sourceModifiedAt?: string;
 };
 
 type TdField = { name?: string; value?: string };
@@ -151,6 +154,7 @@ function candidate(product: TdProduct, target: { destination: string; country: s
     board,
     score,
     priceDelta,
+    modifiedAt: Number(offer?.modified || 0),
   };
 }
 
@@ -191,17 +195,25 @@ export async function findBestEximOffer(target: {
 
   matches.sort((a, b) => b.score - a.score || a.priceDelta - b.priceDelta || a.pricePerPerson - b.pricePerPerson);
   const best = matches[0];
+  const sourceModifiedAt = best.modifiedAt > 0 ? new Date(best.modifiedAt).toISOString() : undefined;
+  const sourceAgeMs = best.modifiedAt > 0 ? Math.max(0, Date.now() - best.modifiedAt) : Number.POSITIVE_INFINITY;
+  const priceVerified = sourceAgeMs <= 6 * 60 * 60 * 1000;
 
   return {
-    available: true,
+    // This endpoint reads the TradeDoubler product feed. It is not the EXIM
+    // booking engine, so a stale feed price must never be advertised as live.
+    available: priceVerified,
     productName: best.product.name,
     productUrl: best.productUrl,
-    totalPrice: best.totalPrice,
-    pricePerPerson: best.pricePerPerson,
+    totalPrice: priceVerified ? best.totalPrice : undefined,
+    pricePerPerson: priceVerified ? best.pricePerPerson : undefined,
     adults: best.adults,
     departure: best.departure,
     nights: best.nights,
     board: best.board,
     checkedAt,
+    priceSource: "partner_feed",
+    priceVerified,
+    sourceModifiedAt,
   };
 }
