@@ -36,6 +36,7 @@ export default function CompleteTripSales({ city, country, source }: { city: str
               key={item.key}
               href={item.href}
               rel="sponsored"
+              data-affiliate-source={`${source}_addon_${item.key}`}
               onClick={() => trackEvent("trip_addon_click", {
                 addon: item.key,
                 destination: city,
