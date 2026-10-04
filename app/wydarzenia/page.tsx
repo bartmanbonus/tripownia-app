@@ -202,6 +202,11 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                   source: "sports_event_hotel",
                   destination: trip.city,
                 }).toString()}`;
+                const kickoffLabel = formatKickoff(trip.kickoff);
+                const kickoffParts = kickoffLabel.match(/^(.*)\s(\d{1,2}:\d{2})$/);
+                const kickoffDate = kickoffParts?.[1] || kickoffLabel;
+                const kickoffTime = kickoffParts?.[2] || "";
+
                 return (
                   <article className={styles.card} key={trip.clubSlug + "-" + trip.id}>
                     <div className={styles.cardTop}>
@@ -210,7 +215,11 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                     </div>
                     <div className={styles.match}>
                       <div className={styles.team}><TeamCrest src={trip.homeCrest} name={trip.homeTeam}/><strong>{trip.homeTeam}</strong></div>
-                      <div className={styles.vs}><strong>vs</strong><small>{formatKickoff(trip.kickoff)}</small></div>
+                      <div className={styles.vs}>
+                        <strong>vs</strong>
+                        <div className={styles.matchDate}>{kickoffDate}</div>
+                        {kickoffTime && <div className={styles.matchTime}>{kickoffTime}</div>}
+                      </div>
                       <div className={styles.team}><TeamCrest src={trip.awayCrest} name={trip.awayTeam}/><strong>{trip.awayTeam}</strong></div>
                     </div>
                     <div className={styles.meta}><span>📍 {trip.venue || trip.city}</span><span>🌍 {trip.city}, {trip.country}</span></div>
