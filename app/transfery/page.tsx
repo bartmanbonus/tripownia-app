@@ -4,6 +4,7 @@ import { ArrowRight, CarTaxiFront, ExternalLink, UsersRound } from "lucide-react
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { partners } from "@/lib/partners";
+import TripPiecePartnerLink from "@/components/TripPiecePartnerLink";
 
 export const metadata: Metadata = {
   title: "Transfer z lotniska i taxi",
@@ -11,7 +12,12 @@ export const metadata: Metadata = {
   alternates: { canonical: "/transfery" },
 };
 
-export default function TransfersPage() {
+type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
+function first(value: string | string[] | undefined) { return Array.isArray(value) ? value[0] || "" : value || ""; }
+
+export default async function TransfersPage({ searchParams }: Props) {
+  const params = await searchParams;
+  const destination = first(params.destination).trim();
   return (
     <main>
       <SiteHeader />
@@ -31,7 +37,7 @@ export default function TransfersPage() {
             </ul>
             <div className="service-cta">
               <strong>Sprawdź transfer</strong>
-              <a href={partners.kiwitaxi.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Zobacz transfery <ExternalLink size={16}/></a>
+              <TripPiecePartnerLink href={partners.kiwitaxi.buildUrl()} piece="transfer" partner="kiwitaxi" destination={destination} label={destination ? `Transfer: ${destination}` : "Transfer z lotniska"} source="transfers_kiwitaxi">Zobacz transfery <ExternalLink size={16}/></TripPiecePartnerLink>
             </div>
           </div>
 
@@ -45,7 +51,7 @@ export default function TransfersPage() {
             </ul>
             <div className="service-cta">
               <strong>Porównaj przejazdy</strong>
-              <a href={partners.gettransfer.buildUrl()} target="_blank" rel="sponsored noopener noreferrer">Porównaj przejazdy <ExternalLink size={16}/></a>
+              <TripPiecePartnerLink href={partners.gettransfer.buildUrl()} piece="transfer" partner="gettransfer" destination={destination} label={destination ? `Transfer grupowy: ${destination}` : "Transfer dla grupy"} source="transfers_gettransfer">Porównaj przejazdy <ExternalLink size={16}/></TripPiecePartnerLink>
             </div>
           </div>
         </div>
