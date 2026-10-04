@@ -14,7 +14,8 @@ export type PartnerKey =
   | "booking"
   | "rentacar"
   | "kiwitaxi"
-  | "gettransfer";
+  | "gettransfer"
+  | "airhelp";
 
 export type Partner = {
   key: PartnerKey;
@@ -250,6 +251,15 @@ export const partners: Record<PartnerKey, Partner> = {
     commissionType: "unknown",
     trackingId: "SqNqK9Q7",
     buildUrl: () => "https://gettransfer.tpk.lv/SqNqK9Q7",
+  },
+  airhelp: {
+    key: "airhelp",
+    name: "AirHelp",
+    category: "travel",
+    description: "Sprawdzenie prawa do odszkodowania za opóźniony lub odwołany lot",
+    commissionType: "unknown",
+    trackingId: "i479aQSg",
+    buildUrl: () => "https://airhelp.tpk.lv/i479aQSg",
   },
 };
 
