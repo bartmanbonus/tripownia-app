@@ -17,6 +17,7 @@ import SearchHub from "@/components/SearchHub";
 import TravelImage from "@/components/TravelImage";
 import type { Offer } from "@/lib/offers";
 import { eskySearchUrl } from "@/lib/eskySearch";
+import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
 
 type LiveOffer = Offer & {
   startDateISO?: string;
@@ -51,6 +52,8 @@ type FeriePresetPayload = {
   airportLabel?: string;
   presets?: PresetResult[];
 };
+
+type FerieFocus = "all" | "allinclusive";
 
 const FERIE_DESTINATIONS = [
   {
@@ -96,6 +99,39 @@ const FERIE_DESTINATIONS = [
     imageCountry: "Turcja",
     vibe: "sun",
     emptyCopy: "Nie mamy teraz potwierdzonej Turcji w tej turze. Wyszukaj ją niżej bez zmiany dat.",
+  },
+  {
+    id: "canary",
+    label: "Wyspy Kanaryjskie",
+    icon: "🇪🇸",
+    eyebrow: "SŁOŃCE / ALL INCLUSIVE",
+    short: "Teneryfa, Fuerteventura, Gran Canaria",
+    imageCity: "Fuerteventura",
+    imageCountry: "Hiszpania",
+    vibe: "sun",
+    emptyCopy: "Nie mamy teraz potwierdzonej oferty na Kanary w tej turze. Otwórz gotowe wyszukiwanie z datami ferii.",
+  },
+  {
+    id: "capeverde",
+    label: "Wyspy Zielonego Przylądka",
+    icon: "🇨🇻",
+    eyebrow: "SŁOŃCE / ALL INCLUSIVE",
+    short: "Sal i Boa Vista",
+    imageCity: "Sal",
+    imageCountry: "Wyspy Zielonego Przylądka",
+    vibe: "sun",
+    emptyCopy: "Nie mamy teraz potwierdzonego Cabo Verde w tej turze. Otwórz gotowe wyszukiwanie z datami ferii.",
+  },
+  {
+    id: "cyprus",
+    label: "Cypr",
+    icon: "🇨🇾",
+    eyebrow: "SŁOŃCE / HOTEL",
+    short: "Pafos, Larnaka i okolice",
+    imageCity: "Pafos",
+    imageCountry: "Cypr",
+    vibe: "sun",
+    emptyCopy: "Nie mamy teraz potwierdzonego Cypru w tej turze. Otwórz gotowe wyszukiwanie z datami ferii.",
   },
 ] as const;
 
@@ -242,8 +278,14 @@ function CompactOfferCard({
   badge?: string;
   sourceNote?: string;
 }) {
+  const href = liveOfferLandingHref(offer, {
+    price: Number(offer.price || 0),
+    note: offer.reason,
+    source: "ferie_2027",
+  });
+
   return (
-    <a className="ferie-compact-offer" href={offer.affiliateUrl}>
+    <a className="ferie-compact-offer" href={href}>
       <div className="ferie-compact-media">
         <TravelImage
           city={offer.city}
@@ -285,7 +327,7 @@ function CompactOfferCard({
   );
 }
 
-export default function FerieOffers2027() {
+export default function FerieOffers2027({ focus = "all" }: { focus?: FerieFocus }) {
   const [selectedId, setSelectedId] = useState("all");
   const [selectedVoivodeship, setSelectedVoivodeship] = useState("");
   const initialTurn = FERIE_TURNS.find((turn) => turn.id === "all") || FERIE_TURNS[0];
@@ -294,6 +336,12 @@ export default function FerieOffers2027() {
   const [offers, setOffers] = useState<LiveOffer[]>([]);
   const [offersStatus, setOffersStatus] = useState<"loading" | "ready" | "error">("loading");
   const selected = FERIE_TURNS.find((turn) => turn.id === selectedId) || FERIE_TURNS[0];
+  const destinationPresets = useMemo(
+    () => focus === "allinclusive"
+      ? FERIE_DESTINATIONS.filter((preset) => ["egypt", "canary", "capeverde", "cyprus"].includes(preset.id))
+      : FERIE_DESTINATIONS.filter((preset) => ["italy", "austria", "egypt", "turkey"].includes(preset.id)),
+    [focus]
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -369,6 +417,7 @@ export default function FerieOffers2027() {
       .filter((offer) => inRange(offer, selected.from, selected.to))
       .filter((offer) => Boolean(offer.affiliateUrl) && offer.availabilityStatus !== "expired")
       .filter((offer) => !presetIds.has(offer.id))
+      .filter((offer) => focus !== "allinclusive" || offer.category.includes("allinclusive") || /all inclusive/i.test(offer.board || ""))
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
     const unique = new Map<string, LiveOffer>();
@@ -377,15 +426,17 @@ export default function FerieOffers2027() {
       if (!unique.has(key)) unique.set(key, offer);
     }
     return Array.from(unique.values()).slice(0, 6);
-  }, [offers, presetIds, selected.from, selected.to]);
+  }, [offers, presetIds, selected.from, selected.to, focus]);
 
   return (
     <section className="shell ferie-live-section ferie-live-section-v2" id="oferty-ferie" aria-labelledby="ferie-live-title">
       <div className="ferie-live-head ferie-live-head-v2">
         <div>
-          <div className="kicker">FERIE 2027 · GOTOWE WYJAZDY</div>
-          <h2 id="ferie-live-title">Wybierz swoją turę. My podpinamy właściwe daty i lotniska.</h2>
-          <p>Najpierw pokazujemy cztery gotowe kierunki na ferie. Dopiero niżej są pozostałe oferty i pełna wyszukiwarka.</p>
+          <div className="kicker">{focus === "allinclusive" ? "FERIE 2027 · ALL INCLUSIVE" : "FERIE 2027 · GOTOWE WYJAZDY"}</div>
+          <h2 id="ferie-live-title">Wybierz swoją turę. My podpinamy właściwe daty, lotniska i gotowe opcje do rezerwacji.</h2>
+          <p>{focus === "allinclusive"
+            ? "Pokazujemy ciepłe kierunki i pakiety All Inclusive dla dokładnych terminów ferii. Klikasz ofertę, sprawdzasz szczegóły w Tripowni i przechodzisz do rezerwacji."
+            : "Najpierw pokazujemy cztery gotowe kierunki na ferie. Dopiero niżej są pozostałe oferty i pełna wyszukiwarka."}</p>
         </div>
       </div>
 
@@ -458,14 +509,14 @@ export default function FerieOffers2027() {
 
       <div className="ferie-presets-head ferie-presets-head-v2">
         <div>
-          <div className="kicker">4 GOTOWCE</div>
-          <h3>Narty albo słońce — bez przeklikiwania dziesiątek kierunków</h3>
-          <p>Każdy gotowiec jest liczony dla wybranej tury. Jeśli nie ma potwierdzonej oferty w tych datach, nie podmieniamy jej przypadkowym terminem.</p>
+          <div className="kicker">{focus === "allinclusive" ? "4 GOTOWCE ALL INCLUSIVE" : "4 GOTOWCE"}</div>
+          <h3>{focus === "allinclusive" ? "Ciepło, hotel i wyżywienie — bez szukania od zera" : "Narty albo słońce — bez przeklikiwania dziesiątek kierunków"}</h3>
+          <p>Każdy gotowiec jest liczony dla wybranej tury. Jeśli nie ma potwierdzonej oferty w tych datach, otwieramy gotowe wyszukiwanie z zachowanym terminem i lotniskiem — bez pustego przejścia.</p>
         </div>
       </div>
 
       <div className="ferie-presets-grid ferie-presets-grid-v2">
-        {FERIE_DESTINATIONS.map((preset) => {
+        {destinationPresets.map((preset) => {
           const result = presetsById.get(preset.id);
           const offer = result?.offer || null;
           const regionalNote = offer
@@ -541,12 +592,14 @@ export default function FerieOffers2027() {
         <SearchHub
           key={selected.id}
           embedded
-          initialTab="Lot + hotel"
+          initialTab={focus === "allinclusive" ? "All Inclusive" : "Lot + hotel"}
           initialAirports={presetPayload?.airports || []}
           initialDateMode="range"
           initialDateFrom={selected.from}
           initialDateTo={selected.to}
-          destinationQuickPicks={["Włochy", "Austria", "Egipt", "Turcja", "Wyspy Kanaryjskie"]}
+          destinationQuickPicks={focus === "allinclusive"
+            ? ["Egipt", "Wyspy Kanaryjskie", "Wyspy Zielonego Przylądka", "Cypr", "Maroko"]
+            : ["Włochy", "Austria", "Egipt", "Turcja", "Wyspy Kanaryjskie"]}
         />
       </div>
     </section>
