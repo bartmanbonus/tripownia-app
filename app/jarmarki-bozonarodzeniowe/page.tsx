@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { partners } from "@/lib/partners";
 
 export const metadata: Metadata = {
   title: "Jarmarki bożonarodzeniowe 2026 — terminy i wyjazdy",
@@ -87,20 +87,50 @@ const ideas = [
   },
 ];
 
-function flightSearch(airport: string, sample: string[]) {
-  const u = new URL("https://www.kiwi.com/deep");
-  u.searchParams.set("from", "WAW");
-  u.searchParams.set("to", airport);
-  u.searchParams.set("departure", sample[0]);
-  u.searchParams.set("return", sample[1]);
-  u.searchParams.set("currency", "PLN");
-  return partners.kiwi.buildUrl(u.toString());
+const MARKET_COUNTRIES: Record<string, string> = {
+  "Wiedeń": "Austria",
+  "Praga": "Czechy",
+  "Drezno": "Niemcy",
+  "Norymberga": "Niemcy",
+  "Berlin": "Niemcy",
+  "Budapeszt": "Węgry",
+  "Salzburg": "Austria",
+};
+
+function sampleNights(sample: string[]) {
+  const start = new Date(`${sample[0]}T12:00:00Z`).getTime();
+  const end = new Date(`${sample[1]}T12:00:00Z`).getTime();
+  return Math.max(2, Math.round((end - start) / 86_400_000));
 }
 
-function gyg(city: string) {
-  return partners.getyourguide.buildUrl(
-    `https://www.getyourguide.pl/s/?q=${encodeURIComponent(city + " Christmas market")}`,
-  );
+function formatSampleDate(value: string) {
+  return new Intl.DateTimeFormat("pl-PL", { day: "2-digit", month: "short", timeZone: "UTC" })
+    .format(new Date(`${value}T12:00:00Z`));
+}
+
+function readyMarketTrip(idea: (typeof ideas)[number]) {
+  const nights = sampleNights(idea.sample);
+  const params = new URLSearchParams({
+    destination: `${idea.city}, ${MARKET_COUNTRIES[idea.city] || ""}`.replace(/, $/, ""),
+    airport: "WAWA",
+    from: idea.sample[0],
+    to: idea.sample[1],
+    duration: `${nights}-${nights}`,
+    tab: "City break",
+  });
+  return `/szukaj?${params.toString()}`;
+}
+
+function marketPlanner(idea: (typeof ideas)[number]) {
+  const params = new URLSearchParams({
+    source: "christmas-market",
+    city: idea.city,
+    country: MARKET_COUNTRIES[idea.city] || "",
+    start: idea.sample[0],
+    end: idea.sample[1],
+    nights: String(sampleNights(idea.sample)),
+  });
+  return `/dodaj-podroz?${params.toString()}`;
 }
 
 export default function Page() {
@@ -140,15 +170,16 @@ export default function Page() {
               </div>
 
               <p className="market-note">{idea.note}</p>
+              <p className="market-see"><b>Gotowy termin:</b> {formatSampleDate(idea.sample[0])} – {formatSampleDate(idea.sample[1])} · z Warszawy</p>
               <p className="market-see"><b>Połącz z:</b> {idea.see}</p>
 
               <div className="market-compact-actions">
-                <a href={flightSearch(idea.airport, idea.sample)} target="_blank" rel="sponsored noopener noreferrer">
-                  Sprawdź wyjazd →
-                </a>
-                <a href={gyg(idea.city)} target="_blank" rel="sponsored noopener noreferrer">
-                  Atrakcje
-                </a>
+                <Link href={readyMarketTrip(idea)}>
+                  Pokaż gotowy wyjazd →
+                </Link>
+                <Link href={marketPlanner(idea)}>
+                  Dodaj do planu
+                </Link>
               </div>
             </article>
           ))}
