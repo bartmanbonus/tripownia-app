@@ -785,8 +785,6 @@ export default function Home() {
 
       <SearchHub />
       <TripowniaLive />
-      <SalesVisualShortcuts />
-      <RecentlyViewedOffers />
 
       <section className="section shell deal-motifs" aria-labelledby="deal-motifs-title">
         <div className="deal-motifs-head">
@@ -805,6 +803,9 @@ export default function Home() {
           <Link href="/motywy/egzotyka-do-5000"><small>DALEJ</small><strong>Egzotyka do 5 000 zł</strong><span>Daleko, ale z limitem budżetu →</span></Link>
         </div>
       </section>
+
+      <SalesVisualShortcuts />
+      <RecentlyViewedOffers />
 
       <section className="section shell homepage-curated-trips" aria-labelledby="curated-trips-title">
         <div className="section-heading">
