@@ -78,6 +78,23 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "wieden-469": {
+    slug: "wieden-469",
+    city: "Wiedeń",
+    country: "Austria",
+    price: 469,
+    departure: "Kraków",
+    nights: 2,
+    dates: "25–27 października 2026",
+    board: "wg oferty",
+    hotel: "Pakiet lot + hotel",
+    partner: "esky",
+    partnerLabel: "eSky",
+    affiliateUrl: "https://www2.esky.pl/lot+hotel/portfolio/details/select-room?context=pl-packages&packageId=MjYxMDI1OjI6cGw6MTE5NjEw&metaCode=119610&rooms%5B0%5D%5Badults%5D=2&departureCode=KRK&checkInDate=2026-10-25&checkOutDate=2026-10-27&destinationDepartureDate=2026-10-25&returnArrivalDate=2026-10-27&partner_id=TRIPOWNIAPLPACKAGES&departurePlaces=ap-GDN,ap-KTW,ap-KRK,ap-WAW,ap-WRO,ap-WMI&selectedDeparturePlaces=ap-GDN,ap-KTW,ap-KRK,ap-WAW",
+    imageCountry: "Austria",
+    checkedAt: "2026-10-05T16:00:00+02:00",
+    status: "active",
+  },
   "costa-brava-tossa-1139": {
     slug: "costa-brava-tossa-1139",
     city: "Tossa de Mar",
