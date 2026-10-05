@@ -3,6 +3,7 @@ import { fetchEskyPackages } from "@/lib/eskyPackages";
 import { isAffordableShortTrip, isPromotableOffer } from "@/lib/offerValuePolicy";
 import { rankSearchOffers } from "@/lib/searchOfferRanking";
 import { destinationQueryMatches } from "@/lib/destinationAliases";
+import { inferOfferCategoryTags } from "@/lib/tripOfferCategories";
 
 export const maxDuration = 60;
 
@@ -286,6 +287,7 @@ function inferDepartureAirportCode(value: string | undefined | null) {
   if (/\bbzg\b|bydgoszcz/.test(n)) return "BZG";
   if (/\bszy\b|olsztyn|mazury|szymany/.test(n)) return "SZY";
   if (/\bieg\b|zielona gora|babimost/.test(n)) return "IEG";
+  if (/\bber\b|berlin|brandenburg/.test(n)) return "BER";
   if (/warszawa/.test(n)) return "WAW";
   return "";
 }
@@ -503,7 +505,19 @@ function fromExim(product: TdProduct): LiveCandidate | null {
     tag: tagFor(price, board),
     reason: reasonFor("exim", price, nights, board),
     image: product.productImage?.url || "/images/destinations/djerba.jpg",
-    category: nights <= 5 ? ["city", "weekend", "exim", "transfer"] : ["wakacje", /all inclusive/i.test(board) ? "allinclusive" : "plaza"],
+    category: Array.from(new Set([
+      ...(nights <= 5 ? ["city", "weekend", "exim", "transfer"] : ["wakacje", /all inclusive/i.test(board) ? "allinclusive" : "plaza"]),
+      ...inferOfferCategoryTags({
+        city,
+        country,
+        nights,
+        board,
+        hotel: product.name || "Hotel",
+        departure,
+        description: [product.description, Object.values(fields).join(" ")].filter(Boolean).join(" "),
+        dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "",
+      }),
+    ])),
     hotel: product.name || "Hotel",
     board,
     dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "najbliższy dostępny termin",
@@ -565,7 +579,20 @@ function fromTui(product: TdProduct): LiveCandidate | null {
     tag: tagFor(price, board),
     reason: reasonFor("tui", price, nights, board),
     image: product.productImage?.url || "/images/destinations/rodos.jpg",
-    category: ["wakacje", /all inclusive/i.test(board) ? "allinclusive" : "plaza"],
+    category: Array.from(new Set([
+      "wakacje",
+      /all inclusive/i.test(board) ? "allinclusive" : "plaza",
+      ...inferOfferCategoryTags({
+        city,
+        country,
+        nights,
+        board,
+        hotel: fields.HotelName || product.name || "Hotel",
+        departure,
+        description: [product.description, Object.values(fields).join(" ")].filter(Boolean).join(" "),
+        dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "",
+      }),
+    ])),
     hotel: fields.HotelName || product.name || "Hotel",
     board,
     dates: departureDate && returnDate ? `${formatDate(departureDate)}–${formatDate(returnDate)}` : "najbliższy dostępny termin",
