@@ -272,6 +272,12 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     );
   }
 
+  const minPrice = offers.length ? Math.min(...offers.map((offer) => Number(offer.price || Infinity))) : 0;
+  const destinationCount = new Set(offers.map((offer) => touristDestinationKey(offer)).filter(Boolean)).size;
+  const salesSummary = offers.length
+    ? `${offers.length} aktualnych ofert${destinationCount > 1 ? ` · ${destinationCount} kierunków` : ""}${Number.isFinite(minPrice) && minPrice > 0 ? ` · od ${minPrice.toLocaleString("pl-PL")} zł/os.` : ""}`
+    : "";
+
   if (error || offers.length === 0) {
     const alertParams = new URLSearchParams({ destination: query });
     if (departure) alertParams.set("departure", departure);
@@ -307,9 +313,17 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   }
 
   return <>
+    <div className="seo-sales-snapshot" aria-live="polite">
+      <div>
+        <small>SPRAWDZONE TERAZ</small>
+        <strong>{salesSummary}</strong>
+        <span>Kliknij ofertę → zobacz szczegóły w Tripowni → przejdź do rezerwacji u partnera.</span>
+      </div>
+      <a href="#seo-live-offers-grid">Zobacz oferty ↓</a>
+    </div>
     {cityBreakOverview && <p className="seo-live-note">{offers.length} różnych kierunków · od najniższej ceny · najtańsza dostępna oferta dla każdego kierunku</p>}
     {relaxed && <div className="seo-live-note">Lotnisko i główny typ wyjazdu się zgadzają. Pokazujemy najbliższe aktualne propozycje — cena lub długość pobytu może różnić się od dodatkowego filtra strony.</div>}
-    <div className="cards-grid seo-live-offers-grid">{offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} sourceSurface="seo_landing" />)}</div>
+    <div className="cards-grid seo-live-offers-grid" id="seo-live-offers-grid">{offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} sourceSurface="seo_landing" />)}</div>
     {cityBreakOverview && !startDate && !endDate && <div className="seo-empty-offers-actions"><a href={morePackagesUrl} rel="nofollow sponsored" className="seo-empty-secondary">Porównaj więcej pakietów lot + hotel <ArrowRight size={16}/></a></div>}
   </>;
 }
