@@ -45,10 +45,19 @@ jobs:
               raise SystemExit(f"Refusing snapshot: ok={data.get('ok')} offers={len(offers)}")
 
           valid = []
+          now = datetime.now(timezone.utc)
           for offer in offers:
               price = offer.get("price")
               link = offer.get("affiliateUrl") or offer.get("url")
-              if isinstance(price, (int, float)) and price > 0 and link:
+              checked_raw = offer.get("priceCheckedAt")
+              available = offer.get("availabilityStatus") == "available"
+              exact = offer.get("linkType") == "exact" and offer.get("linkMatch") in (None, "exact")
+              try:
+                  checked = datetime.fromisoformat(str(checked_raw).replace("Z", "+00:00")) if checked_raw else None
+                  fresh = checked is not None and checked.tzinfo is not None and 0 <= (now - checked.astimezone(timezone.utc)).total_seconds() <= 6 * 3600
+              except (TypeError, ValueError):
+                  fresh = False
+              if isinstance(price, (int, float)) and price > 0 and link and available and exact and fresh:
                   valid.append(offer)
 
           if len(valid) < 5:
@@ -65,7 +74,7 @@ jobs:
           with open(dst, "w", encoding="utf-8") as f:
               json.dump(snapshot, f, ensure_ascii=False, indent=2)
               f.write("\n")
-          print(f"Validated {len(valid)} live offers")
+          print(f"Validated {len(valid)} verified affiliate offers")
           PY
 
       - name: Commit snapshot only when it changed
