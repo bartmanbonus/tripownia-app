@@ -853,16 +853,33 @@
 }
 .flight-hunt-controls-clean{
   display:grid;
-  grid-template-columns:minmax(250px,1.1fr) minmax(250px,1.1fr) minmax(260px,.9fr) auto minmax(180px,.8fr);
+  grid-template-columns:repeat(6,minmax(0,1fr));
   gap:10px;
   align-items:end;
+}
+.flight-hunt-controls-clean>.flight-hunt-field,
+.flight-hunt-controls-clean>.flight-hunt-month{
+  grid-column:span 2;
+}
+.flight-hunt-controls-clean>.flight-hunt-stay{
+  grid-column:span 3;
+}
+.flight-hunt-controls-clean>.flight-hunt-direct{
+  grid-column:span 1;
+}
+.flight-hunt-controls-clean>.flight-hunt-submit{
+  grid-column:span 2;
 }
 .flight-hunt-month,
 .flight-hunt-stay{
   display:grid;
   gap:6px;
 }
-.flight-hunt-month>span,
+.flight-hunt-month>span{
+  color:#746a63;
+  font-size:11px;
+  font-weight:850;
+}
 .flight-hunt-month select{
   width:100%;
   min-height:52px;
@@ -1019,10 +1036,12 @@
   .flight-hunt-controls-clean{
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
-  .flight-hunt-month,
-  .flight-hunt-stay,
-  .flight-hunt-direct,
-  .flight-hunt-submit{
+  .flight-hunt-controls-clean>.flight-hunt-field,
+  .flight-hunt-controls-clean>.flight-hunt-month,
+  .flight-hunt-controls-clean>.flight-hunt-stay,
+  .flight-hunt-controls-clean>.flight-hunt-direct,
+  .flight-hunt-controls-clean>.flight-hunt-submit{
+    grid-column:auto;
     width:100%;
   }
 }
