@@ -88,33 +88,13 @@ export async function GET(request: NextRequest) {
     if (!response.ok) throw new Error(`Travelpayouts autocomplete HTTP ${response.status}`);
 
     const rows = (await response.json()) as RawPlace[];
-    const primaryCityByCountry = new Map<string, string>();
-
-    for (const row of rows) {
-      if (row.type !== "city") continue;
-      const countryCode = String(row.country_code || "").toUpperCase();
-      const cityCode = String(row.city_code || row.code || "").toUpperCase();
-      if (countryCode && /^[A-Z]{3}$/.test(cityCode) && !primaryCityByCountry.has(countryCode)) {
-        primaryCityByCountry.set(countryCode, cityCode);
-      }
-    }
-
     const mapped: Place[] = rows
+      // Country rows are deliberately not selectable. A country code (IT/ES/GR…)
+      // is not an IATA destination and previously got silently replaced with an
+      // arbitrary city. Searching a country still returns its matching cities and
+      // airports, but the user must choose the concrete destination they will see.
+      .filter((row) => row.type !== "country")
       .map((row) => {
-        if (row.type === "country") {
-          const code = String(row.code || "").toUpperCase();
-          const name = String(row.name || "").trim();
-          const searchCode = primaryCityByCountry.get(code);
-          return {
-            code,
-            name,
-            country: name,
-            airport: "",
-            type: "country",
-            ...(searchCode ? { searchCode } : {}),
-          };
-        }
-
         const code = String(row.city_code || row.code || "").toUpperCase();
         const name = String(row.city_name || row.name || "").trim();
         const country = String(row.country_name || "").trim();
@@ -128,7 +108,7 @@ export async function GET(request: NextRequest) {
           searchCode: code,
         };
       })
-      .filter((row) => /^[A-Z]{2,3}$/.test(row.code) && row.name);
+      .filter((row) => /^[A-Z]{3}$/.test(row.code) && row.name);
 
     const ranked = mapped
       .map((place, index) => ({ place, index, score: scorePlace(place, q, resolvedQuery) }))
