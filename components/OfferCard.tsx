@@ -145,7 +145,6 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
   const checkedAt = formatPriceCheckedAt(effectiveCheckedAt);
   const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
   const stalePrice = !isExpired && priceStale;
-  const isUnverifiedEximPrice = offer.partner === "exim" && !priceVerified;
   const customerReason = customerOfferReason(override.note || publishedOverride.note || offer.reason);
 
   const offerSnapshot: Offer = {
@@ -290,24 +289,23 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
     : `/oferta/${offer.id}`;
   const buyHref = cardHref;
   const detailHref = cardHref;
-  const alertHref = `/alerty?${new URLSearchParams({
+  const alertParams = new URLSearchParams({
     destination: offer.city,
     departure: offer.departure,
-    maxPrice: String(Math.ceil(displayPrice * 1.08)),
-  }).toString()}`;
+  });
+  if (priceVerified) alertParams.set("maxPrice", String(Math.ceil(displayPrice * 1.08)));
+  const alertHref = `/alerty?${alertParams.toString()}`;
   const nightsLabel = offer.nights === 1 ? "noc" : offer.nights % 10 >= 2 && offer.nights % 10 <= 4 && !(offer.nights % 100 >= 12 && offer.nights % 100 <= 14) ? "noce" : "nocy";
   const ctaText = isExpired ? "Zobacz podobne oferty" : "Sprawdź ofertę";
   const trustText = isExpired
     ? "Oferta wygasła"
-    : isUnverifiedEximPrice
+    : !priceVerified
       ? checkedAt
-        ? `Cena z feedu · odczyt: ${checkedAt} · potwierdź przed rezerwacją`
-        : "Cena z feedu partnera · potwierdź przed rezerwacją"
+        ? `Ostatni odczyt: ${checkedAt} · sprawdź aktualną cenę`
+        : "Cena niepotwierdzona · sprawdź aktualną u partnera"
       : checkedAt
         ? `Cena sprawdzona: ${checkedAt}`
-        : isLiveOffer || isExactLink
-          ? "Aktualna cena może się zmienić do momentu rezerwacji"
-          : "Cena orientacyjna · sprawdź aktualną przed rezerwacją";
+        : "Aktualna cena może się zmienić do momentu rezerwacji";
 
   return (
     <article
