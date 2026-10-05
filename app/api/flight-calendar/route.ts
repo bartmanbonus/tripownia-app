@@ -89,6 +89,7 @@ export async function GET(request: NextRequest) {
     const rows = calendarRows
       .filter((row) => Number(row.value || 0) > 0 && row.depart_date)
       .map((row) => ({
+        destinationCode: safeIata(String(row.destination || sourceDestination), sourceDestination),
         price: Math.round(Number(row.value || 0)),
         departDate: String(row.depart_date || ""),
         returnDate: String(row.return_date || ""),
