@@ -142,12 +142,12 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     ],
   },
   "/krakow": {
-    title: "City break z Krakowa — lot + hotel z Balic",
-    lead: "Na city break z Krakowa porównaj kierunki dla tego samego weekendu i zwróć uwagę na godziny wylotu oraz powrotu. Przy pobycie 2–5 dni dobry rozkład lotów często daje więcej niż kilkadziesiąt złotych oszczędności.",
+    title: "Wyloty z Krakowa — wybierz typ wyjazdu",
+    lead: "Ta strona jest punktem startowym dla wylotów z KRK. Wybierz poniżej city break, last minute albo wakacje — każda opcja prowadzi do osobnego landingu z aktualnymi ofertami dopasowanymi do intencji.",
     links: [
-      { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa" },
-      { href: "/podroze/last-minute-z-krakowa", label: "Last minute z Krakowa" },
-      { href: "/podroze/wakacje-z-krakowa", label: "Wakacje z Krakowa" },
+      { href: "/podroze/last-minute-z-krakowa", label: "Last Minute z Krakowa — aktualne oferty" },
+      { href: "/podroze/city-break-z-krakowa", label: "City break z Krakowa — lot + hotel" },
+      { href: "/podroze/wakacje-z-krakowa", label: "Wakacje z Krakowa — pakiety z KRK" },
     ],
   },
   "/wakacje-z-gdanska-2": {
