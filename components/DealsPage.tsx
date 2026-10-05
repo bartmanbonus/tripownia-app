@@ -268,7 +268,7 @@ export default function DealsPage({
       });
     });
   }, [destination, currentYear, currentMonth, airport, month, year]);
-  const todayRows = useMemo(() => allOfferRows(todayOffers as DealsOffer[]).slice(0, 5), [todayOffers]);
+  const todayRows = useMemo(() => allOfferRows(todayOffers as DealsOffer[], "priceAsc").slice(0, 5), [todayOffers]);
   const poolHighlights = useMemo(() => source === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source]);
 
   useEffect(() => {
