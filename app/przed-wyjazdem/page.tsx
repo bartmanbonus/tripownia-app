@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Backpack, BookOpenCheck, BusFront, CircleCheckBig, FileCheck2, Landmark, Luggage, PlaneTakeoff, ShieldCheck, Smartphone, WalletCards } from "lucide-react";
+import { ArrowRight, Backpack, BookOpenCheck, BusFront, CircleCheckBig, FileCheck2, Landmark, Luggage, PlaneTakeoff, Scale, ShieldCheck, Smartphone, WalletCards } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
@@ -24,6 +24,7 @@ const steps = [
   { icon: BusFront, title: "Dojazd i transfer", text: "Zaplanuj dojazd na lotnisko i przejazd z lotniska do noclegu, szczególnie przy późnym przylocie.", href: "/transfery" },
   { icon: Smartphone, title: "Internet", text: "Sprawdź roaming, obsługę eSIM i przygotuj pakiet danych zanim będziesz potrzebować internetu po lądowaniu.", href: "/esim" },
   { icon: WalletCards, title: "Płatności", text: "Przygotuj zapasową metodę płatności, sprawdź walutę i nie polegaj na jednej karcie.", href: "/poradniki" },
+  { icon: Scale, title: "Problem z lotem", text: "Lot był mocno opóźniony, odwołany albo odmówiono wejścia na pokład? Sprawdź, czy może przysługiwać Ci odszkodowanie.", href: "/odszkodowanie-za-lot" },
   { icon: Landmark, title: "Atrakcje", text: "Zarezerwuj wcześniej tylko te miejsca, gdzie terminy naprawdę znikają. Resztę zostaw elastycznie.", href: "/atrakcje" },
 ];
 
