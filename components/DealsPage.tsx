@@ -15,6 +15,7 @@ import { trackEvent } from "@/lib/analytics";
 import { eskySearchUrl } from "@/lib/eskySearch";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ReadySearchGrid, { type ReadySearchItem } from "@/components/ReadySearchGrid";
+import type { OfferCategoryKey } from "@/lib/tripOfferCategories";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -131,7 +132,7 @@ export default function DealsPage({
   readySearchItems = [],
 }: {
   destination?: string;
-  dealType?: "" | "allinclusive";
+  dealType?: "" | OfferCategoryKey;
   pageTitle?: string;
   pageLead?: string;
   kicker?: string;
@@ -147,7 +148,7 @@ export default function DealsPage({
   const [year, setYear] = useState("any");
   const [historyVersion, setHistoryVersion] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [quickFilter, setQuickFilter] = useState<QuickFilter>(dealType === "allinclusive" ? "allinclusive" : "all");
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>(dealType === "allinclusive" ? "allinclusive" : dealType === "citybreak" ? "city" : "all");
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
@@ -344,7 +345,7 @@ export default function DealsPage({
       <div className="deals-simple-hero">
         <div>
           <div className="kicker">{kicker}</div>
-          <h1>{destination ? "Okazje: " + destination : "Najtańsze wyjazdy. Bez przekopywania się przez setki ofert."}</h1>
+          <h1>{destination ? "Okazje: " + destination : pageTitle}</h1>
           <p className="deals-simple-lead">
             {source === "fallback" && offers.length
               ? "Źródła live są chwilowo ograniczone. Pokazujemy nieprzeterminowane propozycje orientacyjne — finalną cenę potwierdź u partnera."
@@ -352,7 +353,9 @@ export default function DealsPage({
                 ? (rows.length
                     ? "Pokazujemy tylko aktualne oferty dla tego kierunku — bez przypadkowych zamienników."
                     : "Jeśli feed nie zwraca dziś gotowej karty, pokazujemy kilka gotowych wariantów na każdy miesiąc — bez pustej strony.")
-                : "Pokazujemy całą aktualną pulę ofert, bez sztucznego limitu. Najtańsze są na górze, a duplikaty tej samej oferty usuwamy."}
+                : dealType
+                  ? pageLead
+                  : "Pokazujemy całą aktualną pulę ofert, bez sztucznego limitu. Najtańsze są na górze, a duplikaty tej samej oferty usuwamy."}
           </p>
         </div>
         <Link className="primary-cta deals-simple-search" href="/#wyszukiwarka">
