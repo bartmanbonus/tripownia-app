@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "validate": "node scripts/validate-project.mjs"
+    "validate": "node scripts/validate-project.mjs",
+    "test:e2e": "playwright test --config=playwright.config.mjs",
+    "test:e2e:prod": "E2E_PRODUCTION=1 PLAYWRIGHT_BASE_URL=https://tripownia.pl playwright test tests/e2e/production-smoke.spec.mjs --config=playwright.config.mjs --project=chromium"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

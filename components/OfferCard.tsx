@@ -313,6 +313,8 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
       className={`offer-card offer-card-clean offer-card-conversion ${isFeatured ? "offer-card-featured" : ""} ${isExpired ? "offer-card-expired" : ""}`}
       data-offer-id={offer.id}
       data-offer-price={displayPrice}
+      data-price-verified={priceVerified ? "true" : "false"}
+      data-price-checked-at={effectiveCheckedAt || ""}
       data-offer-partner={offer.partner}
       data-offer-surface={sourceSurface || "unknown"}
       onClick={(event) => {
