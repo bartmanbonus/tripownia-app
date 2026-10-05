@@ -513,7 +513,7 @@ function fromExim(product: TdProduct): LiveCandidate | null {
     linkMatch: "exact",
     transferIncluded: true,
     provider: "exim",
-    modifiedAt: modifiedAt || Date.now(),
+    modifiedAt,
     sourceKey,
     startDateISO: departureDate ? departureDate.toISOString().slice(0, 10) : undefined,
     endDateISO: returnDate ? returnDate.toISOString().slice(0, 10) : undefined,
@@ -541,6 +541,11 @@ function fromTui(product: TdProduct): LiveCandidate | null {
   const daysOut = departureDate ? Math.max(0, Math.round((departureDate.getTime() - Date.now()) / 86400000)) : 120;
   const rating = Number(fields.Rating || 0);
   const modifiedAt = Number(offer?.modified || 0);
+  // TUI comes from the same kind of partner product feed as EXIM. A successful
+  // HTTP fetch does not prove that the quoted price was refreshed just now.
+  const sourceUpdatedAt = modifiedAt > 0 ? new Date(modifiedAt).toISOString() : undefined;
+  const sourceAgeMs = modifiedAt > 0 ? Math.max(0, Date.now() - modifiedAt) : Number.POSITIVE_INFINITY;
+  const sourceFresh = sourceAgeMs <= 6 * 60 * 60 * 1000;
   const sourceKey = `${offer?.sourceProductId || ""}:${productUrl}`;
 
   if (departureDate) {
@@ -555,8 +560,8 @@ function fromTui(product: TdProduct): LiveCandidate | null {
     city,
     country,
     price,
-    priceCheckedAt: new Date().toISOString(),
-    availabilityStatus: "available",
+    priceCheckedAt: sourceUpdatedAt,
+    availabilityStatus: sourceFresh ? "available" : "unknown",
     departure,
     airportCode: inferDepartureAirportCode(fields.DeparturePlace || departure),
     nights,
