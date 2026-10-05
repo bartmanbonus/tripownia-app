@@ -17,6 +17,7 @@ const allowedHosts: Record<string, string[]> = {
   kiwitaxi: ["kiwitaxi.tpk.lv"],
   gettransfer: ["gettransfer.tpk.lv"],
   airhelp: ["airhelp.tpk.lv"],
+  zwrotzalot: ["visit.zwrotzalot.pl", "zwrotzalot.pl", "www.zwrotzalot.pl"],
 };
 
 function hostAllowed(partner: string, url: URL) {
