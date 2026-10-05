@@ -4,6 +4,7 @@ import { dedupeOffersByIdentity, isUsableOffer } from "@/lib/offerEngine";
 import { GET as getTodayOffers } from "@/app/api/today-offers/route";
 import { destinationQueryMatches } from "@/lib/destinationAliases";
 import { partners } from "@/lib/partners";
+import { isPromotableOffer } from "@/lib/offerValuePolicy";
 
 type DealsOffer = Offer & {
   startDateISO?: string;
@@ -167,7 +168,9 @@ function dedupeDestinationCatalogOffers(offers: DealsOffer[]) {
 }
 
 function isUsablePublishedFallback(offer: DealsOffer) {
-  return isUsableOffer(offer, "fallback");
+  // Published/manual rows may keep the catalogue broad, but they must never be
+  // reintroduced as priced commercial offers after their verification expired.
+  return isUsableOffer(offer, "fallback") && isPromotableOffer(offer);
 }
 
 function sortedDestinationOffers(
