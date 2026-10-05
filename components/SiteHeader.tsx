@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 import { destinationDealsHref, eximDestinations } from "@/lib/eximDestinations";
+import { offerCategoryHref, tripOfferCategories } from "@/lib/tripOfferCategories";
 import { protectLocalAccountPrivacy } from "@/lib/accountState";
 
 const primaryItems = [
@@ -45,6 +46,20 @@ const destinationColumns = [
   eximDestinations.slice(0, 15),
   eximDestinations.slice(15, 30),
   eximDestinations.slice(30),
+];
+
+const offerCategoryColumns = [
+  tripOfferCategories.slice(0, 9),
+  tripOfferCategories.slice(9),
+];
+
+const offerDepartureItems = [
+  { href: "/z-warszawy", label: "Warszawa" },
+  { href: "/z-katowic", label: "Katowice" },
+  { href: "/z-poznania", label: "Poznań" },
+  { href: "/z-gdanska", label: "Gdańsk" },
+  { href: "/z-krakowa", label: "Kraków" },
+  { href: "/z-wroclawia", label: "Wrocław" },
 ];
 
 const bookingItems = [
@@ -187,7 +202,17 @@ export default function SiteHeader() {
                 <div className="trip-mobile-menu-section">
                   <strong>Znajdź wyjazd</strong>
                   <Link href="/#wyszukiwarka"><Search size={18} /><span>Wyszukiwarka</span></Link>
-                  <Link href="/okazje"><Sparkles size={18} /><span>Okazje</span></Link>
+                  <details className="trip-mobile-destinations">
+                    <summary><Sparkles size={18} /><span>Okazje</span><ChevronDown size={14} /></summary>
+                    <div className="trip-mobile-destinations-grid trip-mobile-offer-grid">
+                      <Link className="trip-mobile-destination-overview" href="/okazje"><span>Wszystkie okazje</span></Link>
+                      {tripOfferCategories.map((item) => (
+                        <Link key={item.key} href={offerCategoryHref(item.key)}><span>{item.label}</span></Link>
+                      ))}
+                      <Link href="/atrakcje"><span>Wycieczki fakultatywne</span></Link>
+                      <Link href="/loty"><span>Bilety lotnicze</span></Link>
+                    </div>
+                  </details>
                   <Link href="/wakacje"><Palmtree size={18} /><span>Wakacje</span></Link>
                   <Link href="/city-break"><Building2 size={18} /><span>City break</span></Link>
                   <Link href="/last-minute"><Zap size={18} /><span>Last minute</span></Link>
@@ -251,6 +276,46 @@ export default function SiteHeader() {
           <nav className="trip-header-nav" aria-label="Główne kategorie podróży">
             {primaryItems.map((item) => {
               const active = isActive(item.href);
+
+              if (item.href === "/okazje") {
+                return (
+                  <details className="trip-header-menu trip-header-destinations trip-header-offers" key={item.href}>
+                    <summary className={`trip-header-nav-link trip-header-destination-trigger${active ? " is-active" : ""}`} aria-label="Rozwiń typy ofert">
+                      <span>{item.label}</span><ChevronDown size={14} strokeWidth={2.2} />
+                    </summary>
+                    <div className="trip-destinations-mega trip-offers-mega">
+                      <div className="trip-destinations-mega-head">
+                        <div><strong>Wybierz typ wyjazdu</strong><span>Typy ofert wzorowane na pełnej ofercie touroperatora, ale wyniki pokazujemy u siebie z danych feedowych.</span></div>
+                        <Link href="/okazje">Wszystkie okazje →</Link>
+                      </div>
+                      <div className="trip-offers-grid">
+                        {offerCategoryColumns.map((column, index) => (
+                          <div className="trip-destinations-column" key={index}>
+                            {column.map((category) => (
+                              <Link key={category.key} href={offerCategoryHref(category.key)} onClick={() => trackEvent("offer_category_menu_click", { category: category.key, placement: "desktop_header" })}>
+                                <span aria-hidden="true">›</span><strong>{category.label}</strong>
+                              </Link>
+                            ))}
+                            {index === 1 && (
+                              <>
+                                <Link href="/atrakcje"><span aria-hidden="true">›</span><strong>Wycieczki fakultatywne</strong></Link>
+                                <Link href="/loty"><span aria-hidden="true">›</span><strong>Bilety lotnicze</strong></Link>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                        <div className="trip-offers-departures">
+                          <strong>Wyloty z Twojego miasta</strong>
+                          {offerDepartureItems.map((departure) => (
+                            <Link key={departure.href} href={departure.href}><span aria-hidden="true">›</span>{departure.label}</Link>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </details>
+                );
+              }
+
               if (item.href !== "/kierunki") {
                 return <Link key={item.href} className={`trip-header-nav-link${active ? " is-active" : ""}`} href={item.href} aria-current={active ? "page" : undefined}><span>{item.label}</span></Link>;
               }
