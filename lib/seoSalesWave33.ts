@@ -72,9 +72,9 @@ export const seoSalesWave33: SeoLanding[] = [
   },
   {
     slug: "city-break-z-warszawy",
-    title: "City break z Warszawy — tanie loty + hotel z WAW i WMI",
-    eyebrow: "CITY BREAK Z WARSZAWY",
-    lead: "City break z Warszawy: tanie loty + hotel na 2–5 dni z Lotniska Chopina i Modlina. Porównaj aktualne kierunki, weekendy i pełny koszt wyjazdu.",
+    title: "City break z Warszawy 2026 — tanie loty + hotel z WAW i WMI",
+    eyebrow: "CITY BREAK Z WARSZAWY — AKTUALNE OFERTY",
+    lead: "City break z Warszawy 2026: aktualne tanie loty + hotel na 2–5 dni z Lotniska Chopina i Modlina. Porównaj ceny, terminy i wybierz konkretny wyjazd.",
     query: "City break",
     departure: "Warszawa",
     departureCode: "WAW",
@@ -82,8 +82,8 @@ export const seoSalesWave33: SeoLanding[] = [
     minNights: 2,
     maxNights: 5,
     paragraphs: [
-      "Przy city breaku z Warszawy warto porównywać Chopina i Modlin razem, ale liczyć pełny koszt dojazdu oraz godziny lotów.",
-      "Na krótkim wyjeździe szczególnie ważna jest lokalizacja hotelu i czas transferu z lotniska docelowego. Porównuj kilka miast dla tych samych dat."
+      "Szukasz city breaku z Warszawy? Zacznij od aktualnych ofert z Chopina i Modlina dla tych samych dat. Dzięki temu od razu porównasz realną cenę wyjazdu, a nie tylko sam bilet.",
+      "Na 2–5 dni liczą się godziny lotów, hotel i transfer. Wybierz konkretną ofertę w Tripowni, sprawdź szczegóły i dopiero potem przejdź do rezerwacji u partnera."
     ],
   },
   {
@@ -103,17 +103,17 @@ export const seoSalesWave33: SeoLanding[] = [
   },
   {
     slug: "last-minute-z-krakowa",
-    title: "Last Minute z Krakowa — tanie wakacje i All Inclusive z KRK",
-    eyebrow: "LAST MINUTE Z KRAKOWA / BALIC",
-    lead: "Last Minute z Krakowa (KRK): tanie wakacje, All Inclusive i pakiety lot + hotel na najbliższe terminy z Balic. Porównaj aktualne ceny i kierunki.",
+    title: "Last Minute z Krakowa 2026 — tanie wakacje i All Inclusive z KRK",
+    eyebrow: "LAST MINUTE Z KRAKOWA — AKTUALNE OFERTY",
+    lead: "Last Minute z Krakowa (KRK): aktualne tanie wakacje, All Inclusive i pakiety lot + hotel z Balic. Porównaj ceny i przejdź do konkretnej oferty.",
     query: "Last Minute",
     departure: "Kraków",
     departureCode: "KRK",
     categoryKeywords: ["lastminute", "wakacje", "allinclusive", "plaza", "cieplo"],
     minNights: 4,
     paragraphs: [
-      "Przy Last Minute z Krakowa największą szansę na dobrą cenę daje porównanie kilku kierunków dla tego samego terminu zamiast czekania na jeden hotel.",
-      "Sprawdź bagaż, transfer, wyżywienie oraz godziny lotów. Lokalny wylot z KRK może być korzystniejszy niż tańsza oferta wymagająca dalekiego dojazdu."
+      "Last Minute z Krakowa ma sens wtedy, gdy porównujesz kilka dostępnych kierunków dla tego samego terminu. Tripownia pokazuje aktualne pakiety z KRK i prowadzi do konkretnej oferty, nie do pustej wyszukiwarki.",
+      "Przed rezerwacją sprawdź cenę całego pakietu, hotel, wyżywienie, bagaż i transfer. Przy podobnej cenie lokalny wylot z Balic zwykle wygrywa czasem i wygodą."
     ],
   },
 ];
