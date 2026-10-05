@@ -73,34 +73,6 @@ export default function SalesVisualShortcuts() {
   return (
     <section className={styles.section} aria-label="Szybkie skróty do ofert">
       <div className={styles.shell}>
-        <div className={styles.rowHead}>
-          <div>
-            <small>NAJWIĘCEJ MOŻLIWOŚCI WYLOTU</small>
-            <h2>Zacznij od lotniska.</h2>
-          </div>
-          <Link href="/podroze">Wszystkie opcje <ArrowRight size={15}/></Link>
-        </div>
-
-        <div className={styles.airportGrid}>
-          {airportCards.map((card) => (
-            <Link
-              key={card.href}
-              href={card.href}
-              className={styles.airportCard}
-              onClick={() => track("airport", card.href)}
-            >
-              <Image src={card.image} alt="" fill sizes="(max-width: 620px) 84vw, 50vw" className={styles.image}/>
-              <span className={styles.scrim} aria-hidden="true"/>
-              <div className={styles.cardCopy}>
-                <small>{card.label}</small>
-                <strong>{card.title}</strong>
-                <span className={styles.airportText}>{card.text}</span>
-                <b>Zobacz oferty <ArrowRight size={14}/></b>
-              </div>
-            </Link>
-          ))}
-        </div>
-
         <div className={styles.rowHeadSecondary}>
           <div>
             <small>SZUKAJ PO BUDŻECIE</small>
@@ -152,6 +124,34 @@ export default function SalesVisualShortcuts() {
             </Link>
           ))}
         </div>
+        <div className={styles.rowHead}>
+          <div>
+            <small>NAJWIĘCEJ MOŻLIWOŚCI WYLOTU</small>
+            <h2>Zacznij od lotniska.</h2>
+          </div>
+          <Link href="/podroze">Wszystkie opcje <ArrowRight size={15}/></Link>
+        </div>
+
+        <div className={styles.airportGrid}>
+          {airportCards.map((card) => (
+            <Link
+              key={card.href}
+              href={card.href}
+              className={styles.airportCard}
+              onClick={() => track("airport", card.href)}
+            >
+              <Image src={card.image} alt="" fill sizes="(max-width: 620px) 84vw, 50vw" className={styles.image}/>
+              <span className={styles.scrim} aria-hidden="true"/>
+              <div className={styles.cardCopy}>
+                <small>{card.label}</small>
+                <strong>{card.title}</strong>
+                <span className={styles.airportText}>{card.text}</span>
+                <b>Zobacz oferty <ArrowRight size={14}/></b>
+              </div>
+            </Link>
+          ))}
+        </div>
+
       </div>
     </section>
   );
