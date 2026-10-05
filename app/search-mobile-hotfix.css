@@ -1561,3 +1561,136 @@
   font-weight:900;
   text-decoration:none;
 }
+
+
+/* 2026-10-05 flights UX compact pass */
+.tpwl-tripownia-page .flight-search-modes-intro{
+  padding:22px 0 10px;
+}
+.tpwl-tripownia-page .flight-search-modes-intro h1{
+  max-width:760px;
+  margin:6px 0 7px;
+  font-size:clamp(34px,4.2vw,52px);
+  line-height:1.01;
+}
+.tpwl-tripownia-page .flight-search-modes-intro p{
+  max-width:720px;
+  font-size:14px;
+  line-height:1.45;
+}
+
+.tpwl-tripownia-page .flights-mode-switch{
+  max-width:none;
+  margin-bottom:12px;
+  padding:4px;
+  border-radius:14px;
+}
+.tpwl-tripownia-page .flights-mode-switch button{
+  min-height:54px;
+  padding:8px 12px;
+}
+.tpwl-tripownia-page .flights-mode-switch button strong{
+  font-size:12px;
+}
+.tpwl-tripownia-page .flights-mode-switch button small{
+  font-size:9.5px;
+}
+
+.tpwl-tripownia-page .flight-hunt-clean{
+  padding:16px;
+  border-radius:18px;
+}
+.tpwl-tripownia-page .flight-hunt-modebar{
+  margin-bottom:12px;
+}
+.tpwl-tripownia-page .flight-hunt-modebar strong{
+  font-size:19px;
+}
+.tpwl-tripownia-page .flight-hunt-modebar span{
+  font-size:11px;
+}
+
+.tpwl-tripownia-page .flight-hunt-controls-clean{
+  grid-template-columns:minmax(170px,1.15fr) minmax(170px,1.15fr) minmax(150px,.85fr) minmax(210px,1.15fr) minmax(145px,.72fr) minmax(180px,.9fr);
+  gap:8px;
+}
+.tpwl-tripownia-page .flight-hunt-controls-clean>.flight-hunt-field,
+.tpwl-tripownia-page .flight-hunt-controls-clean>.flight-hunt-month,
+.tpwl-tripownia-page .flight-hunt-controls-clean>.flight-hunt-stay,
+.tpwl-tripownia-page .flight-hunt-controls-clean>.flight-hunt-direct,
+.tpwl-tripownia-page .flight-hunt-controls-clean>.flight-hunt-submit{
+  grid-column:auto;
+}
+
+.tpwl-tripownia-page .flight-hunt-picker-trigger,
+.tpwl-tripownia-page .flight-hunt-month select,
+.tpwl-tripownia-page .flight-hunt-direct,
+.tpwl-tripownia-page .flight-hunt-submit{
+  min-height:48px;
+  height:48px;
+}
+.tpwl-tripownia-page .flight-hunt-stay-pills{
+  min-height:48px;
+}
+.tpwl-tripownia-page .flight-hunt-stay-pills button{
+  min-height:48px;
+}
+.tpwl-tripownia-page .flight-hunt-submit{
+  border-radius:12px;
+  font-size:12px;
+  box-shadow:none;
+}
+.tpwl-tripownia-page .flight-hunt-direct{
+  justify-content:center;
+  border-radius:12px;
+}
+.tpwl-tripownia-page .flight-hunt-month select,
+.tpwl-tripownia-page .flight-hunt-picker-trigger{
+  border-radius:12px;
+}
+
+.tpwl-tripownia-page .flight-hunt-shortcuts-clean{
+  margin-top:10px;
+  padding-top:10px;
+  border-top:1px solid #eee4de;
+}
+.tpwl-tripownia-page .flight-hunt-shortcuts-clean button{
+  min-height:28px;
+  background:#fffaf7;
+}
+
+.tpwl-tripownia-page .flight-hunt-empty-clean{
+  min-height:auto;
+  margin-top:10px;
+  padding:12px 14px;
+  border:0;
+  border-radius:12px;
+  background:#faf7f4;
+}
+.tpwl-tripownia-page .flight-hunt-empty-clean strong{
+  font-size:13px;
+  margin-bottom:2px;
+}
+.tpwl-tripownia-page .flight-hunt-empty-clean span{
+  font-size:10.5px;
+}
+
+@media(max-width:1180px){
+  .tpwl-tripownia-page .flight-hunt-controls-clean{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
+@media(max-width:780px){
+  .tpwl-tripownia-page .flight-search-modes-intro{
+    padding:16px 2px 8px;
+  }
+  .tpwl-tripownia-page .flight-search-modes-intro h1{
+    font-size:34px;
+  }
+  .tpwl-tripownia-page .flight-hunt-controls-clean{
+    grid-template-columns:1fr;
+  }
+  .tpwl-tripownia-page .flight-hunt-direct{
+    justify-content:flex-start;
+  }
+}
