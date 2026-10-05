@@ -542,8 +542,8 @@ export default function FlexibleFlightsExplorer({
       <div className="flight-hunt-modebar">
         <div>
           <div className="kicker">ELASTYCZNE LOTY</div>
-          <strong>Poluj na najtańszy termin</strong>
-          <span>Nie musisz znać dat. Wybierz trasę albo zostaw kierunek otwarty.</span>
+          <strong>Znajdź tani lot bez szukania dzień po dniu</strong>
+          <span>Wybierz skąd, dokąd i orientacyjny termin. Resztę przeliczymy za Ciebie.</span>
         </div>
       </div>
 
@@ -621,16 +621,19 @@ export default function FlexibleFlightsExplorer({
         </button>
       </div>
 
+      <div className="flight-hunt-shortcuts flight-hunt-shortcuts-clean" aria-label="Szybkie ustawienia lotów">
+        <span>Szybko ustaw:</span>
+        <button type="button" onClick={() => { setTripLength(2,4); setTravelMonth(""); }}>Weekend 2–4 dni</button>
+        <button type="button" onClick={() => { setTripLength(5,7); setTravelMonth(""); }}>Tydzień 5–7 dni</button>
+        <button type="button" onClick={() => { setAnywhere(); setTripLength(2,5); }}>Gdziekolwiek</button>
+        <button type="button" onClick={() => { setDirectOnly(true); dirty(); }}>Tylko bezpośrednie</button>
+      </div>
+
       {!submitted && (
         <div className="flight-hunt-empty flight-hunt-empty-clean">
           <div>
-            <strong>{canSearch ? "Gotowe do szukania." : "Wybierz kierunek albo kliknij „Gdziekolwiek”."}</strong>
-            <span>{canSearch ? "Kliknij pomarańczowy przycisk, a pokażemy najlepsze ceny w elastycznych terminach." : "Dat nie musisz podawać — Tripownia przeszuka elastyczne opcje."}</span>
-          </div>
-          <div className="flight-hunt-empty-badges">
-            <span>✓ elastyczne daty</span>
-            <span>✓ wiele lotnisk</span>
-            <span>✓ aktualne ceny</span>
+            <strong>{canSearch ? "Ustawienia gotowe." : "Wybierz kierunek lub użyj „Gdziekolwiek”."}</strong>
+            <span>{canSearch ? "Kliknij „Pokaż najtańsze terminy” i od razu przejdź do konkretnych cen." : "Nie musisz znać dokładnych dat — możesz zacząć od samego kierunku."}</span>
           </div>
         </div>
       )}
