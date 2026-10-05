@@ -8,6 +8,7 @@ import { adminFetch } from "@/lib/adminClient";
 import { findSocialOfferForCatalogOffer } from "@/lib/socialOffers";
 import type { Offer } from "@/lib/offers";
 import { destinationRotationKey } from "@/lib/destination-rotation";
+import { isPromotableOffer } from "@/lib/offerValuePolicy";
 
 type Status = "proposal" | "approved" | "published";
 
@@ -94,7 +95,7 @@ export default function AdminSocialWeekPlanner(){
     let active=true;
     setLiveLoading(true);
     Promise.all([
-      fetch("/api/today-offers?fast=1&skipEsky=1",{cache:"no-store"}),
+      fetch("/api/today-offers?mode=search&broad=1&fast=1",{cache:"no-store"}),
       adminFetch("/api/admin/social-publish?days=7"),
     ])
       .then(async([liveResponse,historyResponse])=>{
@@ -102,7 +103,8 @@ export default function AdminSocialWeekPlanner(){
         if(!liveResponse.ok||!liveData?.ok) throw new Error(liveData?.error||"Nie udało się pobrać dzisiejszych ofert");
         if(!historyResponse.ok||!historyData?.ok) throw new Error(historyData?.error||"Nie udało się pobrać historii publikacji");
         if(active){
-          setLiveOffers(Array.isArray(liveData.offers)?liveData.offers:[]);
+          const verifiedOffers=(Array.isArray(liveData.offers)?liveData.offers:[]).filter((offer:Offer)=>isPromotableOffer(offer));
+          setLiveOffers(verifiedOffers);
           const rows=Array.isArray(historyData.rows)?historyData.rows:[];
           setRecentDestinationKeys(Array.from(new Set(rows.map((row:{destination_key?:string})=>String(row.destination_key||"")).filter(Boolean))));
           setRecentHotelKeys(Array.from(new Set(rows.map((row:{hotel?:string})=>normalizeHistoryValue(String(row.hotel||""))).filter(Boolean))));
