@@ -3,6 +3,7 @@ import { homepageFallbackOffers as publishedOffers, type Offer } from "@/lib/off
 import { dedupeOffersByIdentity, isUsableOffer } from "@/lib/offerEngine";
 import { GET as getTodayOffers } from "@/app/api/today-offers/route";
 import { destinationQueryMatches } from "@/lib/destinationAliases";
+import { getOfferCategorySearchTerms, isOfferCategoryKey, offerMatchesCategory } from "@/lib/tripOfferCategories";
 
 type DealsOffer = Offer & {
   startDateISO?: string;
@@ -46,11 +47,8 @@ function destinationMatches(offer: DealsOffer, destination: string) {
 
 function typeMatches(offer: DealsOffer, type: string) {
   if (!type) return true;
-  if (type === "allinclusive") {
-    const categories = Array.isArray(offer.category) ? offer.category : [];
-    return categories.includes("allinclusive") || /all\s*inclusive/i.test(offer.board || "");
-  }
-  return true;
+  if (!isOfferCategoryKey(type)) return true;
+  return offerMatchesCategory(type, offer);
 }
 
 function airportMatches(offer: DealsOffer, airport: string) {
@@ -220,7 +218,8 @@ async function loadSource(
 export async function GET(request: NextRequest) {
   const airport = (request.nextUrl.searchParams.get("from") || "").trim();
   const destination = (request.nextUrl.searchParams.get("q") || request.nextUrl.searchParams.get("destination") || "").trim();
-  const type = (request.nextUrl.searchParams.get("type") || "").trim().toLowerCase();
+  const rawType = (request.nextUrl.searchParams.get("type") || "").trim().toLowerCase();
+  const type = isOfferCategoryKey(rawType) ? rawType : "";
   const strict = request.nextUrl.searchParams.get("strict") === "1";
   const rawMonth = (request.nextUrl.searchParams.get("month") || "").trim();
   const rawYear = (request.nextUrl.searchParams.get("year") || "").trim();
@@ -236,19 +235,24 @@ export async function GET(request: NextRequest) {
     ...(strict ? { strict: "1" } : {}),
   };
 
+  const categorySearchTerms = type ? getOfferCategorySearchTerms(type) : [];
+  const categoryQuery = categorySearchTerms.slice(0, 6).join(",");
+
   const sourceRequests: Array<Promise<SourceResult>> = [
     loadSource(
       request,
       "combined-packages",
       destination
         ? { mode: "search", q: destination, ...sourceScope }
-        : { mode: "search", broad: "1", fast: "1", ...sourceScope }
+        : categoryQuery
+          ? { mode: "search", q: categoryQuery, fast: "1", ...sourceScope }
+          : { mode: "search", broad: "1", fast: "1", ...sourceScope }
     ),
   ];
 
   // Typed destination search already includes short stays. Avoid a duplicate
   // city-break request for the same destination, which can trigger provider limits.
-  if (!destination) {
+  if (!destination && (!type || type === "citybreak")) {
     sourceRequests.push(
       loadSource(request, "combined-citybreaks", { mode: "citybreak", fast: "1", ...sourceScope })
     );
