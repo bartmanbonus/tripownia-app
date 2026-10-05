@@ -15,7 +15,8 @@ export type PartnerKey =
   | "rentacar"
   | "kiwitaxi"
   | "gettransfer"
-  | "airhelp";
+  | "airhelp"
+  | "zwrotzalot";
 
 export type Partner = {
   key: PartnerKey;
@@ -260,6 +261,15 @@ export const partners: Record<PartnerKey, Partner> = {
     commissionType: "unknown",
     trackingId: "i479aQSg",
     buildUrl: () => "https://airhelp.tpk.lv/i479aQSg",
+  },
+  zwrotzalot: {
+    key: "zwrotzalot",
+    name: "ZwrotZaLot",
+    category: "travel",
+    description: "Sprawdzenie prawa do odszkodowania za opóźniony lub odwołany lot",
+    commissionType: "unknown",
+    trackingId: "393367:3487177",
+    buildUrl: () => "https://visit.zwrotzalot.pl/click?p=393367&a=3487177",
   },
 };
 
