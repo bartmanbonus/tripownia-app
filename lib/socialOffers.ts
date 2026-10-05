@@ -1184,6 +1184,18 @@ export function getSocialOfferSlugs() {
   return Object.keys(SOCIAL_OFFERS);
 }
 
+function socialOfferFresh(offer: SocialOffer, maxHours = 6) {
+  const checked = Date.parse(offer.checkedAt || "");
+  if (!Number.isFinite(checked)) return false;
+  const age = Date.now() - checked;
+  return age >= 0 && age <= maxHours * 60 * 60 * 1000;
+}
+
 export function socialOfferReady(offer: SocialOffer) {
-  return offer.status === "active" && validAffiliateUrl(offer.affiliateUrl) && validImageCountry(offer);
+  // Existing /o/<slug> landings stay reachable, but only recently rechecked
+  // offers are eligible for a new automatic publication.
+  return offer.status === "active"
+    && validAffiliateUrl(offer.affiliateUrl)
+    && validImageCountry(offer)
+    && socialOfferFresh(offer);
 }
