@@ -28,6 +28,7 @@ export default function SiteFooter() {
               <Link href="/alerty">Alerty</Link>
               <Link href="/profil">Profil podróżnika</Link>
               <Link href="/przed-wyjazdem">Checklista przed wyjazdem</Link>
+              <Link href="/odszkodowanie-za-lot">Odszkodowanie za lot</Link>
             </div>
 
             <div className="footer-v2-column">
