@@ -23,7 +23,8 @@ type PriceHighlight = {
   detail: string;
 };
 
-type QuickFilter = "all" | "city" | "allinclusive" | "sun" | "under2000";
+type QuickFilter = "all" | "city" | "allinclusive" | "sun" | "under2000" | "flight" | "package";
+type SortMode = "mix" | "priceAsc" | "priceDesc" | "shortest";
 
 const AIRPORTS = [
   { value: "any", label: "Wszystkie lotniska" },
@@ -56,7 +57,7 @@ function buildYearOptions(count = 3) {
   return Array.from({ length: count }, (_, index) => String(currentYear + index));
 }
 
-function allOfferRows(rows: DealsOffer[]) {
+function dedupedOfferRows(rows: DealsOffer[]) {
   const unique = new Map<number, DealsOffer>();
   rows
     .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
@@ -64,22 +65,40 @@ function allOfferRows(rows: DealsOffer[]) {
       const current = unique.get(offer.id);
       if (!current || Number(offer.price) < Number(current.price)) unique.set(offer.id, offer);
     });
-
-  return Array.from(unique.values())
-    .sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0));
+  return Array.from(unique.values());
 }
 
-function destinationOfferRows(rows: DealsOffer[]) {
-  const unique = new Map<number, DealsOffer>();
-  rows
-    .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
-    .forEach((offer) => {
-      const current = unique.get(offer.id);
-      if (!current || Number(offer.price) < Number(current.price)) unique.set(offer.id, offer);
-    });
+function priceSort(rows: DealsOffer[]) {
+  return [...rows].sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0));
+}
 
-  return Array.from(unique.values())
-    .sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0));
+function diversifiedOfferRows(rows: DealsOffer[]) {
+  const source = priceSort(dedupedOfferRows(rows));
+  const flights = source.filter((offer) => offer.category.includes("flight"));
+  const cityPackages = source.filter((offer) => !offer.category.includes("flight") && (offer.category.includes("city") || offer.category.includes("weekend")));
+  const holidays = source.filter((offer) => !offer.category.includes("flight") && !offer.category.includes("city") && !offer.category.includes("weekend"));
+  const buckets = [flights, cityPackages, holidays];
+  const output: DealsOffer[] = [];
+  let cursor = 0;
+
+  while (buckets.some((bucket) => bucket.length)) {
+    const bucket = buckets[cursor % buckets.length];
+    if (bucket.length) output.push(bucket.shift()!);
+    cursor++;
+  }
+  return output;
+}
+
+function allOfferRows(rows: DealsOffer[], sortMode: SortMode) {
+  const unique = dedupedOfferRows(rows);
+  if (sortMode === "mix") return diversifiedOfferRows(unique);
+  if (sortMode === "priceDesc") return priceSort(unique).reverse();
+  if (sortMode === "shortest") return [...unique].sort((a, b) => Number(a.nights) - Number(b.nights) || Number(a.price) - Number(b.price));
+  return priceSort(unique);
+}
+
+function destinationOfferRows(rows: DealsOffer[], sortMode: SortMode) {
+  return allOfferRows(rows, sortMode === "mix" ? "priceAsc" : sortMode);
 }
 
 function offerCountLabel(count: number) {
@@ -148,6 +167,7 @@ export default function DealsPage({
   const [historyVersion, setHistoryVersion] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState<QuickFilter>(dealType === "allinclusive" ? "allinclusive" : "all");
+  const [sortMode, setSortMode] = useState<SortMode>("mix");
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
@@ -174,13 +194,15 @@ export default function DealsPage({
     if (quickFilter === "allinclusive") return sourceRows.filter((offer) => offer.category.includes("allinclusive"));
     if (quickFilter === "sun") return sourceRows.filter((offer) => offer.category.includes("cieplo") || offer.category.includes("plaza"));
     if (quickFilter === "under2000") return sourceRows.filter((offer) => Number(offer.price) <= 2000);
+    if (quickFilter === "flight") return sourceRows.filter((offer) => offer.category.includes("flight"));
+    if (quickFilter === "package") return sourceRows.filter((offer) => !offer.category.includes("flight"));
     return sourceRows;
   }, [offers, quickFilter]);
   const rows = useMemo(
     () => destination
-      ? destinationOfferRows(quickFilteredOffers)
-      : allOfferRows(quickFilteredOffers),
-    [quickFilteredOffers, source, destination]
+      ? destinationOfferRows(quickFilteredOffers, sortMode)
+      : allOfferRows(quickFilteredOffers, sortMode),
+    [quickFilteredOffers, source, destination, sortMode]
   );
   const destinationHotelHref = useMemo(
     () => destination ? `/hotele?q=${encodeURIComponent(destination)}` : "",
@@ -382,6 +404,8 @@ export default function DealsPage({
               ["allinclusive", "All inclusive"],
               ["sun", "Ciepło"],
               ["under2000", "Do 2000 zł"],
+              ["flight", "Sam lot"],
+              ["package", "Pakiety"],
             ] as Array<[QuickFilter, string]>).map(([value, label]) => (
               <button
                 key={value}
@@ -397,16 +421,27 @@ export default function DealsPage({
             ))}
           </div>
 
-          <button
-            type="button"
-            className="deals-simple-refresh"
-            onClick={refresh}
-            disabled={loading}
-            aria-label="Odśwież ceny"
-          >
-            <RefreshCw size={16} className={loading ? "is-spinning" : ""}/>
-            <span>{loading ? "Odświeżamy…" : "Odśwież"}</span>
-          </button>
+          <div className="deals-sort-refresh">
+            <label className="deals-sort-control">
+              <span>Sortuj</span>
+              <select value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)}>
+                <option value="mix">Polecany miks</option>
+                <option value="priceAsc">Cena: od najniższej</option>
+                <option value="priceDesc">Cena: od najwyższej</option>
+                <option value="shortest">Najkrótszy wyjazd</option>
+              </select>
+            </label>
+            <button
+              type="button"
+              className="deals-simple-refresh"
+              onClick={refresh}
+              disabled={loading}
+              aria-label="Odśwież ceny"
+            >
+              <RefreshCw size={16} className={loading ? "is-spinning" : ""}/>
+              <span>{loading ? "Odświeżamy…" : "Odśwież"}</span>
+            </button>
+          </div>
         </div>
 
         <button
@@ -656,6 +691,34 @@ export default function DealsPage({
         color: #fff;
       }
 
+      .deals-sort-refresh {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: 0 0 auto;
+      }
+
+      .deals-sort-control {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        font-size: 12px;
+        font-weight: 800;
+        color: #6b7280;
+      }
+
+      .deals-sort-control select {
+        height: 38px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        background: #fff;
+        padding: 0 9px;
+        color: #111827;
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
       .deals-simple-refresh {
         display: inline-flex;
         align-items: center;
@@ -844,6 +907,22 @@ export default function DealsPage({
 
         .deals-simple-topline {
           display: block;
+        }
+
+        .deals-sort-refresh {
+          width: 100%;
+          justify-content: flex-end;
+          margin-top: 8px;
+        }
+
+        .deals-sort-control {
+          width: 100%;
+          justify-content: space-between;
+        }
+
+        .deals-sort-control select {
+          flex: 1;
+          max-width: 220px;
         }
 
         .deals-simple-refresh {
