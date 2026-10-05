@@ -3,6 +3,7 @@ import { assessPriceGem, rankByPriceGem, type PriceGemAssessment } from "@/lib/p
 import { getSocialOfferPoolData } from "@/lib/social-offer-pool";
 import { findSocialOfferForCatalogOffer } from "@/lib/socialOffers";
 import { DESTINATION_COOLDOWN_DAYS, isDestinationInRotationWindow, rotationPriority } from "@/lib/destination-rotation";
+import { isPromotableOffer } from "@/lib/offerValuePolicy";
 
 export type SocialTone = "short" | "sales" | "daily";
 export type SocialSlotKind = "market" | "city" | "seasonal" | "flight";
@@ -123,9 +124,10 @@ export function getSocialDailyPlan(_source: Offer[] = [], planDate = new Date())
     return { dayName:DAY_NAMES[weekday], theme:"Czeka na poranny skan", description:"Oferty pojawią się tego dnia o 07:00 po świeżym skanie. Nie planujemy przyszłych perełek na podstawie starych cen.", dateKey:planKey, items:[] };
   }
 
-  const provided = _source.filter((offer) => getLinkMatch(offer) !== "unsafe");
+  const provided = _source.filter((offer) => getLinkMatch(offer) !== "unsafe" && isPromotableOffer(offer));
   const fallbackPool = provided.length ? null : getSocialOfferPoolData(evaluationNow);
-  const sourceOffers = provided.length ? provided : fallbackPool?.offers || [];
+  const sourceOffers = (provided.length ? provided : fallbackPool?.offers || [])
+    .filter((offer) => getLinkMatch(offer) !== "unsafe" && isPromotableOffer(offer));
   const poolData = {
     offers: sourceOffers,
     flightGemId: provided.length
