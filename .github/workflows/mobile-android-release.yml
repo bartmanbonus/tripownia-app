@@ -1,30 +1,60 @@
-name: Mobile Android Release Bundle
+name: Mobile Android Signed AAB
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feature/native-mobile-app
-    paths:
-      - 'mobile/**'
-      - '.github/workflows/mobile-android-release.yml'
+    inputs:
+      version_code:
+        description: Integer greater than every versionCode already uploaded to Play Console (1 for a first upload)
+        required: true
+        type: string
+      version_name:
+        description: User-facing version, e.g. 1.0.0
+        required: true
+        default: '1.0.0'
+        type: string
+
+permissions:
+  contents: read
 
 jobs:
   build-release-bundle:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     defaults:
       run:
         working-directory: mobile
+        shell: bash
+    env:
+      ANDROID_VERSION_CODE: ${{ inputs.version_code }}
+      ANDROID_VERSION_NAME: ${{ inputs.version_name }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Check upload key secrets
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD; do
+            if [[ -z "${!name}" ]]; then
+              echo "::error::Missing required upload-key secret: $name"
+              exit 1
+            fi
+          done
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -32,24 +62,69 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Verify mobile shell
-        run: test -f www/index.html
+      - name: Install locked mobile dependencies
+        run: npm ci --no-audit --no-fund
 
       - name: Generate Android project
-        run: npx cap add android
+        run: |
+          test -f www/index.html
+          test -f www/offline.html
+          npx --no-install cap add android
+
+      - name: Configure and check Android release
+        run: npm run android:release:configure
+
+      - name: Generate Tripownia Android icons
+        run: |
+          mkdir -p assets
+          cp ../public/tripownia-app-icon-v2.png assets/icon.png
+          npm run assets -- --android --iconBackgroundColor '#ffffff' --iconBackgroundColorDark '#ffffff' --splashBackgroundColor '#ffffff' --splashBackgroundColorDark '#ffffff'
 
       - name: Sync Capacitor
-        run: npx cap sync android
+        run: npx --no-install cap sync android
 
       - name: Build release AAB
-        run: ./android/gradlew -p android bundleRelease
+        run: ./android/gradlew -p android --no-daemon bundleRelease
 
-      - name: Upload release AAB
+      - name: Sign and verify AAB with the upload key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          umask 077
+          upload_keystore="$RUNNER_TEMP/tripownia-upload-$GITHUB_RUN_ID.jks"
+          trap 'rm -f "$upload_keystore"' EXIT
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$upload_keystore"
+          mkdir -p dist
+          bundle="dist/tripownia-${ANDROID_VERSION_NAME}-${ANDROID_VERSION_CODE}.aab"
+          cp android/app/build/outputs/bundle/release/app-release.aab "$bundle"
+          jarsigner -sigalg SHA256withRSA -digestalg SHA-256 \
+            -keystore "$upload_keystore" \
+            -storepass:env ANDROID_KEYSTORE_PASSWORD \
+            -keypass:env ANDROID_KEY_PASSWORD \
+            "$bundle" "$ANDROID_KEY_ALIAS"
+          jarsigner -verify -strict \
+            -keystore "$upload_keystore" \
+            -storepass:env ANDROID_KEYSTORE_PASSWORD \
+            "$bundle" "$ANDROID_KEY_ALIAS"
+          python3 - "$bundle" <<'PY'
+          import sys, zipfile
+          with zipfile.ZipFile(sys.argv[1]) as bundle:
+              names = bundle.namelist()
+              assert any(n.startswith('META-INF/') and n.endswith('.SF') for n in names), 'Missing AAB signature'
+              assert any(n.startswith('META-INF/') and n.endswith('.RSA') for n in names), 'Missing RSA signing block'
+          PY
+          sha256sum "$bundle" > "$bundle.sha256"
+
+      - name: Upload signed AAB for manual Play Console upload
         uses: actions/upload-artifact@v4
         with:
-          name: tripownia-android-release-aab
-          path: mobile/android/app/build/outputs/bundle/release/app-release.aab
+          name: tripownia-signed-aab-${{ inputs.version_code }}
+          path: |
+            mobile/dist/*.aab
+            mobile/dist/*.aab.sha256
           if-no-files-found: error
+          retention-days: 30

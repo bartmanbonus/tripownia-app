@@ -8,17 +8,23 @@
     "ios:add": "npx cap add ios",
     "android:open": "npx cap open android",
     "ios:open": "npx cap open ios",
-    "assets": "npx @capacitor/assets generate"
+    "assets": "npx @capacitor/assets generate",
+    "android:release:configure": "node scripts/configure-android-release.mjs"
   },
   "dependencies": {
-    "@capacitor/android": "latest",
-    "@capacitor/core": "latest",
-    "@capacitor/ios": "latest",
-    "@capacitor/browser": "latest"
+    "@capacitor/android": "8.5.2",
+    "@capacitor/core": "8.5.2",
+    "@capacitor/ios": "8.5.2",
+    "@capacitor/browser": "8.0.4"
   },
   "devDependencies": {
-    "@capacitor/assets": "latest",
-    "@capacitor/cli": "latest",
-    "typescript": "^5.7.2"
+    "@capacitor/assets": "3.0.5",
+    "@capacitor/cli": "8.5.2",
+    "typescript": "5.7.2"
+  },
+  "overrides": {
+    "tar": "7.5.22",
+    "sharp": "0.35.5",
+    "uuid": "11.1.1"
   }
 }
