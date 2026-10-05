@@ -54,17 +54,17 @@ export const seoSeasonalCommercialLandings: SeoLanding[] = [
   },
   {
     slug: "ferie-2027-all-inclusive",
-    title: "Ferie 2027 All Inclusive — ciepłe wakacje zimą",
-    eyebrow: "FERIE 2027 ALL INCLUSIVE",
-    lead: "Ferie zimowe 2027 All Inclusive: porównaj ciepłe kierunki, tygodniowe pakiety i aktualne oferty z polskich lotnisk.",
+    title: "Ferie 2027 All Inclusive — aktualne oferty na ciepłe wakacje",
+    eyebrow: "FERIE 2027 ALL INCLUSIVE — AKTUALNE OFERTY",
+    lead: "Ferie 2027 All Inclusive: sprawdź aktualne pakiety na ciepłe wakacje zimą, porównaj ceny z polskich lotnisk i przejdź do konkretnej oferty.",
     query: "All Inclusive",
     categoryKeywords: ["allinclusive","ferie","wakacje","cieplo"],
     minNights: 6,
     startDate: "2027-01-18",
     endDate: "2027-02-28",
     paragraphs: [
-      "Przy feriach zimowych warto najpierw sprawdzić swoją turę i dopiero potem porównywać kilka ciepłych kierunków dla dokładnie tych samych dat.",
-      "Rodzinnie szczególnie ważne są godziny lotów, długość transferu i standard hotelu. Niewielka dopłata może dać znacznie wygodniejszy wyjazd."
+      "Na ferie 2027 najpierw wybierz swoją turę, a następnie porównaj aktualne pakiety All Inclusive dla tych samych dat. Najlepsza cena ma znaczenie tylko wtedy, gdy oferta faktycznie pasuje do terminu ferii.",
+      "Przed zakupem porównaj hotel, wyżywienie, godziny lotów i transfer. Klikając ofertę w Tripowni, przechodzisz najpierw do jej szczegółów, a dopiero potem do rezerwacji u partnera."
     ],
   },
   {
@@ -84,9 +84,9 @@ export const seoSeasonalCommercialLandings: SeoLanding[] = [
   },
   {
     slug: "grudzien-2026-all-inclusive-do-3000-zl",
-    title: "All Inclusive w grudniu 2026 do 3000 zł",
-    eyebrow: "ALL INCLUSIVE GRUDZIEŃ 2026 DO 3000 ZŁ",
-    lead: "All Inclusive w grudniu 2026 do 3000 zł za osobę: ciepłe kierunki, lot + hotel i pełne pakiety z polskich lotnisk.",
+    title: "All Inclusive w grudniu 2026 do 3000 zł — aktualne oferty",
+    eyebrow: "ALL INCLUSIVE DO 3000 ZŁ — GRUDZIEŃ 2026",
+    lead: "All Inclusive w grudniu 2026 do 3000 zł/os.: sprawdź aktualne ciepłe kierunki i pakiety z polskich lotnisk. Porównaj ceny i wybierz konkretną ofertę.",
     query: "All Inclusive",
     categoryKeywords: ["allinclusive","grudzien","wakacje","cieplo"],
     maxPrice: 3000,
@@ -94,8 +94,8 @@ export const seoSeasonalCommercialLandings: SeoLanding[] = [
     startDate: "2026-12-01",
     endDate: "2026-12-31",
     paragraphs: [
-      "W grudniu ceny mocno zależą od tego, czy termin obejmuje święta i Sylwestra. Porównuj pierwszą połowę miesiąca oddzielnie od okresu świątecznego.",
-      "Sprawdź kierunek, standard hotelu, zakres All Inclusive i godziny lotów, żeby porównać realną wartość pakietu."
+      "W grudniu ceny mocno zależą od tego, czy termin obejmuje święta i Sylwestra. Tripownia filtruje pakiety do 3000 zł/os., żeby od razu przejść do ofert mieszczących się w budżecie.",
+      "Porównaj kierunek, hotel, zakres All Inclusive i godziny lotów. Jeśli oferta pasuje, przejdź z jej szczegółów w Tripowni bezpośrednio do rezerwacji u partnera."
     ],
   },
 ];
