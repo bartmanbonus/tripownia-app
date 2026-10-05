@@ -23,7 +23,7 @@ const SearchHub = dynamic(() => import("@/components/SearchHub"));
 const SalesVisualShortcuts = dynamic(() => import("@/components/SalesVisualShortcuts"));
 const RecentlyViewedOffers = dynamic(() => import("@/components/RecentlyViewedOffers"));
 
-const DAILY_CACHE_MAX_AGE_MS = 48 * 60 * 60 * 1000;
+const DAILY_CACHE_MAX_AGE_MS = 6 * 60 * 60 * 1000;
 
 const LOCAL_IMAGE_BY_CITY: Record<string, string> = {
   malta: "/images/destinations/valletta.jpg",
@@ -622,20 +622,37 @@ export default function Home() {
   );
 
   const homepageOfferPool = useMemo(() => {
-    const liveDeals = cheapestPerDirection(liveOffers.map(offerForDisplay).filter(isHomepageDeal))
+    const displayLive = liveOffers
+      .map(offerForDisplay)
+      .filter((offer) => !isOfferExpired(offer))
+      .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country));
+
+    const liveDeals = cheapestPerDirection(displayLive.filter(isHomepageDeal))
       .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
     const seen = new Set(liveDeals.map(destinationGroupKey));
-    const fallback = publishedFallbackOffers.filter((offer) => {
+
+    // Keep the homepage rich even when a partner feed is older than our 6-hour
+    // commerce threshold. Exact current-feed rows may still be useful discovery
+    // cards, but OfferCard hides their numeric price until it is reverified.
+    const currentFeedDiscovery = cheapestPerDirection(
+      displayLive.filter((offer) => {
+        if (!offer.affiliateUrl || offer.linkMatch !== "exact") return false;
+        const key = destinationGroupKey(offer);
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+    ).sort((a, b) => b.score - a.score || Number(a.nights || Infinity) - Number(b.nights || Infinity));
+
+    const manualFallback = publishedFallbackOffers.filter((offer) => {
       const key = destinationGroupKey(offer);
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
     });
 
-    return [...liveDeals, ...fallback]
-      .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity) || b.score - a.score)
-      .slice(0, 18);
+    return [...liveDeals, ...currentFeedDiscovery, ...manualFallback].slice(0, 18);
   }, [liveOffers, publishedFallbackOffers]);
 
   const todaysOffers = homepageOfferPool.slice(0, 18);
