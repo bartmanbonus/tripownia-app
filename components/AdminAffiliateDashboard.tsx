@@ -20,6 +20,8 @@ type Stats = {
     page?: string | null;
   }>;
   byDay?: Record<string, number>;
+  byAttributionSource?: Record<string, number>;
+  googleOrganicClicks?: number;
   updatedAt?: string;
   scope?: "global" | "local";
   days?: number;
@@ -178,6 +180,7 @@ export default function AdminAffiliateDashboard() {
 
       <div className="affiliate-kpis">
         <div><small>KLIKNIĘCIA</small><strong>{stats.total}</strong><span>{isGlobal ? `wszyscy użytkownicy · ${days} dni` : "ta przeglądarka"}</span></div>
+        <div><small>GOOGLE → PARTNER</small><strong>{stats.googleOrganicClicks || 0}</strong><span>wyjścia afiliacyjne z ruchu organicznego</span></div>
         <div><small>TOP PARTNER</small><strong>{topPartner}</strong><span>{partners[0]?.[1] || 0} kliknięć</span></div>
         <div><small>TOP MIEJSCE</small><strong>{topSource === "—" ? "—" : labelSource(topSource)}</strong><span>{sources[0]?.[1] || 0} kliknięć</span></div>
         <div><small>OSTATNIA AKTYWNOŚĆ</small><strong>{stats.updatedAt ? new Date(stats.updatedAt).toLocaleString("pl-PL") : "—"}</strong><span>ostatni zapis</span></div>
