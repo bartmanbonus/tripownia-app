@@ -15,6 +15,7 @@ import { trackEvent } from "@/lib/analytics";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { offerSourceIsFallback } from "@/lib/offerEngine";
 import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
+import { fetchBrowserEskyOffers } from "@/lib/browserEsky";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import TripowniaLive from "@/components/TripowniaLive";
 
@@ -550,14 +551,31 @@ export default function Home() {
         if (!response.ok || data?.ok === false) throw new Error("today-offers");
         return data;
       })
-      .then((data) => {
+      .then(async (data) => {
         if (!active) return;
         const rows = Array.isArray(data?.offers) ? data.offers : [];
         const safeRows = rows
           .filter((offer: TripOffer) => offer && offer.id && offer.price > 0 && offer.affiliateUrl)
           .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country));
 
-        if (!safeRows.length) {
+        let browserEsky: TripOffer[] = [];
+        if (data?.partial) {
+          try {
+            browserEsky = (await fetchBrowserEskyOffers("/api/today-offers?mode=citybreak&broad=1&fast=1") as TripOffer[])
+              .filter((offer: TripOffer) => isTravelDestinationAllowed(offer.city, offer.country));
+          } catch {}
+        }
+
+        const unique = new Map<string, TripOffer>();
+        for (const offer of [...safeRows, ...browserEsky]) {
+          const key = `${offer.partner || "unknown"}:${offer.id}`;
+          const current = unique.get(key);
+          if (!current || Number(offer.price) < Number(current.price)) unique.set(key, offer);
+        }
+        const verifiedPool = Array.from(unique.values())
+          .sort((a, b) => Number(a.price || Infinity) - Number(b.price || Infinity));
+
+        if (!verifiedPool.length) {
           useCachedPool();
           return;
         }
@@ -566,7 +584,7 @@ export default function Home() {
         const sourceIsFallback = offerSourceIsFallback(data?.sourceType)
           || data?.coverage === "published_fallback"
           || data?.fallback === true;
-        const freshPool = safeRows.slice(0, 60);
+        const freshPool = verifiedPool.slice(0, 60);
         setLiveOffers(freshPool);
         setLastLiveCheckedAt(sourceIsFallback ? null : checkedAt);
         setLiveOffersStatus(sourceIsFallback ? "fallback" : "live");
