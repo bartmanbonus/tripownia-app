@@ -268,6 +268,73 @@ export default function DealsPage({
       });
     });
   }, [destination, currentYear, currentMonth, airport, month, year]);
+  const destinationAlternativeSearches = useMemo(() => {
+    if (!destination || !rows.length) return [];
+
+    const primary = rows[0];
+    const primaryNights = Math.max(1, Number(primary.nights) || 3);
+    const rawBaseDate = month !== "any" && year !== "any"
+      ? new Date(Number(year), Number(month) - 1, 1)
+      : primary.startDateISO
+        ? new Date(primary.startDateISO)
+        : new Date(currentYear, currentMonth - 1, 1);
+    const baseDate = Number.isNaN(rawBaseDate.getTime())
+      ? new Date(currentYear, currentMonth - 1, 1)
+      : rawBaseDate;
+
+    const stayVariants = primaryNights <= 3
+      ? [
+          { minNights: 2, maxNights: 3, stayLabel: "2–3 noce" },
+          { minNights: 4, maxNights: 5, stayLabel: "4–5 nocy" },
+          { minNights: 6, maxNights: 7, stayLabel: "6–7 nocy" },
+        ]
+      : primaryNights <= 6
+        ? [
+            { minNights: 2, maxNights: 3, stayLabel: "2–3 noce" },
+            { minNights: 4, maxNights: 6, stayLabel: "4–6 nocy" },
+            { minNights: 7, maxNights: 9, stayLabel: "7–9 nocy" },
+          ]
+        : [
+            { minNights: 4, maxNights: 6, stayLabel: "4–6 nocy" },
+            { minNights: 7, maxNights: 9, stayLabel: "7–9 nocy" },
+            { minNights: 10, maxNights: 14, stayLabel: "10–14 nocy" },
+          ];
+
+    return Array.from({ length: 3 }, (_, index) => {
+      const date = new Date(baseDate.getFullYear(), baseDate.getMonth() + index, 1);
+      return { year: date.getFullYear(), month: date.getMonth() + 1 };
+    }).flatMap(({ year: searchYear, month: searchMonth }) => {
+      const monthValue = String(searchMonth).padStart(2, "0");
+      const lastDay = new Date(searchYear, searchMonth, 0).getDate();
+      const start = `${searchYear}-${monthValue}-01`;
+      const end = `${searchYear}-${monthValue}-${String(lastDay).padStart(2, "0")}`;
+      const monthLabel = `${MONTH_NAMES[searchMonth - 1]} ${searchYear}`;
+
+      return stayVariants.map(({ minNights, maxNights, stayLabel }) => {
+        const target = eskySearchUrl({
+          query: destination,
+          start,
+          end,
+          minNights,
+          maxNights,
+          departure: airport !== "any" ? airport : "",
+        });
+        const params = new URLSearchParams({
+          partner: "esky",
+          target,
+          source: "destination_alternative",
+          destination,
+          page: "/okazje",
+        });
+        return {
+          key: `alt-${searchYear}-${monthValue}-${minNights}-${maxNights}`,
+          label: monthLabel,
+          stayLabel,
+          href: `/go/live?${params.toString()}`,
+        };
+      });
+    }).slice(0, 6);
+  }, [destination, rows, airport, month, year, currentYear, currentMonth]);
   const todayRows = useMemo(() => allOfferRows(todayOffers as DealsOffer[], "priceAsc").slice(0, 5), [todayOffers]);
   const poolHighlights = useMemo(() => source === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source]);
 
@@ -543,12 +610,49 @@ export default function DealsPage({
             ))}
           </div>
           {destination && (
-            <div className="deals-more-destination deals-full-pool-note">
-              <div>
-                <strong>Pokazujemy pełną pulę, którą zwracają podpięte źródła dla: {destination}.</strong>
-                <span>Nie ukrywamy dalszych ofert za przyciskiem „więcej” i nie przenosimy Cię do partnera po samą listę.</span>
+            <>
+              <div className="deals-more-destination deals-full-pool-note">
+                <div>
+                  <strong>Pokazujemy pełną pulę, którą zwracają podpięte źródła dla: {destination}.</strong>
+                  <span>Nie ukrywamy dalszych ofert za przyciskiem „więcej” i nie przenosimy Cię do partnera po samą listę.</span>
+                </div>
               </div>
-            </div>
+
+              {destinationAlternativeSearches.length > 0 && (
+                <section className="destination-monthly-results" aria-label={"Inne warianty dla " + destination}>
+                  <div className="destination-monthly-head">
+                    <div>
+                      <strong>Sprawdź też inne terminy</strong>
+                      <span>Najpierw pokazujemy konkretną aktualną ofertę. Poniżej dajemy alternatywne terminy i długości pobytu — bez podawania ceny, dopóki partner jej nie potwierdzi.</span>
+                    </div>
+                  </div>
+                  <div className="destination-monthly-grid">
+                    {destinationAlternativeSearches.map((item) => (
+                      <a
+                        className="destination-month-card"
+                        key={item.key}
+                        href={item.href}
+                        rel="sponsored"
+                        onClick={() => trackEvent("destination_alternative_click", { destination, variant: item.key })}
+                      >
+                        <div className="destination-month-card-top">
+                          <span className="destination-month-card-badge">INNY WARIANT</span>
+                          <CalendarDays size={18}/>
+                        </div>
+                        <div className="destination-month-card-main">
+                          <small>{destination}</small>
+                          <strong>{item.label}</strong>
+                          <span>{item.stayLabel} · sprawdź dostępność i aktualną cenę</span>
+                        </div>
+                        <div className="destination-month-card-cta">
+                          Zobacz wariant <ArrowRight size={16}/>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>
           )}
         </>
       ) : !loading ? (
