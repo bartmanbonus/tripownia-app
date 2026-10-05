@@ -3,6 +3,7 @@ import { homepageFallbackOffers as publishedOffers, type Offer } from "@/lib/off
 import { dedupeOffersByIdentity, isUsableOffer } from "@/lib/offerEngine";
 import { GET as getTodayOffers } from "@/app/api/today-offers/route";
 import { destinationQueryMatches } from "@/lib/destinationAliases";
+import { partners } from "@/lib/partners";
 
 type DealsOffer = Offer & {
   startDateISO?: string;
@@ -203,6 +204,132 @@ function closestCheapDeals(offers: DealsOffer[], month: string, year: string, de
   });
 }
 
+
+type FlightCalendarRow = {
+  destination?: string;
+  depart_date?: string;
+  return_date?: string;
+  depart_stops?: number;
+  return_stops?: number;
+  value?: number | null;
+};
+
+const CITY_FLIGHT_TARGETS = [
+  { code: "MXP", city: "Mediolan", country: "Włochy", image: "/images/destinations/bergamo.jpg", kiwi: "milan-italy" },
+  { code: "FCO", city: "Rzym", country: "Włochy", image: "/images/destinations/rzym.jpg", kiwi: "rome-italy" },
+  { code: "BCN", city: "Barcelona", country: "Hiszpania", image: "/images/destinations/barcelona.jpg", kiwi: "barcelona-spain" },
+  { code: "VIE", city: "Wiedeń", country: "Austria", image: "/images/destinations/wieden.jpg", kiwi: "vienna-austria" },
+  { code: "BUD", city: "Budapeszt", country: "Węgry", image: "/images/destinations/budapeszt.jpg", kiwi: "budapest-hungary" },
+  { code: "PRG", city: "Praga", country: "Czechy", image: "/images/destinations/praga.jpg", kiwi: "prague-czechia" },
+  { code: "OPO", city: "Porto", country: "Portugalia", image: "/images/destinations/porto.jpg", kiwi: "porto-portugal" },
+  { code: "LIS", city: "Lizbona", country: "Portugalia", image: "/images/destinations/lizbona.jpg", kiwi: "lisbon-portugal" },
+];
+
+const ORIGIN_KIWI: Record<string, string> = {
+  WAW: "warsaw-poland", WMI: "warsaw-poland", KRK: "krakow-poland", KTW: "katowice-poland",
+  GDN: "gdansk-poland", WRO: "wroclaw-poland", POZ: "poznan-poland", RZE: "rzeszow-poland",
+};
+
+function originForFlights(airport: string) {
+  const code = airport.toUpperCase();
+  if (!code || code === "WAWA") return "WAW";
+  return /^[A-Z]{3}$/.test(code) ? code : "WAW";
+}
+
+function flightMonth(month: string, year: string) {
+  if (month && year) return `${year}-${month}`;
+  const now = new Date();
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}`;
+}
+
+function kiwiSearchUrl(origin: string, target: string, departDate: string, returnDate: string) {
+  const from = ORIGIN_KIWI[origin] || "warsaw-poland";
+  const url = `https://www.kiwi.com/pl/search/results/${from}/${target}/${departDate}/${returnDate}`;
+  return partners.kiwi.buildUrl(url);
+}
+
+async function loadKiwiCityBreakFlights(airport: string, month: string, year: string): Promise<DealsOffer[]> {
+  const origin = originForFlights(airport);
+  const selectedMonth = flightMonth(month, year);
+  const targets = CITY_FLIGHT_TARGETS.slice(0, 8);
+
+  const settled = await Promise.allSettled(targets.map(async (target) => {
+    const upstream = new URL("https://suggest.apistp.com/uaca/v1/get_data_forward");
+    upstream.searchParams.set("service", "calendar_aviasales_month");
+    upstream.searchParams.set("origin_iata", origin);
+    upstream.searchParams.set("currency", "pln");
+    upstream.searchParams.set("destination_iata", target.code);
+    upstream.searchParams.set("one_way", "false");
+    upstream.searchParams.set("min_trip_duration", "2");
+    upstream.searchParams.set("max_trip_duration", "5");
+    upstream.searchParams.set("only_direct", "true");
+    upstream.searchParams.set("month", selectedMonth);
+    upstream.searchParams.set("host", "hydra.aviasales.com");
+
+    const response = await fetch(upstream, {
+      headers: { Accept: "application/json" },
+      next: { revalidate: 900 },
+      signal: AbortSignal.timeout(3500),
+    });
+    if (!response.ok) throw new Error(`flight_calendar_${response.status}`);
+    const data = await response.json() as { month?: Record<string, FlightCalendarRow> };
+    const rows = Object.values(data?.month || {})
+      .filter((row) => Number(row.value || 0) > 0 && row.depart_date && row.return_date)
+      .filter((row) => Number(row.depart_stops || 0) === 0 && Number(row.return_stops || 0) === 0)
+      .sort((a, b) => Number(a.value || Infinity) - Number(b.value || Infinity));
+    const best = rows[0];
+    if (!best?.depart_date || !best.return_date || !best.value) return null;
+
+    const start = new Date(`${best.depart_date}T00:00:00Z`);
+    const end = new Date(`${best.return_date}T00:00:00Z`);
+    const nights = Math.max(2, Math.round((end.getTime() - start.getTime()) / 86400000));
+    const sourceKey = `kiwi-flight:${origin}:${target.code}:${best.depart_date}:${best.return_date}`;
+    let hashValue = 0;
+    for (let i = 0; i < sourceKey.length; i++) hashValue = ((hashValue << 5) - hashValue + sourceKey.charCodeAt(i)) | 0;
+
+    return {
+      id: 1_850_000_000 + Math.abs(hashValue % 100_000_000),
+      flag: target.country === "Włochy" ? "🇮🇹" : target.country === "Hiszpania" ? "🇪🇸" : target.country === "Austria" ? "🇦🇹" : target.country === "Węgry" ? "🇭🇺" : target.country === "Czechy" ? "🇨🇿" : "🇵🇹",
+      city: target.city,
+      country: target.country,
+      price: Math.round(Number(best.value)),
+      priceCheckedAt: new Date().toISOString(),
+      availabilityStatus: "available" as const,
+      departure: origin === "WAW" ? "Warszawa Chopina" : origin,
+      airportCode: origin,
+      nights,
+      weather: "sprawdź",
+      score: 9,
+      tag: Math.round(Number(best.value)) <= 300 ? "BIERZEMY" as const : "OKAZJA" as const,
+      reason: `Sam lot w obie strony · ${nights} dni · bezpośrednio · od ${Math.round(Number(best.value))} zł/os.`,
+      image: target.image,
+      category: ["city", "weekend", "flight", "tanio"],
+      hotel: "Sam lot",
+      board: "Bez hotelu",
+      dates: `${best.depart_date}–${best.return_date}`,
+      partner: "kiwi" as const,
+      affiliateUrl: kiwiSearchUrl(origin, target.kiwi, best.depart_date, best.return_date),
+      linkType: "exact" as const,
+      linkMatch: "parameters" as const,
+      startDateISO: best.depart_date,
+    } satisfies DealsOffer;
+  }));
+
+  return settled.flatMap((item) => item.status === "fulfilled" && item.value ? [item.value] : []);
+}
+
+function mixedOfferSelection(liveOffers: DealsOffer[], fallbackOffers: DealsOffer[], flightOffers: DealsOffer[], destination: string) {
+  const live = lowestPriceDeals(liveOffers, destination);
+  const fallback = fallbackSelection(fallbackOffers, destination);
+  const unique = new Map<string, DealsOffer>();
+  for (const offer of [...live, ...fallback, ...flightOffers]) {
+    const key = `${offer.partner}:${offer.id}`;
+    const current = unique.get(key);
+    if (!current || Number(offer.price) < Number(current.price)) unique.set(key, offer);
+  }
+  return Array.from(unique.values()).sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0));
+}
+
 async function loadSource(
   request: NextRequest,
   label: string,
@@ -255,6 +382,7 @@ export async function GET(request: NextRequest) {
   }
 
   const results = await Promise.all(sourceRequests);
+  const kiwiCityBreakFlights = destination || type === "allinclusive" ? [] : await loadKiwiCityBreakFlights(airport, month, year);
 
   const successful = results.filter((item) => item.response.ok);
   const unavailableSources = results.filter((item) => !item.response.ok || item.payload.partial).map((item) => item.label);
@@ -379,6 +507,17 @@ export async function GET(request: NextRequest) {
     .filter((offer) => requestedDepartureMatches(offer, airport))
     .filter((offer) => dateMatches(offer, month, year));
 
+  // Keep the deals page commercially diverse even when one live provider is down.
+  // Published partner rows are clearly presented as last-checked/indicative, while
+  // Kiwi flight cards use a real current flight-calendar price for 2–5 day trips.
+  const publishedSupplement = (publishedOffers as DealsOffer[])
+    .filter(isUsablePublishedFallback)
+    .filter(polishDepartureMatches)
+    .filter((offer) => typeMatches(offer, type))
+    .filter((offer) => destinationMatches(offer, destination))
+    .filter((offer) => requestedDepartureMatches(offer, airport))
+    .filter((offer) => dateMatches(offer, month, year));
+
   // When live providers are only partially available, prefer an exact published
   // fallback for the requested airport/date over silently widening the user's
   // filters to another airport or nearby month.
@@ -417,14 +556,14 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  let offers = lowestPriceDeals(exact, destination);
+  let offers = mixedOfferSelection(exact, publishedSupplement, kiwiCityBreakFlights, destination);
   let matchMode = "exact";
   let notice = offers.length
     ? destination
       ? `Pokazujemy aktualne oferty dla kierunku: ${destination}. Najtańsze są na górze — nie ograniczamy listy do jednej oferty.`
       : type === "allinclusive"
         ? "Pokazujemy całą aktualną pulę All Inclusive. Najtańsze są na górze, bez limitu liczby ofert."
-        : "Pokazujemy całą aktualną pulę okazji z polskich lotnisk. Najtańsze są na górze, bez limitu liczby ofert."
+        : "Mieszamy krótkie city breaki, same loty i pakiety wakacyjne. Najtańsze są na górze, a awaria jednego źródła nie blokuje pozostałych."
     : "";
 
   if (!strict && !offers.length && (month || year)) {
