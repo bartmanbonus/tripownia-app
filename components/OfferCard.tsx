@@ -136,13 +136,16 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
   const isExactLink = linkMatch === "exact" && hasExternalAffiliateUrl;
   const isLivePartnerLink = isLiveOffer && hasExternalAffiliateUrl;
   const effectiveCheckedAt = override.updatedAt || publishedOverride.updatedAt || offer.priceCheckedAt;
-  const priceStale = isPriceStale(effectiveCheckedAt);
-  const isLiveExact = isLiveOffer && isExactLink && Boolean(effectiveCheckedAt) && !priceStale;
-  const checkedAt = formatPriceCheckedAt(effectiveCheckedAt);
   const availabilityStatus = override.availabilityStatus ?? publishedOverride.availabilityStatus ?? offer.availabilityStatus ?? "unknown";
+  // A commerce price is trusted for 6 hours. Older rows can stay in the broad
+  // catalogue, but the customer sees a price-check CTA instead of a stale number.
+  const priceStale = isPriceStale(effectiveCheckedAt, 0.25);
+  const priceVerified = availabilityStatus === "available" && isExactLink && Boolean(effectiveCheckedAt) && !priceStale;
+  const isLiveExact = isLiveOffer && priceVerified;
+  const checkedAt = formatPriceCheckedAt(effectiveCheckedAt);
   const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
   const stalePrice = !isExpired && priceStale;
-  const isUnverifiedEximPrice = offer.partner === "exim" && availabilityStatus !== "available";
+  const isUnverifiedEximPrice = offer.partner === "exim" && !priceVerified;
   const customerReason = customerOfferReason(override.note || publishedOverride.note || offer.reason);
 
   const offerSnapshot: Offer = {
@@ -277,7 +280,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
   if (override.hidden || publishedOverride.hidden) return null;
 
   const liveDetailHref = isLiveOffer && hasExternalAffiliateUrl
-    ? liveOfferLandingHref(offerSnapshot, { price: displayPrice, note: customerReason, source: sourceSurface || "offer_card" })
+    ? liveOfferLandingHref(offerSnapshot, { price: priceVerified ? displayPrice : null, note: customerReason, source: sourceSurface || "offer_card" })
     : "";
   // Karta zawsze otwiera najpierw Tripownię. Wyjście do partnera następuje dopiero
   // z ekranu szczegółów, gdzie zachowujemy kontekst, planner i pomiar kliknięcia.
@@ -337,7 +340,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
 
         {offer.hotel && <p className="offer-hotel-name">{offer.hotel}</p>}
 
-        {priceHighlight && !isExpired && (
+        {priceHighlight && !isExpired && priceVerified && (
           <div className="offer-price-highlight">
             <BadgePercent size={14} />
             <strong>{priceHighlight.label}</strong>
@@ -345,10 +348,10 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
           </div>
         )}
 
-        {isUnverifiedEximPrice ? (
+        {priceVerified ? (
           <div className="price"><small>od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
         ) : (
-          <div className="price"><small>od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
+          <div className="price"><strong>Sprawdź aktualną cenę</strong></div>
         )}
         <div className="offer-trust-line"><Clock3 size={12} /> {trustText}</div>
         <div className="offer-date-line"><CalendarDays size={15} /> <strong>{offer.dates}</strong></div>
