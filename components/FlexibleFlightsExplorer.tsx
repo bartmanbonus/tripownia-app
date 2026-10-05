@@ -50,6 +50,38 @@ function placeLabel(place: Place) {
   return place.name + " (" + displayPlaceCode(place) + ")";
 }
 
+function flightDetailHref({
+  origin,
+  destination,
+  destinationName,
+  country,
+  departDate,
+  returnDate,
+  price,
+  changes,
+}: {
+  origin: string;
+  destination: string;
+  destinationName?: string;
+  country?: string;
+  departDate: string;
+  returnDate: string;
+  price: number;
+  changes?: number;
+}) {
+  const params = new URLSearchParams({
+    origin,
+    destination,
+    depart: departDate,
+    return: returnDate,
+    price: String(price),
+  });
+  if (destinationName) params.set("name", destinationName);
+  if (country) params.set("country", country);
+  if (typeof changes === "number") params.set("changes", String(changes));
+  return `/loty/oferta?${params.toString()}`;
+}
+
 function TPCheckboxPlacePicker({
   label,
   values,
@@ -312,7 +344,7 @@ export default function FlexibleFlightsExplorer({
   const [daysMax, setDaysMax] = useState(7);
   const [directOnly, setDirectOnly] = useState(false);
   const [travelMonth, setTravelMonth] = useState(/^\d{4}-\d{2}$/.test(initialMonth) ? initialMonth : "");
-  const [calendarResults, setCalendarResults] = useState<Array<{ price:number; departDate:string; returnDate:string; outboundStops:number; returnStops:number; affiliateUrl:string }>>([]);
+  const [calendarResults, setCalendarResults] = useState<Array<{ destinationCode:string; price:number; departDate:string; returnDate:string; outboundStops:number; returnStops:number; affiliateUrl:string }>>([]);
   const [calendarLoading, setCalendarLoading] = useState(false);
   const [activeRouteKey, setActiveRouteKey] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -660,7 +692,20 @@ export default function FlexibleFlightsExplorer({
                 {!dealsLoading && sortedDeals.length > 0 && (
                   <div className="flight-deals-grid">
                     {sortedDeals.slice(0, 36).map((deal) => (
-                      <a className="flight-deal-card" key={deal.destination} href={deal.affiliateUrl} rel="sponsored">
+                      <a
+                        className="flight-deal-card"
+                        key={deal.destination}
+                        href={flightDetailHref({
+                          origin: activeRoute?.origin.code || "WAW",
+                          destination: deal.destination,
+                          destinationName: deal.name,
+                          country: deal.country,
+                          departDate: deal.departDate,
+                          returnDate: deal.returnDate,
+                          price: deal.price,
+                          changes: deal.changes,
+                        })}
+                      >
                         <div className="flight-deal-main">
                           <div>
                             <strong>{deal.name}</strong>
@@ -671,7 +716,7 @@ export default function FlexibleFlightsExplorer({
                         <div className="flight-deal-meta">
                           <span>{deal.departDate || "elastyczny termin"}{deal.returnDate ? " → " + deal.returnDate : ""}</span>
                           <span>{deal.changes === 0 ? "bez przesiadek" : deal.changes + " przesiadka" + (deal.changes > 1 ? "i" : "")}</span>
-                          <em>Sprawdź lot</em>
+                          <em>Zobacz konkretny lot</em>
                         </div>
                       </a>
                     ))}
@@ -703,7 +748,20 @@ export default function FlexibleFlightsExplorer({
                   </div>
                   <div className="flight-deals-grid">
                     {calendarResults.slice(0, 18).map((deal) => (
-                      <a className="flight-deal-card" key={deal.departDate + "-" + deal.returnDate} href={deal.affiliateUrl} rel="sponsored">
+                      <a
+                        className="flight-deal-card"
+                        key={deal.departDate + "-" + deal.returnDate}
+                        href={flightDetailHref({
+                          origin: activeRoute?.origin.code || "WAW",
+                          destination: deal.destinationCode || effectiveDestinationCode,
+                          destinationName: activeRoute?.destination?.name,
+                          country: activeRoute?.destination?.country,
+                          departDate: deal.departDate,
+                          returnDate: deal.returnDate,
+                          price: deal.price,
+                          changes: Math.max(deal.outboundStops, deal.returnStops),
+                        })}
+                      >
                         <div className="flight-deal-main">
                           <div>
                             <strong>{deal.departDate} → {deal.returnDate}</strong>
