@@ -109,8 +109,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Wakacje z Poznania-Ławicy (POZ): last minute, All Inclusive, lot + hotel i aktualne kierunki. Porównaj pełny koszt wyjazdu z Poznania.",
   },
   "/krakow": {
-    title: "City break z Krakowa, last minute i wakacje – lot + hotel | Tripownia",
-    description: "City break z Krakowa, last minute i wakacje z Balic. Porównaj wyjazdy na 2–5 dni, lot + hotel i aktualne kierunki z KRK.",
+    title: "Wyloty z Krakowa 2026 – kierunki, loty i wakacje z KRK | Tripownia",
+    description: "Wyloty z Krakowa-Balic (KRK): wybierz city break, last minute, wakacje lub tanie loty i przejdź do dedykowanej strony z aktualnymi ofertami.",
   },
   "/wakacje-z-gdanska-2": {
     title: "City break z Gdańska, last minute i wakacje – lot + hotel | Tripownia",
