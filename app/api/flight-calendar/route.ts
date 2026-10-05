@@ -13,9 +13,9 @@ type CalendarRow = {
   value?: number | null;
 };
 
-function safeCode(value: string | null, fallback = "") {
+function safeIata(value: string | null, fallback = "") {
   const normalized = String(value || "").toUpperCase().replace(/[^A-Z]/g, "");
-  return /^[A-Z]{2,3}$/.test(normalized) ? normalized : fallback;
+  return /^[A-Z]{3}$/.test(normalized) ? normalized : fallback;
 }
 
 function safeMonth(value: string | null) {
@@ -24,15 +24,16 @@ function safeMonth(value: string | null) {
 }
 
 function searchUrl(origin: string, destination: string, departDate: string, returnDate: string) {
-  const url = new URL("https://hydra.aviasales.com/");
-  url.searchParams.set("with_request", "true");
-  url.searchParams.set("language", "pl");
-  url.searchParams.set("locale", "pl");
-  url.searchParams.set("currency", "pln");
-  url.searchParams.set("origin_iata", origin);
-  url.searchParams.set("destination_iata", destination);
-  url.searchParams.set("depart_date", departDate);
-  if (returnDate) url.searchParams.set("return_date", returnDate);
+  const ddmm = (value: string) => {
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    return match ? match[3] + match[2] : "";
+  };
+  const outbound = ddmm(departDate);
+  const inbound = ddmm(returnDate);
+  const path = outbound && inbound
+    ? origin + outbound + destination + inbound + "1"
+    : "";
+  const url = new URL(path ? "https://www.aviasales.com/search/" + path : "https://www.aviasales.com/");
   url.searchParams.set("marker", "695999.TRIPOWNIAPL");
   url.searchParams.set("shmarker", "695999.TRIPOWNIAPL");
   return url.toString();
@@ -40,15 +41,15 @@ function searchUrl(origin: string, destination: string, departDate: string, retu
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
-  const origin = safeCode(params.get("origin"), "WAW");
-  const destination = safeCode(params.get("destination"));
-  const fallbackDestination = safeCode(params.get("fallback"));
+  const origin = safeIata(params.get("origin"), "WAW");
+  const destination = safeIata(params.get("destination"));
+  const fallbackDestination = safeIata(params.get("fallback"));
   const month = safeMonth(params.get("month"));
   const minDays = Math.max(1, Math.min(30, Number(params.get("minDays") || 5)));
   const maxDays = Math.max(minDays, Math.min(30, Number(params.get("maxDays") || 7)));
   const direct = params.get("direct") === "true";
 
-  if (!destination || !month) {
+  if (!destination) {
     return NextResponse.json({ ok: false, results: [], error: "invalid_parameters" }, { status: 400 });
   }
 
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
     upstream.searchParams.set("min_trip_duration", String(minDays));
     upstream.searchParams.set("max_trip_duration", String(maxDays));
     upstream.searchParams.set("only_direct", direct ? "true" : "false");
-    upstream.searchParams.set("month", month);
+    if (month) upstream.searchParams.set("month", month);
     upstream.searchParams.set("host", "hydra.aviasales.com");
     return upstream;
   }
@@ -103,7 +104,7 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => a.price - b.price);
 
     return NextResponse.json(
-      { ok: true, origin, destination, resolvedDestination: sourceDestination, month, results: rows },
+      { ok: true, origin, destination, resolvedDestination: sourceDestination, month: month || "any", results: rows },
       { headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=900" } },
     );
   } catch (error) {
