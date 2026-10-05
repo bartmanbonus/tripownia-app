@@ -18,6 +18,106 @@ type Direction = {
   country?: string;
 };
 
+const FALLBACK_DESTINATIONS = [
+  { code: "ROM", name: "Rzym", country: "Włochy" },
+  { code: "MIL", name: "Mediolan", country: "Włochy" },
+  { code: "BCN", name: "Barcelona", country: "Hiszpania" },
+  { code: "LIS", name: "Lizbona", country: "Portugalia" },
+  { code: "PAR", name: "Paryż", country: "Francja" },
+  { code: "LON", name: "Londyn", country: "Wielka Brytania" },
+  { code: "ATH", name: "Ateny", country: "Grecja" },
+  { code: "PMI", name: "Majorka", country: "Hiszpania" },
+  { code: "TFS", name: "Teneryfa", country: "Hiszpania" },
+  { code: "AGP", name: "Malaga", country: "Hiszpania" },
+  { code: "ALC", name: "Alicante", country: "Hiszpania" },
+  { code: "VIE", name: "Wiedeń", country: "Austria" },
+  { code: "PRG", name: "Praga", country: "Czechy" },
+  { code: "BUD", name: "Budapeszt", country: "Węgry" },
+  { code: "CPH", name: "Kopenhaga", country: "Dania" },
+  { code: "OSL", name: "Oslo", country: "Norwegia" },
+  { code: "ARN", name: "Sztokholm", country: "Szwecja" },
+  { code: "TLL", name: "Tallinn", country: "Estonia" },
+  { code: "RIX", name: "Ryga", country: "Łotwa" },
+  { code: "IST", name: "Stambuł", country: "Turcja" },
+  { code: "DXB", name: "Dubaj", country: "ZEA" },
+];
+
+type CalendarRow = {
+  depart_date?: string;
+  depart_stops?: number;
+  return_date?: string;
+  return_stops?: number;
+  value?: number | null;
+};
+
+async function fetchCalendarFallback(origin: string, minDays: number, maxDays: number, direct: boolean) {
+  const batches: Array<typeof FALLBACK_DESTINATIONS> = [];
+  for (let index = 0; index < FALLBACK_DESTINATIONS.length; index += 6) {
+    batches.push(FALLBACK_DESTINATIONS.slice(index, index + 6));
+  }
+
+  const offers: Array<{
+    destination: string;
+    name: string;
+    country: string;
+    price: number;
+    departDate: string;
+    returnDate: string;
+    changes: number;
+    actual: boolean;
+    affiliateUrl: string;
+  }> = [];
+
+  for (const batch of batches) {
+    const rows = await Promise.all(batch.map(async (place) => {
+      try {
+        const upstream = new URL("https://suggest.apistp.com/uaca/v1/get_data_forward");
+        upstream.searchParams.set("service", "calendar_aviasales_month");
+        upstream.searchParams.set("origin_iata", origin);
+        upstream.searchParams.set("currency", "pln");
+        upstream.searchParams.set("destination_iata", place.code);
+        upstream.searchParams.set("one_way", "false");
+        upstream.searchParams.set("min_trip_duration", String(minDays));
+        upstream.searchParams.set("max_trip_duration", String(maxDays));
+        upstream.searchParams.set("only_direct", direct ? "true" : "false");
+        upstream.searchParams.set("host", "hydra.aviasales.com");
+
+        const response = await fetch(upstream.toString(), {
+          headers: { Accept: "application/json" },
+          next: { revalidate: 900 },
+        });
+        if (!response.ok) return null;
+        const data = await response.json() as { month?: Record<string, CalendarRow> };
+        const candidates = Object.values(data?.month || {})
+          .filter((row) => Number(row.value || 0) > 0 && row.depart_date && row.return_date)
+          .sort((a, b) => Number(a.value || Infinity) - Number(b.value || Infinity));
+        const best = candidates[0];
+        if (!best) return null;
+
+        const departDate = String(best.depart_date || "");
+        const returnDate = String(best.return_date || "");
+        return {
+          destination: place.code,
+          name: place.name,
+          country: place.country,
+          price: Math.round(Number(best.value || 0)),
+          departDate,
+          returnDate,
+          changes: Math.max(Number(best.depart_stops || 0), Number(best.return_stops || 0)),
+          actual: true,
+          affiliateUrl: searchPath(origin, place.code, departDate, returnDate),
+        };
+      } catch {
+        return null;
+      }
+    }));
+    offers.push(...rows.filter((row): row is NonNullable<typeof row> => Boolean(row)));
+  }
+
+  return offers.sort((a, b) => a.price - b.price);
+}
+
+
 function safeIata(value: string | null, fallback = "WAW") {
   const normalized = String(value || "").toUpperCase().replace(/[^A-Z]/g, "");
   return /^[A-Z]{3}$/.test(normalized) ? normalized : fallback;
@@ -122,7 +222,7 @@ export async function GET(request: NextRequest) {
       if (!current || Number(current.value || Infinity) > value) bestByDestination.set(destination, row);
     }
 
-    const offers = Array.from(bestByDestination.entries())
+    let offers = Array.from(bestByDestination.entries())
       .map(([destination, row]) => {
         const info = names.get(destination);
         const departDate = String(row.depart_date || "");
@@ -142,15 +242,28 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => a.price - b.price)
       .slice(0, 80);
 
+    if (!offers.length) {
+      offers = await fetchCalendarFallback(origin, minDays, maxDays, direct);
+    }
+
     return NextResponse.json(
-      { ok: true, origin, direct, offers },
+      { ok: true, origin, direct, offers, source: offers.length ? "live" : "empty" },
       { headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=900" } },
     );
   } catch (error) {
-    console.warn("[flight_deals_unavailable]", error instanceof Error ? error.message : "unknown");
-    return NextResponse.json(
-      { ok: false, origin, direct, offers: [], error: "flight_deals_unavailable" },
-      { status: 200, headers: { "Cache-Control": "no-store" } },
-    );
+    console.warn("[flight_deals_primary_unavailable]", error instanceof Error ? error.message : "unknown");
+    try {
+      const offers = await fetchCalendarFallback(origin, minDays, maxDays, direct);
+      return NextResponse.json(
+        { ok: true, origin, direct, offers, source: "calendar_fallback" },
+        { status: 200, headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=900" } },
+      );
+    } catch (fallbackError) {
+      console.warn("[flight_deals_fallback_unavailable]", fallbackError instanceof Error ? fallbackError.message : "unknown");
+      return NextResponse.json(
+        { ok: false, origin, direct, offers: [], error: "flight_deals_unavailable" },
+        { status: 200, headers: { "Cache-Control": "no-store" } },
+      );
+    }
   }
 }
