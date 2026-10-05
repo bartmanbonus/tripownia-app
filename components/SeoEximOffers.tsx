@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Bell, CalendarRange, Search } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
-import type { Offer } from "@/lib/offers";
+import { homepageFallbackOffers, isOfferExpired, type Offer } from "@/lib/offers";
 import { buildEskyPackagesUrl } from "@/lib/partners";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
@@ -75,6 +75,48 @@ function uniqByProduct(items: SeasonalOffer[]) {
   return result;
 }
 
+function relatedFallbackTerms(value: string) {
+  const n = normalize(value);
+  if (GENERIC_TERMS.has(n)) return FALLBACKS[n] || ["Malta", "Cypr", "Egipt", "Grecja"];
+  if (/filip|wietnam|vietnam|tajland|thailand|bali|indonez|sri lanka|malezj|malaysia/.test(n)) {
+    return ["Tajlandia", "Bali", "Sri Lanka", "Wietnam", "Zanzibar", "Dubaj"];
+  }
+  if (/curacao|jamaj|dominik|meksyk|mexic|kuba|aruba/.test(n)) {
+    return ["Dominikana", "Meksyk", "Kuba", "Jamajka", "Dubaj"];
+  }
+  if (/madagaskar|mauritius|seszel|zanzibar|kenia|gambia|zielonego przyladka/.test(n)) {
+    return ["Zanzibar", "Kenia", "Mauritius", "Wyspy Zielonego Przylądka", "Egipt"];
+  }
+  if (/polinez|malediw/.test(n)) {
+    return ["Malediwy", "Mauritius", "Zanzibar", "Tajlandia", "Bali"];
+  }
+  if (/rpa|south africa|republika poludniowej afryki/.test(n)) {
+    return ["Kenia", "Zanzibar", "Mauritius", "Egipt"];
+  }
+  if (/oman|maskat|muscat|dubaj|emirat|bahrajn|bahrain/.test(n)) {
+    return ["Dubaj", "Egipt", "Maroko", "Cypr"];
+  }
+  return ["Malta", "Cypr", "Grecja", "Hiszpania", "Egipt", "Turcja"];
+}
+
+function fallbackAirportMatches(offer: SeasonalOffer, departure?: string) {
+  const code = departureCode(departure);
+  if (!code) return true;
+  if (code === "WAWA") return offer.airportCode === "WAW" || offer.airportCode === "WMI";
+  return offer.airportCode === code;
+}
+
+function staticFallbackOffers(query: string, departure?: string) {
+  const active = homepageFallbackOffers.filter((offer) => !isOfferExpired(offer));
+  const exact = active.filter((offer) => termMatchesOffer(query, offer));
+  const relatedTerms = relatedFallbackTerms(query);
+  const related = active.filter((offer) => relatedTerms.some((term) => termMatchesOffer(term, offer)));
+  const intentPool = exact.length ? exact : related.length ? related : active;
+  const sameAirport = intentPool.filter((offer) => fallbackAirportMatches(offer, departure));
+  const pool = sameAirport.length >= 3 ? sameAirport : intentPool;
+  return uniqByProduct([...pool].sort((a, b) => a.price - b.price)).slice(0, 18);
+}
+
 export default function SeoEximOffers({ query, departure, minNights, maxNights, maxPrice, startDate, endDate, searchHref }: Props) {
   const cityBreakOverview = normalize(query) === "city break";
   const eskySearch = new URL("https://www2.esky.pl/lot+hotel/portfolio");
@@ -89,6 +131,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   const [offers, setOffers] = useState<SeasonalOffer[]>([]);
   const [loading, setLoading] = useState(true);
   const [relaxed, setRelaxed] = useState(false);
+  const [fallbackReason, setFallbackReason] = useState("");
   const [error, setError] = useState(false);
 
   const queries = useMemo(() => {
@@ -100,19 +143,20 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   useEffect(() => {
     let cancelled = false;
 
-    async function fetchFor(term: string, from?: string) {
+    async function fetchFor(term: string, from?: string, loose = false) {
       const normalizedTerm = normalize(term);
 
       if (GENERIC_TERMS.has(normalizedTerm) && (from || cityBreakOverview)) {
         if (normalizedTerm === "city break") {
-          const params = new URLSearchParams({ mode: "citybreak", view: "destinations", strict: "1" });
+          const params = new URLSearchParams({ mode: "citybreak", view: "destinations" });
+          if (!loose) params.set("strict", "1");
           if (from) params.set("from", from);
-          if (maxPrice) params.set("maxPrice", String(maxPrice));
-          if (minNights) params.set("minNights", String(minNights));
-          if (maxNights) params.set("maxNights", String(maxNights));
-          if (startDate) params.set("start", startDate);
-          if (endDate) params.set("end", endDate);
-          if (startDate || endDate) params.set("dateKind", "departure");
+          if (!loose && maxPrice) params.set("maxPrice", String(maxPrice));
+          if (!loose && minNights) params.set("minNights", String(minNights));
+          if (!loose && maxNights) params.set("maxNights", String(maxNights));
+          if (!loose && startDate) params.set("start", startDate);
+          if (!loose && endDate) params.set("end", endDate);
+          if (!loose && (startDate || endDate)) params.set("dateKind", "departure");
           const response = await fetch(`/api/today-offers?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
           if (!response.ok) return [] as SeasonalOffer[];
           const data = (await response.json()) as ApiResponse;
@@ -121,7 +165,8 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
             : [];
         }
 
-        const params = new URLSearchParams({ from: from || "", strict: "1" });
+        const params = new URLSearchParams({ from: from || "" });
+        if (!loose) params.set("strict", "1");
         if (normalizedTerm === "all inclusive") params.set("type", "allinclusive");
         const response = await fetch(`/api/deals?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
         if (!response.ok) return [] as SeasonalOffer[];
@@ -132,7 +177,8 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
       }
 
       if (normalize(query) === "all inclusive") {
-        const params = new URLSearchParams({ q: term, type: "allinclusive", strict: "1" });
+        const params = new URLSearchParams({ q: term, type: "allinclusive" });
+        if (!loose) params.set("strict", "1");
         if (from) params.set("from", from);
         const response = await fetch(`/api/deals?${params.toString()}&refresh=${Date.now()}`, { cache: "no-store" });
         if (!response.ok) return [] as SeasonalOffer[];
@@ -172,7 +218,53 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     }
 
     async function load() {
-      setLoading(true); setError(false); setRelaxed(false);
+      setLoading(true); setError(false); setRelaxed(false); setFallbackReason("");
+
+      const diversify = (items: SeasonalOffer[], limit = 24) => {
+        if (normalize(query) !== "all inclusive") return items.slice(0, limit);
+        const buckets = new Map<string, SeasonalOffer[]>();
+        for (const offer of items) {
+          const key = normalize(offer.country || offer.city || "inne");
+          const bucket = buckets.get(key) || [];
+          if (bucket.length < 5) bucket.push(offer);
+          buckets.set(key, bucket);
+        }
+        const result: SeasonalOffer[] = [];
+        let round = 0;
+        while (result.length < limit) {
+          let added = false;
+          for (const bucket of buckets.values()) {
+            if (bucket[round]) {
+              result.push(bucket[round]);
+              added = true;
+              if (result.length >= limit) break;
+            }
+          }
+          if (!added) break;
+          round += 1;
+        }
+        return result;
+      };
+
+      const present = (items: SeasonalOffer[], reason = "", isRelaxed = false) => {
+        const sorted = uniqByProduct(items).sort((a, b) => a.price - b.price);
+        const seen = new Set<string>();
+        const finalOffers = cityBreakOverview
+          ? sorted.filter((offer) => {
+              const key = touristDestinationKey(offer);
+              if (seen.has(key)) return false;
+              seen.add(key);
+              return true;
+            }).slice(0, 24)
+          : diversify(sorted, 24);
+
+        setOffers(finalOffers);
+        setRelaxed(isRelaxed);
+        setFallbackReason(reason);
+        setError(finalOffers.length === 0);
+        return finalOffers.length > 0;
+      };
+
       try {
         const from = departureCode(departure);
         const gathered: SeasonalOffer[] = [];
@@ -184,59 +276,116 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
 
         const unique = uniqByProduct(gathered).sort((a, b) => a.price - b.price);
         const strict = strictFilter(unique);
-
-        const diversify = (items: SeasonalOffer[], limit = 24) => {
-          if (normalize(query) !== "all inclusive") return items.slice(0, limit);
-          const buckets = new Map<string, SeasonalOffer[]>();
-          for (const offer of items) {
-            const key = normalize(offer.country || offer.city || "inne");
-            const bucket = buckets.get(key) || [];
-            if (bucket.length < 5) bucket.push(offer);
-            buckets.set(key, bucket);
-          }
-          const result: SeasonalOffer[] = [];
-          let round = 0;
-          while (result.length < limit) {
-            let added = false;
-            for (const bucket of buckets.values()) {
-              if (bucket[round]) {
-                result.push(bucket[round]);
-                added = true;
-                if (result.length >= limit) break;
-              }
-            }
-            if (!added) break;
-            round += 1;
-          }
-          return result;
-        };
         if (cancelled) return;
+
         if (strict.length > 0) {
-          const seen = new Set<string>();
-          setOffers(cityBreakOverview ? strict.filter(offer => {
-            const key = touristDestinationKey(offer);
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-          }) : diversify(strict, 24));
-          setRelaxed(false);
-        } else {
-          const seasonal = seasonalScope(unique);
-          if (seasonal.length > 0 && !cityBreakOverview) {
-            setOffers(diversify(seasonal.filter((offer) => normalize(query) !== "all inclusive" || termMatchesOffer("all inclusive", offer)), 24));
-            setRelaxed(true);
+          present(strict);
+          return;
+        }
+
+        const typeCompatible = (items: SeasonalOffer[]) => items.filter((offer) =>
+          normalize(query) !== "all inclusive" || termMatchesOffer("all inclusive", offer)
+        );
+
+        const seasonal = typeCompatible(seasonalScope(unique));
+        if (seasonal.length > 0) {
+          present(
+            seasonal,
+            "Nie ma dziś pełnego dopasowania ceny lub długości pobytu. Pokazujemy aktualne oferty w tym samym terminie i dla tego samego kierunku/typu wyjazdu.",
+            true
+          );
+          return;
+        }
+
+        const looseSameAirport: SeasonalOffer[] = [];
+        for (const term of queries) {
+          looseSameAirport.push(...(await fetchFor(term, from || undefined, true)));
+          if (uniqByProduct(looseSameAirport).length >= 24) break;
+          if (cityBreakOverview) break;
+        }
+        const sameAirport = typeCompatible(uniqByProduct(looseSameAirport));
+        if (sameAirport.length > 0) {
+          present(
+            sameAirport,
+            "Dokładny termin jest chwilowo niedostępny. Pokazujemy najbliższe aktualne propozycje z tego samego lotniska i dla tego samego kierunku/typu wyjazdu.",
+            true
+          );
+          return;
+        }
+
+        if (from) {
+          const nationwide: SeasonalOffer[] = [];
+          for (const term of queries) {
+            nationwide.push(...(await fetchFor(term, undefined, true)));
+            if (uniqByProduct(nationwide).length >= 24) break;
+            if (cityBreakOverview) break;
+          }
+          const nationwideMatches = typeCompatible(uniqByProduct(nationwide));
+          if (nationwideMatches.length > 0) {
+            present(
+              nationwideMatches,
+              "Nie ma teraz dostępnej oferty z wybranego lotniska. Pokazujemy ten sam kierunek lub typ wyjazdu z innych polskich lotnisk — bez odsyłania Cię na pustą stronę.",
+              true
+            );
+            return;
+          }
+        }
+
+        const alternativeTerms = relatedFallbackTerms(query);
+        const related: SeasonalOffer[] = [];
+        for (const term of alternativeTerms.slice(0, 6)) {
+          related.push(...(await fetchFor(term, from || undefined, true)));
+          if (uniqByProduct(related).length >= 24) break;
+        }
+
+        let relatedOffers = uniqByProduct(related);
+        if (relatedOffers.length === 0 && from) {
+          for (const term of alternativeTerms.slice(0, 6)) {
+            relatedOffers.push(...(await fetchFor(term, undefined, true)));
+            if (uniqByProduct(relatedOffers).length >= 24) break;
+          }
+          relatedOffers = uniqByProduct(relatedOffers);
+        }
+
+        if (relatedOffers.length > 0) {
+          present(
+            relatedOffers,
+            `Nie ma teraz aktywnej oferty dokładnie dla „${query}”. Zamiast pustego przekierowania pokazujemy podobne, aktualnie dostępne kierunki, które można od razu porównać i zarezerwować.`,
+            true
+          );
+          return;
+        }
+
+        const publishedFallback = staticFallbackOffers(query, departure);
+        if (publishedFallback.length > 0) {
+          present(
+            publishedFallback,
+            "Live feed chwilowo nie zwrócił wyników. Pokazujemy ostatnio sprawdzone, nadal aktywne propozycje Tripowni; finalną cenę i dostępność potwierdź po przejściu do partnera.",
+            true
+          );
+          return;
+        }
+
+        setOffers([]);
+        setError(true);
+      } catch {
+        if (!cancelled) {
+          const publishedFallback = staticFallbackOffers(query, departure);
+          if (publishedFallback.length > 0) {
+            present(
+              publishedFallback,
+              "Live feed chwilowo nie odpowiada. Pokazujemy ostatnio sprawdzone, nadal aktywne propozycje Tripowni zamiast pustej strony.",
+              true
+            );
           } else {
             setOffers([]);
             setError(true);
           }
         }
-      } catch {
-        if (!cancelled) { setOffers([]); setError(true); }
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
-
     void load();
     const timer = window.setInterval(load, 5 * 60 * 1000);
     return () => { cancelled = true; window.clearInterval(timer); };
@@ -315,14 +464,14 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   return <>
     <div className="seo-sales-snapshot" aria-live="polite">
       <div>
-        <small>SPRAWDZONE TERAZ</small>
+        <small>{relaxed ? "NAJBLIŻSZE DOSTĘPNE" : "SPRAWDZONE TERAZ"}</small>
         <strong>{salesSummary}</strong>
         <span>Kliknij ofertę → zobacz szczegóły w Tripowni → przejdź do rezerwacji u partnera.</span>
       </div>
       <a href="#seo-live-offers-grid">Zobacz oferty ↓</a>
     </div>
     {cityBreakOverview && <p className="seo-live-note">{offers.length} różnych kierunków · od najniższej ceny · najtańsza dostępna oferta dla każdego kierunku</p>}
-    {relaxed && <div className="seo-live-note">Lotnisko i główny typ wyjazdu się zgadzają. Pokazujemy najbliższe aktualne propozycje — cena lub długość pobytu może różnić się od dodatkowego filtra strony.</div>}
+    {relaxed && <div className="seo-live-note">{fallbackReason || "Pokazujemy najbliższe aktualne propozycje — część parametrów może różnić się od pierwotnego filtra strony."}</div>}
     <div className="cards-grid seo-live-offers-grid" id="seo-live-offers-grid">{offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} sourceSurface="seo_landing" />)}</div>
     {cityBreakOverview && !startDate && !endDate && <div className="seo-empty-offers-actions"><a href={morePackagesUrl} rel="nofollow sponsored" className="seo-empty-secondary">Porównaj więcej pakietów lot + hotel <ArrowRight size={16}/></a></div>}
   </>;
