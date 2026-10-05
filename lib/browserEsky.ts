@@ -124,7 +124,8 @@ function searchFromEndpoint(endpoint: string): { search: EskySearch; arrivals: s
   const type = (url.searchParams.get("type") || "").trim();
   const board = (url.searchParams.get("board") || "").trim();
 
-  if (!query && !departure && !month && !year && !start && !end) return null;
+  const broad = url.searchParams.get("broad") === "1" || url.pathname === "/api/deals";
+  if (!query && !departure && !month && !year && !start && !end && !broad) return null;
 
   if (!start && /^20\d{2}$/.test(year) && /^(0[1-9]|1[0-2])$/.test(month)) {
     const lastDay = new Date(Date.UTC(Number(year), Number(month), 0)).getUTCDate();
@@ -132,7 +133,7 @@ function searchFromEndpoint(endpoint: string): { search: EskySearch; arrivals: s
     end = `${year}-${month}-${String(lastDay).padStart(2, "0")}`;
   }
 
-  const cityBreak = mode === "citybreak" || type === "citybreak";
+  const cityBreak = mode === "citybreak" || type === "citybreak" || (!query && !type && broad);
   const minNights = Number(url.searchParams.get("minNights") || (cityBreak ? 2 : 1));
   const maxNights = Number(url.searchParams.get("maxNights") || (cityBreak ? 5 : 14));
 
@@ -151,7 +152,7 @@ function searchFromEndpoint(endpoint: string): { search: EskySearch; arrivals: s
     ? [arrival]
     : type === "allinclusive"
       ? ["co-EG", "co-TR", "co-GR", "co-ES"]
-      : ["ci-ROM", "ci-MIL", "ci-BCN", "co-MT"];
+      : ["ci-ROM", "ci-MIL", "ci-BCN", "co-MT", "ci-LIS", "ci-OPO", "ci-VIE", "ci-PRG"];
 
   return { search, arrivals, board };
 }
@@ -187,7 +188,7 @@ export async function fetchBrowserEskyOffers(endpoint: string): Promise<Offer[]>
   lastAttempts.set(attemptKey, Date.now());
 
   const settled = await Promise.allSettled(
-    config.arrivals.slice(0, 4).map((arrival) => fetchOne(config.search, arrival))
+    config.arrivals.slice(0, 8).map((arrival) => fetchOne(config.search, arrival))
   );
 
   const rows = settled.flatMap((item) => item.status === "fulfilled" ? item.value : []);
