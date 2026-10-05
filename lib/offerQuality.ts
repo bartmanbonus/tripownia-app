@@ -84,8 +84,12 @@ export function getPriceAgeDays(priceCheckedAt?: string, now = new Date()) {
 }
 
 export function isPriceStale(priceCheckedAt?: string, maxAgeDays = 2, now = new Date()) {
-  const age = getPriceAgeDays(priceCheckedAt, now);
-  return age === null ? true : age > maxAgeDays;
+  if (!priceCheckedAt) return true;
+  const checked = new Date(priceCheckedAt);
+  if (Number.isNaN(checked.getTime())) return true;
+  const ageMs = now.getTime() - checked.getTime();
+  if (ageMs < 0) return true;
+  return ageMs > maxAgeDays * 86400000;
 }
 
 export function getOfferQualityIssues(offer: {
