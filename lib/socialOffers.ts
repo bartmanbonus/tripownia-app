@@ -78,6 +78,23 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "alicante-929": {
+    slug: "alicante-929",
+    city: "Alicante",
+    country: "Hiszpania",
+    price: 929,
+    departure: "Warszawa–Chopina",
+    nights: 3,
+    dates: "24–27 listopada 2026",
+    board: "Bez wyżywienia",
+    hotel: "Hotel La City Estación 3★",
+    partner: "esky",
+    partnerLabel: "eSky",
+    affiliateUrl: "https://www2.esky.pl/lot+hotel/portfolio/details/select-room?rooms%5B0%5D%5Badults%5D=2&datesTab=flexDates&stayLength=3:5&arrivalPlaces=ci-ALC&departurePlaces=ap-WAW&context=pl-packages&sort%5BTotalPrice%5D=asc&partner_id=TRIPOWNIAPLPACKAGES&portfolioToken=361b3f6d-5996-4df2-9f71-e25f1b8850cb&packageId=MjYxMTI0OjM6cGw6MTM1MjA0&flightOptionId=V0FXQUxDMjYxMTI0Nzh8fEZSNjA3MzowOjAsQUxDV0FXMjYxMTI3NzhJfHxGUjYwNzI6MDox&departureCode=WAW&arrivalCode=ALC&checkInDate=2026-11-24&checkOutDate=2026-11-27&destinationDepartureDate=2026-11-24&returnArrivalDate=2026-11-27&metaCode=135204&pricePresentation=perpax&selectedDeparturePlaces=ap-WAW",
+    imageCountry: "Hiszpania",
+    checkedAt: "2026-10-06T20:04:00+02:00",
+    status: "active",
+  },
   "wieden-469": {
     slug: "wieden-469",
     city: "Wiedeń",
