@@ -78,6 +78,24 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "madera-dorisol-estrelicia-1409": {
+    slug: "madera-dorisol-estrelicia-1409",
+    city: "Madera / Funchal",
+    country: "Portugalia",
+    price: 1409,
+    departure: "Berlin Brandenburg",
+    nights: 4,
+    dates: "13–17 czerwca 2027",
+    board: "Śniadania",
+    hotel: "Dorisol Estrelicia 3★",
+    partner: "wakacje",
+    partnerLabel: "Wakacje.pl",
+    affiliateUrl: "https://www.wakacje.pl/oferty/portugalia/madera/funchal/dorisol-estrelicia-1195167.html?od-2027-06-13%2C4-dni%2CBB=",
+    imageSrc: "https://i.wakacje.pl/no-index/hotel/dorisol-estrelicia-teren-hotelu-1465445823-1200-800.jpg",
+    imageCountry: "Portugalia",
+    checkedAt: "2026-10-07T15:05:00+02:00",
+    status: "active",
+  },
   "algarve-brisa-sol-1189": {
     slug: "algarve-brisa-sol-1189",
     city: "Algarve",
