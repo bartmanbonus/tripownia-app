@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
       // Pages with noindex must remain crawlable so crawlers can read the directive.
-      disallow: ["/admin$", "/admin/", "/api/", "/go/", "/out/"],
+      disallow: ["/admin", "/api/", "/go/", "/out/"],
     },
     sitemap: "https://tripownia.pl/sitemap.xml",
     host: "https://tripownia.pl",
