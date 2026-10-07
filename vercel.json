@@ -6,12 +6,12 @@
   "redirects": [
     {
       "source": "/go/zanzibar",
-      "destination": "https://www.tui.pl/wypoczynek/zanzibar/nest-style-zanzibar-znz20006/OfferCodeWS/WROZNZ20270324030020270324202703311615L07ZNZ20006DZG1GA02ROGDZG1A02FCYY?utm_source=tradedoubler&utm_medium=afiliacja&utm_campaign=link-nowy&tduid=464e0afa0d9a060d7f05f6f5abfd0c5c&ds_rl=1263345&gclid=CJ-kj6GvqJcDFV5uFQgd1Hsm8A&gclsrc=ds&gad_source=7",
+      "destination": "/o/zanzibar-nest-style-3227",
       "permanent": false
     },
     {
       "source": "/okazje/zanzibar-3227",
-      "destination": "https://www.tui.pl/wypoczynek/zanzibar/nest-style-zanzibar-znz20006/OfferCodeWS/WROZNZ20270324030020270324202703311615L07ZNZ20006DZG1GA02ROGDZG1A02FCYY?utm_source=tradedoubler&utm_medium=afiliacja&utm_campaign=link-nowy&tduid=464e0afa0d9a060d7f05f6f5abfd0c5c&ds_rl=1263345&gclid=CJ-kj6GvqJcDFV5uFQgd1Hsm8A&gclsrc=ds&gad_source=7",
+      "destination": "/o/zanzibar-nest-style-3227",
       "permanent": false
     }
   ],
@@ -19,11 +19,26 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=()" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        }
       ]
     }
   ]
