@@ -325,7 +325,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
       onClick={(event) => {
         const target = event.target as HTMLElement;
         if (target.closest("a,button,input,select,textarea,[role='button']")) return;
-        trackOfferClick("card_cta", directAffiliate);
+        trackOfferClick("card_cta", false);
         window.location.assign(cardHref);
       }}
     >
