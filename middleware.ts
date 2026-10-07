@@ -141,6 +141,10 @@ export function middleware(request: NextRequest) {
     if (isPrivateAppPath(request.nextUrl.pathname)) {
       response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
       response.headers.set("Cache-Control", "private, no-store");
+    } else if (normalizedPath.startsWith("/oferta/")) {
+      // Offer detail URLs are transient price snapshots. Keep them crawlable
+      // for discovery of stable hubs, but never allow them to compete in search.
+      response.headers.set("X-Robots-Tag", "noindex, follow, noarchive");
     }
     return response;
   }
