@@ -83,7 +83,7 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
     city: "Madera / Funchal",
     country: "Portugalia",
     price: 1409,
-    departure: "Berlin Brandenburg",
+    departure: "Samolot",
     nights: 4,
     dates: "13–17 czerwca 2027",
     board: "Śniadania",
@@ -93,7 +93,7 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
     affiliateUrl: "https://www.wakacje.pl/oferty/portugalia/madera/funchal/dorisol-estrelicia-1195167.html?od-2027-06-13%2C4-dni%2CBB=",
     imageSrc: "https://i.wakacje.pl/no-index/hotel/dorisol-estrelicia-teren-hotelu-1465445823-1200-800.jpg",
     imageCountry: "Portugalia",
-    checkedAt: "2026-10-07T15:05:00+02:00",
+    checkedAt: "2026-10-07T15:10:00+02:00",
     status: "active",
   },
   "algarve-brisa-sol-1189": {
