@@ -13,6 +13,11 @@
       "source": "/okazje/zanzibar-3227",
       "destination": "/o/zanzibar-nest-style-3227",
       "permanent": false
+    },
+    {
+      "source": "/go/gruzja-listopad",
+      "destination": "/o/gruzja-batumi-listopad",
+      "permanent": false
     }
   ],
   "headers": [
