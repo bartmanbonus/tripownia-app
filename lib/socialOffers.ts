@@ -78,6 +78,24 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "sylwester-alanya-arsi-enfi-2259": {
+    slug: "sylwester-alanya-arsi-enfi-2259",
+    city: "Alanya",
+    country: "Turcja",
+    price: 2259,
+    departure: "Kraków",
+    nights: 7,
+    dates: "28 grudnia 2026 – 4 stycznia 2027",
+    board: "All Inclusive",
+    hotel: "Arsi Enfi City Beach 3★",
+    partner: "wakacje",
+    partnerLabel: "Wakacje.pl",
+    affiliateUrl: "https://www.wakacje.pl/oferty/turcja/riwiera-turecka/alanya/arsi-enfi-city-beach-589305.html?od-2026-12-28%2C7-dni%2Call-inclusive%2Cz-krakowa=&a_aid=3212&a_cid=tripownia&utm_source=chatgpt.com&utm_medium=cps&utm_campaign=3212-tripownia.pl",
+    imageSrc: "https://i.wakacje.pl/no-index/hotel/arsi-enfi-city-beach-basen-zjezdzalnia-1484577709-1200-800.jpg",
+    imageCountry: "Turcja",
+    checkedAt: "2026-10-07T15:05:00+02:00",
+    status: "active",
+  },
   "madera-dorisol-estrelicia-1409": {
     slug: "madera-dorisol-estrelicia-1409",
     city: "Madera / Funchal",
