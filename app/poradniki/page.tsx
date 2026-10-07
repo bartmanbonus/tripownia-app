@@ -45,6 +45,7 @@ const sections = [
       ["Jak najtaniej dojechać z lotniska do centrum", "/jak-dojechac-z-lotniska-do-centrum-miasta-najtansze-opcje-transportu"],
       ["Co zrobić po odwołaniu lotu do Katanii", "/etna-sparalizowala-loty-na-sycylie-co-zrobic-po-odwolaniu-lotu-do-katanii"],
       ["Transfer czy transport publiczny?", "/transfery"],
+      ["Ubezpieczenie podróżne – ile kosztuje i co obejmuje?", "/czy-warto-kupic-ubezpieczenie-podrozne-co-obejmuje-i-ile-kosztuje"],
     ],
   },
   {
@@ -69,6 +70,7 @@ const sections = [
       ["Cypr – Pafos, Larnaka czy Ayia Napa?", "/cypr"],
       ["Albania – Saranda, Ksamil czy Vlora?", "/albania"],
       ["Malta – gdzie spać i ile dni zaplanować?", "/malta"],
+      ["Alicante czy Malaga – które miasto wybrać?", "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje"],
     ],
   },
 ];
