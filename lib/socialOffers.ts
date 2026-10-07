@@ -78,6 +78,24 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "algarve-brisa-sol-1189": {
+    slug: "algarve-brisa-sol-1189",
+    city: "Algarve",
+    country: "Portugalia",
+    price: 1189,
+    departure: "Katowice",
+    nights: 3,
+    dates: "2–6 kwietnia 2027",
+    board: "Bez wyżywienia",
+    hotel: "Brisa Sol 4★",
+    partner: "exim",
+    partnerLabel: "EXIM Tours",
+    affiliateUrl: "https://www.exim.pl/kierunki/portugalia/algarve/albufeira/brisa-sol?KEY=MjUzNTk1N3wzNzc1MTkyNjA4fDEzODAzMDQ&DS=1024&GIATA=9279&D=63208&HID=424611&MT=6&DI=GT06-AO&NN=3&MNN=0%7C1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7C10%7C11%7C12%7C13%7C14%7C15%7C16%7C17%7C18%7C19%7C20%7C21&NNM=0%7C1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7C10%7C11%7C12%7C13%7C14%7C15%7C16%7C17%7C18%7C19%7C20%7C21&DF=2027-03-26%7C2027-04-20&RD=2027-04-06&DD=2027-04-02&ERM=0&AC1=2&KC1=0&IC1=0&TO=1862&TT=1&PID=424611&DPR=EXIM+TOURS+POLAND&PC=3-2027-04-02&IFC=VzZ8MTA5OHwyMDI3LTA0LTA1VDIwOjMw&OFC=VzZ8MTA5N3wyMDI3LTA0LTAyVDE2OjUw&utm_term=feed&tduid=1c28f57c22c93726771b26b5ccaac104&utm_source=Tradedoubler_3487177&utm_medium=Affiliate&utm_campaign=Ongoing_P_TD",
+    imageCountry: "Portugalia",
+    checkedAt: "2026-10-07T09:43:00+02:00",
+    status: "active",
+    included: ["Transfer", "Ubezpieczenie"],
+  },
   "alicante-929": {
     slug: "alicante-929",
     city: "Alicante",
