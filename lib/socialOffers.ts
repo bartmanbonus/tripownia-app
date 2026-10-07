@@ -78,6 +78,23 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "zanzibar-nest-style-3227": {
+    slug: "zanzibar-nest-style-3227",
+    city: "Zanzibar",
+    country: "Tanzania",
+    price: 3227,
+    departure: "Wrocław",
+    nights: 7,
+    dates: "24 marca – 1 kwietnia 2027",
+    board: "Śniadania",
+    hotel: "Nest Style Zanzibar",
+    partner: "tui",
+    partnerLabel: "TUI",
+    affiliateUrl: "https://www.tui.pl/wypoczynek/zanzibar/nest-style-zanzibar-znz20006/OfferCodeWS/WROZNZ20270324030020270324202703311615L07ZNZ20006DZG1GA02ROGDZG1A02FCYY?utm_source=tradedoubler&utm_medium=afiliacja&utm_campaign=link-nowy&tduid=464e0afa0d9a060d7f05f6f5abfd0c5c&ds_rl=1263345&gclid=CJ-kj6GvqJcDFV5uFQgd1Hsm8A&gclsrc=ds&gad_source=7",
+    imageCountry: "Tanzania",
+    checkedAt: "2026-10-07T19:40:00+02:00",
+    status: "active",
+  },
   "sylwester-alanya-arsi-enfi-2259": {
     slug: "sylwester-alanya-arsi-enfi-2259",
     city: "Alanya",
