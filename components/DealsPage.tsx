@@ -436,7 +436,7 @@ export default function DealsPage({
           <h1>{destination ? "Okazje: " + destination : "Najtańsze wyjazdy. Bez przekopywania się przez setki ofert."}</h1>
           <p className="deals-simple-lead">
             {source === "fallback" && offers.length
-              ? "Źródła live są chwilowo ograniczone. Pokazujemy nieprzeterminowane propozycje orientacyjne — finalną cenę potwierdź u partnera."
+              ? "Pokazujemy ostatnio sprawdzone, nieprzeterminowane propozycje. Aktualną cenę i dostępność potwierdzisz u partnera po kliknięciu."
               : destination
                 ? (rows.length
                     ? "Pokazujemy tylko aktualne oferty dla tego kierunku — bez przypadkowych zamienników."
