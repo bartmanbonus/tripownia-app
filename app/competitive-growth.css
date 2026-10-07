@@ -370,3 +370,48 @@
   .seo-sales-snapshot{align-items:flex-start;flex-direction:column;padding:13px}
   .seo-sales-snapshot>a{width:100%}
 }
+
+
+/* 2026-10-07 sales-first funnel */
+.dream-hero-commerce-trust{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px 14px;
+  margin-top:13px;
+  color:#766b64;
+  font-size:10px;
+  font-weight:800;
+  line-height:1.35;
+}
+.dream-hero-commerce-trust span{display:inline-flex;align-items:center;gap:4px}
+.tripownia-live-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+}
+.tripownia-live-book{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  min-height:38px;
+  padding:0 12px;
+  border-radius:999px;
+  background:#f45b32;
+  color:#fff;
+  text-decoration:none;
+  font-size:10px;
+  font-weight:950;
+  box-shadow:0 8px 18px rgba(244,91,50,.18);
+}
+.tripownia-live-book:hover{background:#df4f29}
+@media(max-width:900px){
+  .tripownia-live-row{grid-template-columns:110px minmax(0,1fr) auto!important}
+  .tripownia-live-actions{grid-column:2/4;justify-self:start}
+}
+@media(max-width:620px){
+  .dream-hero-commerce-trust{display:grid;gap:5px;margin-top:10px}
+  .tripownia-live-actions{grid-column:1/3;justify-self:stretch;display:grid;grid-template-columns:1fr 1fr}
+  .tripownia-live-book,.tripownia-live-alert{width:100%;justify-content:center}
+}
