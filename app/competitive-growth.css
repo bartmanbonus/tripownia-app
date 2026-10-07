@@ -415,3 +415,68 @@
   .tripownia-live-actions{grid-column:1/3;justify-self:stretch;display:grid;grid-template-columns:1fr 1fr}
   .tripownia-live-book,.tripownia-live-alert{width:100%;justify-content:center}
 }
+
+
+.tripownia-purchase-actions-priority{
+  margin-top:16px;
+  padding:16px;
+  border:1px solid #efcfbf;
+  border-radius:18px;
+  background:linear-gradient(135deg,#fff5ef,#fff);
+  box-shadow:0 12px 28px rgba(67,40,26,.06);
+}
+.tripownia-purchase-actions-priority .tripownia-buy-cta{
+  min-height:52px;
+  width:100%;
+  justify-content:center;
+  background:#f45b32!important;
+  color:#fff!important;
+  font-size:13px!important;
+  font-weight:950!important;
+  box-shadow:0 10px 22px rgba(244,91,50,.24);
+}
+.tripownia-buy-trust{
+  display:block;
+  margin:8px 0 10px;
+  color:#7a6d65;
+  font-size:10px;
+  line-height:1.4;
+  text-align:center;
+}
+.live-mobile-booking-bar{display:none}
+@media(max-width:760px){
+  .live-mobile-booking-bar{
+    position:fixed;
+    left:10px;
+    right:10px;
+    bottom:calc(10px + env(safe-area-inset-bottom));
+    z-index:90;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:12px;
+    padding:10px 10px 10px 14px;
+    border:1px solid #e4d7cf;
+    border-radius:18px;
+    background:rgba(255,255,255,.97);
+    box-shadow:0 14px 40px rgba(38,25,18,.18);
+    backdrop-filter:blur(14px);
+  }
+  .live-mobile-booking-bar>div{min-width:0;display:grid;gap:2px}
+  .live-mobile-booking-bar small{color:#8a7e76;font-size:9px;font-weight:800}
+  .live-mobile-booking-bar strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px;color:#1f1a17}
+  .live-mobile-booking-bar>a{
+    min-height:44px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 16px;
+    border-radius:13px;
+    background:#f45b32;
+    color:#fff;
+    text-decoration:none;
+    font-size:11px;
+    font-weight:950;
+  }
+  body:has(.live-mobile-booking-bar){padding-bottom:82px}
+}
