@@ -7,7 +7,7 @@ import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 
 export const metadata: Metadata = {
   title: "Gruzja na długi weekend listopadowy | Tripownia",
-  description: "Batumi, 12–16 listopada 2026, 4 noce, wylot z Warszawy. Orbi Luxury Apartments i pakiet Lot+Hotel eSky.",
+  description: "Batumi, 12–16 listopada 2026, 4 noce, wylot z Warszawy. Orbi Luxury Apartments i pakiet lot + hotel.",
   robots: { index: false, follow: true },
 };
 
@@ -22,7 +22,7 @@ export default function GeorgiaNovemberOfferPage() {
         <h1>Gruzja zamiast listopadowej kanapy 🇬🇪</h1>
         <p style={{ maxWidth: 760 }}>
           12–16 listopada 2026 · 4 noce · wylot z Warszawy do Kutaisi · pobyt w Batumi.
-          Pakiet Lot+Hotel w eSky z Orbi Luxury Apartments.
+          Pakiet lot + hotel z pobytem w Orbi Luxury Apartments.
         </p>
 
         <div className="detail-grid" style={{ marginTop: 28 }}>
@@ -36,7 +36,7 @@ export default function GeorgiaNovemberOfferPage() {
           <div>
             <div className="offer-decision-box">
               <small>AKTUALNA CENA</small>
-              <strong>Sprawdź w eSky</strong>
+              <strong>Sprawdź aktualną cenę</strong>
               <span>
                 Cena pakietu jest dynamiczna. Po kliknięciu zobaczysz aktualną cenę tej konkretnej konfiguracji.
               </span>
@@ -61,12 +61,9 @@ export default function GeorgiaNovemberOfferPage() {
                 price={0}
                 placement="social_georgia_november_2026"
               >
-                Sprawdź aktualną ofertę w eSky →
+                Sprawdź aktualną ofertę →
               </TrackedPartnerLink>
               <OfferAlternativeJump />
-              <small className="booking-note">
-                Link eSky zawiera identyfikator partnerski Tripowni: TRIPOWNIAPLPACKAGES.
-              </small>
             </div>
           </div>
         </div>
