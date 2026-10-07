@@ -257,7 +257,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
     window.dispatchEvent(new Event("tripownia-recent-offers-updated"));
   }
 
-  function trackOfferClick(placement: "image" | "card_cta", outboundOverride?: boolean) {
+  function trackOfferClick(placement: "image" | "card_cta" | "card_detail", outboundOverride?: boolean) {
     rememberRecentOffer();
     const outbound = outboundOverride ?? (!isExpired && hasExternalAffiliateUrl);
     const params = { ...eventBase, placement, outbound };
@@ -281,14 +281,15 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
   const liveDetailHref = isLiveOffer && hasExternalAffiliateUrl
     ? liveOfferLandingHref(offerSnapshot, { price: priceVerified ? displayPrice : null, note: customerReason, source: sourceSurface || "offer_card" })
     : "";
-  // Karta zawsze otwiera najpierw Tripownię. Wyjście do partnera następuje dopiero
-  // z ekranu szczegółów, gdzie zachowujemy kontekst, planner i pomiar kliknięcia.
-  const directAffiliate = false;
   const cardHref = isLiveOffer
     ? (liveDetailHref || "/okazje")
     : `/oferta/${offer.id}`;
-  const buyHref = cardHref;
   const detailHref = cardHref;
+  // Najkrótsza ścieżka zakupowa tylko dla świeżej, dokładnie dopasowanej oferty.
+  // W takim przypadku użytkownik może przejść do partnera bez dodatkowego ekranu,
+  // ale nadal ma osobny link do szczegółów i planera w Tripowni.
+  const canFastBook = isLiveExact && !isExpired && hasExternalAffiliateUrl;
+  const buyHref = canFastBook ? offer.affiliateUrl : cardHref;
   const alertParams = new URLSearchParams({
     destination: offer.city,
     departure: offer.departure,
@@ -296,7 +297,11 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
   if (priceVerified) alertParams.set("maxPrice", String(Math.ceil(displayPrice * 1.08)));
   const alertHref = `/alerty?${alertParams.toString()}`;
   const nightsLabel = offer.nights === 1 ? "noc" : offer.nights % 10 >= 2 && offer.nights % 10 <= 4 && !(offer.nights % 100 >= 12 && offer.nights % 100 <= 14) ? "noce" : "nocy";
-  const ctaText = isExpired ? "Zobacz podobne oferty" : "Sprawdź ofertę";
+  const ctaText = isExpired
+    ? "Zobacz podobne oferty"
+    : canFastBook
+      ? "Sprawdź cenę i rezerwuj"
+      : "Sprawdź ofertę";
   const trustText = isExpired
     ? "Oferta wygasła"
     : !priceVerified
@@ -320,7 +325,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
       onClick={(event) => {
         const target = event.target as HTMLElement;
         if (target.closest("a,button,input,select,textarea,[role='button']")) return;
-        trackOfferClick("card_cta", directAffiliate);
+        trackOfferClick("card_cta", false);
         window.location.assign(cardHref);
       }}
     >
@@ -364,10 +369,22 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
         <div className="why-now"><span>DLACZEGO WARTO</span><strong>{customerReason}</strong></div>
 
         <Link
-          className="card-cta"
+          className={`card-cta ${canFastBook ? "card-cta-fast-book" : ""}`}
           href={buyHref}
-          onClick={() => trackOfferClick("card_cta", false)}
+          rel={canFastBook ? "sponsored" : undefined}
+          data-affiliate-source={canFastBook ? `offer_card_fast:${sourceSurface || "unknown"}` : undefined}
+          onClick={() => trackOfferClick("card_cta", canFastBook)}
         >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></Link>
+
+        {canFastBook && (
+          <Link
+            className="offer-detail-link"
+            href={detailHref}
+            onClick={() => trackOfferClick("card_detail", false)}
+          >
+            Zobacz szczegóły w Tripowni
+          </Link>
+        )}
 
         {!isExpired && (
           <Link className="offer-alert-link" href={alertHref} onClick={() => trackEvent("offer_alert_click", eventBase)}>
