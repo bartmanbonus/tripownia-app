@@ -148,6 +148,7 @@ export default function CityBreakPage() {
         <Link href="/podroze/city-break-z-poznania">City break z Poznania</Link>
         <Link href="/podroze/city-break-z-lublina">City break z Lublina</Link>
         <Link href="/podroze/city-break-z-krakowa">City break z Krakowa</Link>
+        <Link href="/podroze/city-break-z-gdanska">City break z Gdańska</Link>
         <Link href="/sylwester">Sylwester 2026/2027</Link>
         <Link href="/lot-hotel">Lot + hotel</Link>
         <Link href="/planer-podrozy">Darmowy planer</Link>
