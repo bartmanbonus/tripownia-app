@@ -853,7 +853,7 @@ export default function Home() {
         </div>
         {usingPublishedFallback && (
           <div className="homepage-offer-source-note" role="status">
-            Źródła ofert live chwilowo nie odpowiadają. Pokazujemy ostatnio opublikowane propozycje — aktualną cenę i dostępność potwierdzisz po kliknięciu.
+            Pokazujemy ostatnio sprawdzone propozycje Tripowni. Aktualną cenę i dostępność potwierdzisz u partnera po kliknięciu.
           </div>
         )}
         <OfferRail kicker="💸 NAJTANIEJ TERAZ" title="Najniższe ceny na pierwszy rzut" description="Najtańsze sensowne propozycje pokazujemy pierwsze — po jednym wariancie na kierunek." items={themedRails.cheapest}/>
