@@ -3,6 +3,13 @@
   "git": {
     "deploymentEnabled": true
   },
+  "redirects": [
+    {
+      "source": "/go/zanzibar",
+      "destination": "https://www.tui.pl/wypoczynek/zanzibar/nest-style-zanzibar-znz20006/OfferCodeWS/WROZNZ20270324030020270324202703311615L07ZNZ20006DZG1GA02ROGDZG1A02FCYY?utm_source=tradedoubler&utm_medium=afiliacja&utm_campaign=link-nowy&tduid=464e0afa0d9a060d7f05f6f5abfd0c5c&ds_rl=1263345&gclid=CJ-kj6GvqJcDFV5uFQgd1Hsm8A&gclsrc=ds&gad_source=7",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
