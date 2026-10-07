@@ -167,7 +167,7 @@ export default function DealsPage({
   const [historyVersion, setHistoryVersion] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState<QuickFilter>(dealType === "allinclusive" ? "allinclusive" : "all");
-  const [sortMode, setSortMode] = useState<SortMode>("mix");
+  const [sortMode, setSortMode] = useState<SortMode>("priceAsc");
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
