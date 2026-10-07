@@ -43,7 +43,6 @@ export default async function DealsRoute({ searchParams }:{ searchParams: Promis
   const initialOffers = !destination && !dealType
     ? homepageFallbackOffers
         .filter((offer) => !isOfferExpired(offer) && isTravelDestinationAllowed(offer.city, offer.country))
-        .slice(0, 12)
     : [];
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }} />
