@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, Clock3, Flame, ArrowRight } from "lucide-react";
+import { Bell, Clock3, Flame, ArrowRight, Zap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import type { Offer } from "@/lib/offers";
+import { getLinkMatch, type Offer } from "@/lib/offers";
+import { isPriceStale } from "@/lib/offerQuality";
 import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
@@ -81,24 +82,44 @@ export default function TripowniaLive() {
       </div>
 
       <div className="tripownia-live-list">
-        {rows.map((offer, index) => (
-          <article className="tripownia-live-row" key={`${offer.id}-${index}`}>
-            <div className="tripownia-live-time">
-              <Clock3 size={15}/>
-              <span>{live ? ageLabel(offer.priceCheckedAt || checkedAt) : "ostatnio znalezione"}</span>
-            </div>
-            <Link className="tripownia-live-main" href={liveOfferLandingHref(offer, { source: "tripownia_live" })}>
-              <strong>{storyTitle(offer)}</strong>
-              <span>{offer.departure} · {offer.dates} · {offer.board}</span>
-            </Link>
-            <div className="tripownia-live-price"><small>od</small><strong>{Number(offer.price).toLocaleString("pl-PL")} zł</strong><span>/ os.</span></div>
-            <Link
-              className="tripownia-live-alert"
-              href={`/alerty?destination=${encodeURIComponent(offer.city)}&departure=${encodeURIComponent(offer.departure)}&maxPrice=${Math.ceil(Number(offer.price) * 1.08)}`}
-              aria-label={`Ustaw alert na podobną cenę do ${offer.city}`}
-            ><Bell size={15}/> Alert</Link>
-          </article>
-        ))}
+        {rows.map((offer, index) => {
+          const effectiveCheckedAt = offer.priceCheckedAt || checkedAt;
+          const canFastBook = live
+            && offer.availabilityStatus === "available"
+            && getLinkMatch(offer) === "exact"
+            && /^https?:\/\//.test(offer.affiliateUrl || "")
+            && Boolean(effectiveCheckedAt)
+            && !isPriceStale(effectiveCheckedAt, 0.25);
+
+          return (
+            <article className="tripownia-live-row" key={`${offer.id}-${index}`}>
+              <div className="tripownia-live-time">
+                <Clock3 size={15}/>
+                <span>{live ? ageLabel(effectiveCheckedAt) : "ostatnio znalezione"}</span>
+              </div>
+              <Link className="tripownia-live-main" href={liveOfferLandingHref(offer, { source: "tripownia_live" })}>
+                <strong>{storyTitle(offer)}</strong>
+                <span>{offer.departure} · {offer.dates} · {offer.board}</span>
+              </Link>
+              <div className="tripownia-live-price"><small>od</small><strong>{Number(offer.price).toLocaleString("pl-PL")} zł</strong><span>/ os.</span></div>
+              <div className="tripownia-live-actions">
+                {canFastBook && (
+                  <a
+                    className="tripownia-live-book"
+                    href={offer.affiliateUrl}
+                    rel="sponsored"
+                    data-affiliate-source="tripownia_live_fast"
+                  ><Zap size={14}/> Rezerwuj</a>
+                )}
+                <Link
+                  className="tripownia-live-alert"
+                  href={`/alerty?destination=${encodeURIComponent(offer.city)}&departure=${encodeURIComponent(offer.departure)}&maxPrice=${Math.ceil(Number(offer.price) * 1.08)}`}
+                  aria-label={`Ustaw alert na podobną cenę do ${offer.city}`}
+                ><Bell size={15}/> Alert</Link>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </section>
   );
