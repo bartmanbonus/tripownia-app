@@ -292,25 +292,7 @@ export default async function SocialOfferLanding({
               <span><MapPin/> <b>{[city, country].filter(Boolean).join(", ")}</b></span>
             </div>
 
-            <div className="offer-detail-alert">
-              <div><strong>Ta cena Cię interesuje?</strong><span>Ustaw alert dla {city}. Jeśli pojawi się podobna opcja, łatwo wrócisz do porównania.</span></div>
-              <Link href={alertHref}><Bell size={15}/> Ustaw alert</Link>
-            </div>
-
-            <div className="offer-airport-choices">
-              <small>SPRAWDŹ TEN KIERUNEK Z INNEGO LOTNISKA</small>
-              <div className="offer-airport-choice-grid">
-                {airportChoices.map(item => (
-                  <Link
-                    className={item.activeCodes.includes(airport) ? "active" : ""}
-                    href={`/szukaj?${new URLSearchParams({ destination: city, airport: item.code, duration: `${Math.max(2,nights-1)}-${Math.min(14,nights+1)}`, tab: "Lot + hotel" }).toString()}`}
-                    key={item.code}
-                  ><Plane size={13}/>{item.label}</Link>
-                ))}
-              </div>
-            </div>
-
-            <div className="tripownia-purchase-actions">
+            <div className="tripownia-purchase-actions tripownia-purchase-actions-priority">
               <TrackedPartnerLink
                 className="primary-cta tripownia-buy-cta"
                 href={outboundHref}
@@ -330,6 +312,7 @@ export default async function SocialOfferLanding({
               >
                 Biorę tę ofertę
               </TrackedPartnerLink>
+              <small className="tripownia-buy-trust">Finalną cenę i dostępność potwierdzisz u partnera przed płatnością.</small>
               <div className="tripownia-purchase-secondary">
                 <Link className="btn secondary" href={plannerHref}>
                   <PlusCircle size={17}/> Dodaj do mojego planu
@@ -340,8 +323,44 @@ export default async function SocialOfferLanding({
                 Tripownia może otrzymać wynagrodzenie za rezerwację. Cena dla Ciebie się nie zmienia.
               </small>
             </div>
+
+            <div className="offer-detail-alert">
+              <div><strong>Ta cena Cię interesuje?</strong><span>Ustaw alert dla {city}. Jeśli pojawi się podobna opcja, łatwo wrócisz do porównania.</span></div>
+              <Link href={alertHref}><Bell size={15}/> Ustaw alert</Link>
+            </div>
+
+            <div className="offer-airport-choices">
+              <small>SPRAWDŹ TEN KIERUNEK Z INNEGO LOTNISKA</small>
+              <div className="offer-airport-choice-grid">
+                {airportChoices.map(item => (
+                  <Link
+                    className={item.activeCodes.includes(airport) ? "active" : ""}
+                    href={`/szukaj?${new URLSearchParams({ destination: city, airport: item.code, duration: `${Math.max(2,nights-1)}-${Math.min(14,nights+1)}`, tab: "Lot + hotel" }).toString()}`}
+                    key={item.code}
+                  ><Plane size={13}/>{item.label}</Link>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
+
+        <div className="live-mobile-booking-bar">
+          <div>
+            <small>{price ? "Znaleźliśmy od" : "Aktualna oferta"}</small>
+            <strong>{price ? `${price.toLocaleString("pl-PL")} zł / os.` : "Sprawdź cenę"}</strong>
+          </div>
+          <TrackedPartnerLink
+            href={outboundHref}
+            partner={target.partner.key}
+            offerId={Number(offerId) || 0}
+            destination={[city, country].filter(Boolean).join(", ")}
+            price={price || 0}
+            placement={`${outboundSource}:mobile_bar`}
+            returnContext={{ departure, hotel, board, nights, start, end }}
+          >
+            Rezerwuj
+          </TrackedPartnerLink>
+        </div>
 
         <OfferAlternativeFinder
           city={city}
