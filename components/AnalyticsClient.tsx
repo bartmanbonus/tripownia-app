@@ -61,7 +61,7 @@ function trackReferral(searchParams: URLSearchParams) {
     content,
   });
 
-  if (["facebook", "instagram", "fb", "ig", "meta"].includes(source) || medium.includes("social")) {
+  if (["facebook", "instagram", "fb", "ig", "meta", "tiktok"].includes(source) || medium.includes("social")) {
     trackEvent("social_referral", { source, medium, campaign, content });
   }
   return true;

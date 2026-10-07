@@ -72,7 +72,7 @@ export default function AnalyticsInteractions() {
             ...params,
             partner_host: partnerHost,
             partner: anchor.dataset.salesPartner || undefined,
-            offer_id: anchor.dataset.salesOfferId ? Number(anchor.dataset.salesOfferId) : undefined,
+            offer_id: anchor.dataset.salesOfferId || undefined,
             destination: anchor.dataset.salesDestination || undefined,
             price: anchor.dataset.salesPrice ? Number(anchor.dataset.salesPrice) : undefined,
             sales_placement: anchor.dataset.salesPlacement || undefined,

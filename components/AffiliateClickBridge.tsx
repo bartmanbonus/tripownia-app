@@ -314,6 +314,9 @@ function captureOutboundContext(anchor: HTMLAnchorElement) {
       destination,
       page: window.location.pathname,
       outbound_host: outboundHost,
+      offer_id: offerId || undefined,
+      price: price && Number.isFinite(Number(price)) ? Number(price) : undefined,
+      currency: "PLN",
     });
     trackMetaCustomEvent("AffiliateClick", {
       partner,

@@ -56,6 +56,7 @@ const bookingItems = [
 ] as const;
 
 const moreItems = [
+  { href: "/oferty-z-postow", label: "Oferty z social mediów", icon: Sparkles },
   { href: "/z-warszawy", label: "Wyloty z Warszawy", icon: Plane },
   { href: "/z-krakowa", label: "Wyloty z Krakowa", icon: Plane },
   { href: "/podroze-po-przezycia", label: "Podróże po przeżycia", icon: Sparkles },
