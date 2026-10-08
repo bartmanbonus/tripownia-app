@@ -170,10 +170,10 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
                 placement="offer_detail_primary"
                 returnContext={{ departure: o.departure, hotel: o.hotel, board: o.board, nights: o.nights }}
               >
-                Sprawdź cenę u partnera <ExternalLink size={18}/>
+                Sprawdź aktualną cenę i dostępność <ExternalLink size={18}/>
               </TrackedPartnerLink>
               <OfferAlternativeJump />
-              <small className="booking-note">Cena i dostępność mogą zmienić się do momentu rezerwacji. Sprawdź finalne warunki przed płatnością.</small>
+              <small className="booking-note"><strong>Bez dodatkowej opłaty od Tripowni.</strong> Cena i dostępność mogą zmienić się do momentu rezerwacji — finalne warunki potwierdzasz u partnera.</small>
             </div>
           )}
           <p className="detail-lead">{customerReason}</p>
@@ -289,7 +289,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           placement="offer_detail_mobile_bar"
           returnContext={{ departure: o.departure, hotel: o.hotel, board: o.board, nights: o.nights }}
         >
-          Przejdź do rezerwacji <ExternalLink size={16}/>
+          Sprawdź cenę i rezerwuj <ExternalLink size={16}/>
         </TrackedPartnerLink>
       </div>}
       <CompleteTripSales city={o.city} country={o.country} source="offer_detail" />
