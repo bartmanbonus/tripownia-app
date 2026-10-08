@@ -7,6 +7,8 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
 import type { Offer } from "@/lib/offers";
+import { getLinkMatch } from "@/lib/offers";
+import { isPriceStale } from "@/lib/offerQuality";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { useLiveOffers } from "@/lib/useLiveOffers";
@@ -24,7 +26,7 @@ type PriceHighlight = {
 };
 
 type QuickFilter = "all" | "city" | "allinclusive" | "sun" | "under2000" | "flight" | "package";
-type SortMode = "mix" | "priceAsc" | "priceDesc" | "shortest";
+type SortMode = "sales" | "mix" | "priceAsc" | "priceDesc" | "shortest";
 
 const AIRPORTS = [
   { value: "any", label: "Wszystkie lotniska" },
@@ -72,6 +74,41 @@ function priceSort(rows: DealsOffer[]) {
   return [...rows].sort((a, b) => Number(a.price) - Number(b.price) || Number(b.score || 0) - Number(a.score || 0));
 }
 
+function purchaseReadinessScore(offer: DealsOffer) {
+  const link = getLinkMatch(offer);
+  let score = Number(offer.score || 0) * 2;
+
+  if (offer.availabilityStatus === "available") score += 18;
+  if (offer.availabilityStatus === "expired") score -= 100;
+
+  if (link === "exact") score += 24;
+  else if (link === "parameters") score += 14;
+  else if (link === "destination") score += 5;
+  else score -= 20;
+
+  if (offer.priceCheckedAt && !isPriceStale(offer.priceCheckedAt, 0.25)) score += 16;
+  if (offer.hotel && !/hotel\s*[2345]★?/i.test(offer.hotel)) score += 5;
+  if (offer.board && !/wg oferty|bez informacji/i.test(offer.board)) score += 4;
+  if (offer.departure && offer.airportCode) score += 3;
+  if (offer.nights >= 2 && offer.nights <= 9) score += 2;
+
+  // Price still matters, but it should not beat a stale or generic offer.
+  const price = Number(offer.price || 0);
+  if (price > 0 && price <= 1500) score += 6;
+  else if (price <= 2500) score += 4;
+  else if (price <= 4000) score += 2;
+
+  return score;
+}
+
+function salesSort(rows: DealsOffer[]) {
+  return [...rows].sort((a, b) =>
+    purchaseReadinessScore(b) - purchaseReadinessScore(a)
+    || Number(a.price) - Number(b.price)
+    || Number(b.score || 0) - Number(a.score || 0)
+  );
+}
+
 function diversifiedOfferRows(rows: DealsOffer[]) {
   const source = priceSort(dedupedOfferRows(rows));
   const flights = source.filter((offer) => offer.category.includes("flight"));
@@ -91,6 +128,7 @@ function diversifiedOfferRows(rows: DealsOffer[]) {
 
 function allOfferRows(rows: DealsOffer[], sortMode: SortMode) {
   const unique = dedupedOfferRows(rows);
+  if (sortMode === "sales") return salesSort(unique);
   if (sortMode === "mix") return diversifiedOfferRows(unique);
   if (sortMode === "priceDesc") return priceSort(unique).reverse();
   if (sortMode === "shortest") return [...unique].sort((a, b) => Number(a.nights) - Number(b.nights) || Number(a.price) - Number(b.price));
@@ -143,8 +181,8 @@ function buildPoolHighlights(rows: DealsOffer[]) {
 export default function DealsPage({
   destination = "",
   dealType = "",
-  pageTitle = "Najpierw cena. Potem kierunek.",
-  pageLead = "Pokazujemy najtańszą aktualną ofertę dla każdego kierunku. Cena, termin i dostępność są regularnie odświeżane.",
+  pageTitle = "Aktualne okazje gotowe do sprawdzenia.",
+  pageLead = "Najwyżej pokazujemy oferty z najlepszym połączeniem aktualności, konkretnego linku, pełnych danych i ceny. Jeśli chcesz, jednym kliknięciem posortujesz wyłącznie po najniższej cenie.",
   kicker = "OKAZJE TRIPOWNI",
   initialOffers = [],
   readySearchItems = [],
@@ -167,7 +205,7 @@ export default function DealsPage({
   const [historyVersion, setHistoryVersion] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState<QuickFilter>(dealType === "allinclusive" ? "allinclusive" : "all");
-  const [sortMode, setSortMode] = useState<SortMode>("priceAsc");
+  const [sortMode, setSortMode] = useState<SortMode>("sales");
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
@@ -443,7 +481,7 @@ export default function DealsPage({
                 ? (rows.length
                     ? "Pokazujemy tylko aktualne oferty dla tego kierunku — bez przypadkowych zamienników."
                     : "Jeśli feed nie zwraca dziś gotowej karty, pokazujemy kilka gotowych wariantów na każdy miesiąc — bez pustej strony.")
-                : "Pokazujemy całą aktualną pulę ofert, bez sztucznego limitu. Najtańsze są na górze, a duplikaty tej samej oferty usuwamy."}
+                : "Pokazujemy całą aktualną pulę bez sztucznego limitu. Domyślnie wyżej są oferty najbardziej gotowe do rezerwacji; możesz przełączyć sortowanie na samą cenę."}
           </p>
         </div>
         <Link className="primary-cta deals-simple-search" href="/#wyszukiwarka">
@@ -494,6 +532,7 @@ export default function DealsPage({
             <label className="deals-sort-control">
               <span>Sortuj</span>
               <select value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)}>
+                <option value="sales">Największa szansa zakupu</option>
                 <option value="mix">Polecany miks</option>
                 <option value="priceAsc">Cena: od najniższej</option>
                 <option value="priceDesc">Cena: od najwyższej</option>
