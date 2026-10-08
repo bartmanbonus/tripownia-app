@@ -6,6 +6,7 @@ import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 type Props = {
   href: string;
   partner: string;
+  partnerLabel?: string;
   slug: string;
   price?: number;
   destination: string;
@@ -18,7 +19,7 @@ type Props = {
   end?: string;
 };
 
-export default function AffiliateOfferLink({ href, partner, slug, price, destination, tripKind = "package", departure, hotel, board, nights, start, end }: Props) {
+export default function AffiliateOfferLink({ href, partner, partnerLabel, slug, price, destination, tripKind = "package", departure, hotel, board, nights, start, end }: Props) {
   function rememberTripContext() {
     saveAffiliateReturnContext({
       slug,
@@ -48,7 +49,7 @@ export default function AffiliateOfferLink({ href, partner, slug, price, destina
       data-sales-destination={destination}
       onClick={rememberTripContext}
     >
-      Sprawdź ofertę <ArrowRight size={18}/>
+      Sprawdź cenę{partnerLabel ? ` w ${partnerLabel}` : " u partnera"} <ArrowRight size={18}/>
     </a>
   );
 }

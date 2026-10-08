@@ -106,10 +106,8 @@ export default function TripowniaLive() {
                 {canFastBook && (
                   <a
                     className="tripownia-live-book"
-                    href={offer.affiliateUrl}
-                    rel="sponsored"
-                    data-affiliate-source="tripownia_live_fast"
-                  ><Zap size={14}/> Rezerwuj</a>
+                    href={liveOfferLandingHref(offer, { source: "tripownia_live" })}
+                  ><Zap size={14}/> Zobacz ofertę</a>
                 )}
                 <Link
                   className="tripownia-live-alert"

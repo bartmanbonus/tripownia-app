@@ -12,6 +12,7 @@ type Props = {
   overrideSrc?: string;
   searchQuery?: string;
   preferDynamic?: boolean;
+  priority?: boolean;
 };
 
 type ApiResponse = {
@@ -21,7 +22,7 @@ type ApiResponse = {
 
 const memoryCache = new Map<string, string>();
 
-export default function TravelImage({ city, country, alt, className = "", overrideSrc, searchQuery = "", preferDynamic = false }: Props) {
+export default function TravelImage({ city, country, alt, className = "", overrideSrc, searchQuery = "", preferDynamic = false, priority = false }: Props) {
   const cacheKey = `${city}|${country}|${searchQuery}`;
   const rule = useMemo(() => getDestinationImageRule(city, country), [city, country]);
   const localCandidate = preferDynamic ? "" : (rule.localPath || "");
@@ -139,7 +140,8 @@ export default function TravelImage({ city, country, alt, className = "", overri
         height={1000}
         sizes="(max-width: 560px) 100vw, (max-width: 1100px) 50vw, 33vw"
         quality={88}
-        loading="lazy"
+        priority={priority}
+        loading={priority ? "eager" : "lazy"}
         onError={loadDynamicFallback}
       />
     );
@@ -152,7 +154,7 @@ export default function TravelImage({ city, country, alt, className = "", overri
       src={src}
       alt={alt}
       className={className}
-      loading="lazy"
+      loading={priority ? "eager" : "lazy"}
       decoding="async"
       onError={loadDynamicFallback}
     />

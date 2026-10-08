@@ -1,6 +1,7 @@
 declare const process: { env: Record<string, string | undefined> };
 
 export type PartnerKey =
+  | "aviasales"
   | "esky"
   | "wakacje"
   | "exim"
@@ -93,6 +94,17 @@ export function buildEskyPackagesUrl(destinationUrl?: string) {
 }
 
 export const partners: Record<PartnerKey, Partner> = {
+  aviasales: {
+    key: "aviasales", name: "Aviasales", category: "travel",
+    description: "Wyszukiwanie lotów", commissionType: "unknown",
+    trackingId: "695999.TRIPOWNIAPL",
+    buildUrl: (destinationUrl = "https://www.aviasales.com/") => {
+      const url = new URL(destinationUrl);
+      url.searchParams.set("marker", "695999.TRIPOWNIAPL");
+      url.searchParams.set("shmarker", "695999.TRIPOWNIAPL");
+      return url.toString();
+    },
+  },
   esky: {
     key: "esky",
     name: "eSky",

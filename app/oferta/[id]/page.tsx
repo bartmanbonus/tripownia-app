@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, MapPin, Moon, Plane, Sun, Utensils, Bell } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import TravelImage from "@/components/TravelImage";
+import OfferHeroImage from "@/components/OfferHeroImage";
+import OfferJourney from "@/components/OfferJourney";
 import { formatPriceCheckedAt, getLinkMatch, homepageFallbackOffers as offers } from "@/lib/offers";
 import BeforeYouGo from "@/components/BeforeYouGo";
 import FavoriteButton from "@/components/FavoriteButton";
@@ -122,7 +123,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
     .sort((a,b) => Math.abs(a.price - o.price) - Math.abs(b.price - o.price))
     .slice(0,3);
   const comparisonOffers = similar.slice(0, 2);
-  return <main>
+  return <main className="offer-journey-page">
     <SiteHeader/>
     <BreadcrumbSchema items={[
       { name: "Tripownia", url: "https://tripownia.pl/" },
@@ -132,11 +133,9 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
     <div className="shell">
       <div className="offer-detail-top"><Link href="/okazje"><ArrowLeft size={17}/> Wróć do okazji</Link></div>
+      <OfferJourney offerId={String(o.id)} destination={o.city} partner={o.partner} price={o.price} />
       <section className="detail-hero">
-        <div className="detail-image">
-          <TravelImage city={o.city} country={o.country} alt={`${o.city}, ${o.country}`} className="detail-photo-img" overrideSrc={o.image}/>
-          <span className={`badge ${o.partner !== "exim" && o.tag==='BIERZEMY'?'hot':''}`}>{o.partner === "exim" ? "WYBRANE PRZEZ TRIPOWNIĘ" : o.tag === "BIERZEMY" ? "OKAZJA TRIPOWNI" : o.tag}</span>
-        </div>
+        <OfferHeroImage city={o.city} country={o.country} />
         <div className="detail-copy">
           <div className="eyebrow">{o.flag} {o.country}</div>
           <h1>{o.city}</h1>
@@ -163,6 +162,27 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <span><MapPin/> <b>{o.hotel}</b></span><span>📅 <b>{o.dates}</b></span>
           </div>
 
+          <div className="detail-source"><strong>Tripownia wybiera i porównuje. Partner finalizuje płatność.</strong> Po kliknięciu zachowamy ten wyjazd, żeby po powrocie od razu dobrać nocleg, transfer i atrakcje.</div>
+          {o.availabilityStatus === "expired" ? (
+            <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
+          ) : (
+            <div className="detail-action-box">
+              <TrackedPartnerLink
+                className="primary-cta"
+                href={detailAffiliateUrl}
+                partner={o.partner}
+                offerId={o.id}
+                destination={o.city}
+                price={o.price}
+                placement="offer_detail_primary"
+                returnContext={{ departure: o.departure, hotel: o.hotel, board: o.board, nights: o.nights }}
+              >
+                Sprawdź cenę u partnera <ExternalLink size={18}/>
+              </TrackedPartnerLink>
+              <OfferAlternativeJump />
+              <small className="booking-note">Cena i dostępność mogą zmienić się do momentu rezerwacji. Sprawdź finalne warunki przed płatnością.</small>
+            </div>
+          )}
           <div className="booking-summary" aria-label="Najważniejsze elementy oferty">
             <div><small>Wylot</small><strong>{o.departure}</strong></div>
             <div><small>Termin</small><strong>{o.dates}</strong></div>
@@ -196,27 +216,6 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             </div>
           </div>
 
-          <div className="detail-source"><strong>Tripownia wybiera i porównuje. Partner finalizuje płatność.</strong> Po kliknięciu zachowamy ten wyjazd, żeby po powrocie od razu dobrać nocleg, transfer i atrakcje.</div>
-          {o.availabilityStatus === "expired" ? (
-            <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
-          ) : (
-            <div className="detail-action-box">
-              <TrackedPartnerLink
-                className="primary-cta"
-                href={detailAffiliateUrl}
-                partner={o.partner}
-                offerId={o.id}
-                destination={o.city}
-                price={o.price}
-                placement="offer_detail_primary"
-                returnContext={{ departure: o.departure, hotel: o.hotel, board: o.board, nights: o.nights }}
-              >
-                {o.partner === "exim" || o.partner === "tui" ? "Biorę tę ofertę" : "Przejdź do rezerwacji"} <ExternalLink size={18}/>
-              </TrackedPartnerLink>
-              <OfferAlternativeJump />
-              <small className="booking-note">Cena i dostępność mogą zmienić się do momentu rezerwacji. Sprawdź finalne warunki przed płatnością.</small>
-            </div>
-          )}
           <SocialShare
             url={`https://tripownia.pl/oferta/${o.id}`}
             title={`${o.city} — okazja Tripownia.pl`}

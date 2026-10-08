@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
+import OfferHeroImage from "@/components/OfferHeroImage";
+import OfferJourney from "@/components/OfferJourney";
 import { notFound } from "next/navigation";
 import { ArrowLeft, BadgeCheck, CalendarDays, MapPin, Moon, Plane, PlusCircle, Utensils } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
@@ -142,27 +143,19 @@ export default async function ShortSocialOfferPage({
   const plannerHref = `/dodaj-podroz?${plannerParams.toString()}`;
 
   return (
-    <main className="social-offer-page">
+    <main className="social-offer-page offer-journey-page">
       <SiteHeader />
       <div className="shell">
         <div className="offer-detail-top">
           <Link href="/okazje"><ArrowLeft size={17}/> Zobacz wszystkie okazje</Link>
         </div>
+        <OfferJourney offerId={offer.slug} destination={offer.city} partner={offer.partner} price={offer.price} source="social_offer" />
         <section className="detail-hero">
-          <div className="detail-image">
-            {offer.imageSrc ? (
-              <Image src={offer.imageSrc} alt={`${offer.city}, ${offer.country}`} className="detail-photo-img" width={1600} height={1000} sizes="(max-width: 760px) 100vw, 50vw" priority />
-            ) : (
-              <div className="tripownia-image-empty detail-photo-img" role="img" aria-label={`${offer.city}, ${offer.country}`}>
-                <div className="tripownia-image-empty-inner"><span className="tripownia-image-mark">✈</span><strong>{offer.city}</strong><small>{offer.country}</small></div>
-              </div>
-            )}
-            <span className="badge hot">OKAZJA TRIPOWNI</span>
-          </div>
+          <OfferHeroImage city={offer.city} country={offer.country} src={offer.imageSrc} />
           <div className="detail-copy">
             <div className="eyebrow">{offer.country}</div>
             <h1>{offer.city}</h1>
-            <div className="detail-topline"><div className="detail-score"><BadgeCheck size={18}/><span>Oferta zweryfikowana przez Tripownię</span></div></div>
+            <div className="detail-topline"><div className="detail-score"><BadgeCheck size={18}/><span>Szczegóły wybranej propozycji</span></div></div>
             <div className="detail-price-card">
               <div className="detail-price"><small>znaleźliśmy od</small> <strong>{offer.price.toLocaleString("pl-PL")} zł</strong> / os.</div>
               <div className="price-status detail-price-status">Cena zapisana {new Intl.DateTimeFormat("pl-PL", { timeZone: "Europe/Warsaw", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(offer.checkedAt))}. Sprawdź aktualną cenę i dostępność przed rezerwacją.</div>
@@ -184,10 +177,11 @@ export default async function ShortSocialOfferPage({
               </>
             ) : (
               <>
-                <div className="detail-source"><strong>Tripownia prowadzi Cię do wyboru.</strong> Rezerwację i płatność finalizujesz u partnera, a po powrocie kontynuujesz kompletowanie tej samej podróży.</div>
+                <div className="detail-source"><strong>Wyjazd wybierasz tutaj.</strong> Rezerwację i płatność finalizujesz u partnera, a po powrocie kontynuujesz kompletowanie tej samej podróży.</div>
                 <div className="detail-action-box">
                   <AffiliateOfferLink
                     href={directAffiliateHref}
+                    partnerLabel={offer.partnerLabel}
                     partner={offer.partner}
                     slug={offer.slug}
                     price={offer.price}

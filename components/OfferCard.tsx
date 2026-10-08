@@ -285,11 +285,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
     ? (liveDetailHref || "/okazje")
     : `/oferta/${offer.id}`;
   const detailHref = cardHref;
-  // Najkrótsza ścieżka zakupowa tylko dla świeżej, dokładnie dopasowanej oferty.
-  // W takim przypadku użytkownik może przejść do partnera bez dodatkowego ekranu,
-  // ale nadal ma osobny link do szczegółów i planera w Tripowni.
-  const canFastBook = isLiveExact && !isExpired && hasExternalAffiliateUrl;
-  const buyHref = canFastBook ? offer.affiliateUrl : cardHref;
+  const buyHref = cardHref;
   const alertParams = new URLSearchParams({
     destination: offer.city,
     departure: offer.departure,
@@ -299,9 +295,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
   const nightsLabel = offer.nights === 1 ? "noc" : offer.nights % 10 >= 2 && offer.nights % 10 <= 4 && !(offer.nights % 100 >= 12 && offer.nights % 100 <= 14) ? "noce" : "nocy";
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
-    : canFastBook
-      ? "Sprawdź cenę i rezerwuj"
-      : "Sprawdź ofertę";
+    : "Zobacz ofertę";
   const trustText = isExpired
     ? "Oferta wygasła"
     : !priceVerified
@@ -369,22 +363,10 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
         <div className="why-now"><span>DLACZEGO WARTO</span><strong>{customerReason}</strong></div>
 
         <Link
-          className={`card-cta ${canFastBook ? "card-cta-fast-book" : ""}`}
+          className="card-cta"
           href={buyHref}
-          rel={canFastBook ? "sponsored" : undefined}
-          data-affiliate-source={canFastBook ? `offer_card_fast:${sourceSurface || "unknown"}` : undefined}
-          onClick={() => trackOfferClick("card_cta", canFastBook)}
+          onClick={() => trackOfferClick("card_cta", false)}
         >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></Link>
-
-        {canFastBook && (
-          <Link
-            className="offer-detail-link"
-            href={detailHref}
-            onClick={() => trackOfferClick("card_detail", false)}
-          >
-            Zobacz szczegóły w Tripowni
-          </Link>
-        )}
 
         {!isExpired && (
           <Link className="offer-alert-link" href={alertHref} onClick={() => trackEvent("offer_alert_click", eventBase)}>

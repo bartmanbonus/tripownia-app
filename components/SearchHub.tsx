@@ -2024,7 +2024,7 @@ export default function SearchHub({
             )}
             {!loading && packageSearchLink && results.length > 0 && <div className="search-v3-empty-actions">
               <a
-                href={`/go/live?${new URLSearchParams({
+                href={`/sprawdz-oferte?${new URLSearchParams({
                   partner: "esky",
                   target: packageSearchLink,
                   source: "search_more_packages",
@@ -2053,7 +2053,7 @@ export default function SearchHub({
                 <div className="search-v3-empty-actions">
                   {packageSearchLink && (
                     <a
-                      href={`/go/live?${new URLSearchParams({
+                      href={`/sprawdz-oferte?${new URLSearchParams({
                         partner: "esky",
                         target: packageSearchLink,
                         source: "search_zero_rescue",
@@ -2074,7 +2074,7 @@ export default function SearchHub({
                   <button type="button" onClick={relaxSearchFilters}>Usuń dodatkowe filtry</button>
                   {fallback?.kiwi && (
                     <a
-                      href={`/go/live?${new URLSearchParams({
+                      href={`/sprawdz-oferte?${new URLSearchParams({
                         partner: "kiwi",
                         target: fallback.kiwi,
                         source: "search_zero_flight_rescue",
@@ -2095,7 +2095,7 @@ export default function SearchHub({
                   )}
                   {fallback?.booking && (
                     <a
-                      href={`/go/live?${new URLSearchParams({
+                      href={`/sprawdz-oferte?${new URLSearchParams({
                         partner: "booking",
                         target: fallback.booking,
                         source: "search_zero_hotel_rescue",

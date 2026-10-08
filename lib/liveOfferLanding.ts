@@ -24,6 +24,8 @@ export function liveOfferLandingHref(offer: Offer, options?: { price?: number | 
 
   if (options?.note) params.set("note", options.note);
   if (options?.source) params.set("source", options.source);
+  if (offer.partner) params.set("partner", offer.partner);
+  if (offer.priceCheckedAt) params.set("checkedAt", offer.priceCheckedAt);
   if (offer.hotel) params.set("hotel", offer.hotel);
   if (offer.airportCode) params.set("airport", offer.airportCode);
   if (live.startDateISO) params.set("start", live.startDateISO);

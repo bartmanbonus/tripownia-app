@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, ExternalLink, Plane, Route } from "lucide-react";
+import OfferHeroImage from "@/components/OfferHeroImage";
+import OfferJourney from "@/components/OfferJourney";
+import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 
@@ -67,7 +70,7 @@ export default async function FlightOfferPage({ searchParams }: { searchParams: 
   if (returnDate) backParams.set("inbound", returnDate);
 
   return (
-    <main>
+    <main className="offer-journey-page">
       <SiteHeader />
       <div className="shell">
         <section className="detail-shell" style={{maxWidth: 900, margin: "36px auto 56px"}}>
@@ -75,6 +78,8 @@ export default async function FlightOfferPage({ searchParams }: { searchParams: 
             <ArrowLeft size={17}/> Wróć do wyników
           </Link>
 
+          <OfferJourney offerId={`${origin}-${destination}-${depart}-${returnDate}`} destination={name} partner="aviasales" price={price} source="flight_search" />
+          {valid && <div style={{ marginTop: 20 }}><OfferHeroImage city={name} country={country} /></div>}
           <div className="detail-card" style={{marginTop: 18}}>
             <div className="kicker">KONKRETNY LOT</div>
             <h1 style={{marginTop: 8}}>
@@ -97,9 +102,9 @@ export default async function FlightOfferPage({ searchParams }: { searchParams: 
                 </div>
 
                 <div className="detail-action-box" style={{marginTop: 24}}>
-                  <a className="primary-cta" href={partnerUrl} rel="sponsored">
-                    Sprawdź ten dokładny lot <ExternalLink size={18}/>
-                  </a>
+                  <TrackedPartnerLink className="primary-cta" href={`/go/live?${new URLSearchParams({ target: partnerUrl, partner: "aviasales", source: "flight_detail", offer: `${origin}-${destination}-${depart}-${returnDate}`, destination: name, price: String(price), page: "/loty/oferta" }).toString()}`} partner="aviasales" offerId={`${origin}-${destination}-${depart}-${returnDate}`} destination={name} price={price} placement="flight_detail" returnContext={{ departure: origin, start: depart, end: returnDate }}>
+                    Sprawdź tę trasę w Aviasales <ExternalLink size={18}/>
+                  </TrackedPartnerLink>
                   <Link className="btn secondary" href={`/loty?${backParams.toString()}`}>
                     Zmień termin lub trasę
                   </Link>

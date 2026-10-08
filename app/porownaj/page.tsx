@@ -1,5 +1,6 @@
 "use client";
 
+import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, BadgeCheck, Plus, Scale, Trash2 } from "lucide-react";
@@ -124,7 +125,7 @@ export default function ComparePage() {
                   </dl>
                   <p className="compare-reason">{offer.reason}</p>
                   {isExactLink || hasSafeLivePartnerLink ? (
-                    <a className="primary-cta" href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">
+                    <a className="primary-cta" href={liveOfferLandingHref(offer, { source: "porownaj" })}>
                       {isExactLink ? "Sprawdź tę ofertę" : "Sprawdź aktualne oferty"}
                     </a>
                   ) : (
