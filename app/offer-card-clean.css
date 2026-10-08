@@ -395,3 +395,29 @@
     font-size:11px!important;
   }
 }
+
+
+/* 2026-10-07 conversion: verified live inventory gets a clear booking path. */
+.offer-card-clean .card-cta-fast-book{
+  background:#f45b32!important;
+  box-shadow:0 10px 22px rgba(244,91,50,.24)!important;
+}
+.offer-card-clean .card-cta-fast-book:hover{
+  background:#df4f29!important;
+  box-shadow:0 12px 26px rgba(244,91,50,.29)!important;
+}
+.offer-card-clean .offer-detail-link{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:30px!important;
+  margin:-2px 0 7px!important;
+  color:#746a63!important;
+  text-decoration:none!important;
+  font-size:8.5px!important;
+  font-weight:850!important;
+}
+.offer-card-clean .offer-detail-link:hover{
+  color:#b94727!important;
+  text-decoration:underline!important;
+}
