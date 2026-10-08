@@ -563,10 +563,10 @@ export async function GET(request: NextRequest) {
   let matchMode = "exact";
   let notice = offers.length
     ? destination
-      ? `Pokazujemy aktualne oferty dla kierunku: ${destination}. Najtańsze są na górze — nie ograniczamy listy do jednej oferty.`
+      ? `Pokazujemy aktualne oferty dla kierunku: ${destination}. Tripownia może ułożyć je w interfejsie według gotowości do rezerwacji albo ceny.`
       : type === "allinclusive"
-        ? "Pokazujemy całą aktualną pulę All Inclusive. Najtańsze są na górze, bez limitu liczby ofert."
-        : "Mieszamy krótkie city breaki, same loty i pakiety wakacyjne. Najtańsze są na górze, a awaria jednego źródła nie blokuje pozostałych."
+        ? "Pokazujemy całą aktualną pulę All Inclusive bez limitu liczby ofert. W interfejsie możesz sortować po gotowości do rezerwacji albo cenie."
+        : "Mieszamy krótkie city breaki, same loty i pakiety wakacyjne. W interfejsie priorytetem mogą być oferty najbardziej gotowe do rezerwacji; awaria jednego źródła nie blokuje pozostałych."
     : "";
 
   if (!strict && !offers.length && (month || year)) {
