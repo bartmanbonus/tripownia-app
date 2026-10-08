@@ -63,6 +63,21 @@ function departureCode(value?: string) {
   return "";
 }
 
+function purchaseReadinessScore(offer: SeasonalOffer) {
+  const match = getLinkMatch(offer);
+  let score = Number(offer.score || 0) * 2;
+  if (offer.availabilityStatus === "available") score += 18;
+  if (offer.availabilityStatus === "expired") score -= 100;
+  if (match === "exact") score += 24;
+  else if (match === "parameters") score += 14;
+  else if (match === "destination") score += 5;
+  else score -= 20;
+  if (offer.priceCheckedAt && !isPriceStale(offer.priceCheckedAt, 0.25)) score += 16;
+  if (offer.hotel) score += 4;
+  if (offer.board) score += 3;
+  return score;
+}
+
 function uniqByProduct(items: SeasonalOffer[]) {
   const seen = new Set<string>();
   const result: SeasonalOffer[] = [];
@@ -289,7 +304,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
           if (cityBreakOverview) break;
         }
 
-        const unique = uniqByProduct(gathered).sort((a, b) => a.price - b.price);
+        const unique = uniqByProduct(gathered).sort((a, b) => purchaseReadinessScore(b) - purchaseReadinessScore(a) || a.price - b.price);
         const strict = strictFilter(unique);
         if (cancelled) return;
 
