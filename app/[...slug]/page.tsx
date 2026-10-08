@@ -12,6 +12,7 @@ const systemPaths = new Set([
 
 const dedicatedAppPaths = new Set([
   "/admin",
+  "/atrakcje",
   "/admin/social",
   "/alerty",
   "/app",
