@@ -155,13 +155,6 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               </>
             )}
           </div>
-          <p className="detail-lead">{customerReason}</p>
-          <div className="detail-meta">
-            <span><Plane/> <b>{o.departure}</b></span><span><Moon/> <b>{o.nights} nocy</b></span>
-            <span><Sun/> <b>{o.weather}</b></span><span><Utensils/> <b>{o.board}</b></span>
-            <span><MapPin/> <b>{o.hotel}</b></span><span>📅 <b>{o.dates}</b></span>
-          </div>
-
           <div className="detail-source"><strong>Tripownia wybiera i porównuje. Partner finalizuje płatność.</strong> Po kliknięciu zachowamy ten wyjazd, żeby po powrocie od razu dobrać nocleg, transfer i atrakcje.</div>
           {o.availabilityStatus === "expired" ? (
             <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
@@ -183,6 +176,13 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               <small className="booking-note">Cena i dostępność mogą zmienić się do momentu rezerwacji. Sprawdź finalne warunki przed płatnością.</small>
             </div>
           )}
+          <p className="detail-lead">{customerReason}</p>
+          <div className="detail-meta">
+            <span><Plane/> <b>{o.departure}</b></span><span><Moon/> <b>{o.nights} nocy</b></span>
+            <span><Sun/> <b>{o.weather}</b></span><span><Utensils/> <b>{o.board}</b></span>
+            <span><MapPin/> <b>{o.hotel}</b></span><span>📅 <b>{o.dates}</b></span>
+          </div>
+
           <div className="booking-summary" aria-label="Najważniejsze elementy oferty">
             <div><small>Wylot</small><strong>{o.departure}</strong></div>
             <div><small>Termin</small><strong>{o.dates}</strong></div>

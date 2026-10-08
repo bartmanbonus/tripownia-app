@@ -42,6 +42,7 @@ export default function AffiliateOfferLink({ href, partner, partnerLabel, slug, 
       className="primary-cta"
       href={href}
       rel="sponsored"
+      data-partner-exit="1"
       data-affiliate-source="social_offer"
       data-sales-partner={partner}
       data-sales-offer-id={slug}

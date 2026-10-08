@@ -202,7 +202,8 @@ function enrichTrackedLiveHref(anchor: HTMLAnchorElement) {
 }
 
 function wrapAnchor(anchor: HTMLAnchorElement) {
-  if (!isOfferDetailPath(window.location.pathname) && !window.location.pathname.startsWith("/admin")) {
+  const finalExit = isOfferDetailPath(window.location.pathname) && (anchor.dataset.partnerExit === "1" || Boolean(anchor.closest(".detail-action-box, .live-mobile-booking-bar")));
+  if (!finalExit && !window.location.pathname.startsWith("/admin")) {
     const wrapped = isTrackedLiveHref(anchor) ? new URL(anchor.href) : null;
     const target = wrapped?.searchParams.get("target") || anchor.href;
     if (partnerFromUrl(target)) {

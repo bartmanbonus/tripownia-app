@@ -39,7 +39,7 @@ export default async function PartnerReview({ searchParams }: { searchParams: Pr
         <div className="detail-copy">
           <div className="eyebrow">WYBRANE W TRIPOWNI</div>
           <h1>{destination || "Sprawdź dostępne opcje"}</h1>
-          <p className="detail-lead">Przejdziesz do {labels[partner]}, zachowując wybrany link i jego parametry.</p>
+          <p className="detail-lead">Przejdziesz do {labels[partner]}, aby sprawdzić aktualną cenę i dostępność.</p>
           <div className="detail-price-card"><div className="detail-price"><small>{price ? "Cena zapisana przy propozycji" : "Cena i dostępność"}</small><strong>{price ? `${price.toLocaleString("pl-PL")} zł` : "Do sprawdzenia"}</strong></div><p>Ostateczną cenę, termin i zakres oferty zobaczysz u partnera przed rezerwacją.</p></div>
           <div className="detail-action-box"><TrackedPartnerLink href={href} partner={partner} offerId={offer} destination={destination} price={price} placement={`${source}:detail`} className="primary-cta">Przejdź do {labels[partner]} →</TrackedPartnerLink><small>Po sprawdzeniu oferty możesz wrócić przyciskiem „Wstecz” do Tripowni.</small></div>
           <p className="affiliate-note">Rezerwację i płatność obsługuje {labels[partner]}. Tripownia może otrzymać prowizję za rezerwację.</p>

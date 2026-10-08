@@ -166,17 +166,6 @@ export default async function SocialOfferLanding({
               )}
             </div>
 
-            <p className="detail-lead">{note}</p>
-            {hotel && <p className="offer-hotel-name"><strong>{hotel}</strong></p>}
-
-            <div className="detail-meta">
-              <span><Plane/> <b>{departure}</b></span>
-              <span><Moon/> <b>{nights} nocy</b></span>
-              <span><CalendarDays/> <b>{dates}</b></span>
-              <span><Utensils/> <b>{board}</b></span>
-              <span><MapPin/> <b>{[city, country].filter(Boolean).join(", ")}</b></span>
-            </div>
-
             <div className="tripownia-purchase-actions tripownia-purchase-actions-priority">
               <TrackedPartnerLink
                 className="primary-cta tripownia-buy-cta"
@@ -207,6 +196,17 @@ export default async function SocialOfferLanding({
               <small className="affiliate-note tripownia-disclosure">
                 Tripownia może otrzymać wynagrodzenie za rezerwację. Cena dla Ciebie się nie zmienia.
               </small>
+            </div>
+
+            <p className="detail-lead">{note}</p>
+            {hotel && <p className="offer-hotel-name"><strong>{hotel}</strong></p>}
+
+            <div className="detail-meta">
+              <span><Plane/> <b>{departure}</b></span>
+              <span><Moon/> <b>{nights} nocy</b></span>
+              <span><CalendarDays/> <b>{dates}</b></span>
+              <span><Utensils/> <b>{board}</b></span>
+              <span><MapPin/> <b>{[city, country].filter(Boolean).join(", ")}</b></span>
             </div>
 
             <div className="offer-detail-alert">

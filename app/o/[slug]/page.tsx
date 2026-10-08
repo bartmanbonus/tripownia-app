@@ -161,13 +161,6 @@ export default async function ShortSocialOfferPage({
               <div className="price-status detail-price-status">Cena zapisana {new Intl.DateTimeFormat("pl-PL", { timeZone: "Europe/Warsaw", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(offer.checkedAt))}. Sprawdź aktualną cenę i dostępność przed rezerwacją.</div>
             </div>
             <p className="detail-lead"><strong>{offer.hotel}</strong></p>
-            <div className="detail-meta">
-              <span><Plane/> <b>{offer.departure}</b></span>
-              <span><Moon/> <b>{offer.nights} nocy</b></span>
-              <span><CalendarDays/> <b>{offer.dates}</b></span>
-              <span><Utensils/> <b>{offer.board}</b></span>
-              <span><MapPin/> <b>{offer.city}, {offer.country}</b></span>
-            </div>
             {(expired) ? (
               <>
                 <div className="detail-source"><strong>Ta konkretna oferta {offer.price.toLocaleString("pl-PL")} zł/os. na {offer.dates} nie jest już dostępna w potwierdzonej cenie.</strong> Nie przekierowujemy jej do innego terminu ani wyższej ceny. Zobacz aktualne okazje poniżej.</div>
@@ -177,7 +170,6 @@ export default async function ShortSocialOfferPage({
               </>
             ) : (
               <>
-                <div className="detail-source"><strong>Wyjazd wybierasz tutaj.</strong> Rezerwację i płatność finalizujesz u partnera, a po powrocie kontynuujesz kompletowanie tej samej podróży.</div>
                 <div className="detail-action-box">
                   <AffiliateOfferLink
                     href={directAffiliateHref}
@@ -200,6 +192,13 @@ export default async function ShortSocialOfferPage({
                 </div>
               </>
             )}
+            <div className="detail-meta">
+              <span><Plane/> <b>{offer.departure}</b></span>
+              <span><Moon/> <b>{offer.nights} {offer.nights === 1 ? "noc" : offer.nights >= 2 && offer.nights <= 4 ? "noce" : "nocy"}</b></span>
+              <span><CalendarDays/> <b>{offer.dates}</b></span>
+              <span><Utensils/> <b>{offer.board}</b></span>
+              <span><MapPin/> <b>{offer.city}, {offer.country}</b></span>
+            </div>
           </div>
         </section>
         {!(expired) && (
