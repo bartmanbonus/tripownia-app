@@ -5,13 +5,13 @@ import { homepageFallbackOffers, isOfferExpired } from "@/lib/offers";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
 export const metadata: Metadata = {
-  title: "Tanie wakacje i city break – najtańsze okazje podróżnicze",
-  description: "Sprawdź najtańsze aktualne wakacje i city breaki z polskich lotnisk. Tripownia wybiera najniższą cenę dla kierunku i pozwala filtrować po lotnisku, miesiącu i roku.",
+  title: "Aktualne okazje podróżnicze – wakacje, city break i last minute",
+  description: "Sprawdź aktualne wakacje, city breaki i last minute z polskich lotnisk. Najwyżej pokazujemy oferty z aktualną ceną, konkretnym linkiem i pełnymi danymi do decyzji.",
   alternates: { canonical: "/okazje" },
   openGraph: {
     type: "website",
-    title: "Najtańsze okazje podróżnicze | Tripownia.pl",
-    description: "Aktualne wakacje i city breaki sortowane od najniższej ceny, bez ściany droższych duplikatów.",
+    title: "Aktualne okazje podróżnicze | Tripownia.pl",
+    description: "Aktualne wakacje, city breaki i last minute. Tripownia priorytetyzuje oferty gotowe do sprawdzenia i rezerwacji, a użytkownik może sortować także po cenie.",
     url: "https://tripownia.pl/okazje",
   },
   robots: { index: true, follow: true },
@@ -22,7 +22,7 @@ const collectionSchema = {
   "@type": "CollectionPage",
   name: "Okazje Tripowni",
   url: "https://tripownia.pl/okazje",
-  description: "Aktualne okazje na wakacje i city breaki sortowane od najniższej ceny.",
+  description: "Aktualne okazje na wakacje, city breaki i last minute, priorytetyzowane pod aktualność, kompletność danych i gotowość do rezerwacji.",
   isPartOf: { "@type": "WebSite", name: "Tripownia.pl", url: "https://tripownia.pl" },
   about: ["tanie wakacje", "city break", "last minute", "okazje podróżnicze"],
 };
