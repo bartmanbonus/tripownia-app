@@ -91,6 +91,7 @@ export type AffiliateAnalyticsRow = {
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
+  landing: string | null;
 };
 
 export async function getAdminAffiliateRows(accessToken: string, days: number) {
@@ -115,7 +116,7 @@ export async function getAdminAffiliateRows(accessToken: string, days: number) {
 
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
   const query = new URLSearchParams({
-    select: "created_at,click_id,partner,source,offer_id,destination,price,page,utm_source,utm_medium,utm_campaign",
+    select: "created_at,click_id,partner,source,offer_id,destination,price,page,utm_source,utm_medium,utm_campaign,landing",
     created_at: `gte.${since}`,
     order: "created_at.desc",
   });
