@@ -4,7 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SocialOfferCatalog from "@/components/SocialOfferCatalog";
 
 export const metadata: Metadata = {
-  title: "Znajdź ofertę z posta | Tripownia.pl",
+  title: "Znajdź ofertę z posta",
   description: "Wróć do ofert Tripowni z social mediów. Wyszukaj kierunek, hotel lub cenę i sprawdź szczegóły konkretnego wyjazdu.",
   alternates: { canonical: "/oferty-z-postow" },
 };

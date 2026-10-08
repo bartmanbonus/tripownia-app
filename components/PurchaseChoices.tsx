@@ -7,6 +7,8 @@ import type { Offer } from "@/lib/offers";
 import { getDealScore } from "@/lib/dealScore";
 import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
 import { trackEvent } from "@/lib/analytics";
+import { isPromotableOffer } from "@/lib/offerValuePolicy";
+import { isOfferExpired } from "@/lib/offerRuntime";
 
 type Props = {
   city: string;
@@ -60,7 +62,7 @@ function uniqueOffers(offers: Offer[]) {
   return offers.filter((offer) => {
     if (!offer?.id || seen.has(offer.id)) return false;
     seen.add(offer.id);
-    return Boolean(offer.price && offer.affiliateUrl);
+    return isPromotableOffer(offer) && !isOfferExpired(offer);
   });
 }
 
@@ -93,8 +95,12 @@ export default function PurchaseChoices({
       cache: "no-store",
       signal: controller.signal,
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) throw new Error("Offers unavailable");
+        return response.json();
+      })
       .then((data) => {
+        if (controller.signal.aborted) return;
         const next = uniqueOffers(Array.isArray(data?.offers) ? data.offers : [])
           .filter((offer) => !currentOfferId || offer.id !== currentOfferId)
           .slice(0, 24);
@@ -129,7 +135,7 @@ export default function PurchaseChoices({
       {
         key: "cheapest",
         label: "Najtaniej",
-        helper: "Najniższa aktualnie znaleziona cena",
+        helper: "Najniższa cena wśród tych propozycji",
         offer: cheapest,
         score: getDealScore(cheapest, cheapest.price, cheapest.linkMatch === "exact").score,
       },
@@ -182,7 +188,7 @@ export default function PurchaseChoices({
       <div className="purchase-choices-head">
         <div>
           <div className="kicker">TRIPOWNIA WYBRAŁA ZA CIEBIE</div>
-          <h2 id="purchase-choices-title">Nie przekopuj dziesiątek ofert. Porównaj 3 sensowne opcje.</h2>
+          <h2 id="purchase-choices-title">Porównaj dostępne warianty wyjazdu.</h2>
           <p>
             Bierzemy pod uwagę cenę, długość pobytu, miejsce wylotu, kompletność oferty i jakość linku do rezerwacji.
             {typeof currentPrice === "number" && currentPrice > 0 ? ` Punkt odniesienia: od ${currentPrice.toLocaleString("pl-PL")} zł/os.` : ""}
@@ -238,7 +244,7 @@ export default function PurchaseChoices({
               );
             })}
           </div>
-          {partial && <p className="purchase-choices-note">Część źródeł jest chwilowo niepełna — pokazujemy najlepsze warianty, które możemy teraz potwierdzić.</p>}
+          {partial && <p className="purchase-choices-note">Porównanie obejmuje dostępne wyniki z ostatnich 6 godzin. Cenę i dostępność potwierdzisz u partnera.</p>}
         </>
       )}
     </section>

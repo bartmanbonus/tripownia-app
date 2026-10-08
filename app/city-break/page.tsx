@@ -144,6 +144,11 @@ export default function CityBreakPage() {
         { href: "/szukaj?duration=3-4&budget=1000&tab=City%20break", eyebrow: "DO 1 000 ZŁ/OS. · 3–4 NOCE", title: "Najtańszy city break", meta: "Bez wskazywania kierunku · sortowanie od najniższej ceny" },
       ]} />
       <div className={styles.linkPills}>
+        <Link href="/podroze/city-break-z-warszawy">City break z Warszawy</Link>
+        <Link href="/podroze/city-break-z-poznania">City break z Poznania</Link>
+        <Link href="/podroze/city-break-z-lublina">City break z Lublina</Link>
+        <Link href="/podroze/city-break-z-krakowa">City break z Krakowa</Link>
+        <Link href="/podroze/city-break-z-gdanska">City break z Gdańska</Link>
         <Link href="/sylwester">Sylwester 2026/2027</Link>
         <Link href="/lot-hotel">Lot + hotel</Link>
         <Link href="/planer-podrozy">Darmowy planer</Link>

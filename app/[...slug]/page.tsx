@@ -133,8 +133,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Pomysły na babski wyjazd za granicę: 12 kierunków na weekend z przyjaciółkami, od city breaku po słońce, plażę i spa.",
   },
   "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje": {
-    title: "Malaga czy Alicante? Co wybrać, Andaluzja i odległość | Tripownia",
-    description: "Malaga czy Alicante? Alicante nie leży w Andaluzji. Porównaj region, plaże, pogodę, zwiedzanie i wybierz lepszą bazę dla swojego wyjazdu.",
+    title: "Alicante czy Malaga? Gdzie lepiej lecieć i co wybrać w 2026",
+    description: "Alicante czy Malaga? Porównaj pogodę, plaże, zwiedzanie, region i odległości. Zobacz, które miasto lepiej pasuje do city breaku lub wakacji.",
   },
   "/wyspy-zielonego-przyladka": {
     title: "Wyspy Zielonego Przylądka wakacje 2026 – Sal, Boa Vista, All Inclusive | Tripownia",
@@ -153,12 +153,12 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Które lotniska w Polsce zniosły limit 100 ml? Aktualna lista: Kraków, Poznań, Rzeszów, Gdańsk oraz zasady we Wrocławiu i Katowicach.",
   },
   "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych": {
-    title: "Czy bagaż podręczny jest ważony? Waga i liczba sztuk 2026 | Tripownia",
-    description: "Czy linie lotnicze ważą bagaż podręczny? Sprawdź limity wagi, wymiary, liczbę sztuk i co może się wydarzyć przy kontroli przed wejściem na pokład.",
+    title: "Czy bagaż podręczny jest ważony? Limity Ryanair, Wizz Air i LOT",
+    description: "Czy bagaż podręczny jest ważony? Sprawdź limity wagi i wymiarów w Ryanair, Wizz Air i LOT oraz kiedy bagaż może zostać sprawdzony przy bramce.",
   },
   "/czy-warto-kupic-ubezpieczenie-podrozne-co-obejmuje-i-ile-kosztuje": {
-    title: "Ubezpieczenie podróżne 2026 – ile kosztuje i co obejmuje? | Tripownia",
-    description: "Ubezpieczenie podróżne: sprawdź koszty leczenia, assistance, NNW, bagaż i najważniejsze wyłączenia przed wyjazdem za granicę.",
+    title: "Ubezpieczenie podróżne – ile kosztuje i co obejmuje w 2026?",
+    description: "Ile kosztuje ubezpieczenie na wyjazd za granicę i co obejmuje? Sprawdź koszty leczenia, assistance, NNW, bagaż i najważniejsze wyłączenia polisy.",
   },
   "/czy-mozna-wniesc-jedzenie-do-samolotu-co-wolno-zabrac-na-poklad": {
     title: "Czy można wnieść jedzenie do samolotu? Co wolno zabrać w 2026 | Tripownia",

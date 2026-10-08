@@ -41,7 +41,7 @@ function displayDestination(offer: SocialOffer) {
 
 function imageUrl(offer: SocialOffer, origin: string) {
   if (offer.slug === "sal-riu-funana-3927") return SAL_IMAGE;
-  if (!offer.imageSrc) return origin + "/tripownia-logo.webp";
+  if (!offer.imageSrc) return origin + "/tripownia-app-icon-v2.png";
   return offer.imageSrc.startsWith("http") ? offer.imageSrc : origin + offer.imageSrc;
 }
 

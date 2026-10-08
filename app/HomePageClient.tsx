@@ -802,7 +802,12 @@ export default function Home() {
             <p>Znajdź wyjazd, a potem ogarnij całą podróż w jednym miejscu.</p>
             <div className="dream-hero-actions">
               <Link className="dream-primary" href="#wyszukiwarka" onClick={() => trackEvent("home_primary_cta", { action: "search" })}>Znajdź wyjazd</Link>
-              <Link className="dream-secondary" href="/dodaj-podroz?mode=owned" onClick={() => trackEvent("home_primary_cta", { action: "add_owned_trip" })}>Dodaj kupiony wyjazd</Link>
+              <Link className="dream-secondary" href="/okazje" onClick={() => trackEvent("home_primary_cta", { action: "deals" })}>Zobacz dzisiejsze okazje</Link>
+            </div>
+            <div className="dream-hero-commerce-trust">
+              <span>✓ Wyszukiwanie i planer za 0 zł</span>
+              <span>✓ Rezerwujesz bezpośrednio u partnera</span>
+              <span>✓ Po zakupie wracasz do planu podróży</span>
             </div>
             <div className="dream-category-row" aria-label="Co znajdziesz w Tripowni">
               <Link href="/wakacje">🌴 Wakacje</Link>
