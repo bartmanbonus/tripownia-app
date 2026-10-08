@@ -4,9 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Bell, CalendarRange, Search } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
-import { homepageFallbackOffers, isOfferExpired, type Offer } from "@/lib/offers";
+import { getLinkMatch, homepageFallbackOffers, isOfferExpired, type Offer } from "@/lib/offers";
 import { buildEskyPackagesUrl } from "@/lib/partners";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
+import { isPriceStale } from "@/lib/offerQuality";
 
 type SeasonalOffer = Offer & { startDateISO?: string; endDateISO?: string };
 type Props = { query: string; departure?: string; minNights?: number; maxNights?: number; maxPrice?: number; startDate?: string; endDate?: string; searchHref?: string; pagePath?: string };
