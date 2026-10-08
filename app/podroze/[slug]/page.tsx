@@ -302,7 +302,9 @@ function formatDate(value?: string) {
   return new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "long", year: "numeric" }).format(new Date(`${value}T12:00:00Z`));
 }
 
-export const dynamicParams = false;
+// Even if a known commercial landing is absent from one deployment's SSG manifest,
+// keep it crawlable via server rendering. Unknown slugs still return notFound().
+export const dynamicParams = true;
 
 export function generateStaticParams() {
   return allSeoLandings.map(({ slug }) => ({ slug }));
