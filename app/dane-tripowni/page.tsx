@@ -1,3 +1,4 @@
+import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
 import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
@@ -110,7 +111,7 @@ export default function TripowniaDataPage() {
         </div>
         <ol>
           {byDestination.map((row,index)=><li key={`${row.city}-${row.country}`}>
-            <a className="tripownia-data-offer-link" href={row.bestOffer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer" aria-label={`Sprawdź ofertę: ${row.city}, ${row.country} od ${row.minPrice} zł`}>
+            <a className="tripownia-data-offer-link" href={liveOfferLandingHref(row.bestOffer, { source: "dane-tripowni" })} aria-label={`Sprawdź ofertę: ${row.city}, ${row.country} od ${row.minPrice} zł`}>
               <strong>{index+1}</strong>
               <span>{row.flag} <b>{row.city}, {row.country}</b> — od {row.minPrice.toLocaleString("pl-PL")} zł{row.medianPrice ? ` · mediana ${row.medianPrice.toLocaleString("pl-PL")} zł` : ""}</span>
               <em>Sprawdź ofertę →</em>

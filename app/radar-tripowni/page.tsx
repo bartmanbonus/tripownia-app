@@ -1,3 +1,4 @@
+import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
 import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
@@ -68,7 +69,7 @@ export default function RadarTripowniPage() {
           <p><strong>od {offer.price.toLocaleString("pl-PL")} zł/os.</strong> · {offer.nights} nocy · wylot: {offer.departure}</p>
           <p>{offer.reason}</p>
           <p><small>{offer.dates} · {offer.board}</small></p>
-          <a href={offer.affiliateUrl} target="_blank" rel="sponsored noopener noreferrer">Sprawdź aktualną cenę →</a>
+          <a href={liveOfferLandingHref(offer, { source: "radar-tripowni" })}>Sprawdź aktualną cenę →</a>
         </section>)}
       </section>
 

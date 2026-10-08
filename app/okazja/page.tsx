@@ -4,11 +4,12 @@ import { redirect } from "next/navigation";
 import { ArrowLeft, MapPin, Plane, Moon, Utensils, CalendarDays, BadgeCheck, PlusCircle, Bell } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import Image from "next/image";
+import OfferHeroImage from "@/components/OfferHeroImage";
+import OfferJourney from "@/components/OfferJourney";
+import { formatPriceCheckedAt } from "@/lib/offerRuntime";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
-import EximLivePrice from "@/components/EximLivePrice";
 
 export const metadata: Metadata = {
   title: "Okazja podróżnicza",
@@ -55,87 +56,6 @@ function safePrice(value: string) {
   return Number.isFinite(parsed) && parsed > 0 && parsed < 100000 ? parsed : null;
 }
 
-const COUNTRY_IMAGE: Record<string, string> = {
-  "Albania": "/images/destinations/riwiera-albanska.jpg",
-  "Austria": "/images/destinations/wieden.jpg",
-  "Chorwacja": "/images/destinations/split.jpg",
-  "Cypr": "/images/destinations/pafos.jpg",
-  "Czechy": "/images/destinations/praga.jpg",
-  "Egipt": "/images/destinations/marsa-alam.jpg",
-  "Francja": "/images/destinations/paryz.jpg",
-  "Grecja": "/images/destinations/rodos.jpg",
-  "Hiszpania": "/images/destinations/barcelona.jpg",
-  "Holandia": "/images/destinations/amsterdam.jpg",
-  "Irlandia": "/images/destinations/dublin.jpg",
-  "Malta": "/images/destinations/valletta.jpg",
-  "Maroko": "/images/destinations/marrakesz.jpg",
-  "Portugalia": "/images/destinations/lizbona.jpg",
-  "Tunezja": "/images/destinations/djerba.jpg",
-  "Turcja": "/images/destinations/stambul.jpg",
-  "Węgry": "/images/destinations/budapeszt.jpg",
-  "Wielka Brytania": "/images/destinations/londyn.jpg",
-  "Włochy": "/images/destinations/rzym.jpg",
-};
-
-const DESTINATION_IMAGE: Record<string, string> = {
-  "sloneczny brzeg": "/images/destinations/sloneczny-brzeg.jpg",
-  "sunny beach": "/images/destinations/sloneczny-brzeg.jpg",
-  "hammamet": "/images/destinations/hammamet.jpg",
-  "djerba": "/images/destinations/djerba.jpg",
-  "pafos": "/images/destinations/pafos.jpg",
-  "rodos": "/images/destinations/rodos.jpg",
-  "santorini": "/images/destinations/santorini.jpg",
-  "teneryfa": "/images/destinations/teneryfa.jpg",
-  "fuerteventura": "/images/destinations/fuerteventura.jpg",
-  "barcelona": "/images/destinations/barcelona.jpg",
-  "walencja": "/images/destinations/walencja.jpg",
-  "alicante": "/images/destinations/alicante.jpg",
-  "sewilla": "/images/destinations/sewilla.jpg",
-  "lizbona": "/images/destinations/lizbona.jpg",
-  "porto": "/images/destinations/porto.jpg",
-  "rzym": "/images/destinations/rzym.jpg",
-  "bergamo": "/images/destinations/bergamo.jpg",
-  "wenecja": "/images/destinations/wenecja.jpg",
-  "florencja": "/images/destinations/florencja.jpg",
-  "split": "/images/destinations/split.jpg",
-  "dubrownik": "/images/destinations/dubrownik.jpg",
-  "zadar": "/images/destinations/zadar.jpg",
-  "marrakesz": "/images/destinations/marrakesz.jpg",
-  "valletta": "/images/destinations/valletta.jpg",
-  "praga": "/images/destinations/praga.jpg",
-  "wieden": "/images/destinations/wieden.jpg",
-  "budapeszt": "/images/destinations/budapeszt.jpg",
-  "amsterdam": "/images/destinations/amsterdam.jpg",
-  "paryz": "/images/destinations/paryz.jpg",
-  "londyn": "/images/destinations/londyn.jpg",
-  "dublin": "/images/destinations/dublin.jpg",
-  "stambul": "/images/destinations/stambul.jpg",
-  "kair": "/images/destinations/kair.jpg",
-  "dubaj": "/images/destinations/dubaj.jpg",
-};
-
-function normalizeLocation(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, " ")
-    .trim();
-}
-
-function destinationImage(city: string, country: string) {
-  const normalizedCity = normalizeLocation(city);
-  const direct = DESTINATION_IMAGE[normalizedCity];
-  if (direct) return direct;
-
-  const fuzzy = Object.entries(DESTINATION_IMAGE).find(([key]) =>
-    normalizedCity.includes(key) || key.includes(normalizedCity)
-  );
-  if (fuzzy) return fuzzy[1];
-
-  return COUNTRY_IMAGE[country] || null;
-}
-
 export default async function SocialOfferLanding({
   searchParams,
 }: {
@@ -161,7 +81,7 @@ export default async function SocialOfferLanding({
   const note = one(query.note, "Tripownia znalazła tę ofertę. Cena i dostępność mogą się zmienić.");
   if (!target) redirect(city && city !== "Wybrany kierunek" ? `/okazje?destination=${encodeURIComponent(city)}` : "/okazje");
 
-  const imageSrc = destinationImage(city, country);
+  const checkedAt = formatPriceCheckedAt(one(query.checkedAt));
   const tripKind = target.partner.key === "kiwi" ? "flight" : target.partner.key === "booking" ? "hotel" : "package";
   const outboundSource = source.startsWith("seo_")
     ? `seo_detail:${source}`
@@ -204,42 +124,16 @@ export default async function SocialOfferLanding({
   ];
 
   return (
-    <main>
+    <main className="offer-journey-page">
       <SiteHeader />
       <div className="shell">
         <div className="offer-detail-top">
           <Link href="/okazje"><ArrowLeft size={17}/> Zobacz wszystkie okazje</Link>
         </div>
 
+        <OfferJourney offerId={offerId} destination={city} partner={target.partner.key} price={price || undefined} source={source} />
         <section className="detail-hero">
-          <div className="detail-image">
-            {imageSrc ? (
-              <Image
-                src={imageSrc}
-                alt={`${city}, ${country}`}
-                className="detail-photo-img"
-                width={1600}
-                height={1000}
-                sizes="(max-width: 760px) 100vw, 50vw"
-                priority
-              />
-            ) : (
-              <div className="tripownia-image-empty detail-photo-img" role="img" aria-label={`${city}, ${country}`}>
-                <div className="tripownia-image-empty-inner">
-                  <span className="tripownia-image-mark">✈</span>
-                  <strong>{city}</strong>
-                  <small>{country || "Tripownia.pl"}</small>
-                </div>
-              </div>
-            )}
-            <span className="badge hot">OKAZJA TRIPOWNI</span>
-            {imageSrc && (
-              <div className="detail-image-caption">
-                <strong>{city}</strong>
-                <span>{country || "kierunek podróży"}</span>
-              </div>
-            )}
-          </div>
+          <OfferHeroImage city={city} country={country} />
 
           <div className="detail-copy">
             {country && <div className="eyebrow">{country}</div>}
@@ -253,43 +147,23 @@ export default async function SocialOfferLanding({
             </div>
 
             <div className="detail-price-card">
-              {target.partner.key === "exim" ? (
-                <EximLivePrice
-                  destination={city}
-                  country={country}
-                  from={airport || "WAW"}
-                  nights={nights}
-                  board={board}
-                  fallbackPrice={price || 0}
-                />
-              ) : price ? (
+              {price ? (
                 <>
                   <div className="detail-price">
                     <small>znaleźliśmy od</small> <strong>{price.toLocaleString("pl-PL")} zł</strong> / os.
                   </div>
                   <div className="price-status detail-price-status">
-                    Finalną cenę i dostępność potwierdzisz przy rezerwacji.
+                    {checkedAt ? `Cena zapisana ${checkedAt}. ` : "Cena z wybranej propozycji. "}Aktualną cenę i dostępność potwierdzisz u partnera.
                   </div>
                 </>
               ) : (
                 <>
                   <div className="detail-price"><strong>Sprawdź aktualną cenę</strong></div>
                   <div className="price-status detail-price-status">
-                    Finalną cenę i dostępność potwierdzisz przy rezerwacji.
+                    {checkedAt ? `Cena zapisana ${checkedAt}. ` : "Cena z wybranej propozycji. "}Aktualną cenę i dostępność potwierdzisz u partnera.
                   </div>
                 </>
               )}
-            </div>
-
-            <p className="detail-lead">{note}</p>
-            {hotel && <p className="offer-hotel-name"><strong>{hotel}</strong></p>}
-
-            <div className="detail-meta">
-              <span><Plane/> <b>{departure}</b></span>
-              <span><Moon/> <b>{nights} nocy</b></span>
-              <span><CalendarDays/> <b>{dates}</b></span>
-              <span><Utensils/> <b>{board}</b></span>
-              <span><MapPin/> <b>{[city, country].filter(Boolean).join(", ")}</b></span>
             </div>
 
             <div className="tripownia-purchase-actions tripownia-purchase-actions-priority">
@@ -310,7 +184,7 @@ export default async function SocialOfferLanding({
                   end,
                 }}
               >
-                Biorę tę ofertę
+                Sprawdź cenę w {target.partner.label}
               </TrackedPartnerLink>
               <small className="tripownia-buy-trust">Finalną cenę i dostępność potwierdzisz u partnera przed płatnością.</small>
               <div className="tripownia-purchase-secondary">
@@ -322,6 +196,17 @@ export default async function SocialOfferLanding({
               <small className="affiliate-note tripownia-disclosure">
                 Tripownia może otrzymać wynagrodzenie za rezerwację. Cena dla Ciebie się nie zmienia.
               </small>
+            </div>
+
+            <p className="detail-lead">{note}</p>
+            {hotel && <p className="offer-hotel-name"><strong>{hotel}</strong></p>}
+
+            <div className="detail-meta">
+              <span><Plane/> <b>{departure}</b></span>
+              <span><Moon/> <b>{nights} nocy</b></span>
+              <span><CalendarDays/> <b>{dates}</b></span>
+              <span><Utensils/> <b>{board}</b></span>
+              <span><MapPin/> <b>{[city, country].filter(Boolean).join(", ")}</b></span>
             </div>
 
             <div className="offer-detail-alert">
@@ -358,7 +243,7 @@ export default async function SocialOfferLanding({
             placement={`${outboundSource}:mobile_bar`}
             returnContext={{ departure, hotel, board, nights, start, end }}
           >
-            Rezerwuj
+            Sprawdź cenę
           </TrackedPartnerLink>
         </div>
 

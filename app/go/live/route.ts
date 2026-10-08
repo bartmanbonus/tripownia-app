@@ -4,6 +4,7 @@ import { partners, buildEskyPackagesUrl, type PartnerKey } from "@/lib/partners"
 import { recordGlobalAffiliateClick } from "@/lib/affiliateAnalyticsStore";
 
 const ALLOWED_PARTNERS = new Set<PartnerKey>([
+  "aviasales",
   "wakacje",
   "exim",
   "esky",
@@ -21,6 +22,8 @@ const ALLOWED_PARTNERS = new Set<PartnerKey>([
 ]);
 
 const ALLOWED_HOSTS = new Set([
+  "aviasales.com",
+  "www.aviasales.com",
   "reklamy.exim.pl",
   "www.exim.pl",
   "www2.esky.pl",
@@ -147,6 +150,7 @@ function validTradeDoublerWrapper(partner: PartnerKey, target: URL, allowedDesti
 }
 
 function belongsToPartner(partner: PartnerKey, target: URL) {
+  if (partner === "aviasales") return ["aviasales.com", "www.aviasales.com"].includes(target.hostname.toLowerCase());
   const host = target.hostname.toLowerCase();
   if (partner === "esky") return ["www2.esky.pl", "www.esky.pl"].includes(host)
     && (target.pathname === "/lot+hotel/portfolio" || target.pathname.startsWith("/lot+hotel/portfolio/"));
@@ -209,6 +213,7 @@ function affiliateTarget(partner: PartnerKey, target: URL) {
   const original = target.toString();
 
   try {
+    if (partner === "aviasales") return new URL(partners.aviasales.buildUrl(original));
     if (partner === "esky") return new URL(buildEskyPackagesUrl(original));
     if (partner === "exim") {
       if (host === "reklamy.exim.pl") return target;

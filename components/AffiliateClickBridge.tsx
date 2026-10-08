@@ -5,60 +5,8 @@ import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 
-type Partner =
-  | "wakacje"
-  | "exim"
-  | "esky"
-  | "tui"
-  | "getyourguide"
-  | "seeplaces"
-  | "holidaypark"
-  | "fonia"
-  | "parklot"
-  | "kiwi"
-  | "booking"
-  | "rentacar"
-  | "kiwitaxi"
-  | "gettransfer";
-
-function tradeDoublerProgram(url: URL) {
-  const queryProgram = url.searchParams.get("p");
-  if (queryProgram) return queryProgram;
-  return url.toString().match(/p\((\d+)\)/)?.[1] || "";
-}
-
-function partnerFromUrl(value: string): Partner | null {
-  try {
-    const url = new URL(value, window.location.origin);
-    if (url.origin === window.location.origin) return null;
-    const host = url.hostname.toLowerCase();
-    if (["www2.esky.pl", "www.esky.pl"].includes(host) && (url.pathname === "/lot+hotel/portfolio" || url.pathname.startsWith("/lot+hotel/portfolio/"))) return "esky";
-
-    if (host === "reklamy.exim.pl" || host === "exim.pl" || host === "www.exim.pl") return "exim";
-    if (host === "tui.pl" || host === "www.tui.pl") return "tui";
-    if (host === "wakacje.pl" || host === "www.wakacje.pl") return "wakacje";
-    if (host === "c111.travelpayouts.com" || host === "kiwi.tpk.lv" || host === "kiwi.com" || host === "www.kiwi.com") return "kiwi";
-    if (host === "booking.com" || host === "www.booking.com") return "booking";
-    if (host === "getyourguide.pl" || host === "www.getyourguide.pl" || host === "getyourguide.com" || host === "www.getyourguide.com") return "getyourguide";
-    if (host === "ad.seeplaces.com" || host === "seeplaces.com" || host === "www.seeplaces.com") return "seeplaces";
-    if (host === "visit.holidaypark.pl" || host === "holidaypark.pl" || host === "www.holidaypark.pl") return "holidaypark";
-    if (host === "fonia.app" || host === "www.fonia.app") return "fonia";
-    if (host === "parklot.pl" || host === "www.parklot.pl") return "parklot";
-    if (host === "getrentacar.tpk.lv") return "rentacar";
-    if (host === "kiwitaxi.tpk.lv") return "kiwitaxi";
-    if (host === "gettransfer.tpk.lv") return "gettransfer";
-
-    if (host === "clk.tradedoubler.com") {
-      const program = tradeDoublerProgram(url);
-      if (program === "308388") return "tui";
-      if (program === "356307") return "getyourguide";
-      if (program === "383711") return "seeplaces";
-      if (program === "357058") return "holidaypark";
-      if (program === "373994") return "fonia";
-    }
-  } catch {}
-  return null;
-}
+import { partnerFromUrl, isOfferDetailPath, partnerReviewHref } from "@/lib/affiliateJourney";
+import { usePathname } from "next/navigation";
 
 function sourceFor(anchor: HTMLAnchorElement) {
   const explicitSource = anchor.dataset.affiliateSource
@@ -208,10 +156,10 @@ function trackedHref(anchor: HTMLAnchorElement) {
     clickId: createClickId(),
     return: `${window.location.pathname}${window.location.search}`,
   });
-  const destination = destinationFor(anchor);
+  const destination = anchor.dataset.salesDestination || destinationFor(anchor);
   if (destination) params.set("destination", destination);
-  if (card.offer) params.set("offer", card.offer);
-  if (card.price) params.set("price", card.price);
+  if (anchor.dataset.salesOfferId || card.offer) params.set("offer", anchor.dataset.salesOfferId || card.offer);
+  if (anchor.dataset.salesPrice || card.price) params.set("price", anchor.dataset.salesPrice || card.price);
   const attribution = visitAttribution();
   if (attribution?.source) params.set("utmSource", attribution.source);
   if (attribution?.medium) params.set("utmMedium", attribution.medium);
@@ -254,6 +202,26 @@ function enrichTrackedLiveHref(anchor: HTMLAnchorElement) {
 }
 
 function wrapAnchor(anchor: HTMLAnchorElement) {
+  const finalExit = isOfferDetailPath(window.location.pathname) && (anchor.dataset.partnerExit === "1" || Boolean(anchor.closest(".detail-action-box, .live-mobile-booking-bar")));
+  if (!finalExit && !window.location.pathname.startsWith("/admin")) {
+    const wrapped = isTrackedLiveHref(anchor) ? new URL(anchor.href) : null;
+    const target = wrapped?.searchParams.get("target") || anchor.href;
+    if (partnerFromUrl(target)) {
+      const context = cardContext(anchor);
+      const params = Object.fromEntries(wrapped?.searchParams || []);
+      delete params.clickId;
+      const href = partnerReviewHref(target, {
+        ...params,
+        source: params.source || sourceFor(anchor),
+        destination: params.destination || anchor.dataset.salesDestination || destinationFor(anchor),
+        offer: params.offer || anchor.dataset.salesOfferId || context.offer,
+        price: params.price || anchor.dataset.salesPrice || context.price,
+      });
+      anchor.setAttribute("href", href);
+      anchor.removeAttribute("target");
+      return;
+    }
+  }
   if (enrichTrackedLiveHref(anchor)) return;
   if (anchor.dataset.tripowniaOutboundWrapped === "1" && isTrackedLiveHref(anchor)) return;
 
@@ -275,7 +243,7 @@ function wrapAnchor(anchor: HTMLAnchorElement) {
 
 function wrapInitialPartnerLinks() {
   document
-    .querySelectorAll<HTMLAnchorElement>('a[href^="http://"], a[href^="https://"]')
+    .querySelectorAll<HTMLAnchorElement>('a[href^="http://"], a[href^="https://"], a[href^="/go/live?"]')
     .forEach(wrapAnchor);
 }
 
@@ -331,6 +299,7 @@ function captureOutboundContext(anchor: HTMLAnchorElement) {
 }
 
 export default function AffiliateClickBridge() {
+  const pathname = usePathname();
   useEffect(() => {
     wrapInitialPartnerLinks();
 
@@ -339,25 +308,26 @@ export default function AffiliateClickBridge() {
       if (!anchor) return;
       wrapAnchor(anchor);
 
-      // pointerdown covers mouse/touch before navigation; click also covers
-      // keyboard activation (Enter). The clickId marker prevents double events.
-      if (event.type === "pointerdown" || event.type === "click") {
+      // Count activation only; pointerdown/focus prepare URLs but are not exits.
+      if (event.type === "click" || event.type === "auxclick") {
         captureOutboundContext(anchor);
       }
     };
 
     document.addEventListener("pointerdown", handleInteraction, true);
     document.addEventListener("click", handleInteraction, true);
+    document.addEventListener("auxclick", handleInteraction, true);
     document.addEventListener("focusin", handleInteraction, true);
     document.addEventListener("contextmenu", handleInteraction, true);
 
     return () => {
       document.removeEventListener("pointerdown", handleInteraction, true);
       document.removeEventListener("click", handleInteraction, true);
+      document.removeEventListener("auxclick", handleInteraction, true);
       document.removeEventListener("focusin", handleInteraction, true);
       document.removeEventListener("contextmenu", handleInteraction, true);
     };
-  }, []);
+  }, [pathname]);
 
   return null;
 }

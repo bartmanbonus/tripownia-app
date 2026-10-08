@@ -8,7 +8,7 @@ import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 type Props = {
   href: string;
   partner: string;
-  offerId: number;
+  offerId: number | string;
   destination: string;
   price: number;
   placement: string;
@@ -65,7 +65,12 @@ export default function TrackedPartnerLink({
       className={className}
       href={href}
       rel="sponsored"
+      data-partner-exit="1"
       data-affiliate-source={placement}
+      data-sales-partner={partner}
+      data-sales-offer-id={offerId}
+      data-sales-price={price}
+      data-sales-destination={destination}
       onClick={handleClick}
     >
       {children}

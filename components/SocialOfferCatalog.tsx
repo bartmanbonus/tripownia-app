@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getSocialOfferSlugs, getSocialOfferForLanding, isSocialOfferExpired } from "@/lib/socialOffers";
 import { trackEvent } from "@/lib/analytics";
+import TravelImage from "@/components/TravelImage";
 import styles from "./SocialOfferCatalog.module.css";
 
 const normalize = (value: string) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ł/g, "l").toLowerCase();
@@ -35,7 +36,7 @@ export default function SocialOfferCatalog({ compact = false }: { compact?: bool
       {visible.map(offer => {
         const expired = offer.status === "expired" || (now ? isSocialOfferExpired(offer, now) : false);
         return <article className={styles.card} key={offer.slug}>
-          {offer.imageSrc && <img src={offer.imageSrc} alt={offer.hotel} loading="lazy" className={styles.image} />}
+          <TravelImage city={offer.city} country={offer.country} overrideSrc={offer.imageSrc} alt={`${offer.city}, ${offer.country} — ilustracja kierunku lub oferty`} className={styles.image} />
           <div className={styles.body}>
             <span className={styles.status}>{expired ? "Archiwalna propozycja" : "Sprawdź dostępność"}</span>
             <h3>{offer.city}</h3><p className={styles.hotel}>{offer.hotel}</p>
