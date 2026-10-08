@@ -689,8 +689,8 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
               <nav className="article-action-rail-links" aria-label="Oferty z polskich lotnisk">
                 <Link className="article-action-rail-primary" href="/city-break" data-article-cta="liquids_city_break">🏙️ City break</Link>
                 <Link href="/tanie-loty" data-article-cta="liquids_flights">✈️ Tanie loty</Link>
-                <Link href="/z-warszawy" data-article-cta="liquids_warsaw">Wyloty z Warszawy</Link>
-                <Link href="/z-poznania" data-article-cta="liquids_poznan">Wyloty z Poznania</Link>
+                <Link href="/podroze/city-break-z-warszawy" data-article-cta="liquids_warsaw">City break z Warszawy</Link>
+                <Link href="/podroze/city-break-z-poznania" data-article-cta="liquids_poznan">City break z Poznania</Link>
               </nav>
             </section>
             <section className="section shell"><FacebookFollowCTA placement="airport_liquids_after_action" compact /></section>
