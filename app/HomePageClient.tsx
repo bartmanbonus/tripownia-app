@@ -657,7 +657,8 @@ export default function Home() {
 
   const todaysOffers = homepageOfferPool.slice(0, 18);
 
-  const usingPublishedFallback = homepageOfferPool.some((offer) => offer.id < 1_000_000);
+  const usingPublishedFallback = liveOffersStatus === "fallback"
+    && homepageOfferPool.some((offer) => offer.id < 1_000_000);
   const newOffersCount = todaysOffers.length;
   const hasOffers = newOffersCount > 0;
 
@@ -780,11 +781,13 @@ export default function Home() {
     setSurprise(top[(currentIndex + 1 + top.length) % top.length]);
   }
 
-  const dailyCopy = liveOffersStatus === "live"
-    ? "Dzisiejsze oferty są aktualizowane na bieżąco. Przy każdej karcie pokazujemy status ceny i dostępności."
-    : hasOffers
-      ? "Część aktualnych danych jest chwilowo niedostępna. Pokazujemy ostatnio sprawdzone oferty Tripowni — cenę i dostępność potwierdzisz przy rezerwacji."
-      : "Sprawdzamy dzisiejszą pulę. Nie pokazujemy archiwalnych cen w zastępstwie aktualnych danych.";
+  const dailyCopy = liveOffersStatus === "loading"
+    ? "Sprawdzamy teraz aktualne ceny i dostępność. Za chwilę pokażemy potwierdzoną pulę."
+    : liveOffersStatus === "live"
+      ? "Dzisiejsze oferty są aktualizowane na bieżąco. Przy każdej karcie pokazujemy status ceny i dostępności."
+      : hasOffers
+        ? "Pokazujemy ostatnio sprawdzone oferty Tripowni — aktualną cenę i dostępność potwierdzisz u partnera przed rezerwacją."
+        : "Aktualizujemy dzisiejszą pulę. Nie pokazujemy archiwalnych cen w zastępstwie aktualnych danych.";
 
   return (
     <main className="homepage-visual-v2">
