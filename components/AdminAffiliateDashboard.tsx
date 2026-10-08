@@ -21,6 +21,8 @@ type Stats = {
   }>;
   byDay?: Record<string, number>;
   byAttributionSource?: Record<string, number>;
+  byLanding?: Record<string, number>;
+  googleOrganicByLanding?: Record<string, number>;
   googleOrganicClicks?: number;
   updatedAt?: string;
   scope?: "global" | "local";
@@ -91,6 +93,14 @@ export default function AdminAffiliateDashboard() {
     () => Object.entries(stats.byOffer).sort((a,b) => b[1].count - a[1].count),
     [stats.byOffer]
   );
+  const landings = useMemo(
+    () => Object.entries(stats.byLanding || {}).sort((a,b) => b[1] - a[1]),
+    [stats.byLanding]
+  );
+  const googleLandings = useMemo(
+    () => Object.entries(stats.googleOrganicByLanding || {}).sort((a,b) => b[1] - a[1]),
+    [stats.googleOrganicByLanding]
+  );
   const dayRows = useMemo(
     () => Object.entries(stats.byDay || {}).sort((a,b) => a[0].localeCompare(b[0])),
     [stats.byDay]
@@ -98,6 +108,7 @@ export default function AdminAffiliateDashboard() {
 
   const topPartner = partners[0]?.[0] || "—";
   const topSource = sources[0]?.[0] || "—";
+  const topLanding = landings[0]?.[0] || "—";
   const maxDay = Math.max(1, ...dayRows.map(([,count]) => count));
   const isGlobal = stats.scope === "global";
 
@@ -183,6 +194,7 @@ export default function AdminAffiliateDashboard() {
         <div><small>GOOGLE → PARTNER</small><strong>{stats.googleOrganicClicks || 0}</strong><span>wyjścia afiliacyjne z ruchu organicznego</span></div>
         <div><small>TOP PARTNER</small><strong>{topPartner}</strong><span>{partners[0]?.[1] || 0} kliknięć</span></div>
         <div><small>TOP MIEJSCE</small><strong>{topSource === "—" ? "—" : labelSource(topSource)}</strong><span>{sources[0]?.[1] || 0} kliknięć</span></div>
+        <div><small>TOP LANDING</small><strong>{topLanding}</strong><span>{landings[0]?.[1] || 0} wyjść do partnera</span></div>
         <div><small>OSTATNIA AKTYWNOŚĆ</small><strong>{stats.updatedAt ? new Date(stats.updatedAt).toLocaleString("pl-PL") : "—"}</strong><span>ostatni zapis</span></div>
       </div>
 
@@ -217,6 +229,36 @@ export default function AdminAffiliateDashboard() {
               ))}
             </div>
           </section>
+
+          {googleLandings.length > 0 && (
+            <section className="affiliate-wide">
+              <h3>Google Organic → partner: landingi sprzedażowe</h3>
+              <div className="affiliate-offer-table">
+                {googleLandings.slice(0,15).map(([landing,count]) => (
+                  <div key={landing}>
+                    <span><strong>{landing}</strong></span>
+                    <span>Google Organic</span>
+                    <b>{count}</b>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {landings.length > 0 && (
+            <section className="affiliate-wide">
+              <h3>Landingi, które najczęściej kończą się wyjściem do partnera</h3>
+              <div className="affiliate-offer-table">
+                {landings.slice(0,15).map(([landing,count]) => (
+                  <div key={landing}>
+                    <span><strong>{landing}</strong></span>
+                    <span>wszystkie źródła</span>
+                    <b>{count}</b>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {dayRows.length > 0 && (
             <section className="affiliate-wide">
