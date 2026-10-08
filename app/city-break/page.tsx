@@ -12,21 +12,21 @@ import ReadySearchGrid from "@/components/ReadySearchGrid";
 import styles from "../conversion-pages.module.css";
 
 export const metadata: Metadata = {
-  title: "Tanie city break lot + hotel 2026 — pakiety na 2–5 dni",
-  description: "City break lot + hotel, loty z noclegiem i krótkie wyjazdy na 2–5 dni. Ustaw kierunek, termin oraz lotnisko i porównaj aktualne propozycje.",
+  title: "City break z Polski — tanie loty + hotel na 2–5 dni",
+  description: "City break z Warszawy, Poznania, Krakowa i innych lotnisk. Porównaj lot + hotel na 2–5 dni, aktualne oferty oraz gotowe terminy weekendowych wyjazdów.",
   alternates: { canonical: "/city-break" },
   openGraph: {
     type: "website",
     locale: "pl_PL",
     siteName: "Tripownia",
-    title: "Tanie city break lot + hotel 2026 — pakiety na 2–5 dni",
+    title: "City break z Polski — tanie loty + hotel na 2–5 dni",
     description: "City break lot + hotel, loty z noclegiem i krótkie wyjazdy na 2–5 dni. Porównaj aktualne propozycje.",
     url: "/city-break",
     images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "City break lot + hotel 2026 — tanie pakiety na 2–5 dni",
+    title: "City break z Polski — tanie loty + hotel na 2–5 dni",
     description: "City break lot + hotel, loty z noclegiem i krótkie wyjazdy na 2–5 dni. Porównaj aktualne propozycje.",
     images: ["/opengraph-image"],
   },
@@ -80,6 +80,12 @@ export default function CityBreakPage() {
         <Link href="/okazje">Wszystkie okazje →</Link>
       </div>
       <LiveSalesRail mode="citybreak" limit={8} initialOffers={homepageFallbackOffers}/>
+      <nav className={styles.linkPills} aria-label="City break z konkretnych lotnisk w Polsce">
+        <Link href="/podroze/city-break-z-warszawy">City break z Warszawy (WAW i Modlin)</Link>
+        <Link href="/podroze/city-break-z-poznania">City break z Poznania (POZ)</Link>
+        <Link href="/podroze/city-break-z-krakowa">City break z Krakowa (KRK)</Link>
+        <Link href="/podroze/city-break-z-gdanska">City break z Gdańska (GDN)</Link>
+      </nav>
     </section>
     <section className={[styles.shell, styles.section].join(" ")}><FacebookFollowCTA placement="city_break_after_offers" compact /></section>
 
@@ -144,11 +150,7 @@ export default function CityBreakPage() {
         { href: "/szukaj?duration=3-4&budget=1000&tab=City%20break", eyebrow: "DO 1 000 ZŁ/OS. · 3–4 NOCE", title: "Najtańszy city break", meta: "Bez wskazywania kierunku · sortowanie od najniższej ceny" },
       ]} />
       <div className={styles.linkPills}>
-        <Link href="/podroze/city-break-z-warszawy">City break z Warszawy</Link>
-        <Link href="/podroze/city-break-z-poznania">City break z Poznania</Link>
         <Link href="/podroze/city-break-z-lublina">City break z Lublina</Link>
-        <Link href="/podroze/city-break-z-krakowa">City break z Krakowa</Link>
-        <Link href="/podroze/city-break-z-gdanska">City break z Gdańska</Link>
         <Link href="/sylwester">Sylwester 2026/2027</Link>
         <Link href="/lot-hotel">Lot + hotel</Link>
         <Link href="/planer-podrozy">Darmowy planer</Link>

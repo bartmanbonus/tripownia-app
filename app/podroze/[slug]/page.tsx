@@ -302,7 +302,9 @@ function formatDate(value?: string) {
   return new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "long", year: "numeric" }).format(new Date(`${value}T12:00:00Z`));
 }
 
-export const dynamicParams = false;
+// Even if a known commercial landing is absent from one deployment's SSG manifest,
+// keep it crawlable via server rendering. Unknown slugs still return notFound().
+export const dynamicParams = true;
 
 export function generateStaticParams() {
   return allSeoLandings.map(({ slug }) => ({ slug }));
@@ -382,6 +384,18 @@ export default async function SeoLandingPage({ params }: PageProps) {
   kiwiDeep.searchParams.set("locale", "pl");
 
   const kiwiUrl = partners.kiwi.buildUrl(kiwiDeep.toString());
+  const landingPath = `/podroze/${page.slug}`;
+  // The tracking endpoint is the only outbound hop. It stores the affiliate click
+  // and keeps the original Tripownia landing in the browser history.
+  const trackedExtraHref = (partner: "kiwi" | "booking", target: string) =>
+    `/go/live?${new URLSearchParams({
+      target,
+      partner,
+      source: "seo_landing_extra",
+      page: landingPath,
+      return: landingPath,
+      destination: page.query,
+    }).toString()}`;
 
   const alertParams = new URLSearchParams({ destination: page.query });
   if (page.departure) alertParams.set("departure", page.departure);
@@ -517,6 +531,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
             startDate={startDate}
             endDate={endDate}
             searchHref={currentReadySearchHref}
+            pagePath={landingPath}
           />
         </section>
       )}
@@ -560,13 +575,13 @@ export default async function SeoLandingPage({ params }: PageProps) {
         </div>
 
         <div className="seo-search-wider-grid">
-          <a href={kiwiUrl} target="_blank" rel="sponsored noopener noreferrer">
+          <a href={trackedExtraHref("kiwi", kiwiUrl)} rel="sponsored nofollow">
             <span>✈️</span>
             <strong>Porównaj loty</strong>
             <small>{page.departure ? `Wylot: ${page.departure}` : "Wybierz lotnisko i kierunek"}</small>
             <b>Sprawdź →</b>
           </a>
-          <a href={bookingUrl} target="_blank" rel="sponsored noopener noreferrer">
+          <a href={trackedExtraHref("booking", bookingUrl)} rel="sponsored nofollow">
             <span>🏨</span>
             <strong>Sprawdź noclegi</strong>
             <small>Porównaj koszt hotelu osobno</small>
@@ -611,10 +626,10 @@ export default async function SeoLandingPage({ params }: PageProps) {
           </div>
           <div className="seo-discovery-grid">
             {discoveryLinks.map((item) => (
-              <Link key={item.slug} href={readySearchHref(item)}>
+              <Link key={item.slug} href={`/podroze/${item.slug}`}>
                 <small>{readySearchMeta(item)}</small>
                 <strong>{item.title}</strong>
-                <span>Pokaż gotowe wyniki →</span>
+                <span>Zobacz stronę z aktualnymi ofertami →</span>
               </Link>
             ))}
           </div>
