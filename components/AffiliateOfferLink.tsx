@@ -50,7 +50,7 @@ export default function AffiliateOfferLink({ href, partner, partnerLabel, slug, 
       data-sales-destination={destination}
       onClick={rememberTripContext}
     >
-      Sprawdź cenę{partnerLabel ? ` w ${partnerLabel}` : " u partnera"} <ArrowRight size={18}/>
+      Sprawdź aktualną cenę{partnerLabel ? ` w ${partnerLabel}` : " u partnera"} <ArrowRight size={18}/>
     </a>
   );
 }
