@@ -32,6 +32,11 @@ for (const path of publicRoutes) {
   }
 }
 
+// An old catchall prerender must not shadow the dedicated attractions purchase flow.
+const attractions = await get("/atrakcje");
+assert.equal(attractions.status, 200, "dedicated /atrakcje route");
+assert.ok((await attractions.text()).includes("Atrakcje dopiero wtedy"), "dedicated attractions page is active");
+
 // Commercial landing tests: protect the pages that turn search traffic into bookings.
 const commercialPages = [
   "/city-break",
