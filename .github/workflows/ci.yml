@@ -118,7 +118,8 @@ jobs:
           curl --fail --silent --show-error http://127.0.0.1:3000/dodaj-podroz > /tmp/tripownia-planner
           grep -q "Plan 0 zł" /tmp/tripownia-planner
           grep -q "bez obowiązkowego konta" /tmp/tripownia-planner
-          grep -q "Gdziekolwiek" /tmp/tripownia-planner
+          # Step 1 is server-rendered; "Gdziekolwiek" appears only in step 2 after a client interaction.
+          grep -q "Wybierz kierunek i termin" /tmp/tripownia-planner
 
           curl --fail --silent --show-error http://127.0.0.1:3000/ > /tmp/tripownia-home
           if grep -q "NETFLIX PODRÓŻY" /tmp/tripownia-home; then
