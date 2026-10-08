@@ -153,6 +153,34 @@ requireText("components/SearchHub.tsx", 'className="search-v3-board"', "wyżywie
 requireText("app/error.tsx", "Spróbuj ponownie", "brakuje odzyskiwalnego stanu błędu");
 requireText("app/not-found.tsx", "Ułóż plan za 0 zł", "404 nie prowadzi użytkownika z powrotem do lejka");
 
+// Commercial SEO guards: exact airport matches, canonical internal links and
+// server-recorded affiliate exits are required for the booking-oriented funnel.
+requireText(
+  "components/SeoEximOffers.tsx",
+  "if (departure && !fallbackAirportMatches(offer, departure))",
+  "strony SEO mieszają lotniska w dokładnych wynikach"
+);
+requireText(
+  "components/SeoEximOffers.tsx",
+  'href={morePackagesHref}',
+  "porównanie eSky może ominąć serwerowy tracking Tripowni"
+);
+requireText(
+  "app/podroze/[slug]/page.tsx",
+  'href={`/podroze/${item.slug}`}',
+  "komercyjne landingi przestały linkować do swoich canonical URLs"
+);
+requireText(
+  "app/podroze/[slug]/page.tsx",
+  'trackedExtraHref("booking", bookingUrl)',
+  "hotel ze strony SEO omija serwerowy tracking Tripowni"
+);
+requireText(
+  "app/city-break/page.tsx",
+  'City break z Poznania (POZ)',
+  "strona city break straciła link do ofert z Poznania"
+);
+
 console.log(`✅ Audyt OK: ${legacy.length} zmigrowanych stron + ${aliasMatches.length} naprawionych starych adresów. Brak znanych wewnętrznych linków prowadzących do 404.`);
 console.log("✅ Krytyczne guardy OK: search scope, live-first homepage, EXIM/TUI exact flow, affiliate validation i SEO transient ofert.");
 
