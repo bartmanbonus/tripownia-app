@@ -9,7 +9,7 @@ import { buildEskyPackagesUrl } from "@/lib/partners";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 
 type SeasonalOffer = Offer & { startDateISO?: string; endDateISO?: string };
-type Props = { query: string; departure?: string; minNights?: number; maxNights?: number; maxPrice?: number; startDate?: string; endDate?: string; searchHref?: string };
+type Props = { query: string; departure?: string; minNights?: number; maxNights?: number; maxPrice?: number; startDate?: string; endDate?: string; searchHref?: string; pagePath?: string };
 type ApiResponse = { ok?: boolean; offers?: SeasonalOffer[]; checkedAt?: string; notice?: string; matchMode?: string };
 
 const FALLBACKS: Record<string, string[]> = {
@@ -113,11 +113,13 @@ function staticFallbackOffers(query: string, departure?: string) {
   const related = active.filter((offer) => relatedTerms.some((term) => termMatchesOffer(term, offer)));
   const intentPool = exact.length ? exact : related.length ? related : active;
   const sameAirport = intentPool.filter((offer) => fallbackAirportMatches(offer, departure));
-  const pool = sameAirport.length >= 3 ? sameAirport : intentPool;
+  // Never mix airports into an otherwise exact local result just to fill the grid.
+  // Nationwide options are a separate, explicitly labelled fallback.
+  const pool = sameAirport.length > 0 ? sameAirport : intentPool;
   return uniqByProduct([...pool].sort((a, b) => a.price - b.price)).slice(0, 18);
 }
 
-export default function SeoEximOffers({ query, departure, minNights, maxNights, maxPrice, startDate, endDate, searchHref }: Props) {
+export default function SeoEximOffers({ query, departure, minNights, maxNights, maxPrice, startDate, endDate, searchHref, pagePath = "/podroze" }: Props) {
   const cityBreakOverview = normalize(query) === "city break";
   const eskySearch = new URL("https://www2.esky.pl/lot+hotel/portfolio");
   eskySearch.searchParams.set("rooms[0][adults]", "2");
@@ -127,6 +129,14 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   const eskyDeparture = departureCode(departure);
   if (eskyDeparture) eskySearch.searchParams.set("departurePlaces", eskyDeparture === "WAWA" ? "ap-WAW,ap-WMI" : `ap-${eskyDeparture}`);
   const morePackagesUrl = buildEskyPackagesUrl(eskySearch.toString());
+  // Server-side affiliate resolver logs the click even if the client-side bridge has not hydrated.
+  const morePackagesHref = `/go/live?${new URLSearchParams({
+    target: morePackagesUrl,
+    partner: "esky",
+    source: "seo_landing_more_packages",
+    page: pagePath,
+    return: pagePath,
+  }).toString()}`;
 
   const [offers, setOffers] = useState<SeasonalOffer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -209,6 +219,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     function seasonalScope(items: SeasonalOffer[]) { return items.filter(dateMatches); }
     function strictFilter(items: SeasonalOffer[]) {
       return seasonalScope(items).filter((offer) => {
+        if (departure && !fallbackAirportMatches(offer, departure)) return false;
         if (normalize(query) === "all inclusive" && !termMatchesOffer("all inclusive", offer)) return false;
         if (typeof minNights === "number" && offer.nights < minNights) return false;
         if (typeof maxNights === "number" && offer.nights > maxNights) return false;
@@ -258,9 +269,13 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
             }).slice(0, 24)
           : diversify(sorted, 24);
 
+        const differentAirport = Boolean(departure) && finalOffers.some((offer) => !fallbackAirportMatches(offer, departure));
+        const airportWarning = differentAirport
+          ? `Uwaga: część propozycji ma wylot z innego lotniska niż ${departure}. Sprawdź lotnisko przed rezerwacją.`
+          : "";
         setOffers(finalOffers);
-        setRelaxed(isRelaxed);
-        setFallbackReason(reason);
+        setRelaxed(isRelaxed || differentAirport);
+        setFallbackReason([reason, airportWarning].filter(Boolean).join(" "));
         setError(finalOffers.length === 0);
         return finalOffers.length > 0;
       };
@@ -287,7 +302,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
           normalize(query) !== "all inclusive" || termMatchesOffer("all inclusive", offer)
         );
 
-        const seasonal = typeCompatible(seasonalScope(unique));
+        const seasonal = typeCompatible(seasonalScope(unique)).filter((offer) => fallbackAirportMatches(offer, departure));
         if (seasonal.length > 0) {
           present(
             seasonal,
@@ -303,7 +318,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
           if (uniqByProduct(looseSameAirport).length >= 24) break;
           if (cityBreakOverview) break;
         }
-        const sameAirport = typeCompatible(uniqByProduct(looseSameAirport));
+        const sameAirport = typeCompatible(uniqByProduct(looseSameAirport)).filter((offer) => fallbackAirportMatches(offer, departure));
         if (sameAirport.length > 0) {
           present(
             sameAirport,
@@ -338,7 +353,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
           if (uniqByProduct(related).length >= 24) break;
         }
 
-        let relatedOffers = uniqByProduct(related);
+        let relatedOffers = uniqByProduct(related).filter((offer) => fallbackAirportMatches(offer, departure));
         if (relatedOffers.length === 0 && from) {
           for (const term of alternativeTerms.slice(0, 6)) {
             relatedOffers.push(...(await fetchFor(term, undefined, true)));
@@ -473,6 +488,6 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     {cityBreakOverview && <p className="seo-live-note">{offers.length} różnych kierunków · od najniższej ceny · najtańsza dostępna oferta dla każdego kierunku</p>}
     {relaxed && <div className="seo-live-note">{fallbackReason || "Pokazujemy najbliższe aktualne propozycje — część parametrów może różnić się od pierwotnego filtra strony."}</div>}
     <div className="cards-grid seo-live-offers-grid" id="seo-live-offers-grid">{offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} sourceSurface="seo_landing" />)}</div>
-    {cityBreakOverview && !startDate && !endDate && <div className="seo-empty-offers-actions"><a href={morePackagesUrl} rel="nofollow sponsored" className="seo-empty-secondary">Porównaj więcej pakietów lot + hotel <ArrowRight size={16}/></a></div>}
+    {cityBreakOverview && !startDate && !endDate && <div className="seo-empty-offers-actions"><a href={morePackagesHref} rel="nofollow sponsored" className="seo-empty-secondary">Porównaj więcej pakietów lot + hotel <ArrowRight size={16}/></a></div>}
   </>;
 }
