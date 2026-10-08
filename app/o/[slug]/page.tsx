@@ -211,6 +211,30 @@ export default async function ShortSocialOfferPage({
             currentPrice={offer.price}
           />
         )}
+        {!expired && directAffiliateHref && (
+          <div className="social-offer-mobile-booking-bar">
+            <div>
+              <small>Tripownia znalazła od</small>
+              <strong>{offer.price.toLocaleString("pl-PL")} zł / os.</strong>
+            </div>
+            <AffiliateOfferLink
+              href={directAffiliateHref}
+              partnerLabel={offer.partnerLabel}
+              partner={offer.partner}
+              slug={offer.slug}
+              price={offer.price}
+              destination={`${offer.city}, ${offer.country}`}
+              tripKind={tripKind}
+              departure={offer.departure}
+              hotel={offer.hotel}
+              board={offer.board}
+              nights={offer.nights}
+              start={dateRange.start}
+              end={dateRange.end}
+            />
+          </div>
+        )}
+
         {!(expired) && (
           <OfferAlternativeFinder
             city={offer.city}
