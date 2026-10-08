@@ -295,7 +295,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
   const nightsLabel = offer.nights === 1 ? "noc" : offer.nights % 10 >= 2 && offer.nights % 10 <= 4 && !(offer.nights % 100 >= 12 && offer.nights % 100 <= 14) ? "noce" : "nocy";
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
-    : "Zobacz ofertę";
+    : "Sprawdź cenę i dostępność";
   const trustText = isExpired
     ? "Oferta wygasła"
     : !priceVerified
@@ -367,6 +367,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
           href={buyHref}
           onClick={() => trackOfferClick("card_cta", false)}
         >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></Link>
+        {!isExpired && <div className="offer-card-purchase-note">Najpierw szczegóły w Tripowni · rezerwacja finalizowana u partnera</div>}
 
         {!isExpired && (
           <Link className="offer-alert-link" href={alertHref} onClick={() => trackEvent("offer_alert_click", eventBase)}>
