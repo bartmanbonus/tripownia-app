@@ -18,6 +18,7 @@ import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
 import { fetchBrowserEskyOffers } from "@/lib/browserEsky";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import TripowniaLive from "@/components/TripowniaLive";
+import SocialOfferCatalog from "@/components/SocialOfferCatalog";
 
 const SearchHub = dynamic(() => import("@/components/SearchHub"));
 const SalesVisualShortcuts = dynamic(() => import("@/components/SalesVisualShortcuts"));
@@ -566,6 +567,7 @@ export default function Home() {
           } catch {}
         }
 
+        if (!active) return;
         const unique = new Map<string, TripOffer>();
         for (const offer of [...safeRows, ...browserEsky]) {
           const key = `${offer.partner || "unknown"}:${offer.id}`;
@@ -587,7 +589,7 @@ export default function Home() {
         const freshPool = verifiedPool.slice(0, 60);
         setLiveOffers(freshPool);
         setLastLiveCheckedAt(sourceIsFallback ? null : checkedAt);
-        setLiveOffersStatus(sourceIsFallback ? "fallback" : "live");
+        setLiveOffersStatus(sourceIsFallback && !browserEsky.length ? "fallback" : "live");
 
         // Only confirmed live inventory becomes the "last good live" cache.
         // Published fallback prices remain usable on screen, but never masquerade
@@ -780,11 +782,13 @@ export default function Home() {
     setSurprise(top[(currentIndex + 1 + top.length) % top.length]);
   }
 
-  const dailyCopy = liveOffersStatus === "live"
-    ? "Dzisiejsze oferty są aktualizowane na bieżąco. Przy każdej karcie pokazujemy status ceny i dostępności."
-    : hasOffers
-      ? "Część aktualnych danych jest chwilowo niedostępna. Pokazujemy ostatnio sprawdzone oferty Tripowni — cenę i dostępność potwierdzisz przy rezerwacji."
-      : "Sprawdzamy dzisiejszą pulę. Nie pokazujemy archiwalnych cen w zastępstwie aktualnych danych.";
+  const dailyCopy = liveOffersStatus === "loading"
+    ? "Sprawdzamy ceny i dostępność. Zapisane propozycje mogą być widoczne podczas odświeżania."
+    : liveOffersStatus === "live"
+      ? "Oferty zostały pobrane. Status i czas sprawdzenia ceny znajdziesz przy każdej propozycji."
+      : hasOffers
+        ? "Pokazujemy zapisane propozycje. Ich ceny wymagają ponownego sprawdzenia u partnera."
+        : "Nie udało się teraz pobrać ofert. Spróbuj wyszukiwarki lub wróć za chwilę.";
 
   return (
     <main className="homepage-visual-v2">
@@ -825,6 +829,7 @@ export default function Home() {
 
       <SearchHub />
       <TripowniaLive />
+      <SocialOfferCatalog compact />
 
       <section className="section shell deal-motifs" aria-labelledby="deal-motifs-title">
         <div className="deal-motifs-head">
@@ -856,9 +861,11 @@ export default function Home() {
           </div>
           <Link className="section-premium-link" href="/okazje">Wszystkie okazje <ArrowRight size={16}/></Link>
         </div>
-        {usingPublishedFallback && (
+        {(liveOffersStatus !== "live" || usingPublishedFallback) && (
           <div className="homepage-offer-source-note" role="status">
-            Pokazujemy ostatnio sprawdzone propozycje Tripowni. Aktualną cenę i dostępność potwierdzisz u partnera po kliknięciu.
+            {liveOffersStatus === "live"
+              ? "Obok pobranych ofert pokazujemy zapisane inspiracje. Niepotwierdzone ceny są oznaczone na kartach."
+              : dailyCopy}
           </div>
         )}
         <OfferRail kicker="💸 NAJTANIEJ TERAZ" title="Najniższe ceny na pierwszy rzut" description="Najtańsze sensowne propozycje pokazujemy pierwsze — po jednym wariancie na kierunek." items={themedRails.cheapest}/>

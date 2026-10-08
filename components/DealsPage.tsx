@@ -435,8 +435,10 @@ export default function DealsPage({
           <div className="kicker">{kicker}</div>
           <h1>{destination ? "Okazje: " + destination : "Najtańsze wyjazdy. Bez przekopywania się przez setki ofert."}</h1>
           <p className="deals-simple-lead">
-            {source === "fallback" && offers.length
-              ? "Pokazujemy ostatnio sprawdzone, nieprzeterminowane propozycje. Aktualną cenę i dostępność potwierdzisz u partnera po kliknięciu."
+            {loading
+              ? "Sprawdzamy aktualne oferty. Zapisane wyniki mogą być widoczne podczas odświeżania."
+              : source === "fallback" && offers.length
+              ? "Pokazujemy zapisane propozycje — sprawdź aktualną cenę i dostępność u partnera."
               : destination
                 ? (rows.length
                     ? "Pokazujemy tylko aktualne oferty dla tego kierunku — bez przypadkowych zamienników."

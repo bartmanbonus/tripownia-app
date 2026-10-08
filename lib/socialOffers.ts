@@ -1287,3 +1287,10 @@ export function socialOfferReady(offer: SocialOffer) {
     && validImageCountry(offer)
     && socialOfferFresh(offer);
 }
+
+/** A historical social landing stays readable after its departure date. */
+export function isSocialOfferExpired(offer: SocialOffer, now = new Date()) {
+  const { start } = socialOfferDateRange(offer);
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw" }).format(now);
+  return offer.status === "expired" || Boolean(start && start < today);
+}

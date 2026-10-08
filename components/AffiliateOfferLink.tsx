@@ -41,6 +41,11 @@ export default function AffiliateOfferLink({ href, partner, slug, price, destina
       className="primary-cta"
       href={href}
       rel="sponsored"
+      data-affiliate-source="social_offer"
+      data-sales-partner={partner}
+      data-sales-offer-id={slug}
+      data-sales-price={price}
+      data-sales-destination={destination}
       onClick={rememberTripContext}
     >
       Sprawdź ofertę <ArrowRight size={18}/>
