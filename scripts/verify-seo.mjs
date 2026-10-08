@@ -32,6 +32,31 @@ for (const path of publicRoutes) {
   }
 }
 
+// Commercial landing tests: protect the pages that turn search traffic into bookings.
+const commercialPages = [
+  "/city-break",
+  "/podroze/city-break-z-warszawy",
+  "/podroze/city-break-z-poznania",
+  "/podroze/city-break-z-krakowa",
+  "/podroze/city-break-z-gdanska",
+];
+for (const path of commercialPages) {
+  const response = await get(path);
+  assert.equal(response.status, 200, `commercial: ${path}`);
+  assert.ok(!response.headers.get("x-robots-tag")?.includes("noindex"), `indexable: ${path}`);
+  const html = await response.text();
+  assert.ok(html.includes(`href="https://tripownia.pl${path}"`), `canonical: ${path}`);
+  if (path === "/city-break") {
+    for (const city of ["warszawy", "poznania", "krakowa", "gdanska"]) {
+      assert.ok(html.includes(`href="/podroze/city-break-z-${city}"`), `commercial airport link: ${city}`);
+    }
+  } else {
+    assert.ok(html.includes("seo-primary-offers"), `offers near top: ${path}`);
+    // Both optional partner comparisons must use the server-side Tripownia resolver.
+    assert.ok(html.includes('href="/go/live?'), `tracked outbound extras: ${path}`);
+  }
+}
+
 const privateRoutes = ["/konto", "/profil", "/moja-podroz", "/moje-podroze", "/dodaj-podroz", "/ulubione", "/alerty", "/porownaj", "/dla-ciebie", "/app"];
 for (const path of privateRoutes) {
   const response = await get(path);
