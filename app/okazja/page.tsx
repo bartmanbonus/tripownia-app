@@ -184,7 +184,7 @@ export default async function SocialOfferLanding({
                   end,
                 }}
               >
-                Sprawdź cenę w {target.partner.label}
+                Sprawdź aktualną cenę w {target.partner.label}
               </TrackedPartnerLink>
               <small className="tripownia-buy-trust">Finalną cenę i dostępność potwierdzisz u partnera przed płatnością.</small>
               <div className="tripownia-purchase-secondary">
