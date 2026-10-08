@@ -10,6 +10,8 @@ type GlobalStats = ClickStats & {
   days: number;
   byDay: Record<string, number>;
   byAttributionSource?: Record<string, number>;
+  byLanding?: Record<string, number>;
+  googleOrganicByLanding?: Record<string, number>;
   googleOrganicClicks?: number;
   authStatus?: "admin" | "signed_out" | "forbidden" | "unauthorized" | "error";
   truncated?: boolean;
@@ -31,6 +33,8 @@ function aggregate(rows: AffiliateAnalyticsRow[], days: number, truncated = fals
     recent: [],
     byDay: {},
     byAttributionSource: {},
+    byLanding: {},
+    googleOrganicByLanding: {},
     googleOrganicClicks: 0,
     scope: "global",
     days,
@@ -61,8 +65,13 @@ function aggregate(rows: AffiliateAnalyticsRow[], days: number, truncated = fals
 
     const attributionSource = (row.utm_source || "direct").toLowerCase();
     stats.byAttributionSource![attributionSource] = (stats.byAttributionSource![attributionSource] || 0) + 1;
+
+    const landing = row.landing || row.page || "(brak)";
+    stats.byLanding![landing] = (stats.byLanding![landing] || 0) + 1;
+
     if (attributionSource === "google" && (row.utm_medium || "").toLowerCase() === "organic") {
       stats.googleOrganicClicks = (stats.googleOrganicClicks || 0) + 1;
+      stats.googleOrganicByLanding![landing] = (stats.googleOrganicByLanding![landing] || 0) + 1;
     }
   }
 
