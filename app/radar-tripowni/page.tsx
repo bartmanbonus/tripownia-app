@@ -5,6 +5,8 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { getDailyOffers } from "@/lib/offers";
+import SocialShare from "@/components/SocialShare";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
 const title = "Radar Tripowni – codzienny wybór okazji podróżniczych";
 const description = "Radar Tripowni: krótka codzienna selekcja ciekawych wyjazdów z Polski. City break, ciepło, All Inclusive i tanie podróże bez ściany przypadkowych ofert.";
@@ -71,6 +73,21 @@ export default function RadarTripowniPage() {
           <p><small>{offer.dates} · {offer.board}</small></p>
           <a href={liveOfferLandingHref(offer, { source: "radar-tripowni" })}>Sprawdź aktualną cenę →</a>
         </section>)}
+      </section>
+
+      <section aria-label="Udostępnij Radar Tripowni">
+        <SocialShare
+          url="/radar-tripowni"
+          title="Radar Tripowni – 5 wyjazdów"
+          text="5 codziennych inspiracji podróżniczych, od city breaku po wakacje. Sprawdź aktualną selekcję."
+          placement="daily_radar"
+          label="PODAJ DALEJ"
+          heading="Znasz kogoś, kto szuka pomysłu na wyjazd?"
+          description="Udostępnij Radar Tripowni. Znajomi trafią na aktualną selekcję pięciu okazji, nie na nieaktualną cenę."
+        />
+      </section>
+      <section aria-label="Nie przegap kolejnych wyjazdów" style={{ margin: "24px 0 32px" }}>
+        <FacebookFollowCTA placement="daily_radar_after_offers" compact />
       </section>
 
       <section className="guides-checklist">
