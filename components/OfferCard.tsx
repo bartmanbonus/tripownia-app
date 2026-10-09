@@ -301,7 +301,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
     : !priceVerified
       ? checkedAt
         ? `Ostatni odczyt: ${checkedAt} · sprawdź aktualną cenę`
-        : "Cena niepotwierdzona · sprawdź aktualną u partnera"
+        : "Sprawdź aktualną cenę i dostępność"
       : checkedAt
         ? `Cena sprawdzona: ${checkedAt}`
         : "Aktualna cena może się zmienić do momentu rezerwacji";
@@ -367,7 +367,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
           href={buyHref}
           onClick={() => trackOfferClick("card_cta", false)}
         >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></Link>
-        {!isExpired && <div className="offer-card-purchase-note">Najpierw szczegóły w Tripowni · rezerwacja finalizowana u partnera</div>}
+        {!isExpired && <div className="offer-card-purchase-note">Zobacz termin, hotel i szczegóły wyjazdu</div>}
 
         {!isExpired && (
           <Link className="offer-alert-link" href={alertHref} onClick={() => trackEvent("offer_alert_click", eventBase)}>

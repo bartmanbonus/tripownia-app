@@ -393,6 +393,9 @@ export default function SearchHub({
   const [remoteDestinations, setRemoteDestinations] = useState<WorldDestination[]>([]);
   const [results, setResults] = useState<any[]>([]);
   const [resultLocation, setResultLocation] = useState("");
+  const [resultQuery, setResultQuery] = useState("");
+  const [resultPriceLimit, setResultPriceLimit] = useState("");
+  const [submittedSummary, setSubmittedSummary] = useState({ destination: "", details: "" });
   const [resultDestinationCount, setResultDestinationCount] = useState(0);
   const [resultView, setResultView] = useState<"all" | "destinations">("all");
   const [resultMatchScope, setResultMatchScope] = useState<"exact" | "alternatives">("exact");
@@ -482,21 +485,26 @@ export default function SearchHub({
       counts.set(label, (counts.get(label) || 0) + 1);
     }
     return Array.from(counts.entries())
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pl"))
-      .slice(0, 12);
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "pl"));
   }, [scopedResults]);
 
   const visibleResults = useMemo(() => {
     const filtered = resultLocation
       ? scopedResults.filter((offer) => String(offer?.city || offer?.country || "").trim() === resultLocation)
       : [...scopedResults];
-    const displayRows = resultView === "destinations" ? cheapestDirectionRows(filtered) : filtered;
+    const terms = normalizeDestination(resultQuery).replace(/ł/g, "l").split(/\s+/).filter(Boolean);
+    const narrowed = filtered.filter((offer) => {
+      const text = normalizeDestination([offer.hotel, offer.city, offer.country].filter(Boolean).join(" ")).replace(/ł/g, "l");
+      return terms.every((term) => text.includes(term))
+        && (!(Number(resultPriceLimit) > 0) || Number(offer.price) <= Number(resultPriceLimit));
+    });
+    const displayRows = resultView === "destinations" ? cheapestDirectionRows(narrowed) : narrowed;
 
     if (resultSort === "price") return rankSearchOffers(displayRows);
     if (resultSort === "rating") return [...displayRows].sort((a, b) => searchTier(a) - searchTier(b) || Number(b?.score || 0) - Number(a?.score || 0) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
     if (resultSort === "nights") return [...displayRows].sort((a, b) => searchTier(a) - searchTier(b) || Number(a?.nights || Infinity) - Number(b?.nights || Infinity) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
     return displayRows;
-  }, [scopedResults, resultLocation, resultSort, resultView]);
+  }, [scopedResults, resultLocation, resultSort, resultView, resultQuery, resultPriceLimit]);
 
   const exactVisibleResults = useMemo(
     () => visibleResults.filter((offer) => searchTier(offer) === 0),
@@ -674,6 +682,15 @@ export default function SearchHub({
       to: overrides.dateTo ?? dateTo,
     };
     const apiDates = apiDepartureWindow(datePreference);
+    setSubmittedSummary({
+      destination: requested.join(" + ") || "Gdziekolwiek",
+      details: [departures.length ? departures.join(" + ") : "Wszystkie lotniska",
+        datePreference.mode === "month" ? monthLabel(datePreference.month)
+          : datePreference.mode === "any" ? "Elastycznie"
+          : [isoLabel(datePreference.from), datePreference.to !== datePreference.from ? isoLabel(datePreference.to) : ""].filter(Boolean).join(" – "),
+        nightsLabel(activeDuration), activeMaxBudget ? `do ${activeMaxBudget.toLocaleString("pl-PL")} zł / os.` : "Dowolny budżet",
+      ].join(" · "),
+    });
 
     saveSearchResumeContext({
       path: typeof window !== "undefined" ? `${window.location.pathname}${window.location.search}` : pathname || "/",
@@ -711,6 +728,8 @@ export default function SearchHub({
     setResults([]);
     setVisibleCount(18);
     setResultLocation("");
+    setResultQuery("");
+    setResultPriceLimit("");
     setResultSort("price");
     setSuggestionsOpen(false);
     setDepartureOpen(false);
@@ -865,8 +884,8 @@ export default function SearchHub({
         if (runId !== searchRunRef.current) return;
         if (rows.length < 12) {
           setNotice(rows.length
-            ? "Mamy wyniki eSky — sprawdzamy jeszcze inne źródła, żeby pokazać więcej opcji."
-            : "eSky nie zwróciło teraz potwierdzonych pakietów — sprawdzamy pozostałych partnerów.");
+            ? "Pierwsze oferty są gotowe. Szukamy kolejnych propozycji."
+            : "Nadal sprawdzamy dostępne wyjazdy dla Twoich ustawień.");
           await fetchBatch(0, false, false, false, "backup");
         }
       } else {
@@ -894,7 +913,7 @@ export default function SearchHub({
       const alternatives = rows.filter((offer) => searchTier(offer) > 0).length;
       if (exactCount === 0 && alternatives > 0) setResultMatchScope("alternatives");
       setNotice([
-        rows.length ? "Ceny za osobę. Najtańsze najpierw w każdej grupie dopasowania." : "Nie mamy jeszcze potwierdzonej ceny w feedach dla tych ustawień. Możesz sprawdzić ten sam pakiet bezpośrednio w wyszukiwarce partnera lub porównać lot i nocleg.",
+        rows.length ? "Ceny za osobę. Najtańsze najpierw w każdej grupie dopasowania." : "Nie znaleźliśmy dostępnych ofert dla tych ustawień. Sprawdź inne terminy lub połącz lot z noclegiem.",
         alternatives > 0 ? `Dokładnych dopasowań: ${exactCount}. Alternatywy (${alternatives}) są oznaczone na kartach.` : "",
         failedSources ? "Część źródeł jest chwilowo niedostępna; lista może być niepełna." : "",
         requestedRaw.some(item => /bergamo/i.test(item)) ? "Bergamo uwzględniamy razem z Mediolanem." : "",
@@ -1135,6 +1154,10 @@ export default function SearchHub({
     setSearched(false);
     setResults([]);
     setResultLocation("");
+    setResultQuery("");
+    setResultPriceLimit("");
+    setCustomBudgetMin("");
+    setCustomBudgetMax("");
     setResultDestinationCount(0);
     setVisibleCount(18);
     setNotice("");
@@ -1194,6 +1217,10 @@ export default function SearchHub({
     setFlightSearchMode("flex");
     setResults([]);
     setResultLocation("");
+    setResultQuery("");
+    setResultPriceLimit("");
+    setCustomBudgetMin("");
+    setCustomBudgetMax("");
     setResultDestinationCount(0);
     setResultMatchScope("exact");
     setVisibleCount(18);
@@ -1892,8 +1919,8 @@ export default function SearchHub({
         {searched && activeTab !== "Hotele" && (
           <div className="search-v3-results">
             <div className="search-v3-active-summary">
-              <strong>{selectedDestinations.length ? selectedDestinations.join(" + ") : "Gdziekolwiek"}</strong>
-              <span>{departures.length ? departures.length === 1 ? "1 wybrane lotnisko" : `${departures.length} wybrane lotniska` : "Wszystkie lotniska"} · {dateSummary} · {durationSummary} · {budgetSummary}</span>
+              <strong>{submittedSummary.destination}</strong>
+              <span>{submittedSummary.details}</span>
             </div>
             <div className="search-v3-results-head" role="status" aria-live="polite">
               <div>
@@ -1945,6 +1972,17 @@ export default function SearchHub({
                   )}
                 </div>
 
+                <div className="search-v3-refine">
+                  <label>Hotel lub miejscowość
+                    <input type="search" value={resultQuery} placeholder="Szukaj w znalezionych ofertach" onChange={(event) => { setResultQuery(event.target.value); setVisibleCount(18); }}/>
+                  </label>
+                  <label>Maksymalna cena za osobę
+                    <input type="number" min="0" step="50" inputMode="numeric" value={resultPriceLimit} placeholder="Bez limitu · zł" onChange={(event) => { setResultPriceLimit(event.target.value); setVisibleCount(18); }}/>
+                  </label>
+                  <span role="status" aria-live="polite">Widoczne: {visibleResults.length} z {scopedResults.length} ofert</span>
+                  {(resultQuery || resultPriceLimit || resultLocation) && <button type="button" onClick={() => { setResultQuery(""); setResultPriceLimit(""); setResultLocation(""); setVisibleCount(18); }}>Wyczyść zawężenie</button>}
+                </div>
+                {visibleResults.length === 0 && <p role="status">Żadna oferta nie pasuje do tego zawężenia. Zmień nazwę lub cenę albo wyczyść zawężenie — Twój termin i lotniska zostaną zachowane.</p>}
                 <div className="search-v3-results-controls">
                   <div className="search-v3-sales-sort" aria-label="Szybkie sortowanie ofert">
                     <button type="button" className={resultSort === "price" ? "active" : ""} onClick={() => { setResultSort("price"); setVisibleCount(18); }}>Najtańsze</button>
@@ -2022,24 +2060,6 @@ export default function SearchHub({
                 {visibleResults.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(visibleResults.length, count + 12))}>Pokaż kolejne oferty ({visibleResults.length - visibleCount})</button>}
               </>
             )}
-            {!loading && packageSearchLink && results.length > 0 && <div className="search-v3-empty-actions">
-              <a
-                href={`/sprawdz-oferte?${new URLSearchParams({
-                  partner: "esky",
-                  target: packageSearchLink,
-                  source: "search_more_packages",
-                  destination: selectedDestinations[0] || destination.trim(),
-                }).toString()}`}
-                rel="sponsored"
-                onClick={() => saveAffiliateReturnContext({
-                  partner: "esky",
-                  destination: selectedDestinations[0] || destination.trim(),
-                  source: "search_more_packages",
-                  tripKind: "package",
-                })}
-              >Sprawdź więcej pakietów lot + hotel</a>
-              <span>Cena i dostępność są potwierdzane przy rezerwacji.</span>
-            </div>}
             {!loading && results.length === 0 && !expanding && (() => {
               const fallbackDestination = selectedDestinations[0] || destination;
               const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination, {
@@ -2049,7 +2069,7 @@ export default function SearchHub({
               }) : null;
               return <div className="search-v3-empty">
                 <strong>{fallbackDestination ? `Nie kończymy na 0 wyników dla „${fallbackDestination}”.` : "Nie kończymy na pustej liście."}</strong>
-                <span>Live feed nie potwierdził teraz dokładnej ceny. Zachowujemy Twój kierunek i dajemy kolejne ścieżki zakupu bez wpisywania wyszukiwania od nowa.</span>
+                <span>Zmień termin lub poluzuj filtry. Zachowamy Twój kierunek, żeby nie trzeba było zaczynać od nowa.</span>
                 <div className="search-v3-empty-actions">
                   {packageSearchLink && (
                     <a

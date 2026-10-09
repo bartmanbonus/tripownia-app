@@ -339,3 +339,12 @@ main > .self-search-home-stage{display:none!important}
     grid-column:1!important;
   }
 }
+
+/* Refine loaded offers without restarting the trip search. */
+.search-v3-refine{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px;padding:18px 0}
+.search-v3-refine label{display:grid;gap:7px;flex:1 1 240px;font-size:13px;font-weight:700;color:#332c27}
+.search-v3-refine input{width:100%;min-width:0;min-height:48px;padding:12px;border:1px solid #b5aaa2;border-radius:12px;background:#fff;color:#191614;font-size:16px;box-sizing:border-box}
+.search-v3-refine input:focus-visible,.search-v3-refine button:focus-visible{outline:3px solid #f4512c;outline-offset:3px}
+.search-v3-refine button{min-height:48px;padding:10px 16px;border:1px solid #b5aaa2;border-radius:12px;background:#fff;color:#332c27;cursor:pointer}
+.search-v3-refine>span{padding:14px 0;color:#51473f;font-size:14px}
+@media(max-width:640px){.search-v3-refine{gap:12px}.search-v3-refine label{flex-basis:100%}.search-v3-refine button{width:100%}}
