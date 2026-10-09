@@ -29,8 +29,8 @@ export default function DepartureDealsPage({
 }: Props) {
   const intentCards = [
     cityBreakHref ? { href: cityBreakHref, icon: "🏙️", title: `City break z ${city}`, text: "2–5 dni · lot + hotel" } : null,
-    holidaysHref ? { href: holidaysHref, icon: "☀️", title: `Wakacje z ${city}`, text: "Pakiety i ciepłe kierunki" } : null,
     lastMinuteHref ? { href: lastMinuteHref, icon: "⚡", title: `Last Minute z ${city}`, text: "Najbliższe terminy" } : null,
+    holidaysHref ? { href: holidaysHref, icon: "☀️", title: `Wakacje z ${city}`, text: "Pakiety i ciepłe kierunki" } : null,
     allInclusiveHref ? { href: allInclusiveHref, icon: "🌴", title: `All Inclusive z ${city}`, text: "Lot + hotel + wyżywienie" } : null,
   ].filter(Boolean) as Array<{ href: string; icon: string; title: string; text: string }>;
 
