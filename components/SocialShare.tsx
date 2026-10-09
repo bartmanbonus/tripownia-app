@@ -12,6 +12,8 @@ type SocialShareProps = {
   label?: string;
   heading?: string;
   description?: string;
+  shareLead?: string;
+  buttonLabel?: string;
 };
 
 export default function SocialShare({
@@ -22,10 +24,12 @@ export default function SocialShare({
   label = "LECIMY?",
   heading = "Wyślij tę okazję osobie, z którą polecisz",
   description = "Druga osoba otworzy dokładnie tę samą stronę Tripowni i sama sprawdzi aktualną cenę.",
+  shareLead = "LECIMY?",
+  buttonLabel = "Wyślij „LECIMY?”",
 }: SocialShareProps) {
   const [copied, setCopied] = useState(false);
 
-  const shareText = `LECIMY? ${text}`;
+  const shareText = `${shareLead} ${text}`;
 
   function campaignUrl(channel: string) {
     try {
@@ -71,7 +75,7 @@ export default function SocialShare({
   async function nativeShare() {
     if (navigator.share) {
       try {
-        await navigator.share({ title: `LECIMY? ${title}`, text: shareText, url: campaignUrl("native") });
+        await navigator.share({ title: `${shareLead} ${title}`, text: shareText, url: campaignUrl("native") });
         trackShare("native");
       } catch {
         // Zamknięcie systemowego okna udostępniania nie jest błędem użytkownika.
@@ -89,7 +93,7 @@ export default function SocialShare({
         <span>{description}</span>
       </div>
       <div className="share-actions">
-        <button type="button" className="share-native" onClick={nativeShare}><Share2 size={16}/> Wyślij „LECIMY?”</button>
+        <button type="button" className="share-native" onClick={nativeShare}><Share2 size={16}/> {buttonLabel}</button>
         <div className="share-row">
           <a href={`https://wa.me/?text=${encodedText}%20${whatsappUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Udostępnij na WhatsApp" onClick={() => trackShare("whatsapp")}>WhatsApp</a>
           <a href={`https://www.facebook.com/sharer/sharer.php?u=${facebookUrl}`} target="_blank" rel="noopener noreferrer" aria-label="Udostępnij na Facebooku" onClick={() => trackShare("facebook")}>Facebook</a>
