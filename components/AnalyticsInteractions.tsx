@@ -63,7 +63,10 @@ export default function AnalyticsInteractions() {
         }
 
         const sponsored = (anchor.getAttribute("rel") || "").split(/\s+/).includes("sponsored");
-        if (sponsored && !anchor.closest(".offer-card")) {
+        // TrackedPartnerLink already records this outbound interaction on click.
+        // Counting it again here inflated the apparent partner-click volume.
+        const independentlyTrackedExit = anchor.dataset.partnerExit === "1";
+        if (sponsored && !independentlyTrackedExit && !anchor.closest(".offer-card")) {
           let partnerHost = "";
           try {
             partnerHost = new URL(anchor.href, window.location.origin).hostname;
