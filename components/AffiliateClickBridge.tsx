@@ -5,7 +5,7 @@ import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 
-import { partnerFromUrl, isOfferDetailPath, partnerReviewHref } from "@/lib/affiliateJourney";
+import { partnerFromUrl } from "@/lib/affiliateJourney";
 import { usePathname } from "next/navigation";
 
 function sourceFor(anchor: HTMLAnchorElement) {
@@ -201,33 +201,29 @@ function enrichTrackedLiveHref(anchor: HTMLAnchorElement) {
   }
 }
 
-function wrapAnchor(anchor: HTMLAnchorElement) {
-  const finalExit = isOfferDetailPath(window.location.pathname) && (anchor.dataset.partnerExit === "1" || Boolean(anchor.closest(".detail-action-box, .live-mobile-booking-bar")));
-  if (!finalExit && !window.location.pathname.startsWith("/admin")) {
-    const wrapped = isTrackedLiveHref(anchor) ? new URL(anchor.href) : null;
-    const target = wrapped?.searchParams.get("target") || anchor.href;
-    if (partnerFromUrl(target)) {
-      const context = cardContext(anchor);
-      const params = Object.fromEntries(wrapped?.searchParams || []);
-      delete params.clickId;
-      const href = partnerReviewHref(target, {
-        ...params,
-        source: params.source || sourceFor(anchor),
-        destination: params.destination || anchor.dataset.salesDestination || destinationFor(anchor),
-        offer: params.offer || anchor.dataset.salesOfferId || context.offer,
-        price: params.price || anchor.dataset.salesPrice || context.price,
-      });
-      anchor.setAttribute("href", href);
-      anchor.removeAttribute("target");
-      return;
-    }
-  }
-  if (enrichTrackedLiveHref(anchor)) return;
-  if (anchor.dataset.tripowniaOutboundWrapped === "1" && isTrackedLiveHref(anchor)) return;
+function markAsSponsored(anchor: HTMLAnchorElement) {
+  // The browser stays on Tripownia while /go/live records the click and
+  // redirects to the validated partner URL. Keep referral links identifiable.
+  const tokens = new Set((anchor.getAttribute("rel") || "").split(/\s+/).filter(Boolean));
+  tokens.add("sponsored");
+  tokens.add("noopener");
+  tokens.add("noreferrer");
+  anchor.setAttribute("rel", [...tokens].join(" "));
+}
 
-  // React can update href after a user changes search parameters while the DOM node
-  // (and our data marker) stays the same. Re-wrap that fresh partner URL instead of
-  // treating the anchor as permanently processed.
+function wrapAnchor(anchor: HTMLAnchorElement) {
+  if (window.location.pathname.startsWith("/admin")) return;
+
+  // The visitor is already on Tripownia: an additional /sprawdz-oferte
+  // confirmation screen creates another exit point before booking.
+  // /go/live is the single server-side tracking and redirect gateway.
+  if (enrichTrackedLiveHref(anchor)) {
+    markAsSponsored(anchor);
+    return;
+  }
+
+  // React can replace an href when search filters change without remounting
+  // the element. Rebuild the tracked URL from that latest destination.
   if (anchor.dataset.tripowniaOutboundWrapped === "1") {
     delete anchor.dataset.tripowniaOutboundWrapped;
   }
@@ -235,8 +231,7 @@ function wrapAnchor(anchor: HTMLAnchorElement) {
   const href = trackedHref(anchor);
   if (!href) return;
   anchor.href = href;
-  // Keep the purchase flow in one tab. The return prompt restores Tripownia context
-  // after the user comes back from the partner.
+  markAsSponsored(anchor);
   anchor.removeAttribute("target");
   anchor.dataset.tripowniaOutboundWrapped = "1";
 }
