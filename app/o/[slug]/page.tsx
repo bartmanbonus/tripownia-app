@@ -7,7 +7,7 @@ import { ArrowLeft, BadgeCheck, CalendarDays, MapPin, Moon, Plane, PlusCircle, U
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AffiliateOfferLink from "@/components/AffiliateOfferLink";
-import { getSocialOfferForLanding, socialOfferDateRange, isSocialOfferExpired, type SocialOffer } from "@/lib/socialOffers";
+import { getSocialOfferForLanding, socialOfferDateRange, isSocialOfferExpired, socialOfferReady, type SocialOffer } from "@/lib/socialOffers";
 import CompleteTripSales from "@/components/CompleteTripSales";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
@@ -54,12 +54,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  const isBariAlberobello = offer.slug === "bari-alberobello-669";
-  const title = `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł/os. | Tripownia.pl`;
-  const description = isBariAlberobello
-    ? "City break do Apulii z wylotem z Warszawy. 20–23 października 2026, 2 noce, śniadanie."
-    : `${offer.hotel} • ${offer.dates} • ${offer.nights} nocy • wylot: ${offer.departure}. Sprawdź konkretną ofertę na Tripowni.`;
-  const image = offer.slug === "rzym-529" ? "/opengraph-image" : `/api/social-card/${offer.slug}?format=facebook`;
+  // Never advertise a historical price as if it were still bookable in Facebook/WhatsApp previews.
+  // New, recently verified offers keep the existing on-brand destination card.
+  const priceVerified = !isSocialOfferExpired(offer) && socialOfferReady(offer);
+  const title = priceVerified
+    ? `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł/os. | Tripownia.pl`
+    : `${offer.city} — sprawdź aktualne propozycje | Tripownia.pl`;
+  const description = priceVerified
+    ? `${offer.hotel} • ${offer.dates} • ${offer.nights} nocy • wylot: ${offer.departure}. Cena przy ostatnim sprawdzeniu; potwierdź dostępność przed rezerwacją.`
+    : `Zobacz szczegóły wyjazdu: ${offer.city}, ${offer.dates}, wylot z ${offer.departure}. Cena z posta może być nieaktualna — sprawdź aktualne alternatywy w Tripowni.`;
+  const image = priceVerified ? `/api/social-card/${offer.slug}?format=facebook` : "/opengraph-image";
+  const imageAlt = priceVerified
+    ? `${offer.city}, cena przy ostatnim sprawdzeniu od ${offer.price.toLocaleString("pl-PL")} zł — Tripownia.pl`
+    : `Tripownia.pl — sprawdź aktualne okazje i wyjazdy do ${offer.city}`;
   const pageUrl = `/o/${offer.slug}`;
 
   return {
@@ -74,7 +81,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: pageUrl,
       title,
       description,
-      images: [{ url: image, width: 1200, height: 630, alt: `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł — Tripownia.pl` }],
+      images: [{ url: image, width: 1200, height: 630, alt: imageAlt }],
     },
     twitter: {
       card: "summary_large_image",
