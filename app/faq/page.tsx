@@ -19,7 +19,7 @@ const questions = [
   ["Czy planer podróży jest darmowy?", "Tak. Możesz dodać własny wyjazd i korzystać z planera bez opłaty."],
   ["Czy mogę dodać podróż kupioną poza Tripownią?", "Tak. Planner działa również dla wyjazdów kupionych w innym serwisie."],
   ["Dlaczego cena oferty może się zmienić?", "Ceny lotów, hoteli i pakietów są dynamiczne i mogą zmieniać się wraz z dostępnością. Przed zakupem zawsze sprawdź finalną cenę u partnera."],
-  ["Czy linki do partnerów są afiliacyjne?", "Część linków jest afiliacyjna. Tripownia może otrzymać prowizję po zakupie u partnera, bez podnoszenia ceny dla użytkownika."],
+  ["Czy linki do partnerów są afiliacyjne?", "Część linków jest afiliacyjna. Tripownia może otrzymać prowizję po zakupie u partnera, bez podnoszenia ceny dla użytkownika."],\n  ["Lecę samolotem pierwszy raz. Od czego zacząć?", "Skorzystaj z trybu Pierwszy lot. Tripownia pokazuje po kolei: odprawę, bagaż, kontrolę bezpieczeństwa, gate, boarding, lot, przesiadkę i odbiór bagażu po lądowaniu."],
 ] as const;
 
 const faqSchema = {
@@ -61,7 +61,7 @@ export default function FaqPage() {
           <Link href="/okazje">Aktualne okazje podróżnicze</Link>
           <Link href="/wakacje">Tanie wakacje</Link>
           <Link href="/city-break">City break</Link>
-          <Link href="/planer-podrozy">Darmowy planer podróży</Link>
+          <Link href="/pierwszy-lot">Pierwszy lot krok po kroku</Link>\n          <Link href="/planer-podrozy">Darmowy planer podróży</Link>
           <Link href="/kierunki">Kierunki podróży</Link>
         </nav>
       </article>
