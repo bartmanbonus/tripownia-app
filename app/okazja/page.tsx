@@ -194,7 +194,7 @@ export default async function SocialOfferLanding({
                 <OfferAlternativeJump />
               </div>
               <small className="affiliate-note tripownia-disclosure">
-                Tripownia może otrzymać wynagrodzenie za rezerwację. Cena dla Ciebie się nie zmienia.
+                Link reklamowy · Cena dla Ciebie się nie zmienia.
               </small>
             </div>
 
