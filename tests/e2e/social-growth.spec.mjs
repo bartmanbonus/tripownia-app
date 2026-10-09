@@ -43,3 +43,40 @@ test("Social offer sharing stays inside Tripownia and shows Facebook follow afte
   expect(shared.searchParams.get("utm_content")).toBe("social_offer_after_details");
   await expect(page.locator(".facebook-growth-strip a").first()).toHaveAttribute("href", "https://www.facebook.com/987707741084438");
 });
+
+
+test("Social comments landing offers airport-specific options and keeps main offers", async ({ page }, testInfo) => {
+  await page.goto("/oferty-z-postow#lotniska");
+
+  await expect(page.getByRole("heading", { name: "Oferty z social mediów", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Z którego lotniska chcesz polecieć?" })).toBeVisible();
+
+  const links = page.locator('[class*="SocialDepartureChoices_airportCard"]');
+  await expect(links).toHaveCount(6);
+  const choices = [
+    ["/z-warszawy", "Warszawa"],
+    ["/z-krakowa", "Kraków"],
+    ["/z-katowic", "Katowice"],
+    ["/z-gdanska", "Gdańsk"],
+    ["/z-wroclawia", "Wrocław"],
+    ["/z-poznania", "Poznań"],
+  ];
+  for (const [href, city] of choices) {
+    await expect(links.filter({ hasText: city })).toHaveAttribute("href", href);
+  }
+
+  const categories = page.locator('[class*="SocialDepartureChoices_typeCard"]');
+  await expect(categories).toHaveCount(3);
+  await expect(categories.filter({ hasText: "Wyjazd z dziećmi" })).toHaveAttribute("href", "/wakacje-z-dziecmi");
+  await expect(categories.filter({ hasText: "All Inclusive" })).toHaveAttribute("href", "/tanie-all-inclusive");
+
+  const follow = page.locator(".facebook-growth-strip a").first();
+  await expect(follow).toHaveAttribute("href", "https://www.facebook.com/987707741084438");
+
+  if (testInfo.project.name.includes("mobile")) {
+    const overflow = await page.evaluate(() =>
+      Math.max(document.documentElement.scrollWidth, document.body.scrollWidth) - innerWidth
+    );
+    expect(overflow).toBeLessThanOrEqual(2);
+  }
+});
