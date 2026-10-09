@@ -179,7 +179,7 @@ export default function AffiliateReturnPrompt() {
         esim: { status: "missing", provider: "" },
         parking: { status: "missing", provider: "" },
         car: { status: "missing", provider: "" },
-        ...(context.piece ? { [context.piece]: { status: "owned" as const, provider: partner, bookedAt: new Date().toISOString() } } : {}),
+        ...(context.piece ? { [context.piece]: { status: "owned" as const, provider: context.partner || partner, bookedAt: new Date().toISOString() } } : {}),
       },
       suggestedLinks: {
         flight: "/loty",
