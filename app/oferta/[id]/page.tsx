@@ -155,7 +155,6 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               </>
             )}
           </div>
-          <div className="detail-source"><strong>Tripownia wybiera i porównuje. Partner finalizuje płatność.</strong> Po kliknięciu zachowamy ten wyjazd, żeby po powrocie od razu dobrać nocleg, transfer i atrakcje.</div>
           {o.availabilityStatus === "expired" ? (
             <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
           ) : (
@@ -173,7 +172,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
                 Sprawdź aktualną cenę i dostępność <ExternalLink size={18}/>
               </TrackedPartnerLink>
               <OfferAlternativeJump />
-              <small className="booking-note"><strong>Bez dodatkowej opłaty od Tripowni.</strong> Cena i dostępność mogą zmienić się do momentu rezerwacji — finalne warunki potwierdzasz u partnera.</small>
+              <small className="commercial-disclosure">Materiał reklamowy · Cenę i warunki rezerwacji potwierdzisz u dostawcy.</small>
             </div>
           )}
           <p className="detail-lead">{customerReason}</p>
