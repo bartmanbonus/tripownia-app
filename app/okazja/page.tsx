@@ -7,6 +7,7 @@ import SiteFooter from "@/components/SiteFooter";
 import OfferHeroImage from "@/components/OfferHeroImage";
 import OfferJourney from "@/components/OfferJourney";
 import { formatPriceCheckedAt } from "@/lib/offerRuntime";
+import { isPriceStale } from "@/lib/offerQuality";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
@@ -75,13 +76,19 @@ export default async function SocialOfferLanding({
   const source = one(query.source, "live_offer");
   const nights = Math.max(1, Math.min(30, Number(one(query.nights, "7")) || 7));
   const price = safePrice(one(query.price));
+  const priceCheckedAt = one(query.checkedAt);
   // Affiliate booking URLs can be much longer than labels/copy. Do not truncate them.
   const rawTarget = Array.isArray(query.target) ? query.target[0] : query.target || "";
   const target = safeTarget(rawTarget.trim());
   const note = one(query.note, "Tripownia znalazła tę ofertę. Cena i dostępność mogą się zmienić.");
-  if (!target) redirect(city && city !== "Wybrany kierunek" ? `/okazje?destination=${encodeURIComponent(city)}` : "/okazje");
+  // A deal page is a sale offer, not a placeholder asking the visitor to look up its price.
+  // If the offer has no trustworthy, recently checked price, return to matching results.
+  const matchingDealsHref = city && city !== "Wybrany kierunek"
+    ? `/okazje?destination=${encodeURIComponent(city)}`
+    : "/okazje";
+  if (!target || !price || isPriceStale(priceCheckedAt, 0.25)) redirect(matchingDealsHref);
 
-  const checkedAt = formatPriceCheckedAt(one(query.checkedAt));
+  const checkedAt = formatPriceCheckedAt(priceCheckedAt);
   const tripKind = target.partner.key === "kiwi" ? "flight" : target.partner.key === "booking" ? "hotel" : "package";
   const outboundSource = source.startsWith("seo_")
     ? `seo_detail:${source}`
@@ -131,7 +138,7 @@ export default async function SocialOfferLanding({
           <Link href="/okazje"><ArrowLeft size={17}/> Zobacz wszystkie okazje</Link>
         </div>
 
-        <OfferJourney offerId={offerId} destination={city} partner={target.partner.key} price={price || undefined} source={source} />
+        <OfferJourney offerId={offerId} destination={city} partner={target.partner.key} price={price} source={source} />
         <section className="detail-hero">
           <OfferHeroImage city={city} country={country} />
 
@@ -142,28 +149,17 @@ export default async function SocialOfferLanding({
             <div className="detail-topline">
               <div className="detail-score">
                 <BadgeCheck size={18}/>
-                <span>Oferta wybrana przez Tripownię</span>
+                <span>Oferta z katalogu Tripowni</span>
               </div>
             </div>
 
             <div className="detail-price-card">
-              {price ? (
-                <>
-                  <div className="detail-price">
-                    <small>znaleźliśmy od</small> <strong>{price.toLocaleString("pl-PL")} zł</strong> / os.
-                  </div>
-                  <div className="price-status detail-price-status">
-                    {checkedAt ? `Cena zapisana ${checkedAt}. ` : "Cena z wybranej propozycji. "}Aktualną cenę i dostępność potwierdzisz u partnera.
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="detail-price"><strong>Sprawdź aktualną cenę</strong></div>
-                  <div className="price-status detail-price-status">
-                    {checkedAt ? `Cena zapisana ${checkedAt}. ` : "Cena z wybranej propozycji. "}Aktualną cenę i dostępność potwierdzisz u partnera.
-                  </div>
-                </>
-              )}
+              <div className="detail-price">
+                <small>cena zapisana w Tripowni</small> <strong>{price.toLocaleString("pl-PL")} zł</strong> / os.
+              </div>
+              <div className="price-status detail-price-status">
+                {checkedAt ? `Cena sprawdzona ${checkedAt}. ` : ""}Finalną cenę i dostępność potwierdzisz u partnera.
+              </div>
             </div>
 
             <div className="tripownia-purchase-actions tripownia-purchase-actions-priority">
@@ -173,7 +169,7 @@ export default async function SocialOfferLanding({
                 partner={target.partner.key}
                 offerId={Number(offerId) || 0}
                 destination={[city, country].filter(Boolean).join(", ")}
-                price={price || 0}
+                price={price}
                 placement={outboundSource}
                 returnContext={{
                   departure,
@@ -184,7 +180,7 @@ export default async function SocialOfferLanding({
                   end,
                 }}
               >
-                Sprawdź aktualną cenę w {target.partner.label}
+                Przejdź do oferty w {target.partner.label}
               </TrackedPartnerLink>
               <small className="tripownia-buy-trust">Finalną cenę i dostępność potwierdzisz u partnera przed płatnością.</small>
               <div className="tripownia-purchase-secondary">
@@ -203,9 +199,9 @@ export default async function SocialOfferLanding({
 
             <div className="detail-meta">
               <span><Plane/> <b>{departure}</b></span>
-              <span><Moon/> <b>{nights} nocy</b></span>
+              {tripKind !== "flight" && <span><Moon/> <b>{nights} nocy</b></span>}
               <span><CalendarDays/> <b>{dates}</b></span>
-              <span><Utensils/> <b>{board}</b></span>
+              {tripKind !== "flight" && <span><Utensils/> <b>{board}</b></span>}
               <span><MapPin/> <b>{[city, country].filter(Boolean).join(", ")}</b></span>
             </div>
 
@@ -231,19 +227,19 @@ export default async function SocialOfferLanding({
 
         <div className="live-mobile-booking-bar">
           <div>
-            <small>{price ? "Znaleźliśmy od" : "Aktualna oferta"}</small>
-            <strong>{price ? `${price.toLocaleString("pl-PL")} zł / os.` : "Sprawdź cenę"}</strong>
+            <small>Cena zapisana</small>
+            <strong>{price.toLocaleString("pl-PL")} zł / os.</strong>
           </div>
           <TrackedPartnerLink
             href={outboundHref}
             partner={target.partner.key}
             offerId={Number(offerId) || 0}
             destination={[city, country].filter(Boolean).join(", ")}
-            price={price || 0}
+            price={price}
             placement={`${outboundSource}:mobile_bar`}
             returnContext={{ departure, hotel, board, nights, start, end }}
           >
-            Sprawdź cenę
+            Zobacz ofertę
           </TrackedPartnerLink>
         </div>
 
