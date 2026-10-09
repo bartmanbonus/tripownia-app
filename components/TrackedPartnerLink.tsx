@@ -66,6 +66,7 @@ export default function TrackedPartnerLink({
       href={href}
       rel="sponsored"
       data-partner-exit="1"
+      data-outbound-self-tracked="1"
       data-affiliate-source={placement}
       data-sales-partner={partner}
       data-sales-offer-id={offerId}
