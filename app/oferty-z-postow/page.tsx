@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SocialOfferCatalog from "@/components/SocialOfferCatalog";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
 export const metadata: Metadata = {
   title: "Znajdź ofertę z posta",
@@ -10,5 +11,15 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <main><SiteHeader /><h1 className="shell" style={{ paddingTop: 28 }}>Oferty z social mediów</h1><SocialOfferCatalog /><SiteFooter /></main>;
+  return (
+    <main>
+      <SiteHeader />
+      <h1 className="shell" style={{ paddingTop: 28 }}>Oferty z social mediów</h1>
+      <SocialOfferCatalog />
+      <section className="shell" aria-label="Obserwuj nowe okazje podróżnicze" style={{ paddingBottom: 32 }}>
+        <FacebookFollowCTA placement="social_offers_catalog_after_offers" compact />
+      </section>
+      <SiteFooter />
+    </main>
+  );
 }
