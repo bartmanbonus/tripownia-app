@@ -255,7 +255,7 @@ export default async function ShortSocialOfferPage({
           text={`Zobacz ${offer.city} w Tripowni. Cena i termin mogą się zmienić; przed rezerwacją sprawdź aktualną dostępność.`}
           placement="social_offer_after_details"
           label="WYŚLIJ ZNAJOMYM"
-          heading="Kto poleciłby z Tobą?"
+          heading="Kto poleciałby z Tobą?"
           description="Wyślij znajomym szczegóły tej propozycji. Każda osoba zobaczy aktualny status i opcje rezerwacji w Tripowni."
         />
       </section>
