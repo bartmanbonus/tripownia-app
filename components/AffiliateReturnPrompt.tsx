@@ -120,8 +120,9 @@ export default function AffiliateReturnPrompt() {
       ? String(context.partner)
       : (context.tripKind === "hotel" ? "booking" : context.tripKind === "flight" ? "kiwi" : "esky");
 
-    const hasFlight = context.tripKind === "flight" || context.tripKind === "package";
-    const hasHotel = context.tripKind === "hotel" || context.tripKind === "package";
+    // An add-on confirmation is not proof that a flight or a package was booked.
+    const hasFlight = !context.piece && (context.tripKind === "flight" || context.tripKind === "package");
+    const hasHotel = context.piece === "hotel" || (!context.piece && (context.tripKind === "hotel" || context.tripKind === "package"));
     const place = [context.city, context.country].filter(Boolean).join(", ");
 
     const hotelParams = new URLSearchParams();
@@ -150,7 +151,7 @@ export default function AffiliateReturnPrompt() {
         weather: "sprawdź",
         score: 0,
         tag: "DOBRA OPCJA",
-        reason: "Rezerwacja potwierdzona po przejściu z Tripowni.",
+        reason: context.piece ? "Użytkownik oznaczył wybraną usługę jako zarezerwowaną." : "Użytkownik potwierdził rezerwację po przejściu z Tripowni.",
         image: "",
         category: [],
         hotel: context.hotel || "",
@@ -162,7 +163,7 @@ export default function AffiliateReturnPrompt() {
       },
       flight: hasFlight ? (context.departure || "Lot / transport zarezerwowany") : "",
       hotel: hasHotel ? (context.hotel || "Nocleg zarezerwowany") : "",
-      notes: "Rezerwacja rozpoczęta przez Tripownię.",
+      notes: context.piece ? "Zapisano wybraną usługę po powrocie od partnera." : "Rezerwacja rozpoczęta przez Tripownię.",
       checklist: {
         "Sprawdź transfer z lotniska i taxi na miejscu": false,
         "Zarezerwuj najważniejsze atrakcje": false,
@@ -177,6 +178,8 @@ export default function AffiliateReturnPrompt() {
         attractions: { status: "missing", provider: "" },
         esim: { status: "missing", provider: "" },
         parking: { status: "missing", provider: "" },
+        car: { status: "missing", provider: "" },
+        ...(context.piece ? { [context.piece]: { status: "owned" as const, provider: partner, bookedAt: new Date().toISOString() } } : {}),
       },
       suggestedLinks: {
         flight: "/loty",

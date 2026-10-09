@@ -1,6 +1,6 @@
 import { upsertTripArchive } from "@/lib/tripArchive";
 
-export type JourneyPieceKey = "flight" | "hotel" | "transfer" | "attractions" | "esim" | "parking";
+export type JourneyPieceKey = "flight" | "hotel" | "transfer" | "attractions" | "car" | "esim" | "parking";
 
 export type JourneyPieceMeta = {
   status?: "owned" | "selected" | "missing";
@@ -60,6 +60,7 @@ function checklistForPiece(piece: JourneyPieceKey) {
   const map: Partial<Record<JourneyPieceKey, string>> = {
     transfer: "Sprawdź transfer z lotniska i taxi na miejscu",
     attractions: "Zarezerwuj najważniejsze atrakcje",
+    car: "Sprawdź wynajem auta na miejscu",
     esim: "Sprawdź internet / eSIM",
     parking: "Zarezerwuj parking przy lotnisku",
   };
@@ -79,6 +80,7 @@ export function updateActiveTripJourneyPiece(
   const checklist = { ...(trip.checklist || {}) };
   const checklistKey = checklistForPiece(piece);
   if (patch.status === "owned" && checklistKey) checklist[checklistKey] = true;
+  if (patch.status === "missing" && checklistKey) checklist[checklistKey] = false;
 
   const next: ActiveTrip = {
     ...trip,

@@ -1,5 +1,5 @@
 export type AffiliateTripKind = "flight" | "hotel" | "package";
-export type AffiliateJourneyPiece = "flight" | "hotel" | "transfer" | "attractions" | "esim" | "parking";
+export type AffiliateJourneyPiece = "flight" | "hotel" | "transfer" | "attractions" | "car" | "esim" | "parking";
 
 export type AffiliateReturnContext = {
   savedAt: string;
