@@ -71,11 +71,11 @@ export default function SiteFooter() {
           </div>
 
           <div className="footer-v2-bottom">
-            <p>Tripownia.pl nie jest biurem podróży. Rezerwacji dokonujesz bezpośrednio u zewnętrznego dostawcy. Ceny i dostępność mogą się zmieniać.</p>
+            <p>Tripownia nie jest biurem podróży. Rezerwację i płatność finalizujesz u dostawcy.</p>
             <div className="footer-v2-legal">
               <Link href="/regulamin">Regulamin</Link>
               <Link href="/polityka-prywatnosci">Polityka prywatności</Link>
-              <Link href="/informacja-afiliacyjna">Informacja afiliacyjna</Link>
+              <Link href="/informacja-afiliacyjna">Współpraca reklamowa</Link>
             </div>
             <span>© {new Date().getFullYear()} Tripownia.pl</span>
           </div>
