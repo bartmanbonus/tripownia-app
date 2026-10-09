@@ -70,6 +70,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url:`${BASE_URL}/informacja-afiliacyjna`,changeFrequency:"yearly",priority:.4 },
   ];
 
+  // Seasonal pages belong in the sitemap only while their departure window is relevant.
+  if (now.getTime() <= new Date("2026-11-15T23:59:59Z").getTime()) {
+    staticPages.push({ url:`${BASE_URL}/dlugi-weekend-listopadowy-2026`,changeFrequency:"daily",priority:.93 });
+  }
   if (showMarkets) staticPages.push({ url:`${BASE_URL}/jarmarki-bozonarodzeniowe`,changeFrequency:"daily",priority:.9 });
 
   const isLowValueLegacyPath = (path: string) => {
