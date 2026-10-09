@@ -8,19 +8,33 @@ type SocialShareProps = {
   url: string;
   title: string;
   text: string;
+  placement?: string;
+  label?: string;
+  heading?: string;
+  description?: string;
 };
 
-export default function SocialShare({ url, title, text }: SocialShareProps) {
+export default function SocialShare({
+  url,
+  title,
+  text,
+  placement = "offer",
+  label = "LECIMY?",
+  heading = "Wyślij tę okazję osobie, z którą polecisz",
+  description = "Druga osoba otworzy dokładnie tę samą stronę Tripowni i sama sprawdzi aktualną cenę.",
+}: SocialShareProps) {
   const [copied, setCopied] = useState(false);
 
   const shareText = `LECIMY? ${text}`;
 
   function campaignUrl(channel: string) {
     try {
-      const tracked = new URL(url, window.location.origin);
+      // Canonical production origin also works during SSR and preview deployments.
+      const tracked = new URL(url, "https://tripownia.pl");
       tracked.searchParams.set("utm_source", channel);
       tracked.searchParams.set("utm_medium", "social_share");
       tracked.searchParams.set("utm_campaign", "organic_share");
+      tracked.searchParams.set("utm_content", placement);
       return tracked.toString();
     } catch {
       return url;
@@ -38,6 +52,7 @@ export default function SocialShare({ url, title, text }: SocialShareProps) {
       channel,
       share_url: url,
       share_title: title.slice(0, 120),
+      placement,
     });
   }
 
@@ -69,9 +84,9 @@ export default function SocialShare({ url, title, text }: SocialShareProps) {
   return (
     <div className="share-box share-box-visible">
       <div className="share-copy">
-        <small>LECIMY?</small>
-        <strong>Wyślij tę okazję osobie, z którą polecisz</strong>
-        <span>Druga osoba otworzy dokładnie tę samą stronę Tripowni i sama sprawdzi aktualną cenę.</span>
+        <small>{label}</small>
+        <strong>{heading}</strong>
+        <span>{description}</span>
       </div>
       <div className="share-actions">
         <button type="button" className="share-native" onClick={nativeShare}><Share2 size={16}/> Wyślij „LECIMY?”</button>
