@@ -55,3 +55,18 @@ Wdrożona w gałęzi `feature/fb-follow-social-offers-20261009` nowa sekcja `/of
 - Przekierowania do partnera: porównuj tylko rzeczywiste zdarzenia wyjścia z Tripowni — Facebook **post clicks** obejmują też kliknięcia zdjęcia i rozwijanie treści.
 - GA4 działa po zgodzie analitycznej; jeśli dane GA4 wydają się zaniżone, sprawdź konfigurację i zgody przed interpretacją zasięgu.
 - Pierwszy przegląd: 7 dni po wdrożeniu. Porównuj przyrost fanów na 1000 wyświetleń, udział kliknięć do strony oraz udział wejść prowadzących do oferty, nie tylko komentarze.
+
+
+## Opcjonalne krótsze linki z pomiarem źródła (po wdrożeniu produkcyjnym)
+
+Dla istniejącej, zweryfikowanej w katalogu Tripowni propozycji można przygotować własny link do pierwszego komentarza:
+
+- Facebook: `https://tripownia.pl/l/fb/jezioro-garda-869`
+- Instagram: `https://tripownia.pl/l/ig/jezioro-garda-869`
+- TikTok: `https://tripownia.pl/l/tt/jezioro-garda-869`
+
+**To nie są linki bezpośrednie do partnera.** Kod 307 kieruje użytkownika do `/o/jezioro-garda-869` na Tripowni i dodaje `utm_source`, `utm_medium=organic_social` oraz identyfikator oferty. Dopiero na własnej podstronie użytkownik widzi szczegóły i decyduje o rezerwacji.
+
+Stare komentarze i istniejący proces Tiny.pl **pozostają bez zmian**. Nie korzystaj z tych nowych odnośników, dopóki `/l/fb/...` nie będzie wdrożone i zweryfikowane na produkcji. Jeśli oferta wygasła, link pokaże jej status i alternatywy – nie wolno kopiować starej ceny jako aktualnej.
+
+Nowy link musi zawierać rzeczywisty slug oferty z `lib/socialOffers.ts`; nie zgaduj identyfikatorów. Nie ma możliwości dowolnego przekierowania na adres zewnętrzny.
