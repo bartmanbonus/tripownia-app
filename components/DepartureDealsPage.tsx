@@ -4,6 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import LiveDepartureDeals from "@/components/LiveDepartureDeals";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
+import SocialShare from "@/components/SocialShare";
 import styles from "./DepartureDealsPage.module.css";
 
 type Props = {
@@ -32,6 +33,15 @@ export default function DepartureDealsPage({
     allInclusiveHref ? { href: allInclusiveHref, icon: "🌴", title: `All Inclusive z ${city}`, text: "Lot + hotel + wyżywienie" } : null,
   ].filter(Boolean) as Array<{ href: string; icon: string; title: string; text: string }>;
 
+  const sharePath = ({
+    WAW: "/z-warszawy",
+    KRK: "/z-krakowa",
+    KTW: "/z-katowic",
+    GDN: "/z-gdanska",
+    WRO: "/z-wroclawia",
+    POZ: "/z-poznania",
+  } as const)[airportCodes[0] as "WAW" | "KRK" | "KTW" | "GDN" | "WRO" | "POZ"] || "/oferty-z-postow#lotniska";
+
   return <main className={styles.page}>
     <SiteHeader />
     <section className={styles.hero}><div className={styles.shell}>
@@ -56,6 +66,19 @@ export default function DepartureDealsPage({
     <section className={styles.section} id="oferty"><div className={styles.shell}>
       <div className={styles.heading}><div><span className={styles.kicker}>AKTUALNA PULA</span><h2>Najpierw konkretne oferty z {city}</h2><p>Pokazujemy różne kierunki zamiast kilku wariantów tego samego miejsca. Wybierasz ofertę i przechodzisz dalej do szczegółów rezerwacji.</p></div><Link href="/okazje">Wszystkie okazje <ArrowRight size={16}/></Link></div>
       <LiveDepartureDeals airportCodes={airportCodes}/>
+      <section aria-label={`Poleć wyjazdy z ${city}`} style={{ marginTop: 24 }}>
+        <SocialShare
+          url={sharePath}
+          title={`Wyjazdy z ${city} — Tripownia.pl`}
+          text={`Zobacz wyjazdy z ${city}: city break, wakacje i All Inclusive. Terminy oraz ceny sprawdzisz na Tripowni.`}
+          placement={`airport_hub_${airportCodes[0].toLowerCase()}`}
+          label="POLEĆ ZNAJOMYM"
+          shareLead="WYJAZDY Z TWOJEGO LOTNISKA"
+          buttonLabel={`Wyślij okazje z ${city}`}
+          heading={`Kto jeszcze szuka wylotów z ${city}?`}
+          description="Udostępnij znajomym aktualną listę opcji z tego lotniska. Każdy sam sprawdzi dostępność i cenę przed rezerwacją."
+        />
+      </section>
       <FacebookFollowCTA placement={`departure_hub_after_offers_${airportCodes.join("_")}`} compact />
     </div></section>
     <section className={styles.ctaSection}><div className={styles.shell}><div className={styles.cta}>
