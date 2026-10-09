@@ -194,8 +194,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Czy loty do Katanii są odwołane? Zobacz, gdzie sprawdzić aktualny status rejsu i co zrobić po anulowaniu lotu przez zakłócenia związane z Etną.",
   },
   "/gdzie-poleciec-na-weekend-z-polski-12-pomyslow-na-city-break": {
-    title: "Gdzie polecieć na weekend za granicę? City break z Polski 2026 | Tripownia",
-    description: "Gdzie polecieć na weekend? Porównaj city breaki na 2–4 dni z Polski pod godziny lotów, transfer, nocleg i realny czas na miejscu.",
+    title: "Gdzie polecieć na weekend za granicę? 12 pomysłów na 2–4 dni",
+    description: "Gdzie polecieć na weekend za granicę? Zobacz 12 pomysłów na wyjazd 2–4 dni z Polski i porównaj lot, transfer, nocleg oraz czas na miejscu.",
   },
   "/grecja": {
     title: "Grecja wakacje 2026 – Kreta, Rodos, Kos czy Korfu? | Tripownia",
