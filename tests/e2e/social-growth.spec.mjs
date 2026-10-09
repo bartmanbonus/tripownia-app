@@ -118,3 +118,25 @@ test("Social offer catalog can be shared without tying friends to one historical
   expect(destination.pathname).toBe("/oferty-z-postow");
   expect(destination.searchParams.get("utm_content")).toBe("social_catalog_after_airports");
 });
+
+
+test("Branded organic link keeps the offer inside Tripownia and records its source", async ({ request }) => {
+  const response = await request.get("/l/fb/jezioro-garda-869", { maxRedirects: 0 });
+  expect(response.status()).toBe(307);
+  const target = new URL(response.headers().location);
+  expect(target.pathname).toBe("/o/jezioro-garda-869");
+  expect(target.searchParams.get("utm_source")).toBe("facebook");
+  expect(target.searchParams.get("utm_medium")).toBe("organic_social");
+  expect(target.searchParams.get("utm_campaign")).toBe("tripownia_offers");
+  expect(target.searchParams.get("utm_content")).toBe("jezioro-garda-869");
+  expect(response.headers()["cache-control"]).toBe("no-store");
+
+  const instagram = await request.get("/l/ig/jezioro-garda-869", { maxRedirects: 0 });
+  expect(instagram.status()).toBe(307);
+  expect(new URL(instagram.headers().location).searchParams.get("utm_source")).toBe("instagram");
+
+  const unknown = await request.get("/l/fb/nonexistent-trip-ownia-offer", { maxRedirects: 0 });
+  expect(unknown.status()).toBe(404);
+  const invalidChannel = await request.get("/l/other/jezioro-garda-869", { maxRedirects: 0 });
+  expect(invalidChannel.status()).toBe(404);
+});
