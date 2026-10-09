@@ -80,3 +80,41 @@ test("Social comments landing offers airport-specific options and keeps main off
     expect(overflow).toBeLessThanOrEqual(2);
   }
 });
+
+
+test("Archived offer shares safe title and image without outdated price", async ({ page }) => {
+  await page.goto("/o/rzym-529");
+  const ogTitle = await page.locator('meta[property="og:title"]').getAttribute("content");
+  const ogImage = await page.locator('meta[property="og:image"]').getAttribute("content");
+  expect(ogTitle).toContain("Rzym");
+  expect(ogTitle).toContain("aktualne propozycje");
+  expect(ogTitle).not.toContain("529");
+  expect(new URL(ogImage).pathname).toBe("/opengraph-image");
+});
+
+test("Airport landing shares its own city and organic referral is trackable", async ({ page }) => {
+  await page.goto("/z-warszawy");
+  const shareBox = page.locator(".share-box").first();
+  await expect(shareBox.getByRole("button", { name: "Wyślij okazje z Warszawy" })).toBeVisible();
+
+  const fbHref = await shareBox.getByRole("link", { name: "Udostępnij na Facebooku" }).getAttribute("href");
+  const destination = sharedDestination(fbHref);
+  expect(destination.origin).toBe("https://tripownia.pl");
+  expect(destination.pathname).toBe("/z-warszawy");
+  expect(destination.searchParams.get("utm_source")).toBe("facebook");
+  expect(destination.searchParams.get("utm_content")).toBe("airport_hub_waw");
+
+  await expect(page.locator(".facebook-growth-strip a").first()).toHaveAttribute(
+    "href", "https://www.facebook.com/987707741084438"
+  );
+});
+
+test("Social offer catalog can be shared without tying friends to one historical price", async ({ page }) => {
+  await page.goto("/oferty-z-postow");
+  const box = page.locator(".share-box").first();
+  await expect(box.getByRole("button", { name: "Wyślij Tripownię znajomym" })).toBeVisible();
+  const href = await box.getByRole("link", { name: "Udostępnij na Facebooku" }).getAttribute("href");
+  const destination = sharedDestination(href);
+  expect(destination.pathname).toBe("/oferty-z-postow");
+  expect(destination.searchParams.get("utm_content")).toBe("social_catalog_after_airports");
+});
