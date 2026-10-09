@@ -48,3 +48,13 @@ test("Homepage introduces the unified trip center to visitors", async ({ page })
   await expect(banner).toContainText("Twoje centrum podróży");
   await expect(banner.getByRole("link", { name: /Poznaj centrum Tripowni/ })).toHaveAttribute("href", "/app");
 });
+
+test("Homepage keeps deal cards and offer rails after the trip hub is introduced", async ({ page }) => {
+  await page.goto("/");
+  // The trip hub extends the offer-led homepage; it must not replace commercial content.
+  await expect(page.locator(".homepage-curated-trips")).toBeVisible();
+  await expect(page.locator(".homepage-curated-trips .offer-card").first()).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator(".daily-carousel")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Co dziś ma sens cenowo?" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Zobacz wszystkie okazje" }).first()).toHaveAttribute("href", "/okazje");
+});
