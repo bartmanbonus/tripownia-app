@@ -1,0 +1,19 @@
+/* Commercial notices are concise but readable on desktop and mobile. */
+.commercial-disclosure {
+  display: block;
+  margin-top: 10px;
+  color: #59524d;
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.commercial-disclosure-card {
+  margin: 8px 0 4px;
+  font-size: 11px;
+  color: #655d58;
+}
+.tripownia-purchase-actions .commercial-disclosure,
+.detail-action-box .commercial-disclosure {
+  display: block;
+  flex: 1 0 100%;
+}
