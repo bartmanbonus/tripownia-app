@@ -12,6 +12,7 @@ import CompleteTripSales from "@/components/CompleteTripSales";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
+import SocialShare from "@/components/SocialShare";
 import PurchaseChoices from "@/components/PurchaseChoices";
 
 type SocialOfferPage = SocialOffer & { expired?: boolean };
@@ -247,7 +248,20 @@ export default async function ShortSocialOfferPage({
           />
         )}
       </div>
-      <section className="section shell"><FacebookFollowCTA placement="social_offer_after_details" compact /></section>
+      <section className="section shell" aria-label="Poleć tę ofertę">
+        <SocialShare
+          url={`/o/${offer.slug}`}
+          title={`${offer.city} – Tripownia.pl`}
+          text={`Zobacz ${offer.city} w Tripowni. Cena i termin mogą się zmienić; przed rezerwacją sprawdź aktualną dostępność.`}
+          placement="social_offer_after_details"
+          label="WYŚLIJ ZNAJOMYM"
+          heading="Kto poleciłby z Tobą?"
+          description="Wyślij znajomym szczegóły tej propozycji. Każda osoba zobaczy aktualny status i opcje rezerwacji w Tripowni."
+        />
+      </section>
+      <section className="section shell" aria-label="Nie przegap kolejnej okazji">
+        <FacebookFollowCTA placement="social_offer_after_details" compact />
+      </section>
       {!offer.expired && <CompleteTripSales city={offer.city} country={offer.country} source="social_offer" />}
       <SiteFooter />
     </main>
