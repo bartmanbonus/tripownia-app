@@ -82,6 +82,8 @@ export default function RadarTripowniPage() {
           text="5 codziennych inspiracji podróżniczych, od city breaku po wakacje. Sprawdź aktualną selekcję."
           placement="daily_radar"
           label="PODAJ DALEJ"
+          shareLead="RADAR TRIPOWNI"
+          buttonLabel="Wyślij Radar znajomym"
           heading="Znasz kogoś, kto szuka pomysłu na wyjazd?"
           description="Udostępnij Radar Tripowni. Znajomi trafią na aktualną selekcję pięciu okazji, nie na nieaktualną cenę."
         />
