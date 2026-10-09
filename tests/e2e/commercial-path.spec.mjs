@@ -127,7 +127,7 @@ test("home -> concrete Tripownia offer -> monetized partner CTA", async ({ page 
 
   const partnerCta = page.locator("a.tripownia-buy-cta");
   await expect(partnerCta).toBeVisible();
-  await expect(partnerCta).toContainText(/Sprawdź cenę/i);
+  await expect(partnerCta).toContainText(/Sprawdź (?:aktualną )?cenę/i);
 
   const outboundHref = await partnerCta.getAttribute("href");
   expect(outboundHref).toMatch(/^\/go\/live\?/);

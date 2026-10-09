@@ -11,15 +11,13 @@ import {
   MapPinned,
   Plus,
   Search,
-  ShieldCheck,
-  Smartphone,
   Sparkles,
   UserRound,
-  Car,
 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SearchHub from "@/components/SearchHub";
+import TripCommandCenter from "@/components/TripCommandCenter";
 import { readActiveTrip, TRIP_ARCHIVE_EVENT, type TripArchiveSnapshot } from "@/lib/tripArchive";
 
 type OfferSnapshot = {
@@ -113,6 +111,8 @@ export default function AppHomePage() {
           </section>
         )}
 
+        <TripCommandCenter />
+
         <div className="app-home-grid" aria-label="Najważniejsze funkcje Tripowni">
           {tiles.map(({ href, icon: Icon, title, text }) => (
             <Link className="app-home-tile" href={href} key={href}>
@@ -123,19 +123,6 @@ export default function AppHomePage() {
           ))}
         </div>
 
-        <section className="app-pretrip-section" aria-labelledby="app-before-trip-title">
-          <div className="section-heading">
-            <div>
-              <div className="kicker">PRZED WYJAZDEM</div>
-              <h2 id="app-before-trip-title">Domknij praktyczne rzeczy.</h2>
-            </div>
-          </div>
-          <div className="app-pretrip-grid">
-            <Link href="/ubezpieczenia"><ShieldCheck size={21}/><strong>Ubezpieczenie</strong><span>Sprawdź ochronę przed podróżą.</span></Link>
-            <Link href="/esim"><Smartphone size={21}/><strong>eSIM</strong><span>Przygotuj internet jeszcze przed lądowaniem.</span></Link>
-            <Link href="/parkingi"><Car size={21}/><strong>Parking</strong><span>Zaplanuj auto przy lotnisku bez nerwów.</span></Link>
-          </div>
-        </section>
 
         <section className="app-home-recommendations" id="wyszukiwarka" aria-labelledby="app-search-title">
           <div className="section-heading">

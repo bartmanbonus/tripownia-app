@@ -1,0 +1,45 @@
+.trip-command-center{margin:26px 0 30px;padding:24px;border:1px solid #e2d9d2;border-radius:25px;background:linear-gradient(140deg,#faf8f5 0%,#fff 68%,#f7fafc 100%);box-shadow:0 14px 36px rgba(47,34,24,.04);color:#251e1a}
+.trip-command-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:25px;margin-bottom:20px}
+.trip-command-heading .kicker{display:inline-flex;align-items:center;gap:7px;color:#76614c;font-size:11px;letter-spacing:.07em}
+.trip-command-heading h2{margin:7px 0 8px;font-size:clamp(25px,3.1vw,38px);line-height:1.12;letter-spacing:-.035em}
+.trip-command-heading p{margin:0;color:#685e56;line-height:1.55;max-width:670px;font-size:14px}
+.trip-command-counter{min-width:190px;padding:14px 17px;border-radius:16px;background:#fff;border:1px solid #ece4de;display:flex;flex-direction:column;gap:5px}
+.trip-command-counter strong{font-size:27px;line-height:1.2}
+.trip-command-counter span{color:#655d58;font-size:11px;font-weight:650}
+.trip-command-counter [role="progressbar"]{height:7px;border-radius:20px;background:#e9e5e1;overflow:hidden;margin-top:7px}
+.trip-command-counter [role="progressbar"] i{display:block;height:100%;background:#486f62;border-radius:20px;transition:width .2s ease}
+.trip-command-next{display:flex;align-items:center;gap:17px;padding:17px 18px;border-radius:18px;background:#1e2423;color:#fff;margin-bottom:17px}
+.trip-command-next-icon{flex:0 0 auto;width:47px;height:47px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.12)}
+.trip-command-next>div{flex:1;min-width:0}.trip-command-next .kicker{color:#c5d7cc;font-size:10px;letter-spacing:.09em}
+.trip-command-next strong{display:block;margin:4px 0;font-size:18px}.trip-command-next p{margin:0;color:#d0d9d4;font-size:12px;line-height:1.4}
+.trip-command-next>a{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px 16px;border-radius:12px;background:#fff;color:#172320;font-size:12px;font-weight:800;text-decoration:none;min-height:43px}
+.trip-command-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
+.trip-command-service{padding:15px;border:1px solid #e8e4e0;background:#fff;border-radius:17px;min-width:0}
+.trip-command-service-top{display:flex;justify-content:space-between;align-items:center;gap:5px}
+.trip-command-service-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:#f2f4f2;color:#1c3431}
+.trip-command-service-state{font-size:10px;color:#796c61;font-weight:800;display:inline-flex;align-items:center;gap:3px;text-align:right}
+.trip-command-service.is-owned .trip-command-service-state{color:#326250}
+.trip-command-service.is-selected .trip-command-service-state{color:#806130}
+.trip-command-service h3{font-size:16px;margin:13px 0 3px;letter-spacing:-.015em}
+.trip-command-service p{font-size:12px;line-height:1.45;min-height:35px;color:#706760;margin:0}
+.trip-command-service-actions{display:flex;align-items:center;gap:8px;justify-content:space-between;margin-top:14px;padding-top:11px;border-top:1px solid #eee9e5}
+.trip-command-service-actions a,.trip-command-service-actions button{min-height:34px;display:inline-flex;align-items:center;gap:4px;color:#264c43;font-size:11px;font-weight:800;text-decoration:none}
+.trip-command-service-actions button{padding:4px 9px;border-radius:8px;border:1px solid #d7ddd9;background:#f5faf7;cursor:pointer}
+.trip-command-service.is-owned .trip-command-service-actions button{background:#fff;border-color:#e5e0db;color:#675d55}
+.trip-command-footer{display:flex;justify-content:space-between;gap:15px;align-items:center;flex-wrap:wrap;margin-top:15px;color:#685e56}
+.trip-command-footer>span{display:inline-flex;align-items:center;gap:6px;font-size:11px;line-height:1.4}
+.trip-command-footer>div{display:flex;gap:17px;flex-wrap:wrap}
+.trip-command-footer a{display:inline-flex;align-items:center;gap:4px;color:#255246;font-weight:750;font-size:11px;text-decoration:none}
+.trip-command-start{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.trip-command-start>a{display:grid;grid-template-columns:auto 1fr auto;column-gap:10px;row-gap:6px;align-items:center;padding:19px;border-radius:17px;background:#fff;border:1px solid #e8e1dc;text-decoration:none;color:#2b2420}
+.trip-command-start>a>svg:first-child{grid-row:1/3;color:#31564b}.trip-command-start strong{font-size:15px}.trip-command-start span{grid-column:2;color:#786e65;font-size:12px}.trip-command-start>a>svg:last-child{grid-column:3;grid-row:1/3}
+.trip-command-center-compact{display:flex;align-items:center;gap:16px;margin:16px auto 27px;background:#eef4f2;padding:16px 20px}
+.trip-command-compact-icon{width:46px;height:46px;display:grid;place-items:center;flex:0 0 auto;background:#dce9e3;border-radius:13px;color:#275345}
+.trip-command-compact-copy{flex:1;min-width:0}.trip-command-compact-copy .kicker{font-size:10px;color:#3f6b57}
+.trip-command-compact-copy h2{margin:3px 0 3px;font-size:19px;line-height:1.25}
+.trip-command-compact-copy h2 span{font-size:12px;color:#52695f;font-weight:650}
+.trip-command-compact-copy p{margin:0;font-size:12px;color:#53655e}
+.trip-command-compact-action{display:inline-flex;gap:6px;align-items:center;justify-content:center;border-radius:12px;background:#264a3d;color:#fff;padding:12px 16px;text-decoration:none;font-weight:800;font-size:12px;white-space:nowrap}
+@media(max-width:1060px){.trip-command-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:790px){.trip-command-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.trip-command-heading{flex-direction:column}.trip-command-counter{width:100%}.trip-command-next{align-items:flex-start;flex-wrap:wrap}.trip-command-next>a{width:100%}.trip-command-center-compact{flex-wrap:wrap}.trip-command-compact-action{margin-left:62px}}
+@media(max-width:540px){.trip-command-center{padding:16px;border-radius:19px}.trip-command-grid,.trip-command-start{grid-template-columns:1fr}.trip-command-service p{min-height:0}.trip-command-next{padding:15px;gap:12px}.trip-command-next-icon{width:40px;height:40px}.trip-command-compact-copy h2{font-size:17px}.trip-command-center-compact{margin:12px auto 23px}.trip-command-compact-action{margin-left:0;width:100%}}

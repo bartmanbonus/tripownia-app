@@ -6,6 +6,7 @@ import "./app-pwa.css";
 import "./trip-mode.css";
 import "./trip-toolkit.css";
 import "./app-home.css";
+import "./trip-command-center.css";
 import "./trip-header.css";
 import "./premium-system.css";
 import "./deals-premium.css";

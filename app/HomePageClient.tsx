@@ -21,6 +21,7 @@ import TripowniaLive from "@/components/TripowniaLive";
 import SocialOfferCatalog from "@/components/SocialOfferCatalog";
 
 const SearchHub = dynamic(() => import("@/components/SearchHub"));
+const TripCommandCenter = dynamic(() => import("@/components/TripCommandCenter"));
 const SalesVisualShortcuts = dynamic(() => import("@/components/SalesVisualShortcuts"));
 const RecentlyViewedOffers = dynamic(() => import("@/components/RecentlyViewedOffers"));
 
@@ -828,6 +829,7 @@ export default function Home() {
       </section>
 
       <SearchHub />
+      <TripCommandCenter compact />
       <TripowniaLive />
       <SocialOfferCatalog compact />
 

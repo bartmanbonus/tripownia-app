@@ -17,6 +17,7 @@ type Props = {
   className?: string;
   rel?: string;
   children: ReactNode;
+  onSelect?: () => void;
 };
 
 export default function TripPiecePartnerLink({
@@ -31,6 +32,7 @@ export default function TripPiecePartnerLink({
   className,
   rel = "sponsored",
   children,
+  onSelect,
 }: Props) {
   function rememberSelection() {
     updateActiveTripJourneyPiece(piece, {
@@ -58,6 +60,7 @@ export default function TripPiecePartnerLink({
       price: price || 0,
       source,
     });
+    onSelect?.();
   }
 
   return (
