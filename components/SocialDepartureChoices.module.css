@@ -1,0 +1,148 @@
+.section {
+  padding: 26px 0 30px;
+}
+
+.heading {
+  max-width: 820px;
+  margin-bottom: 22px;
+}
+
+.heading h2 {
+  margin: 8px 0 10px;
+  color: #1d2029;
+  font-size: clamp(1.55rem, 2.9vw, 2.25rem);
+  line-height: 1.15;
+}
+
+.heading p {
+  margin: 0;
+  color: #514c4a;
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.airportGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.airportCard {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 0;
+  min-height: 98px;
+  padding: 16px;
+  text-decoration: none;
+  background: #fff;
+  color: #26211e;
+  border: 1px solid #e9ded8;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(44, 30, 18, .035);
+  transition: border-color .18s ease, transform .18s ease;
+}
+
+.airportCard:hover,
+.typeCard:hover {
+  border-color: #db7448;
+  transform: translateY(-2px);
+}
+
+.airportCard:focus-visible,
+.typeCard:focus-visible {
+  outline: 3px solid #e35824;
+  outline-offset: 3px;
+}
+
+.airportIcon {
+  display: flex;
+  flex: 0 0 46px;
+  height: 46px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  color: #a63f1c;
+  background: #fff2e9;
+}
+
+.airportText,
+.typeCard span {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+
+.airportText strong,
+.typeCard strong {
+  font-size: 1.06rem;
+  line-height: 1.2;
+}
+
+.airportText small,
+.typeCard small {
+  color: #625c58;
+  font-size: .84rem;
+  line-height: 1.25;
+}
+
+.typeGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.typeCard {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 14px;
+  min-height: 92px;
+  padding: 16px;
+  color: #26211e;
+  background: #fffaf6;
+  text-decoration: none;
+  border: 1px solid #eddccd;
+  border-radius: 18px;
+  transition: border-color .18s ease, transform .18s ease;
+}
+
+.typeCard > svg:first-child {
+  flex-shrink: 0;
+  color: #bc4a1e;
+}
+
+.airportCard > svg:last-child,
+.typeCard > svg:last-child {
+  flex-shrink: 0;
+  color: #c0572f;
+}
+
+.disclaimer {
+  margin: 18px 0 0;
+  color: #615c59;
+  font-size: .89rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .airportGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .typeGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 540px) {
+  .airportGrid {
+    grid-template-columns: 1fr;
+  }
+  .airportCard,
+  .typeCard {
+    min-height: 78px;
+    padding: 14px 15px;
+  }
+}
