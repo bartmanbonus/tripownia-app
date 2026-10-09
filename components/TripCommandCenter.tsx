@@ -73,7 +73,7 @@ export default function TripCommandCenter({ compact = false }: { compact?: boole
     };
   }, []);
 
-  if (!ready || (compact && !trip)) return null;
+  if (!ready) return null;
 
   const snapshot = trip?.offerSnapshot as { city?: string; country?: string; dates?: string } | undefined;
   const city = typeof snapshot?.city === "string" ? snapshot.city : "";
@@ -101,17 +101,17 @@ export default function TripCommandCenter({ compact = false }: { compact?: boole
     });
   }
 
-  if (compact && trip) {
+  if (compact) {
     return (
       <section className="shell trip-command-center trip-command-center-compact" aria-label="Twój aktualny plan podróży">
         <div className="trip-command-compact-icon"><Compass size={24}/></div>
         <div className="trip-command-compact-copy">
-          <div className="kicker">MOJA TRIPOWNIA · TWÓJ PLAN</div>
-          <h2>{destination || "Twój wyjazd"} <span>· {done} z {SERVICES.length} elementów oznaczonych jako gotowe</span></h2>
-          <p>{next ? "Kolejny krok: " + next.name.toLocaleLowerCase("pl") + ". Wróć do planu, bez zaczynania od zera." : "Wszystkie elementy oznaczone. Zaplanuj dni i sprawdź checklistę."}</p>
+          <div className="kicker">JEDNO MIEJSCE · CAŁA PODRÓŻ</div>
+          <h2>{trip ? (destination || "Twój wyjazd") : "Twoje centrum podróży"} <span>{trip ? "· " + done + " z " + SERVICES.length + " elementów gotowych" : "· Loty · Noclegi · Atrakcje · Planer"}</span></h2>
+          <p>{trip ? (next ? "Kolejny krok: " + next.name.toLocaleLowerCase("pl") + ". Wróć do planu, bez zaczynania od zera." : "Wszystkie elementy oznaczone. Zaplanuj dni i sprawdź checklistę.") : "Wyszukaj ofertę, zarezerwuj u partnera i wróć do jednego planera. Wszystkie ważne sprawy w jednym miejscu."}</p>
         </div>
         <Link className="trip-command-compact-action" href="/app" onClick={() => trackEvent("trip_center_open", { source: "homepage" })}>
-          Otwórz moje centrum <ArrowRight size={17}/>
+          {trip ? "Otwórz moje centrum" : "Poznaj centrum Tripowni"} <ArrowRight size={17}/>
         </Link>
       </section>
     );
