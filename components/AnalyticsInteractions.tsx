@@ -63,7 +63,9 @@ export default function AnalyticsInteractions() {
         }
 
         const sponsored = (anchor.getAttribute("rel") || "").split(/\s+/).includes("sponsored");
-        if (sponsored && !anchor.closest(".offer-card")) {
+        // TrackedPartnerLink owns its outbound_partner_click event.
+        // Avoid firing the same GA4/Meta event twice for one user action.
+        if (sponsored && !anchor.closest(".offer-card") && anchor.dataset.outboundSelfTracked !== "1") {
           let partnerHost = "";
           try {
             partnerHost = new URL(anchor.href, window.location.origin).hostname;
