@@ -63,6 +63,7 @@ export default function SiteFooter() {
               <a href="mailto:kontakt@tripownia.pl" className="footer-v2-contact"><Mail size={15} /> kontakt@tripownia.pl</a>
               <p className="footer-v2-address"><MapPin size={15} /> <span>Be in IT<br/>ul. Batalionów Chłopskich 77E/11<br/>01-305 Warszawa</span></p>
               <a className="footer-v2-facebook" href="https://www.facebook.com/987707741084438" target="_blank" rel="noopener noreferrer" aria-label="Obserwuj Tripownię na Facebooku" onClick={() => trackEvent("facebook_follow_click", { placement: "footer" })}>Obserwuj nas na Facebooku →</a>
+              <a className="footer-v2-facebook" href="https://www.instagram.com/tripownia.pl/" target="_blank" rel="noopener noreferrer" aria-label="Obserwuj Tripownię na Instagramie" onClick={() => trackEvent("instagram_follow_click", { placement: "footer" })}>Tripownia na Instagramie →</a>
               <Link href="/o-tripowni">O Tripowni</Link>
               <Link href="/kontakt">Kontakt</Link>
               <Link href="/jak-dziala-tripownia">Jak działa Tripownia</Link>
