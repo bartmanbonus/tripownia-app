@@ -2,16 +2,17 @@ import DepartureDealsPage from "@/components/DepartureDealsPage";
 import { departureHubMetadata } from "@/lib/departureHubMetadata";
 
 export const metadata = departureHubMetadata({
-  title: "Wakacje z Krakowa — Last Minute, All Inclusive i lot + hotel | Tripownia.pl",
-  description: "Wakacje i wyjazdy z Krakowa-Balic (KRK): Last Minute, All Inclusive i lot + hotel. Porównaj aktualne kierunki, ceny i terminy z Balic.",
+  title: "Last Minute z Krakowa – wakacje, lot + hotel z KRK | Tripownia.pl",
+  description: "Last Minute z Krakowa-Balic (KRK): porównaj wakacje, All Inclusive, lot + hotel i krótkie city breaki. Sprawdź bieżące terminy, kierunki i ceny.",
   path: "/z-krakowa",
 });
 
 export default function Page() {
   return <DepartureDealsPage
     city="Krakowa"
+    heading="Last Minute z Krakowa – wakacje, lot + hotel i All Inclusive"
     airportCodes={["KRK"]}
-    intro="Wyjazdy z Krakowa-Balic w jednej ścieżce: wakacje, Last Minute, All Inclusive i lot + hotel. Krótkie city breaki są oddzielone, żeby łatwiej porównać wyjazdy na 2–5 dni."
+    intro="Szukasz Last Minute z Krakowa? Porównaj najbliższe terminy z Balic (KRK), wakacje, pakiety lot + hotel i All Inclusive. Jeśli wolisz krótki wyjazd, sprawdź osobną sekcję city breaków na 2–5 dni."
     cityBreakHref="/podroze/city-break-z-krakowa"
     holidaysHref="/podroze/wakacje-z-krakowa"
     lastMinuteHref="/podroze/last-minute-z-krakowa"

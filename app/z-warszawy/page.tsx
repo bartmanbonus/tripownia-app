@@ -2,16 +2,17 @@ import DepartureDealsPage from "@/components/DepartureDealsPage";
 import { departureHubMetadata } from "@/lib/departureHubMetadata";
 
 export const metadata = departureHubMetadata({
-  title: "Wakacje z Warszawy — Last Minute, All Inclusive i lot + hotel | Tripownia.pl",
-  description: "Wakacje i wyjazdy z Warszawy: Last Minute, All Inclusive i lot + hotel z Lotniska Chopina oraz Modlina. Porównaj aktualne kierunki z WAW i WMI.",
+  title: "City break z Warszawy – lot + hotel i wakacje | Tripownia.pl",
+  description: "City break z Warszawy i Modlina (WAW, WMI) na 2–5 dni, wakacje i Last Minute. Porównaj pakiety lot + hotel, aktualne terminy i ceny z obu lotnisk.",
   path: "/z-warszawy",
 });
 
 export default function Page() {
   return <DepartureDealsPage
     city="Warszawy"
+    heading="City break z Warszawy – lot + hotel, wakacje i Last Minute"
     airportCodes={["WAW", "WMI"]}
-    intro="Warszawa daje największy wybór kierunków w Tripowni. Porównaj wakacje, Last Minute, All Inclusive i lot + hotel z Chopina oraz Modlina; city breaki mają własną, krótszą ścieżkę."
+    intro="City break z Warszawy na 2–5 dni? Porównaj wyloty z Lotniska Chopina (WAW) i Modlina (WMI), a także dłuższe wakacje, Last Minute i All Inclusive. Wybierz termin i sprawdź pełny koszt przed rezerwacją."
     cityBreakHref="/podroze/city-break-z-warszawy"
     holidaysHref="/podroze/wakacje-z-warszawy"
     lastMinuteHref="/podroze/last-minute-z-warszawy"

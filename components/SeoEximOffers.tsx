@@ -140,7 +140,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   const eskySearch = new URL("https://www2.esky.pl/lot+hotel/portfolio");
   eskySearch.searchParams.set("rooms[0][adults]", "2");
   eskySearch.searchParams.set("datesTab", "flexDates");
-  eskySearch.searchParams.set("stayLength", "2:4");
+  eskySearch.searchParams.set("stayLength", cityBreakOverview ? `${minNights || 2}:${maxNights || 4}` : "2:4");
   eskySearch.searchParams.set("landingPageId", "qWXMSX");
   const eskyDeparture = departureCode(departure);
   if (eskyDeparture) eskySearch.searchParams.set("departurePlaces", eskyDeparture === "WAWA" ? "ap-WAW,ap-WMI" : `ap-${eskyDeparture}`);
@@ -150,6 +150,14 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     target: morePackagesUrl,
     partner: "esky",
     source: "seo_landing_more_packages",
+    page: pagePath,
+    return: pagePath,
+  }).toString()}`;
+
+  const emptyPackagesHref = `/go/live?${new URLSearchParams({
+    target: morePackagesUrl,
+    partner: "esky",
+    source: "seo_landing_empty_state",
     page: pagePath,
     return: pagePath,
   }).toString()}`;
@@ -481,6 +489,11 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
           <Link href={searchHref || "/#wyszukiwarka"} className="seo-empty-primary">
             <CalendarRange size={17}/> Pokaż gotowe wyniki <ArrowRight size={16}/>
           </Link>
+          {cityBreakOverview && !startDate && !endDate && (
+            <a href={emptyPackagesHref} rel="nofollow sponsored" className="seo-empty-secondary">
+              <ArrowRight size={17}/> Porównaj pakiety lot + hotel w eSky
+            </a>
+          )}
           <Link href="/gdzie-leciec" className="seo-empty-secondary">
             <Search size={17}/> Pokaż podobne kierunki
           </Link>

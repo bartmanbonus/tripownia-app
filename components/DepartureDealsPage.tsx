@@ -10,6 +10,7 @@ type Props = {
   city: string;
   airportCodes: string[];
   intro: string;
+  heading?: string;
   cityBreakHref?: string;
   holidaysHref?: string;
   lastMinuteHref?: string;
@@ -20,6 +21,7 @@ export default function DepartureDealsPage({
   city,
   airportCodes,
   intro,
+  heading,
   cityBreakHref,
   holidaysHref,
   lastMinuteHref,
@@ -27,8 +29,8 @@ export default function DepartureDealsPage({
 }: Props) {
   const intentCards = [
     cityBreakHref ? { href: cityBreakHref, icon: "🏙️", title: `City break z ${city}`, text: "2–5 dni · lot + hotel" } : null,
-    holidaysHref ? { href: holidaysHref, icon: "☀️", title: `Wakacje z ${city}`, text: "Pakiety i ciepłe kierunki" } : null,
     lastMinuteHref ? { href: lastMinuteHref, icon: "⚡", title: `Last Minute z ${city}`, text: "Najbliższe terminy" } : null,
+    holidaysHref ? { href: holidaysHref, icon: "☀️", title: `Wakacje z ${city}`, text: "Pakiety i ciepłe kierunki" } : null,
     allInclusiveHref ? { href: allInclusiveHref, icon: "🌴", title: `All Inclusive z ${city}`, text: "Lot + hotel + wyżywienie" } : null,
   ].filter(Boolean) as Array<{ href: string; icon: string; title: string; text: string }>;
 
@@ -36,7 +38,7 @@ export default function DepartureDealsPage({
     <SiteHeader />
     <section className={styles.hero}><div className={styles.shell}>
       <span className={styles.kicker}><MapPin size={15}/> OKAZJE Z LOTNISKA</span>
-      <h1>Wakacje i wyjazdy z {city}</h1><p>{intro}</p>
+      <h1>{heading || `Wakacje i wyjazdy z ${city}`}</h1><p>{intro}</p>
       <div className={styles.actions}><a href="#oferty"><Plane size={18}/> Zobacz aktualne oferty</a><Link href="/alerty"><Bell size={18}/> Ustaw alert z {city}</Link></div>
       <div className={styles.intentGrid} aria-label={`Typy wyjazdów z ${city}`}>
         {intentCards.map((item) => (

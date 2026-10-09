@@ -3,9 +3,9 @@ import LegalPage from "@/components/LegalPage";
 export default function AffiliateInfoPage() {
   return (
     <LegalPage
-      kicker="TRANSPARENTNOŚĆ"
-      title="Jak działa afiliacja w Tripowni"
-      intro="Tripownia może zarabiać, gdy po przejściu z naszego serwisu rezerwujesz podróż u partnera. Chcemy, żeby ten mechanizm był jasny i nie wpływał na zaufanie do rekomendacji."
+      kicker="INFORMACJE O SERWISIE"
+      title="Współpraca reklamowa w Tripowni"
+      intro="Część linków do ofert ma charakter reklamowy. Możemy otrzymać wynagrodzenie za rezerwację dokonaną po przejściu z Tripowni. Tutaj wyjaśniamy, jak to działa."
       sections={[
         {
           title: "1. Co oznacza link afiliacyjny",
@@ -39,7 +39,7 @@ export default function AffiliateInfoPage() {
           ],
         },
       ]}
-      note="Afiliacja finansuje rozwój Tripowni, ale nie zmienia naszej zasady: najpierw użyteczność dla podróżującego, potem kliknięcie."
+      note="Przed zakupem zawsze sprawdź ostateczną cenę, dostępność i warunki u dostawcy."
     />
   );
 }

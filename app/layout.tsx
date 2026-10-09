@@ -39,6 +39,7 @@ import "./ux-system-v3.css";
 import "./homepage-restore.css";
 import "./competitive-growth.css";
 import "./offer-journey.css";
+import "./affiliate-disclosure.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 import OfferRailDeduper from "@/components/OfferRailDeduper";

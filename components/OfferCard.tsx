@@ -367,7 +367,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
           href={buyHref}
           onClick={() => trackOfferClick("card_cta", false)}
         >{!isExpired && <Zap size={16} />}{ctaText}<ArrowRight size={17} /></Link>
-        {!isExpired && <div className="offer-card-purchase-note">Najpierw szczegóły w Tripowni · rezerwacja finalizowana u partnera</div>}
+        {!isExpired && <small className="commercial-disclosure commercial-disclosure-card">Materiał reklamowy</small>}
 
         {!isExpired && (
           <Link className="offer-alert-link" href={alertHref} onClick={() => trackEvent("offer_alert_click", eventBase)}>
