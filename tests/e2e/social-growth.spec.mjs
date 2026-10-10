@@ -169,3 +169,14 @@ test("Social catalog shares a tracked internal Tripownia link without exposing a
   expect(destination.searchParams.get("utm_content")).toBe("social_catalog_after_airports");
   expect(destination.toString()).not.toMatch(/partner_id|affiliate|exim/i);
 });
+
+
+test("Airport-specific follow invitation matches the departure hub without hiding offers", async ({ page }) => {
+  await page.goto("/z-krakowa");
+
+  await expect(page.getByRole("heading", { name: "Wakacje i wyjazdy z Krakowa" })).toBeVisible();
+  const follow = page.locator(".facebook-growth-strip").first();
+  await expect(follow).toContainText("Szukasz wyjazdu z Krakowa?");
+  await expect(follow.getByRole("link", { name: /Obserwuj Tripownię/ })).toHaveAttribute("href", "https://www.facebook.com/987707741084438");
+  await expect(page.getByRole("heading", { name: "Najpierw konkretne oferty z Krakowa" })).toBeVisible();
+});
