@@ -75,6 +75,15 @@ export async function GET(request: NextRequest) {
     target = partners.booking.buildUrl(search.toString());
   }
 
+  // CI verifies the generated destination without polluting real affiliate-click
+  // analytics. Real visitor URLs never include dryRun and always use /go/live.
+  if (process.env.CI === "true" && params.get("dryRun") === "1") {
+    const response = NextResponse.redirect(target, 307);
+    response.headers.set("Cache-Control", "no-store");
+    response.headers.set("Referrer-Policy", "no-referrer");
+    return response;
+  }
+
   // Reuse the existing validated, measured redirect handler. This responds
   // with a single 307 to the real partner; no long intermediary URL appears
   // in the address bar or in the visitor-facing href.
