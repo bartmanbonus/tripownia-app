@@ -118,9 +118,11 @@ test("home -> concrete Tripownia offer -> monetized partner CTA", async ({ page 
   await expect(verified.locator(".price")).toContainText("zł");
 
   const cardCta = verified.locator("a.card-cta");
+  await cardCta.focus();
+  await expect(cardCta).toHaveAttribute("href", /^\/okazja\?ref=/);
   const cardHref = await cardCta.getAttribute("href");
-  expect(cardHref).toMatch(/^\/okazja\?/);
-  expect(cardHref).not.toMatch(/^https?:\/\//);
+  expect(cardHref).not.toContain("target=");
+  expect(cardHref).not.toContain("partner_id");
 
   await cardCta.click();
   await expect(page).toHaveURL(/\/okazja\?/);
@@ -130,11 +132,10 @@ test("home -> concrete Tripownia offer -> monetized partner CTA", async ({ page 
   await expect(partnerCta).toContainText(/Sprawdź (?:aktualną )?cenę/i);
 
   const outboundHref = await partnerCta.getAttribute("href");
-  expect(outboundHref).toMatch(/^\/go\/live\?/);
-
-  const outbound = new URL(outboundHref, page.url());
-  expect(outbound.searchParams.get("partner")).toBe("esky");
-  expect(outbound.searchParams.get("target")).toContain("partner_id=TRIPOWNIAPLPACKAGES");
+  expect(outboundHref).toMatch(/^\/go\/[A-Za-z0-9_-]{40,}$/);
+  expect(outboundHref).not.toContain("target=");
+  expect(outboundHref).not.toContain("partner_id");
+  expect(outboundHref).not.toContain("TRIPOWNIAPLPACKAGES");
 });
 
 test("stale or unknown price is never shown as a current numeric price", async ({ page }) => {
@@ -162,7 +163,9 @@ test("Okazje uses the same internal-first affiliate path", async ({ page }) => {
   expect(hrefs.length).toBeGreaterThan(0);
   for (const href of hrefs) {
     expect(href).not.toMatch(/^https?:\/\//);
-    expect(href).toMatch(/^\/(okazja|oferta)\b/);
+    expect(href).not.toContain("target=");
+    expect(href).not.toContain("partner_id");
+    expect(href).toMatch(/^\/(okazja|oferta|sprawdz-oferte)\b/);
   }
 });
 
