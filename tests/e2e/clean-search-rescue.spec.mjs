@@ -59,6 +59,24 @@ test("empty package results show three short links that preserve trip intent", a
   }
   expect(hrefs.map(href => new URL(href, "https://tripownia.pl").searchParams.get("kind")).sort())
     .toEqual(["flight", "hotel", "package"]);
+
+  // The original link stays clean, but consented attribution can accompany the
+  // real click. Mock the redirect so no synthetic click reaches affiliate stats.
+  await page.evaluate(() => {
+    localStorage.setItem("tripownia-consent-v1", "analytics");
+    sessionStorage.setItem("tripownia-attribution-v1", JSON.stringify({
+      source: "facebook", medium: "organic_social", campaign: "listopad_2026",
+      content: "fb_test", landing: "/dlugi-weekend-listopadowy-2026",
+    }));
+  });
+  await page.route("**/go/rescue?**", route =>
+    route.fulfill({ status: 200, contentType: "text/plain", body: "isolated redirect" }));
+  const requestPromise = page.waitForRequest(request => request.url().includes("/go/rescue?"));
+  await rescue.first().click();
+  const tracked = new URL((await requestPromise).url());
+  expect(tracked.searchParams.get("utmSource")).toBe("facebook");
+  expect(tracked.searchParams.get("utmCampaign")).toBe("listopad_2026");
+  expect(tracked.searchParams.get("landing")).toBe("/dlugi-weekend-listopadowy-2026");
 });
 
 test("Tokyo sakura retains same-date flight and hotel alternatives from the live main branch", async ({ request }) => {
