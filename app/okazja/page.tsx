@@ -10,6 +10,10 @@ import { formatPriceCheckedAt } from "@/lib/offerRuntime";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
+import { partnerFromUrl } from "@/lib/affiliateJourney";
+import { affiliateLinkContext, openAffiliateLink, sealAffiliateLink } from "@/lib/affiliateLinkToken";
+
+export const runtime = "nodejs";
 
 export const metadata: Metadata = {
   title: "Okazja podróżnicza",
@@ -61,7 +65,22 @@ export default async function SocialOfferLanding({
 }: {
   searchParams: Promise<Search>;
 }) {
-  const query = await searchParams;
+  const received = await searchParams;
+  const legacyTarget = Array.isArray(received.target) ? received.target[0] : received.target || "";
+  if (legacyTarget) {
+    const partner = partnerFromUrl(legacyTarget);
+    if (!partner) redirect("/okazje");
+    const rawContext: Record<string, string> = {};
+    for (const [name, value] of Object.entries(received)) {
+      if (name === "target" || name === "partner" || name === "ref") continue;
+      if (typeof value === "string") rawContext[name] = value;
+    }
+    const ref = sealAffiliateLink({ mode: "offer", partner, target: legacyTarget, context: affiliateLinkContext(rawContext) });
+    redirect(`/okazja?ref=${ref}`);
+  }
+  const payload = openAffiliateLink(one(received.ref, ""));
+  if (!payload || payload.mode !== "offer") redirect("/okazje");
+  const query: Search = { ...payload.context, target: payload.target };
   const city = one(query.city, "Wybrany kierunek");
   const country = one(query.country);
   const departure = one(query.departure, "Polska");
@@ -91,15 +110,19 @@ export default async function SocialOfferLanding({
         ? "social_offer_detail"
         : "live_offer_detail";
 
-  const outboundParams = new URLSearchParams({
+  const outboundRef = sealAffiliateLink({
+    mode: "exit",
     partner: target.partner.key,
     target: target.url,
-    source: outboundSource,
-    destination: [city, country].filter(Boolean).join(", "),
-    ...(offerId ? { offer: offerId } : {}),
-    ...(price ? { price: String(price) } : {}),
+    context: {
+      source: outboundSource,
+      destination: [city, country].filter(Boolean).join(", "),
+      ...(offerId ? { offer: offerId } : {}),
+      ...(price ? { price: String(price) } : {}),
+      page: "/okazja",
+    },
   });
-  const outboundHref = `/go/live?${outboundParams.toString()}`;
+  const outboundHref = `/go/${outboundRef}`;
   const plannerParams = new URLSearchParams({
     mode: "known",
     source: "offer",
