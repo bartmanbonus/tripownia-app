@@ -78,6 +78,23 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "madryt-globales-acis-galatea-1259": {
+    slug: "madryt-globales-acis-galatea-1259",
+    city: "Madryt",
+    country: "Hiszpania",
+    price: 1259,
+    departure: "Warszawa–Modlin",
+    nights: 3,
+    dates: "21–24 listopada 2026",
+    board: "Bez wyżywienia",
+    hotel: "Globales Acis y Galatea 3★",
+    partner: "esky",
+    partnerLabel: "eSky",
+    affiliateUrl: "https://www2.esky.pl/lot+hotel/portfolio/details/select-room?context=pl-packages&packageId=MjYxMTIxOjM6cGw6MTgzNDYx&metaCode=183461&rooms%5B0%5D%5Badults%5D=2&departureCode=WMI&checkInDate=2026-11-21&checkOutDate=2026-11-24&destinationDepartureDate=2026-11-21&returnArrivalDate=2026-11-24&partner_id=TRIPOWNIAPLPACKAGES&departurePlaces=ap-GDN,ap-KTW,ap-KRK,ap-WAW,ap-WRO,ap-WMI&selectedDeparturePlaces=ap-GDN,ap-KTW,ap-KRK,ap-WAW,ap-WRO,ap-WMI",
+    imageCountry: "Hiszpania",
+    checkedAt: "2026-10-10T10:57:00+02:00",
+    status: "active",
+  },
   "zanzibar-nest-style-3227": {
     slug: "zanzibar-nest-style-3227",
     city: "Zanzibar",
