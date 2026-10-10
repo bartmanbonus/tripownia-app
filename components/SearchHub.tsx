@@ -10,7 +10,7 @@ import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type Worl
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
 import { rankSearchOffers, searchTier } from "@/lib/searchOfferRanking";
 import { partners } from "@/lib/partners";
-import { eskySearchUrl } from "@/lib/eskySearch";
+import { eskyArrival, eskySearchUrl } from "@/lib/eskySearch";
 import { fetchEskyBrowserPackages } from "@/lib/eskyBrowserSearch";
 import { isAffordableShortTrip } from "@/lib/offerValuePolicy";
 import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
@@ -2030,6 +2030,8 @@ export default function SearchHub({
             )}
             {!loading && results.length === 0 && !expanding && (() => {
               const fallbackDestination = selectedDestinations[0] || destination;
+              const blockedFallback = Boolean(fallbackDestination && isTravelDestinationBlocked(fallbackDestination));
+              const canSearchPackages = Boolean(fallbackDestination && eskyArrival(fallbackDestination));
               const rescueHref = (kind: "package" | "flight" | "hotel") => {
                 const params = new URLSearchParams({
                   kind,
@@ -2042,11 +2044,12 @@ export default function SearchHub({
                 if (dateMode === "range") params.set("to", dateTo);
                 return `/go/rescue?${params.toString()}`;
               };
+              if (blockedFallback) return <div className="search-v3-empty"><strong>Nie promujemy obecnie tego kierunku ze względów bezpieczeństwa.</strong><Link href="/kierunki">Wybierz inny kierunek w Tripowni</Link></div>;
               return <div className="search-v3-empty">
                 <strong>{fallbackDestination ? `Nie kończymy na 0 wyników dla „${fallbackDestination}”.` : "Nie kończymy na pustej liście."}</strong>
                 <span>Zmień termin lub poluzuj filtry. Zachowamy Twój kierunek, żeby nie trzeba było zaczynać od nowa.</span>
                 <div className="search-v3-empty-actions">
-                  {packageSearchLink && fallbackDestination && (
+                  {packageSearchLink && canSearchPackages && (
                     <a
                       href={rescueHref("package")}
                       data-outbound-self-tracked="1"
