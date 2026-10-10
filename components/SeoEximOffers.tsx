@@ -485,7 +485,15 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     );
   }
 
-  const minPrice = offers.length ? Math.min(...offers.map((offer) => Number(offer.price || Infinity))) : 0;
+  // A displayed minimum must use the same verification policy as OfferCard.
+  // Otherwise the summary advertises a stale price that the card itself hides.
+  const verifiedPrices = offers
+    .filter((offer) => offer.availabilityStatus === "available"
+      && getLinkMatch(offer) === "exact"
+      && !isPriceStale(offer.priceCheckedAt, 0.25))
+    .map((offer) => Number(offer.price))
+    .filter((price) => Number.isFinite(price) && price > 0);
+  const verifiedMinPrice = verifiedPrices.length ? Math.min(...verifiedPrices) : null;
   const destinationCount = new Set(offers.map((offer) => touristDestinationKey(offer)).filter(Boolean)).size;
   const destinationSummary = destinationCount > 1 ? ` · ${destinationCount} kierunków` : "";
   const salesSummary = offers.length
@@ -493,7 +501,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
       ? `${offers.length} zapisanych inspiracji${destinationSummary} · ceny do potwierdzenia`
       : relaxed
         ? `${offers.length} podobnych propozycji${destinationSummary} · zweryfikuj parametry`
-        : `${offers.length} ofert z aktualnego wyszukiwania${destinationSummary}${Number.isFinite(minPrice) && minPrice > 0 ? ` · od ${minPrice.toLocaleString("pl-PL")} zł/os.` : ""}`
+        : `${offers.length} ofert z wyszukiwania${destinationSummary}${verifiedMinPrice !== null ? ` · potwierdzone od ${verifiedMinPrice.toLocaleString("pl-PL")} zł/os.` : " · ceny do potwierdzenia"}`
     : "";
 
   if (error || offers.length === 0) {
@@ -543,7 +551,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
       ? "Kierunki z zapisanej puli · potwierdź termin, cenę i dostępność"
       : relaxed
         ? "Podobne kierunki · sprawdź daty, lotnisko i aktualną cenę"
-        : `${offers.length} różnych kierunków · najniższa cena w otrzymanych wynikach na kierunek`}</p>}
+        : `${offers.length} różnych kierunków · ceny i dostępność potwierdź przed rezerwacją`}</p>}
     {relaxed && <div className="seo-live-note">{fallbackReason || "Pokazujemy podobne propozycje — część parametrów może różnić się od pierwotnego filtra strony."}</div>}
     <div className="cards-grid seo-live-offers-grid" id="seo-live-offers-grid">{offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} sourceSurface="seo_landing" />)}</div>
     {cityBreakOverview && !startDate && !endDate && <div className="seo-empty-offers-actions"><a href={morePackagesHref} rel="nofollow sponsored" className="seo-empty-secondary">Porównaj więcej pakietów lot + hotel <ArrowRight size={16}/></a></div>}
