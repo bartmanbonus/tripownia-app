@@ -31,6 +31,10 @@ type PageProps = {
     duration?: string;
     from?: string;
     to?: string;
+    utm_source?: string;
+    utm_medium?: string;
+    utm_campaign?: string;
+    utm_content?: string;
   }>;
 };
 
@@ -52,15 +56,46 @@ const shortTrips = [
   },
 ] as const;
 
+const departureQuickPicks = [
+  { label: "Warszawa — Chopin i Modlin", codes: "WAW,WMI" },
+  { label: "Kraków", codes: "KRK" },
+  { label: "Katowice", codes: "KTW" },
+  { label: "Gdańsk", codes: "GDN" },
+  { label: "Wrocław", codes: "WRO" },
+  { label: "Poznań", codes: "POZ" },
+] as const;
+
+const utmKeys = ["utm_source", "utm_medium", "utm_campaign", "utm_content"] as const;
+const allowedAirports = new Set(["WAW", "WMI", "KRK", "KTW", "GDN", "WRO", "POZ", "RZE", "LCJ", "LUZ", "SZZ", "BZG", "IEG"]);
+
 export default async function NovemberWeekend({ searchParams }: PageProps) {
   const params = await searchParams;
-  const airport = typeof params.airport === "string" ? params.airport.split(",").filter(Boolean).slice(0, 8) : [];
+  const airport = typeof params.airport === "string"
+    ? params.airport.split(",").map((code) => code.trim().toUpperCase()).filter((code) => allowedAirports.has(code)).slice(0, 8)
+    : [];
   const destination = typeof params.destination === "string" ? params.destination.trim().slice(0, 80) : "";
   const budget = typeof params.budget === "string" ? params.budget : "all";
   const duration = typeof params.duration === "string" ? params.duration : "2-5";
   const from = typeof params.from === "string" && /^\d{4}-\d{2}-\d{2}$/.test(params.from) ? params.from : "2026-11-07";
   const to = typeof params.to === "string" && /^\d{4}-\d{2}-\d{2}$/.test(params.to) ? params.to : "2026-11-15";
   const key = [airport.join(","), destination, budget, duration, from, to].join("|");
+  const attribution = new URLSearchParams();
+  for (const utmKey of utmKeys) {
+    const value = params[utmKey];
+    if (typeof value === "string" && value.length > 0 && value.length <= 120) attribution.set(utmKey, value);
+  }
+  const withAttribution = (href: string) =>
+    attribution.size ? `${href}${href.includes("?") ? "&" : "?"}${attribution.toString()}` : href;
+  const departureHref = (codes: string) => {
+    const search = new URLSearchParams({ airport: codes, duration, from, to });
+    if (destination) search.set("destination", destination);
+    if (budget !== "all") search.set("budget", budget);
+    for (const utmKey of utmKeys) {
+      const value = attribution.get(utmKey);
+      if (value) search.set(utmKey, value);
+    }
+    return `/dlugi-weekend-listopadowy-2026?${search.toString()}#szukaj-listopad`;
+  };
 
   return (
     <main>
@@ -81,7 +116,7 @@ export default async function NovemberWeekend({ searchParams }: PageProps) {
         <div className="newyear-type-nav">
           <a href="#gotowe-terminy">Wybierz termin</a>
           <a href="#szukaj-listopad">Sprawdź wyjazdy</a>
-          <Link href="/alerty">Ustaw alert cenowy</Link>
+          <Link href={withAttribution("/alerty")}>Ustaw alert cenowy</Link>
         </div>
       </section>
 
@@ -95,10 +130,28 @@ export default async function NovemberWeekend({ searchParams }: PageProps) {
         </div>
         <div className="newyear-ready-grid">
           {shortTrips.map((trip) => (
-            <Link className="newyear-ready-card" href={trip.href} key={trip.href}>
+            <Link className="newyear-ready-card" href={withAttribution(trip.href)} key={trip.href}>
               <strong>{trip.title}</strong>
               <span>{trip.subtitle}</span>
               <small>Przejdź do wyjazdów →</small>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="section shell" id="lotnisko-listopad">
+        <div className="section-heading">
+          <div>
+            <div className="kicker">WYGODNIE Z TWOJEGO MIASTA</div>
+            <h2>Skąd chcesz wystartować?</h2>
+            <p>Wybierz lotnisko, a Tripownia od razu przefiltruje wyjazdy. Możesz też wybrać kilka lotnisk w wyszukiwarce poniżej.</p>
+          </div>
+        </div>
+        <div className="newyear-ready-grid">
+          {departureQuickPicks.map((pick) => (
+            <Link className="newyear-ready-card" href={departureHref(pick.codes)} key={pick.codes}>
+              <strong>{pick.label}</strong>
+              <span>Sprawdź terminy i aktualne ceny</span>
             </Link>
           ))}
         </div>
@@ -138,8 +191,8 @@ export default async function NovemberWeekend({ searchParams }: PageProps) {
           </div>
         </div>
         <div className="premium-action-row">
-          <Link className="premium-action-main" href="/okazje">Zobacz wszystkie okazje</Link>
-          <Link className="premium-action-secondary" href="/weekend-bez-urlopu">Inne krótkie wyjazdy</Link>
+          <Link className="premium-action-main" href={withAttribution("/okazje")}>Zobacz wszystkie okazje</Link>
+          <Link className="premium-action-secondary" href={withAttribution("/weekend-bez-urlopu")}>Inne krótkie wyjazdy</Link>
         </div>
       </section>
 
