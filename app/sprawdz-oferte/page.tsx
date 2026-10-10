@@ -90,7 +90,7 @@ export default async function PartnerReview({
             <p>Ostateczną cenę, termin i zakres oferty zobaczysz u partnera przed rezerwacją.</p>
           </div>
           <div className="detail-action-box">
-            <TrackedPartnerLink href={`/go/${exitRef}`} partner={partner} offerId={offer} destination={destination} price={price} placement={`${source}:detail`} className="primary-cta">
+            <TrackedPartnerLink href={`/przejdz/${exitRef}`} partner={partner} offerId={offer} destination={destination} price={price} placement={`${source}:detail`} className="primary-cta">
               Sprawdź aktualną cenę →
             </TrackedPartnerLink>
             <small>Po sprawdzeniu oferty możesz wrócić przyciskiem „Wstecz” do Tripowni.</small>
