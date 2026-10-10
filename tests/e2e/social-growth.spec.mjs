@@ -140,3 +140,32 @@ test("Branded organic link keeps the offer inside Tripownia and records its sour
   const invalidChannel = await request.get("/l/other/jezioro-garda-869", { maxRedirects: 0 });
   expect(invalidChannel.status()).toBe(404);
 });
+
+
+test("Old social prices are not promoted in link previews", async ({ page }) => {
+  await page.goto("/o/rzym-529");
+
+  const ogTitle = await page.locator('meta[property="og:title"]').getAttribute("content");
+  const ogDescription = await page.locator('meta[property="og:description"]').getAttribute("content");
+  const ogImage = await page.locator('meta[property="og:image"]').getAttribute("content");
+
+  expect(ogTitle).toContain("Rzym");
+  expect(ogTitle).not.toContain("529");
+  expect(ogDescription).toMatch(/aktualne/i);
+  expect(ogImage).toContain("/opengraph-image");
+});
+
+test("Social catalog shares a tracked internal Tripownia link without exposing affiliate destinations", async ({ page }) => {
+  await page.goto("/oferty-z-postow");
+
+  const shareBox = page.locator(".share-box").first();
+  await expect(shareBox.getByRole("button", { name: "Wyślij Tripownię znajomym" })).toBeVisible();
+
+  const href = await shareBox.getByRole("link", { name: "Udostępnij na Facebooku" }).getAttribute("href");
+  const destination = sharedDestination(href);
+  expect(destination.origin).toBe("https://tripownia.pl");
+  expect(destination.pathname).toBe("/oferty-z-postow");
+  expect(destination.searchParams.get("utm_source")).toBe("facebook");
+  expect(destination.searchParams.get("utm_content")).toBe("social_catalog_after_airports");
+  expect(destination.toString()).not.toMatch(/partner_id|affiliate|exim/i);
+});
