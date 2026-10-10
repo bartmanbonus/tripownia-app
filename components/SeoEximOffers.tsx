@@ -154,7 +154,21 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     return: pagePath,
   }).toString()}`;
 
-  const [offers, setOffers] = useState<SeasonalOffer[]>([]);
+  // Render strictly matching previously published suggestions in initial HTML.
+  // They are not represented as live prices while the API verifies availability.
+  const [offers, setOffers] = useState<SeasonalOffer[]>(() =>
+    staticFallbackOffers(query, departure)
+      .filter((offer) => termMatchesOffer(query, offer) && fallbackAirportMatches(offer, departure))
+      .filter((offer) => typeof minNights !== "number" || offer.nights >= minNights)
+      .filter((offer) => typeof maxNights !== "number" || offer.nights <= maxNights)
+      .filter((offer) => typeof maxPrice !== "number" || offer.price <= maxPrice)
+      .filter((offer) => (!startDate && !endDate) || (
+        Boolean(offer.startDateISO)
+        && (!startDate || offer.startDateISO! >= startDate)
+        && (!endDate || offer.startDateISO! <= endDate)
+      ))
+      .slice(0, 6)
+  );
   const [loading, setLoading] = useState(true);
   const [relaxed, setRelaxed] = useState(false);
   const [fallbackReason, setFallbackReason] = useState("");
@@ -423,6 +437,16 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   }, [queries, departure, minNights, maxNights, maxPrice, startDate, endDate, cityBreakOverview]);
 
   if (loading) {
+    if (offers.length > 0) {
+      return (
+        <div className="seo-initial-offers">
+          <p className="seo-live-note" role="status">Sprawdzamy teraz dostępność. Poniżej wcześniej zapisane, pasujące propozycje — aktualną cenę potwierdzisz w szczegółach.</p>
+          <div className="cards-grid seo-live-offers-grid" id="seo-live-offers-grid">
+            {offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} sourceSurface="seo_landing" />)}
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="seo-offers-loading" aria-live="polite" aria-busy="true">
         <div className="seo-offers-loading-head">
@@ -431,6 +455,11 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
             <strong>Szukamy najlepszych dopasowań…</strong>
             <span>Sprawdzamy ceny i dostępność dla tych parametrów.</span>
           </div>
+        </div>
+        <div className="seo-empty-offers-actions">
+          <Link href={searchHref || "/szukaj"} className="seo-empty-primary">
+            <Search size={17} /> Zobacz wyszukiwanie z tymi parametrami <ArrowRight size={16} />
+          </Link>
         </div>
         <div className="seo-offers-skeleton-grid" aria-hidden="true">
           {[0, 1, 2].map((item) => (

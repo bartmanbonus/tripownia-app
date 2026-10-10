@@ -162,8 +162,18 @@ function getPracticalGuide(query: string): PracticalGuide {
   };
 }
 
+function genitiveDeparture(departure?: string) {
+  const forms: Record<string, string> = {
+    Warszawa: "Warszawy", Kraków: "Krakowa", Poznań: "Poznania",
+    Wrocław: "Wrocławia", Gdańsk: "Gdańska", Katowice: "Katowic",
+    Lublin: "Lublina", Łódź: "Łodzi", Rzeszów: "Rzeszowa",
+    Szczecin: "Szczecina", Bydgoszcz: "Bydgoszczy",
+  };
+  return departure ? forms[departure] || departure : "";
+}
+
 function landingFaq(query: string, departure?: string) {
-  const from = departure ? ` z ${departure}` : "";
+  const from = departure ? ` z ${genitiveDeparture(departure)}` : "";
   const normalized = query.toLowerCase();
 
   if (normalized.includes("city break")) return [
@@ -461,7 +471,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
   return (
     <main className={`seo-travel-landing-v3 ${isFerie2027Landing ? "seo-travel-landing-ferie" : ""}`}>
       <SiteHeader />
-      <SalesCollectionSchema name={page.title} description={page.lead} path={`/podroze/${page.slug}`} about={[page.query, page.departure ? `${page.query} z ${page.departure}` : "tanie podróże"]} />
+      <SalesCollectionSchema name={page.title} description={page.lead} path={`/podroze/${page.slug}`} about={[page.query, page.departure ? `${page.query} z ${genitiveDeparture(page.departure)}` : "tanie podróże"]} />
       <BreadcrumbSchema items={[
         { name: "Tripownia", url: "https://tripownia.pl/" },
         { name: "Pomysły na podróże", url: "https://tripownia.pl/podroze" },
@@ -479,7 +489,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
               <a className="primary-cta" href="#aktualne-oferty">Zobacz aktualne oferty ↓</a>
               <Link className="secondary-cta" href={currentReadySearchHref}>Zmień parametry</Link>
               <Link className="secondary-cta" href={`/alerty?${alertParams.toString()}`}>Ustaw alert</Link>
-              {departureHubHref && <Link className="secondary-cta" href={departureHubHref}>Wszystkie wyjazdy z {page.departure}</Link>}
+              {departureHubHref && <Link className="secondary-cta" href={departureHubHref}>Wszystkie wyjazdy z {genitiveDeparture(page.departure)}</Link>}
             </div>
           </div>
 
@@ -604,7 +614,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
 
       <section className="shell seo-faq-section">
         <div className="kicker">PYTANIA I ODPOWIEDZI</div>
-        <h2>{page.query}{page.departure ? ` z ${page.departure}` : ""} — najczęstsze pytania</h2>
+        <h2>{page.query}{page.departure ? ` z ${genitiveDeparture(page.departure)}` : ""} — najczęstsze pytania</h2>
         <div className="seo-faq-list">
           {faqItems.map((item) => (
             <details key={item.question}>
@@ -637,7 +647,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
             <Link href="/podroze">Wszystkie pomysły na podróże</Link>
             <Link href="/okazje">Aktualne okazje</Link>
             <Link href="/planer-podrozy">Darmowy planer podróży</Link>
-            {departureHubHref && <Link href={departureHubHref}>Wszystkie wyjazdy z {page.departure}</Link>}
+            {departureHubHref && <Link href={departureHubHref}>Wszystkie wyjazdy z {genitiveDeparture(page.departure)}</Link>}
           </div>
         </section>
       )}

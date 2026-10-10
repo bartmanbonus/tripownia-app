@@ -22,7 +22,7 @@ const allowedHosts: Record<string, string[]> = {
 
 function hostAllowed(partner: string, url: URL) {
   const hosts = allowedHosts[partner] || [];
-  return hosts.some(host => url.hostname === host || url.hostname.endsWith(`.${host}`));
+  return hosts.some(host => url.hostname.toLowerCase() === host);
 }
 
 export async function GET(
@@ -46,9 +46,16 @@ export async function GET(
     return NextResponse.redirect(new URL("/", request.url), 307);
   }
 
+  // Legacy eSky links can resolve to Kiwi. The final resolver must receive
+  // the actual partner, otherwise it rejects an otherwise valid booking click.
+  const kiwiHosts = ["kiwi.com", "www.kiwi.com", "c111.travelpayouts.com", "kiwi.tpk.lv"];
+  const resolvedPartner = partner === "esky" && kiwiHosts.includes(target.hostname.toLowerCase())
+    ? "kiwi"
+    : partner;
+
   const tracked = new URL("/go/live", request.url);
   tracked.searchParams.set("target", target.toString());
-  tracked.searchParams.set("partner", partner);
+  tracked.searchParams.set("partner", resolvedPartner);
   tracked.searchParams.set("source", source);
   if (offer) tracked.searchParams.set("offer", offer);
   if (destination) tracked.searchParams.set("destination", destination);

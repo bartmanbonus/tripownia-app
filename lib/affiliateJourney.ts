@@ -13,7 +13,9 @@ export type AffiliatePartner =
   | "booking"
   | "rentacar"
   | "kiwitaxi"
-  | "gettransfer";
+  | "gettransfer"
+  | "airhelp"
+  | "zwrotzalot";
 
 function tradeDoublerProgram(url: URL) {
   const queryProgram = url.searchParams.get("p");
@@ -42,6 +44,8 @@ export function partnerFromUrl(value: string): AffiliatePartner | null {
     if (host === "getrentacar.tpk.lv") return "rentacar";
     if (host === "kiwitaxi.tpk.lv") return "kiwitaxi";
     if (host === "gettransfer.tpk.lv") return "gettransfer";
+    if (host === "airhelp.tpk.lv") return "airhelp";
+    if (["visit.zwrotzalot.pl", "zwrotzalot.pl", "www.zwrotzalot.pl"].includes(host)) return "zwrotzalot";
 
     if (host === "clk.tradedoubler.com" || host === "pdt.tradedoubler.com") {
       const program = tradeDoublerProgram(url);
