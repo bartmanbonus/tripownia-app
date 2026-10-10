@@ -30,7 +30,7 @@ test("encrypted link keeps partner attribution on final handoff only", async ({ 
   });
   expect(sealed.status()).toBe(200);
   const { href } = await sealed.json();
-  expect(href).toMatch(/^\/go\/[A-Za-z0-9_-]{40,}$/);
+  expect(href).toMatch(/^\/przejdz\/[A-Za-z0-9_-]{40,}$/);
   expect(href).not.toContain("partner_id");
   expect(href).not.toContain("TRIPOWNIA");
 
