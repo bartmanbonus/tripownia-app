@@ -523,11 +523,11 @@ export default async function SeoLandingPage({ params }: PageProps) {
         <section className="shell seo-primary-offers" id="aktualne-oferty">
           <div className="seo-landing-section-head seo-primary-offers-head">
             <div>
-              <div className="kicker">AKTUALNE OFERTY · CENY LIVE</div>
+              <div className="kicker">OFERTY PODRÓŻY · SPRAWDŹ DOSTĘPNOŚĆ</div>
               <h2>Najpierw konkretne wyjazdy</h2>
               <p>{startDate || endDate
                 ? "Pokazujemy propozycje zgodne z okresem tej strony. Jeśli nie ma dobrego dopasowania, nie podmieniamy terminu na przypadkowy."
-                : "Pokazujemy bieżące propozycje dla tych parametrów i aktualnej dostępności. Najtańsze sensowne warianty są na początku."}</p>
+                : "Porównaj propozycje dla tych parametrów. Jeśli źródło ofert nie odpowiada, pokażemy wyraźnie oznaczone inspiracje z ostatniej zapisanej puli."}</p>
             </div>
             <Link href={currentReadySearchHref}>Wyszukaj po swojemu →</Link>
           </div>
