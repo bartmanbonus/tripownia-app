@@ -180,3 +180,48 @@ test("mobile layout keeps core sales content inside the viewport", async ({ page
 
   await expect(card.locator("a.card-cta")).toBeVisible();
 });
+
+test("partner link keeps one tracked exit without an extra offer-review screen", async ({ page }) => {
+  await page.goto("/okazje");
+
+  await page.evaluate(() => {
+    const link = document.createElement("a");
+    link.id = "e2e-direct-partner-link";
+    link.href = "https://www.kiwi.com/pl/search/results/warsaw-poland/rome-italy";
+    link.target = "_blank";
+    link.textContent = "Sprawdź lot";
+    document.body.appendChild(link);
+    // The capture handler prepares a genuine user pointer interaction.
+    link.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+  });
+
+  const link = page.locator("#e2e-direct-partner-link");
+  await expect(link).toHaveAttribute("href", /^\/go\/live\?/);
+  await expect(link).not.toHaveAttribute("target", "_blank");
+  await expect(link).toHaveAttribute("rel", /sponsored/);
+  const tracked = new URL(await link.getAttribute("href"), page.url());
+  expect(tracked.searchParams.get("partner")).toBe("kiwi");
+  expect(tracked.searchParams.get("target")).toContain("kiwi.com/pl/search/results/");
+  expect(tracked.pathname).not.toBe("/sprawdz-oferte");
+});
+
+test("tracked partner URLs stay tracked and are never wrapped in a second screen", async ({ page }) => {
+  await page.goto("/okazje");
+
+  await page.evaluate(() => {
+    const link = document.createElement("a");
+    link.id = "e2e-pretracked-partner-link";
+    link.href = "/go/live?partner=kiwi&target=https%3A%2F%2Fwww.kiwi.com%2Fpl%2Fsearch%2Fresults%2Fwarsaw-poland%2Frome-italy&source=seo_landing";
+    link.textContent = "Sprawdź lot";
+    document.body.appendChild(link);
+    link.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+  });
+
+  const link = page.locator("#e2e-pretracked-partner-link");
+  await expect(link).toHaveAttribute("href", /^\/go\/live\?/);
+  const tracked = new URL(await link.getAttribute("href"), page.url());
+  expect(tracked.searchParams.get("source")).toBe("seo_landing");
+  expect(tracked.searchParams.get("partner")).toBe("kiwi");
+  expect(tracked.searchParams.get("return")).toBe("/okazje");
+  expect(tracked.pathname).not.toBe("/sprawdz-oferte");
+});
