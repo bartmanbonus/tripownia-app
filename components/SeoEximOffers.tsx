@@ -171,6 +171,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   );
   const [loading, setLoading] = useState(true);
   const [relaxed, setRelaxed] = useState(false);
+  const [usingCachedOffers, setUsingCachedOffers] = useState(false);
   const [fallbackReason, setFallbackReason] = useState("");
   const [error, setError] = useState(false);
 
@@ -259,7 +260,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     }
 
     async function load() {
-      setLoading(true); setError(false); setRelaxed(false); setFallbackReason("");
+      setLoading(true); setError(false); setRelaxed(false); setUsingCachedOffers(false); setFallbackReason("");
 
       const diversify = (items: SeasonalOffer[], limit = 24) => {
         if (normalize(query) !== "all inclusive") return items.slice(0, limit);
@@ -287,7 +288,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
         return result;
       };
 
-      const present = (items: SeasonalOffer[], reason = "", isRelaxed = false) => {
+      const present = (items: SeasonalOffer[], reason = "", isRelaxed = false, isCached = false) => {
         const sorted = uniqByProduct(items).sort((a, b) => a.price - b.price);
         const seen = new Set<string>();
         const finalOffers = cityBreakOverview
@@ -305,6 +306,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
           : "";
         setOffers(finalOffers);
         setRelaxed(isRelaxed || differentAirport);
+        setUsingCachedOffers(isCached);
         setFallbackReason([reason, airportWarning].filter(Boolean).join(" "));
         setError(finalOffers.length === 0);
         return finalOffers.length > 0;
@@ -405,7 +407,8 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
         if (publishedFallback.length > 0) {
           present(
             publishedFallback,
-            "Live feed chwilowo nie zwrócił wyników. Pokazujemy ostatnio sprawdzone, nadal aktywne propozycje Tripowni; finalną cenę i dostępność potwierdź po przejściu do partnera.",
+            "Brak potwierdzonych wyników z aktualnego źródła. To zapisane inspiracje; termin, cenę i dostępność sprawdzisz ponownie u partnera.",
+            true,
             true
           );
           return;
@@ -419,7 +422,8 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
           if (publishedFallback.length > 0) {
             present(
               publishedFallback,
-              "Live feed chwilowo nie odpowiada. Pokazujemy ostatnio sprawdzone, nadal aktywne propozycje Tripowni zamiast pustej strony.",
+              "Aktualne źródło ofert chwilowo nie odpowiada. Pokazujemy zapisane inspiracje, niepotwierdzone w tej chwili propozycje; cenę i dostępność sprawdź u partnera.",
+              true,
               true
             );
           } else {
@@ -481,10 +485,23 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
     );
   }
 
-  const minPrice = offers.length ? Math.min(...offers.map((offer) => Number(offer.price || Infinity))) : 0;
+  // A displayed minimum must use the same verification policy as OfferCard.
+  // Otherwise the summary advertises a stale price that the card itself hides.
+  const verifiedPrices = offers
+    .filter((offer) => offer.availabilityStatus === "available"
+      && getLinkMatch(offer) === "exact"
+      && !isPriceStale(offer.priceCheckedAt, 0.25))
+    .map((offer) => Number(offer.price))
+    .filter((price) => Number.isFinite(price) && price > 0);
+  const verifiedMinPrice = verifiedPrices.length ? Math.min(...verifiedPrices) : null;
   const destinationCount = new Set(offers.map((offer) => touristDestinationKey(offer)).filter(Boolean)).size;
+  const destinationSummary = destinationCount > 1 ? ` · ${destinationCount} kierunków` : "";
   const salesSummary = offers.length
-    ? `${offers.length} aktualnych ofert${destinationCount > 1 ? ` · ${destinationCount} kierunków` : ""}${Number.isFinite(minPrice) && minPrice > 0 ? ` · od ${minPrice.toLocaleString("pl-PL")} zł/os.` : ""}`
+    ? usingCachedOffers
+      ? `${offers.length} zapisanych inspiracji${destinationSummary} · ceny do potwierdzenia`
+      : relaxed
+        ? `${offers.length} podobnych propozycji${destinationSummary} · zweryfikuj parametry`
+        : `${offers.length} ofert z wyszukiwania${destinationSummary}${verifiedMinPrice !== null ? ` · potwierdzone od ${verifiedMinPrice.toLocaleString("pl-PL")} zł/os.` : " · ceny do potwierdzenia"}`
     : "";
 
   if (error || offers.length === 0) {
@@ -524,14 +541,18 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
   return <>
     <div className="seo-sales-snapshot" aria-live="polite">
       <div>
-        <small>{relaxed ? "NAJBLIŻSZE DOSTĘPNE" : "SPRAWDZONE TERAZ"}</small>
+        <small>{usingCachedOffers ? "ZAPISANE INSPIRACJE" : relaxed ? "PODOBNE PROPOZYCJE" : "WYNIKI WYSZUKIWANIA"}</small>
         <strong>{salesSummary}</strong>
-        <span>Kliknij ofertę → zobacz szczegóły w Tripowni → przejdź do rezerwacji u partnera.</span>
+        <span>{usingCachedOffers ? "Zobacz szczegóły w Tripowni i potwierdź aktualną cenę oraz dostępność u partnera." : "Kliknij ofertę → zobacz szczegóły w Tripowni → przejdź do rezerwacji u partnera."}</span>
       </div>
       <a href="#seo-live-offers-grid">Zobacz oferty ↓</a>
     </div>
-    {cityBreakOverview && <p className="seo-live-note">{offers.length} różnych kierunków · od najniższej ceny · najtańsza dostępna oferta dla każdego kierunku</p>}
-    {relaxed && <div className="seo-live-note">{fallbackReason || "Pokazujemy najbliższe aktualne propozycje — część parametrów może różnić się od pierwotnego filtra strony."}</div>}
+    {cityBreakOverview && <p className="seo-live-note">{usingCachedOffers
+      ? "Kierunki z zapisanej puli · potwierdź termin, cenę i dostępność"
+      : relaxed
+        ? "Podobne kierunki · sprawdź daty, lotnisko i aktualną cenę"
+        : `${offers.length} różnych kierunków · ceny i dostępność potwierdź przed rezerwacją`}</p>}
+    {relaxed && <div className="seo-live-note">{fallbackReason || "Pokazujemy podobne propozycje — część parametrów może różnić się od pierwotnego filtra strony."}</div>}
     <div className="cards-grid seo-live-offers-grid" id="seo-live-offers-grid">{offers.map((offer) => <OfferCard key={`${offer.id}-${offer.affiliateUrl}`} offer={offer} sourceSurface="seo_landing" />)}</div>
     {cityBreakOverview && !startDate && !endDate && <div className="seo-empty-offers-actions"><a href={morePackagesHref} rel="nofollow sponsored" className="seo-empty-secondary">Porównaj więcej pakietów lot + hotel <ArrowRight size={16}/></a></div>}
   </>;
