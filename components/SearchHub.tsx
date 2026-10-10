@@ -15,7 +15,7 @@ import { fetchEskyBrowserPackages } from "@/lib/eskyBrowserSearch";
 import { isAffordableShortTrip } from "@/lib/offerValuePolicy";
 import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
 import TravelpayoutsFlightsWidget from "@/components/TravelpayoutsFlightsWidget";
-import { trackEvent } from "@/lib/analytics";
+import { ATTRIBUTION_KEY, getAnalyticsConsent, trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { consumeRequestedSearchResume, saveSearchResumeContext, updateSearchResumeScroll, type SearchResumeContext } from "@/lib/searchResume";
@@ -117,6 +117,28 @@ function canonicalSearchDestination(value: string) {
   if (/\bmilan\b/i.test(normalized)) return "Mediolan";
   if (/\bsajgon\b/i.test(normalized)) return "Ho Chi Minh, Wietnam";
   return normalized;
+}
+
+function enrichRescueAttribution(link: HTMLAnchorElement) {
+  if (!["analytics", "marketing"].includes(getAnalyticsConsent() || "")) return;
+  try {
+    const raw = sessionStorage.getItem(ATTRIBUTION_KEY);
+    const context = raw ? JSON.parse(raw) as Record<string, unknown> : null;
+    if (!context) return;
+    const url = new URL(link.href, window.location.origin);
+    if (url.origin !== window.location.origin || url.pathname !== "/go/rescue") return;
+    const keys = [
+      ["source", "utmSource"], ["medium", "utmMedium"],
+      ["campaign", "utmCampaign"], ["content", "utmContent"], ["landing", "landing"],
+    ] as const;
+    for (const [source, destination] of keys) {
+      const value = context[source];
+      if (typeof value === "string" && value && value.length <= 120) {
+        url.searchParams.set(destination, value);
+      }
+    }
+    link.href = url.pathname + url.search;
+  } catch { /* Search remains usable without analytics access. */ }
 }
 
 function standaloneFlightPartnerUrl(
@@ -2053,14 +2075,17 @@ export default function SearchHub({
                     <a
                       href={rescueHref("package")}
                       data-outbound-self-tracked="1"
-                      data-affiliate-source="search_zero_package_rescue"
+                      data-affiliate-source="search_zero_rescue"
                       rel="sponsored"
-                      onClick={() => saveAffiliateReturnContext({
+                      onClick={(event) => {
+                        enrichRescueAttribution(event.currentTarget);
+                        saveAffiliateReturnContext({
                         partner: "esky",
                         destination: fallbackDestination || "",
                         source: "search_zero_rescue",
                         tripKind: "package",
-                      })}
+                      });
+                      }}
                     >
                       Sprawdź pakiety lot + hotel
                     </a>
@@ -2073,14 +2098,17 @@ export default function SearchHub({
                       data-outbound-self-tracked="1"
                       data-affiliate-source="search_zero_flight_rescue"
                       rel="sponsored"
-                      onClick={() => saveAffiliateReturnContext({
+                      onClick={(event) => {
+                        enrichRescueAttribution(event.currentTarget);
+                        saveAffiliateReturnContext({
                         partner: "kiwi",
                         destination: fallbackDestination || "",
                         source: "search_zero_flight_rescue",
                         tripKind: "flight",
                         start: dateFrom,
                         end: dateTo,
-                      })}
+                      });
+                      }}
                     >
                       Znajdź loty do tego kierunku
                     </a>
@@ -2091,14 +2119,17 @@ export default function SearchHub({
                       data-outbound-self-tracked="1"
                       data-affiliate-source="search_zero_hotel_rescue"
                       rel="sponsored"
-                      onClick={() => saveAffiliateReturnContext({
+                      onClick={(event) => {
+                        enrichRescueAttribution(event.currentTarget);
+                        saveAffiliateReturnContext({
                         partner: "booking",
                         destination: fallbackDestination || "",
                         source: "search_zero_hotel_rescue",
                         tripKind: "hotel",
                         start: dateFrom,
                         end: dateTo,
-                      })}
+                      });
+                      }}
                     >
                       Znajdź nocleg w tym kierunku
                     </a>
