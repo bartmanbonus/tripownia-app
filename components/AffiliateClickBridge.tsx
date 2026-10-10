@@ -5,7 +5,7 @@ import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 
-import { partnerFromUrl, isOfferDetailPath } from "@/lib/affiliateJourney";
+import { partnerFromUrl } from "@/lib/affiliateJourney";
 import { usePathname } from "next/navigation";
 
 function sourceFor(anchor: HTMLAnchorElement) {
@@ -193,10 +193,11 @@ function readPartnerLink(anchor: HTMLAnchorElement): ProtectedLink | null {
   const partner = partnerFromUrl(target);
   if (!partner) return null;
   const card = cardContext(anchor);
-  const finalExit = isOfferDetailPath(window.location.pathname) &&
-    (anchor.dataset.partnerExit === "1" || Boolean(anchor.closest(".detail-action-box, .live-mobile-booking-bar")));
-  const mode: ProtectedLink["mode"] = url.pathname === "/okazja" ? "offer"
-    : finalExit ? "exit" : "review";
+
+  // A Tripownia offer detail remains internal; a partner-bound CTA should
+  // resolve straight to the protected /przejdz endpoint, not show an
+  // additional confirmation page before the actual booking.
+  const mode: ProtectedLink["mode"] = url.pathname === "/okazja" ? "offer" : "exit";
   const attribution = visitAttribution();
   const context: Record<string, string> = {
     ...inherited,
