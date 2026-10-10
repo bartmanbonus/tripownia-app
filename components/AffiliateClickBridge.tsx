@@ -196,7 +196,7 @@ function readPartnerLink(anchor: HTMLAnchorElement): ProtectedLink | null {
   const finalExit = isOfferDetailPath(window.location.pathname) &&
     (anchor.dataset.partnerExit === "1" || Boolean(anchor.closest(".detail-action-box, .live-mobile-booking-bar")));
   const mode: ProtectedLink["mode"] = url.pathname === "/okazja" ? "offer"
-    : finalExit || url.pathname === "/go/live" ? "exit" : "review";
+    : finalExit ? "exit" : "review";
   const attribution = visitAttribution();
   const context: Record<string, string> = {
     ...inherited,
