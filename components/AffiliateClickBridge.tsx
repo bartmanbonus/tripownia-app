@@ -31,6 +31,8 @@ function sourceFor(anchor: HTMLAnchorElement) {
   if (anchor.closest(".seo-travel-landing-v3")) return "seo_landing";
   if (anchor.closest(".social-offer-page")) return "social_offer_addon";
   if (offerCard) return offerSurface ? `offer_image:${offerSurface}` : "offer_image";
+  if (anchor.closest(".search-v3-empty-actions")) return "search_zero_rescue";
+  if (anchor.closest(".experience-expanded-page")) return "experience_search";
   return "site_outbound";
 }
 
@@ -65,6 +67,17 @@ function destinationFor(anchor: HTMLAnchorElement) {
     if (typedDestination) return typedDestination;
   }
 
+  const searchV3 = anchor.closest<HTMLElement>(".search-v3");
+  if (searchV3) {
+    const summary = searchV3.querySelector<HTMLElement>(".search-v3-active-summary strong")?.textContent?.trim() || "";
+    if (summary && summary !== "Gdziekolwiek") return summary;
+    const selected = searchV3.querySelector<HTMLElement>(".search-v3-selected button")?.textContent?.trim().replace("×", "").trim() || "";
+    if (selected && selected !== "Gdziekolwiek") return selected;
+    const typed = searchV3.querySelector<HTMLInputElement>("#tripownia-destination")?.value?.trim() || "";
+    if (typed) return typed;
+  }
+  const preset = new URLSearchParams(window.location.search).get("destination") || "";
+  if (preset && preset !== "Gdziekolwiek") return preset.split("|")[0].slice(0, 160);
   return "";
 }
 
