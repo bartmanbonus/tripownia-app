@@ -183,3 +183,54 @@ test("mobile layout keeps core sales content inside the viewport", async ({ page
 
   await expect(card.locator("a.card-cta")).toBeVisible();
 });
+
+test("partner-bound CTA skips extra screen while keeping affiliate URL encrypted", async ({ page }) => {
+  await page.goto("/okazje");
+
+  // Any partner-bound search/SEO link should resolve to an opaque Tripownia
+  // exit, never a plaintext affiliate URL or an extra review landing.
+  await page.evaluate(() => {
+    const anchor = document.createElement("a");
+    anchor.id = "checkout-test-link";
+    anchor.href = "https://www.kiwi.com/pl/search/results/warsaw-poland/rome-italy";
+    anchor.textContent = "Sprawdź lot";
+    document.body.appendChild(anchor);
+  });
+
+  const link = page.locator("#checkout-test-link");
+  await link.hover();
+  await expect(link).toHaveAttribute("href", /^\/przejdz\/[A-Za-z0-9_-]{40,}$/);
+
+  const href = await link.getAttribute("href");
+  expect(href).not.toContain("kiwi");
+  expect(href).not.toContain("target=");
+  await expect(link).toHaveAttribute("rel", /sponsored/);
+  await expect(link).not.toHaveAttribute("target", "_blank");
+
+  const response = await page.request.get(href, { maxRedirects: 0 });
+  expect(response.status()).toBe(307);
+  const location = response.headers().location || "";
+  expect(location).toMatch(/^https:\/\//);
+  expect(location).not.toContain("/sprawdz-oferte");
+});
+
+test("previously issued opaque review URL skips UI and preserves secure exit", async ({ page }) => {
+  const token = await page.request.post("/api/affiliate-link", {
+    data: {
+      target: "https://www.kiwi.com/pl/search/results/warsaw-poland/rome-italy",
+      partner: "kiwi",
+      mode: "review",
+      context: { source: "seo_landing", destination: "Rzym" },
+    },
+  });
+  expect(token.status()).toBe(200);
+  const { href } = await token.json();
+  expect(href).toMatch(/^\/sprawdz-oferte\?ref=/);
+
+  const response = await page.request.get(href, { maxRedirects: 0 });
+  expect(response.status()).toBe(307);
+  const location = response.headers().location || "";
+  expect(location).toMatch(/^\/przejdz\/[A-Za-z0-9_-]{40,}$/);
+  expect(location).not.toContain("target=");
+  expect(location).not.toContain("kiwi");
+});
