@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
 
   // CI verifies the generated destination without polluting real affiliate-click
   // analytics. Real visitor URLs never include dryRun and always use /go/live.
-  if (process.env.CI === "true" && params.get("dryRun") === "1") {
+  if (process.env.CI === "true" && process.env.VERCEL !== "1" && params.get("dryRun") === "1") {
     const response = NextResponse.redirect(target, 307);
     response.headers.set("Cache-Control", "no-store");
     response.headers.set("Referrer-Policy", "no-referrer");
