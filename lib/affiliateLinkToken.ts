@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHmac, randomBytes } from "node:crypto";
 import { deflateRawSync, inflateRawSync } from "node:zlib";
 import { partnerFromUrl } from "@/lib/affiliateJourney";
 
@@ -89,7 +89,7 @@ export function openAffiliateLink(value: string): AffiliateLinkPayload | null {
  * Stable compact public reference: HMAC of the encrypted payload. The sealed
  * value remains server-side in Supabase; public URLs never expose it.
  */
-import { createHmac } from "node:crypto";
+
 
 const SHORT_REF_PATTERN = /^[A-Za-z0-9_-]{16}$/;
 
