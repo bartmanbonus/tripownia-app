@@ -10,6 +10,7 @@ import { formatPriceCheckedAt } from "@/lib/offerRuntime";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
+import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 
 export const metadata: Metadata = {
   title: "Okazja podróżnicza",
@@ -266,6 +267,10 @@ export default async function SocialOfferLanding({
             <span>Zobacz inne aktualne okazje i znajdź wyjazd po swojemu.</span>
           </div>
           <Link href="/okazje">Zobacz więcej okazji →</Link>
+        </section>
+
+        <section aria-label="Śledź kolejne okazje podróżnicze" style={{ marginBottom: 32 }}>
+          <FacebookFollowCTA placement="social_offer_detail_after_alternatives" compact />
         </section>
       </div>
       <SiteFooter />
