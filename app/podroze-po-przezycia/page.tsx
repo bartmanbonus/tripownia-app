@@ -100,8 +100,8 @@ export default async function ExperiencesPage({ searchParams }: PageProps){
   const selectedExperienceData = experiences.find((item) => item.id === selectedExperience);
   const hasSelection = Boolean(selectedDestination);
   const selectedCity = selectedDestination.split(",")[0].trim();
-  const selectedDatesValid = /^\\d{4}-\\d{2}-\\d{2}$/.test(selectedFrom)
-    && /^\\d{4}-\\d{2}-\\d{2}$/.test(selectedTo) && selectedFrom < selectedTo;
+  const selectedDatesValid = /^\d{4}-\d{2}-\d{2}$/.test(selectedFrom)
+    && /^\d{4}-\d{2}-\d{2}$/.test(selectedTo) && selectedFrom < selectedTo;
   const datesForLinks = selectedDatesValid ? { outbound: selectedFrom, inbound: selectedTo } : {};
   const flightHref = `/loty?${new URLSearchParams({ destination: selectedCity, ...datesForLinks }).toString()}`;
   const hotelHref = `/hotele?${new URLSearchParams({ destination: selectedDestination, ...(selectedDatesValid ? { from: selectedFrom, to: selectedTo } : {}) }).toString()}`;
