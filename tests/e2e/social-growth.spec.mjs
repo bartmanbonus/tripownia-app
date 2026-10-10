@@ -180,3 +180,57 @@ test("Airport-specific follow invitation matches the departure hub without hidin
   await expect(follow.getByRole("link", { name: /Obserwuj Tripownię/ })).toHaveAttribute("href", "https://www.facebook.com/987707741084438");
   await expect(page.getByRole("heading", { name: "Najpierw konkretne oferty z Krakowa" })).toBeVisible();
 });
+
+
+test("Clean Facebook catalog link preserves a trackable social source", async ({ page }) => {
+  await page.goto("/fb");
+  const resolved = new URL(page.url());
+  expect(resolved.pathname).toBe("/oferty-z-postow");
+  expect(resolved.searchParams.get("utm_source")).toBe("facebook");
+  expect(resolved.searchParams.get("utm_medium")).toBe("organic_social");
+  expect(resolved.searchParams.get("utm_campaign")).toBe("fb_catalog");
+  await expect(page.getByRole("heading", { name: "Oferty z social mediów" })).toBeVisible();
+});
+
+test("Clean Facebook airport link opens the correct section", async ({ page }) => {
+  await page.goto("/fb/lotniska");
+  const resolved = new URL(page.url());
+  expect(resolved.pathname).toBe("/oferty-z-postow");
+  expect(resolved.searchParams.get("utm_campaign")).toBe("fb_airports");
+  expect(resolved.hash).toBe("#lotniska");
+  await expect(page.getByRole("heading", { name: "Z którego lotniska chcesz polecieć?" })).toBeVisible();
+});
+
+test("Facebook family and Radar links keep visitors on Tripownia", async ({ page }) => {
+  await page.goto("/fb/rodzina");
+  const family = new URL(page.url());
+  expect(family.pathname).toBe("/wakacje-z-dziecmi");
+  expect(family.searchParams.get("utm_campaign")).toBe("fb_family");
+
+  await page.goto("/fb/radar");
+  const radar = new URL(page.url());
+  expect(radar.pathname).toBe("/radar-tripowni");
+  expect(radar.searchParams.get("utm_campaign")).toBe("fb_radar");
+  await expect(page.getByRole("heading", { name: /5 wyjazdów, które dziś warto/ })).toBeVisible();
+});
+
+test("Facebook offer short link only redirects to a validated Tripownia offer", async ({ page }) => {
+  await page.goto("/fb/bari-alberobello-669");
+  const offerUrl = new URL(page.url());
+  expect(offerUrl.origin).toBe("http://127.0.0.1:3100");
+  expect(offerUrl.pathname).toBe("/o/bari-alberobello-669");
+  expect(offerUrl.searchParams.get("utm_source")).toBe("facebook");
+  expect(offerUrl.searchParams.get("utm_campaign")).toBe("fb_offer");
+  expect(offerUrl.searchParams.get("utm_content")).toBe("bari-alberobello-669");
+
+  const invalid = await page.goto("/fb/nieznana-oferta-987");
+  expect(invalid?.status()).toBe(404);
+});
+
+test("Clean Instagram bio link identifies its own source", async ({ page }) => {
+  await page.goto("/ig");
+  const resolved = new URL(page.url());
+  expect(resolved.pathname).toBe("/oferty-z-postow");
+  expect(resolved.searchParams.get("utm_source")).toBe("instagram");
+  expect(resolved.searchParams.get("utm_campaign")).toBe("instagram_bio");
+});
