@@ -2,22 +2,23 @@ import { expect, test } from "@playwright/test";
 
 const eskyTarget = "https://www2.esky.pl/lot+hotel/portfolio?partner_id=TRIPOWNIAPLPACKAGES&context=pl-packages&arrivalPlaces=co-TR";
 
-test("legacy offer review strips affiliate target from visible Tripownia URL", async ({ request }) => {
+test("legacy offer review directly redirects through an opaque tracked exit", async ({ request }) => {
   const params = new URLSearchParams({ target: eskyTarget, source: "site_outbound" });
   const response = await request.get(`/sprawdz-oferte?${params}`, { maxRedirects: 0 });
   expect(response.status()).toBe(307);
-  const destination = response.headers()["location"];
-  expect(destination).toMatch(/\/sprawdz-oferte\?ref=[A-Za-z0-9_-]+/);
-  expect(destination).not.toContain("TRIPOWNIA");
-  expect(destination).not.toContain("partner_id");
-  expect(destination).not.toContain("target=");
+  const destination = new URL(response.headers()["location"], "http://127.0.0.1:3000");
+  expect(destination.pathname).toMatch(/^\/przejdz\/[A-Za-z0-9_-]{40,}$/);
+  expect(destination.search).toBe("");
+  expect(destination.href).not.toContain("TRIPOWNIA");
+  expect(destination.href).not.toContain("partner_id");
+  expect(destination.href).not.toContain("target=");
 
-  const detail = await request.get(destination);
-  expect(detail.status()).toBe(200);
-  const html = await detail.text();
-  expect(html).toContain("Sprawdź aktualną cenę");
-  expect(html).not.toContain("partner_id=TRIPOWNIAPLPACKAGES");
-  expect(html).not.toContain("target=https");
+  // Do not follow the remote partner URL in CI; verify its tracking instead.
+  const exit = await request.get(destination.pathname, { maxRedirects: 0 });
+  expect(exit.status()).toBe(307);
+  const target = new URL(exit.headers()["location"]);
+  expect(target.hostname).toBe("www2.esky.pl");
+  expect(target.searchParams.get("partner_id")).toBe("TRIPOWNIAPLPACKAGES");
 });
 
 test("encrypted link keeps partner attribution on final handoff only", async ({ request }) => {
@@ -57,7 +58,7 @@ test("Tokio sakura page offers functional paths despite no packaged inventory", 
   expect(html).toContain("Fukuoka");
 });
 
-test("client link bridge navigates to opaque internal URL, never raw affiliate URL", async ({ page }) => {
+test("client link bridge prepares an opaque direct checkout, never a plaintext affiliate URL", async ({ page }) => {
   await page.goto("/podroze-po-przezycia");
   await page.evaluate((target) => {
     const link = document.createElement("a");
@@ -66,8 +67,11 @@ test("client link bridge navigates to opaque internal URL, never raw affiliate U
     link.textContent = "Sprawdź ofertę testową";
     document.body.appendChild(link);
   }, eskyTarget);
-  await page.locator("#affiliate-opaque-e2e").click();
-  await page.waitForURL(/\/sprawdz-oferte\?ref=/, { timeout: 15000 });
-  expect(page.url()).not.toContain("partner_id");
-  expect(page.url()).not.toContain("TRIPOWNIA");
+  const link = page.locator("#affiliate-opaque-e2e");
+  await link.hover();
+  await expect(link).toHaveAttribute("href", /^\/przejdz\/[A-Za-z0-9_-]{40,}$/);
+  const checkoutHref = await link.getAttribute("href");
+  expect(checkoutHref).not.toContain("partner_id");
+  expect(checkoutHref).not.toContain("TRIPOWNIA");
+  expect(checkoutHref).not.toContain("/sprawdz-oferte");
 });
