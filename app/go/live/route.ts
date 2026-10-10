@@ -19,6 +19,8 @@ const ALLOWED_PARTNERS = new Set<PartnerKey>([
   "rentacar",
   "kiwitaxi",
   "gettransfer",
+  "airhelp",
+  "zwrotzalot",
 ]);
 
 const ALLOWED_HOSTS = new Set([
@@ -58,6 +60,10 @@ const ALLOWED_HOSTS = new Set([
   "getrentacar.tpk.lv",
   "kiwitaxi.tpk.lv",
   "gettransfer.tpk.lv",
+  "airhelp.tpk.lv",
+  "visit.zwrotzalot.pl",
+  "zwrotzalot.pl",
+  "www.zwrotzalot.pl",
 ]);
 
 const SITE_ID = "3487177";
@@ -191,6 +197,8 @@ function belongsToPartner(partner: PartnerKey, target: URL) {
   if (partner === "rentacar") return host === "getrentacar.tpk.lv";
   if (partner === "kiwitaxi") return host === "kiwitaxi.tpk.lv";
   if (partner === "gettransfer") return host === "gettransfer.tpk.lv";
+  if (partner === "airhelp") return host === "airhelp.tpk.lv";
+  if (partner === "zwrotzalot") return ["visit.zwrotzalot.pl", "zwrotzalot.pl", "www.zwrotzalot.pl"].includes(host);
 
   if (partner === "kiwi") {
     if (["kiwi.com", "www.kiwi.com", "kiwi.tpk.lv"].includes(host)) return true;
