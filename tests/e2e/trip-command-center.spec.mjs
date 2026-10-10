@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("Centrum Podróży guides a first-time visitor", async ({ page }) => {
-  await page.goto("/app");
+  await page.goto("/app", { waitUntil: "domcontentloaded" });
   const center = page.locator("#centrum-podrozy");
   await expect(center).toBeVisible();
   await expect(center.locator("h2")).toHaveText("Twoje centrum podróży");
@@ -11,7 +11,7 @@ test("Centrum Podróży guides a first-time visitor", async ({ page }) => {
 });
 
 test("Tripownia remembers progress and suggests the next missing service", async ({ page }) => {
-  await page.goto("/app");
+  await page.goto("/app", { waitUntil: "domcontentloaded" });
   const center = page.locator("#centrum-podrozy");
   await expect(center).toBeVisible();
 
@@ -42,7 +42,7 @@ test("Tripownia remembers progress and suggests the next missing service", async
 });
 
 test("Homepage introduces the unified trip center to visitors", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   const banner = page.locator(".trip-command-center-compact");
   await expect(banner).toBeVisible();
   await expect(banner).toContainText("Twoje centrum podróży");
