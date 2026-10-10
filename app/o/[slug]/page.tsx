@@ -15,6 +15,9 @@ import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import SocialShare from "@/components/SocialShare";
 import PurchaseChoices from "@/components/PurchaseChoices";
 
+// Recompute social preview validity at least every 30 minutes; a checked price is never permanent.
+export const revalidate = 1800;
+
 type SocialOfferPage = SocialOffer & { expired?: boolean };
 
 const LEGACY_RZYM_529: SocialOfferPage = {
