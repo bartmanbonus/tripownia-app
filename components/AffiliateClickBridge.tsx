@@ -145,7 +145,7 @@ function visitAttribution() {
 type ProtectedLink = {
   target: string;
   partner: string;
-  mode: "review" | "exit";
+  mode: "review" | "exit" | "offer";
   context: Record<string, string>;
   href?: string;
   pending?: Promise<string | null>;
@@ -165,7 +165,7 @@ function readPartnerLink(anchor: HTMLAnchorElement): ProtectedLink | null {
   let target = "";
   const inherited: Record<string, string> = {};
   if (url.origin === window.location.origin) {
-    if (url.pathname === "/go/live" || url.pathname === "/sprawdz-oferte") {
+    if (url.pathname === "/go/live" || url.pathname === "/sprawdz-oferte" || url.pathname === "/okazja") {
       target = url.searchParams.get("target") || "";
       url.searchParams.forEach((value, name) => { if (name !== "target" && name !== "partner") inherited[name] = value; });
     } else if (/^\/out\/[^/]+\/?$/.test(url.pathname)) {
@@ -183,7 +183,8 @@ function readPartnerLink(anchor: HTMLAnchorElement): ProtectedLink | null {
   const card = cardContext(anchor);
   const finalExit = isOfferDetailPath(window.location.pathname) &&
     (anchor.dataset.partnerExit === "1" || Boolean(anchor.closest(".detail-action-box, .live-mobile-booking-bar")));
-  const mode: ProtectedLink["mode"] = finalExit || url.pathname === "/go/live" ? "exit" : "review";
+  const mode: ProtectedLink["mode"] = url.pathname === "/okazja" ? "offer"
+    : finalExit || url.pathname === "/go/live" ? "exit" : "review";
   const attribution = visitAttribution();
   const context: Record<string, string> = {
     ...inherited,
@@ -219,6 +220,7 @@ function validOpaqueHref(href: unknown, mode: ProtectedLink["mode"]): href is st
   if (typeof href !== "string" || href.length > 12000) return false;
   return mode === "exit"
     ? /^\/go\/[A-Za-z0-9_-]{40,12000}$/.test(href)
+    : mode === "offer" ? /^\/okazja\?ref=[A-Za-z0-9_-]{40,12000}$/.test(href)
     : /^\/sprawdz-oferte\?ref=[A-Za-z0-9_-]{40,12000}$/.test(href);
 }
 
@@ -244,7 +246,7 @@ function resolveProtectedLink(anchor: HTMLAnchorElement, data: ProtectedLink) {
 
 function wrapInitialPartnerLinks() {
   document.querySelectorAll<HTMLAnchorElement>(
-    'a[href^="http://"], a[href^="https://"], a[href^="/go/live?"], a[href^="/sprawdz-oferte?"], a[href^="/out/"]'
+    'a[href^="http://"], a[href^="https://"], a[href^="/go/live?"], a[href^="/sprawdz-oferte?"], a[href^="/okazja?"], a[href^="/out/"]'
   ).forEach(protectAnchor);
 }
 
@@ -295,7 +297,7 @@ export default function AffiliateClickBridge() {
       if (!data) return;
 
       if (event.type === "click" || event.type === "auxclick") {
-        captureOutboundContext(anchor, data);
+        if (data.mode === "exit") captureOutboundContext(anchor, data);
         if (!data.href) {
           event.preventDefault();
           void resolveProtectedLink(anchor, data).then((href) => {
