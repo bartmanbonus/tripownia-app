@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   }
 
   const target = typeof body.target === "string" ? body.target : "";
-  const mode = body.mode === "exit" ? "exit" : body.mode === "review" ? "review" : null;
+  const mode = body.mode === "exit" ? "exit" : body.mode === "review" ? "review" : body.mode === "offer" ? "offer" : null;
   const partner = partnerFromUrl(target);
   if (!mode || !partner || target.length > 8192
     || (typeof body.partner === "string" && body.partner !== partner)) {
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const ref = sealAffiliateLink({ mode, partner, target, context: affiliateLinkContext(body.context) });
-    const href = mode === "review" ? `/sprawdz-oferte?ref=${ref}` : `/go/${ref}`;
+    const href = mode === "exit" ? `/go/${ref}` : mode === "offer" ? `/okazja?ref=${ref}` : `/sprawdz-oferte?ref=${ref}`;
     return NextResponse.json({ href }, { headers: { "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" } });
   } catch {
     return NextResponse.json({ error: "link_unavailable" }, { status: 503 });
