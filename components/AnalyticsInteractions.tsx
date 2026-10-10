@@ -63,7 +63,10 @@ export default function AnalyticsInteractions() {
         }
 
         const sponsored = (anchor.getAttribute("rel") || "").split(/\s+/).includes("sponsored");
-        if (sponsored && !anchor.closest(".offer-card")) {
+        if (sponsored && !anchor.closest(".offer-card")
+          && anchor.dataset.partnerExit !== "1"
+          && anchor.dataset.outboundSelfTracked !== "1"
+          && !rawHref.startsWith("/go/rescue?")) {
           let partnerHost = "";
           try {
             partnerHost = new URL(anchor.href, window.location.origin).hostname;
