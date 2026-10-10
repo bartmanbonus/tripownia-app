@@ -102,9 +102,10 @@ export default async function ExperiencesPage({ searchParams }: PageProps){
   const selectedCity = selectedDestination.split(",")[0].trim();
   const selectedDatesValid = /^\d{4}-\d{2}-\d{2}$/.test(selectedFrom)
     && /^\d{4}-\d{2}-\d{2}$/.test(selectedTo) && selectedFrom < selectedTo;
-  const datesForLinks = selectedDatesValid ? { outbound: selectedFrom, inbound: selectedTo } : {};
+  const datesForLinks: Record<string, string> = selectedDatesValid ? { outbound: selectedFrom, inbound: selectedTo } : {};
+  const stayDates: Record<string, string> = selectedDatesValid ? { from: selectedFrom, to: selectedTo } : {};
   const flightHref = `/loty?${new URLSearchParams({ destination: selectedCity, ...datesForLinks }).toString()}`;
-  const hotelHref = `/hotele?${new URLSearchParams({ destination: selectedDestination, ...(selectedDatesValid ? { from: selectedFrom, to: selectedTo } : {}) }).toString()}`;
+  const hotelHref = `/hotele?${new URLSearchParams({ destination: selectedDestination, ...stayDates }).toString()}`;
   const combinedHref = `/szukaj?${new URLSearchParams({ destination: selectedDestination, tab: "Lot + hotel", ...(selectedDatesValid ? { from: selectedFrom, to: selectedTo } : {}) }).toString()}`;
   const otherExperienceIdeas = (selectedExperienceData?.ideas || []).filter((idea) => idea.city.toLowerCase() !== selectedCity.toLowerCase());
   const showMarkets = Date.now() <= new Date("2027-01-07T22:59:59Z").getTime();
