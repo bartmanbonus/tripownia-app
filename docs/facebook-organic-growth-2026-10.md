@@ -70,3 +70,23 @@ Dla istniejącej, zweryfikowanej w katalogu Tripowni propozycji można przygotow
 Stare komentarze i istniejący proces Tiny.pl **pozostają bez zmian**. Nie korzystaj z tych nowych odnośników, dopóki `/l/fb/...` nie będzie wdrożone i zweryfikowane na produkcji. Jeśli oferta wygasła, link pokaże jej status i alternatywy – nie wolno kopiować starej ceny jako aktualnej.
 
 Nowy link musi zawierać rzeczywisty slug oferty z `lib/socialOffers.ts`; nie zgaduj identyfikatorów. Nie ma możliwości dowolnego przekierowania na adres zewnętrzny.
+
+
+## Krótkie linki do komentarzy i biografii — tylko po zatwierdzonym wdrożeniu
+
+Nowe adresy są **przygotowane w gałęzi projektu**, ale dopóki zmiana nie trafi na produkcję, NIE umieszczaj ich pod żywymi postami.
+
+| Cel | Adres | Oznaczenie w analityce |
+| --- | --- | --- |
+| Ogólne oferty z Facebooka | `https://tripownia.pl/fb` | `facebook / organic_social / fb_catalog` |
+| Wybór miasta wylotu | `https://tripownia.pl/fb/lotniska` | `facebook / organic_social / fb_airports` |
+| Radar 5 okazji | `https://tripownia.pl/fb/radar` | `facebook / organic_social / fb_radar` |
+| Wakacje rodzinne | `https://tripownia.pl/fb/rodzina` | `facebook / organic_social / fb_family` |
+| Link w bio Instagrama | `https://tripownia.pl/ig` | `instagram / organic_social / instagram_bio` |
+| Wybrana i zweryfikowana oferta | `https://tripownia.pl/fb/<slug>` | `facebook / organic_social / fb_offer` |
+
+Adresy `/fb/<slug>` akceptują tylko istniejące, poprawnie zdefiniowane slugi; nie przyjmują dowolnych adresów partnerów. Potencjalna prowizja i inne wymagane informacje nadal widoczne na docelowej stronie. Gdy oferta jest archiwalna lub niepotwierdzona, podgląd linku nie obiecuje ceny historycznej.
+
+Po scaleniu projektu należy sprawdzić dla każdego skrótu: odpowiednią stronę docelową, nagłówek, widok mobilny, obsługę zgody analitycznej, brak pustych wyników oraz to, czy kliknięcia do rezerwacji nadal działają.
+
+**Czego nie liczyć jako sprzedaży:** kliknięć zdjęcia, rozwinięć opisu, samego wejścia na fanpage ani kliknięć „Obserwuj”. Potwierdzone przejścia do partnera to odrębny etap. Dodatkowo GA4 nie pokazuje wejść osób bez zgody analitycznej.
