@@ -355,6 +355,7 @@ const homepageTripTypes = [
   { href: "/dalekie-podroze", icon: "🌏", title: "Dalekie podróże", note: "Azja · Ameryka · Afryka · Oceania" },
   { href: "/polska", icon: "🇵🇱", title: "Polska", note: "weekendy i wakacje bliżej domu" },
   { href: "/wakacje-z-dziecmi", icon: "👨‍👩‍👧‍👦", title: "Z dziećmi", note: "rodzinne kierunki i wygodny wyjazd" },
+  { href: "/dlugi-weekend-listopadowy-2026", icon: "🍂", title: "Listopadowy weekend", note: "7–11 lub 11–15 listopada · lot + hotel" },
   { href: "/ferie-2027", icon: "⛷️", title: "Ferie 2027", note: "zimowy wyjazd w terminie szkolnym" },
   { href: "/majowka-2027", icon: "🌿", title: "Majówka 2027", note: "długi weekend i gotowe pomysły" },
   { href: "/wakacje-2027", icon: "☀️", title: "Wakacje 2027", note: "planuj wcześniej i porównuj terminy" },

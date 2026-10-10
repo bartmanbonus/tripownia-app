@@ -49,6 +49,16 @@ export default function AnalyticsInteractions() {
           label: anchor.textContent?.replace(/\s+/g, " ").trim().slice(0, 120) || "link",
         };
 
+        // Measure whether SEO articles create actual buying intent, not just page views.
+        const articleAction = anchor.dataset.articleCta;
+        if (articleAction && rawHref.startsWith("/") && !rawHref.startsWith("//")) {
+          trackEvent("article_to_offer_click", {
+            article_path: window.location.pathname,
+            action: articleAction,
+            target_path: rawHref.slice(0, 160),
+          });
+        }
+
         if (rawHref.includes("/dodaj-podroz") || rawHref.includes("/planer-podrozy")) {
           trackEvent("planner_intent", params);
           trackMetaCustomEvent("PlannerIntent", params);
@@ -63,7 +73,9 @@ export default function AnalyticsInteractions() {
         }
 
         const sponsored = (anchor.getAttribute("rel") || "").split(/\s+/).includes("sponsored");
-        if (sponsored && !anchor.closest(".offer-card")) {
+        // TrackedPartnerLink owns its outbound_partner_click event.
+        // Avoid firing the same GA4/Meta event twice for one user action.
+        if (sponsored && !anchor.closest(".offer-card") && anchor.dataset.outboundSelfTracked !== "1") {
           let partnerHost = "";
           try {
             partnerHost = new URL(anchor.href, window.location.origin).hostname;
