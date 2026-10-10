@@ -22,8 +22,13 @@ test("legacy eSky alias to Kiwi is routed to the correct tracking partner", asyn
   const response = await request.get(`/out/esky?${url}`, { maxRedirects: 0 });
   expect(response.status()).toBe(307);
   const destination = new URL(response.headers()["location"], "http://127.0.0.1:3000");
-  expect(destination.pathname).toBe("/go/live");
-  expect(destination.searchParams.get("partner")).toBe("kiwi");
+  // Legacy wrapper must immediately hide both the original target and tracking ID.
+  expect(destination.pathname).toMatch(/^\\/go\\/[A-Za-z0-9_-]{40,}$/);
+  expect(destination.search).toBe("");
+  const exit = await request.get(destination.pathname, { maxRedirects: 0 });
+  expect(exit.status()).toBe(307);
+  const resolved = new URL(exit.headers()["location"]);
+  expect(["c111.travelpayouts.com", "kiwi.tpk.lv"]).toContain(resolved.hostname);
 });
 
 test("SEO pages use grammatical airport names and offer useful navigation before scripts run", async ({ request }) => {
