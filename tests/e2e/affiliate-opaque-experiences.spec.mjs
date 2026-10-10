@@ -59,7 +59,7 @@ test("Tokio sakura page offers functional paths despite no packaged inventory", 
 });
 
 test("client link bridge prepares an opaque direct checkout, never a plaintext affiliate URL", async ({ page }) => {
-  await page.goto("/podroze-po-przezycia");
+  await page.goto("/podroze-po-przezycia", { waitUntil: "domcontentloaded" });
   await page.evaluate((target) => {
     const link = document.createElement("a");
     link.id = "affiliate-opaque-e2e";
