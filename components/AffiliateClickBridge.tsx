@@ -323,6 +323,23 @@ export default function AffiliateClickBridge() {
       }
     };
 
+    const observer = new MutationObserver((mutations) => {
+      for (const change of mutations) {
+        if (change.type === "attributes") {
+          if (change.target instanceof HTMLAnchorElement) protectAnchor(change.target);
+          continue;
+        }
+        for (const added of change.addedNodes) {
+          if (added instanceof HTMLAnchorElement) protectAnchor(added);
+          if (added instanceof Element) {
+            added.querySelectorAll<HTMLAnchorElement>("a[href]").forEach(protectAnchor);
+          }
+        }
+      }
+    });
+    observer.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["href"] });
+
+    document.addEventListener("pointerover", handleInteraction, true);
     document.addEventListener("pointerdown", handleInteraction, true);
     document.addEventListener("click", handleInteraction, true);
     document.addEventListener("auxclick", handleInteraction, true);
@@ -330,6 +347,8 @@ export default function AffiliateClickBridge() {
     document.addEventListener("contextmenu", handleInteraction, true);
 
     return () => {
+      observer.disconnect();
+      document.removeEventListener("pointerover", handleInteraction, true);
       document.removeEventListener("pointerdown", handleInteraction, true);
       document.removeEventListener("click", handleInteraction, true);
       document.removeEventListener("auxclick", handleInteraction, true);
