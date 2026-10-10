@@ -231,7 +231,7 @@ function protectAnchor(anchor: HTMLAnchorElement): ProtectedLink | null {
 function validOpaqueHref(href: unknown, mode: ProtectedLink["mode"]): href is string {
   if (typeof href !== "string" || href.length > 12000) return false;
   return mode === "exit"
-    ? /^\/go\/[A-Za-z0-9_-]{40,12000}$/.test(href)
+    ? /^\/przejdz\/[A-Za-z0-9_-]{40,12000}$/.test(href)
     : mode === "offer" ? /^\/okazja\?ref=[A-Za-z0-9_-]{40,12000}$/.test(href)
     : /^\/sprawdz-oferte\?ref=[A-Za-z0-9_-]{40,12000}$/.test(href);
 }
