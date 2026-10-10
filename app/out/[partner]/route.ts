@@ -63,7 +63,7 @@ export async function GET(
     target: target.toString(),
     context: { source, offer, destination, page: request.nextUrl.pathname },
   });
-  const response = NextResponse.redirect(new URL(`/go/${ref}`, request.url), 307);
+  const response = NextResponse.redirect(new URL(`/przejdz/${ref}`, request.url), 307);
   response.headers.set("Cache-Control", "no-store");
   response.headers.set("Referrer-Policy", "no-referrer");
   return response;
