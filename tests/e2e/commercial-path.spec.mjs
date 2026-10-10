@@ -132,7 +132,7 @@ test("home -> concrete Tripownia offer -> monetized partner CTA", async ({ page 
   await expect(partnerCta).toContainText(/Sprawdź (?:aktualną )?cenę/i);
 
   const outboundHref = await partnerCta.getAttribute("href");
-  expect(outboundHref).toMatch(/^\/go\/[A-Za-z0-9_-]{40,}$/);
+  expect(outboundHref).toMatch(/^\/przejdz\/[A-Za-z0-9_-]{40,}$/);
   expect(outboundHref).not.toContain("target=");
   expect(outboundHref).not.toContain("partner_id");
   expect(outboundHref).not.toContain("TRIPOWNIAPLPACKAGES");
