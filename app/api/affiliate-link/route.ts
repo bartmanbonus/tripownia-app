@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { partnerFromUrl } from "@/lib/affiliateJourney";
-import { affiliateLinkContext, sealAffiliateLink } from "@/lib/affiliateLinkToken";
+import { affiliateLinkContext, storeAffiliateLink } from "@/lib/affiliateLinkToken";
 
 export const runtime = "nodejs";
 
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const ref = sealAffiliateLink({ mode, partner, target, context: affiliateLinkContext(body.context) });
+    const ref = await storeAffiliateLink({ mode, partner, target, context: affiliateLinkContext(body.context) });
     const href = mode === "exit" ? `/przejdz/${ref}` : mode === "offer" ? `/okazja?ref=${ref}` : `/sprawdz-oferte?ref=${ref}`;
     return NextResponse.json({ href }, { headers: { "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" } });
   } catch {
