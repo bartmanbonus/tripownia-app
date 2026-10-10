@@ -6,7 +6,7 @@ export const runtime = "nodejs";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ ref: string }> }) {
   const { ref } = await params;
-  const payload = openAffiliateLink(ref);
+  const payload = await resolveAffiliateLink(ref);
   if (!payload || payload.mode !== "exit") {
     return NextResponse.redirect(new URL("/okazje", request.url), 307);
   }
