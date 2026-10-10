@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GET as followTrackedPartnerLink } from "@/app/go/live/route";
-import { openAffiliateLink } from "@/lib/affiliateLinkToken";
+import { resolveAffiliateLink } from "@/lib/affiliateLinkToken";
 
 export const runtime = "nodejs";
 
