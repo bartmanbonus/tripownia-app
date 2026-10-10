@@ -31,7 +31,6 @@ function sourceFor(anchor: HTMLAnchorElement) {
   if (anchor.closest(".seo-travel-landing-v3")) return "seo_landing";
   if (anchor.closest(".social-offer-page")) return "social_offer_addon";
   if (offerCard) return offerSurface ? `offer_image:${offerSurface}` : "offer_image";
-  if (anchor.closest(".search-v3-empty-actions")) return "search_zero_rescue";
   if (anchor.closest(".experience-expanded-page")) return "experience_search";
   return "site_outbound";
 }
