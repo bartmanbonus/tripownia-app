@@ -34,7 +34,9 @@ export type AffiliateClickEvent = {
 
 export async function recordGlobalAffiliateClick(event: AffiliateClickEvent) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 1_200);
+  // The write runs inside Next.js after(), so a realistic network timeout does not
+  // delay the visitor's partner redirect. 1.2s was aborting valid Supabase writes.
+  const timeout = setTimeout(() => controller.abort(), 5_000);
 
   try {
     const key = supabaseKey();
