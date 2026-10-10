@@ -99,6 +99,14 @@ export default async function ExperiencesPage({ searchParams }: PageProps){
   const selectedExperience = typeof params.experience === "string" ? params.experience : "";
   const selectedExperienceData = experiences.find((item) => item.id === selectedExperience);
   const hasSelection = Boolean(selectedDestination);
+  const selectedCity = selectedDestination.split(",")[0].trim();
+  const selectedDatesValid = /^\\d{4}-\\d{2}-\\d{2}$/.test(selectedFrom)
+    && /^\\d{4}-\\d{2}-\\d{2}$/.test(selectedTo) && selectedFrom < selectedTo;
+  const datesForLinks = selectedDatesValid ? { outbound: selectedFrom, inbound: selectedTo } : {};
+  const flightHref = `/loty?${new URLSearchParams({ destination: selectedCity, ...datesForLinks }).toString()}`;
+  const hotelHref = `/hotele?${new URLSearchParams({ destination: selectedDestination, ...(selectedDatesValid ? { from: selectedFrom, to: selectedTo } : {}) }).toString()}`;
+  const combinedHref = `/szukaj?${new URLSearchParams({ destination: selectedDestination, tab: "Lot + hotel", ...(selectedDatesValid ? { from: selectedFrom, to: selectedTo } : {}) }).toString()}`;
+  const otherExperienceIdeas = (selectedExperienceData?.ideas || []).filter((idea) => idea.city.toLowerCase() !== selectedCity.toLowerCase());
   const showMarkets = Date.now() <= new Date("2027-01-07T22:59:59Z").getTime();
   return <main className="experience-expanded-page"><SiteHeader/><BreadcrumbSchema items={[{name:"Tripownia",url:"https://tripownia.pl/"},{name:"Podróże po przeżycia",url:"https://tripownia.pl/podroze-po-przezycia"}]}/>
     <section className="experience-expanded-hero"><div className="shell"><div className="kicker">PODRÓŻE PO PRZEŻYCIA</div><h1>Najpierw wybierz przeżycie. Potem dobierzemy miejsce i termin.</h1><p>Zorza, sakura, fiordy, safari czy egzotyka mają swój sezon. Tripownia pokazuje sensowne okno, konkretne bazy i pozwala od razu wyszukać wyjazd bez wyrzucania Cię do zewnętrznej strony.</p><div className="experience-season-nav"><a href="#zorza">🌌 Zorza</a><a href="#sakura">🌸 Sakura</a><a href="#fiordy">🏔️ Fiordy</a><a href="#nowa-zelandia">🥾 Nowa Zelandia</a><a href="#tulipany">🌷 Tulipany</a><a href="#safari">🦁 Safari</a><a href="#wieloryby">🐋 Wieloryby</a><a href="#egzotyka">🌴 Egzotyka</a>{showMarkets&&<Link href="/jarmarki-bozonarodzeniowe">🎄 Jarmarki</Link>}<Link href="/sylwester">🥂 Sylwester</Link></div></div></section>
@@ -109,6 +117,21 @@ export default async function ExperiencesPage({ searchParams }: PageProps){
           <h2>Sprawdź {selectedDestination} w wybranym oknie</h2>
           <p>Ustawiliśmy przykładowy termin. Możesz go zmienić, wybrać lotnisko wylotu albo poszerzyć zakres — cały czas zostajesz w Tripowni.</p>
         </div>
+      </div>
+      <div className="experience-rescue-options" aria-label="Gotowe sposoby znalezienia podróży" style={{ marginBottom: 24 }}>
+        <h3>Nie czekaj na gotowy pakiet — ułóż ten wyjazd po swojemu</h3>
+        <p>Gotowe pakiety nie zawsze obejmują odległe kierunki i wczesne rezerwacje. Sprawdź osobno loty i noclegi z zachowaniem wybranych dat. Pokazujemy propozycje wyszukiwań, a nie niepotwierdzone ceny.</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 12, marginTop: 14 }}>
+          <Link className="btn primary" href={flightHref}>✈️ Loty do {selectedCity} →</Link>
+          <Link className="btn secondary" href={hotelHref}>🏨 Noclegi w {selectedCity} →</Link>
+          <Link className="btn secondary" href={combinedHref}>🌏 Spróbuj lot + hotel →</Link>
+        </div>
+        {otherExperienceIdeas.length > 0 && <div style={{ marginTop: 18 }}>
+          <strong>Ten sam sezon, inne miejsca:</strong>
+          <div className="experience-idea-actions" style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 10 }}>
+            {otherExperienceIdeas.map(idea => <Link key={idea.city} href={internalExperienceSearch(idea, selectedExperience)}>{idea.city} · {idea.sample[0]}–{idea.sample[1]} →</Link>)}
+          </div>
+        </div>}
       </div>
       <div className="single-partner-search-wrap">
         <SearchHub
