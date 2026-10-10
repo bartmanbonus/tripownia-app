@@ -10,7 +10,7 @@ import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type Worl
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
 import { rankSearchOffers, searchTier } from "@/lib/searchOfferRanking";
 import { partners } from "@/lib/partners";
-import { eskySearchUrl } from "@/lib/eskySearch";
+import { eskyArrival, eskySearchUrl } from "@/lib/eskySearch";
 import { fetchEskyBrowserPackages } from "@/lib/eskyBrowserSearch";
 import { isAffordableShortTrip } from "@/lib/offerValuePolicy";
 import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
@@ -117,38 +117,6 @@ function canonicalSearchDestination(value: string) {
   if (/\bmilan\b/i.test(normalized)) return "Mediolan";
   if (/\bsajgon\b/i.test(normalized)) return "Ho Chi Minh, Wietnam";
   return normalized;
-}
-
-function destinationPartnerLinks(
-  destination: string,
-  options?: { departures?: string[]; from?: string; to?: string },
-) {
-  const query = destination.trim();
-  if (!query) return null;
-
-  const bookingBase = new URL("https://www.booking.com/searchresults.pl.html");
-  bookingBase.searchParams.set("ss", query);
-  if (/^\d{4}-\d{2}-\d{2}$/.test(options?.from || "")
-    && /^\d{4}-\d{2}-\d{2}$/.test(options?.to || "")
-    && String(options?.to) > String(options?.from)) {
-    bookingBase.searchParams.set("checkin", String(options?.from));
-    bookingBase.searchParams.set("checkout", String(options?.to));
-  }
-
-  const kiwiBase = new URL("https://www.kiwi.com/pl/");
-  kiwiBase.searchParams.set("destination", query);
-  const normalizedDepartures = (options?.departures || []).flatMap((code) => code === "WAWA" ? ["WAW", "WMI"] : [code]);
-  if (normalizedDepartures.length === 1) kiwiBase.searchParams.set("origin", normalizedDepartures[0]);
-  if (/^\d{4}-\d{2}-\d{2}$/.test(options?.from || "")) kiwiBase.searchParams.set("outboundDate", String(options?.from));
-  if (/^\d{4}-\d{2}-\d{2}$/.test(options?.to || "") && options?.to !== options?.from) {
-    kiwiBase.searchParams.set("inboundDate", String(options?.to));
-  }
-  kiwiBase.searchParams.set("currency", "PLN");
-
-  return {
-    booking: partners.booking.buildUrl(bookingBase.toString()),
-    kiwi: partners.kiwi.buildUrl(kiwiBase.toString()),
-  };
 }
 
 function standaloneFlightPartnerUrl(
@@ -2062,23 +2030,30 @@ export default function SearchHub({
             )}
             {!loading && results.length === 0 && !expanding && (() => {
               const fallbackDestination = selectedDestinations[0] || destination;
-              const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination, {
-                departures,
-                from: dateMode === "exact" || dateMode === "range" ? dateFrom : "",
-                to: dateMode === "range" ? dateTo : dateMode === "exact" ? dateFrom : "",
-              }) : null;
+              const blockedFallback = Boolean(fallbackDestination && isTravelDestinationBlocked(fallbackDestination));
+              const canSearchPackages = Boolean(fallbackDestination && eskyArrival(fallbackDestination));
+              const rescueHref = (kind: "package" | "flight" | "hotel") => {
+                const params = new URLSearchParams({
+                  kind,
+                  destination: fallbackDestination,
+                  airports: departures.join(","),
+                  nights: duration,
+                  cityBreak: activeTab === "City break" ? "1" : "0",
+                });
+                if (dateMode === "exact" || dateMode === "range") params.set("from", dateFrom);
+                if (dateMode === "range") params.set("to", dateTo);
+                return `/go/rescue?${params.toString()}`;
+              };
+              if (blockedFallback) return <div className="search-v3-empty"><strong>Nie promujemy obecnie tego kierunku ze względów bezpieczeństwa.</strong><Link href="/kierunki">Wybierz inny kierunek w Tripowni</Link></div>;
               return <div className="search-v3-empty">
                 <strong>{fallbackDestination ? `Nie kończymy na 0 wyników dla „${fallbackDestination}”.` : "Nie kończymy na pustej liście."}</strong>
                 <span>Zmień termin lub poluzuj filtry. Zachowamy Twój kierunek, żeby nie trzeba było zaczynać od nowa.</span>
                 <div className="search-v3-empty-actions">
-                  {packageSearchLink && (
+                  {packageSearchLink && canSearchPackages && (
                     <a
-                      href={`/sprawdz-oferte?${new URLSearchParams({
-                        partner: "esky",
-                        target: packageSearchLink,
-                        source: "search_zero_rescue",
-                        destination: fallbackDestination || "",
-                      }).toString()}`}
+                      href={rescueHref("package")}
+                      data-outbound-self-tracked="1"
+                      data-affiliate-source="search_zero_package_rescue"
                       rel="sponsored"
                       onClick={() => saveAffiliateReturnContext({
                         partner: "esky",
@@ -2092,14 +2067,11 @@ export default function SearchHub({
                   )}
                   <button type="button" onClick={searchNearestDates}>Pokaż inne terminy</button>
                   <button type="button" onClick={relaxSearchFilters}>Usuń dodatkowe filtry</button>
-                  {fallback?.kiwi && (
+                  {fallbackDestination && (
                     <a
-                      href={`/sprawdz-oferte?${new URLSearchParams({
-                        partner: "kiwi",
-                        target: fallback.kiwi,
-                        source: "search_zero_flight_rescue",
-                        destination: fallbackDestination || "",
-                      }).toString()}`}
+                      href={rescueHref("flight")}
+                      data-outbound-self-tracked="1"
+                      data-affiliate-source="search_zero_flight_rescue"
                       rel="sponsored"
                       onClick={() => saveAffiliateReturnContext({
                         partner: "kiwi",
@@ -2113,14 +2085,11 @@ export default function SearchHub({
                       Znajdź loty do tego kierunku
                     </a>
                   )}
-                  {fallback?.booking && (
+                  {fallbackDestination && (
                     <a
-                      href={`/sprawdz-oferte?${new URLSearchParams({
-                        partner: "booking",
-                        target: fallback.booking,
-                        source: "search_zero_hotel_rescue",
-                        destination: fallbackDestination || "",
-                      }).toString()}`}
+                      href={rescueHref("hotel")}
+                      data-outbound-self-tracked="1"
+                      data-affiliate-source="search_zero_hotel_rescue"
                       rel="sponsored"
                       onClick={() => saveAffiliateReturnContext({
                         partner: "booking",
