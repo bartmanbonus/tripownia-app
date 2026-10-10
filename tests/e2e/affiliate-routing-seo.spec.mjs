@@ -34,3 +34,14 @@ test("SEO pages use grammatical airport names and offer useful navigation before
   expect(html).not.toContain("city break z Poznań");
   expect(html).toContain("Zobacz wyszukiwanie z tymi parametrami");
 });
+
+test("partner review shows correct names for both claim-service affiliates", async ({ request }) => {
+  for (const [target, name] of [
+    ["https://airhelp.tpk.lv/i479aQSg", "AirHelp"],
+    ["https://visit.zwrotzalot.pl/click?p=393367&a=3487177", "ZwrotZaLot"],
+  ]) {
+    const response = await request.get(`/sprawdz-oferte?target=${encodeURIComponent(target)}`);
+    expect(response.status()).toBe(200);
+    expect(await response.text()).toContain(`Przejdziesz do ${name}`);
+  }
+});

@@ -9,7 +9,7 @@ import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 import { partnerFromUrl } from "@/lib/affiliateJourney";
 
 export const metadata: Metadata = { title: "Sprawdź wybraną ofertę", robots: { index: false, follow: true } };
-const labels: Record<string, string> = { aviasales: "Aviasales", esky: "eSky", exim: "EXIM Tours", tui: "TUI", kiwi: "Kiwi.com", booking: "Booking.com", wakacje: "Wakacje.pl", getyourguide: "GetYourGuide", seeplaces: "SeePlaces", holidaypark: "Holiday Park", fonia: "Fonia", parklot: "Parklot", rentacar: "GetRentacar", kiwitaxi: "Kiwitaxi", gettransfer: "GetTransfer" };
+const labels: Record<string, string> = { aviasales: "Aviasales", esky: "eSky", exim: "EXIM Tours", tui: "TUI", kiwi: "Kiwi.com", booking: "Booking.com", wakacje: "Wakacje.pl", getyourguide: "GetYourGuide", seeplaces: "SeePlaces", holidaypark: "Holiday Park", fonia: "Fonia", parklot: "Parklot", rentacar: "GetRentacar", kiwitaxi: "Kiwitaxi", gettransfer: "GetTransfer", airhelp: "AirHelp", zwrotzalot: "ZwrotZaLot" };
 export default async function PartnerReview({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const query = await searchParams;
   const read = (key: string, max = 220) => (Array.isArray(query[key]) ? query[key][0] : query[key] || "").trim().slice(0, max);
