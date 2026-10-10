@@ -50,7 +50,7 @@ test("SEO sales summary never promotes an unverified stale numeric price", async
   await page.route("**/api/deals**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(payload) })
   );
-  await page.goto("/podroze/city-break-z-poznania");
+  await page.goto("/podroze/city-break-z-poznania", { waitUntil: "domcontentloaded" });
   await expect(page.locator(".seo-sales-snapshot")).toContainText("ceny do potwierdzenia");
   await expect(page.locator(".seo-sales-snapshot")).not.toContainText("649 zł");
   const card = page.locator('.seo-live-offers-grid [data-offer-id="1700000999"]');
