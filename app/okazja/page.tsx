@@ -123,7 +123,7 @@ export default async function SocialOfferLanding({
       page: "/okazja",
     },
   });
-  const outboundHref = `/go/${outboundRef}`;
+  const outboundHref = `/przejdz/${outboundRef}`;
   const plannerParams = new URLSearchParams({
     mode: "known",
     source: "offer",
