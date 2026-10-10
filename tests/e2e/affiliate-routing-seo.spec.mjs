@@ -23,7 +23,7 @@ test("legacy eSky alias to Kiwi is routed to the correct tracking partner", asyn
   expect(response.status()).toBe(307);
   const destination = new URL(response.headers()["location"], "http://127.0.0.1:3000");
   // Legacy wrapper must immediately hide both the original target and tracking ID.
-  expect(destination.pathname).toMatch(/^\\/go\\/[A-Za-z0-9_-]{40,}$/);
+  expect(destination.pathname).toMatch(new RegExp("^/go/[A-Za-z0-9_-]{40,}$"));
   expect(destination.search).toBe("");
   const exit = await request.get(destination.pathname, { maxRedirects: 0 });
   expect(exit.status()).toBe(307);
