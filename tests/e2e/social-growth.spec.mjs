@@ -217,7 +217,7 @@ test("Facebook family and Radar links keep visitors on Tripownia", async ({ page
 test("Facebook offer short link only redirects to a validated Tripownia offer", async ({ page }) => {
   await page.goto("/fb/bari-alberobello-669");
   const offerUrl = new URL(page.url());
-  expect(offerUrl.origin).toBe("http://127.0.0.1:3100");
+  expect(offerUrl.host).toBe(new URL(test.info().project.use.baseURL).host);
   expect(offerUrl.pathname).toBe("/o/bari-alberobello-669");
   expect(offerUrl.searchParams.get("utm_source")).toBe("facebook");
   expect(offerUrl.searchParams.get("utm_campaign")).toBe("fb_offer");
