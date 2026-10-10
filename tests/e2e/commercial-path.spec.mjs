@@ -183,3 +183,30 @@ test("mobile layout keeps core sales content inside the viewport", async ({ page
 
   await expect(card.locator("a.card-cta")).toBeVisible();
 });
+
+
+test("price-less offer never shows a checkout placeholder and redirects to matching deals", async ({ page }) => {
+  const url = new URL("/okazja", "http://localhost:3000");
+  url.searchParams.set("offer", "1927107350");
+  url.searchParams.set("city", "Barcelona");
+  url.searchParams.set("country", "Hiszpania");
+  url.searchParams.set("target", "https://www.kiwi.com/pl/search/results/warsaw-poland/barcelona-spain");
+  url.searchParams.set("checkedAt", new Date().toISOString());
+
+  await page.goto(url.pathname + url.search);
+  await expect(page).toHaveURL(/\/okazje\?destination=Barcelona/);
+  await expect(page.locator(".detail-price-card")).toHaveCount(0);
+  await expect(page.locator(".tripownia-buy-cta")).toHaveCount(0);
+});
+
+test("outdated price also cannot open a booking offer landing", async ({ page }) => {
+  const url = new URL("/okazja", "http://localhost:3000");
+  url.searchParams.set("city", "Barcelona");
+  url.searchParams.set("price", "689");
+  url.searchParams.set("checkedAt", new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString());
+  url.searchParams.set("target", "https://www.kiwi.com/pl/search/results/warsaw-poland/barcelona-spain");
+
+  await page.goto(url.pathname + url.search);
+  await expect(page).toHaveURL(/\/okazje\?destination=Barcelona/);
+  await expect(page.locator(".tripownia-buy-cta")).toHaveCount(0);
+});
