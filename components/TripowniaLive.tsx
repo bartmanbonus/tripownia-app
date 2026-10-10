@@ -101,17 +101,18 @@ export default function TripowniaLive() {
                 <strong>{storyTitle(offer)}</strong>
                 <span>{offer.departure} · {offer.dates} · {offer.board}</span>
               </Link>
-              <div className="tripownia-live-price"><small>od</small><strong>{Number(offer.price).toLocaleString("pl-PL")} zł</strong><span>/ os.</span></div>
+              <div className="tripownia-live-price">
+                {canFastBook ? <><small>od</small><strong>{Number(offer.price).toLocaleString("pl-PL")} zł</strong><span>/ os.</span></> : <strong>Sprawdź aktualną cenę</strong>}
+              </div>
               <div className="tripownia-live-actions">
-                {canFastBook && (
-                  <a
-                    className="tripownia-live-book"
-                    href={liveOfferLandingHref(offer, { source: "tripownia_live" })}
-                  ><Zap size={14}/> Zobacz ofertę</a>
-                )}
+                <Link
+                  className="tripownia-live-book"
+                  href={liveOfferLandingHref(offer, { source: "tripownia_live" })}
+                  aria-label={`Sprawdź cenę i dostępność: ${offer.city}, ${offer.departure}, ${offer.dates}`}
+                ><Zap size={14}/> {canFastBook ? "Zobacz ofertę" : "Sprawdź cenę"}</Link>
                 <Link
                   className="tripownia-live-alert"
-                  href={`/alerty?destination=${encodeURIComponent(offer.city)}&departure=${encodeURIComponent(offer.departure)}&maxPrice=${Math.ceil(Number(offer.price) * 1.08)}`}
+                  href={`/alerty?destination=${encodeURIComponent(offer.city)}&departure=${encodeURIComponent(offer.departure)}`}
                   aria-label={`Ustaw alert na podobną cenę do ${offer.city}`}
                 ><Bell size={15}/> Alert</Link>
               </div>
