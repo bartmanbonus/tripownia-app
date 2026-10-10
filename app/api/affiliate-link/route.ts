@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const ref = sealAffiliateLink({ mode, partner, target, context: affiliateLinkContext(body.context) });
-    const href = mode === "exit" ? `/go/${ref}` : mode === "offer" ? `/okazja?ref=${ref}` : `/sprawdz-oferte?ref=${ref}`;
+    const href = mode === "exit" ? `/przejdz/${ref}` : mode === "offer" ? `/okazja?ref=${ref}` : `/sprawdz-oferte?ref=${ref}`;
     return NextResponse.json({ href }, { headers: { "Cache-Control": "no-store", "Referrer-Policy": "no-referrer" } });
   } catch {
     return NextResponse.json({ error: "link_unavailable" }, { status: 503 });
