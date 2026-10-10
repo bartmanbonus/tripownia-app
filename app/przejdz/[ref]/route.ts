@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GET as followTrackedPartnerLink } from "@/app/go/live/route";
-import { openAffiliateLink } from "@/lib/affiliateLinkToken";
+import { resolveAffiliateLink } from "@/lib/affiliateLinkToken";
 
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ ref: string }> }) {
   const { ref } = await params;
-  const payload = openAffiliateLink(ref);
+  const payload = await resolveAffiliateLink(ref);
   if (!payload || payload.mode !== "exit") {
     return NextResponse.redirect(new URL("/okazje", request.url), 307);
   }

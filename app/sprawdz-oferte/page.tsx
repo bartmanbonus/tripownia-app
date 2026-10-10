@@ -7,7 +7,7 @@ import OfferJourney from "@/components/OfferJourney";
 import OfferHeroImage from "@/components/OfferHeroImage";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 import { partnerFromUrl } from "@/lib/affiliateJourney";
-import { affiliateLinkContext, openAffiliateLink, sealAffiliateLink } from "@/lib/affiliateLinkToken";
+import { affiliateLinkContext, resolveAffiliateLink, storeAffiliateLink } from "@/lib/affiliateLinkToken";
 
 export const runtime = "nodejs";
 export const metadata: Metadata = { title: "Sprawdź wybraną ofertę", robots: { index: false, follow: false } };
@@ -39,7 +39,7 @@ export default async function PartnerReview({
       if (name === "target" || name === "partner" || name === "ref") continue;
       if (typeof value === "string") sourceContext[name] = value;
     }
-    const ref = sealAffiliateLink({
+    const ref = await storeAffiliateLink({
       mode: "review",
       partner,
       target: legacyTarget,
@@ -48,7 +48,7 @@ export default async function PartnerReview({
     redirect(`/sprawdz-oferte?ref=${ref}`);
   }
 
-  const payload = openAffiliateLink(read("ref", 12000));
+  const payload = await resolveAffiliateLink(read("ref", 12000));
   if (!payload || payload.mode !== "review") redirect("/okazje");
   const { partner, target, context } = payload;
   const destination = context.destination || "";
@@ -58,7 +58,7 @@ export default async function PartnerReview({
   const price = Number.isFinite(priceValue) && priceValue > 0 && priceValue < 100000 ? priceValue : 0;
   const offer = context.offer || "";
   const source = context.source || "site_offer";
-  const exitRef = sealAffiliateLink({
+  const exitRef = await storeAffiliateLink({
     mode: "exit",
     partner,
     target,

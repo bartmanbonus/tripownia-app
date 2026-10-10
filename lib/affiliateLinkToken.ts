@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHmac, randomBytes } from "node:crypto";
 import { deflateRawSync, inflateRawSync } from "node:zlib";
 import { partnerFromUrl } from "@/lib/affiliateJourney";
 
@@ -83,4 +83,46 @@ export function openAffiliateLink(value: string): AffiliateLinkPayload | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Stable compact public reference: HMAC of the encrypted payload. The sealed
+ * value remains server-side in Supabase; public URLs never expose it.
+ */
+
+
+const SHORT_REF_PATTERN = /^[A-Za-z0-9_-]{16}$/;
+
+function shortLinkConfig() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://wgbzccgcfhnouakswyvj.supabase.co";
+  const serviceKey = process.env.TRIPOWNIA_LINK_STORE_KEY || "";
+  if (!serviceKey || !/^https:\/\//.test(url)) throw new Error("Short link store is not configured");
+  return { url: url.replace(/\/$/, ""), serviceKey };
+}
+
+export async function storeAffiliateLink(payload: AffiliateLinkPayload) {
+  const sealed = sealAffiliateLink(payload);
+  const ref = createHmac("sha256", key()).update(sealed).digest("base64url").slice(0, 16);
+  const { url, serviceKey } = shortLinkConfig();
+  const response = await fetch(`${url}/rest/v1/tripownia_short_links?on_conflict=ref`, {
+    method: "POST",
+    headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json", Prefer: "resolution=ignore-duplicates,return=minimal" },
+    body: JSON.stringify({ ref, sealed, expires_at: new Date(Date.now() + MAX_AGE_MS).toISOString() }),
+    cache: "no-store",
+  });
+  if (!response.ok) throw new Error(`Short link store write failed: ${response.status}`);
+  return ref;
+}
+
+export async function resolveAffiliateLink(ref: string): Promise<AffiliateLinkPayload | null> {
+  if (!SHORT_REF_PATTERN.test(ref)) return openAffiliateLink(ref);
+  try {
+    const { url, serviceKey } = shortLinkConfig();
+    const response = await fetch(`${url}/rest/v1/tripownia_short_links?ref=eq.${encodeURIComponent(ref)}&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&select=sealed&limit=1`, {
+      headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` }, cache: "no-store",
+    });
+    if (!response.ok) return null;
+    const rows = await response.json() as Array<{ sealed?: string }>;
+    return rows[0]?.sealed ? openAffiliateLink(rows[0].sealed) : null;
+  } catch { return null; }
 }

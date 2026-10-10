@@ -11,7 +11,7 @@ import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 import { partnerFromUrl } from "@/lib/affiliateJourney";
-import { affiliateLinkContext, openAffiliateLink, sealAffiliateLink } from "@/lib/affiliateLinkToken";
+import { affiliateLinkContext, resolveAffiliateLink, storeAffiliateLink } from "@/lib/affiliateLinkToken";
 
 export const runtime = "nodejs";
 
@@ -75,11 +75,11 @@ export default async function SocialOfferLanding({
       if (name === "target" || name === "partner" || name === "ref") continue;
       if (typeof value === "string") rawContext[name] = value;
     }
-    const ref = sealAffiliateLink({ mode: "offer", partner, target: legacyTarget, context: affiliateLinkContext(rawContext) });
+    const ref = await storeAffiliateLink({ mode: "offer", partner, target: legacyTarget, context: affiliateLinkContext(rawContext) });
     redirect(`/okazja?ref=${ref}`);
   }
   const rawRef = Array.isArray(received.ref) ? received.ref[0] || "" : received.ref || "";
-  const payload = openAffiliateLink(rawRef.slice(0, 12000));
+  const payload = await resolveAffiliateLink(rawRef.slice(0, 12000));
   if (!payload || payload.mode !== "offer") redirect("/okazje");
   const query: Search = { ...payload.context, target: payload.target };
   const city = one(query.city, "Wybrany kierunek");
@@ -111,7 +111,7 @@ export default async function SocialOfferLanding({
         ? "social_offer_detail"
         : "live_offer_detail";
 
-  const outboundRef = sealAffiliateLink({
+  const outboundRef = await storeAffiliateLink({
     mode: "exit",
     partner: target.partner.key,
     target: target.url,
