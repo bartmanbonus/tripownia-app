@@ -78,7 +78,8 @@ export default async function SocialOfferLanding({
     const ref = sealAffiliateLink({ mode: "offer", partner, target: legacyTarget, context: affiliateLinkContext(rawContext) });
     redirect(`/okazja?ref=${ref}`);
   }
-  const payload = openAffiliateLink(one(received.ref, ""));
+  const rawRef = Array.isArray(received.ref) ? received.ref[0] || "" : received.ref || "";
+  const payload = openAffiliateLink(rawRef.slice(0, 12000));
   if (!payload || payload.mode !== "offer") redirect("/okazje");
   const query: Search = { ...payload.context, target: payload.target };
   const city = one(query.city, "Wybrany kierunek");
