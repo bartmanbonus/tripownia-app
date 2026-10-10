@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import TrackedCampaignLink from "@/components/TrackedCampaignLink";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SearchHub from "@/components/SearchHub";
@@ -31,10 +31,6 @@ type PageProps = {
     duration?: string;
     from?: string;
     to?: string;
-    utm_source?: string;
-    utm_medium?: string;
-    utm_campaign?: string;
-    utm_content?: string;
   }>;
 };
 
@@ -65,7 +61,6 @@ const departureQuickPicks = [
   { label: "Poznań", codes: "POZ" },
 ] as const;
 
-const utmKeys = ["utm_source", "utm_medium", "utm_campaign", "utm_content"] as const;
 const allowedAirports = new Set(["WAW", "WMI", "KRK", "KTW", "GDN", "WRO", "POZ", "RZE", "LCJ", "LUZ", "SZZ", "BZG", "IEG"]);
 
 export default async function NovemberWeekend({ searchParams }: PageProps) {
@@ -79,21 +74,10 @@ export default async function NovemberWeekend({ searchParams }: PageProps) {
   const from = typeof params.from === "string" && /^\d{4}-\d{2}-\d{2}$/.test(params.from) ? params.from : "2026-11-07";
   const to = typeof params.to === "string" && /^\d{4}-\d{2}-\d{2}$/.test(params.to) ? params.to : "2026-11-15";
   const key = [airport.join(","), destination, budget, duration, from, to].join("|");
-  const attribution = new URLSearchParams();
-  for (const utmKey of utmKeys) {
-    const value = params[utmKey];
-    if (typeof value === "string" && value.length > 0 && value.length <= 120) attribution.set(utmKey, value);
-  }
-  const withAttribution = (href: string) =>
-    attribution.size ? `${href}${href.includes("?") ? "&" : "?"}${attribution.toString()}` : href;
   const departureHref = (codes: string) => {
     const search = new URLSearchParams({ airport: codes, duration, from, to });
     if (destination) search.set("destination", destination);
     if (budget !== "all") search.set("budget", budget);
-    for (const utmKey of utmKeys) {
-      const value = attribution.get(utmKey);
-      if (value) search.set(utmKey, value);
-    }
     return `/dlugi-weekend-listopadowy-2026?${search.toString()}#szukaj-listopad`;
   };
 
@@ -116,7 +100,7 @@ export default async function NovemberWeekend({ searchParams }: PageProps) {
         <div className="newyear-type-nav">
           <a href="#gotowe-terminy">Wybierz termin</a>
           <a href="#szukaj-listopad">Sprawdź wyjazdy</a>
-          <Link href={withAttribution("/alerty")}>Ustaw alert cenowy</Link>
+          <TrackedCampaignLink href="/alerty" action="alert">Ustaw alert cenowy</TrackedCampaignLink>
         </div>
       </section>
 
@@ -130,11 +114,11 @@ export default async function NovemberWeekend({ searchParams }: PageProps) {
         </div>
         <div className="newyear-ready-grid">
           {shortTrips.map((trip) => (
-            <Link className="newyear-ready-card" href={withAttribution(trip.href)} key={trip.href}>
+            <TrackedCampaignLink className="newyear-ready-card" href={trip.href} action="dates" detail={trip.title} key={trip.href}>
               <strong>{trip.title}</strong>
               <span>{trip.subtitle}</span>
               <small>Przejdź do wyjazdów →</small>
-            </Link>
+            </TrackedCampaignLink>
           ))}
         </div>
       </section>
@@ -149,10 +133,10 @@ export default async function NovemberWeekend({ searchParams }: PageProps) {
         </div>
         <div className="newyear-ready-grid">
           {departureQuickPicks.map((pick) => (
-            <Link className="newyear-ready-card" href={departureHref(pick.codes)} key={pick.codes}>
+            <TrackedCampaignLink className="newyear-ready-card" href={departureHref(pick.codes)} action="airport" detail={pick.codes} key={pick.codes}>
               <strong>{pick.label}</strong>
               <span>Sprawdź terminy i aktualne ceny</span>
-            </Link>
+            </TrackedCampaignLink>
           ))}
         </div>
       </section>
@@ -191,8 +175,8 @@ export default async function NovemberWeekend({ searchParams }: PageProps) {
           </div>
         </div>
         <div className="premium-action-row">
-          <Link className="premium-action-main" href={withAttribution("/okazje")}>Zobacz wszystkie okazje</Link>
-          <Link className="premium-action-secondary" href={withAttribution("/weekend-bez-urlopu")}>Inne krótkie wyjazdy</Link>
+          <TrackedCampaignLink className="premium-action-main" href="/okazje" action="offers">Zobacz wszystkie okazje</TrackedCampaignLink>
+          <TrackedCampaignLink className="premium-action-secondary" href="/weekend-bez-urlopu" action="weekend">Inne krótkie wyjazdy</TrackedCampaignLink>
         </div>
       </section>
 
