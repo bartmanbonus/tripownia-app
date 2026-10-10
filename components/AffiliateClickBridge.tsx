@@ -5,7 +5,7 @@ import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 
-import { partnerFromUrl, isOfferDetailPath, partnerReviewHref } from "@/lib/affiliateJourney";
+import { partnerFromUrl, isOfferDetailPath } from "@/lib/affiliateJourney";
 import { usePathname } from "next/navigation";
 
 function sourceFor(anchor: HTMLAnchorElement) {
@@ -31,6 +31,7 @@ function sourceFor(anchor: HTMLAnchorElement) {
   if (anchor.closest(".seo-travel-landing-v3")) return "seo_landing";
   if (anchor.closest(".social-offer-page")) return "social_offer_addon";
   if (offerCard) return offerSurface ? `offer_image:${offerSurface}` : "offer_image";
+  if (anchor.closest(".experience-expanded-page")) return "experience_search";
   return "site_outbound";
 }
 
@@ -65,6 +66,17 @@ function destinationFor(anchor: HTMLAnchorElement) {
     if (typedDestination) return typedDestination;
   }
 
+  const searchV3 = anchor.closest<HTMLElement>(".search-v3");
+  if (searchV3) {
+    const summary = searchV3.querySelector<HTMLElement>(".search-v3-active-summary strong")?.textContent?.trim() || "";
+    if (summary && summary !== "Gdziekolwiek") return summary;
+    const selected = searchV3.querySelector<HTMLElement>(".search-v3-selected button")?.textContent?.trim().replace("×", "").trim() || "";
+    if (selected && selected !== "Gdziekolwiek") return selected;
+    const typed = searchV3.querySelector<HTMLInputElement>("#tripownia-destination")?.value?.trim() || "";
+    if (typed) return typed;
+  }
+  const preset = new URLSearchParams(window.location.search).get("destination") || "";
+  if (preset && preset !== "Gdziekolwiek") return preset.split("|")[0].slice(0, 160);
   return "";
 }
 
@@ -142,160 +154,147 @@ function visitAttribution() {
   return { source: "direct", medium: "(none)", campaign: "", content: "", landing: window.location.pathname };
 }
 
-function trackedHref(anchor: HTMLAnchorElement) {
-  const original = anchor.href;
-  const partner = partnerFromUrl(original);
-  if (!partner) return null;
+type ProtectedLink = {
+  target: string;
+  partner: string;
+  mode: "review" | "exit" | "offer";
+  context: Record<string, string>;
+  href?: string;
+  pending?: Promise<string | null>;
+};
 
-  const card = cardContext(anchor);
-  const params = new URLSearchParams({
-    target: original,
-    partner,
-    source: sourceFor(anchor),
-    page: window.location.pathname,
-    clickId: createClickId(),
-    return: `${window.location.pathname}${window.location.search}`,
-  });
-  const destination = anchor.dataset.salesDestination || destinationFor(anchor);
-  if (destination) params.set("destination", destination);
-  if (anchor.dataset.salesOfferId || card.offer) params.set("offer", anchor.dataset.salesOfferId || card.offer);
-  if (anchor.dataset.salesPrice || card.price) params.set("price", anchor.dataset.salesPrice || card.price);
-  const attribution = visitAttribution();
-  if (attribution?.source) params.set("utmSource", attribution.source);
-  if (attribution?.medium) params.set("utmMedium", attribution.medium);
-  if (attribution?.campaign) params.set("utmCampaign", attribution.campaign);
-  if (attribution?.content) params.set("utmContent", attribution.content);
-  if (attribution?.landing) params.set("landing", attribution.landing);
-  return `/go/live?${params.toString()}`;
-}
+const protectedLinks = new WeakMap<HTMLAnchorElement, ProtectedLink>();
+const PENDING_HREF = "/sprawdz-oferte";
 
-function isTrackedLiveHref(anchor: HTMLAnchorElement) {
-  const href = anchor.getAttribute("href") || "";
-  if (href.startsWith("/go/live?")) return true;
-  try {
-    const url = new URL(href, window.location.origin);
-    return url.origin === window.location.origin && url.pathname === "/go/live";
-  } catch {
-    return false;
-  }
-}
+function readPartnerLink(anchor: HTMLAnchorElement): ProtectedLink | null {
+  const rawHref = anchor.getAttribute("href") || "";
+  const old = protectedLinks.get(anchor);
+  if (old && (rawHref === PENDING_HREF || rawHref === old.href)) return old;
 
-function enrichTrackedLiveHref(anchor: HTMLAnchorElement) {
-  if (!isTrackedLiveHref(anchor)) return false;
-  try {
-    const url = new URL(anchor.href, window.location.origin);
-    const attribution = visitAttribution();
-    if (!url.searchParams.get("clickId")) url.searchParams.set("clickId", createClickId());
-    if (!url.searchParams.get("utmSource") && attribution?.source) url.searchParams.set("utmSource", attribution.source);
-    if (!url.searchParams.get("utmMedium") && attribution?.medium) url.searchParams.set("utmMedium", attribution.medium);
-    if (!url.searchParams.get("utmCampaign") && attribution?.campaign) url.searchParams.set("utmCampaign", attribution.campaign);
-    if (!url.searchParams.get("utmContent") && attribution?.content) url.searchParams.set("utmContent", attribution.content);
-    if (!url.searchParams.get("landing")) url.searchParams.set("landing", attribution?.landing || window.location.pathname);
-    if (!url.searchParams.get("return")) url.searchParams.set("return", `${window.location.pathname}${window.location.search}`);
-    anchor.href = url.pathname + "?" + url.searchParams.toString();
-    anchor.removeAttribute("target");
-    anchor.dataset.tripowniaOutboundWrapped = "1";
-    return true;
-  } catch {
-    return false;
-  }
-}
+  let url: URL;
+  try { url = new URL(rawHref, window.location.origin); } catch { return null; }
 
-function wrapAnchor(anchor: HTMLAnchorElement) {
-  const finalExit = isOfferDetailPath(window.location.pathname) && (anchor.dataset.partnerExit === "1" || Boolean(anchor.closest(".detail-action-box, .live-mobile-booking-bar")));
-  if (!finalExit && !window.location.pathname.startsWith("/admin")) {
-    const wrapped = isTrackedLiveHref(anchor) ? new URL(anchor.href) : null;
-    const target = wrapped?.searchParams.get("target") || anchor.href;
-    if (partnerFromUrl(target)) {
-      const context = cardContext(anchor);
-      const params = Object.fromEntries(wrapped?.searchParams || []);
-      delete params.clickId;
-      const href = partnerReviewHref(target, {
-        ...params,
-        source: params.source || sourceFor(anchor),
-        destination: params.destination || anchor.dataset.salesDestination || destinationFor(anchor),
-        offer: params.offer || anchor.dataset.salesOfferId || context.offer,
-        price: params.price || anchor.dataset.salesPrice || context.price,
-      });
-      anchor.setAttribute("href", href);
-      anchor.removeAttribute("target");
-      return;
+  let target = "";
+  const inherited: Record<string, string> = {};
+  if (url.origin === window.location.origin) {
+    if (url.pathname === "/go/live" || url.pathname === "/sprawdz-oferte" || url.pathname === "/okazja") {
+      target = url.searchParams.get("target") || "";
+      url.searchParams.forEach((value, name) => { if (name !== "target" && name !== "partner") inherited[name] = value; });
+    } else if (/^\/out\/[^/]+\/?$/.test(url.pathname)) {
+      target = url.searchParams.get("url") || "";
+      url.searchParams.forEach((value, name) => { if (name !== "url") inherited[name] = value; });
+    } else {
+      return null;
     }
-  }
-  if (enrichTrackedLiveHref(anchor)) return;
-  if (anchor.dataset.tripowniaOutboundWrapped === "1" && isTrackedLiveHref(anchor)) return;
-
-  // React can update href after a user changes search parameters while the DOM node
-  // (and our data marker) stays the same. Re-wrap that fresh partner URL instead of
-  // treating the anchor as permanently processed.
-  if (anchor.dataset.tripowniaOutboundWrapped === "1") {
-    delete anchor.dataset.tripowniaOutboundWrapped;
+  } else {
+    target = url.toString();
   }
 
-  const href = trackedHref(anchor);
-  if (!href) return;
-  anchor.href = href;
-  // Keep the purchase flow in one tab. The return prompt restores Tripownia context
-  // after the user comes back from the partner.
+  const partner = partnerFromUrl(target);
+  if (!partner) return null;
+  const card = cardContext(anchor);
+  const finalExit = isOfferDetailPath(window.location.pathname) &&
+    (anchor.dataset.partnerExit === "1" || Boolean(anchor.closest(".detail-action-box, .live-mobile-booking-bar")));
+  const mode: ProtectedLink["mode"] = url.pathname === "/okazja" ? "offer"
+    : finalExit ? "exit" : "review";
+  const attribution = visitAttribution();
+  const context: Record<string, string> = {
+    ...inherited,
+    source: inherited.source || sourceFor(anchor),
+    page: window.location.pathname,
+    clickId: inherited.clickId || createClickId(),
+    return: `${window.location.pathname}${window.location.search}`,
+    destination: inherited.destination || anchor.dataset.salesDestination || destinationFor(anchor),
+    offer: inherited.offer || anchor.dataset.salesOfferId || card.offer,
+    price: inherited.price || anchor.dataset.salesPrice || card.price,
+    utmSource: inherited.utmSource || attribution.source,
+    utmMedium: inherited.utmMedium || attribution.medium,
+    utmCampaign: inherited.utmCampaign || attribution.campaign,
+    utmContent: inherited.utmContent || attribution.content,
+    landing: inherited.landing || attribution.landing,
+  };
+  return { target, partner, mode, context };
+}
+
+function protectAnchor(anchor: HTMLAnchorElement): ProtectedLink | null {
+  const data = readPartnerLink(anchor);
+  if (!data) return null;
+  if (protectedLinks.get(anchor) !== data) protectedLinks.set(anchor, data);
+  if (!data.href && anchor.getAttribute("href") !== PENDING_HREF) {
+    anchor.setAttribute("href", PENDING_HREF);
+  }
   anchor.removeAttribute("target");
-  anchor.dataset.tripowniaOutboundWrapped = "1";
+  anchor.setAttribute("rel", "sponsored");
+  return data;
+}
+
+function validOpaqueHref(href: unknown, mode: ProtectedLink["mode"]): href is string {
+  if (typeof href !== "string" || href.length > 12000) return false;
+  return mode === "exit"
+    ? /^\/przejdz\/[A-Za-z0-9_-]{40,12000}$/.test(href)
+    : mode === "offer" ? /^\/okazja\?ref=[A-Za-z0-9_-]{40,12000}$/.test(href)
+    : /^\/sprawdz-oferte\?ref=[A-Za-z0-9_-]{40,12000}$/.test(href);
+}
+
+function resolveProtectedLink(anchor: HTMLAnchorElement, data: ProtectedLink) {
+  if (data.href) return Promise.resolve(data.href);
+  if (data.pending) return data.pending;
+  data.pending = fetch("/api/affiliate-link", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ target: data.target, partner: data.partner, mode: data.mode, context: data.context }),
+    cache: "no-store",
+  }).then(async response => {
+    const value = response.ok ? await response.json() : null;
+    const href = value?.href;
+    if (!validOpaqueHref(href, data.mode)) return null;
+    data.href = href;
+    // If React replaced this anchor, never update it with an obsolete offer.
+    if (protectedLinks.get(anchor) === data) anchor.setAttribute("href", href);
+    return href;
+  }).catch(() => null).finally(() => { data.pending = undefined; });
+  return data.pending;
 }
 
 function wrapInitialPartnerLinks() {
-  document
-    .querySelectorAll<HTMLAnchorElement>('a[href^="http://"], a[href^="https://"], a[href^="/go/live?"]')
-    .forEach(wrapAnchor);
+  document.querySelectorAll<HTMLAnchorElement>(
+    'a[href^="http://"], a[href^="https://"], a[href^="/go/live?"], a[href^="/sprawdz-oferte?"], a[href^="/okazja?"], a[href^="/out/"]'
+  ).forEach(protectAnchor);
 }
 
 function interactiveAnchor(event: Event) {
   const target = event.target;
-  if (!(target instanceof Element)) return null;
-  return target.closest<HTMLAnchorElement>("a[href]");
+  return target instanceof Element ? target.closest<HTMLAnchorElement>("a[href]") : null;
 }
 
-function captureOutboundContext(anchor: HTMLAnchorElement) {
-  if (!isTrackedLiveHref(anchor)) return;
-  try {
-    const tracked = new URL(anchor.href, window.location.origin);
-    const clickId = tracked.searchParams.get("clickId") || "";
-    if (clickId && anchor.dataset.tripowniaOutboundContextSaved === clickId) return;
-
-    const partner = tracked.searchParams.get("partner") || "unknown";
-    const source = tracked.searchParams.get("source") || sourceFor(anchor);
-    const destination = tracked.searchParams.get("destination") || destinationFor(anchor);
-    const target = tracked.searchParams.get("target") || "";
-    const outboundHost = (() => { try { return new URL(target).hostname; } catch { return ""; } })();
-    const offerId = tracked.searchParams.get("offer") || "";
-    const price = tracked.searchParams.get("price") || "";
-
-    saveAffiliateReturnContext({
-      partner,
-      destination,
-      source,
-      offerId,
-      price,
-      ...currentOfferReturnDetails(),
-    });
-    trackEvent("affiliate_click", {
-      partner,
-      source,
-      destination,
-      page: window.location.pathname,
-      outbound_host: outboundHost,
-      offer_id: offerId || undefined,
-      price: price && Number.isFinite(Number(price)) ? Number(price) : undefined,
-      currency: "PLN",
-    });
-    trackMetaCustomEvent("AffiliateClick", {
-      partner,
-      source,
-      destination,
-      page: window.location.pathname,
-      outbound_host: outboundHost,
-    });
-
-    if (clickId) anchor.dataset.tripowniaOutboundContextSaved = clickId;
-  } catch {}
+function captureOutboundContext(anchor: HTMLAnchorElement, data: ProtectedLink) {
+  const clickId = data.context.clickId || "";
+  if (clickId && anchor.dataset.tripowniaOutboundContextSaved === clickId) return;
+  const { partner, target, context } = data;
+  const outboundHost = (() => { try { return new URL(target).hostname; } catch { return ""; } })();
+  const destination = context.destination || destinationFor(anchor);
+  saveAffiliateReturnContext({
+    partner,
+    destination,
+    source: context.source || sourceFor(anchor),
+    offerId: context.offer,
+    price: context.price,
+    ...currentOfferReturnDetails(),
+  });
+  trackEvent("affiliate_click", {
+    partner,
+    source: context.source,
+    destination,
+    page: window.location.pathname,
+    outbound_host: outboundHost,
+    offer_id: context.offer || undefined,
+    price: context.price && Number.isFinite(Number(context.price)) ? Number(context.price) : undefined,
+    currency: "PLN",
+  });
+  trackMetaCustomEvent("AffiliateClick", {
+    partner, source: context.source, destination, page: window.location.pathname, outbound_host: outboundHost,
+  });
+  if (clickId) anchor.dataset.tripowniaOutboundContextSaved = clickId;
 }
 
 export default function AffiliateClickBridge() {
@@ -306,14 +305,41 @@ export default function AffiliateClickBridge() {
     const handleInteraction = (event: Event) => {
       const anchor = interactiveAnchor(event);
       if (!anchor) return;
-      wrapAnchor(anchor);
+      const data = protectAnchor(anchor);
+      if (!data) return;
 
-      // Count activation only; pointerdown/focus prepare URLs but are not exits.
       if (event.type === "click" || event.type === "auxclick") {
-        captureOutboundContext(anchor);
+        if (data.mode === "exit") captureOutboundContext(anchor, data);
+        if (!data.href) {
+          event.preventDefault();
+          void resolveProtectedLink(anchor, data).then((href) => {
+            if (href && protectedLinks.get(anchor) === data) window.location.assign(href);
+            else if (!href) window.alert("Nie udało się przygotować linku. Spróbuj ponownie.");
+          });
+        }
+      } else {
+        // Prepare an opaque href on hover, focus or touch before navigation.
+        void resolveProtectedLink(anchor, data);
       }
     };
 
+    const observer = new MutationObserver((mutations) => {
+      for (const change of mutations) {
+        if (change.type === "attributes") {
+          if (change.target instanceof HTMLAnchorElement) protectAnchor(change.target);
+          continue;
+        }
+        for (const added of change.addedNodes) {
+          if (added instanceof HTMLAnchorElement) protectAnchor(added);
+          if (added instanceof Element) {
+            added.querySelectorAll<HTMLAnchorElement>("a[href]").forEach(protectAnchor);
+          }
+        }
+      }
+    });
+    observer.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["href"] });
+
+    document.addEventListener("pointerover", handleInteraction, true);
     document.addEventListener("pointerdown", handleInteraction, true);
     document.addEventListener("click", handleInteraction, true);
     document.addEventListener("auxclick", handleInteraction, true);
@@ -321,6 +347,8 @@ export default function AffiliateClickBridge() {
     document.addEventListener("contextmenu", handleInteraction, true);
 
     return () => {
+      observer.disconnect();
+      document.removeEventListener("pointerover", handleInteraction, true);
       document.removeEventListener("pointerdown", handleInteraction, true);
       document.removeEventListener("click", handleInteraction, true);
       document.removeEventListener("auxclick", handleInteraction, true);

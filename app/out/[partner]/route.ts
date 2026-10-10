@@ -1,4 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { sealAffiliateLink } from "@/lib/affiliateLinkToken";
+
+export const runtime = "nodejs";
 
 const allowedHosts: Record<string, string[]> = {
   // eSky is now a legacy alias that resolves to the Kiwi affiliate programme.
@@ -53,15 +56,15 @@ export async function GET(
     ? "kiwi"
     : partner;
 
-  const tracked = new URL("/go/live", request.url);
-  tracked.searchParams.set("target", target.toString());
-  tracked.searchParams.set("partner", resolvedPartner);
-  tracked.searchParams.set("source", source);
-  if (offer) tracked.searchParams.set("offer", offer);
-  if (destination) tracked.searchParams.set("destination", destination);
-  tracked.searchParams.set("page", request.headers.get("referer") || request.nextUrl.pathname);
-
-  const response = NextResponse.redirect(tracked, 307);
+  // The legacy URL may contain identifiers, but the redirect location must not.
+  const ref = sealAffiliateLink({
+    mode: "exit",
+    partner: resolvedPartner,
+    target: target.toString(),
+    context: { source, offer, destination, page: request.nextUrl.pathname },
+  });
+  const response = NextResponse.redirect(new URL(`/przejdz/${ref}`, request.url), 307);
   response.headers.set("Cache-Control", "no-store");
+  response.headers.set("Referrer-Policy", "no-referrer");
   return response;
 }
