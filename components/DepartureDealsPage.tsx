@@ -79,7 +79,7 @@ export default function DepartureDealsPage({
           description="Udostępnij znajomym aktualną listę opcji z tego lotniska. Każdy sam sprawdzi dostępność i cenę przed rezerwacją."
         />
       </section>
-      <FacebookFollowCTA placement={`departure_hub_after_offers_${airportCodes.join("_")}`} compact />
+      <FacebookFollowCTA placement={`departure_hub_after_offers_${airportCodes.join("_")}`} interest={city} compact />
     </div></section>
     <section className={styles.ctaSection}><div className={styles.shell}><div className={styles.cta}>
       <Sparkles size={30}/><div><span className={styles.kicker}>NIE ODKŁADAJ DOBREJ OFERTY</span><h2>Sprawdź szczegóły, a potem ułóż całą podróż w Tripowni.</h2><p>Ceny i dostępność mogą się zmieniać. Najpierw wybierz wyjazd, później dodaj lot, hotel, transfer, atrakcje i checklistę do planu.</p></div><div className={styles.ctaActions}><a href="#oferty">Wróć do ofert <ArrowRight size={17}/></a><Link href="/dodaj-podroz">Plan za 0 zł</Link></div>
