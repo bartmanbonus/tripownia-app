@@ -42,6 +42,8 @@ test("partner review shows correct names for both claim-service affiliates", asy
   ]) {
     const response = await request.get(`/sprawdz-oferte?target=${encodeURIComponent(target)}`);
     expect(response.status()).toBe(200);
-    expect(await response.text()).toContain(`Przejdziesz do ${name}`);
+    // React SSR can insert text-separator comments around interpolated labels.
+    const html = (await response.text()).replace(/<!--(?:.|\\n)*?-->/g, "");
+    expect(html).toContain(`Przejdziesz do ${name}`);
   }
 });
