@@ -2,7 +2,7 @@ import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
 import { deflateRawSync, inflateRawSync } from "node:zlib";
 import { partnerFromUrl } from "@/lib/affiliateJourney";
 
-export type AffiliateLinkIntent = "review" | "exit";
+export type AffiliateLinkIntent = "review" | "exit" | "offer";
 export type AffiliateLinkPayload = {
   mode: AffiliateLinkIntent;
   partner: string;
@@ -13,6 +13,8 @@ export type AffiliateLinkPayload = {
 const CONTEXT_KEYS = new Set([
   "source", "destination", "offer", "price", "page", "clickId", "return",
   "utmSource", "utmMedium", "utmCampaign", "utmContent", "landing",
+  "city", "country", "departure", "nights", "dates", "board", "note", "checkedAt",
+  "hotel", "airport", "start", "end",
 ]);
 const MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
 
@@ -35,7 +37,7 @@ export function affiliateLinkContext(input: unknown) {
 }
 
 function validated(payload: AffiliateLinkPayload) {
-  if ((payload.mode !== "review" && payload.mode !== "exit") || payload.target.length > 8192) return false;
+  if ((payload.mode !== "review" && payload.mode !== "exit" && payload.mode !== "offer") || payload.target.length > 8192) return false;
   return partnerFromUrl(payload.target) === payload.partner;
 }
 
