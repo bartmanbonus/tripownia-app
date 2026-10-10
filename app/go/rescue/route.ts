@@ -90,9 +90,15 @@ export async function GET(request: NextRequest) {
   const internal = new URL("/go/live", request.url);
   internal.searchParams.set("partner", partner);
   internal.searchParams.set("target", target);
-  internal.searchParams.set("source", `search_zero_${kind}_rescue`);
+  internal.searchParams.set("source", kind === "package" ? "search_zero_rescue" : `search_zero_${kind}_rescue`);
   internal.searchParams.set("destination", destination);
-  internal.searchParams.set("page", "/szukaj");
+  let page = "/szukaj";
+  try {
+    const referrer = request.headers.get("referer");
+    const ref = referrer ? new URL(referrer) : null;
+    if (ref?.origin === request.nextUrl.origin && ref.pathname.startsWith("/")) page = ref.pathname.slice(0, 160);
+  } catch { /* Keep the anonymous search source as fallback. */ }
+  internal.searchParams.set("page", page);
   const attribution = ["utmSource", "utmMedium", "utmCampaign", "utmContent", "landing"] as const;
   for (const key of attribution) {
     const value = params.get(key);
