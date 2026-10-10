@@ -109,7 +109,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("home -> concrete Tripownia offer -> monetized partner CTA", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
 
   const verified = page.locator('[data-offer-id="1700000001"]').first();
   await expect(verified).toBeVisible();
@@ -139,7 +139,7 @@ test("home -> concrete Tripownia offer -> monetized partner CTA", async ({ page 
 });
 
 test("stale or unknown price is never shown as a current numeric price", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
 
   const stale = page.locator('[data-offer-id="1700000002"]').first();
   await expect(stale).toBeVisible();
@@ -149,7 +149,7 @@ test("stale or unknown price is never shown as a current numeric price", async (
 });
 
 test("Okazje uses the same internal-first affiliate path", async ({ page }) => {
-  await page.goto("/okazje");
+  await page.goto("/okazje", { waitUntil: "domcontentloaded" });
 
   const cards = page.locator(".offer-card");
   await expect(page.locator('[data-offer-id="1700000001"]').first()).toBeVisible();
@@ -172,7 +172,7 @@ test("Okazje uses the same internal-first affiliate path", async ({ page }) => {
 test("mobile layout keeps core sales content inside the viewport", async ({ page }, testInfo) => {
   test.skip(!testInfo.project.name.includes("mobile"), "mobile-only assertion");
 
-  await page.goto("/");
+  await page.goto("/", { waitUntil: "domcontentloaded" });
   const card = page.locator('[data-offer-id="1700000001"]').first();
   await expect(card).toBeVisible();
 
@@ -185,7 +185,7 @@ test("mobile layout keeps core sales content inside the viewport", async ({ page
 });
 
 test("partner-bound CTA skips extra screen while keeping affiliate URL encrypted", async ({ page }) => {
-  await page.goto("/okazje");
+  await page.goto("/okazje", { waitUntil: "domcontentloaded" });
 
   // Any partner-bound search/SEO link should resolve to an opaque Tripownia
   // exit, never a plaintext affiliate URL or an extra review landing.
