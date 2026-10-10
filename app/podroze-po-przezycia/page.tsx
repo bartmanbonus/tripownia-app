@@ -93,12 +93,21 @@ function plannerExperienceLink(i: Idea, experienceId: string) {
 
 export default async function ExperiencesPage({ searchParams }: PageProps){
   const params = await searchParams;
-  const selectedDestination = typeof params.destination === "string" ? params.destination : "";
-  const selectedFrom = typeof params.from === "string" ? params.from : "";
-  const selectedTo = typeof params.to === "string" ? params.to : "";
-  const selectedExperience = typeof params.experience === "string" ? params.experience : "";
+  const selectedDestination = typeof params.destination === "string" ? params.destination.trim().slice(0, 120) : "";
+  const selectedFrom = typeof params.from === "string" && /^\d{4}-\d{2}-\d{2}$/.test(params.from) ? params.from : "";
+  const selectedTo = typeof params.to === "string" && /^\d{4}-\d{2}-\d{2}$/.test(params.to) ? params.to : "";
+  const selectedExperience = typeof params.experience === "string" ? params.experience.slice(0, 60) : "";
   const selectedExperienceData = experiences.find((item) => item.id === selectedExperience);
   const hasSelection = Boolean(selectedDestination);
+  const selectedCity = selectedDestination.split(",")[0].trim();
+  const flightParams = new URLSearchParams({ destination: selectedCity });
+  const hotelParams = new URLSearchParams({ destination: selectedDestination });
+  if (selectedFrom && selectedTo && selectedTo > selectedFrom) {
+    flightParams.set("outbound", selectedFrom);
+    flightParams.set("inbound", selectedTo);
+    hotelParams.set("from", selectedFrom);
+    hotelParams.set("to", selectedTo);
+  }
   const showMarkets = Date.now() <= new Date("2027-01-07T22:59:59Z").getTime();
   return <main className="experience-expanded-page"><SiteHeader/><BreadcrumbSchema items={[{name:"Tripownia",url:"https://tripownia.pl/"},{name:"Podróże po przeżycia",url:"https://tripownia.pl/podroze-po-przezycia"}]}/>
     <section className="experience-expanded-hero"><div className="shell"><div className="kicker">PODRÓŻE PO PRZEŻYCIA</div><h1>Najpierw wybierz przeżycie. Potem dobierzemy miejsce i termin.</h1><p>Zorza, sakura, fiordy, safari czy egzotyka mają swój sezon. Tripownia pokazuje sensowne okno, konkretne bazy i pozwala od razu wyszukać wyjazd bez wyrzucania Cię do zewnętrznej strony.</p><div className="experience-season-nav"><a href="#zorza">🌌 Zorza</a><a href="#sakura">🌸 Sakura</a><a href="#fiordy">🏔️ Fiordy</a><a href="#nowa-zelandia">🥾 Nowa Zelandia</a><a href="#tulipany">🌷 Tulipany</a><a href="#safari">🦁 Safari</a><a href="#wieloryby">🐋 Wieloryby</a><a href="#egzotyka">🌴 Egzotyka</a>{showMarkets&&<Link href="/jarmarki-bozonarodzeniowe">🎄 Jarmarki</Link>}<Link href="/sylwester">🥂 Sylwester</Link></div></div></section>
@@ -122,6 +131,11 @@ export default async function ExperiencesPage({ searchParams }: PageProps){
           searchRequest={1}
         />
       </div>
+      <nav className="premium-action-row" aria-label="Inne sposoby znalezienia wyjazdu">
+        <Link className="premium-action-main" href={`/loty?${flightParams.toString()}`} data-experience-alternative="flights">Porównaj loty do {selectedCity}</Link>
+        <Link className="premium-action-secondary" href={`/hotele?${hotelParams.toString()}`} data-experience-alternative="hotels">Sprawdź hotele na ten termin</Link>
+      </nav>
+      <p className="experience-forecast-note" role="note">Nie widzisz gotowego pakietu? Loty i hotele możesz porównać osobno w Tripowni. To nie jest potwierdzenie dostępności ani ceny — sprawdź je przed rezerwacją.</p>
     </section> : <section className="shell experience-choice-guide">
       <div><strong>1. Wybierz przeżycie</strong><span>Sakura, fiordy, zorza, safari albo inny sezonowy pomysł.</span></div>
       <div><strong>2. Wybierz bazę</strong><span>Podajemy konkretne miasta zamiast ogólnego kraju.</span></div>
