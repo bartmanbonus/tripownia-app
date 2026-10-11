@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { kiwiFlightExitHref } from "@/lib/kiwiFlights";
+import FlightDestinationCatalog from "@/components/FlightDestinationCatalog";
 
 type Place = { code: string; name: string; country: string; airport?: string; type?: string; searchCode?: string };
 type RouteChoice = { key: string; origin: Place; destination: Place | null };
@@ -670,7 +671,7 @@ export default function FlexibleFlightsExplorer({
 
                 {!dealsLoading && sortedDeals.length > 0 && (
                   <div className="flight-deals-grid">
-                    {sortedDeals.slice(0, 36).map((deal) => (
+                    {sortedDeals.map((deal) => (
                       <a
                         className="flight-deal-card"
                         key={deal.destination}
@@ -712,6 +713,7 @@ export default function FlexibleFlightsExplorer({
                   <div style={{ marginTop: 10 }}><a href={affiliateFallbackUrl} rel="sponsored">Sprawdź wszystkie loty →</a></div>
                 </div>
               )}
+              {!dealsLoading && <FlightDestinationCatalog origin={activeRoute?.origin.code || "WAW"} pricedCodes={deals.map((deal) => deal.destination)} />}
             </>
           ) : (
             <section className="flight-month-results" aria-label="Najtańsze terminy dla wybranej trasy">
@@ -726,7 +728,7 @@ export default function FlexibleFlightsExplorer({
                     </div>
                   </div>
                   <div className="flight-deals-grid">
-                    {calendarResults.slice(0, 18).map((deal) => (
+                    {calendarResults.map((deal) => (
                       <a
                         className="flight-deal-card"
                         key={deal.departDate + "-" + deal.returnDate}
