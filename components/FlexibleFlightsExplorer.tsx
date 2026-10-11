@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { ArrowRight, ChevronDown, Search } from "lucide-react";
-import { kiwiFlightExitHref } from "@/lib/kiwiFlights";
+import { eskyFlightExitHref } from "@/lib/eskyFlights";
 import FlightDestinationCatalog from "@/components/FlightDestinationCatalog";
 
 type Place = { code: string; name: string; country: string; airport?: string; type?: string; searchCode?: string };
@@ -436,11 +436,19 @@ export default function FlexibleFlightsExplorer({
 
   const activeRoute = routes.find((route) => route.key === activeRouteKey) || routes[0] || null;
 
-  const affiliateFallbackUrl = useMemo(() => kiwiFlightExitHref({
-    origin: activeRoute?.origin.code || "WAW",
-    destination: activeRoute?.destination?.searchCode || activeRoute?.destination?.code || "anywhere",
-    source: "flight_fallback",
-  }), [activeRoute]);
+  const affiliateFallbackUrl = useMemo(() => {
+    const destination = activeRoute?.destination?.searchCode || activeRoute?.destination?.code || "";
+    if (!destination) return "/loty";
+    try {
+      return eskyFlightExitHref({
+        origin: activeRoute?.origin.code || "WAW",
+        destination,
+        source: "flight_fallback",
+      });
+    } catch {
+      return "/loty";
+    }
+  }, [activeRoute]);
 
   const effectiveDestinationCode = activeRoute?.destination?.searchCode || activeRoute?.destination?.code || "";
   const fallbackDestinationCode = activeRoute?.destination?.code || "";
