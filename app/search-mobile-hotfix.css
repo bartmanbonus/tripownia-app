@@ -1694,3 +1694,27 @@
     justify-content:flex-start;
   }
 }
+
+
+/* Extended flight destination coverage - 2026-10-11 */
+.flight-catalog{margin-top:24px;padding-top:20px;border-top:1px solid #e8dad2}
+.flight-catalog-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
+.flight-catalog-heading small{font-size:10px;font-weight:800;letter-spacing:.06em;color:#cb4f2b}
+.flight-catalog-heading h3{font-size:21px;margin:5px 0 6px;color:#211b17}
+.flight-catalog-heading p{font-size:13px;color:#695d56;line-height:1.6;max-width:770px;margin:0}
+.flight-catalog-heading>strong{flex-shrink:0;font-size:12px;color:#52453e}
+.flight-catalog-controls{display:flex;gap:10px;margin:16px 0}
+.flight-catalog-controls input{flex:1;min-width:0;background:#fff;border:1px solid #dbc9c0;border-radius:12px;padding:13px;color:#241c17}
+.flight-catalog-controls button,.flight-catalog-expand{border-radius:12px;border:1px solid #e5baa9;background:#fff6f2;padding:12px 16px;color:#a93518;font-weight:750;cursor:pointer}
+.flight-catalog-controls button:disabled{opacity:.5;cursor:not-allowed}
+.flight-catalog-regions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.flight-catalog-regions button{border:1px solid #e1d2c9;border-radius:99px;background:#fff;color:#443b36;padding:8px 11px;font-weight:650;font-size:12px;cursor:pointer}
+.flight-catalog-regions button.active{border-color:#df562f;background:#fff2ea;color:#bb3e1c}
+.flight-catalog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.flight-catalog-card{background:#fff;border:1px solid #e9d9d0;border-radius:15px;padding:15px;text-decoration:none;display:grid;gap:5px;min-width:0}
+.flight-catalog-card strong{color:#241c17;font-size:15px}
+.flight-catalog-card span{color:#796960;font-size:12px}
+.flight-catalog-card em{font-style:normal;font-size:12px;color:#c24b29;font-weight:750;margin-top:6px}
+.flight-catalog-expand{display:block;margin:18px auto 4px}
+@media(max-width:900px){.flight-catalog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.flight-catalog-heading{display:block}.flight-catalog-heading>strong{display:block;margin-top:10px}.flight-catalog-grid{grid-template-columns:1fr}.flight-catalog-controls{flex-direction:column}}
