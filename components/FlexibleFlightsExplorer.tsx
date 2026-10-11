@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { ArrowRight, ChevronDown, Search } from "lucide-react";
 import { kiwiFlightExitHref } from "@/lib/kiwiFlights";
 import FlightDestinationCatalog from "@/components/FlightDestinationCatalog";
 
@@ -107,6 +108,7 @@ function TPCheckboxPlacePicker({
   const [rows, setRows] = useState<Place[]>([]);
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const menuId = useId();
 
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
@@ -171,28 +173,31 @@ function TPCheckboxPlacePicker({
         : values.length + " wybrane";
 
   return (
-    <div className="flight-hunt-field flight-hunt-checkbox-picker" ref={rootRef}>
+    <div className="flight-hunt-field flight-hunt-checkbox-picker" ref={rootRef} onKeyDown={(event) => { if (event.key === "Escape") setOpen(false); }}>
       <span>{label}</span>
 
       <button
         type="button"
         className={"flight-hunt-picker-trigger" + (open ? " open" : "")}
         aria-expanded={open}
+        aria-controls={menuId}
+        aria-label={label + ": " + summary}
         onClick={() => setOpen((value) => !value)}
       >
         <span className={values.length || specialActive ? "has-value" : ""}>{summary}</span>
-        <b>{open ? "▲" : "▼"}</b>
+        <ChevronDown aria-hidden="true" size={17} className={open ? "rotated" : ""} />
       </button>
 
       {open && (
-        <div className="flight-hunt-picker-menu" role="dialog" aria-label={label + " — wybór wielu miejsc"}>
+        <div className="flight-hunt-picker-menu" id={menuId} role="group" aria-label={label + " — wybór wielu miejsc"}>
           <div className="flight-hunt-picker-search">
-            <span>⌕</span>
+            <Search size={18} aria-hidden="true" />
             <input
               autoFocus
+              aria-label={label.startsWith("Skąd") ? "Szukaj lotniska wylotu" : "Szukaj kierunku podróży"}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={label === "Skąd" ? "Szukaj miasta lub lotniska" : "Szukaj miasta, kraju lub lotniska"}
+              placeholder={label.startsWith("Skąd") ? "Szukaj miasta lub lotniska" : "Szukaj miasta, kraju lub lotniska"}
             />
             {query && <button type="button" onClick={() => setQuery("")} aria-label="Wyczyść wyszukiwanie">×</button>}
           </div>
@@ -200,17 +205,18 @@ function TPCheckboxPlacePicker({
           <button
             type="button"
             className={"flight-hunt-check-row special" + (specialActive ? " selected" : "")}
+            aria-pressed={specialActive}
             onClick={chooseSpecial}
           >
             <span className="flight-hunt-checkbox">{specialActive ? "✓" : ""}</span>
             <span>
               <strong>{specialLabel}</strong>
-              <small>{label === "Skąd" ? "szukaj z głównych lotnisk w Polsce" : "nie ograniczaj kierunku"}</small>
+              <small>{label.startsWith("Skąd") ? "szukaj z głównych lotnisk w Polsce" : "nie ograniczaj kierunku"}</small>
             </span>
           </button>
 
           <div className="flight-hunt-picker-section-label">
-            {query.trim().length >= 2 ? "WYNIKI WYSZUKIWANIA" : label === "Skąd" ? "LOTNISKA W POLSCE" : "POPULARNE KIERUNKI"}
+            {query.trim().length >= 2 ? "WYNIKI WYSZUKIWANIA" : label.startsWith("Skąd") ? "LOTNISKA W POLSCE" : "POPULARNE KIERUNKI"}
           </div>
 
           <div className="flight-hunt-picker-list">
@@ -220,6 +226,7 @@ function TPCheckboxPlacePicker({
                 <button
                   type="button"
                   className={"flight-hunt-check-row" + (selected ? " selected" : "")}
+                  aria-pressed={selected}
                   key={row.code + "-" + row.name}
                   onClick={() => togglePlace(row)}
                 >
@@ -338,14 +345,27 @@ export default function FlexibleFlightsExplorer({
   initialMonth = "",
 }: FlexibleFlightsExplorerProps) {
   const initialOriginPlace = FLEXIBLE_ORIGINS.find((place) => place.code === initialOrigin.toUpperCase()) || FLEXIBLE_ORIGINS[0];
+  const monthSelectId = useId();
+  const stayGroupId = useId();
   const [origins, setOrigins] = useState<Place[]>([initialOriginPlace]);
   const [destinations, setDestinations] = useState<Place[]>([]);
   const [originAnywhere, setOriginAnywhere] = useState(false);
-  const [destinationAnywhere, setDestinationAnywhere] = useState(false);
-  const [daysMin, setDaysMin] = useState(3);
-  const [daysMax, setDaysMax] = useState(7);
+  const [destinationAnywhere, setDestinationAnywhere] = useState(!initialDestination.trim());
+  const [daysMin, setDaysMin] = useState(2);
+  const [daysMax, setDaysMax] = useState(4);
   const [directOnly, setDirectOnly] = useState(false);
   const [travelMonth, setTravelMonth] = useState(/^\d{4}-\d{2}$/.test(initialMonth) ? initialMonth : "");
+  const [monthOptions, setMonthOptions] = useState<Array<{ value: string; label: string }>>([]);
+  useEffect(() => {
+    const today = new Date();
+    const formatter = new Intl.DateTimeFormat("pl-PL", { month: "long", year: "numeric", timeZone: "UTC" });
+    setMonthOptions(Array.from({ length: 15 }, (_, index) => {
+      const date = new Date(Date.UTC(today.getFullYear(), today.getMonth() + index, 1));
+      const value = date.getUTCFullYear() + "-" + String(date.getUTCMonth() + 1).padStart(2, "0");
+      const rawLabel = formatter.format(date);
+      return { value, label: rawLabel.charAt(0).toUpperCase() + rawLabel.slice(1) };
+    }));
+  }, []);
   const [calendarResults, setCalendarResults] = useState<Array<{ destinationCode:string; price:number; departDate:string; returnDate:string; outboundStops:number; returnStops:number; affiliateUrl:string }>>([]);
   const [calendarLoading, setCalendarLoading] = useState(false);
   const [activeRouteKey, setActiveRouteKey] = useState("");
@@ -353,7 +373,6 @@ export default function FlexibleFlightsExplorer({
   const [deals, setDeals] = useState<FlightDeal[]>([]);
   const [dealsLoading, setDealsLoading] = useState(false);
   const [dealsSort, setDealsSort] = useState<"price" | "name">("price");
-
 
   useEffect(() => {
     const query = initialDestination.trim();
@@ -456,8 +475,6 @@ export default function FlexibleFlightsExplorer({
     return () => controller.abort();
   }, [submitted, destinationAnywhere, travelMonth, activeRoute?.origin.code, effectiveDestinationCode, fallbackDestinationCode, daysMin, daysMax, directOnly]);
 
-  // Partner-hosted maps previously redirected to Aviasales and bypassed
-  // Tripownia click tracking. Keep the in-page sorted list instead.
   const mapSrc = "";
 
   useEffect(() => {
@@ -515,18 +532,18 @@ export default function FlexibleFlightsExplorer({
   const canSearch = effectiveOrigins.length > 0 && (destinationAnywhere || destinations.length > 0);
 
   return (
-    <section className="flight-hunt flight-hunt-clean">
+    <section className="flight-hunt flight-hunt-clean" aria-label="Wyszukiwarka elastycznych lotów">
       <div className="flight-hunt-modebar">
         <div>
-          <div className="kicker">ELASTYCZNE LOTY</div>
-          <strong>Znajdź tani lot bez szukania dzień po dniu</strong>
-          <span>Wybierz skąd, dokąd i orientacyjny termin. Resztę przeliczymy za Ciebie.</span>
+          <div className="kicker">ELASTYCZNE DATY, WIĘCEJ OKAZJI</div>
+          <strong>Wybierz trasę i długość wyjazdu</strong>
+          <span>Nie potrzebujesz konkretnych dat. Pokażemy dostępne kierunki i najtańsze terminy.</span>
         </div>
       </div>
 
       <div className="flight-hunt-controls-clean">
         <TPCheckboxPlacePicker
-          label="Skąd"
+          label="Skąd lecisz?"
           values={origins}
           onChange={(next) => { setOrigins(next); dirty(); }}
           placeholder="Miasto lub lotnisko"
@@ -537,7 +554,7 @@ export default function FlexibleFlightsExplorer({
         />
 
         <TPCheckboxPlacePicker
-          label="Dokąd"
+          label="Dokąd?"
           values={destinations}
           onChange={(next) => { setDestinations(next); dirty(); }}
           placeholder="Miasto, kraj lub lotnisko"
@@ -548,31 +565,23 @@ export default function FlexibleFlightsExplorer({
         />
 
         <div className="flight-hunt-month">
-          <span>Kiedy?</span>
-          <select value={travelMonth} onChange={(event) => { setTravelMonth(event.target.value); dirty(); }}>
+          <label htmlFor={monthSelectId}>Kiedy?</label>
+          <select id={monthSelectId} value={travelMonth} onChange={(event) => { setTravelMonth(event.target.value); dirty(); }}>
             <option value="">Dowolny miesiąc</option>
-            <option value="2026-10">Październik 2026</option>
-            <option value="2026-11">Listopad 2026</option>
-            <option value="2026-12">Grudzień 2026</option>
-            <option value="2027-01">Styczeń 2027</option>
-            <option value="2027-02">Luty 2027</option>
-            <option value="2027-03">Marzec 2027</option>
-            <option value="2027-04">Kwiecień 2027</option>
-            <option value="2027-05">Maj 2027</option>
-            <option value="2027-06">Czerwiec 2027</option>
-            <option value="2027-07">Lipiec 2027</option>
-            <option value="2027-08">Sierpień 2027</option>
-            <option value="2027-09">Wrzesień 2027</option>
+            {monthOptions.map((month) => <option key={month.value} value={month.value}>{month.label}</option>)}
+            {travelMonth && !monthOptions.some((month) => month.value === travelMonth) && (
+              <option value={travelMonth}>{travelMonth}</option>
+            )}
           </select>
         </div>
 
         <div className="flight-hunt-stay">
-          <span>Na ile dni?</span>
-          <div className="flight-hunt-stay-pills">
-            <button type="button" className={daysMin === 2 && daysMax === 4 ? "active" : ""} onClick={() => setTripLength(2,4)}>2–4</button>
-            <button type="button" className={daysMin === 5 && daysMax === 7 ? "active" : ""} onClick={() => setTripLength(5,7)}>5–7</button>
-            <button type="button" className={daysMin === 8 && daysMax === 10 ? "active" : ""} onClick={() => setTripLength(8,10)}>8–10</button>
-            <button type="button" className={daysMin === 11 && daysMax === 14 ? "active" : ""} onClick={() => setTripLength(11,14)}>11–14</button>
+          <span id={stayGroupId}>Na ile dni?</span>
+          <div className="flight-hunt-stay-pills" role="group" aria-labelledby={stayGroupId}>
+            <button type="button" aria-pressed={daysMin === 2 && daysMax === 4} className={daysMin === 2 && daysMax === 4 ? "active" : ""} onClick={() => setTripLength(2, 4)}><strong>Weekend</strong><small>2–4 dni</small></button>
+            <button type="button" aria-pressed={daysMin === 5 && daysMax === 7} className={daysMin === 5 && daysMax === 7 ? "active" : ""} onClick={() => setTripLength(5, 7)}><strong>Krótki urlop</strong><small>5–7 dni</small></button>
+            <button type="button" aria-pressed={daysMin === 8 && daysMax === 10} className={daysMin === 8 && daysMax === 10 ? "active" : ""} onClick={() => setTripLength(8, 10)}><strong>Dłuższy urlop</strong><small>8–10 dni</small></button>
+            <button type="button" aria-pressed={daysMin === 11 && daysMax === 14} className={daysMin === 11 && daysMax === 14 ? "active" : ""} onClick={() => setTripLength(11, 14)}><strong>Wyprawa</strong><small>11–14 dni</small></button>
           </div>
         </div>
 
@@ -592,27 +601,27 @@ export default function FlexibleFlightsExplorer({
           type="button"
           className="flight-hunt-submit"
           disabled={!canSearch}
-          onClick={() => setSubmitted(true)}
+          onClick={() => {
+            setSubmitted(true);
+            requestAnimationFrame(() => document.querySelector(".flight-hunt-results-shell")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+          }}
         >
-          {destinationAnywhere ? "Pokaż tanie kierunki" : "Pokaż najtańsze terminy"}
+          <span>{destinationAnywhere ? "Odkryj tanie kierunki" : "Pokaż najtańsze loty"}</span>
+          <ArrowRight size={19} aria-hidden="true" />
         </button>
       </div>
 
-      <div className="flight-hunt-shortcuts flight-hunt-shortcuts-clean" aria-label="Szybkie ustawienia lotów">
-        <span>Szybko ustaw:</span>
-        <button type="button" onClick={() => { setTripLength(2,4); setTravelMonth(""); }}>Weekend 2–4 dni</button>
-        <button type="button" onClick={() => { setTripLength(5,7); setTravelMonth(""); }}>Tydzień 5–7 dni</button>
-        <button type="button" onClick={() => { setAnywhere(); setTripLength(2,5); }}>Gdziekolwiek</button>
-        <button type="button" onClick={() => { setDirectOnly(true); dirty(); }}>Tylko bezpośrednie</button>
+      <div className="flight-hunt-shortcuts flight-hunt-shortcuts-clean" aria-label="Gotowe pomysły na wyszukiwanie">
+        <span>Gotowe pomysły:</span>
+        <button type="button" onClick={() => { setAnywhere(); setTripLength(2, 4); setTravelMonth(""); }}>Gdziekolwiek na weekend</button>
+        <button type="button" onClick={() => { setAnywhere(); setTripLength(5, 7); setTravelMonth(""); }}>Gdziekolwiek na tydzień</button>
+        <button type="button" onClick={() => { setOriginAnywhere(true); setOrigins([]); dirty(); }}>Wylot z całej Polski</button>
       </div>
 
       {!submitted && (
-        <div className="flight-hunt-empty flight-hunt-empty-clean">
-          <div>
-            <strong>{canSearch ? "Ustawienia gotowe." : "Wybierz kierunek lub użyj „Gdziekolwiek”."}</strong>
-            <span>{canSearch ? "Kliknij „Pokaż najtańsze terminy” i od razu przejdź do konkretnych cen." : "Nie musisz znać dokładnych dat — możesz zacząć od samego kierunku."}</span>
-          </div>
-        </div>
+        <p className="flight-hunt-helper" role="status">
+          {canSearch ? "Wszystko gotowe — sprawdź dostępne ceny i terminy poniżej." : "Wybierz co najmniej jedno lotnisko wylotu, aby zobaczyć loty."}
+        </p>
       )}
 
       {submitted && routes.length > 0 && (
