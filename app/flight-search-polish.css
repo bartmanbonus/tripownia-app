@@ -1,0 +1,478 @@
+/* Flight search UX polish, 2026-10-11.
+   Scoped to the flight finder on the search hub and /loty.
+   Presentation only: preserves existing flight APIs, ranking and affiliate destinations. */
+
+#wyszukiwarka .search-v3-flights .search-v3-head {
+  padding: 20px 26px 10px !important;
+}
+#wyszukiwarka .search-v3-flights .search-v3-head h2 {
+  font-size: clamp(32px, 3.1vw, 44px) !important;
+  line-height: 1.05 !important;
+  letter-spacing: -.04em !important;
+}
+#wyszukiwarka .search-v3-flights .search-v3-head p {
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+}
+#wyszukiwarka .search-v3-flights .search-v3-tabs {
+  padding: 0 26px 14px !important;
+}
+.search-v3-flights .search-v3-flight-center {
+  gap: 12px;
+  padding: 0 26px 24px;
+}
+.search-v3-flights .search-v3-flight-mode-switch {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid #e8dbd2;
+  border-radius: 18px;
+  background: #f7f2ef;
+}
+.search-v3-flights .search-v3-flight-mode-switch button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 13px;
+  min-height: 68px;
+  padding: 12px 17px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  background: transparent;
+  color: #5d5049;
+  text-align: left;
+  transition: background .16s ease, border-color .16s ease, box-shadow .16s ease;
+}
+.search-v3-flights .search-v3-flight-mode-switch button:hover:not(.active) {
+  background: #fffaf6;
+}
+.search-v3-flights .search-v3-flight-mode-switch button.active {
+  border-color: #f0b29a;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(57, 36, 24, .07);
+}
+.search-v3-flights .search-v3-flight-mode-switch button > svg {
+  flex: 0 0 auto;
+  color: #a67a65;
+}
+.search-v3-flights .search-v3-flight-mode-switch button.active > svg {
+  color: #d94c28;
+}
+.search-v3-flights .search-v3-flight-mode-switch .search-v3-flight-mode-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
+.search-v3-flights .search-v3-flight-mode-switch button strong {
+  font-size: 14px;
+  line-height: 1.2;
+}
+.search-v3-flights .search-v3-flight-mode-switch button small {
+  color: #796d65;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.search-v3-flights .search-v3-flight-mode-switch button.active strong {
+  color: #c74622;
+}
+
+.flight-hunt-clean {
+  padding: 20px 22px;
+  border: 1px solid #eaddd5;
+  border-radius: 20px;
+  background: #fff;
+}
+.flight-hunt-clean .flight-hunt-modebar {
+  align-items: flex-start;
+  margin: 0 0 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f0e9e5;
+}
+.flight-hunt-clean .flight-hunt-modebar > div:first-child {
+  gap: 5px;
+}
+.flight-hunt-clean .flight-hunt-modebar .kicker {
+  color: #cd4b2a;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .075em;
+}
+.flight-hunt-clean .flight-hunt-modebar strong {
+  color: #211b17;
+  font-size: clamp(19px, 1.55vw, 24px);
+  font-weight: 850;
+  line-height: 1.18;
+  letter-spacing: -.027em;
+}
+.flight-hunt-clean .flight-hunt-modebar span {
+  color: #74675f;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.flight-hunt-clean .flight-hunt-controls-clean {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px 12px;
+  align-items: end;
+}
+.flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-field,
+.flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-month {
+  grid-column: span 2;
+}
+.flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-stay {
+  grid-column: span 3;
+}
+.flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-direct {
+  grid-column: span 1;
+}
+.flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-submit {
+  grid-column: span 2;
+}
+.flight-hunt-clean .flight-hunt-field > span,
+.flight-hunt-clean .flight-hunt-month > label,
+.flight-hunt-clean .flight-hunt-stay > span {
+  display: block;
+  color: #574840;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+.flight-hunt-clean .flight-hunt-picker-trigger,
+.flight-hunt-clean .flight-hunt-month select {
+  width: 100%;
+  min-height: 56px;
+  height: 56px;
+  padding: 0 15px;
+  border: 1px solid #ddcec5;
+  border-radius: 13px;
+  background: #fff;
+  color: #302721;
+  font-size: 14px;
+  font-weight: 730;
+  box-shadow: none;
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+.flight-hunt-clean .flight-hunt-picker-trigger:hover,
+.flight-hunt-clean .flight-hunt-month select:hover {
+  border-color: #c99983;
+}
+.flight-hunt-clean .flight-hunt-picker-trigger:focus-visible,
+.flight-hunt-clean .flight-hunt-month select:focus-visible {
+  border-color: #d64d2b;
+  outline: 3px solid rgba(229, 89, 48, .16);
+  outline-offset: 1px;
+  box-shadow: none;
+}
+.flight-hunt-clean .flight-hunt-picker-trigger > svg {
+  flex: 0 0 auto;
+  color: #75675e;
+  transition: transform .18s ease;
+}
+.flight-hunt-clean .flight-hunt-picker-trigger > svg.rotated {
+  transform: rotate(180deg);
+}
+.flight-hunt-clean .flight-hunt-picker-search > svg {
+  color: #7d6e66;
+}
+.flight-hunt-clean .flight-hunt-picker-menu {
+  width: min(440px, 92vw);
+  border-color: #e2d6ce;
+  box-shadow: 0 22px 48px rgba(40, 29, 22, .15);
+}
+.flight-hunt-clean .flight-hunt-stay-pills {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+  min-height: 56px;
+}
+.flight-hunt-clean .flight-hunt-stay-pills button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  min-height: 56px;
+  padding: 7px 4px;
+  border: 1px solid #ddcec5;
+  border-radius: 12px;
+  background: #fff;
+  color: #44352e;
+  cursor: pointer;
+  transition: background .16s ease, border-color .16s ease;
+}
+.flight-hunt-clean .flight-hunt-stay-pills button:hover {
+  border-color: #e0a68e;
+  background: #fff9f5;
+}
+.flight-hunt-clean .flight-hunt-stay-pills button.active {
+  border-color: #e88764;
+  background: #fff0e9;
+  color: #b93f1e;
+}
+.flight-hunt-clean .flight-hunt-stay-pills button strong {
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.15;
+  text-align: center;
+}
+.flight-hunt-clean .flight-hunt-stay-pills button small {
+  color: inherit;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.15;
+}
+.flight-hunt-clean .flight-hunt-direct {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  min-height: 56px;
+  height: 56px;
+  padding: 0 9px;
+  border: 1px solid #ddcec5;
+  border-radius: 12px;
+  background: #fff;
+  color: #40342e;
+  font-size: 12px;
+  font-weight: 800;
+}
+.flight-hunt-clean .flight-hunt-direct input {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #e75832;
+}
+.flight-hunt-clean .flight-hunt-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 56px;
+  height: 56px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 13px;
+  background: #e85b32;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 850;
+  letter-spacing: -.01em;
+  box-shadow: 0 8px 18px rgba(214, 73, 31, .16);
+  white-space: normal;
+  text-align: center;
+  transition: background .16s ease, transform .16s ease;
+}
+.flight-hunt-clean .flight-hunt-submit:not(:disabled):hover {
+  background: #cf4a25;
+  transform: translateY(-1px);
+}
+.flight-hunt-clean .flight-hunt-submit:focus-visible,
+.flight-hunt-clean .flight-hunt-stay-pills button:focus-visible,
+.flight-hunt-clean .flight-hunt-shortcuts button:focus-visible {
+  outline: 3px solid rgba(229, 89, 48, .3);
+  outline-offset: 2px;
+}
+.flight-hunt-clean .flight-hunt-submit:disabled {
+  opacity: .58;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+.flight-hunt-clean .flight-hunt-shortcuts-clean {
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid #f0e9e5;
+}
+.flight-hunt-clean .flight-hunt-shortcuts-clean > span {
+  color: #75675e;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.flight-hunt-clean .flight-hunt-shortcuts-clean button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #e4d5cc;
+  border-radius: 999px;
+  background: #fff;
+  color: #51433c;
+  font-size: 11px;
+  font-weight: 750;
+}
+.flight-hunt-clean .flight-hunt-shortcuts-clean button:hover {
+  border-color: #e0a58b;
+  background: #fff8f4;
+}
+.flight-hunt-clean .flight-hunt-helper {
+  margin: 12px 0 0;
+  color: #71655e;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1100px) {
+  .flight-hunt-clean .flight-hunt-controls-clean {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-field,
+  .flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-month,
+  .flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-stay,
+  .flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-direct,
+  .flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-submit {
+    grid-column: auto;
+  }
+}
+@media (max-width: 780px) {
+  #wyszukiwarka .search-v3-flights .search-v3-head {
+    padding: 18px 17px 10px !important;
+  }
+  #wyszukiwarka .search-v3-flights .search-v3-head h2 {
+    font-size: clamp(30px, 7vw, 38px) !important;
+  }
+  #wyszukiwarka .search-v3-flights .search-v3-tabs {
+    padding: 0 17px 12px !important;
+  }
+  .search-v3-flights .search-v3-flight-center {
+    padding: 0 12px 16px;
+    gap: 11px;
+  }
+  .flight-hunt-clean {
+    padding: 15px;
+    border-radius: 17px;
+  }
+  .flight-hunt-clean .flight-hunt-modebar {
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+  }
+  .flight-hunt-clean .flight-hunt-modebar strong {
+    font-size: 20px;
+  }
+  .flight-hunt-clean .flight-hunt-modebar span {
+    font-size: 12px;
+  }
+  .flight-hunt-clean .flight-hunt-controls-clean {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-field,
+  .flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-month,
+  .flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-stay,
+  .flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-direct,
+  .flight-hunt-clean .flight-hunt-controls-clean > .flight-hunt-submit {
+    grid-column: 1 / -1;
+  }
+  .flight-hunt-clean .flight-hunt-stay-pills {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .flight-hunt-clean .flight-hunt-stay-pills button {
+    min-height: 52px;
+  }
+  .flight-hunt-clean .flight-hunt-direct {
+    justify-content: flex-start;
+    padding: 0 14px;
+  }
+  .flight-hunt-clean .flight-hunt-submit {
+    min-height: 58px;
+    height: 58px;
+  }
+  .flight-hunt-clean .flight-hunt-picker-menu {
+    position: fixed;
+    top: auto;
+    left: 12px;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    width: auto;
+    max-width: none;
+    max-height: 76vh;
+    border-radius: 20px;
+    z-index: 2000;
+  }
+  .flight-hunt-clean .flight-hunt-shortcuts-clean {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .flight-hunt-clean .flight-hunt-shortcuts-clean::-webkit-scrollbar {
+    display: none;
+  }
+  .flight-hunt-clean .flight-hunt-shortcuts-clean > span,
+  .flight-hunt-clean .flight-hunt-shortcuts-clean button {
+    flex: 0 0 auto;
+  }
+}
+/* Keep the flight destination sheet operable while the consent notice is
+   visible on narrow screens. The notice stays visible below the picker. */
+@media (max-width: 780px) {
+  body:has(.analytics-consent) .flight-hunt-clean .flight-hunt-picker-menu {
+    position: fixed;
+    top: max(12px, env(safe-area-inset-top));
+    bottom: auto;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+    max-height: min(40dvh, 330px);
+    display: flex;
+    flex-direction: column;
+    z-index: 3000;
+  }
+  body:has(.analytics-consent) .flight-hunt-clean .flight-hunt-picker-search,
+  body:has(.analytics-consent) .flight-hunt-clean .flight-hunt-check-row.special,
+  body:has(.analytics-consent) .flight-hunt-clean .flight-hunt-picker-section-label,
+  body:has(.analytics-consent) .flight-hunt-clean .flight-hunt-picker-footer {
+    flex: 0 0 auto;
+  }
+  body:has(.analytics-consent) .flight-hunt-clean .flight-hunt-picker-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+  }
+}
+@media (max-width: 520px) {
+  .search-v3-flights .search-v3-flight-mode-switch {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4px;
+    padding: 4px;
+    border-radius: 14px;
+  }
+  .search-v3-flights .search-v3-flight-mode-switch button {
+    gap: 7px;
+    min-width: 0;
+    min-height: 58px;
+    padding: 9px 8px;
+    border-radius: 11px;
+  }
+  .search-v3-flights .search-v3-flight-mode-switch button > svg {
+    width: 17px;
+    height: 17px;
+  }
+  .search-v3-flights .search-v3-flight-mode-switch button strong {
+    font-size: 12px;
+    line-height: 1.3;
+  }
+  .search-v3-flights .search-v3-flight-mode-switch button small {
+    display: none;
+  }
+  .flight-hunt-clean .flight-hunt-picker-trigger,
+  .flight-hunt-clean .flight-hunt-month select {
+    font-size: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .flight-hunt-clean .flight-hunt-submit,
+  .flight-hunt-clean .flight-hunt-picker-trigger > svg,
+  .search-v3-flights .search-v3-flight-mode-switch button {
+    transition: none;
+  }
+}
