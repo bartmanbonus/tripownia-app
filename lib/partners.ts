@@ -1,3 +1,4 @@
+import { normalizedKiwiDeepUrl } from "@/lib/kiwiDeepLink";
 declare const process: { env: Record<string, string | undefined> };
 
 export type PartnerKey =
@@ -48,12 +49,14 @@ function buildTradeDoublerDeepLink({
 function buildKiwiAffiliateUrl(destinationUrl?: string) {
   const shmarker = process.env.NEXT_PUBLIC_KIWI_SHMARKER || "740301";
   if (destinationUrl) {
+    const normalized = normalizedKiwiDeepUrl(destinationUrl);
+    if (!normalized) return "";
     const params = new URLSearchParams({
       shmarker: `${shmarker}.TRIPOWNIAPL`,
       promo_id: "3791",
       source_type: "customlink",
       type: "click",
-      custom_url: destinationUrl,
+      custom_url: normalized,
     });
     return `https://c111.travelpayouts.com/click?${params.toString()}`;
   }
