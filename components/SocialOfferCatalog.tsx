@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { getSocialOfferSlugs, getSocialOfferForLanding, isSocialOfferExpired } from "@/lib/socialOffers";
+import { isSocialOfferExpired } from "@/lib/socialOffers";
+import { getSocialOfferCatalogEntries } from "@/lib/socialOfferCatalogEntries";
 import { trackEvent } from "@/lib/analytics";
 import TravelImage from "@/components/TravelImage";
 import styles from "./SocialOfferCatalog.module.css";
@@ -13,9 +14,7 @@ export default function SocialOfferCatalog({ compact = false }: { compact?: bool
   const [query, setQuery] = useState("");
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => { setNow(new Date()); }, []);
-  const entries = useMemo(() => getSocialOfferSlugs()
-    .flatMap(slug => { const offer = getSocialOfferForLanding(slug); return offer ? [offer] : []; })
-    .sort((a, b) => Date.parse(b.checkedAt) - Date.parse(a.checkedAt)), []);
+  const entries = useMemo(() => getSocialOfferCatalogEntries(), []);
   const matches = entries.filter(offer => normalize(`${offer.city} ${offer.country} ${offer.hotel} ${offer.departure} ${offer.price}`).includes(normalize(query.trim())));
   const visible = compact ? matches.slice(0, 4) : matches;
 
