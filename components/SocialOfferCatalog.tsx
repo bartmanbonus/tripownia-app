@@ -18,7 +18,7 @@ export default function SocialOfferCatalog({ compact = false }: { compact?: bool
   const matches = entries.filter(offer => normalize(`${offer.city} ${offer.country} ${offer.hotel} ${offer.departure} ${offer.price}`).includes(normalize(query.trim())));
   const visible = compact ? matches.slice(0, 4) : matches;
 
-  return <section className={`section shell ${styles.section}`} aria-labelledby="social-offers-title" id="oferty-z-postow">
+  return <section className={`section shell ${styles.section}${compact ? ` ${styles.compact}` : ""}`} aria-labelledby="social-offers-title" id="oferty-z-postow">
     <div className={styles.heading}>
       <div><div className="kicker">TRIPOWNIA W SOCIAL MEDIACH</div>
         <h2 id="social-offers-title">Oferta z posta? Znajdź ją tutaj.</h2>
