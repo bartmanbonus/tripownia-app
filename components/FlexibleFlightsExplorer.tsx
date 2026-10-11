@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { kiwiFlightExitHref } from "@/lib/kiwiFlights";
 
 type Place = { code: string; name: string; country: string; airport?: string; type?: string; searchCode?: string };
 type RouteChoice = { key: string; origin: Place; destination: Place | null };
@@ -351,7 +352,7 @@ export default function FlexibleFlightsExplorer({
   const [deals, setDeals] = useState<FlightDeal[]>([]);
   const [dealsLoading, setDealsLoading] = useState(false);
   const [dealsSort, setDealsSort] = useState<"price" | "name">("price");
-  const marker = "695999.TRIPOWNIAPL";
+
 
   useEffect(() => {
     const query = initialDestination.trim();
@@ -415,15 +416,11 @@ export default function FlexibleFlightsExplorer({
 
   const activeRoute = routes.find((route) => route.key === activeRouteKey) || routes[0] || null;
 
-  const affiliateFallbackUrl = useMemo(() => {
-    const url = new URL("https://www.aviasales.com/");
-    url.searchParams.set("marker", "695999.TRIPOWNIAPL");
-    url.searchParams.set("shmarker", "695999.TRIPOWNIAPL");
-    if (activeRoute?.origin.code) url.searchParams.set("origin", activeRoute.origin.code);
-    const fallbackDestination = activeRoute?.destination?.searchCode || activeRoute?.destination?.code;
-    if (fallbackDestination) url.searchParams.set("destination", fallbackDestination);
-    return url.toString();
-  }, [activeRoute]);
+  const affiliateFallbackUrl = useMemo(() => kiwiFlightExitHref({
+    origin: activeRoute?.origin.code || "WAW",
+    destination: activeRoute?.destination?.searchCode || activeRoute?.destination?.code || "anywhere",
+    source: "flight_fallback",
+  }), [activeRoute]);
 
   const effectiveDestinationCode = activeRoute?.destination?.searchCode || activeRoute?.destination?.code || "";
   const fallbackDestinationCode = activeRoute?.destination?.code || "";
@@ -458,30 +455,9 @@ export default function FlexibleFlightsExplorer({
     return () => controller.abort();
   }, [submitted, destinationAnywhere, travelMonth, activeRoute?.origin.code, effectiveDestinationCode, fallbackDestinationCode, daysMin, daysMax, directOnly]);
 
-  const mapSrc = useMemo(() => {
-    if (!activeRoute?.origin.code || !destinationAnywhere) return "";
-    const params = new URLSearchParams({
-      redirect_on_click: "true",
-      hide_sidebar: "true",
-      hide_logo: "true",
-      zoom: "3",
-      cluster_manager: "TpWidgetClusterManager",
-      host: "www.aviasales.com",
-      show_tutorial: "false",
-      hide_reformal: "true",
-      marker,
-      currency: "pln",
-      small_spinner: "true",
-      direct: directOnly ? "true" : "false",
-      disable_googlemaps_ui: "true",
-      auto_fit_map: "true",
-      locale: "pl",
-      show_filters_icon: "true",
-      lines_type: "TpLines",
-      origin_iata: activeRoute.origin.code,
-    });
-    return "https://maps.tp.media/flights/?" + params.toString();
-  }, [activeRoute, destinationAnywhere, directOnly]);
+  // Partner-hosted maps previously redirected to Aviasales and bypassed
+  // Tripownia click tracking. Keep the in-page sorted list instead.
+  const mapSrc = "";
 
   useEffect(() => {
     if (!submitted || !destinationAnywhere || !activeRoute?.origin.code) {
@@ -732,7 +708,7 @@ export default function FlexibleFlightsExplorer({
               {!dealsLoading && sortedDeals.length === 0 && (
                 <div className="flight-deals-empty">
                   <strong>Lista cen chwilowo nie odpowiada.</strong>
-                  <span>Mapa kierunków powyżej nadal może działać. Możesz też otworzyć pełne wyszukiwanie dla wybranego lotniska.</span>
+                  <span>Możesz otworzyć pełne wyszukiwanie dla wybranego lotniska.</span>
                   <div style={{ marginTop: 10 }}><a href={affiliateFallbackUrl} rel="sponsored">Sprawdź wszystkie loty →</a></div>
                 </div>
               )}
