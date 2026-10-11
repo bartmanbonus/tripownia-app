@@ -81,7 +81,7 @@ export default function EskyFlightsSearch({
       const target = eskyUrl(originCode, destinationCode, departureDate, returnDate, adults);
       const tracked = new URLSearchParams({
         target,
-        partner: "esky",
+        partner: "esky_flights",
         source: "flight_exact_search",
         offer: `${originCode}-${destinationCode}-${departureDate}-${returnDate}`,
         destination: destination,
