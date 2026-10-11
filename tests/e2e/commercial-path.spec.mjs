@@ -214,13 +214,18 @@ test("partner-bound CTA skips extra screen while keeping affiliate URL encrypted
   expect(location).not.toContain("/sprawdz-oferte");
 });
 
-test("all monetized partner exits emit exactly one GA4 outbound_partner_click", async ({ page }) => {
+test("a consented partner exit emits one canonical GA4 conversion event", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("tripownia-consent-v1", "analytics");
+  });
   await page.goto("/okazje", { waitUntil: "domcontentloaded" });
   await page.evaluate(() => {
     const anchor = document.createElement("a");
     anchor.id = "conversion-event-test";
     anchor.href = "https://www.kiwi.com/pl/search/results/warsaw-poland/rome-italy";
     anchor.textContent = "Sprawdź lot";
+    // The test only observes a click; it must never navigate to the partner.
+    anchor.addEventListener("click", (event) => event.preventDefault());
     document.body.appendChild(anchor);
   });
   const link = page.locator("#conversion-event-test");
@@ -231,15 +236,13 @@ test("all monetized partner exits emit exactly one GA4 outbound_partner_click", 
     const recorded = [];
     const original = window.gtag;
     window.gtag = (...args) => { recorded.push(args); };
-    // Valid outbound capture event without performing an external navigation.
     const anchor = document.querySelector("#conversion-event-test");
-    const event = new MouseEvent("click", { bubbles: true, cancelable: true });
-    anchor.dispatchEvent(event);
+    anchor.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
     window.gtag = original;
     return recorded.filter((item) => item[0] === "event" && item[1] === "outbound_partner_click");
   });
-  // GA4 requires analytics consent; with no consent, no event is sent.
-  expect(events.length).toBe(0);
+  expect(events).toHaveLength(1);
+  expect(events[0][2].partner).toBe("kiwi");
 });
 
 test("previously issued opaque review URL skips UI and preserves secure exit", async ({ page }) => {
