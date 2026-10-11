@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 
 const steps = [
   { icon: FileCheck2, title: "Dokumenty i wjazd", text: "Sprawdź ważność dokumentu, wymagania wjazdowe i aktualne komunikaty dla kraju docelowego.", href: "https://www.gov.pl/web/dyplomacja/informacje-dla-podrozujacych", external: true },
-  { icon: PlaneTakeoff, title: "Odprawa i lot", text: "Zapisz numer rezerwacji, sprawdź godzinę odprawy i upewnij się, z którego lotniska oraz terminala lecisz.", href: "/poradniki" },
+  { icon: PlaneTakeoff, title: "Odprawa i lot", text: "Zapisz numer rezerwacji, sprawdź godzinę odprawy i upewnij się, z którego lotniska oraz terminala lecisz.", href: "/pierwszy-lot" },
   { icon: Luggage, title: "Bagaż", text: "Zweryfikuj limit dla konkretnej taryfy, wymiary bagażu i zasady dotyczące płynów oraz jedzenia.", href: "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych" },
   { icon: ShieldCheck, title: "Ubezpieczenie", text: "Sprawdź koszty leczenia, ratownictwo, transport medyczny i wyłączenia odpowiedzialności.", href: "/ubezpieczenia" },
   { icon: BusFront, title: "Dojazd i transfer", text: "Zaplanuj dojazd na lotnisko i przejazd z lotniska do noclegu, szczególnie przy późnym przylocie.", href: "/transfery" },
@@ -58,7 +58,7 @@ export default function BeforeTripPage() {
           </div>
         </header>
 
-        <nav className="guides-quick-links" aria-label="Skróty przed wyjazdem">
+        <nav className="guides-quick-links" aria-label="Skróty przed wyjazdem">\n          <Link href="/pierwszy-lot"><PlaneTakeoff size={18}/><span>Lecę pierwszy raz</span></Link>
           <Link href="/moja-podroz"><BookOpenCheck size={18}/><span>Mój planner</span></Link>
           <Link href="/dodaj-podroz"><CircleCheckBig size={18}/><span>Dodaj podróż</span></Link>
           <Link href="/poradniki"><Luggage size={18}/><span>Poradniki</span></Link>

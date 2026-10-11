@@ -56,7 +56,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url:`${BASE_URL}/wspolpraca`,changeFrequency:"monthly",priority:.58 },
     { url:`${BASE_URL}/jak-dziala-tripownia`,changeFrequency:"monthly",priority:.72 },
     { url:`${BASE_URL}/standardy-redakcyjne`,changeFrequency:"monthly",priority:.62 },
-    { url:`${BASE_URL}/przed-wyjazdem`,changeFrequency:"weekly",priority:.8 },
+    { url:`${BASE_URL}/przed-wyjazdem`,changeFrequency:"weekly",priority:.8 },\n    { url:`${BASE_URL}/pierwszy-lot`,changeFrequency:"monthly",priority:.82 },
     { url:`${BASE_URL}/sylwester`,changeFrequency:"daily",priority:.9 },
     { url:`${BASE_URL}/loty`,changeFrequency:"daily",priority:.82 },
     { url:`${BASE_URL}/hotele`,changeFrequency:"weekly",priority:.72 },
