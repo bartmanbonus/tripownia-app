@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
+import ExoticBudgetLiveOffers from "@/components/ExoticBudgetLiveOffers";
 import { homepageFallbackOffers, isOfferExpired, type Offer } from "@/lib/offers";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 
@@ -70,7 +71,7 @@ const motifs: Record<string, Motif> = {
   },
   "egzotyka-do-5000": {
     title:"Egzotyka do 5 000 zł/os.", kicker:"DALEJ",
-    description:"Dalekie kierunki z limitem ceny. Jeśli aktualna pula jest mała, otwórz pełne wyszukiwanie.",
+    description:"Sprawdzamy aktualne pakiety egzotyczne do 5 000 zł za osobę z konkretnymi hotelami, terminami i linkami do ofert.",
     searchHref:"/szukaj?destination=Bangkok%7CBali%7CMalediwy%7CZanzibar%7CKenia&duration=7-14&budget=5000&tab=Lot%20%2B%20hotel",
     match:(o)=>o.price<=5000&&exoticPattern.test(`${o.city} ${o.country}`),
   },
@@ -113,7 +114,7 @@ export default async function MotifPage({params}:{params:Promise<{slug:string}>}
   const motif=motifs[slug];
   if(!motif) return notFound();
 
-  const matched=homepageFallbackOffers
+  const matched=(slug==="egzotyka-do-5000" ? [] : homepageFallbackOffers)
     .filter(o=>!isOfferExpired(o))
     .filter(o=>isTravelDestinationAllowed(o.city,o.country))
     .filter(motif.match)
@@ -135,10 +136,10 @@ export default async function MotifPage({params}:{params:Promise<{slug:string}>}
     <section className="motifs-shell motif-offers">
       <div className="motif-offers-head">
         <div className="kicker">KONKRETNE PROPOZYCJE</div>
-        <h2>{matched.length ? "Zacznij od tych ofert" : "Rozszerz wyszukiwanie"}</h2>
-        <p>{matched.length ? "Najpierw pokazujemy pasujące propozycje z aktualnej puli Tripowni. Cena i dostępność są potwierdzane przed rezerwacją." : "W opublikowanej puli nie ma teraz wystarczająco dobrych dopasowań — uruchom pełne wyszukiwanie, żeby sprawdzić bieżące źródła."}</p>
+        <h2>{slug==="egzotyka-do-5000" ? "Egzotyczne wyjazdy do 5 000 zł/os." : matched.length ? "Zacznij od tych ofert" : "Rozszerz wyszukiwanie"}</h2>
+        <p>{slug==="egzotyka-do-5000" ? "Pobieramy rzeczywiste pakiety dla Zanzibaru, Kenii, Tajlandii i Sri Lanki. Tylko propozycje mieszczące się w budżecie, z możliwością sprawdzenia ceny u partnera." : matched.length ? "Najpierw pokazujemy pasujące propozycje z aktualnej puli Tripowni. Cena i dostępność są potwierdzane przed rezerwacją." : "W opublikowanej puli nie ma teraz wystarczająco dobrych dopasowań — uruchom pełne wyszukiwanie, żeby sprawdzić bieżące źródła."}</p>
       </div>
-      {matched.length ? <div className="cards-grid">{matched.map(o=><OfferCard key={o.id} offer={o} sourceSurface={`motif_${slug}`}/>)}</div> : null}
+      {slug==="egzotyka-do-5000" ? <ExoticBudgetLiveOffers /> : matched.length ? <div className="cards-grid">{matched.map(o=><OfferCard key={o.id} offer={o} sourceSurface={`motif_${slug}`}/>)}</div> : null}
     </section>
 
     <section className="motifs-shell motif-related">
