@@ -87,7 +87,7 @@ export default async function FlightOfferPage({ searchParams }: { searchParams: 
                 </div>
 
                 <div className="detail-action-box" style={{marginTop: 24}}>
-                  <TrackedPartnerLink className="primary-cta" href={partnerUrl} partner="aviasales" offerId={`${origin}-${destination}-${depart}-${returnDate}`} destination={name} price={price} placement="flight_detail" returnContext={{ departure: origin, start: depart, end: returnDate }}>
+                  <TrackedPartnerLink className="primary-cta" href={partnerUrl} partner="kiwi" offerId={`${origin}-${destination}-${depart}-${returnDate}`} destination={name} price={price} placement="flight_detail" returnContext={{ departure: origin, start: depart, end: returnDate }}>
                     Sprawdź tę trasę <ExternalLink size={18}/>
                   </TrackedPartnerLink>
                   <Link className="btn secondary" href={`/loty?${backParams.toString()}`}>
