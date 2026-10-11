@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CalendarDays, Sparkles } from "lucide-react";
 import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
-import TravelpayoutsFlightsWidget from "@/components/TravelpayoutsFlightsWidget";
+import EskyFlightsSearch from "@/components/EskyFlightsSearch";
 
 type Mode = "flex" | "exact";
 
@@ -70,7 +70,12 @@ export default function FlightsPageClient({
               <p>{summary || "Ustaw trasę i daty w porównywarce poniżej."}</p>
             </div>
           </div>
-          <TravelpayoutsFlightsWidget />
+          <EskyFlightsSearch
+            initialOrigin={initialOrigin}
+            initialDestination={initialDestination}
+            initialOutbound={initialOutbound}
+            initialInbound={initialInbound}
+          />
         </div>
       )}
     </section>
