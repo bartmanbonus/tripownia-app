@@ -229,7 +229,7 @@ export async function GET(request: NextRequest) {
         };
       })
       .sort((a, b) => a.price - b.price)
-      .slice(0, 80);
+      ;
 
     if (!offers.length) {
       offers = await fetchCalendarFallback(origin, minDays, maxDays, direct);
