@@ -410,6 +410,35 @@
     flex: 0 0 auto;
   }
 }
+/* Keep the flight destination sheet operable while the consent notice is
+   visible on narrow screens. The notice stays visible below the picker. */
+@media (max-width: 780px) {
+  body:has(.analytics-consent) .flight-hunt-clean .flight-hunt-picker-menu {
+    position: fixed;
+    top: max(12px, env(safe-area-inset-top));
+    bottom: auto;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+    max-height: min(40dvh, 330px);
+    display: flex;
+    flex-direction: column;
+    z-index: 3000;
+  }
+  body:has(.analytics-consent) .flight-hunt-clean .flight-hunt-picker-search,
+  body:has(.analytics-consent) .flight-hunt-clean .flight-hunt-check-row.special,
+  body:has(.analytics-consent) .flight-hunt-clean .flight-hunt-picker-section-label,
+  body:has(.analytics-consent) .flight-hunt-clean .flight-hunt-picker-footer {
+    flex: 0 0 auto;
+  }
+  body:has(.analytics-consent) .flight-hunt-clean .flight-hunt-picker-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+  }
+}
 @media (max-width: 520px) {
   .search-v3-flights .search-v3-flight-mode-switch {
     grid-template-columns: repeat(2, minmax(0, 1fr));
