@@ -6,6 +6,7 @@ import OfferJourney from "@/components/OfferJourney";
 import TrackedPartnerLink from "@/components/TrackedPartnerLink";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import { kiwiFlightExitHref } from "@/lib/kiwiFlights";
 
 export const metadata: Metadata = {
   title: "Szczegóły lotu | Tripownia",
@@ -33,22 +34,6 @@ function safePrice(value: string) {
   return Number.isFinite(price) && price > 0 ? Math.round(price) : 0;
 }
 
-function aviasalesUrl(origin: string, destination: string, depart: string, returnDate: string) {
-  const ddmm = (value: string) => {
-    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-    return match ? match[3] + match[2] : "";
-  };
-  const outbound = ddmm(depart);
-  const inbound = ddmm(returnDate);
-  const path = origin && destination && outbound && inbound
-    ? `${origin}${outbound}${destination}${inbound}1`
-    : "";
-  const url = new URL(path ? `https://www.aviasales.com/search/${path}` : "https://www.aviasales.com/");
-  url.searchParams.set("marker", "695999.TRIPOWNIAPL");
-  url.searchParams.set("shmarker", "695999.TRIPOWNIAPL");
-  return url.toString();
-}
-
 export default async function FlightOfferPage({ searchParams }: { searchParams: Promise<Search> }) {
   const params = await searchParams;
   const origin = safeIata(one(params.origin));
@@ -61,7 +46,7 @@ export default async function FlightOfferPage({ searchParams }: { searchParams: 
   const changes = Math.max(0, Math.min(9, Number(one(params.changes, "0")) || 0));
 
   const valid = Boolean(origin && destination && depart && returnDate);
-  const partnerUrl = valid ? aviasalesUrl(origin, destination, depart, returnDate) : "";
+  const partnerUrl = valid ? kiwiFlightExitHref({ origin, destination, departure: depart, returnDate, destinationName: name, price, source: "flight_detail", offer: `${origin}-${destination}-${depart}-${returnDate}` }) : "";
 
   const backParams = new URLSearchParams();
   if (origin) backParams.set("origin", origin);
@@ -78,7 +63,7 @@ export default async function FlightOfferPage({ searchParams }: { searchParams: 
             <ArrowLeft size={17}/> Wróć do wyników
           </Link>
 
-          <OfferJourney offerId={`${origin}-${destination}-${depart}-${returnDate}`} destination={name} partner="aviasales" price={price} source="flight_search" />
+          <OfferJourney offerId={`${origin}-${destination}-${depart}-${returnDate}`} destination={name} partner="kiwi" price={price} source="flight_search" />
           {valid && <div style={{ marginTop: 20 }}><OfferHeroImage city={name} country={country} /></div>}
           <div className="detail-card" style={{marginTop: 18}}>
             <div className="kicker">KONKRETNY LOT</div>
@@ -102,8 +87,8 @@ export default async function FlightOfferPage({ searchParams }: { searchParams: 
                 </div>
 
                 <div className="detail-action-box" style={{marginTop: 24}}>
-                  <TrackedPartnerLink className="primary-cta" href={`/go/live?${new URLSearchParams({ target: partnerUrl, partner: "aviasales", source: "flight_detail", offer: `${origin}-${destination}-${depart}-${returnDate}`, destination: name, price: String(price), page: "/loty/oferta" }).toString()}`} partner="aviasales" offerId={`${origin}-${destination}-${depart}-${returnDate}`} destination={name} price={price} placement="flight_detail" returnContext={{ departure: origin, start: depart, end: returnDate }}>
-                    Sprawdź tę trasę w Aviasales <ExternalLink size={18}/>
+                  <TrackedPartnerLink className="primary-cta" href={partnerUrl} partner="aviasales" offerId={`${origin}-${destination}-${depart}-${returnDate}`} destination={name} price={price} placement="flight_detail" returnContext={{ departure: origin, start: depart, end: returnDate }}>
+                    Sprawdź tę trasę <ExternalLink size={18}/>
                   </TrackedPartnerLink>
                   <Link className="btn secondary" href={`/loty?${backParams.toString()}`}>
                     Zmień termin lub trasę
