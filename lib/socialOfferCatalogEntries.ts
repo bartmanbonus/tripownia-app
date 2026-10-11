@@ -9,6 +9,25 @@ import { getSocialOfferForLanding, getSocialOfferSlugs, type SocialOffer } from 
  */
 export const DEDICATED_SOCIAL_OFFERS: readonly SocialOffer[] = [
   {
+    slug: "teneryfa-beverly-hills-1809",
+    city: "Teneryfa",
+    country: "Hiszpania",
+    price: 1809,
+    departure: "Kraków",
+    nights: 4,
+    dates: "22–26 listopada 2026",
+    board: "Bez wyżywienia",
+    hotel: "Ona Beverly Hills Suites",
+    partner: "exim",
+    partnerLabel: "EXIM tours",
+    affiliateUrl: "https://www.exim.pl/kierunki/hiszpania/teneryfa/los-cristianos/ona-beverly-hills-suites?KEY=MjE4NzYxNXwzNTczMjMxMzA0fDEzMjEzNTY&DS=1024&GIATA=429808&D=74465&HID=457643&MT=6&DI=GT06-AO&NN=4&MNN=0%7C1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7C10%7C11%7C12%7C13%7C14%7C15%7C16%7C17%7C18%7C19%7C20%7C21&NNM=0%7C1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7C10%7C11%7C12%7C13%7C14%7C15%7C16%7C17%7C18%7C19%7C20%7C21&DF=2026-11-15%7C2026-12-10&RD=2026-11-26&DD=2026-11-22&ERM=0&AC1=2&KC1=0&IC1=0&TO=1825&TT=1&PID=457643&DPR=EXIM+TOURS+POLAND&PC=4-2026-11-22&IFC=RlJ8MjY1NHwyMDI2LTExLTI2VDEyOjA1&OFC=RlJ8MjY1NXwyMDI2LTExLTIyVDEzOjAw&utm_term=feed&tduid=c7d243284e2e1a9f478e3768f8d89c2b&utm_source=Tradedoubler_3487177&utm_medium=Affiliate&utm_campaign=Ongoing_P_TD",
+    imageSrc: "/images/destinations/teneryfa.jpg",
+    imageCountry: "Hiszpania",
+    checkedAt: "2026-10-11T14:00:17+02:00",
+    status: "active",
+    included: ["Lot w obie strony", "4 noce", "Transfer lotnisko–hotel–lotnisko", "Podstawowe ubezpieczenie"],
+  },
+  {
     slug: "paryz-provinces-opera-1169",
     city: "Paryż",
     country: "Francja",
