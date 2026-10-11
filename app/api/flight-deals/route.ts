@@ -1,4 +1,4 @@
-import { kiwiFlightExitHref } from "@/lib/kiwiFlights";
+import { eskyFlightExitHref } from "@/lib/eskyFlights";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -158,7 +158,7 @@ async function fetchJson(urls: string[]) {
 }
 
 function searchPath(origin: string, destination: string, departDate: string, returnDate: string) {
-  return kiwiFlightExitHref({ origin, destination, departure: departDate, returnDate, source: "flight_deals" });
+  return eskyFlightExitHref({ origin, destination, departure: departDate, returnDate, source: "flight_deals" });
 }
 
 export async function GET(request: NextRequest) {
