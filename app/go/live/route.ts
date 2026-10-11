@@ -9,6 +9,7 @@ const ALLOWED_PARTNERS = new Set<PartnerKey>([
   "wakacje",
   "exim",
   "esky",
+  "esky_flights",
   "tui",
   "getyourguide",
   "seeplaces",
@@ -161,6 +162,8 @@ function belongsToPartner(partner: PartnerKey, target: URL) {
   const host = target.hostname.toLowerCase();
   if (partner === "esky") return ["www2.esky.pl", "www.esky.pl"].includes(host)
     && (target.pathname === "/lot+hotel/portfolio" || target.pathname.startsWith("/lot+hotel/portfolio/"));
+  if (partner === "esky_flights") return ["www2.esky.pl", "www.esky.pl"].includes(host)
+    && target.pathname.startsWith("/flights/");
 
   if (partner === "exim") {
     if (host === "exim.pl" || host === "www.exim.pl") return true;
@@ -224,6 +227,7 @@ function affiliateTarget(partner: PartnerKey, target: URL) {
   try {
     if (partner === "aviasales") return new URL(partners.aviasales.buildUrl(original));
     if (partner === "esky") return new URL(buildEskyPackagesUrl(original));
+    if (partner === "esky_flights") return new URL(partners.esky_flights.buildUrl(original));
     if (partner === "exim") {
       if (host === "reklamy.exim.pl") return target;
       return new URL(partners.exim.buildUrl(original));
