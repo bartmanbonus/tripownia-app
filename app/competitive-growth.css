@@ -28,7 +28,8 @@
 }
 .tripownia-live-row{
   display:grid;
-  grid-template-columns:132px minmax(0,1fr) auto auto;
+  grid-template-columns:120px minmax(0,1fr) auto auto;
+  grid-template-areas:"time main price actions";
   align-items:center;
   gap:16px;
   min-height:82px;
@@ -37,13 +38,14 @@
 }
 .tripownia-live-row:last-child{border-bottom:0}
 .tripownia-live-time{
+  grid-area:time;
   display:flex;align-items:center;gap:6px;color:#8b817a;font-size:11px;font-weight:850
 }
 .tripownia-live-time svg{color:#ef5d35}
-.tripownia-live-main{min-width:0;color:#171513;text-decoration:none}
+.tripownia-live-main{grid-area:main;min-width:0;color:#171513;text-decoration:none}
 .tripownia-live-main strong{display:block;font-size:16px;line-height:1.25}
 .tripownia-live-main span{display:block;margin-top:4px;color:#81766f;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tripownia-live-price{display:flex;align-items:baseline;gap:4px;white-space:nowrap}
+.tripownia-live-price{grid-area:price;min-width:0;display:flex;align-items:baseline;gap:4px;flex-wrap:wrap}
 .tripownia-live-price small,.tripownia-live-price span{color:#877b73;font-size:10px}
 .tripownia-live-price strong{font-size:19px}
 .tripownia-live-alert{
@@ -130,18 +132,12 @@
 @media(max-width:900px){
   .deal-motif-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .motifs-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .tripownia-live-row{grid-template-columns:110px minmax(0,1fr) auto}
-  .tripownia-live-alert{grid-column:2/4;justify-self:start}
 }
 @media(max-width:620px){
   .tripownia-live{padding-top:28px!important;padding-bottom:28px!important}
   .tripownia-live-head{display:block}
   .tripownia-live-head>a{margin-top:14px}
-  .tripownia-live-row{grid-template-columns:1fr auto;gap:7px 12px;padding:14px 2px}
-  .tripownia-live-time{grid-column:1/3}
   .tripownia-live-main span{white-space:normal}
-  .tripownia-live-price{align-self:start}
-  .tripownia-live-alert{grid-column:1/3;justify-self:start}
   .deal-motif-grid,.motifs-grid{grid-template-columns:1fr}
   .deal-motif-grid>a{min-height:105px}
   .offer-detail-alert{align-items:flex-start;flex-direction:column}
@@ -385,6 +381,8 @@
 }
 .dream-hero-commerce-trust span{display:inline-flex;align-items:center;gap:4px}
 .tripownia-live-actions{
+  grid-area:actions;
+  min-width:0;
   display:flex;
   align-items:center;
   justify-content:flex-end;
@@ -406,15 +404,64 @@
   box-shadow:0 8px 18px rgba(244,91,50,.18);
 }
 .tripownia-live-book:hover{background:#df4f29}
-@media(max-width:900px){
-  .tripownia-live-row{grid-template-columns:110px minmax(0,1fr) auto!important}
-  .tripownia-live-actions{grid-column:2/4;justify-self:start}
+/* The row and its nested buttons have separate grids. Keep placement on
+   direct children only, so alerts cannot create implicit action columns. */
+.tripownia-live-actions>a{
+  box-sizing:border-box;
+  min-width:0;
+  min-height:44px;
+  white-space:nowrap;
+  word-break:normal;
+  overflow-wrap:normal;
+  line-height:1.2;
+  flex-shrink:0;
+}
+.tripownia-live-actions svg,.tripownia-live-time svg{flex-shrink:0}
+.tripownia-live-actions>a:focus-visible,.tripownia-live-main:focus-visible{
+  outline:3px solid #ad3e1f;
+  outline-offset:3px;
+}
+@media(max-width:1100px){
+  .tripownia-live-row{
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"time time" "main price" "actions actions";
+    gap:10px 16px;
+    padding:18px 4px;
+  }
+  .tripownia-live-actions{justify-self:end}
 }
 @media(max-width:620px){
   .dream-hero-commerce-trust{display:grid;gap:5px;margin-top:10px}
-  .tripownia-live-actions{grid-column:1/3;justify-self:stretch;display:grid;grid-template-columns:1fr 1fr}
-  .tripownia-live-book,.tripownia-live-alert{width:100%;justify-content:center}
+  .tripownia-live-row{
+    grid-template-columns:minmax(0,1fr);
+    grid-template-areas:"time" "main" "price" "actions";
+    gap:10px;
+    padding:20px 0;
+  }
+  .tripownia-live-main strong{font-size:18px;line-height:1.35}
+  .tripownia-live-main span{font-size:13px;line-height:1.55;overflow-wrap:anywhere}
+  .tripownia-live-time{font-size:12px}
+  .tripownia-live-price strong{font-size:22px;line-height:1.3}
+  .tripownia-live-price small,.tripownia-live-price span{font-size:12px}
+  .tripownia-live-actions{
+    width:100%;
+    justify-self:stretch;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(88px,.45fr);
+    gap:10px;
+  }
+  .tripownia-live-actions>a{
+    width:100%;
+    padding:12px 10px;
+    border-radius:12px;
+    font-size:13px;
+    justify-content:center;
+  }
 }
+@media(max-width:360px){
+  .tripownia-live-actions{grid-template-columns:minmax(0,1fr)}
+}
+
 
 
 .tripownia-purchase-actions-priority{
