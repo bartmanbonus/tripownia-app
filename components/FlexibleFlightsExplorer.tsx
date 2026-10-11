@@ -343,6 +343,8 @@ export default function FlexibleFlightsExplorer({
   initialMonth = "",
 }: FlexibleFlightsExplorerProps) {
   const initialOriginPlace = FLEXIBLE_ORIGINS.find((place) => place.code === initialOrigin.toUpperCase()) || FLEXIBLE_ORIGINS[0];
+  const monthSelectId = useId();
+  const stayGroupId = useId();
   const [origins, setOrigins] = useState<Place[]>([initialOriginPlace]);
   const [destinations, setDestinations] = useState<Place[]>([]);
   const [originAnywhere, setOriginAnywhere] = useState(false);
@@ -589,8 +591,8 @@ export default function FlexibleFlightsExplorer({
         />
 
         <div className="flight-hunt-month">
-          <label htmlFor="flight-hunt-month">Kiedy?</label>
-          <select id="flight-hunt-month" value={travelMonth} onChange={(event) => { setTravelMonth(event.target.value); dirty(); }}>
+          <label htmlFor={monthSelectId}>Kiedy?</label>
+          <select id={monthSelectId} value={travelMonth} onChange={(event) => { setTravelMonth(event.target.value); dirty(); }}>
             <option value="">Dowolny miesiąc</option>
             {monthOptions.map((month) => <option key={month.value} value={month.value}>{month.label}</option>)}
             {travelMonth && !monthOptions.some((month) => month.value === travelMonth) && (
@@ -600,8 +602,8 @@ export default function FlexibleFlightsExplorer({
         </div>
 
         <div className="flight-hunt-stay">
-          <span id="flight-hunt-stay-label">Na ile dni?</span>
-          <div className="flight-hunt-stay-pills" role="group" aria-labelledby="flight-hunt-stay-label">
+          <span id={stayGroupId}>Na ile dni?</span>
+          <div className="flight-hunt-stay-pills" role="group" aria-labelledby={stayGroupId}>
             <button type="button" aria-pressed={daysMin === 2 && daysMax === 4} className={daysMin === 2 && daysMax === 4 ? "active" : ""} onClick={() => setTripLength(2, 4)}><strong>Weekend</strong><small>2–4 dni</small></button>
             <button type="button" aria-pressed={daysMin === 5 && daysMax === 7} className={daysMin === 5 && daysMax === 7 ? "active" : ""} onClick={() => setTripLength(5, 7)}><strong>Krótki urlop</strong><small>5–7 dni</small></button>
             <button type="button" aria-pressed={daysMin === 8 && daysMax === 10} className={daysMin === 8 && daysMax === 10 ? "active" : ""} onClick={() => setTripLength(8, 10)}><strong>Dłuższy urlop</strong><small>8–10 dni</small></button>
