@@ -225,6 +225,7 @@ function protectAnchor(anchor: HTMLAnchorElement): ProtectedLink | null {
     anchor.setAttribute("href", PENDING_HREF);
   }
   anchor.removeAttribute("target");
+  anchor.dataset.tripowniaAffiliateBridge = "1";
   anchor.setAttribute("rel", "sponsored");
   return data;
 }
