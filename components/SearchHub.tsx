@@ -800,7 +800,7 @@ export default function SearchHub({
             if (apiDates.start) params.set("start", apiDates.start);
             if (apiDates.end) params.set("end", apiDates.end);
             if (apiDates.start || apiDates.end) {
-              params.set("dateKind", datePreference.mode === "range" ? "stay" : "departure");
+              params.set("dateKind", "departure");
             }
           }
           if (!relaxFilters) {
@@ -821,7 +821,7 @@ export default function SearchHub({
                   nights: relaxFilters ? "all" : activeDuration,
                   start: relaxDates ? "" : apiDates.start,
                   end: relaxDates ? "" : apiDates.end,
-                  stayWithinWindow: !relaxDates && datePreference.mode === "range",
+                  stayWithinWindow: false,
                   minPrice: activeMinBudget,
                   maxPrice: activeMaxBudget,
                   board: params.get("board") || undefined,
@@ -853,10 +853,9 @@ export default function SearchHub({
 
                 if (!relaxDates && datePreference.mode === "range" && datePreference.from && datePreference.to) {
                   const start = String(offer?.startDateISO || "");
-                  const end = String(offer?.endDateISO || "");
-                  if ((start && start < datePreference.from) || (end && end > datePreference.to)) {
+                  if ((start && start < datePreference.from) || (start && start > datePreference.to)) {
                     effectiveTier = Math.max(effectiveTier, 1);
-                    reasons.push("termin poza wybranym zakresem");
+                    reasons.push("wylot poza wybranym zakresem");
                   }
                 }
 
@@ -1018,10 +1017,6 @@ export default function SearchHub({
       setDateFrom(nextFrom);
       setDateTo(nextTo);
 
-      if (activeTab !== "Loty" && activeTab !== "Hotele") {
-        const exactNights = exactNightsBetween(nextFrom, nextTo);
-        if (exactNights > 0) setDuration(exactNights >= 15 ? "15+" : String(exactNights));
-      }
       return;
     }
 
@@ -1248,8 +1243,6 @@ export default function SearchHub({
   }, [dateMode, month, dateFrom, dateTo]);
 
   const durationSummary = useMemo(() => nightsLabel(duration), [duration]);
-  const selectedStayNights = dateMode === "range" && dateFrom && dateTo ? exactNightsBetween(dateFrom, dateTo) : 0;
-  const durationLocked = activeTab !== "Hotele" && activeTab !== "Loty" && selectedStayNights > 0;
   const durationFieldLabel = duration === "all" ? "Dowolnie" : nightsLabel(duration);
 
   const budgetSummary = useMemo(() => {
@@ -1566,7 +1559,7 @@ export default function SearchHub({
                   </div>
                   <div className="search-picker-nav">
                     <button type="button" aria-label="Poprzednie miesiące" disabled={visibleCalendarMonth <= localMonthKey()} onClick={() => setCalendarMonth(addMonths(visibleCalendarMonth, -1))}><ChevronLeft size={18}/></button>
-                    <span>{activeTab === "Loty" ? (dateMode === "range" ? "Wybierz datę wylotu, a potem powrotu" : "Wybierz datę wylotu") : activeTab === "Hotele" ? "Wybierz zameldowanie, a potem wymeldowanie" : (dateMode === "range" ? "Wybierz początek i koniec wyjazdu" : "Wybierz dzień wylotu")}</span>
+                    <span>{activeTab === "Loty" ? (dateMode === "range" ? "Wybierz datę wylotu, a potem powrotu" : "Wybierz datę wylotu") : activeTab === "Hotele" ? "Wybierz zameldowanie, a potem wymeldowanie" : (dateMode === "range" ? "Wybierz najwcześniejszy i najpóźniejszy dzień wylotu" : "Wybierz dzień wylotu")}</span>
                     <button type="button" aria-label="Następne miesiące" onClick={() => setCalendarMonth(addMonths(visibleCalendarMonth, 1))}><ChevronRight size={18}/></button>
                   </div>
                 </>}
@@ -1646,24 +1639,20 @@ export default function SearchHub({
                     <em>Nowość</em>
                   </button>
                   <div className="search-v3-esky-nights">
-                    <strong>{durationLocked ? "Długość wynika z terminu" : "Popularna długość"}</strong>
-                    {durationLocked ? (
-                      <div className="search-v3-esky-nights-locked"><span>{durationFieldLabel}</span><small>Zmień daty, aby ustawić inną długość.</small></div>
-                    ) : (
-                      <div>
-                        {[
-                          ["all","Dowolnie"],
-                          ["2-3","2–3"],
-                          ["3-4","3–4"],
-                          ["5-7","5–7"],
-                          ["7-10","7–10"],
-                          ["11-14","11–14"],
-                          ["15+","15+"],
-                        ].map(([value,label]) => (
-                          <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label}</button>
-                        ))}
-                      </div>
-                    )}
+                    <strong>Na jak długo?</strong>
+                    <div>
+                      {[
+                        ["all","Dowolnie"],
+                        ["2-3","2–3"],
+                        ["3-4","3–4"],
+                        ["5-7","5–7"],
+                        ["7-10","7–10"],
+                        ["11-14","11–14"],
+                        ["15+","15+"],
+                      ].map(([value,label]) => (
+                        <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label}</button>
+                      ))}
+                    </div>
                   </div>
                   <button type="button" className="search-v3-esky-apply" disabled={dateMode === "range" && (!dateFrom || !dateTo)} onClick={() => setDateOpen(false)}>Zastosuj</button>
                 </div>
@@ -1682,18 +1671,16 @@ export default function SearchHub({
               <ChevronDown size={15} className="search-v3-chevron"/>
             </label>
           ) : (
-            <div className={`search-v3-field search-v3-duration search-v3-duration-picker${durationOpen ? " is-open" : ""}${durationLocked ? " is-locked" : ""}`} ref={durationRef}>
-              <span>Na jak długo? {durationLocked && <small>z wybranego terminu</small>}</span>
+            <div className={`search-v3-field search-v3-duration search-v3-duration-picker${durationOpen ? " is-open" : ""}`} ref={durationRef}>
+              <span>Na jak długo?</span>
               <button
                 type="button"
                 className="search-v3-duration-trigger"
                 onClick={toggleDurationPanel}
                 aria-expanded={durationOpen}
-                aria-disabled={durationLocked}
-                disabled={durationLocked}
               >
                 <strong>{durationFieldLabel}</strong>
-                {durationLocked ? <Check size={15}/> : <ChevronDown size={15}/>}
+                <ChevronDown size={15}/>
               </button>
 
               {durationOpen && (
