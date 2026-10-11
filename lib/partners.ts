@@ -50,13 +50,26 @@ function buildKiwiAffiliateUrl(destinationUrl?: string) {
   const shmarker = process.env.NEXT_PUBLIC_KIWI_SHMARKER || "740301";
   if (destinationUrl) {
     const normalized = normalizedKiwiDeepUrl(destinationUrl);
-    if (!normalized) return "";
+    // A broad search (e.g. multiple origins or an unmapped country) must still
+    // open a valid affiliate link rather than leaving the customer with an
+    // empty href. Only rewrite routes that can be mapped unambiguously.
+    let safeTarget = normalized;
+    if (!safeTarget) {
+      try {
+        const raw = new URL(destinationUrl);
+        if (raw.protocol === "https:" && !raw.username && !raw.password
+          && ["kiwi.com", "www.kiwi.com"].includes(raw.hostname.toLowerCase())) {
+          safeTarget = raw.toString();
+        }
+      } catch { /* malformed destination */ }
+    }
+    if (!safeTarget) return "https://kiwi.tpk.lv/7PnrR4dn";
     const params = new URLSearchParams({
       shmarker: `${shmarker}.TRIPOWNIAPL`,
       promo_id: "3791",
       source_type: "customlink",
       type: "click",
-      custom_url: normalized,
+      custom_url: safeTarget,
     });
     return `https://c111.travelpayouts.com/click?${params.toString()}`;
   }
