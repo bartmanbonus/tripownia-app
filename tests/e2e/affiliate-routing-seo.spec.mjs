@@ -16,7 +16,7 @@ for (const [partner, target, expectedHost] of [
 
 test("legacy eSky alias to Kiwi is routed to the correct tracking partner", async ({ request }) => {
   const url = new URLSearchParams({
-    url: "https://www.kiwi.com/pl/search/results/warsaw/poland",
+    url: "https://www.kiwi.com/pl/search/results/warsaw-poland/barcelona-spain/2026-10-19/2026-10-21",
     source: "legacy_organic",
   });
   const response = await request.get(`/out/esky?${url}`, { maxRedirects: 0 });
@@ -68,5 +68,51 @@ test("legacy claim-service offers preserve correct partner redirects without ext
     const exit = await request.get(opaque.pathname, { maxRedirects: 0 });
     expect(exit.status()).toBe(307);
     expect(new URL(exit.headers()["location"]).hostname).toBe(expectedHost);
+  }
+});
+
+test("Kiwi affiliate links keep Barcelona and selected travel dates", async ({ request }) => {
+  const url = new URLSearchParams({
+    partner: "kiwi",
+    target: "https://www.kiwi.com/pl/search/results/warsaw-poland/barcelona-spain/2026-10-19/2026-10-21",
+    source: "regression_barcelona_hanoi",
+  });
+  const response = await request.get(`/go/live?${url}`, { maxRedirects: 0 });
+  expect(response.status()).toBe(307);
+  const affiliate = new URL(response.headers()["location"]);
+  expect(affiliate.hostname).toBe("c111.travelpayouts.com");
+  const deep = new URL(affiliate.searchParams.get("custom_url"));
+  expect(deep.hostname).toBe("www.kiwi.com");
+  expect(deep.pathname).toBe("/deep");
+  expect(deep.searchParams.get("from")).toBe("WAW");
+  expect(deep.searchParams.get("to")).toBe("BCN");
+  expect(deep.searchParams.get("departure")).toBe("2026-10-19");
+  expect(deep.searchParams.get("return")).toBe("2026-10-21");
+  expect(deep.href).not.toMatch(/hanoi|HAN/i);
+  expect(affiliate.searchParams.get("shmarker")).toContain("TRIPOWNIAPL");
+});
+
+test("Kiwi old affiliate wrappers are repaired rather than redirected blindly", async ({ request }) => {
+  const stale = new URL("https://c111.travelpayouts.com/click");
+  stale.searchParams.set("custom_url", "https://www.kiwi.com/pl/search/results/warsaw-poland/barcelona-spain/2026-10-19/2026-10-21");
+  const params = new URLSearchParams({ partner: "kiwi", target: stale.href });
+  const response = await request.get(`/go/live?${params}`, { maxRedirects: 0 });
+  expect(response.status()).toBe(307);
+  const exit = new URL(response.headers()["location"]);
+  expect(exit.hostname).toBe("c111.travelpayouts.com");
+  const deep = new URL(exit.searchParams.get("custom_url"));
+  expect(deep.pathname).toBe("/deep");
+  expect(deep.searchParams.get("to")).toBe("BCN");
+});
+
+test("Kiwi unknown or incomplete routes cannot send visitors to a wrong city", async ({ request }) => {
+  for (const target of [
+    "https://www.kiwi.com/pl/search/results/warsaw/poland",
+    "https://www.kiwi.com/pl/search/results/warsaw-poland/unrecognized-place/2026-10-19/2026-10-21",
+  ]) {
+    const params = new URLSearchParams({ partner: "kiwi", target });
+    const response = await request.get(`/go/live?${params}`, { maxRedirects: 0 });
+    expect(response.status()).toBe(307);
+    expect(new URL(response.headers()["location"]).pathname).toBe("/okazje");
   }
 });

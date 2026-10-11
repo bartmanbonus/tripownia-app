@@ -1,3 +1,4 @@
+import { normalizedKiwiDeepUrl } from "@/lib/kiwiDeepLink";
 import { after, NextRequest, NextResponse } from "next/server";
 import { recordClick } from "@/lib/clickStats";
 import { partners, buildEskyPackagesUrl, type PartnerKey } from "@/lib/partners";
@@ -236,8 +237,19 @@ function affiliateTarget(partner: PartnerKey, target: URL) {
     if (partner === "wakacje") return new URL(partners.wakacje.buildUrl(original));
 
     if (partner === "kiwi") {
-      if (host === "c111.travelpayouts.com" || host === "kiwi.tpk.lv") return target;
-      return new URL(partners.kiwi.buildUrl(original));
+      if (host === "kiwi.tpk.lv") return target;
+      // Repair previously issued encrypted offer links carrying old /search/results
+      // URLs. Always reconstruct the wrapper to remove stale or mismatched data.
+      if (host === "c111.travelpayouts.com") {
+        const oldUrl = target.searchParams.get("custom_url");
+        if (!oldUrl) return null;
+        const deep = normalizedKiwiDeepUrl(oldUrl);
+        if (!deep) return null;
+        return new URL(partners.kiwi.buildUrl(deep));
+      }
+      const deep = normalizedKiwiDeepUrl(original);
+      if (!deep) return null;
+      return new URL(partners.kiwi.buildUrl(deep));
     }
 
     if (partner === "booking") return new URL(partners.booking.buildUrl(original));
