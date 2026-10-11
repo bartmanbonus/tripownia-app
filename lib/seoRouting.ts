@@ -25,7 +25,7 @@ export const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/wakacje-ze-szczecina-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-szczecina",
   "/lublin-wakacje-city-break": "/podroze/city-break-z-lublina",
   "/alicante-czy-malaga": "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje",
-  "/wakacje-z-poznania": "/z-poznania",
+  "/wakacje-z-poznania": "/podroze/wakacje-z-poznania",
   "/wakacje-z-olsztyna-mazur-all-inclusive-last-minute-i-lot-hotel": "/podroze/wakacje-z-olsztyna-mazur",
   "/wroclaw": "/z-wroclawia",
   "/krakow": "/z-krakowa",

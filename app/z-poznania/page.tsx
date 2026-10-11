@@ -2,8 +2,8 @@ import DepartureDealsPage from "@/components/DepartureDealsPage";
 import { departureHubMetadata } from "@/lib/departureHubMetadata";
 
 export const metadata = departureHubMetadata({
-  title: "Wakacje z Poznania — Last Minute, All Inclusive i lot + hotel | Tripownia.pl",
-  description: "Wakacje i wyjazdy z Poznania-Ławicy (POZ): Last Minute, All Inclusive i lot + hotel. Porównaj aktualne kierunki, ceny i terminy z lokalnym wylotem.",
+  title: "Wyloty z Poznania (POZ) — loty i wyjazdy z Ławicy | Tripownia.pl",
+  description: "Wyloty z Poznania-Ławicy (POZ): wybierz city break, wakacje, Last Minute lub All Inclusive. Porównaj kierunki i przejdź do konkretnej oferty.",
   path: "/z-poznania",
 });
 

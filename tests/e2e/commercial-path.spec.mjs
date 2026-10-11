@@ -214,6 +214,37 @@ test("partner-bound CTA skips extra screen while keeping affiliate URL encrypted
   expect(location).not.toContain("/sprawdz-oferte");
 });
 
+test("a consented partner exit emits one canonical GA4 conversion event", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("tripownia-consent-v1", "analytics");
+  });
+  await page.goto("/okazje", { waitUntil: "domcontentloaded" });
+  await page.evaluate(() => {
+    const anchor = document.createElement("a");
+    anchor.id = "conversion-event-test";
+    anchor.href = "https://www.kiwi.com/pl/search/results/warsaw-poland/rome-italy";
+    anchor.textContent = "Sprawdź lot";
+    // The test only observes a click; it must never navigate to the partner.
+    anchor.addEventListener("click", (event) => event.preventDefault());
+    document.body.appendChild(anchor);
+  });
+  const link = page.locator("#conversion-event-test");
+  await link.hover();
+  await expect(link).toHaveAttribute("data-tripownia-affiliate-bridge", "1");
+  await expect(link).toHaveAttribute("href", /^\/przejdz\//);
+  const events = await page.evaluate(() => {
+    const recorded = [];
+    const original = window.gtag;
+    window.gtag = (...args) => { recorded.push(args); };
+    const anchor = document.querySelector("#conversion-event-test");
+    anchor.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    window.gtag = original;
+    return recorded.filter((item) => item[0] === "event" && item[1] === "outbound_partner_click");
+  });
+  expect(events).toHaveLength(1);
+  expect(events[0][2].partner).toBe("kiwi");
+});
+
 test("previously issued opaque review URL skips UI and preserves secure exit", async ({ page }) => {
   const token = await page.request.post("/api/affiliate-link", {
     data: {

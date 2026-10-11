@@ -225,6 +225,7 @@ function protectAnchor(anchor: HTMLAnchorElement): ProtectedLink | null {
     anchor.setAttribute("href", PENDING_HREF);
   }
   anchor.removeAttribute("target");
+  anchor.dataset.tripowniaAffiliateBridge = "1";
   anchor.setAttribute("rel", "sponsored");
   return data;
 }
@@ -292,6 +293,20 @@ function captureOutboundContext(anchor: HTMLAnchorElement, data: ProtectedLink) 
     price: context.price && Number.isFinite(Number(context.price)) ? Number(context.price) : undefined,
     currency: "PLN",
   });
+  // The bridge owns partner-bound exits from offer details, SEO and search pages.
+  // Explicit TrackedPartnerLink/AffiliateOfferLink components own their events.
+  if (anchor.dataset.partnerExit !== "1") {
+    trackEvent("outbound_partner_click", {
+      partner,
+      source: context.source,
+      placement: context.source,
+      destination,
+      page: window.location.pathname,
+      offer_id: context.offer || undefined,
+      price: context.price && Number.isFinite(Number(context.price)) ? Number(context.price) : undefined,
+      outbound_host: outboundHost,
+    });
+  }
   trackMetaCustomEvent("AffiliateClick", {
     partner, source: context.source, destination, page: window.location.pathname, outbound_host: outboundHost,
   });

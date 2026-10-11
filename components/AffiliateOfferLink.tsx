@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
+import { trackEvent } from "@/lib/analytics";
 
 type Props = {
   href: string;
@@ -21,6 +22,14 @@ type Props = {
 
 export default function AffiliateOfferLink({ href, partner, partnerLabel, slug, price, destination, tripKind = "package", departure, hotel, board, nights, start, end }: Props) {
   function rememberTripContext() {
+    trackEvent("outbound_partner_click", {
+      partner,
+      offer_id: slug,
+      destination,
+      price,
+      source: "social_offer",
+      placement: "social_offer",
+    });
     saveAffiliateReturnContext({
       slug,
       partner,

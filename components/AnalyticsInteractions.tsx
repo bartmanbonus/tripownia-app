@@ -65,7 +65,7 @@ export default function AnalyticsInteractions() {
         const sponsored = (anchor.getAttribute("rel") || "").split(/\s+/).includes("sponsored");
         // This component already tracks its own outbound conversion event.
         // Avoid counting one click twice in GA4 and Meta Pixel.
-        const trackedPartnerLink = anchor.dataset.partnerExit === "1";
+        const trackedPartnerLink = anchor.dataset.partnerExit === "1" || anchor.dataset.tripowniaAffiliateBridge === "1";
         if (sponsored && !trackedPartnerLink && !anchor.closest(".offer-card")) {
           let partnerHost = "";
           try {
