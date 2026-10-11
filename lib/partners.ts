@@ -4,6 +4,7 @@ declare const process: { env: Record<string, string | undefined> };
 export type PartnerKey =
   | "aviasales"
   | "esky"
+  | "esky_flights"
   | "wakacje"
   | "exim"
   | "tui"
@@ -92,7 +93,19 @@ function buildLegacyEskyAlias(destinationUrl?: string) {
 }
 
 export function buildEskyFlightsUrl(destinationUrl?: string) {
-  return buildLegacyEskyAlias(destinationUrl);
+  const fallback = "https://www2.esky.pl/flights/search/mp/WAWA/ap/BCN";
+  let url = new URL(fallback);
+  if (destinationUrl) {
+    try {
+      const candidate = new URL(destinationUrl);
+      const host = candidate.hostname.toLowerCase();
+      if (candidate.protocol === "https:" && ["www2.esky.pl", "www.esky.pl"].includes(host) && candidate.pathname.startsWith("/flights/")) {
+        url = candidate;
+      }
+    } catch { /* Use safe fallback below. */ }
+  }
+  url.searchParams.set("partner_id", "TRIPOWNIAPL");
+  return url.toString();
 }
 
 export function buildEskyPackagesUrl(destinationUrl?: string) {
@@ -129,6 +142,15 @@ export const partners: Record<PartnerKey, Partner> = {
     commissionType: "unknown",
     trackingId: "TRIPOWNIAPLPACKAGES",
     buildUrl: (destinationUrl) => buildEskyPackagesUrl(destinationUrl),
+  },
+  esky_flights: {
+    key: "esky_flights",
+    name: "eSky",
+    category: "travel",
+    description: "Loty eSky",
+    commissionType: "unknown",
+    trackingId: "TRIPOWNIAPL",
+    buildUrl: (destinationUrl) => buildEskyFlightsUrl(destinationUrl),
   },
   wakacje: {
     key: "wakacje",
