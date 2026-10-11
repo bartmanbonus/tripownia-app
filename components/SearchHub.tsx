@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Trash2, X } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Sparkles, Trash2, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type WorldDestination } from "@/lib/worldDestinations";
@@ -1304,12 +1304,12 @@ export default function SearchHub({
 
   return (
     <section className={embedded ? "search-v3-section search-v3-embedded" : "section shell search-v3-section"} id={embedded ? undefined : "wyszukiwarka"}>
-      <div className={`search-v3${simpleHomePackage ? " search-v3-simple" : ""}`}>
+      <div className={`search-v3${activeTab === "Loty" ? " search-v3-flights" : ""}${simpleHomePackage ? " search-v3-simple" : ""}`}>
         <div className="search-v3-head">
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
-            {!embedded && <h2>{activeTab === "Loty" ? "Znajdź najlepszy lot" : "Gdzie chcesz lecieć?"}</h2>}
-            {!embedded && <p>{activeTab === "Loty" ? "Wpisz kierunek, wybierz lotnisko i daty. Porównanie zaczynasz w Tripowni." : activeTab === "Hotele" ? "Wpisz kierunek i termin pobytu." : "Wybierz dokąd, skąd i kiedy. Możesz też zostawić pola puste — najtańsze kierunki pokażemy jako pierwsze."}</p>}
+            {!embedded && <h2>{activeTab === "Loty" ? "Znajdź tani lot" : "Gdzie chcesz lecieć?"}</h2>}
+            {!embedded && <p>{activeTab === "Loty" ? "Odkrywaj tanie kierunki i terminy albo sprawdź lot na konkretne daty." : activeTab === "Hotele" ? "Wpisz kierunek i termin pobytu." : "Wybierz dokąd, skąd i kiedy. Możesz też zostawić pola puste — najtańsze kierunki pokażemy jako pierwsze."}</p>}
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
@@ -1358,8 +1358,8 @@ export default function SearchHub({
                 className={flightSearchMode === "flex" ? "active" : ""}
                 onClick={() => setFlightSearchMode("flex")}
               >
-                <strong>Szukam okazji</strong>
-                <span>Elastyczne daty i Gdziekolwiek</span>
+                <Sparkles size={21} aria-hidden="true" />
+                <span className="search-v3-flight-mode-copy"><strong>Szukam okazji</strong><small>Elastyczne daty i Gdziekolwiek</small></span>
               </button>
               <button
                 type="button"
@@ -1368,8 +1368,8 @@ export default function SearchHub({
                 className={flightSearchMode === "exact" ? "active" : ""}
                 onClick={() => setFlightSearchMode("exact")}
               >
-                <strong>Mam konkretne daty</strong>
-                <span>Porównaj dokładny lot</span>
+                <CalendarDays size={21} aria-hidden="true" />
+                <span className="search-v3-flight-mode-copy"><strong>Mam konkretne daty</strong><small>Porównaj lot na wybrany termin</small></span>
               </button>
             </div>
 
