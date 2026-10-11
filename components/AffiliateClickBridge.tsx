@@ -292,9 +292,9 @@ function captureOutboundContext(anchor: HTMLAnchorElement, data: ProtectedLink) 
     price: context.price && Number.isFinite(Number(context.price)) ? Number(context.price) : undefined,
     currency: "PLN",
   });
-  // Sales cards use this bridge, not AnalyticsInteractions or TrackedPartnerLink.
-  // Emit the canonical conversion event exactly once for real partner exits.
-  if (anchor.closest(".offer-card") && anchor.dataset.partnerExit !== "1") {
+  // The bridge owns partner-bound exits from offer details, SEO and search pages.
+  // Explicit TrackedPartnerLink/AffiliateOfferLink components own their events.
+  if (anchor.dataset.partnerExit !== "1") {
     trackEvent("outbound_partner_click", {
       partner,
       source: context.source,
