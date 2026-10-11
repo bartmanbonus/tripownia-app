@@ -585,3 +585,70 @@
     white-space:nowrap!important;
   }
 }
+
+
+/* 2026-10-11 homepage mobile cleanup */
+.tripownia-live-note{
+  margin:0 0 14px;
+  padding:10px 12px;
+  border:1px solid #eadfd7;
+  border-radius:12px;
+  background:#faf7f4;
+  color:#71665f;
+  font-size:11px;
+  line-height:1.45;
+}
+@media(max-width:620px){
+  .tripownia-live{
+    padding-top:22px!important;
+    padding-bottom:24px!important;
+  }
+  .tripownia-live-head{
+    margin-bottom:12px;
+  }
+  .tripownia-live-head h2{
+    margin:5px 0 7px;
+    font-size:34px;
+    line-height:1.03;
+    letter-spacing:-.045em;
+  }
+  .tripownia-live-head p{
+    font-size:14px;
+    line-height:1.48;
+  }
+  .tripownia-live-head>a{
+    min-height:40px;
+    margin-top:9px;
+    font-size:14px;
+  }
+  .tripownia-live-note{
+    margin:0 0 10px;
+    padding:9px 10px;
+    font-size:10.5px;
+  }
+  .tripownia-live-row{
+    gap:7px;
+    padding:16px 0;
+  }
+  .tripownia-live-time{
+    font-size:11px;
+  }
+  .tripownia-live-main strong{
+    font-size:17px;
+    line-height:1.25;
+  }
+  .tripownia-live-main span{
+    margin-top:2px;
+    font-size:12px;
+    line-height:1.42;
+  }
+  .tripownia-live-price{
+    margin-top:1px;
+  }
+  .tripownia-live-price strong{
+    font-size:21px;
+  }
+  .tripownia-live-actions{
+    margin-top:3px;
+  }
+}
