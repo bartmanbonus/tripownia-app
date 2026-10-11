@@ -192,10 +192,10 @@ function TPCheckboxPlacePicker({
             <Search size={18} aria-hidden="true" />
             <input
               autoFocus
-              aria-label={label === "Skąd" ? "Szukaj lotniska wylotu" : "Szukaj kierunku podróży"}
+              aria-label={label.startsWith("Skąd") ? "Szukaj lotniska wylotu" : "Szukaj kierunku podróży"}
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={label === "Skąd" ? "Szukaj miasta lub lotniska" : "Szukaj miasta, kraju lub lotniska"}
+              placeholder={label.startsWith("Skąd") ? "Szukaj miasta lub lotniska" : "Szukaj miasta, kraju lub lotniska"}
             />
             {query && <button type="button" onClick={() => setQuery("")} aria-label="Wyczyść wyszukiwanie">×</button>}
           </div>
@@ -209,12 +209,12 @@ function TPCheckboxPlacePicker({
             <span className="flight-hunt-checkbox">{specialActive ? "✓" : ""}</span>
             <span>
               <strong>{specialLabel}</strong>
-              <small>{label === "Skąd" ? "szukaj z głównych lotnisk w Polsce" : "nie ograniczaj kierunku"}</small>
+              <small>{label.startsWith("Skąd") ? "szukaj z głównych lotnisk w Polsce" : "nie ograniczaj kierunku"}</small>
             </span>
           </button>
 
           <div className="flight-hunt-picker-section-label">
-            {query.trim().length >= 2 ? "WYNIKI WYSZUKIWANIA" : label === "Skąd" ? "LOTNISKA W POLSCE" : "POPULARNE KIERUNKI"}
+            {query.trim().length >= 2 ? "WYNIKI WYSZUKIWANIA" : label.startsWith("Skąd") ? "LOTNISKA W POLSCE" : "POPULARNE KIERUNKI"}
           </div>
 
           <div className="flight-hunt-picker-list">
