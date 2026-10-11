@@ -1,4 +1,4 @@
-import { kiwiFlightExitHref } from "@/lib/kiwiFlights";
+import { eskyFlightExitHref } from "@/lib/eskyFlights";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +25,7 @@ function safeMonth(value: string | null) {
 }
 
 function searchUrl(origin: string, destination: string, departDate: string, returnDate: string) {
-  return kiwiFlightExitHref({ origin, destination, departure: departDate, returnDate, source: "flight_calendar" });
+  return eskyFlightExitHref({ origin, destination, departure: departDate, returnDate, source: "flight_calendar" });
 }
 
 export async function GET(request: NextRequest) {
