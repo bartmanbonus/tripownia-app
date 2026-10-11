@@ -40,6 +40,19 @@ test("SEO pages use grammatical airport names and offer useful navigation before
   expect(html).toContain("Zobacz wyszukiwanie z tymi parametrami");
 });
 
+test("Poznań holidays old URL redirects to the indexed transactional landing", async ({ request }) => {
+  const response = await request.get("/wakacje-z-poznania", { maxRedirects: 0 });
+  expect(response.status()).toBe(308);
+  expect(new URL(response.headers()["location"], "https://tripownia.pl").pathname)
+    .toBe("/podroze/wakacje-z-poznania");
+
+  const landing = await request.get("/podroze/wakacje-z-poznania");
+  expect(landing.status()).toBe(200);
+  const html = await landing.text();
+  expect(html).toContain("Wakacje z Poznania");
+  expect(html).toContain("https://tripownia.pl/podroze/wakacje-z-poznania");
+});
+
 test("legacy claim-service offers preserve correct partner redirects without extra review UI", async ({ request }) => {
   for (const [target, expectedHost] of [
     ["https://airhelp.tpk.lv/i479aQSg", "airhelp.tpk.lv"],
