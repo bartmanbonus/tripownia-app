@@ -2,6 +2,7 @@
 
 import { ArrowRight } from "lucide-react";
 import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
+import { trackEvent } from "@/lib/analytics";
 
 type Props = {
   href: string;
