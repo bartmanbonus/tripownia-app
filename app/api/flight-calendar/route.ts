@@ -1,3 +1,4 @@
+import { kiwiFlightExitHref } from "@/lib/kiwiFlights";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -24,19 +25,7 @@ function safeMonth(value: string | null) {
 }
 
 function searchUrl(origin: string, destination: string, departDate: string, returnDate: string) {
-  const ddmm = (value: string) => {
-    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-    return match ? match[3] + match[2] : "";
-  };
-  const outbound = ddmm(departDate);
-  const inbound = ddmm(returnDate);
-  const path = outbound && inbound
-    ? origin + outbound + destination + inbound + "1"
-    : "";
-  const url = new URL(path ? "https://www.aviasales.com/search/" + path : "https://www.aviasales.com/");
-  url.searchParams.set("marker", "695999.TRIPOWNIAPL");
-  url.searchParams.set("shmarker", "695999.TRIPOWNIAPL");
-  return url.toString();
+  return kiwiFlightExitHref({ origin, destination, departure: departDate, returnDate, source: "flight_calendar" });
 }
 
 export async function GET(request: NextRequest) {
