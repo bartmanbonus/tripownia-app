@@ -72,13 +72,13 @@ export default function TripowniaLive() {
       <div className="tripownia-live-head">
         <div>
           <div className="kicker"><Flame size={14}/> TRIPOWNIA LIVE</div>
-          <h2 id="tripownia-live-title">Wybrane okazje na wyjazd.</h2>
-          <p>{"Konkretne terminy, ceny i hotele. Bez powtarzania tego samego kierunku."}</p>
+          <h2 id="tripownia-live-title">Okazje, które warto sprawdzić teraz.</h2>
+          <p>{"Różne kierunki, konkretne hotele i świeże ceny — bez ściany powtarzających się ofert."}</p>
         </div>
         <Link href="/okazje">Wszystkie okazje <ArrowRight size={16}/></Link>
       </div>
 
-      {!loaded && <p role="status">{"Wyszukujemy aktualne propozycje w r\u00f3\u017cnych kierunkach\u2026"}</p>}
+      {!loaded && <p className="tripownia-live-note" role="status">{"Sprawdzamy świeże ceny i dostępność…"}</p>}
       {loaded && !rows.length && (
         <div className="tripownia-live-empty" role="status">
           <p>{sourceProblem
@@ -87,7 +87,7 @@ export default function TripowniaLive() {
           <Link href="/alerty">{"Ustaw alert na wyjazd"} <ArrowRight size={16}/></Link>
         </div>
       )}
-      {rows.length > 0 && sourceProblem && <p role="status">{"Cz\u0119\u015b\u0107 cen nie zosta\u0142a od\u015bwie\u017cona. Pokazujemy tylko oferty z aktualizacj\u0105 ceny nie starsz\u0105 ni\u017c 6 godzin."}</p>}
+      {rows.length > 0 && sourceProblem && <p className="tripownia-live-note" role="status">{"Nie wszystkie źródła odświeżyły się w tej chwili. Pokazujemy wyłącznie ceny sprawdzone maksymalnie 6 godzin temu."}</p>}
 
       <div className="tripownia-live-list">
         {rows.map((offer) => {
