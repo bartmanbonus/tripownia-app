@@ -40,3 +40,21 @@ test("sitemap advertises only the canonical New Year article URL", async ({ requ
   expect(xml).toContain("https://tripownia.pl/gdzie-na-sylwestra-2026-2027-15-kierunkow");
   expect(xml).not.toContain("/post_id</loc>");
 });
+
+test("Alicante and Malaga guide answers the Andalusia question with bookable searches", async ({ request }) => {
+  const response = await request.get("/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje");
+  expect(response.status()).toBe(200);
+  const html = await response.text();
+  expect(html).toContain("Czy Alicante leży w Andaluzji?");
+  expect(html).toContain("Alicante znajduje się we Wspólnocie Walenckiej");
+  expect(html).toContain("/szukaj?destination=Alicante");
+  expect(html).toContain("/szukaj?destination=Malaga");
+});
+
+test("Poznan hub links to dedicated commercial city-break page", async ({ request }) => {
+  const response = await request.get("/z-poznania");
+  expect(response.status()).toBe(200);
+  const html = await response.text();
+  expect(html).toContain("city break z Poznania");
+  expect(html).toContain("/podroze/city-break-z-poznania");
+});
