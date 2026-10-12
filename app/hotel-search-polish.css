@@ -1,0 +1,49 @@
+/* Hotel-search UX: scoped styles, no change to travel offer cards. */
+.search-v3-hotels .search-v3-form,
+.search-v3-embedded .search-v3-hotels .search-v3-form {
+  display:grid!important;
+  grid-template-columns:minmax(230px,1.6fr) minmax(200px,1fr) minmax(215px,1fr) minmax(170px,.8fr)!important;
+  gap:10px!important;
+}
+.search-v3-hotels .hotel-guests-field { position:relative; min-width:0; }
+.hotel-guests-trigger { display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:0;width:100%;padding:5px 0;border:0;background:transparent;text-align:left;color:#211b17;cursor:pointer; }
+.hotel-guests-trigger strong { font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.hotel-guests-panel { position:absolute;top:calc(100% + 9px);right:0;z-index:500;width:min(390px,calc(100vw - 32px));padding:20px;border:1px solid #e6d9d0;border-radius:20px;background:#fff;box-shadow:0 22px 64px rgba(45,33,25,.2); }
+.hotel-guests-panel-heading{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;margin-bottom:12px}
+.hotel-guests-panel-heading>div{display:grid;gap:5px}
+.hotel-guests-panel-heading strong{font-size:18px}
+.hotel-guests-panel-heading small,.hotel-guests-stepper small{display:block;color:#766b64;font-size:12px;line-height:1.4}
+.hotel-guests-panel-heading>button{border:0;background:#f6f1ed;border-radius:9px;padding:8px;cursor:pointer}
+.hotel-guests-stepper{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #f0e9e3}
+.hotel-guests-stepper>div:first-child>strong{display:block;font-size:14px;margin-bottom:3px}
+.hotel-guests-stepper-actions{display:flex;align-items:center;gap:10px}
+.hotel-guests-stepper-actions button{display:grid;place-items:center;width:36px;height:36px;border:1px solid #e3d6cf;background:#fff;border-radius:11px;cursor:pointer}
+.hotel-guests-stepper-actions button:disabled{opacity:.35;cursor:not-allowed}
+.hotel-guests-stepper-actions output{width:21px;text-align:center;font-weight:800}
+.hotel-guests-child-ages{padding:15px 0}
+.hotel-guests-child-ages>strong{display:block;font-size:13px;margin-bottom:10px}
+.hotel-guests-child-ages>div{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hotel-guests-child-ages label{display:grid;gap:6px;font-size:12px;font-weight:700}
+.hotel-guests-child-ages select{height:39px;border:1px solid #dfd5cd;border-radius:10px;padding:0 8px;background:white}
+.hotel-guests-done{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:46px;margin-top:16px;border:0;border-radius:12px;background:#ed592e;color:#fff;font-size:13px;font-weight:850;cursor:pointer}
+.hotel-form-error{grid-column:1/-1;color:#a42d23;background:#fff1ed;border:1px solid #f7c8bb;padding:12px;border-radius:12px;font-size:13px;margin:0}
+.search-v3-hotels .search-v3-date,.search-v3-hotels .hotel-guests-field{height:auto;min-height:68px}
+.hotel-search-ready-summary{grid-template-columns:repeat(3,minmax(0,1fr))}
+.search-v3-hotels .search-v3-form .search-v3-submit{min-height:66px}
+.hotel-popular-destinations{margin-top:18px;display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.hotel-popular-destinations>span{font-size:12px;font-weight:800;color:#71635b;margin-right:4px}
+.hotel-popular-destinations>a{padding:10px 14px;border-radius:999px;background:#fff;border:1px solid #e8dbd0;color:#322820;font-size:13px;font-weight:750;text-decoration:none}
+.hotel-popular-destinations>a:hover{border-color:#ea7250;background:#fff6f2}
+.home-hotel-quicklink{display:inline-flex;gap:10px;align-items:center;margin:12px 0 0;padding:12px 17px;border:1px solid #e9cec0;border-radius:999px;background:#fffaf7;color:#2b211c;text-decoration:none;font-size:13px;font-weight:800}
+.home-hotel-quicklink:hover{border-color:#e65f36;color:#a84127}
+@media(max-width:1100px){
+.search-v3-hotels .search-v3-form,.search-v3-embedded .search-v3-hotels .search-v3-form{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.search-v3-hotels .search-v3-destination{grid-column:1/-1!important}
+.search-v3-hotels .search-v3-submit{grid-column:1/-1!important}
+}
+@media(max-width:640px){
+.search-v3-hotels .search-v3-form,.search-v3-embedded .search-v3-hotels .search-v3-form{grid-template-columns:minmax(0,1fr)!important}
+.search-v3-hotels .search-v3-destination,.search-v3-hotels .search-v3-submit{grid-column:1/-1!important}
+.hotel-guests-panel{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));top:auto;right:12px;left:12px;width:auto;max-height:85dvh;overflow:auto}
+.hotel-search-ready-summary{grid-template-columns:1fr}
+}
