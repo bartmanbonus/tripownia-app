@@ -220,7 +220,7 @@ export default function SeychellesDatesLanding() {
         )}
 
         <p style={{ marginTop: 20, opacity: 0.7, fontSize: 13, lineHeight: 1.6 }}>
-          Ceny lotów zmieniają się dynamicznie. Po wyborze terminu pokazujemy konkretną trasę w Tripowni, a rezerwacja odbywa się u partnera.
+          Ceny lotów zmieniają się dynamicznie. Po wyborze terminu pokazujemy konkretną trasę w Tripowni, a rezerwację finalizujesz po sprawdzeniu aktualnej ceny i warunków.
         </p>
       </div>
     </section>
