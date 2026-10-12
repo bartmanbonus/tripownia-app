@@ -79,8 +79,7 @@ function EmptyCategory({ slot }: { slot: RadarSlot }) {
 export default function LivePriceRadar() {
   const [filter, setFilter] = useState<Filter>("all");
   const { offers, source, loading, checkedAt, refresh } = useLiveOffers("/api/deals?strict=1", 5 * 60 * 1000);
-  const { offers: flightOffers } = useLiveOffers("/api/deals?strict=1&skipEsky=1", 5 * 60 * 1000);
-  const slots = useMemo(() => selectRadarSlots(source === "live" ? [...offers, ...flightOffers] : flightOffers), [offers, flightOffers, source]);
+  const slots = useMemo(() => selectRadarSlots(source === "live" ? offers : []), [offers, source]);
   const shown = filter === "all" ? slots : slots.filter((slot) => slot.category.kind === filter);
   const ready = shown.filter((slot) => slot.offer);
   const empty = shown.filter((slot) => !slot.offer);
