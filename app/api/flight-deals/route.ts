@@ -51,7 +51,7 @@ type CalendarRow = {
   value?: number | null;
 };
 
-async function fetchCalendarFallback(origin: string, minDays: number, maxDays: number, direct: boolean) {
+async function fetchCalendarFallback(origin: string, minDays: number, maxDays: number, direct: boolean, months: string[]) {
   const batches: Array<typeof FALLBACK_DESTINATIONS> = [];
   for (let index = 0; index < FALLBACK_DESTINATIONS.length; index += 6) {
     batches.push(FALLBACK_DESTINATIONS.slice(index, index + 6));
@@ -71,46 +71,52 @@ async function fetchCalendarFallback(origin: string, minDays: number, maxDays: n
 
   for (const batch of batches) {
     const rows = await Promise.all(batch.map(async (place) => {
-      try {
-        const upstream = new URL("https://suggest.apistp.com/uaca/v1/get_data_forward");
-        upstream.searchParams.set("service", "calendar_aviasales_month");
-        upstream.searchParams.set("origin_iata", origin);
-        upstream.searchParams.set("currency", "pln");
-        upstream.searchParams.set("destination_iata", place.code);
-        upstream.searchParams.set("one_way", "false");
-        upstream.searchParams.set("min_trip_duration", String(minDays));
-        upstream.searchParams.set("max_trip_duration", String(maxDays));
-        upstream.searchParams.set("only_direct", direct ? "true" : "false");
-        upstream.searchParams.set("host", "hydra.aviasales.com");
+      const monthKeys = months.length ? months : [""];
+      const candidates = await Promise.all(monthKeys.map(async (month) => {
+        try {
+          const upstream = new URL("https://suggest.apistp.com/uaca/v1/get_data_forward");
+          upstream.searchParams.set("service", "calendar_aviasales_month");
+          upstream.searchParams.set("origin_iata", origin);
+          upstream.searchParams.set("currency", "pln");
+          upstream.searchParams.set("destination_iata", place.code);
+          upstream.searchParams.set("one_way", "false");
+          upstream.searchParams.set("min_trip_duration", String(minDays));
+          upstream.searchParams.set("max_trip_duration", String(maxDays));
+          upstream.searchParams.set("only_direct", direct ? "true" : "false");
+          if (month) upstream.searchParams.set("month", month);
+          upstream.searchParams.set("host", "hydra.aviasales.com");
 
-        const response = await fetch(upstream.toString(), {
-          headers: { Accept: "application/json" },
-          next: { revalidate: 900 },
-        });
-        if (!response.ok) return null;
-        const data = await response.json() as { month?: Record<string, CalendarRow> };
-        const candidates = Object.values(data?.month || {})
-          .filter((row) => Number(row.value || 0) > 0 && row.depart_date && row.return_date)
-          .sort((a, b) => Number(a.value || Infinity) - Number(b.value || Infinity));
-        const best = candidates[0];
-        if (!best) return null;
+          const response = await fetch(upstream.toString(), {
+            headers: { Accept: "application/json" },
+            next: { revalidate: 900 },
+          });
+          if (!response.ok) return null;
+          const data = await response.json() as { month?: Record<string, CalendarRow> };
+          const best = Object.values(data?.month || {})
+            .filter((row) => Number(row.value || 0) > 0 && row.depart_date && row.return_date)
+            .filter((row) => inSelectedMonths(String(row.depart_date || ""), months))
+            .sort((a, b) => Number(a.value || Infinity) - Number(b.value || Infinity))[0];
+          if (!best) return null;
 
-        const departDate = String(best.depart_date || "");
-        const returnDate = String(best.return_date || "");
-        return {
-          destination: place.code,
-          name: place.name,
-          country: place.country,
-          price: Math.round(Number(best.value || 0)),
-          departDate,
-          returnDate,
-          changes: Math.max(Number(best.depart_stops || 0), Number(best.return_stops || 0)),
-          actual: true,
-          affiliateUrl: searchPath(origin, place.code, departDate, returnDate),
-        };
-      } catch {
-        return null;
-      }
+          const departDate = String(best.depart_date || "");
+          const returnDate = String(best.return_date || "");
+          return {
+            destination: place.code,
+            name: place.name,
+            country: place.country,
+            price: Math.round(Number(best.value || 0)),
+            departDate,
+            returnDate,
+            changes: Math.max(Number(best.depart_stops || 0), Number(best.return_stops || 0)),
+            actual: true,
+            affiliateUrl: searchPath(origin, place.code, departDate, returnDate),
+          };
+        } catch {
+          return null;
+        }
+      }));
+      return candidates.filter((item): item is NonNullable<typeof item> => Boolean(item))
+        .sort((a, b) => a.price - b.price)[0] || null;
     }));
     offers.push(...rows.filter((row): row is NonNullable<typeof row> => Boolean(row)));
   }
@@ -118,10 +124,22 @@ async function fetchCalendarFallback(origin: string, minDays: number, maxDays: n
   return offers.sort((a, b) => a.price - b.price);
 }
 
-
 function safeIata(value: string | null, fallback = "WAW") {
   const normalized = String(value || "").toUpperCase().replace(/[^A-Z]/g, "");
   return /^[A-Z]{3}$/.test(normalized) ? normalized : fallback;
+}
+
+function selectedMonths(value: string | null) {
+  const thisMonth = new Date().toISOString().slice(0, 7);
+  const maxMonth = new Date();
+  maxMonth.setUTCMonth(maxMonth.getUTCMonth() + 18);
+  const upperBound = maxMonth.toISOString().slice(0, 7);
+  return [...new Set(String(value || "").split(",").map((value) => value.trim())
+    .filter((value) => /^\d{4}-(0[1-9]|1[0-2])$/.test(value) && value >= thisMonth && value <= upperBound))].slice(0, 6);
+}
+
+function inSelectedMonths(date: string, months: string[]) {
+  return !months.length || months.includes(date.slice(0, 7));
 }
 
 async function fetchJson(urls: string[]) {
@@ -165,6 +183,7 @@ export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const origin = safeIata(params.get("origin"));
   const direct = params.get("direct") === "true";
+  const months = selectedMonths(params.get("months") || params.get("month"));
   const minDays = Math.max(1, Math.min(30, Number(params.get("minDays") || 2)));
   const maxDays = Math.max(minDays, Math.min(30, Number(params.get("maxDays") || 14)));
 
@@ -206,7 +225,7 @@ export async function GET(request: NextRequest) {
       const destination = String(row.destination || "").toUpperCase();
       const value = Number(row.value || 0);
       if (!/^[A-Z]{3}$/.test(destination) || !value || value <= 0) continue;
-      if (row.show_to_affiliates === false) continue;
+      if (row.show_to_affiliates === false || !inSelectedMonths(String(row.depart_date || ""), months)) continue;
       const current = bestByDestination.get(destination);
       if (!current || Number(current.value || Infinity) > value) bestByDestination.set(destination, row);
     }
@@ -232,19 +251,19 @@ export async function GET(request: NextRequest) {
       ;
 
     if (!offers.length) {
-      offers = await fetchCalendarFallback(origin, minDays, maxDays, direct);
+      offers = await fetchCalendarFallback(origin, minDays, maxDays, direct, months);
     }
 
     return NextResponse.json(
-      { ok: true, origin, direct, offers, source: offers.length ? "live" : "empty" },
+      { ok: true, origin, direct, months, offers, source: offers.length ? "live" : "empty" },
       { headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=900" } },
     );
   } catch (error) {
     console.warn("[flight_deals_primary_unavailable]", error instanceof Error ? error.message : "unknown");
     try {
-      const offers = await fetchCalendarFallback(origin, minDays, maxDays, direct);
+      const offers = await fetchCalendarFallback(origin, minDays, maxDays, direct, months);
       return NextResponse.json(
-        { ok: true, origin, direct, offers, source: "calendar_fallback" },
+        { ok: true, origin, direct, months, offers, source: "calendar_fallback" },
         { status: 200, headers: { "Cache-Control": "public, max-age=300, stale-while-revalidate=900" } },
       );
     } catch (fallbackError) {

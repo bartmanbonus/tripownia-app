@@ -476,3 +476,37 @@
     transition: none;
   }
 }
+
+
+/* Multi-month discovery inspired by fare explorer patterns, maintaining Tripownia colors. */
+.flight-hunt-clean .flight-hunt-month-multi,.flight-passenger-control{position:relative;min-width:0}
+.flight-hunt-clean .flight-hunt-month-multi>.flight-hunt-picker-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.flight-multi-month-panel,.flight-guests-panel{position:absolute;z-index:300;top:calc(100% + 8px);left:0;width:min(560px,calc(100vw - 32px));padding:18px;border:1px solid #dfd4cc;border-radius:18px;background:white;box-shadow:0 24px 70px rgba(35,25,19,.2)}
+.flight-multi-month-head,.flight-multi-month-nav,.flight-multi-month-actions{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.flight-multi-month-head strong{font-size:17px;color:#261d18}.flight-multi-month-head button,.flight-multi-month-nav button{width:36px;height:36px;border:1px solid #e6ddd7;background:white;border-radius:10px;display:grid;place-items:center;cursor:pointer}
+.flight-multi-month-panel>p{font-size:12px;color:#726861;margin:6px 0 12px}
+.flight-multi-month-nav{margin-bottom:12px;font-size:12px;font-weight:800}
+.flight-multi-month-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.flight-multi-month-grid button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:82px;border:1px solid #e3d7cf;border-radius:12px;background:#f8f5f2;color:#241e1a;cursor:pointer}
+.flight-multi-month-grid button.active{background:#e85b32;color:white;border-color:#e85b32}
+.flight-multi-month-grid button:disabled{opacity:.42;cursor:not-allowed}
+.flight-multi-month-grid button small{font-size:12px;color:inherit}.flight-multi-month-grid button strong{font-size:14px;font-weight:850}
+.flight-multi-month-actions{margin-top:16px;border-top:1px solid #eee4dd;padding-top:12px}.flight-multi-month-actions button,.flight-guests-panel>.primary{min-height:36px;border:1px solid #e0d6cf;border-radius:10px;padding:0 12px;background:#fff;color:#2b211b;font-weight:750;cursor:pointer}.flight-multi-month-actions .primary,.flight-guests-panel>.primary{background:#e85b32;border-color:#e85b32;color:white}.flight-multi-month-actions span{font-size:12px;color:#74685f}
+.flight-passenger-control>.flight-hunt-picker-trigger{height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;border:1px solid #ddcec5;border-radius:13px;background:white;padding:8px 14px;color:#33271f;font-size:12px;font-weight:750;cursor:pointer}
+.flight-passenger-control>.flight-hunt-picker-trigger small{display:block;font-size:10px;color:#83766b;margin-bottom:4px}
+.flight-guests-panel{width:min(390px,calc(100vw - 32px));left:auto;right:0;display:grid;gap:14px}
+.flight-guests-panel label{display:grid;gap:5px;font-size:12px;font-weight:800}.flight-guests-panel select{height:42px;border:1px solid #ddd0c8;border-radius:9px;background:#fff;padding:0 12px}
+.flight-guests-panel>div{display:flex;align-items:center;gap:12px}.flight-guests-panel>div>span{flex:1;font-weight:750}.flight-guests-panel>div button{width:36px;height:36px;border:0;border-radius:9px;background:#eee9e6;font-size:20px;cursor:pointer}.flight-guests-panel>small{color:#72665d;font-size:11px;line-height:1.5}
+.flight-discovery-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:16px 0 20px;padding:13px;border-radius:14px;background:#f7f4f1}
+.flight-discovery-toolbar label{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800}.flight-discovery-toolbar select{height:38px;border:1px solid #ddd2c9;border-radius:9px;padding:0 9px;background:white}
+.flight-discovery-toolbar>button{min-height:38px;border:1px solid #ded3c9;border-radius:9px;background:white;padding:0 12px;cursor:pointer;font-weight:700}
+.flight-discovery-toolbar .flight-results-check input{accent-color:#e85b32;width:18px;height:18px}
+.flight-country-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.flight-country-card{min-width:0;overflow:hidden;border:1px solid #e1d9d3;border-radius:16px;background:#fff;box-shadow:0 7px 22px rgba(46,32,25,.07)}
+.flight-country-title{display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(135deg,#fff6f1,#fff);padding:17px;border-bottom:1px solid #eee1d9}
+.flight-country-title>span{display:grid;gap:4px;min-width:0}.flight-country-title small{font-size:10px;font-weight:850;color:#c75230}.flight-country-title strong{font-size:20px;color:#231b17}.flight-country-title span span{font-size:12px;color:#72665e}
+.flight-country-title>b{white-space:nowrap;font-size:21px;color:#d84b27}.flight-country-best{display:grid;gap:7px;padding:16px 17px}.flight-country-best strong{font-size:16px}.flight-country-best span{font-size:12px;color:#6b6058}
+.flight-country-expand{display:flex;align-items:center;justify-content:space-between;width:calc(100% - 34px);margin:0 17px 16px;min-height:43px;padding:0 14px;border:0;border-radius:10px;background:#e85b32;color:#fff;font-size:12px;font-weight:850;cursor:pointer}
+.flight-country-options{padding:0 16px 16px;display:grid;gap:8px}.flight-country-options a{display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #eee3da;border-radius:10px;padding:9px;text-decoration:none;color:#2b211b}.flight-country-options a span{display:grid;gap:4px}.flight-country-options a small{color:#827267;font-size:10px}.flight-country-options a b{font-size:12px;white-space:nowrap;color:#c84d2c}
+@media(max-width:1120px){.flight-country-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.flight-hunt-clean .flight-hunt-controls-clean>.flight-passenger-control{grid-column:auto}}
+@media(max-width:780px){.flight-country-grid{grid-template-columns:minmax(0,1fr)}.flight-multi-month-panel,.flight-guests-panel{position:fixed;top:auto;bottom:max(12px,env(safe-area-inset-bottom));left:12px;right:12px;width:auto;max-height:80dvh;overflow-y:auto;z-index:2500}.flight-multi-month-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.flight-hunt-clean .flight-hunt-controls-clean>.flight-passenger-control{grid-column:1/-1}.flight-discovery-toolbar{display:grid;grid-template-columns:1fr 1fr}.flight-discovery-toolbar label{flex-wrap:wrap}.flight-discovery-toolbar select{max-width:100%}}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { ArrowRight, ChevronDown, Search } from "lucide-react";
+import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
 import { eskyFlightExitHref } from "@/lib/eskyFlights";
 import FlightDestinationCatalog from "@/components/FlightDestinationCatalog";
 
@@ -346,6 +346,7 @@ export default function FlexibleFlightsExplorer({
 }: FlexibleFlightsExplorerProps) {
   const initialOriginPlace = FLEXIBLE_ORIGINS.find((place) => place.code === initialOrigin.toUpperCase()) || FLEXIBLE_ORIGINS[0];
   const monthSelectId = useId();
+  const monthsRef = useRef<HTMLDivElement>(null);
   const stayGroupId = useId();
   const [origins, setOrigins] = useState<Place[]>([initialOriginPlace]);
   const [destinations, setDestinations] = useState<Place[]>([]);
@@ -354,7 +355,16 @@ export default function FlexibleFlightsExplorer({
   const [daysMin, setDaysMin] = useState(2);
   const [daysMax, setDaysMax] = useState(4);
   const [directOnly, setDirectOnly] = useState(false);
-  const [travelMonth, setTravelMonth] = useState(/^\d{4}-\d{2}$/.test(initialMonth) ? initialMonth : "");
+  const [selectedMonths, setSelectedMonths] = useState<string[]>(/^\d{4}-\d{2}$/.test(initialMonth) ? [initialMonth] : []);
+  const [monthsOpen, setMonthsOpen] = useState(false);
+  const [monthPage, setMonthPage] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(0);
+  const [regionFilter, setRegionFilter] = useState("all");
+  const [onlyDirectResults, setOnlyDirectResults] = useState(false);
+  const [guestsOpen, setGuestsOpen] = useState(false);
+  const [adults, setAdults] = useState(1);
+  const [children, setChildren] = useState(0);
+  const [cabin, setCabin] = useState("Ekonomiczna");
   const [monthOptions, setMonthOptions] = useState<Array<{ value: string; label: string }>>([]);
   useEffect(() => {
     const today = new Date();
@@ -373,6 +383,14 @@ export default function FlexibleFlightsExplorer({
   const [deals, setDeals] = useState<FlightDeal[]>([]);
   const [dealsLoading, setDealsLoading] = useState(false);
   const [dealsSort, setDealsSort] = useState<"price" | "name">("price");
+  const [selectedCountry, setSelectedCountry] = useState("");
+  useEffect(() => {
+    const onPointerDown = (event: PointerEvent) => {
+      if (monthsRef.current && !monthsRef.current.contains(event.target as Node)) setMonthsOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, []);
 
   useEffect(() => {
     const query = initialDestination.trim();
@@ -462,26 +480,38 @@ export default function FlexibleFlightsExplorer({
 
     const controller = new AbortController();
     setCalendarLoading(true);
-    const params = new URLSearchParams({
-      origin: activeRoute.origin.code,
-      destination: effectiveDestinationCode,
-      minDays: String(Math.min(daysMin, daysMax)),
-      maxDays: String(Math.max(daysMin, daysMax)),
-      direct: directOnly ? "true" : "false",
-    });
-    if (travelMonth) params.set("month", travelMonth);
-    if (/^[A-Z]{3}$/.test(fallbackDestinationCode) && fallbackDestinationCode !== effectiveDestinationCode) {
-      params.set("fallback", fallbackDestinationCode);
-    }
-
-    fetch("/api/flight-calendar?" + params.toString(), { signal: controller.signal, cache: "no-store" })
-      .then((response) => response.json())
-      .then((data) => setCalendarResults(Array.isArray(data?.results) ? data.results : []))
-      .catch(() => setCalendarResults([]))
-      .finally(() => setCalendarLoading(false));
-
+    const months = selectedMonths.length ? selectedMonths : [""];
+    Promise.all(months.map(async (travelMonth) => {
+      const params = new URLSearchParams({
+        origin: activeRoute.origin.code,
+        destination: effectiveDestinationCode,
+        minDays: String(Math.min(daysMin, daysMax)),
+        maxDays: String(Math.max(daysMin, daysMax)),
+        direct: directOnly ? "true" : "false",
+      });
+      if (travelMonth) params.set("month", travelMonth);
+      if (/^[A-Z]{3}$/.test(fallbackDestinationCode) && fallbackDestinationCode !== effectiveDestinationCode) {
+        params.set("fallback", fallbackDestinationCode);
+      }
+      try {
+        const response = await fetch("/api/flight-calendar?" + params.toString(), { signal: controller.signal, cache: "no-store" });
+        const data = await response.json();
+        return Array.isArray(data?.results) ? data.results : [];
+      } catch {
+        return [];
+      }
+    })).then((groups) => {
+      const unique = new Map<string, (typeof calendarResults)[number]>();
+      for (const row of groups.flat()) {
+        if (!row?.departDate || (selectedMonths.length && !selectedMonths.includes(row.departDate.slice(0, 7)))) continue;
+        const key = row.destinationCode + "-" + row.departDate + "-" + row.returnDate;
+        const existing = unique.get(key);
+        if (!existing || existing.price > row.price) unique.set(key, row);
+      }
+      setCalendarResults([...unique.values()].sort((a,b) => a.price - b.price));
+    }).finally(() => setCalendarLoading(false));
     return () => controller.abort();
-  }, [submitted, destinationAnywhere, travelMonth, activeRoute?.origin.code, effectiveDestinationCode, fallbackDestinationCode, daysMin, daysMax, directOnly]);
+  }, [submitted, destinationAnywhere, selectedMonths.join(","), activeRoute?.origin.code, effectiveDestinationCode, fallbackDestinationCode, daysMin, daysMax, directOnly]);
 
   const mapSrc = "";
 
@@ -501,6 +531,8 @@ export default function FlexibleFlightsExplorer({
       maxDays: String(Math.max(daysMin, daysMax)),
     });
 
+    if (selectedMonths.length) params.set("months", selectedMonths.join(","));
+
     fetch("/api/flight-deals?" + params.toString(), {
       signal: controller.signal,
       cache: "no-store",
@@ -511,15 +543,43 @@ export default function FlexibleFlightsExplorer({
       .finally(() => setDealsLoading(false));
 
     return () => controller.abort();
-  }, [submitted, destinationAnywhere, activeRoute?.origin.code, directOnly, daysMin, daysMax]);
+  }, [submitted, destinationAnywhere, activeRoute?.origin.code, directOnly, daysMin, daysMax, selectedMonths.join(",")]);
 
   const sortedDeals = useMemo(() => {
-    const rows = [...deals];
-    if (dealsSort === "name") {
-      return rows.sort((a, b) => a.name.localeCompare(b.name, "pl"));
+    const unique = new Map<string, FlightDeal>();
+    for (const deal of deals) {
+      if (!deal.price || !deal.departDate || (selectedMonths.length && !selectedMonths.includes(deal.departDate.slice(0, 7)))) continue;
+      if (maxPrice && deal.price > maxPrice) continue;
+      if ((directOnly || onlyDirectResults) && deal.changes > 0) continue;
+      if (regionFilter !== "all" && !deal.country.toLowerCase().includes(regionFilter.toLowerCase())) continue;
+      const key = deal.country + "/" + deal.destination;
+      const old = unique.get(key);
+      if (!old || deal.price < old.price) unique.set(key, deal);
     }
-    return rows.sort((a, b) => a.price - b.price);
-  }, [deals, dealsSort]);
+    const rows = [...unique.values()];
+    return dealsSort === "name" ? rows.sort((a,b) => a.name.localeCompare(b.name, "pl")) : rows.sort((a,b) => a.price - b.price);
+  }, [deals, selectedMonths, maxPrice, regionFilter, directOnly, onlyDirectResults, dealsSort]);
+
+  const groupedCountries = useMemo(() => {
+    const groups = new Map<string, FlightDeal[]>();
+    for (const deal of sortedDeals) {
+      const key = deal.country || deal.name;
+      groups.set(key, [...(groups.get(key) || []), deal]);
+    }
+    return [...groups].map(([country, entries]) => ({ country, entries, best: entries[0] }))
+      .sort((a,b) => dealsSort === "name" ? a.country.localeCompare(b.country, "pl") : a.best.price - b.best.price);
+  }, [sortedDeals, dealsSort]);
+
+  const monthSummary = selectedMonths.length === 0 ? "Dowolny miesiąc" : selectedMonths.length === 1
+    ? monthOptions.find((item) => item.value === selectedMonths[0])?.label || selectedMonths[0]
+    : selectedMonths.length + " wybrane miesiące";
+
+  function toggleMonth(value: string) {
+    setSelectedMonths((current) => current.includes(value)
+      ? current.filter((month) => month !== value)
+      : current.length >= 6 ? current : [...current, value].sort());
+    dirty();
+  }
 
   function dirty() {
     setSubmitted(false);
@@ -572,15 +632,40 @@ export default function FlexibleFlightsExplorer({
           defaultOptions={POPULAR_DESTINATIONS}
         />
 
-        <div className="flight-hunt-month">
-          <label htmlFor={monthSelectId}>Kiedy?</label>
-          <select id={monthSelectId} value={travelMonth} onChange={(event) => { setTravelMonth(event.target.value); dirty(); }}>
-            <option value="">Dowolny miesiąc</option>
-            {monthOptions.map((month) => <option key={month.value} value={month.value}>{month.label}</option>)}
-            {travelMonth && !monthOptions.some((month) => month.value === travelMonth) && (
-              <option value={travelMonth}>{travelMonth}</option>
-            )}
-          </select>
+        <div className="flight-hunt-month flight-hunt-month-multi" ref={monthsRef}>
+          <label id={monthSelectId}>Kiedy?</label>
+          <button type="button" className="flight-hunt-picker-trigger" aria-labelledby={monthSelectId} aria-expanded={monthsOpen} onClick={() => setMonthsOpen(!monthsOpen)}>
+            <span>{monthSummary}</span><ChevronDown size={17}/>
+          </button>
+          {monthsOpen && (
+            <div className="flight-multi-month-panel" role="group" aria-label="Wybierz jeden lub wiele miesięcy">
+              <div className="flight-multi-month-head">
+                <strong>Wybierz miesiące podróży</strong>
+                <button type="button" aria-label="Zamknij wybór miesięcy" onClick={() => setMonthsOpen(false)}><X size={18}/></button>
+              </div>
+              <p>Możesz zaznaczyć kilka miesięcy, np. grudzień i styczeń. Maksymalnie 6.</p>
+              <div className="flight-multi-month-nav">
+                <button type="button" aria-label="Poprzednie miesiące" disabled={monthPage===0} onClick={() => setMonthPage(Math.max(0,monthPage-3))}><ChevronLeft size={18}/></button>
+                <span>{monthOptions[monthPage]?.label} – {monthOptions[Math.min(monthPage+5,monthOptions.length-1)]?.label}</span>
+                <button type="button" aria-label="Następne miesiące" disabled={monthPage+6 >= monthOptions.length} onClick={() => setMonthPage(Math.min(monthPage+3,Math.max(0,monthOptions.length-6)))}><ChevronRight size={18}/></button>
+              </div>
+              <div className="flight-multi-month-grid">
+                {monthOptions.slice(monthPage,monthPage+6).map((item) => (
+                  <button key={item.value} type="button" aria-pressed={selectedMonths.includes(item.value)}
+                    disabled={!selectedMonths.includes(item.value) && selectedMonths.length >= 6}
+                    className={selectedMonths.includes(item.value) ? "active" : ""}
+                    onClick={() => toggleMonth(item.value)}>
+                    <small>{item.value.slice(0,4)}</small><strong>{item.label.replace(/\s+\d{4}$/, "")}</strong>
+                  </button>
+                ))}
+              </div>
+              <div className="flight-multi-month-actions">
+                <button type="button" onClick={() => {setSelectedMonths([]);dirty();}}>Dowolny termin</button>
+                <span>{selectedMonths.length ? selectedMonths.length + " mies." : "Wszystkie miesiące"}</span>
+                <button type="button" className="primary" onClick={() => setMonthsOpen(false)}>Zastosuj</button>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flight-hunt-stay">
@@ -593,6 +678,18 @@ export default function FlexibleFlightsExplorer({
           </div>
         </div>
 
+        <div className="flight-passenger-control">
+          <button type="button" className="flight-hunt-picker-trigger" onClick={() => setGuestsOpen(!guestsOpen)} aria-expanded={guestsOpen}>
+            <span><small>Podróżni i klasa</small>{adults+children} os. · {cabin}</span><ChevronDown size={17}/>
+          </button>
+          {guestsOpen && <div className="flight-guests-panel">
+            <label>Klasa podróży<select value={cabin} onChange={(e) => setCabin(e.target.value)}><option>Ekonomiczna</option><option>Premium Economy</option><option>Biznesowa</option><option>Pierwsza</option></select></label>
+            <div><span>Dorośli</span><button type="button" disabled={adults<=1} onClick={() => setAdults(adults-1)}>−</button><strong>{adults}</strong><button type="button" disabled={adults>=9} onClick={() => setAdults(adults+1)}>+</button></div>
+            <div><span>Dzieci</span><button type="button" disabled={children<=0} onClick={() => setChildren(children-1)}>−</button><strong>{children}</strong><button type="button" disabled={children>=8} onClick={() => setChildren(children+1)}>+</button></div>
+            <button type="button" className="primary" onClick={() => setGuestsOpen(false)}>Zastosuj</button>
+            <small>Wyszukiwanie cen orientacyjnych jest dla jednej osoby; liczbę pasażerów i klasę potwierdzisz przy wyborze oferty.</small>
+          </div>}
+        </div>
         <label className="flight-hunt-direct">
           <input
             type="checkbox"
@@ -621,8 +718,8 @@ export default function FlexibleFlightsExplorer({
 
       <div className="flight-hunt-shortcuts flight-hunt-shortcuts-clean" aria-label="Gotowe pomysły na wyszukiwanie">
         <span>Gotowe pomysły:</span>
-        <button type="button" onClick={() => { setAnywhere(); setTripLength(2, 4); setTravelMonth(""); }}>Gdziekolwiek na weekend</button>
-        <button type="button" onClick={() => { setAnywhere(); setTripLength(5, 7); setTravelMonth(""); }}>Gdziekolwiek na tydzień</button>
+        <button type="button" onClick={() => { setAnywhere(); setTripLength(2, 4); setSelectedMonths([]); }}>Gdziekolwiek na weekend</button>
+        <button type="button" onClick={() => { setAnywhere(); setTripLength(5, 7); setSelectedMonths([]); }}>Gdziekolwiek na tydzień</button>
         <button type="button" onClick={() => { setOriginAnywhere(true); setOrigins([]); dirty(); }}>Wylot z całej Polski</button>
       </div>
 
@@ -671,7 +768,7 @@ export default function FlexibleFlightsExplorer({
             <>
               {mapSrc && <LowPriceMapFrame key={activeRoute?.key + "-map"} src={mapSrc} />}
 
-              {(dealsLoading || sortedDeals.length > 0) && (
+              {(dealsLoading || deals.length > 0) && (
               <section className="flight-deals-list" aria-label="Lista tanich lotów">
                 <div className="flight-deals-list-head">
                   <div>
@@ -684,46 +781,64 @@ export default function FlexibleFlightsExplorer({
                   </div>
                 </div>
 
+                <div className="flight-discovery-toolbar">
+                  <label><SlidersHorizontal size={17}/> Budżet na lot
+                    <select value={maxPrice} onChange={(event) => setMaxPrice(Number(event.target.value))}>
+                      <option value={0}>Dowolny</option>
+                      <option value={300}>Do 300 zł</option><option value={600}>Do 600 zł</option>
+                      <option value={1000}>Do 1 000 zł</option><option value={2000}>Do 2 000 zł</option>
+                      <option value={4000}>Do 4 000 zł</option>
+                    </select>
+                  </label>
+                  <label>Państwo
+                    <select value={regionFilter} onChange={(e) => setRegionFilter(e.target.value)}>
+                      <option value="all">Wszystkie kraje</option>
+                      {[...new Set(deals.map(d => d.country).filter(Boolean))].sort((a,b) => a.localeCompare(b,"pl")).map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </label>
+                  <label className="flight-results-check"><input type="checkbox" checked={onlyDirectResults} onChange={(e) => setOnlyDirectResults(e.target.checked)}/> Bez przesiadek</label>
+                  <button type="button" onClick={() => {setMaxPrice(0);setRegionFilter("all");setOnlyDirectResults(false);}}>Wyczyść filtry</button>
+                </div>
                 {dealsLoading && <div className="flight-deals-loading">Pobieramy najtańsze kierunki…</div>}
 
-                {!dealsLoading && sortedDeals.length > 0 && (
-                  <div className="flight-deals-grid">
-                    {sortedDeals.map((deal) => (
-                      <a
-                        className="flight-deal-card"
-                        key={deal.destination}
-                        href={flightDetailHref({
-                          origin: activeRoute?.origin.code || "WAW",
-                          destination: deal.destination,
-                          destinationName: deal.name,
-                          country: deal.country,
-                          departDate: deal.departDate,
-                          returnDate: deal.returnDate,
-                          price: deal.price,
-                          changes: deal.changes,
-                        })}
-                      >
-                        <div className="flight-deal-main">
-                          <div>
-                            <strong>{deal.name}</strong>
-                            <span>{deal.country || deal.destination}</span>
-                          </div>
-                          <b>od {deal.price.toLocaleString("pl-PL")} zł</b>
+                {!dealsLoading && groupedCountries.length > 0 && (
+                  <div className="flight-country-grid">
+                    {groupedCountries.map((group) => (
+                      <article className="flight-country-card" key={group.country}>
+                        <div className="flight-country-title">
+                          <span><small>LOTY OD</small><strong>{group.country}</strong><span>{group.entries.length} {group.entries.length === 1 ? "kierunek" : "kierunki"}</span></span>
+                          <b>{group.best.price.toLocaleString("pl-PL")} zł</b>
                         </div>
-                        <div className="flight-deal-meta">
-                          <span>{deal.departDate || "elastyczny termin"}{deal.returnDate ? " → " + deal.returnDate : ""}</span>
-                          <span>{deal.changes === 0 ? "bez przesiadek" : deal.changes + " przesiadka" + (deal.changes > 1 ? "i" : "")}</span>
-                          <em>Zobacz konkretny lot</em>
+                        <div className="flight-country-best">
+                          <strong>{group.best.name}</strong>
+                          <span>{group.best.departDate} – {group.best.returnDate}</span>
+                          <span>{group.best.changes === 0 ? "Bez przesiadek" : "Lot z przesiadką"}</span>
                         </div>
-                      </a>
+                        <button type="button" className="flight-country-expand" aria-expanded={selectedCountry === group.country}
+                          onClick={() => setSelectedCountry(selectedCountry === group.country ? "" : group.country)}>
+                          {selectedCountry === group.country ? "Ukryj loty" : "Zobacz dostępne loty"} <ChevronDown size={16}/>
+                        </button>
+                        {selectedCountry === group.country && <div className="flight-country-options">
+                          {group.entries.map((deal) => (
+                            <a key={deal.destination} href={flightDetailHref({
+                              origin:activeRoute?.origin.code || "WAW",destination:deal.destination,destinationName:deal.name,
+                              country:deal.country,departDate:deal.departDate,returnDate:deal.returnDate,price:deal.price,changes:deal.changes,
+                            })}>
+                              <span><strong>{deal.name}</strong><small>{deal.departDate} – {deal.returnDate}</small></span>
+                              <b>{deal.price.toLocaleString("pl-PL")} zł →</b>
+                            </a>
+                          ))}
+                        </div>}
+                      </article>
                     ))}
                   </div>
                 )}
+                {!dealsLoading && deals.length > 0 && !groupedCountries.length && <p className="flight-deals-empty">Brak lotów spełniających filtry. Zmień budżet, daty lub połączenia.</p>}
 
               </section>
               )}
 
-              {!dealsLoading && sortedDeals.length === 0 && (
+              {!dealsLoading && deals.length === 0 && (
                 <div className="flight-deals-empty">
                   <strong>Lista cen chwilowo nie odpowiada.</strong>
                   <span>Możesz otworzyć pełne wyszukiwanie dla wybranego lotniska.</span>
@@ -741,7 +856,7 @@ export default function FlexibleFlightsExplorer({
                   <div className="flight-deals-list-head">
                     <div>
                       <small>NAJTAŃSZE TERMINY</small>
-                      <h3>{activeRoute?.origin.name} → {activeRoute?.destination?.name}{travelMonth ? " · " + travelMonth : " · dowolny miesiąc"}</h3>
+                      <h3>{activeRoute?.origin.name} → {activeRoute?.destination?.name}{selectedMonths.length ? " · " + selectedMonths.map((m) => monthOptions.find((o) => o.value === m)?.label || m).join(", ") : " · dowolny miesiąc"}</h3>
                     </div>
                   </div>
                   <div className="flight-deals-grid">
