@@ -768,7 +768,7 @@ export default function FlexibleFlightsExplorer({
             <>
               {mapSrc && <LowPriceMapFrame key={activeRoute?.key + "-map"} src={mapSrc} />}
 
-              {(dealsLoading || sortedDeals.length > 0) && (
+              {(dealsLoading || deals.length > 0) && (
               <section className="flight-deals-list" aria-label="Lista tanich lotów">
                 <div className="flight-deals-list-head">
                   <div>
@@ -781,46 +781,64 @@ export default function FlexibleFlightsExplorer({
                   </div>
                 </div>
 
+                <div className="flight-discovery-toolbar">
+                  <label><SlidersHorizontal size={17}/> Budżet na lot
+                    <select value={maxPrice} onChange={(event) => setMaxPrice(Number(event.target.value))}>
+                      <option value={0}>Dowolny</option>
+                      <option value={300}>Do 300 zł</option><option value={600}>Do 600 zł</option>
+                      <option value={1000}>Do 1 000 zł</option><option value={2000}>Do 2 000 zł</option>
+                      <option value={4000}>Do 4 000 zł</option>
+                    </select>
+                  </label>
+                  <label>Państwo
+                    <select value={regionFilter} onChange={(e) => setRegionFilter(e.target.value)}>
+                      <option value="all">Wszystkie kraje</option>
+                      {[...new Set(deals.map(d => d.country).filter(Boolean))].sort((a,b) => a.localeCompare(b,"pl")).map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </label>
+                  <label className="flight-results-check"><input type="checkbox" checked={onlyDirectResults} onChange={(e) => setOnlyDirectResults(e.target.checked)}/> Bez przesiadek</label>
+                  <button type="button" onClick={() => {setMaxPrice(0);setRegionFilter("all");setOnlyDirectResults(false);}}>Wyczyść filtry</button>
+                </div>
                 {dealsLoading && <div className="flight-deals-loading">Pobieramy najtańsze kierunki…</div>}
 
-                {!dealsLoading && sortedDeals.length > 0 && (
-                  <div className="flight-deals-grid">
-                    {sortedDeals.map((deal) => (
-                      <a
-                        className="flight-deal-card"
-                        key={deal.destination}
-                        href={flightDetailHref({
-                          origin: activeRoute?.origin.code || "WAW",
-                          destination: deal.destination,
-                          destinationName: deal.name,
-                          country: deal.country,
-                          departDate: deal.departDate,
-                          returnDate: deal.returnDate,
-                          price: deal.price,
-                          changes: deal.changes,
-                        })}
-                      >
-                        <div className="flight-deal-main">
-                          <div>
-                            <strong>{deal.name}</strong>
-                            <span>{deal.country || deal.destination}</span>
-                          </div>
-                          <b>od {deal.price.toLocaleString("pl-PL")} zł</b>
+                {!dealsLoading && groupedCountries.length > 0 && (
+                  <div className="flight-country-grid">
+                    {groupedCountries.map((group) => (
+                      <article className="flight-country-card" key={group.country}>
+                        <div className="flight-country-title">
+                          <span><small>LOTY OD</small><strong>{group.country}</strong><span>{group.entries.length} {group.entries.length === 1 ? "kierunek" : "kierunki"}</span></span>
+                          <b>{group.best.price.toLocaleString("pl-PL")} zł</b>
                         </div>
-                        <div className="flight-deal-meta">
-                          <span>{deal.departDate || "elastyczny termin"}{deal.returnDate ? " → " + deal.returnDate : ""}</span>
-                          <span>{deal.changes === 0 ? "bez przesiadek" : deal.changes + " przesiadka" + (deal.changes > 1 ? "i" : "")}</span>
-                          <em>Zobacz konkretny lot</em>
+                        <div className="flight-country-best">
+                          <strong>{group.best.name}</strong>
+                          <span>{group.best.departDate} – {group.best.returnDate}</span>
+                          <span>{group.best.changes === 0 ? "Bez przesiadek" : "Lot z przesiadką"}</span>
                         </div>
-                      </a>
+                        <button type="button" className="flight-country-expand" aria-expanded={selectedCountry === group.country}
+                          onClick={() => setSelectedCountry(selectedCountry === group.country ? "" : group.country)}>
+                          {selectedCountry === group.country ? "Ukryj loty" : "Zobacz dostępne loty"} <ChevronDown size={16}/>
+                        </button>
+                        {selectedCountry === group.country && <div className="flight-country-options">
+                          {group.entries.map((deal) => (
+                            <a key={deal.destination} href={flightDetailHref({
+                              origin:activeRoute?.origin.code || "WAW",destination:deal.destination,destinationName:deal.name,
+                              country:deal.country,departDate:deal.departDate,returnDate:deal.returnDate,price:deal.price,changes:deal.changes,
+                            })}>
+                              <span><strong>{deal.name}</strong><small>{deal.departDate} – {deal.returnDate}</small></span>
+                              <b>{deal.price.toLocaleString("pl-PL")} zł →</b>
+                            </a>
+                          ))}
+                        </div>}
+                      </article>
                     ))}
                   </div>
                 )}
+                {!dealsLoading && deals.length > 0 && !groupedCountries.length && <p className="flight-deals-empty">Brak lotów spełniających filtry. Zmień budżet, daty lub połączenia.</p>}
 
               </section>
               )}
 
-              {!dealsLoading && sortedDeals.length === 0 && (
+              {!dealsLoading && deals.length === 0 && (
                 <div className="flight-deals-empty">
                   <strong>Lista cen chwilowo nie odpowiada.</strong>
                   <span>Możesz otworzyć pełne wyszukiwanie dla wybranego lotniska.</span>
