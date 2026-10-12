@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { getSocialOfferForLanding } from "@/lib/socialOffers";
+import { getSocialOfferForLanding, isSocialOfferExpired, socialOfferFresh } from "@/lib/socialOffers";
 
 export const alt = "Oferta Tripowni";
 export const size = { width: 1200, height: 630 };
@@ -28,6 +28,7 @@ export default async function OpenGraphImage({
     );
   }
 
+  const priceFresh = !isSocialOfferExpired(offer) && socialOfferFresh(offer);
   const imageSrc = offer.imageSrc
     ? offer.imageSrc.startsWith("http")
       ? offer.imageSrc
@@ -52,9 +53,15 @@ export default async function OpenGraphImage({
             <div style={{ fontSize:28, fontWeight:700, marginBottom:12, opacity:.95 }}>{offer.country} · {offer.departure}</div>
             <div style={{ fontSize:72, lineHeight:1.02, fontWeight:900, letterSpacing:"-2px" }}>{offer.city}</div>
             <div style={{ display:"flex", alignItems:"baseline", gap:16, marginTop:18 }}>
-              <span style={{ fontSize:28, fontWeight:700 }}>od</span>
-              <span style={{ fontSize:78, fontWeight:900 }}>{offer.price.toLocaleString("pl-PL")} zł</span>
-              <span style={{ fontSize:26, fontWeight:700 }}>/ os.</span>
+              {priceFresh ? (
+                <>
+                  <span style={{ fontSize:28, fontWeight:700 }}>od</span>
+                  <span style={{ fontSize:78, fontWeight:900 }}>{offer.price.toLocaleString("pl-PL")} zł</span>
+                  <span style={{ fontSize:26, fontWeight:700 }}>/ os.</span>
+                </>
+              ) : (
+                <span style={{ fontSize:42, fontWeight:900 }}>Sprawdź aktualną cenę</span>
+              )}
             </div>
             <div style={{ fontSize:26, fontWeight:700, marginTop:14 }}>{offer.dates} · {offer.nights} nocy</div>
           </div>
