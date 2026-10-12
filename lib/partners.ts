@@ -9,6 +9,7 @@ export type PartnerKey =
   | "exim"
   | "tui"
   | "getyourguide"
+  | "klook"
   | "seeplaces"
   | "holidaypark"
   | "fonia"
@@ -193,6 +194,15 @@ export const partners: Record<PartnerKey, Partner> = {
     trackingId: "308388:3487177",
     buildUrl: (destinationUrl = "https://www.tui.pl/") =>
       buildTradeDoublerDeepLink({ programId: "308388", siteId: "3487177", destinationUrl }),
+  },
+  klook: {
+    key: "klook", name: "Klook", category: "travel",
+    description: "Bilety kolejowe w Europie i atrakcje",
+    commissionType: "unknown",
+    trackingId: "695999:4110:TRIPOWNIAPL",
+    // This link was supplied by Tripownia; preserve the exact parameters.
+    // Use generated Travelpayouts links for future product deep links.
+    buildUrl: () => "https://tp.media/r?campaign_id=137&marker=695999&p=4110&sub_id=TRIPOWNIAPL&trs=488160&u=https%3A%2F%2Fklook.com",
   },
   getyourguide: {
     key: "getyourguide",

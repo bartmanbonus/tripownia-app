@@ -5,6 +5,7 @@ export type AffiliatePartner =
   | "esky"
   | "tui"
   | "getyourguide"
+  | "klook"
   | "seeplaces"
   | "holidaypark"
   | "fonia"
@@ -35,6 +36,19 @@ export function partnerFromUrl(value: string): AffiliatePartner | null {
     if (host === "tui.pl" || host === "www.tui.pl") return "tui";
     if (host === "wakacje.pl" || host === "www.wakacje.pl") return "wakacje";
     if (host === "c111.travelpayouts.com" || host === "kiwi.tpk.lv" || host === "kiwi.com" || host === "www.kiwi.com") return "kiwi";
+    if (host === "klook.tpk.lv" && url.pathname === "/vG67MGgk") return "klook";
+    if (host === "tp.media" && url.pathname === "/r"
+      && url.searchParams.get("campaign_id") === "137"
+      && url.searchParams.get("p") === "4110"
+      && url.searchParams.get("marker") === "695999"
+      && url.searchParams.get("sub_id") === "TRIPOWNIAPL"
+      && url.searchParams.get("trs") === "488160") {
+      try {
+        const destination = new URL(url.searchParams.get("u") || "");
+        if (destination.protocol === "https:" && ["klook.com", "www.klook.com"].includes(destination.hostname.toLowerCase())
+          && !destination.username && !destination.password) return "klook";
+      } catch {}
+    }
     if (host === "booking.com" || host === "www.booking.com") return "booking";
     if (host === "getyourguide.pl" || host === "www.getyourguide.pl" || host === "getyourguide.com" || host === "www.getyourguide.com") return "getyourguide";
     if (host === "ad.seeplaces.com" || host === "seeplaces.com" || host === "www.seeplaces.com") return "seeplaces";

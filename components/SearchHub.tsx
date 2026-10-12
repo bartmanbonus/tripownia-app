@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Sparkles, Trash2, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
+import DresdenCityBreakOptions from "@/components/DresdenCityBreakOptions";
 import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type WorldDestination } from "@/lib/worldDestinations";
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
@@ -1889,6 +1890,15 @@ export default function SearchHub({
               </div>
               {notice && <p>{notice}</p>}
             </div>
+
+            <DresdenCityBreakOptions
+              destination={selectedDestinations[0] || destination}
+              departures={departures}
+              month={dateMode === "month" ? month : ""}
+              duration={duration}
+              dateFrom={dateMode === "exact" || dateMode === "range" ? dateFrom : ""}
+              dateTo={dateMode === "range" ? dateTo : ""}
+            />
 
             {!loading && results.length > 0 && (
               <>
