@@ -347,6 +347,46 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/okazje", request.url), 307);
   }
 
+  // A generic portfolio search is NOT a supplier-issued offer. Old Tripownia
+  // URLs built from free-form search parameters have caused Access Denied at
+  // the eSky edge. Never count these as affiliate exits or send users to a
+  // potentially blocked/incorrect pseudo-offer. Re-run the search in Tripownia,
+  // where customers can select a real supplier-issued package URL.
+  if (partner === "esky" && originalTarget.pathname === "/lot+hotel/portfolio"
+    && !originalTarget.searchParams.get("packageId")) {
+    const destination = safeText(request.nextUrl.searchParams.get("destination"), 120);
+    const search = new URL(destination ? "/szukaj" : "/okazje", request.url);
+    if (destination) {
+      search.searchParams.set("destination", destination.split(",")[0].trim());
+      search.searchParams.set("tab", "Lot + hotel");
+      const airport = (originalTarget.searchParams.get("departurePlaces") || "")
+        .split(",")
+        .map((value) => value.trim().replace(/^ap-/, ""))
+        .filter((value) => /^(WAW|WMI|KRK|KTW|GDN|WRO|POZ|RZE|LUZ|SZZ|LCJ|BZG|SZY|IEG|RDO)$/.test(value))
+        .slice(0, 6);
+      if (airport.length) search.searchParams.set("airport", [...new Set(airport)].join(","));
+      const stay = originalTarget.searchParams.get("stayLength") || "";
+      if (/^\\d{1,2}:\\d{1,2}$/.test(stay)) {
+        const [from, to] = stay.split(":");
+        search.searchParams.set("duration", from === to ? from : `${from}-${to}`);
+      }
+      const start = originalTarget.searchParams.get("departureDate") || "";
+      const end = originalTarget.searchParams.get("returnDate") || "";
+      if (/^20\\d{2}-\\d{2}-\\d{2}$/.test(start) && /^20\\d{2}-\\d{2}-\\d{2}$/.test(end)) {
+        search.searchParams.set("from", start);
+        search.searchParams.set("to", end);
+      }
+    }
+    console.warn("[esky_generic_search_blocked]", JSON.stringify({
+      source: safeText(request.nextUrl.searchParams.get("source"), 80),
+      destination,
+      host: originalTarget.hostname,
+    }));
+    const response = NextResponse.redirect(search, 307);
+    response.headers.set("Cache-Control", "no-store");
+    return response;
+  }
+
   const clickId = safeClickId(request.nextUrl.searchParams.get("clickId"));
   const baseTarget = affiliateTarget(partner, originalTarget);
   const target = baseTarget ? withPartnerClickAttribution(partner, baseTarget, clickId) : null;
