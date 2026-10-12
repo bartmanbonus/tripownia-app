@@ -47,3 +47,51 @@
 .hotel-guests-panel{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));top:auto;right:12px;left:12px;width:auto;max-height:85dvh;overflow:auto}
 .hotel-search-ready-summary{grid-template-columns:1fr}
 }
+
+
+/* Dedicated hotel stay calendar: intentional, compact booking controls. */
+.hotel-stay-field{position:relative!important;min-width:0}
+.hotel-stay-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0;padding:5px 0;border:0;background:transparent;text-align:left;cursor:pointer;color:#211b17}
+.hotel-stay-trigger strong{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hotel-stay-panel{position:absolute;z-index:510;top:calc(100% + 9px);left:0;width:min(670px,calc(100vw - 32px));padding:18px;border:1px solid #e4d8d0;border-radius:20px;background:#fff;box-shadow:0 25px 75px rgba(35,24,16,.22)}
+.hotel-stay-header{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:16px}
+.hotel-stay-header>div{display:grid;gap:4px}
+.hotel-stay-header strong{font-size:20px;font-weight:850}
+.hotel-stay-header small{font-size:12px;color:#766a62}
+.hotel-stay-header>button,.hotel-stay-navigation>button{display:grid;place-items:center;min-width:36px;height:36px;border:1px solid #e7dcd5;border-radius:10px;background:#fff;cursor:pointer}
+.hotel-stay-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hotel-stay-inputs>label{display:grid;gap:6px;font-size:12px;font-weight:800}
+.hotel-stay-inputs input{width:100%;min-width:0;min-height:44px;padding:0 11px;border:1px solid #dfd4cd;border-radius:11px;background:#fff;font:inherit;color:#2a221e}
+.hotel-stay-presets{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+.hotel-stay-presets button{padding:9px 11px;border:1px solid #e6dbd4;border-radius:99px;background:#fff9f6;font-size:11px;font-weight:750;cursor:pointer;color:#40352e}
+.hotel-stay-navigation{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+.hotel-stay-navigation>span{font-size:11px;color:#665b54;font-weight:800}
+.hotel-stay-navigation>button:disabled{opacity:.35;cursor:not-allowed}
+.hotel-stay-months{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.hotel-stay-months>section{min-width:0}
+.hotel-stay-months h3{margin:0 0 10px;font-size:14px;text-align:center;text-transform:capitalize}
+.hotel-stay-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.hotel-stay-days>span,.hotel-stay-days>button{display:grid;place-items:center;min-width:0;min-height:33px;font-size:11px}
+.hotel-stay-days>button{border:0;border-radius:8px;background:transparent;color:#251d18;cursor:pointer}
+.hotel-stay-days>button:hover{background:#fff0e8}
+.hotel-stay-days>button.selected{background:#ed592e;color:#fff;font-weight:900}
+.hotel-stay-days>button.in-range{background:#ffe5d9;border-radius:3px}
+.hotel-stay-days>button:disabled{color:#bcb5b0;cursor:not-allowed}
+.hotel-stay-footer{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:16px;padding-top:12px;border-top:1px solid #eee6df}
+.hotel-stay-footer>span{font-size:12px;font-weight:750;color:#5e5149}
+.hotel-stay-footer>button{min-height:42px;padding:0 18px;border:0;border-radius:11px;background:#ed592e;color:#fff;font-weight:850;cursor:pointer}
+.hotel-stay-footer>button:disabled{opacity:.45;cursor:not-allowed}
+.search-v3-hotels .search-v3-head h2{font-size:clamp(26px,3.1vw,40px)}
+.search-v3-hotels .search-v3-head{padding-bottom:18px}
+.search-v3-hotels .search-v3-tabs{padding-bottom:13px}
+.search-v3-hotels .search-v3-form{padding-bottom:18px}
+.search-v3-hotels .search-v3-field{min-width:0}
+@media(max-width:640px){
+.hotel-stay-panel{position:fixed;inset:auto 12px calc(12px + env(safe-area-inset-bottom));width:auto;max-height:86dvh;overflow:auto;padding:14px}
+.hotel-stay-months{grid-template-columns:1fr}
+.hotel-stay-months>section:nth-child(2){display:none}
+.hotel-stay-days>span,.hotel-stay-days>button{min-height:38px}
+.hotel-stay-inputs{gap:6px}
+.hotel-stay-inputs input{font-size:13px;padding:0 6px}
+.hotel-stay-footer{position:sticky;bottom:-14px;background:#fff;padding:14px 0 5px}
+}
