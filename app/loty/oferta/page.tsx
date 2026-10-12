@@ -94,7 +94,7 @@ export default async function FlightOfferPage({ searchParams }: { searchParams: 
                     Zmień termin lub trasę
                   </Link>
                   <small className="affiliate-note">
-                    Najpierw pokazujemy Ci konkretną trasę i termin w Tripowni. Rezerwacja odbywa się u partnera.
+                    Najpierw pokazujemy Ci konkretną trasę i termin w Tripowni. Rezerwację finalizujesz po sprawdzeniu aktualnych warunków.
                   </small>
                 </div>
               </>

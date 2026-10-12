@@ -188,7 +188,7 @@ export default async function ShortSocialOfferPage({
                   />
                   <OfferAlternativeJump />
                   <Link className="btn secondary" href={plannerHref}><PlusCircle size={17}/> Dodaj do planera</Link>
-                  <small className="affiliate-note">Link partnerski. Możemy otrzymać prowizję bez dodatkowego kosztu dla Ciebie.</small>
+                  <small className="affiliate-note">Oferta może zawierać link afiliacyjny. Rezerwacja nie wiąże się z dodatkową opłatą od Tripowni.</small>
                 </div>
               </>
             )}

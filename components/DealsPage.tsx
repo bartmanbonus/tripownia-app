@@ -429,7 +429,7 @@ export default function DealsPage({
             {loading
               ? "Sprawdzamy aktualne oferty. Zapisane wyniki mogą być widoczne podczas odświeżania."
               : source === "fallback" && offers.length
-              ? "Pokazujemy zapisane propozycje — sprawdź aktualną cenę i dostępność u partnera."
+              ? "Pokazujemy zapisane propozycje — sprawdź aktualną cenę i dostępność przed rezerwacją."
               : destination
                 ? (rows.length
                     ? "Pokazujemy pakiety zwrócone przez dostępne źródła. Cenę i dostępność potwierdź przed rezerwacją."
@@ -612,7 +612,7 @@ export default function DealsPage({
               <div className="deals-more-destination deals-full-pool-note">
                 <div>
                   <strong>Pakiety dostępne obecnie w podpiętych źródłach dla: {destination}.</strong>
-                  <span>Lista może być niekompletna, gdy partner nie zwraca wszystkich ofert. Same loty pokazujemy oddzielnie, bez mieszania ich cen z pakietami.</span>
+                  <span>Lista może być niekompletna, gdy źródło danych nie udostępnia wszystkich ofert. Same loty pokazujemy oddzielnie, bez mieszania ich cen z pakietami.</span>
                 </div>
               </div>
 
@@ -621,7 +621,7 @@ export default function DealsPage({
                   <div className="destination-monthly-head">
                     <div>
                       <strong>Sprawdź też inne terminy</strong>
-                      <span>Najpierw pokazujemy konkretną aktualną ofertę. Poniżej dajemy alternatywne terminy i długości pobytu — bez podawania ceny, dopóki partner jej nie potwierdzi.</span>
+                      <span>Najpierw pokazujemy konkretną aktualną ofertę. Poniżej dajemy alternatywne terminy i długości pobytu — bez podawania ceny, dopóki nie będzie potwierdzona.</span>
                     </div>
                   </div>
                   <div className="destination-monthly-grid">

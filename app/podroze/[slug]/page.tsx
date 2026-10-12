@@ -243,11 +243,11 @@ function landingFaq(query: string, departure?: string) {
     },
     {
       question: "Czy ceny ofert mogą się zmieniać?",
-      answer: "Tak. Ceny i dostępność zależą od bieżącego feedu partnera i mogą zmienić się do momentu finalnej rezerwacji.",
+      answer: "Tak. Ceny i dostępność zależą od bieżących danych o dostępności i mogą zmienić się do momentu finalnej rezerwacji.",
     },
     {
       question: "Gdzie odbywa się finalna rezerwacja?",
-      answer: "Tripownia pomaga znaleźć i porównać ofertę, a finalna rezerwacja i płatność odbywają się bezpośrednio u partnera.",
+      answer: "Tripownia pomaga znaleźć i porównać ofertę, a finalną rezerwację i płatność potwierdzasz w systemie rezerwacyjnym.",
     },
   ];
 }

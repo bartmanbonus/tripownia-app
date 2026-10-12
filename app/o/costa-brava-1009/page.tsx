@@ -7,7 +7,7 @@ import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 
 export const metadata: Metadata = {
   title: "Costa Brava 25–28.10.2026 — 3 noce od 1009 zł/os. | Tripownia",
-  description: "Costa Brava z Warszawy-Modlin: 3 noce w Htop Amatista od 1009 zł/os. Oferta EXIM Tours zweryfikowana 1.10.2026.",
+  description: "Costa Brava z Warszawy-Modlin: 3 noce w Htop Amatista od 1009 zł/os. Oferta zweryfikowana 1.10.2026.",
   robots: { index: false, follow: true },
 };
 
@@ -40,7 +40,7 @@ export default function CostaBravaOfferPage() {
               <strong>1009 zł/os.</strong>
               <span>
                 Cena została sprawdzona 1 października 2026. Dostępność i finalną kwotę
-                potwierdza EXIM Tours po przejściu do rezerwacji.
+                sprawdzisz po przejściu do rezerwacji.
               </span>
             </div>
 

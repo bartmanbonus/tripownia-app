@@ -788,7 +788,7 @@ export default function Home() {
     : liveOffersStatus === "live"
       ? "Oferty zostały pobrane. Status i czas sprawdzenia ceny znajdziesz przy każdej propozycji."
       : hasOffers
-        ? "Pokazujemy zapisane propozycje. Ich ceny wymagają ponownego sprawdzenia u partnera."
+        ? "Pokazujemy zapisane propozycje. Ich ceny wymagają ponownego potwierdzenia przed rezerwacją."
         : "Nie udało się teraz pobrać ofert. Spróbuj wyszukiwarki lub wróć za chwilę.";
 
   return (
@@ -807,7 +807,7 @@ export default function Home() {
             </div>
             <div className="dream-hero-commerce-trust">
               <span>✓ Wyszukiwanie i planer za 0 zł</span>
-              <span>✓ Rezerwujesz bezpośrednio u partnera</span>
+              <span>✓ Finalizujesz rezerwację w bezpiecznym systemie rezerwacyjnym</span>
               <span>✓ Po zakupie wracasz do planu podróży</span>
             </div>
             <div className="dream-category-row" aria-label="Co znajdziesz w Tripowni">

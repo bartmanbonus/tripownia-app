@@ -137,7 +137,7 @@ export default async function MotifPage({params}:{params:Promise<{slug:string}>}
       <div className="motif-offers-head">
         <div className="kicker">KONKRETNE PROPOZYCJE</div>
         <h2>{slug==="egzotyka-do-5000" ? "Egzotyczne wyjazdy do 5 000 zł/os." : matched.length ? "Zacznij od tych ofert" : "Rozszerz wyszukiwanie"}</h2>
-        <p>{slug==="egzotyka-do-5000" ? "Pobieramy rzeczywiste pakiety dla Zanzibaru, Kenii, Tajlandii i Sri Lanki. Tylko propozycje mieszczące się w budżecie, z możliwością sprawdzenia ceny u partnera." : matched.length ? "Najpierw pokazujemy pasujące propozycje z aktualnej puli Tripowni. Cena i dostępność są potwierdzane przed rezerwacją." : "W opublikowanej puli nie ma teraz wystarczająco dobrych dopasowań — uruchom pełne wyszukiwanie, żeby sprawdzić bieżące źródła."}</p>
+        <p>{slug==="egzotyka-do-5000" ? "Pobieramy rzeczywiste pakiety dla Zanzibaru, Kenii, Tajlandii i Sri Lanki. Tylko propozycje mieszczące się w budżecie, z możliwością sprawdzenia ceny przed rezerwacją." : matched.length ? "Najpierw pokazujemy pasujące propozycje z aktualnej puli Tripowni. Cena i dostępność są potwierdzane przed rezerwacją." : "W opublikowanej puli nie ma teraz wystarczająco dobrych dopasowań — uruchom pełne wyszukiwanie, żeby sprawdzić bieżące źródła."}</p>
       </div>
       {slug==="egzotyka-do-5000" ? <ExoticBudgetLiveOffers /> : matched.length ? <div className="cards-grid">{matched.map(o=><OfferCard key={o.id} offer={o} sourceSurface={`motif_${slug}`}/>)}</div> : null}
     </section>

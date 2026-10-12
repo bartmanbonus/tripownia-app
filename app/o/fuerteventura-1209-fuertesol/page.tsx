@@ -7,7 +7,7 @@ import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 
 export const metadata: Metadata = {
   title: "Fuerteventura 22–25.11.2026 — 3 noce od 1209 zł/os. | Tripownia",
-  description: "Fuerteventura z Krakowa: 3 noce w Fuertesol Bungalows od 1209 zł/os. Oferta EXIM Tours sprawdzona 2.10.2026.",
+  description: "Fuerteventura z Krakowa: 3 noce w Fuertesol Bungalows od 1209 zł/os. Oferta sprawdzona 2.10.2026.",
   robots: { index: false, follow: true },
 };
 
@@ -40,7 +40,7 @@ export default function FuerteventuraOfferPage() {
               <strong>1209 zł/os.</strong>
               <span>
                 Cena została sprawdzona 2 października 2026. Dostępność i finalną kwotę
-                potwierdza EXIM Tours po przejściu do rezerwacji.
+                sprawdzisz po przejściu do rezerwacji.
               </span>
             </div>
 

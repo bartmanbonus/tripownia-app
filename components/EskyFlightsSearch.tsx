@@ -138,7 +138,7 @@ export default function EskyFlightsSearch({
       </div>
       {status && <div className="flight-hunt-widget-loading">{status}</div>}
       <div className="tpwl-tripownia-note">
-        Najpierw ustawiasz trasę w Tripowni. Do partnera przechodzisz dopiero po kliknięciu wyszukiwania.
+        Najpierw ustawiasz trasę w Tripowni. Wyniki i dostępne opcje sprawdzisz po kliknięciu wyszukiwania.
       </div>
     </form>
   );

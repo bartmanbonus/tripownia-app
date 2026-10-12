@@ -79,10 +79,10 @@ export default function MarMenorTrabucoOfferPage() {
 
             <div className="detail-price-card">
               <div className="detail-price">
-                <small>cena jest dynamiczna</small> <strong>sprawdź u partnera</strong>
+                <small>cena jest dynamiczna</small> <strong>sprawdź cenę</strong>
               </div>
               <div className="price-status detail-price-status">
-                Link prowadzi do wskazanego pakietu eSky z afiliacją Tripowni.
+                Link prowadzi do wybranego pakietu. Oferta może zawierać link afiliacyjny.
               </div>
             </div>
 
@@ -97,7 +97,7 @@ export default function MarMenorTrabucoOfferPage() {
             </div>
 
             <div className="detail-source">
-              Najpierw oglądasz ofertę w Tripowni. Po kliknięciu „Sprawdź ofertę” przechodzisz do konkretnego pakietu eSky. Rezerwacja i płatność odbywają się bezpośrednio u partnera.
+              Najpierw oglądasz ofertę w Tripowni. Po kliknięciu „Sprawdź ofertę” przejdziesz do potwierdzenia ceny i warunków rezerwacji.
             </div>
 
             <div className="detail-action-box">

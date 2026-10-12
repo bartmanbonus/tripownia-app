@@ -53,7 +53,7 @@ export default function FlightDestinationCatalog({ origin, pricedCodes }: Props)
         <div>
           <small>KATALOG TRAS · BEZ GWARANTOWANEJ CENY</small>
           <h3>Nie widzisz swojego kierunku?</h3>
-          <p>Wyszukaj dowolne miasto. Kierunki poniżej nie mają aktualnie potwierdzonej ceny w Tripowni — sprawdzisz je u partnera, bez wymyślonych kwot.</p>
+          <p>Wyszukaj dowolne miasto. Kierunki poniżej nie mają aktualnie potwierdzonej ceny w Tripowni — sprawdzisz aktualną cenę przed rezerwacją, bez wymyślonych kwot.</p>
         </div>
         <strong>{items.length} kierunków</strong>
       </div>

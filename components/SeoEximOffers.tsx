@@ -407,7 +407,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
         if (publishedFallback.length > 0) {
           present(
             publishedFallback,
-            "Brak potwierdzonych wyników z aktualnego źródła. To zapisane inspiracje; termin, cenę i dostępność sprawdzisz ponownie u partnera.",
+            "Brak potwierdzonych wyników z aktualnego źródła. To zapisane inspiracje; termin, cenę i dostępność sprawdzisz ponownie przed rezerwacją.",
             true,
             true
           );
@@ -422,7 +422,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
           if (publishedFallback.length > 0) {
             present(
               publishedFallback,
-              "Aktualne źródło ofert chwilowo nie odpowiada. Pokazujemy zapisane inspiracje, niepotwierdzone w tej chwili propozycje; cenę i dostępność sprawdź u partnera.",
+              "Aktualne źródło ofert chwilowo nie odpowiada. Pokazujemy zapisane inspiracje, niepotwierdzone w tej chwili propozycje; cenę i dostępność sprawdź przed rezerwacją.",
               true,
               true
             );
@@ -543,7 +543,7 @@ export default function SeoEximOffers({ query, departure, minNights, maxNights, 
       <div>
         <small>{usingCachedOffers ? "ZAPISANE INSPIRACJE" : relaxed ? "PODOBNE PROPOZYCJE" : "WYNIKI WYSZUKIWANIA"}</small>
         <strong>{salesSummary}</strong>
-        <span>{usingCachedOffers ? "Zobacz szczegóły w Tripowni i potwierdź aktualną cenę oraz dostępność u partnera." : "Kliknij ofertę → zobacz szczegóły w Tripowni → przejdź do rezerwacji u partnera."}</span>
+        <span>{usingCachedOffers ? "Zobacz szczegóły w Tripowni i potwierdź aktualną cenę oraz dostępność przed rezerwacją." : "Kliknij ofertę → zobacz szczegóły w Tripowni → przejdź do potwierdzenia rezerwacji."}</span>
       </div>
       <a href="#seo-live-offers-grid">Zobacz oferty ↓</a>
     </div>

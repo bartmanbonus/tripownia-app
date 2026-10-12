@@ -216,7 +216,7 @@ export default function LiveDepartureDeals({ airportCodes = [], weekendOnly = fa
   return <>
     <div className={styles.toolbar}>
       <div className={styles.status}>
-        <strong>{confirmedCount ? "● świeżo potwierdzone oferty" : status === "live" ? "● konkretne oferty z feedu partnera" : "ostatnio opublikowane propozycje"}</strong>
+        <strong>{confirmedCount ? "● świeżo potwierdzone oferty" : status === "live" ? "● konkretne propozycje dostępnych wyjazdów" : "ostatnio opublikowane propozycje"}</strong>
         <span>
           {confirmedCount && confirmedCheapest
             ? `${available.length} kierunków · potwierdzone od ${confirmedCheapest.toLocaleString("pl-PL")} zł/os.`

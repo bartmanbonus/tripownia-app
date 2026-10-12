@@ -2,7 +2,7 @@ export function customerOfferReason(value: string | undefined | null) {
   let text = String(value || "").trim();
 
   text = text
-    .replace(/\b(?:TUI|EXIM(?:\s+TOURS)?|Booking(?:\.com)?|Kiwi(?:\.com)?|Wakacje\.pl|Travelpayouts|Aviasales|Tradedoubler)\b/gi, "")
+    .replace(/\b(?:TUI|EXIM(?:\s+TOURS)?|eSky|Booking(?:\.com)?|Kiwi(?:\.com)?|GetYourGuide|Wakacje\.pl|Travelpayouts|Aviasales|Tradedoubler)\b/gi, "")
     .replace(/\blink\s+afiliacyjny(?:\s+Tripowni)?\b/gi, "")
     .replace(/\b(?:u|do)\s+partnera\b/gi, "przy rezerwacji")
     .replace(/\bpartner(?:a|em|owi)?\s+rezerwacyjny\b/gi, "")
