@@ -7,7 +7,7 @@ import OfferAlternativeJump from "@/components/OfferAlternativeJump";
 
 export const metadata: Metadata = {
   title: "Budapeszt 16–19.10.2026 — lot + 3 noce od 572 zł/os. | Tripownia",
-  description: "Składany city break Tripowni: lot Warszawa–Budapeszt z Kiwi + 3 noce w GoodWind Apartments z Booking.com. Cena od 572 zł/os. przy cenie członkowskiej Genius.",
+  description: "Składany city break Tripowni: lot Warszawa–Budapeszt + 3 noce w GoodWind Apartments. Cena od 572 zł/os. przy cenie członkowskiej Genius.",
   robots: { index: false, follow: true },
 };
 
@@ -22,8 +22,8 @@ export default function BudapestOfferPage() {
         <div className="kicker">CITY BREAK · OFERTA SKŁADANA TRIPOWNI</div>
         <h1>Budapeszt od 572 zł/os.</h1>
         <p style={{ maxWidth: 760 }}>
-          16–19 października 2026 · 3 noce · wylot z Warszawy. Łączymy tani lot z Kiwi
-          i nocleg z Booking.com w jedną prostą propozycję.
+          16–19 października 2026 · 3 noce · wylot z Warszawy. Łączymy tani lot
+          i nocleg w jedną prostą propozycję.
         </p>
 
         <div className="detail-grid" style={{ marginTop: 28 }}>
@@ -39,8 +39,8 @@ export default function BudapestOfferPage() {
               <small>ŁĄCZNY KOSZT OD</small>
               <strong>572 zł/os.</strong>
               <span>
-                Wyliczenie dla 2 osób: lot RT z Kiwi od ok. 47 USD/os. + GoodWind Apartments
-                na 3 noce w cenie członkowskiej Booking Genius. Bez ceny członkowskiej koszt
+                Wyliczenie dla 2 osób: lot w obie strony od ok. 47 USD/os. + GoodWind Apartments
+                na 3 noce w cenie członkowskiej. Bez ceny członkowskiej koszt
                 może być wyższy — sprawdź finalną cenę przed rezerwacją.
               </span>
             </div>
@@ -50,7 +50,7 @@ export default function BudapestOfferPage() {
               <div><small>Pobyt</small><strong>3 noce</strong></div>
               <div><small>Wylot</small><strong>Warszawa</strong></div>
               <div><small>Nocleg</small><strong>GoodWind Apartments</strong></div>
-              <div><small>Ocena Booking</small><strong>8,6</strong></div>
+              <div><small>Ocena obiektu</small><strong>8,6</strong></div>
               <div><small>Lokalizacja</small><strong>9,3</strong></div>
             </div>
 
@@ -64,7 +64,7 @@ export default function BudapestOfferPage() {
                 price={572}
                 placement="social_budapest_572_flight"
               >
-                Sprawdź lot w Kiwi →
+                Sprawdź lot →
               </TrackedPartnerLink>
               <TrackedPartnerLink
                 className="primary-cta"
@@ -75,7 +75,7 @@ export default function BudapestOfferPage() {
                 price={572}
                 placement="social_budapest_572_hotel"
               >
-                Sprawdź nocleg w Booking →
+                Sprawdź nocleg →
               </TrackedPartnerLink>
               <OfferAlternativeJump />
               <small className="booking-note">
