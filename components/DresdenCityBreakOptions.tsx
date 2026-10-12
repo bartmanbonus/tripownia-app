@@ -2,6 +2,7 @@
 
 import { TrainFront, Hotel, ArrowUpRight } from "lucide-react";
 import { partners } from "@/lib/partners";
+import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 
 type Props = {
   destination: string;
@@ -103,6 +104,23 @@ export default function DresdenCityBreakOptions({
         <a href="https://www.intercity.pl/" target="_blank" rel="noopener noreferrer">
           <TrainFront size={16} aria-hidden="true" /> Sprawdź połączenia kolejowe <ArrowUpRight size={14} aria-hidden="true" />
         </a>
+        <a
+          href={`/sprawdz-oferte?${new URLSearchParams({
+            partner: "klook",
+            target: partners.klook.buildUrl(),
+            source: "dresden_rail_alternative",
+            destination: "Drezno",
+          }).toString()}`}
+          rel="sponsored"
+          onClick={() => saveAffiliateReturnContext({
+            partner: "klook",
+            source: "dresden_rail_alternative",
+            destination: "Drezno",
+            tripKind: "flight",
+          })}
+        >
+          <TrainFront size={16} aria-hidden="true" /> Sprawdź europejskie bilety kolejowe
+        </a>
         {stays.length ? stays.map((stay) => (
           <a key={stay.from} href={hotelSearchLink(stay)} rel="sponsored">
             <Hotel size={16} aria-hidden="true" /> Noclegi {stay.label}
@@ -113,7 +131,7 @@ export default function DresdenCityBreakOptions({
           </a>
         )}
       </div>
-      <small>Terminy noclegów są propozycjami wyszukiwania. Cenę, dostępność i rozkład jazdy potwierdza dostawca.</small>
+      <small>Terminy noclegów są propozycjami wyszukiwania. Klook otwiera ogólną ofertę partnera, nie potwierdzoną trasę Warszawa–Drezno. Cenę, dostępność i rozkład potwierdza dostawca.</small>
     </aside>
   );
 }
