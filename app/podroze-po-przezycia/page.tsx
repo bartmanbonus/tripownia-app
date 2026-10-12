@@ -219,9 +219,50 @@ export default async function ExperiencesPage({ searchParams }: PageProps){
       <div><strong>2. Wybierz bazę</strong><span>Podajemy konkretne miasta zamiast ogólnego kraju.</span></div>
       <div><strong>3. Sprawdź w Tripowni</strong><span>Kierunek i daty wpadają od razu do wyszukiwarki poniżej.</span></div>
     </section>}
-    <section className="section shell">
-      {hasSelection && <div className="experience-more-heading"><div><div className="kicker">DALEJ W DROGĘ</div><h2>Poznaj inne podróże po przeżycia</h2></div><Link href="/podroze-po-przezycia">Zobacz wszystkie pomysły →</Link></div>}
-      <div className="experience-expanded-grid">{(hasSelection ? experiences.filter(item => item.id !== selectedExperience).slice(0, 2) : experiences).map(item=><article className="experience-expanded-card" id={item.id} key={item.id}><div className="experience-expanded-card-image"><img src={item.image} alt={item.title}/></div><div className="experience-expanded-card-top"><span>{item.icon}</span><div><small>REKOMENDOWANE OKNO</small><h2>{item.title}</h2><b className="experience-window">{item.window}</b></div></div><p className="experience-expanded-lead">{item.lead}</p>{item.note && <div className="experience-forecast-note"><strong>Ważne:</strong> {item.note}</div>}<div className="experience-ideas">{item.ideas.map(i=><div className="experience-idea" key={i.city}><strong>{i.city}</strong><small>{i.label}</small><div className="experience-idea-actions"><Link href={internalExperienceSearch(i, item.id)}>Sprawdź w Tripowni →</Link><Link href={plannerExperienceLink(i, item.id)}>Dodaj do planu</Link></div></div>)}</div></article>)}</div></section>
+    <section className="section shell experience-explore-section" aria-labelledby="experience-explore-heading">
+      <div className="experience-more-heading">
+        <div>
+          <div className="kicker">{hasSelection ? "DALEJ W DROGĘ" : "ZNAJDŹ SWOJE PRZEŻYCIE"}</div>
+          <h2 id="experience-explore-heading">{hasSelection ? "Poznaj inne podróże po przeżycia" : "Wybierz przygodę, a my podpowiemy kiedy lecieć"}</h2>
+        </div>
+        {hasSelection && <Link href="/podroze-po-przezycia">Wszystkie przeżycia <span aria-hidden="true">→</span></Link>}
+      </div>
+      <div className="experience-expanded-grid">
+        {(hasSelection ? experiences.filter(item => item.id !== selectedExperience).slice(0, 2) : experiences).map(item => (
+          <article className="experience-expanded-card" id={item.id} key={item.id}>
+            <div className="experience-expanded-card-image">
+              <img src={item.image} alt={item.title} loading="lazy" />
+            </div>
+            <div className="experience-expanded-card-top">
+              <span aria-hidden="true">{item.icon}</span>
+              <div>
+                <small>REKOMENDOWANY SEZON</small>
+                <h3>{item.title}</h3>
+                <b className="experience-window">{item.window}</b>
+              </div>
+            </div>
+            <p className="experience-expanded-lead">{item.lead}</p>
+            {item.note && <div className="experience-forecast-note"><strong>Warto wiedzieć:</strong> {item.note}</div>}
+            <div className="experience-ideas" aria-label={`Kierunki: ${item.title}`}>
+              {item.ideas.map(idea => (
+                <div className="experience-idea" key={idea.city}>
+                  <div className="experience-idea-copy">
+                    <strong>{idea.city}</strong>
+                    <small>{idea.label}</small>
+                  </div>
+                  <div className="experience-idea-actions">
+                    <Link href={internalExperienceSearch(idea, item.id)}>
+                      Sprawdź wyjazd <span aria-hidden="true">→</span>
+                    </Link>
+                    <Link href={plannerExperienceLink(idea, item.id)}>Do planera</Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
     {!hasSelection&&showMarkets&&<section className="shell experience-market-callout"><div><small>SEZONOWO</small><strong>Jarmarki bożonarodzeniowe 2026</strong><span>Sekcja działa tylko w sezonie i znika automatycznie po zakończeniu jarmarków.</span></div><Link href="/jarmarki-bozonarodzeniowe">Zobacz terminy jarmarków →</Link></section>}
     <SiteFooter/></main>
 }
