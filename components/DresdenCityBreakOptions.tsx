@@ -42,28 +42,42 @@ function dateLabel(from: string, to: string) {
 
 /** Suggested search dates only, never advertised as confirmed inventory. */
 function suggestedStays(month: string, duration: string, dateFrom = "", dateTo = ""): Stay[] {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateFrom) && /^\d{4}-\d{2}-\d{2}$/.test(dateTo) && dateTo > dateFrom) {
-    return [{ from: dateFrom, to: dateTo, label: dateLabel(dateFrom, dateTo) }];
-  }
+  // In the Tripownia search, from/to is the *allowed departure window*,
+  // not a hotel's check-in and check-out dates.
+  const requestedMonth = /^2026-(11|12)$/.test(month)
+    ? month
+    : /^2026-(11|12)-\d{2}$/.test(dateFrom) ? dateFrom.slice(0, 7) : "";
+  if (!requestedMonth) return [];
 
-  if (!["2026-11", "2026-12"].includes(month)) return [];
-  const requestedNights = Math.max(2, Math.min(7, Number(duration.match(/^\d+/)?.[0] || 2)));
-  const start = new Date(`${month}-01T12:00:00Z`);
-  const firstDay = Math.max(start.getTime(), Date.UTC(2026, 10, 25, 12));
-  const lastDay = Date.UTC(2026, 11, 24, 12);
-  const today = new Date().toISOString().slice(0, 10);
-  const stays: Stay[] = [];
+  const [year, monthNumber] = requestedMonth.split("-").map(Number);
+  const monthEnd = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
+  const monthStartISO = `${requestedMonth}-01`;
+  const monthEndISO = `${requestedMonth}-${String(monthEnd).padStart(2, "0")}`;
+  const earliest = [monthStartISO, "2026-11-25", dateFrom || monthStartISO, new Date().toISOString().slice(0, 10)].sort().at(-1) || "";
+  const latest = [monthEndISO, "2026-12-24", dateTo || monthEndISO].sort()[0] || "";
+  const nights = Math.max(2, Math.min(7, Number(duration.match(/^\d+/)?.[0] || 2)));
+  if (!earliest || earliest > latest) return [];
 
-  for (let time = firstDay; time <= lastDay && stays.length < 3; time += 86_400_000) {
-    const date = new Date(time);
-    if (date.getUTCDay() !== 5) continue; // weekend starts on Friday
+  const result: Stay[] = [];
+  const tryStart = (date: Date) => {
     const from = isoDate(date);
-    const end = new Date(time + requestedNights * 86_400_000);
-    const to = isoDate(end);
-    if (from < today || end.getTime() > lastDay) continue;
-    stays.push({ from, to, label: dateLabel(from, to) });
+    const to = isoDate(new Date(date.getTime() + nights * 86_400_000));
+    if (from >= earliest && to <= latest && !result.some((stay) => stay.from === from)) {
+      result.push({ from, to, label: dateLabel(from, to) });
+    }
+  };
+  const first = Date.parse(`${earliest}T12:00:00Z`);
+  const last = Date.parse(`${latest}T12:00:00Z`);
+  for (let time = first; time <= last && result.length < 3; time += 86_400_000) {
+    const date = new Date(time);
+    if (date.getUTCDay() === 5) tryStart(date); // prefer Friday departures
   }
-  return stays;
+  if (!result.length) {
+    for (let time = first; time <= last && result.length < 3; time += 86_400_000) {
+      tryStart(new Date(time));
+    }
+  }
+  return result;
 }
 
 function hotelSearchLink(stay?: Stay) {
@@ -116,7 +130,7 @@ export default function DresdenCityBreakOptions({
             partner: "klook",
             source: "dresden_rail_alternative",
             destination: "Drezno",
-            tripKind: "flight",
+            tripKind: "package",
           })}
         >
           <TrainFront size={16} aria-hidden="true" /> Sprawdź europejskie bilety kolejowe
