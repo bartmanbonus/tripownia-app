@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Search, SlidersHorizontal, X } from "lucide-react";
+import { ArrowLeftRight, ArrowRight, Briefcase, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Plane, Search, SlidersHorizontal, X } from "lucide-react";
 import { eskyFlightExitHref } from "@/lib/eskyFlights";
 import FlightDestinationCatalog from "@/components/FlightDestinationCatalog";
 
@@ -44,6 +44,24 @@ const POPULAR_DESTINATIONS: Place[] = [
   { code: "DXB", name: "Dubaj", country: "ZEA" },
   { code: "BKK", name: "Bangkok", country: "Tajlandia" },
 ];
+
+function nextMonth(value: string, offset: number) {
+  const [y, m] = value.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1 + offset, 1));
+  return date.toISOString().slice(0, 7);
+}
+
+function formatTravelDate(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return "";
+  return new Intl.DateTimeFormat("pl-PL", { day:"numeric", month:"short", year:"numeric", timeZone:"UTC" }).format(new Date(value+"T12:00:00Z"));
+}
+
+function calendarDays(value: string) {
+  const [y, m] = value.split("-").map(Number);
+  const offset = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay()+6)%7;
+  const length = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  return [...Array<null>(offset).fill(null), ...Array.from({length},(_,i)=>value+"-"+String(i+1).padStart(2,"0"))];
+}
 
 function displayPlaceCode(place: Place) {
   return place.type === "country" && place.searchCode ? place.searchCode : place.code;
@@ -337,16 +355,22 @@ type FlexibleFlightsExplorerProps = {
   initialDestination?: string;
   initialOrigin?: string;
   initialMonth?: string;
+  initialOutbound?: string;
+  initialInbound?: string;
 };
 
 export default function FlexibleFlightsExplorer({
   initialDestination = "",
   initialOrigin = "WAW",
   initialMonth = "",
+  initialOutbound = "",
+  initialInbound = "",
 }: FlexibleFlightsExplorerProps) {
   const initialOriginPlace = FLEXIBLE_ORIGINS.find((place) => place.code === initialOrigin.toUpperCase()) || FLEXIBLE_ORIGINS[0];
   const monthSelectId = useId();
   const monthsRef = useRef<HTMLDivElement>(null);
+  const stayRef = useRef<HTMLDivElement>(null);
+  const baggageRef = useRef<HTMLDivElement>(null);
   const stayGroupId = useId();
   const [origins, setOrigins] = useState<Place[]>([initialOriginPlace]);
   const [destinations, setDestinations] = useState<Place[]>([]);
@@ -357,6 +381,15 @@ export default function FlexibleFlightsExplorer({
   const [directOnly, setDirectOnly] = useState(false);
   const [selectedMonths, setSelectedMonths] = useState<string[]>(/^\d{4}-\d{2}$/.test(initialMonth) ? [initialMonth] : []);
   const [monthsOpen, setMonthsOpen] = useState(false);
+  const [stayOpen, setStayOpen] = useState(false);
+  const [baggageOpen, setBaggageOpen] = useState(false);
+  const [baggage, setBaggage] = useState<"cabin"|"checked">("cabin");
+  const [tripType, setTripType] = useState<"round"|"oneway">(initialOutbound && !initialInbound ? "oneway" : "round");
+  const [dateMode, setDateMode] = useState<"flex"|"exact">(initialOutbound ? "exact" : "flex");
+  const [departureDate, setDepartureDate] = useState(initialOutbound);
+  const [returnDate, setReturnDate] = useState(initialInbound);
+  const [calendarStart, setCalendarStart] = useState(() => initialOutbound.slice(0,7) || new Date().toISOString().slice(0,7));
+  const [searchError, setSearchError] = useState("");
   const [monthPage, setMonthPage] = useState(0);
   const [maxPrice, setMaxPrice] = useState(0);
   const [regionFilter, setRegionFilter] = useState("all");
@@ -387,6 +420,8 @@ export default function FlexibleFlightsExplorer({
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
       if (monthsRef.current && !monthsRef.current.contains(event.target as Node)) setMonthsOpen(false);
+      if (stayRef.current && !stayRef.current.contains(event.target as Node)) setStayOpen(false);
+      if (baggageRef.current && !baggageRef.current.contains(event.target as Node)) setBaggageOpen(false);
     };
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
@@ -583,6 +618,60 @@ export default function FlexibleFlightsExplorer({
 
   function dirty() {
     setSubmitted(false);
+    setSearchError("");
+  }
+
+  function chooseTravelDate(value: string) {
+    if (tripType === "oneway") {
+      setDepartureDate(value);
+      setReturnDate("");
+      return;
+    }
+    if (!departureDate || returnDate || value <= departureDate) {
+      setDepartureDate(value);
+      setReturnDate("");
+    } else {
+      setReturnDate(value);
+    }
+  }
+
+  function selectDateMode(mode: "flex"|"exact") {
+    setDateMode(mode);
+    if (mode === "flex") setTripType("round");
+    dirty();
+  }
+
+  function submitFlightSearch() {
+    setSearchError("");
+    if (!canSearch) return;
+    if (dateMode === "exact") {
+      if (!departureDate || (tripType === "round" && (!returnDate || returnDate <= departureDate))) {
+        setSearchError("Wybierz datę wylotu i późniejszą datę powrotu.");
+        setMonthsOpen(true);
+        return;
+      }
+      if (originAnywhere || origins.length !== 1 || destinationAnywhere || destinations.length !== 1) {
+        setSearchError("Dla konkretnych dat wybierz jedno lotnisko wylotu i jeden kierunek.");
+        return;
+      }
+      try {
+        const dest = destinations[0].searchCode || destinations[0].code;
+        window.location.assign(eskyFlightExitHref({
+          origin: origins[0].code,
+          destination: dest,
+          departure: departureDate,
+          returnDate: tripType === "round" ? returnDate : undefined,
+          adults,
+          destinationName: destinations[0].name,
+          source: "flight_exact_skyline",
+        }));
+      } catch {
+        setSearchError("Nie udało się zbudować wyszukiwania. Wybierz konkretną trasę.");
+      }
+      return;
+    }
+    setSubmitted(true);
+    requestAnimationFrame(() => document.querySelector(".flight-hunt-results-shell")?.scrollIntoView({ behavior:"smooth", block:"start" }));
   }
 
   function setTripLength(min: number, max: number) {
