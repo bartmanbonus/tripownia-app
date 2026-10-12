@@ -51,6 +51,7 @@ type SearchOverrides = {
   month?: string;
   dateFrom?: string;
   dateTo?: string;
+  dateFlexDays?: number;
 };
 
 type DatePreference = {
@@ -58,6 +59,7 @@ type DatePreference = {
   month: string;
   from: string;
   to: string;
+  flexDays: number;
 };
 
 function monthKey(year: number, monthIndex: number) {
@@ -271,14 +273,34 @@ function offerStartMs(offer: any) {
   return isoMs(String(offer?.startDateISO || ""));
 }
 
+function addIsoDays(value: string, delta: number) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return "";
+  const date = new Date(`${value}T12:00:00Z`);
+  if (!Number.isFinite(date.getTime())) return "";
+  date.setUTCDate(date.getUTCDate() + delta);
+  return date.toISOString().slice(0, 10);
+}
+
 function apiDepartureWindow(preference: DatePreference) {
   if (preference.mode === "exact" && /^\d{4}-\d{2}-\d{2}$/.test(preference.from)) {
-    return { start: preference.from, end: preference.from };
+    const flex = Math.max(0, preference.flexDays || 0);
+    return {
+      start: addIsoDays(preference.from, -flex) || preference.from,
+      end: addIsoDays(preference.from, flex) || preference.from,
+    };
   }
   if (preference.mode === "range") {
     const from = /^\d{4}-\d{2}-\d{2}$/.test(preference.from) ? preference.from : "";
     const to = /^\d{4}-\d{2}-\d{2}$/.test(preference.to) ? preference.to : "";
-    if (from || to) return { start: from || to, end: to || from };
+    if (from || to) {
+      const start = from || to;
+      const end = to || from;
+      const flex = Math.max(0, preference.flexDays || 0);
+      return {
+        start: addIsoDays(start, -flex) || start,
+        end: addIsoDays(end, flex) || end,
+      };
+    }
   }
   if (preference.mode === "month" && /^\d{4}-\d{2}$/.test(preference.month)) {
     const [year, month] = preference.month.split("-").map(Number);
@@ -294,7 +316,12 @@ function apiDepartureWindow(preference: DatePreference) {
 function preferenceWindow(preference: DatePreference) {
   if (preference.mode === "exact" && preference.from) {
     const day = isoMs(preference.from);
-    if (Number.isFinite(day)) return { start: day, end: day + 86399999, label: "wybranym dniu" };
+    const flex = Math.max(0, preference.flexDays || 0);
+    if (Number.isFinite(day)) return {
+      start: day - flex * 86_400_000,
+      end: day + (flex + 1) * 86_400_000 - 1,
+      label: flex ? `wybranym dniu ±${flex} dni` : "wybranym dniu",
+    };
   }
 
   if (preference.mode === "month" && /^\d{4}-\d{2}$/.test(preference.month)) {
@@ -307,8 +334,13 @@ function preferenceWindow(preference: DatePreference) {
   if (preference.mode === "range" && (preference.from || preference.to)) {
     const from = isoMs(preference.from || preference.to);
     const to = isoMs(preference.to || preference.from);
+    const flex = Math.max(0, preference.flexDays || 0);
     if (Number.isFinite(from) && Number.isFinite(to)) {
-      return { start: Math.min(from, to), end: Math.max(from, to), label: "wybranym zakresie dat" };
+      return {
+        start: Math.min(from, to) - flex * 86_400_000,
+        end: Math.max(from, to) + (flex + 1) * 86_400_000 - 1,
+        label: flex ? `wybranym zakresie ±${flex} dni` : "wybranym zakresie dat",
+      };
     }
   }
 
@@ -376,6 +408,7 @@ export default function SearchHub({
   const [calendarView, setCalendarView] = useState<"calendar" | "months">("calendar");
   const [dateFrom, setDateFrom] = useState(initialDateFrom);
   const [dateTo, setDateTo] = useState(initialDateTo);
+  const [dateFlexDays, setDateFlexDays] = useState(initialTab === "Loty" || initialTab === "Hotele" ? 0 : 3);
   const [duration, setDuration] = useState(initialDuration || "all");
   const [durationOpen, setDurationOpen] = useState(false);
   const [durationDraftMin, setDurationDraftMin] = useState(() => durationPickerRange(initialDuration || "all").min);
@@ -524,6 +557,7 @@ export default function SearchHub({
     setActiveTab(initialTab);
     setBoard(initialBoard);
     setDateMode(initialDateMode);
+    setDateFlexDays(initialTab === "Loty" || initialTab === "Hotele" ? 0 : 3);
     setDateFrom(initialDateFrom);
     setDateTo(initialDateTo);
     setMonth(initialMonth);
@@ -558,6 +592,7 @@ export default function SearchHub({
     setBoard(saved.board);
     setWeekendOnly(saved.weekendOnly);
     setDateMode(saved.dateMode);
+    setDateFlexDays(saved.dateFlexDays);
     setDateFrom(saved.dateFrom);
     setDateTo(saved.dateTo);
     setMonth(saved.month);
@@ -680,6 +715,7 @@ export default function SearchHub({
       month: overrides.month ?? month,
       from: overrides.dateFrom ?? dateFrom,
       to: overrides.dateTo ?? dateTo,
+      flexDays: activeMode === "Loty" || activeMode === "Hotele" ? 0 : (overrides.dateFlexDays ?? dateFlexDays),
     };
     const apiDates = apiDepartureWindow(datePreference);
     setSubmittedSummary({
@@ -687,7 +723,8 @@ export default function SearchHub({
       details: [departures.length ? departures.join(" + ") : "Wszystkie lotniska",
         datePreference.mode === "month" ? monthLabel(datePreference.month)
           : datePreference.mode === "any" ? "Elastycznie"
-          : [isoLabel(datePreference.from), datePreference.to !== datePreference.from ? isoLabel(datePreference.to) : ""].filter(Boolean).join(" – "),
+          : [isoLabel(datePreference.from), datePreference.to !== datePreference.from ? isoLabel(datePreference.to) : ""].filter(Boolean).join(" – ")
+            + (datePreference.flexDays ? ` · ±${datePreference.flexDays} dni` : ""),
         nightsLabel(activeDuration), activeMaxBudget ? `do ${activeMaxBudget.toLocaleString("pl-PL")} zł / os.` : "Dowolny budżet",
       ].join(" · "),
     });
@@ -702,6 +739,7 @@ export default function SearchHub({
       month: datePreference.month,
       dateFrom: datePreference.from,
       dateTo: datePreference.to,
+      dateFlexDays: datePreference.flexDays,
       duration: activeDuration,
       budget: activeBudget,
       customBudgetMin,
@@ -851,11 +889,11 @@ export default function SearchHub({
                   reasons.push("inna długość pobytu");
                 }
 
-                if (!relaxDates && datePreference.mode === "range" && datePreference.from && datePreference.to) {
+                if (!relaxDates && (datePreference.mode === "range" || datePreference.mode === "exact") && (apiDates.start || apiDates.end)) {
                   const start = String(offer?.startDateISO || "");
-                  if ((start && start < datePreference.from) || (start && start > datePreference.to)) {
+                  if ((start && apiDates.start && start < apiDates.start) || (start && apiDates.end && start > apiDates.end)) {
                     effectiveTier = Math.max(effectiveTier, 1);
-                    reasons.push("wylot poza wybranym zakresem");
+                    reasons.push("wylot poza wybranym elastycznym zakresem");
                   }
                 }
 
@@ -981,6 +1019,9 @@ export default function SearchHub({
 
   function selectDateMode(mode: DateMode) {
     setDateMode(mode);
+    if (activeTab !== "Loty" && activeTab !== "Hotele" && (mode === "exact" || mode === "range") && dateFlexDays === 0) {
+      setDateFlexDays(3);
+    }
     if (mode === "any") {
       setMonth("");
       setDateFrom("");
@@ -1095,6 +1136,7 @@ export default function SearchHub({
 
   function searchNearestDates() {
     setDateMode("any");
+    setDateFlexDays(3);
     setMonth("");
     setDateFrom("");
     setDateTo("");
@@ -1139,7 +1181,16 @@ export default function SearchHub({
     setDateOpen(false);
     setDurationOpen(false);
     setActiveTab(tab);
-    if (tab === "Hotele") { setDateMode("range"); setMonth(""); setSelectedDestinations((current) => current.slice(0, 1)); }
+    if (tab === "Hotele") {
+      setDateMode("range");
+      setDateFlexDays(0);
+      setMonth("");
+      setSelectedDestinations((current) => current.slice(0, 1));
+    } else if (tab === "Loty") {
+      setDateFlexDays(0);
+    } else {
+      setDateFlexDays(3);
+    }
     setDuration("all");
     setBudget("all");
     setCustomBudgetMin("");
@@ -1198,6 +1249,7 @@ export default function SearchHub({
     setDateOpen(false);
     setDurationOpen(false);
     setDateMode("any");
+    setDateFlexDays(3);
     setMonth("");
     setCalendarMonth("");
     setDateFrom("");
@@ -1233,14 +1285,14 @@ export default function SearchHub({
 
   const dateSummary = useMemo(() => {
     if (dateMode === "month") return month ? monthLabel(month) : "Wybierz miesiąc";
-    if (dateMode === "exact") return dateFrom ? isoLabel(dateFrom) : "Wybierz dzień";
+    if (dateMode === "exact") return dateFrom ? `${isoLabel(dateFrom)}${dateFlexDays ? ` · ±${dateFlexDays} dni` : ""}` : "Wybierz dzień";
     if (dateMode === "range") {
-      if (dateFrom && dateTo) return `${isoLabel(dateFrom)} – ${isoLabel(dateTo)}`;
+      if (dateFrom && dateTo) return `${isoLabel(dateFrom)} – ${isoLabel(dateTo)}${dateFlexDays ? ` · ±${dateFlexDays} dni` : ""}`;
       if (dateFrom) return `Od ${isoLabel(dateFrom)}`;
       return "Wybierz zakres";
     }
     return "Elastycznie";
-  }, [dateMode, month, dateFrom, dateTo]);
+  }, [dateMode, month, dateFrom, dateTo, dateFlexDays]);
 
   const durationSummary = useMemo(() => nightsLabel(duration), [duration]);
   const durationFieldLabel = duration === "all" ? "Dowolnie" : nightsLabel(duration);
@@ -1271,6 +1323,7 @@ export default function SearchHub({
       : dateMode === "exact" && dateFrom
         ? isoLabel(dateFrom)
         : "Bez ograniczenia daty";
+  const flexibleDateLabel = dateFlexDays ? `±${dateFlexDays} dni` : "dokładnie";
 
   const quickPicks: Array<[string, string, SearchOverrides]> = [
     ["Malta", "Malta do 1 000 zł", { duration: "3-4", budget: "1000", tab: "City break" }],
@@ -1309,7 +1362,7 @@ export default function SearchHub({
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
             {!embedded && <h2>{activeTab === "Loty" ? "Znajdź tani lot" : "Gdzie chcesz lecieć?"}</h2>}
-            {!embedded && <p>{activeTab === "Loty" ? "Odkrywaj tanie kierunki i terminy albo sprawdź lot na konkretne daty." : activeTab === "Hotele" ? "Wpisz kierunek i termin pobytu." : "Wybierz dokąd, skąd i kiedy. Możesz też zostawić pola puste — najtańsze kierunki pokażemy jako pierwsze."}</p>}
+            {!embedded && <p>{activeTab === "Loty" ? "Odkrywaj tanie kierunki i terminy albo sprawdź lot na konkretne daty." : activeTab === "Hotele" ? "Wpisz kierunek i termin pobytu." : "Wybierz dokąd i skąd. Termin może być dokładny, w zakresie, w całym miesiącu albo elastyczny — bez blokowania się na jednej dacie."}</p>}
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
@@ -1508,6 +1561,7 @@ export default function SearchHub({
                       setMonth("");
                       setDateFrom("");
                       setDateTo("");
+                      setDateFlexDays(activeTab === "Loty" || activeTab === "Hotele" ? 0 : 3);
                       setDuration("all");
                       setWeekendOnly(false);
                     }}
@@ -1521,7 +1575,10 @@ export default function SearchHub({
 
                 {calendarView === "calendar" && <>
                   <div className="search-picker-modes" role="group" aria-label="Termin wylotu">
-                    <button type="button" aria-pressed={dateMode !== "range"} onClick={() => { selectDateMode("exact"); if (activeTab === "Loty") { setFlightTripType("oneway"); setDateTo(""); } }}> {activeTab === "Loty" ? "W jedną stronę" : "Konkretny dzień"} </button>
+                    {activeTab !== "Loty" && activeTab !== "Hotele" && (
+                      <button type="button" aria-pressed={dateMode === "any"} onClick={() => selectDateMode("any")}>Elastycznie</button>
+                    )}
+                    <button type="button" aria-pressed={dateMode === "exact"} onClick={() => { selectDateMode("exact"); if (activeTab === "Loty") { setFlightTripType("oneway"); setDateTo(""); } }}> {activeTab === "Loty" ? "W jedną stronę" : "Konkretny dzień"} </button>
                     <button type="button" aria-pressed={dateMode === "range"} onClick={() => { selectDateMode("range"); setDateFrom(""); setDateTo(""); if (activeTab === "Loty") setFlightTripType("round"); }}>{activeTab === "Loty" ? "Wylot + powrót" : "Zakres od–do"}</button>
                   </div>
                   <div className="search-picker-nav">
@@ -1600,6 +1657,16 @@ export default function SearchHub({
                 )}
 
                 <div className="search-v3-esky-bottom">
+                  {activeTab !== "Loty" && activeTab !== "Hotele" && dateMode !== "any" && dateMode !== "month" && (
+                    <div className="search-v3-flex-days">
+                      <strong>Elastyczność terminu <span>{flexibleDateLabel}</span></strong>
+                      <div role="group" aria-label="Elastyczność dat">
+                        {[[0,"Dokładnie"],[1,"±1 dzień"],[3,"±3 dni"],[7,"±7 dni"]].map(([value,label]) => (
+                          <button type="button" key={value} className={dateFlexDays === value ? "active" : ""} onClick={() => setDateFlexDays(Number(value))}>{label}</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <button type="button" className={`search-v3-esky-weekend${weekendOnly ? " active" : ""}`} onClick={() => setWeekendOnly((value) => !value)}>
                     <span className="search-v3-check">{weekendOnly && <Check size={13}/>}</span>
                     Musi zawierać weekend

@@ -9,6 +9,7 @@ export type SearchResumeContext = {
   month: string;
   dateFrom: string;
   dateTo: string;
+  dateFlexDays: number;
   duration: string;
   budget: string;
   customBudgetMin: string;
@@ -80,6 +81,9 @@ export function readSearchResumeContext() {
     const resultSort = ["recommended", "price", "rating", "nights"].includes(String(parsed.resultSort))
       ? parsed.resultSort as SearchResumeContext["resultSort"]
       : "price";
+    const dateFlexDays = [0, 1, 3, 7].includes(Number(parsed.dateFlexDays))
+      ? Number(parsed.dateFlexDays)
+      : 3;
     const resultView = parsed.resultView === "destinations" ? "destinations" : "all";
     const path = safeString(parsed.path, 300);
 
@@ -94,6 +98,7 @@ export function readSearchResumeContext() {
       month: safeString(parsed.month, 7),
       dateFrom: safeString(parsed.dateFrom, 10),
       dateTo: safeString(parsed.dateTo, 10),
+      dateFlexDays,
       duration: safeString(parsed.duration, 40) || "all",
       budget: safeString(parsed.budget, 40) || "all",
       customBudgetMin: safeString(parsed.customBudgetMin, 20),

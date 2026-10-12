@@ -1919,3 +1919,157 @@ h1,h2,h3,p,strong,span{word-break:normal}
     min-height:44px;
   }
 }
+
+
+/* 2026-10-11 flexible-date search + mobile field repair */
+#wyszukiwarka .search-v3-flex-days{
+  display:grid;
+  gap:7px;
+  padding:10px 0;
+  border-bottom:1px solid #eee5df;
+}
+#wyszukiwarka .search-v3-flex-days>strong{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  color:#3f3732;
+  font-size:11px;
+  line-height:1.3;
+}
+#wyszukiwarka .search-v3-flex-days>strong span{
+  color:#cb4c2a;
+  font-size:10px;
+  font-weight:900;
+}
+#wyszukiwarka .search-v3-flex-days>div{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+}
+#wyszukiwarka .search-v3-flex-days button{
+  min-height:40px;
+  padding:7px 8px;
+  border:1px solid #dfd4cd;
+  border-radius:10px;
+  background:#fff;
+  color:#514842;
+  font-size:10px;
+  font-weight:850;
+  cursor:pointer;
+}
+#wyszukiwarka .search-v3-flex-days button:hover,
+#wyszukiwarka .search-v3-flex-days button.active{
+  border-color:#e89d82;
+  background:#fff0e9;
+  color:#be4526;
+}
+#wyszukiwarka .search-v3-flex-days button:focus-visible{
+  outline:3px solid rgba(206,72,38,.25);
+  outline-offset:2px;
+}
+
+@media(max-width:560px){
+  /* The old 54px rule clipped "Kiedy?" / "Na jak długo?" on iPhone.
+     Date and duration fields get enough vertical rhythm while the CTA stays compact. */
+  #wyszukiwarka .search-v3-field{
+    height:64px!important;
+    min-height:64px!important;
+    padding:9px 12px!important;
+    gap:4px!important;
+  }
+  #wyszukiwarka .search-v3-date,
+  #wyszukiwarka .search-v3-duration-picker{
+    height:66px!important;
+    min-height:66px!important;
+  }
+  #wyszukiwarka .search-v3-submit{
+    height:56px!important;
+    min-height:56px!important;
+  }
+  #wyszukiwarka .search-v3-field>label,
+  #wyszukiwarka .search-v3-field>span{
+    position:static!important;
+    margin:0!important;
+    transform:none!important;
+    font-size:10px!important;
+    line-height:1.2!important;
+  }
+  #wyszukiwarka .search-v3-date-trigger,
+  #wyszukiwarka .search-v3-duration-trigger,
+  #wyszukiwarka .search-v3-multi-trigger{
+    min-height:30px!important;
+    height:auto!important;
+    align-items:center!important;
+  }
+  #wyszukiwarka .search-v3-date-trigger strong,
+  #wyszukiwarka .search-v3-duration-trigger strong,
+  #wyszukiwarka .search-v3-multi-trigger strong{
+    font-size:15px!important;
+    line-height:1.2!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  #wyszukiwarka .search-v3-form{
+    gap:9px!important;
+  }
+  #wyszukiwarka .search-v3-quick{
+    padding-top:12px!important;
+    padding-bottom:15px!important;
+  }
+  #wyszukiwarka .search-v3-quick>div{
+    scroll-snap-type:x proximity;
+    padding-right:12px;
+  }
+  #wyszukiwarka .search-v3-quick button{
+    scroll-snap-align:start;
+  }
+
+  #wyszukiwarka .search-v3-calendar-esky{
+    height:100dvh!important;
+    max-height:100dvh!important;
+  }
+  #wyszukiwarka .search-picker-modes{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+    padding-inline:12px;
+  }
+  #wyszukiwarka .search-picker-modes button{
+    min-height:42px;
+    padding:6px;
+    font-size:11px;
+    line-height:1.25;
+  }
+  #wyszukiwarka .search-picker-nav{
+    grid-template-columns:40px minmax(0,1fr) 40px;
+    padding:7px 12px;
+    font-size:11px;
+  }
+  #wyszukiwarka .search-picker-nav button{
+    min-height:40px;
+  }
+  #wyszukiwarka .search-v3-esky-calendar-scroll,
+  #wyszukiwarka .search-v3-esky-months-grid{
+    padding:6px 12px 12px!important;
+  }
+  #wyszukiwarka .search-v3-esky-bottom{
+    max-height:42dvh;
+    overflow-y:auto;
+    overscroll-behavior:contain;
+    padding:10px 12px max(12px,env(safe-area-inset-bottom))!important;
+    border-top:1px solid #eee5df;
+    background:#fff;
+  }
+  #wyszukiwarka .search-v3-flex-days{
+    padding-top:4px;
+  }
+  #wyszukiwarka .search-v3-flex-days>div{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  #wyszukiwarka .search-v3-flex-days button{
+    min-height:42px;
+    font-size:11px;
+  }
+}
