@@ -1345,7 +1345,7 @@ export default function SearchHub({
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
             {!embedded && <h2>{activeTab === "Loty" ? "Znajdź tani lot" : activeTab === "Hotele" ? "Znajdź idealny nocleg" : "Gdzie chcesz lecieć?"}</h2>}
-            {!embedded && <p>{activeTab === "Loty" ? "Odkrywaj tanie kierunki i terminy albo sprawdź lot na konkretne daty." : activeTab === "Hotele" ? "Wpisz kierunek i termin pobytu." : "Wybierz dokąd, skąd i kiedy. Możesz też zostawić pola puste — najtańsze kierunki pokażemy jako pierwsze."}</p>}
+            {!embedded && <p>{activeTab === "Loty" ? "Odkrywaj tanie kierunki i terminy albo sprawdź lot na konkretne daty." : activeTab === "Hotele" ? "Wybierz miejsce, termin i gości. Bez zbędnych kroków." : "Wybierz dokąd, skąd i kiedy. Możesz też zostawić pola puste — najtańsze kierunki pokażemy jako pierwsze."}</p>}
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
@@ -1405,7 +1405,7 @@ export default function SearchHub({
                 value={destination}
                 onChange={(event) => { setAnywhereSelected(false); setDestination(event.target.value); openDestinationPanel(); }}
                 onFocus={openDestinationPanel}
-                placeholder={activeTab === "Hotele" ? "Np. Rzym, Kraków lub nazwa hotelu" : anywhereSelected || selectedDestinations.length ? "Dodaj konkretny kierunek" : "Wpisz kierunek lub wybierz Gdziekolwiek"}
+                placeholder={activeTab === "Hotele" ? "Miasto, region lub nazwa hotelu" : anywhereSelected || selectedDestinations.length ? "Dodaj konkretny kierunek" : "Wpisz kierunek lub wybierz Gdziekolwiek"}
                 autoComplete="off"
               />
               {destination && <button type="button" aria-label="Wyczyść wpisany kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
