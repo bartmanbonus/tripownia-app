@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { ArrowRight, CalendarDays, CheckCircle2, MapPin, Plane, TrainFront, RotateCcw, Search, Ticket } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, BedDouble, CalendarDays, CheckCircle2, MapPin, Plane, TrainFront, RotateCcw, Search, Ticket } from "lucide-react";
 import styles from "@/app/jarmarki-bozonarodzeniowe/markets.module.css";
 import { partners } from "@/lib/partners";
 
@@ -94,7 +94,7 @@ const AIRPORTS = [
   { value: "WRO", label: "Wrocław (WRO)" },
   { value: "POZ", label: "Poznań (POZ)" },
   { value: "RZE", label: "Rzeszów (RZE)" },
-  { value: "ALL", label: "Cała Polska — porównaj lotniska" },
+  { value: "ALL", label: "Cała Polska — pociągi" },
 ];
 
 const MONTHS = [
@@ -118,44 +118,108 @@ function marketDepartureWindow(idea: MarketIdea, month: string) {
   return from <= to ? { from, to } : null;
 }
 
-function packageHref(idea: MarketIdea, airport: string, month: string, duration: string) {
-  const bounds = marketDepartureWindow(idea, month);
-  const params = new URLSearchParams({
+const MARKET_AIRPORTS: Record<string, string> = {
+  Wiedeń: "VIE", Praga: "PRG", Drezno: "DRS", Norymberga: "NUE",
+  Berlin: "BER", Budapeszt: "BUD", Salzburg: "SZG",
+};
+
+type FlightAvailability = "found" | "none" | "unknown";
+type FlightStatuses = { query: string; byCity: Record<string, FlightAvailability> };
+
+// Preserve the approved Klook tracking IDs and link to its Europe rail section.
+function railHref(idea: MarketIdea, origin: string, month: string) {
+  const target = new URL(partners.klook.buildUrl());
+  target.searchParams.set("u", "https://www.klook.com/europe-rail/");
+  return "/go/live?" + new URLSearchParams({
+    partner: "klook",
+    target: target.toString(),
     destination: idea.city,
-    tab: duration === "5-7" ? "Lot + hotel" : "City break",
-    duration,
-  });
-  // Preserve flexible departure dates, but do not search after the market closes.
-  if (bounds) {
-    params.set("from", bounds.from);
-    params.set("to", bounds.to);
-  }
-  if (airport !== "ALL") params.set("airport", airport);
-  return "/szukaj?" + params.toString();
+    source: "christmas_markets_train",
+    page: "/jarmarki-bozonarodzeniowe",
+    offer: [origin, idea.city, month].join("_"),
+  }).toString();
 }
 
-function railHref(idea: MarketIdea) {
-  return "/sprawdz-oferte?" + new URLSearchParams({
-    partner: "klook",
-    target: partners.klook.buildUrl(),
+// City-specific, date-flexible Booking.com search preserving the existing affiliate AID.
+function bookingHotelHref(idea: MarketIdea) {
+  const destination = new URL("https://www.booking.com/searchresults.html");
+  destination.searchParams.set("ss", idea.city + ", " + idea.country);
+  destination.searchParams.set("lang", "pl");
+  destination.searchParams.set("selected_currency", "PLN");
+  const target = partners.booking.buildUrl(destination.toString());
+  return "/go/live?" + new URLSearchParams({
+    partner: "booking",
+    target,
     destination: idea.city,
-    source: "christmas_market_rail_discovery",
+    source: "christmas_markets_hotels",
+    page: "/jarmarki-bozonarodzeniowe",
   }).toString();
 }
 
 function flightsHref(idea: MarketIdea, airport: string, month: string) {
-  const params = new URLSearchParams({
-    destination: idea.city,
-    origin: airport,
-    month,
-  });
-  return "/loty?" + params.toString();
+  return "/loty?" + new URLSearchParams({
+    destination: idea.city, origin: airport, month,
+  }).toString();
 }
 
 export default function ChristmasMarketsClient() {
   const [airport, setAirport] = useState("WAW");
   const [month, setMonth] = useState("2026-12");
   const [duration, setDuration] = useState("2-4");
+
+  const queryKey = [airport, month, duration].join("|");
+  const [flights, setFlights] = useState<FlightStatuses>({ query: "", byCity: {} });
+
+  // Only show flight links when the price calendar finds a nonstop round trip
+  // within the market's open dates. Empty/failed data leaves a rail fallback.
+  useEffect(() => {
+    const controller = new AbortController();
+    setFlights({ query: queryKey, byCity: {} });
+    if (airport === "ALL") return () => controller.abort();
+
+    const [minDays, maxDays] = duration.split("-").map(Number);
+    for (const idea of MARKET_IDEAS) {
+      const bounds = marketDepartureWindow(idea, month);
+      if (!bounds) continue;
+      const params = new URLSearchParams({
+        origin: airport,
+        destination: MARKET_AIRPORTS[idea.city],
+        month,
+        minDays: String(minDays),
+        maxDays: String(maxDays),
+        direct: "true",
+      });
+
+      fetch("/api/flight-calendar?" + params.toString(), { signal: controller.signal })
+        .then(async (response) => {
+          if (!response.ok) return "unknown" as const;
+          const data = await response.json();
+          if (!data?.ok || !Array.isArray(data.results)) return "unknown" as const;
+          const hasDirectFlight = data.results.some((item: {
+            departDate?: string; returnDate?: string; price?: number;
+            outboundStops?: number; returnStops?: number;
+          }) =>
+            Number(item.price || 0) > 0
+            && Boolean(item.departDate && item.returnDate)
+            && String(item.departDate) >= bounds.from
+            && String(item.departDate) <= bounds.to
+            && String(item.returnDate) <= bounds.to
+            && Number(item.outboundStops || 0) === 0
+            && Number(item.returnStops || 0) === 0
+          );
+          return hasDirectFlight ? "found" as const : "none" as const;
+        })
+        .catch(() => "unknown" as const)
+        .then((availability: FlightAvailability) => {
+          if (controller.signal.aborted) return;
+          setFlights((current) => current.query === queryKey
+            ? { ...current, byCity: { ...current.byCity, [idea.city]: availability } }
+            : current);
+        });
+    }
+    return () => controller.abort();
+  }, [airport, month, duration, queryKey]);
+
 
   const availableMarkets = useMemo(
     () => MARKET_IDEAS.filter((idea) => Boolean(marketDepartureWindow(idea, month))),
