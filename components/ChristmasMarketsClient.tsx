@@ -242,14 +242,14 @@ export default function ChristmasMarketsClient() {
           <div>
             <span className={styles.eyebrow}>ZAPLANUJ SWÓJ WYJAZD</span>
             <h2 id="market-finder-title">Najpierw parametry. Potem wybierz miasto.</h2>
-            <p>Ustaw lotnisko, miesiąc i długość pobytu tylko raz. Wybrane parametry przeniesiemy do wyszukiwarki Tripowni.</p>
+            <p>Wybierz miasto, miesiąc i długość pobytu. Kiedy nie ma potwierdzonego lotu bezpośredniego, pokażemy pociągi i noclegi.</p>
           </div>
           <span className={styles.finderStep}><CheckCircle2 size={18} /> Bez sztywnych dat</span>
         </div>
 
         <div className={styles.controls}>
           <label className={styles.field} htmlFor="market-airport">
-            <span><MapPin size={16} /> Skąd lecisz?</span>
+            <span><MapPin size={16} /> Skąd wyruszasz?</span>
             <select id="market-airport" value={airport} onChange={(event) => setAirport(event.target.value)}>
               {AIRPORTS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
@@ -281,7 +281,7 @@ export default function ChristmasMarketsClient() {
           </label>
         </div>
         <div className={styles.finderBottom}>
-          <p><CheckCircle2 size={16} /> <strong>Twój wybór:</strong> {airportLabel} · {monthLabel} · {stayLabel}</p>
+          <p><CheckCircle2 size={16} /> <strong>Twój wybór:</strong> {airportLabel} · {monthLabel} · {stayLabel}{airport === "ALL" ? " · wybierz jedno lotnisko, by sprawdzić loty" : ""}</p>
           <button type="button" onClick={restore}><RotateCcw size={14} /> Przywróć ustawienia</button>
         </div>
       </section>
@@ -291,7 +291,7 @@ export default function ChristmasMarketsClient() {
           <div>
             <span className={styles.eyebrow}>WYBIERZ SWÓJ KIERUNEK</span>
             <h2 id="market-results-title">Jarmarki na {monthLabel.toLocaleLowerCase("pl-PL")}</h2>
-            <p>Wybierz miasto — wyszukiwanie lotu i noclegu otworzy się z Twoimi parametrami.</p>
+            <p>Pokazujemy loty tylko wtedy, gdy kalendarz cen znajduje lot bezpośredni w wybranym okresie. W pozostałych przypadkach wybierz pociąg i hotel.</p>
           </div>
           <span className={styles.counter} role="status" aria-live="polite">
             <Search size={16} /> {availableMarkets.length} {availableMarkets.length === 1 ? "kierunek" : availableMarkets.length > 4 ? "kierunków" : "kierunki"}
@@ -299,7 +299,10 @@ export default function ChristmasMarketsClient() {
         </div>
 
         <div className={styles.cards}>
-          {availableMarkets.map((idea) => (
+          {availableMarkets.map((idea) => {
+            const status = flights.query === queryKey ? flights.byCity[idea.city] : undefined;
+            const flightConfirmed = status === "found";
+            return (
             <article className={styles.card} key={idea.city}>
               <div className={styles.cardHeader}>
                 <div className={styles.cityWrap}>
@@ -324,26 +327,53 @@ export default function ChristmasMarketsClient() {
 
               <div className={styles.sights}><strong>Warto zobaczyć</strong><span>{month === "2027-01" && idea.january ? idea.january.see : idea.see}</span></div>
 
+              <p className={styles.transportNote} aria-live="polite">
+                {flightConfirmed
+                  ? <><Plane size={14}/> Znaleziono lot bezpośredni w kalendarzu cenowym.</>
+                  : status === "none"
+                    ? <><TrainFront size={14}/> Nie znaleziono lotu bezpośredniego w tym okresie. Sprawdź pociąg.</>
+                    : status === "unknown"
+                      ? <><TrainFront size={14}/> Nie możemy potwierdzić lotu. Możesz sprawdzić pociąg.</>
+                      : <><TrainFront size={14}/> {airport === "ALL" ? "Pociąg: miasto odjazdu wybierzesz u partnera." : "Sprawdzamy loty; pociągi już dostępne."}</>
+                }
+              </p>
+
               <div className={styles.cardActions}>
-                <Link className={styles.primaryAction} href={packageHref(idea, airport, month, duration)}>
-                  {idea.city === "Drezno" ? "Zaplanuj dojazd + nocleg" : "Szukaj lot + nocleg"} <ArrowRight size={17} />
-                </Link>
+                {flightConfirmed ? (
+                  <Link className={styles.primaryAction} href={flightsHref(idea, airport, month)}>
+                    <Plane size={17}/> Sprawdź loty <ArrowRight size={17}/>
+                  </Link>
+                ) : (
+                  <Link className={styles.primaryAction} href={railHref(idea, airport, month)} rel="sponsored"
+                    title={"Sprawdź pociągi do " + idea.city + " — stację i daty wybierzesz u partnera"}>
+                    <TrainFront size={18}/> Sprawdź pociągi <ArrowRight size={17}/>
+                  </Link>
+                )}
                 <div className={styles.secondaryActions}>
-                  <Link href={flightsHref(idea, airport, month)}><Plane size={15} /> Tylko loty</Link>
-                  <Link href={railHref(idea)} rel="sponsored" title="Ogólna oferta biletów kolejowych Klook — dostępność konkretnej trasy sprawdzisz u partnera"><TrainFront size={15} /> Sprawdź pociągi</Link>
-                  <Link href={"/atrakcje?q=" + encodeURIComponent(idea.city + " jarmark bożonarodzeniowy")}><Ticket size={15} /> Atrakcje</Link>
+                  {flightConfirmed && (
+                    <Link href={railHref(idea, airport, month)} rel="sponsored" title="Wybierz stację i daty na stronie partnera">
+                      <TrainFront size={15}/> Pociągi
+                    </Link>
+                  )}
+                  <Link href={bookingHotelHref(idea)} rel="sponsored" title={"Noclegi w " + idea.city + " — konkretne daty wybierzesz na Booking.com"}>
+                    <BedDouble size={15}/> Hotele
+                  </Link>
+                  <Link href={"/atrakcje?q=" + encodeURIComponent(idea.city + " jarmark bożonarodzeniowy")}>
+                    <Ticket size={15}/> Atrakcje
+                  </Link>
                 </div>
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
 
         <div className={styles.note}>
           <CheckCircle2 size={19} aria-hidden="true" />
-          <p><strong>Ważne przed rezerwacją:</strong> daty jarmarków mogą się zmienić. Wybrany miesiąc oznacza okres wyszukiwania, nie gwarancję, że jarmark działa przez cały miesiąc. Klook otwiera ogólną ofertę biletów kolejowych, nie potwierdza konkretnej trasy. Sprawdź termin wydarzenia i cenę u organizatora oraz dostawcy.</p>
+          <p><strong>Ważne:</strong> brak lotu w kalendarzu cen nie dowodzi, że lot nie istnieje. Pociągi prowadzą do afiliacyjnej wyszukiwarki Klook — tam wybierzesz stacje i konkretne daty; dostępność połączeń z Polski nie jest gwarantowana. Hotele otwierają wyszukiwanie miasta w Booking.com z afiliacją Tripowni. Daty i ceny potwierdź u dostawców, a daty jarmarków u organizatorów.</p>
         </div>
         <nav className={styles.moreLinks} aria-label="Inne sposoby planowania">
-          <Link href="/loty">Porównaj wszystkie loty <ArrowRight size={15}/></Link>
+          <Link href="/hotele">Znajdź nocleg <ArrowRight size={15}/></Link>
           <Link href="/city-break">City breaki z noclegiem <ArrowRight size={15}/></Link>
           <Link href="/moja-podroz">Mój plan podróży <ArrowRight size={15}/></Link>
         </nav>
