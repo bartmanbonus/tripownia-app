@@ -10,7 +10,6 @@ import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type Worl
 import { isTravelDestinationAllowed, isTravelDestinationBlocked } from "@/lib/travelSafety";
 import { rankSearchOffers, searchTier } from "@/lib/searchOfferRanking";
 import { partners } from "@/lib/partners";
-import { eskySearchUrl } from "@/lib/eskySearch";
 import { fetchEskyBrowserPackages } from "@/lib/eskyBrowserSearch";
 import { isAffordableShortTrip } from "@/lib/offerValuePolicy";
 import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
@@ -399,7 +398,6 @@ export default function SearchHub({
   const [resultDestinationCount, setResultDestinationCount] = useState(0);
   const [resultView, setResultView] = useState<"all" | "destinations">("all");
   const [resultMatchScope, setResultMatchScope] = useState<"exact" | "alternatives">("exact");
-  const [packageSearchLink, setPackageSearchLink] = useState("");
   const [resultSort, setResultSort] = useState<"recommended" | "price" | "rating" | "nights">("price");
   const [visibleCount, setVisibleCount] = useState(18);
   const [loading, setLoading] = useState(false);
@@ -655,7 +653,6 @@ export default function SearchHub({
     if (blockedOnly) {
       setLoading(false);
       setExpanding(false);
-      setPackageSearchLink("");
       setSearched(true);
       setResults([]);
       setNotice("Wybrane kierunki są obecnie wyłączone z rekomendacji ze względów bezpieczeństwa.");
@@ -713,8 +710,6 @@ export default function SearchHub({
       scrollY: typeof window !== "undefined" ? window.scrollY : 0,
     });
 
-    setPackageSearchLink(eskySearchUrl({ query: requested[0], departure: departures.join(","), cityBreak: activeMode === "City break",
-      nights: activeDuration, start: apiDates.start, end: apiDates.end }));
     // One request can cover several selected airports because the API accepts
     // a comma-separated airport list. This avoids repeating the same feed scan.
     const targets = requested.length ? requested : [""];
@@ -2058,25 +2053,6 @@ export default function SearchHub({
                 <strong>{fallbackDestination ? `Nie kończymy na 0 wyników dla „${fallbackDestination}”.` : "Nie kończymy na pustej liście."}</strong>
                 <span>Zmień termin lub poluzuj filtry. Zachowamy Twój kierunek, żeby nie trzeba było zaczynać od nowa.</span>
                 <div className="search-v3-empty-actions">
-                  {packageSearchLink && (
-                    <a
-                      href={`/sprawdz-oferte?${new URLSearchParams({
-                        partner: "esky",
-                        target: packageSearchLink,
-                        source: "search_zero_rescue",
-                        destination: fallbackDestination || "",
-                      }).toString()}`}
-                      rel="sponsored"
-                      onClick={() => saveAffiliateReturnContext({
-                        partner: "esky",
-                        destination: fallbackDestination || "",
-                        source: "search_zero_rescue",
-                        tripKind: "package",
-                      })}
-                    >
-                      Sprawdź pakiety lot + hotel
-                    </a>
-                  )}
                   <button type="button" onClick={searchNearestDates}>Pokaż inne terminy</button>
                   <button type="button" onClick={relaxSearchFilters}>Usuń dodatkowe filtry</button>
                   {fallback?.kiwi && (
