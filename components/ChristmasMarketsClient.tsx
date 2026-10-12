@@ -94,7 +94,7 @@ const AIRPORTS = [
   { value: "WRO", label: "Wrocław (WRO)" },
   { value: "POZ", label: "Poznań (POZ)" },
   { value: "RZE", label: "Rzeszów (RZE)" },
-  { value: "ALL", label: "Cała Polska — pociągi" },
+  { value: "ALL", label: "Cała Polska — porównaj możliwości" },
 ];
 
 const MONTHS = [
@@ -122,6 +122,17 @@ const MARKET_AIRPORTS: Record<string, string> = {
   Wiedeń: "VIE", Praga: "PRG", Drezno: "DRS", Norymberga: "NUE",
   Berlin: "BER", Budapeszt: "BUD", Salzburg: "SZG",
 };
+
+// Known scheduled nonstop routes, confirmed against airline timetables (October 2026).
+// A route being scheduled does NOT guarantee a fare or seat on a selected date.
+const SCHEDULED_DIRECT_FROM_WAW = new Set(["Wiedeń", "Budapeszt"]);
+
+function knownDirectOrigin(airport: string, city: string) {
+  // With "Cała Polska", direct people to the specific confirmed Warsaw origin.
+  return (airport === "WAW" || airport === "ALL") && SCHEDULED_DIRECT_FROM_WAW.has(city)
+    ? "WAW"
+    : "";
+}
 
 type FlightAvailability = "found" | "none" | "unknown";
 type FlightStatuses = { query: string; byCity: Record<string, FlightAvailability> };
@@ -170,8 +181,9 @@ export default function ChristmasMarketsClient() {
   const queryKey = [airport, month, duration].join("|");
   const [flights, setFlights] = useState<FlightStatuses>({ query: "", byCity: {} });
 
-  // Only show flight links when the price calendar finds a nonstop round trip
-  // within the market's open dates. Empty/failed data leaves a rail fallback.
+  // In addition to verified scheduled routes, use the price calendar to discover
+  // other non-stop flights. Empty/failed calendar results do not invalidate a
+  // known route from a separate timetable.
   useEffect(() => {
     const controller = new AbortController();
     setFlights({ query: queryKey, byCity: {} });
@@ -291,7 +303,7 @@ export default function ChristmasMarketsClient() {
           <div>
             <span className={styles.eyebrow}>WYBIERZ SWÓJ KIERUNEK</span>
             <h2 id="market-results-title">Jarmarki na {monthLabel.toLocaleLowerCase("pl-PL")}</h2>
-            <p>Pokazujemy loty tylko wtedy, gdy kalendarz cen znajduje lot bezpośredni w wybranym okresie. W pozostałych przypadkach wybierz pociąg i hotel.</p>
+            <p>Sprawdź loty do Wiednia i Budapesztu z Warszawy oraz inne loty znalezione w kalendarzu cenowym. Do każdego miasta możesz wybrać też pociąg i hotel.</p>
           </div>
           <span className={styles.counter} role="status" aria-live="polite">
             <Search size={16} /> {availableMarkets.length} {availableMarkets.length === 1 ? "kierunek" : availableMarkets.length > 4 ? "kierunków" : "kierunki"}
@@ -302,6 +314,9 @@ export default function ChristmasMarketsClient() {
           {availableMarkets.map((idea) => {
             const status = flights.query === queryKey ? flights.byCity[idea.city] : undefined;
             const flightConfirmed = status === "found";
+            const scheduledOrigin = knownDirectOrigin(airport, idea.city);
+            const showFlight = flightConfirmed || Boolean(scheduledOrigin);
+            const flightOrigin = scheduledOrigin || airport;
             return (
             <article className={styles.card} key={idea.city}>
               <div className={styles.cardHeader}>
@@ -330,6 +345,8 @@ export default function ChristmasMarketsClient() {
               <p className={styles.transportNote} aria-live="polite">
                 {flightConfirmed
                   ? <><Plane size={14}/> Znaleziono lot bezpośredni w kalendarzu cenowym.</>
+                  : scheduledOrigin
+                    ? <><Plane size={14}/> Z Warszawy Chopina kursują loty bezpośrednie. Sprawdź dostępność i cenę na wybrany termin.</>
                   : status === "none"
                     ? <><TrainFront size={14}/> Nie znaleziono lotu bezpośredniego w tym okresie. Sprawdź pociąg.</>
                     : status === "unknown"
@@ -339,9 +356,9 @@ export default function ChristmasMarketsClient() {
               </p>
 
               <div className={styles.cardActions}>
-                {flightConfirmed ? (
-                  <Link className={styles.primaryAction} href={flightsHref(idea, airport, month)}>
-                    <Plane size={17}/> Sprawdź loty <ArrowRight size={17}/>
+                {showFlight ? (
+                  <Link className={styles.primaryAction} href={flightsHref(idea, flightOrigin, month)}>
+                    <Plane size={17}/> {airport === "ALL" && scheduledOrigin ? "Loty z Warszawy" : "Sprawdź loty"} <ArrowRight size={17}/>
                   </Link>
                 ) : (
                   <Link className={styles.primaryAction} href={railHref(idea, airport, month)} rel="sponsored"
@@ -350,7 +367,7 @@ export default function ChristmasMarketsClient() {
                   </Link>
                 )}
                 <div className={styles.secondaryActions}>
-                  {flightConfirmed && (
+                  {showFlight && (
                     <Link href={railHref(idea, airport, month)} rel="sponsored" title="Wybierz stację i daty na stronie partnera">
                       <TrainFront size={15}/> Pociągi
                     </Link>
@@ -370,7 +387,7 @@ export default function ChristmasMarketsClient() {
 
         <div className={styles.note}>
           <CheckCircle2 size={19} aria-hidden="true" />
-          <p><strong>Ważne:</strong> brak lotu w kalendarzu cen nie dowodzi, że lot nie istnieje. Pociągi prowadzą do afiliacyjnej wyszukiwarki Klook — tam wybierzesz stacje i konkretne daty; dostępność połączeń z Polski nie jest gwarantowana. Hotele otwierają wyszukiwanie miasta w Booking.com z afiliacją Tripowni. Daty i ceny potwierdź u dostawców, a daty jarmarków u organizatorów.</p>
+          <p><strong>Ważne:</strong> loty Warszawa–Wiedeń i Warszawa–Budapeszt wynikają z rozkładów połączeń, a nie z gwarantowanej dostępności miejsc w wybranym terminie. Brak lotu w kalendarzu cen nie dowodzi, że lot nie istnieje. Pociągi prowadzą do afiliacyjnej wyszukiwarki Klook — tam wybierzesz stacje i konkretne daty; dostępność połączeń z Polski nie jest gwarantowana. Hotele otwierają wyszukiwanie miasta w Booking.com z afiliacją Tripowni. Daty i ceny potwierdź u dostawców, a daty jarmarków u organizatorów.</p>
         </div>
         <nav className={styles.moreLinks} aria-label="Inne sposoby planowania">
           <Link href="/hotele">Znajdź nocleg <ArrowRight size={15}/></Link>
