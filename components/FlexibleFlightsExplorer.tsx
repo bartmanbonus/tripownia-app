@@ -694,7 +694,7 @@ export default function FlexibleFlightsExplorer({
         <div className="skyline-search-top">
           <div className="skyline-toggle" role="group" aria-label="Rodzaj podróży">
             <button type="button" className={tripType==="round"?"active":""} aria-pressed={tripType==="round"} onClick={()=>{setTripType("round");dirty();}}>W obie strony</button>
-            <button type="button" className={tripType==="oneway"?"active":""} aria-pressed={tripType==="oneway"} onClick={()=>{setTripType("oneway");setReturnDate("");dirty();}}>W jedną stronę</button>
+            <button type="button" className={tripType==="oneway"?"active":""} aria-pressed={tripType==="oneway"} onClick={()=>{setTripType("oneway");setDateMode("exact");setReturnDate("");setMonthsOpen(true);dirty();}}>W jedną stronę</button>
           </div>
           <div className="skyline-baggage" ref={baggageRef}>
             <button type="button" onClick={()=>setBaggageOpen(!baggageOpen)} aria-expanded={baggageOpen}><Briefcase size={16}/> {baggage==="cabin"?"Bagaż podręczny":"Bagaż rejestrowany"} <ChevronDown size={15}/></button>
@@ -706,20 +706,62 @@ export default function FlexibleFlightsExplorer({
           </div>
         </div>
         <div className="skyline-main-row">
-          <div className="skyline-field skyline-origin">
-            <TPCheckboxPlacePicker label="Z:" values={origins} onChange={(next)=>{setOrigins(next);dirty();}} placeholder="Kraj, miasto lub lotnisko" specialLabel="Skądkolwiek" specialActive={originAnywhere} onSpecialChange={(active)=>{setOriginAnywhere(active);dirty();}} defaultOptions={FLEXIBLE_ORIGINS}/>
-          </div>
-          <button type="button" className="skyline-swap" aria-label="Zamień kierunek lotu" onClick={()=>{
-            if(origins.length!==1||destinations.length!==1||originAnywhere||destinationAnywhere)return;
-            const oldOrigin=origins[0],oldDestination=destinations[0];
-            setOrigins([oldDestination]);setDestinations([oldOrigin]);dirty();
-          }}><ArrowLeftRight size={19}/></button>
-          <div className="skyline-field skyline-destination">
-            <TPCheckboxPlacePicker label="Do:" values={destinations} onChange={(next)=>{setDestinations(next);dirty();}} placeholder="Kraj, miasto lub lotnisko" specialLabel="Gdziekolwiek" specialActive={destinationAnywhere} onSpecialChange={(active)=>{setDestinationAnywhere(active);dirty();}} defaultOptions={POPULAR_DESTINATIONS}/>
+          <div className="skyline-route">
+            <div className="skyline-field skyline-origin">
+              <TPCheckboxPlacePicker label="Skąd" values={origins} onChange={(next)=>{setOrigins(next);dirty();}} placeholder="Miasto lub lotnisko" specialLabel="Cała Polska" specialActive={originAnywhere} onSpecialChange={(active)=>{setOriginAnywhere(active);dirty();}} defaultOptions={FLEXIBLE_ORIGINS}/>
+            </div>
+            <button
+              type="button"
+              className="skyline-swap"
+              aria-label="Zamień lotnisko wylotu z kierunkiem podróży"
+              title={origins.length===1&&destinations.length===1&&!originAnywhere&&!destinationAnywhere?"Zamień miejscami":"Wybierz po jednym miejscu w obu polach"}
+              disabled={origins.length!==1||destinations.length!==1||originAnywhere||destinationAnywhere}
+              onClick={()=>{
+                const oldOrigin=origins[0],oldDestination=destinations[0];
+                setOrigins([oldDestination]);setDestinations([oldOrigin]);dirty();
+              }}
+            ><ArrowLeftRight size={18}/></button>
+            <div className="skyline-field skyline-destination">
+              <TPCheckboxPlacePicker label="Dokąd" values={destinations} onChange={(next)=>{setDestinations(next);dirty();}} placeholder="Miasto, kraj lub lotnisko" specialLabel="Gdziekolwiek" specialActive={destinationAnywhere} onSpecialChange={(active)=>{setDestinationAnywhere(active);dirty();}} defaultOptions={POPULAR_DESTINATIONS}/>
+            </div>
           </div>
           <div className="skyline-dates" ref={monthsRef}>
-            <button type="button" className="skyline-date-field" onClick={()=>setMonthsOpen(!monthsOpen)} aria-expanded={monthsOpen}><small>Wylot</small><strong>{dateMode==="exact"?formatTravelDate(departureDate)||"Dodaj datę":selectedMonths.length?monthSummary:"Dowolny termin"}</strong></button>
-            <button type="button" className="skyline-date-field" disabled={tripType==="oneway"} onClick={()=>setMonthsOpen(!monthsOpen)}><small>Powrót</small><strong>{tripType==="oneway"?"Nie dotyczy":dateMode==="exact"?formatTravelDate(returnDate)||"Dodaj datę":selectedMonths.length?monthSummary:"Elastycznie"}</strong></button>
+            <button
+              type="button"
+              className="skyline-date-field"
+              onClick={()=>setMonthsOpen(!monthsOpen)}
+              aria-expanded={monthsOpen}
+              aria-label="Wybierz termin wylotu lub kilka miesięcy"
+            >
+              <small>{dateMode==="flex"?"Termin podróży":"Wylot"}</small>
+              <strong>{dateMode==="exact"?formatTravelDate(departureDate)||"Wybierz datę":selectedMonths.length?monthSummary:"Wybierz miesiące"}</strong>
+            </button>
+            {dateMode==="flex"?(
+              <div className="skyline-duration-field" ref={stayRef}>
+                <button
+                  type="button"
+                  className="skyline-date-field"
+                  onClick={()=>setStayOpen(!stayOpen)}
+                  aria-expanded={stayOpen}
+                >
+                  <small>Długość pobytu</small>
+                  <strong>{daysMin}–{daysMax} dni <ChevronDown size={14}/></strong>
+                </button>
+                {stayOpen&&(
+                  <div className="skyline-stay-menu" role="group" aria-label="Długość pobytu">
+                    {[[2,4,"Weekend"],[5,7,"Krótki urlop"],[8,10,"Dłuższy urlop"],[11,14,"Wyprawa"]].map(([min,max,label])=>
+                      <button type="button" key={String(min)} aria-pressed={daysMin===min&&daysMax===max} onClick={()=>{setTripLength(Number(min),Number(max));setStayOpen(false);}}>
+                        {label}: {min}–{max} dni
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            ):(
+              <button type="button" className="skyline-date-field" disabled={tripType==="oneway"} onClick={()=>setMonthsOpen(!monthsOpen)} aria-expanded={monthsOpen}>
+                <small>Powrót</small><strong>{tripType==="oneway"?"Nie dotyczy":formatTravelDate(returnDate)||"Wybierz datę"}</strong>
+              </button>
+            )}
             {monthsOpen&&<div className="skyline-date-panel" role="dialog" aria-label="Wybierz terminy podróży">
               <div className="skyline-date-panel-head"><strong>Kiedy chcesz lecieć?</strong><button type="button" onClick={()=>setMonthsOpen(false)} aria-label="Zamknij"><X size={19}/></button></div>
               <div className="skyline-date-modes">
@@ -745,24 +787,20 @@ export default function FlexibleFlightsExplorer({
           <button type="button" className="skyline-submit" disabled={!canSearch} onClick={submitFlightSearch}><Search size={19}/> Szukaj</button>
         </div>
         <div className="skyline-under-row">
-          <label><input type="checkbox" checked={directOnly} onChange={e=>{setDirectOnly(e.target.checked);dirty();}}/> Loty bezpośrednie</label>
-          <label><input type="checkbox" checked={daysMin===2&&daysMax===4} onChange={e=>setTripLength(e.target.checked?2:5,e.target.checked?4:7)}/> Weekend (2–4 dni)</label>
-          <div className="skyline-stay" ref={stayRef}><button type="button" onClick={()=>setStayOpen(!stayOpen)}>Długość pobytu: {daysMin}–{daysMax} dni <ChevronDown size={14}/></button>{stayOpen&&<div className="skyline-stay-menu">{[[2,4,"Weekend"],[5,7,"Krótki urlop"],[8,10,"Dłuższy urlop"],[11,14,"Wyprawa"]].map(([min,max,label])=><button type="button" key={String(min)} onClick={()=>{setTripLength(Number(min),Number(max));setStayOpen(false);}}>{label}: {min}–{max} dni</button>)}</div>}</div>
-          <span>{dateMode==="flex"?"Wiele miesięcy · wiele lotnisk · Gdziekolwiek":"Wybierz dokładne daty i trasę"}</span>
+          <label><input type="checkbox" checked={directOnly} onChange={e=>{setDirectOnly(e.target.checked);dirty();}}/> Tylko loty bezpośrednie</label>
+          <span>{dateMode==="flex"?"Wybierz do 6 miesięcy oraz kilka lotnisk. Wyniki porównamy cenowo.":"Wybierz konkretne daty w kalendarzu."}</span>
         </div>
         {searchError&&<p className="skyline-error" role="alert">{searchError}</p>}
       </div>
       <div className="flight-hunt-shortcuts flight-hunt-shortcuts-clean" aria-label="Gotowe pomysły na wyszukiwanie">
         <span>Szybkie wyszukiwanie:</span>
-        <button type="button" onClick={() => { setAnywhere(); setTripLength(2, 4); setSelectedMonths([]); }}>Gdziekolwiek na weekend</button>
-        <button type="button" onClick={() => { setAnywhere(); setTripLength(5, 7); setSelectedMonths([]); }}>Gdziekolwiek na tydzień</button>
+        <button type="button" onClick={() => { setAnywhere(); setDateMode("flex"); setTripType("round"); setTripLength(2, 4); setSelectedMonths([]); }}>Gdziekolwiek na weekend</button>
+        <button type="button" onClick={() => { setAnywhere(); setDateMode("flex"); setTripType("round"); setTripLength(5, 7); setSelectedMonths([]); }}>Gdziekolwiek na tydzień</button>
         <button type="button" onClick={() => { setOriginAnywhere(true); setOrigins([]); dirty(); }}>Wylot z całej Polski</button>
       </div>
 
-      {!submitted && (
-        <p className="flight-hunt-helper" role="status">
-          {canSearch ? "Wszystko gotowe — sprawdź dostępne ceny i terminy poniżej." : "Wybierz co najmniej jedno lotnisko wylotu, aby zobaczyć loty."}
-        </p>
+      {!submitted && !canSearch && (
+        <p className="flight-hunt-helper" role="status">Wybierz co najmniej jedno lotnisko wylotu, aby zobaczyć loty.</p>
       )}
 
       {submitted && routes.length > 0 && (
