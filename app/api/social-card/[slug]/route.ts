@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { getSocialOffer } from "@/lib/socialOffers";
+import { getSocialOffer, socialOfferReady } from "@/lib/socialOffers";
 import { SocialCardImage, type SocialCardFormat } from "@/lib/socialCardImage";
 
 export const runtime = "edge";
@@ -8,6 +8,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
   const { slug } = await params;
   const offer = getSocialOffer(slug);
   if (!offer) return new Response("Offer not found", { status: 404 });
+  // Never generate new social assets containing a price that has not been checked recently.
+  if (!socialOfferReady(offer)) return new Response("Offer price needs re-verification", { status: 410, headers: { "Cache-Control": "no-store" } });
 
   const url = new URL(request.url);
   const raw = url.searchParams.get("format") || "feed";
