@@ -1111,3 +1111,15 @@
   .search-v3-results-controls{display:block}
   .search-v3-view-switch{margin-left:0}
 }
+
+
+/* Dresden ground transport alternative — real search links, no invented inventory */
+.search-v3-ground-option{margin:14px 0 22px;padding:23px;border:1px solid #e2cfc3;border-radius:20px;background:linear-gradient(125deg,#fff7f1,#fff)}
+.search-v3-ground-eyebrow{display:inline-flex;align-items:center;gap:7px;color:#a74427;font-size:11px;font-weight:900;letter-spacing:.065em}
+.search-v3-ground-option h4{margin:9px 0 7px;color:#231b18;font-size:clamp(19px,2.2vw,25px);letter-spacing:-.035em}
+.search-v3-ground-option p{max-width:850px;margin:0 0 15px;color:#5b514d;font-size:13px;line-height:1.6}
+.search-v3-ground-actions{display:flex;flex-wrap:wrap;gap:9px}
+.search-v3-ground-actions a{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:43px;padding:10px 15px;border:1px solid #e8cab8;border-radius:12px;background:#fff;color:#9b3a22;text-decoration:none;font-size:12px;font-weight:850;transition:background .15s}
+.search-v3-ground-actions a:hover{background:#fff0e8}
+.search-v3-ground-option>small{display:block;margin-top:13px;color:#796e68;font-size:11px;line-height:1.5}
+@media(max-width:640px){.search-v3-ground-option{padding:17px}.search-v3-ground-actions{flex-direction:column}.search-v3-ground-actions a{width:100%;justify-content:flex-start}}
