@@ -353,6 +353,11 @@ function LowPriceMapFrame({ src }: { src: string }) {
 
 type FlexibleFlightsExplorerProps = {
   initialDestination?: string;
+  initialDestinationCode?: string;
+  autoSearch?: boolean;
+  initialDuration?: string;
+  marketFrom?: string;
+  marketTo?: string;
   initialOrigin?: string;
   initialMonth?: string;
   initialOutbound?: string;
@@ -361,6 +366,11 @@ type FlexibleFlightsExplorerProps = {
 
 export default function FlexibleFlightsExplorer({
   initialDestination = "",
+  initialDestinationCode = "",
+  autoSearch = false,
+  initialDuration = "2-4",
+  marketFrom = "",
+  marketTo = "",
   initialOrigin = "WAW",
   initialMonth = "",
   initialOutbound = "",
@@ -373,11 +383,11 @@ export default function FlexibleFlightsExplorer({
   const baggageRef = useRef<HTMLDivElement>(null);
   const stayGroupId = useId();
   const [origins, setOrigins] = useState<Place[]>([initialOriginPlace]);
-  const [destinations, setDestinations] = useState<Place[]>([]);
+  const [destinations, setDestinations] = useState<Place[]>(() => /^[A-Z]{3}$/.test(initialDestinationCode) ? [{ code: initialDestinationCode, name: initialDestination || initialDestinationCode, country: "" }] : []);
   const [originAnywhere, setOriginAnywhere] = useState(false);
   const [destinationAnywhere, setDestinationAnywhere] = useState(!initialDestination.trim());
-  const [daysMin, setDaysMin] = useState(2);
-  const [daysMax, setDaysMax] = useState(4);
+  const [daysMin, setDaysMin] = useState(Number(initialDuration.split("-")[0]) || 2);
+  const [daysMax, setDaysMax] = useState(Number(initialDuration.split("-")[1]) || 4);
   const [directOnly, setDirectOnly] = useState(false);
   const [selectedMonths, setSelectedMonths] = useState<string[]>(/^\d{4}-\d{2}$/.test(initialMonth) ? [initialMonth] : []);
   const [monthsOpen, setMonthsOpen] = useState(false);
@@ -412,7 +422,7 @@ export default function FlexibleFlightsExplorer({
   const [calendarResults, setCalendarResults] = useState<Array<{ destinationCode:string; price:number; departDate:string; returnDate:string; outboundStops:number; returnStops:number; affiliateUrl:string }>>([]);
   const [calendarLoading, setCalendarLoading] = useState(false);
   const [activeRouteKey, setActiveRouteKey] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [submitted, setSubmitted] = useState(autoSearch && /^[A-Z]{3}$/.test(initialDestinationCode));
   const [deals, setDeals] = useState<FlightDeal[]>([]);
   const [dealsLoading, setDealsLoading] = useState(false);
   const [dealsSort, setDealsSort] = useState<"price" | "name">("price");
@@ -429,7 +439,7 @@ export default function FlexibleFlightsExplorer({
 
   useEffect(() => {
     const query = initialDestination.trim();
-    if (!query) return;
+    if (!query || /^[A-Z]{3}$/.test(initialDestinationCode)) return;
 
     const controller = new AbortController();
     fetch("/api/flight-places?q=" + encodeURIComponent(query), {
@@ -446,7 +456,7 @@ export default function FlexibleFlightsExplorer({
       .catch(() => {});
 
     return () => controller.abort();
-  }, [initialDestination]);
+  }, [initialDestination, initialDestinationCode]);
 
   const effectiveOrigins = useMemo(
     () => (originAnywhere ? FLEXIBLE_ORIGINS : origins),
@@ -539,6 +549,8 @@ export default function FlexibleFlightsExplorer({
       const unique = new Map<string, (typeof calendarResults)[number]>();
       for (const row of groups.flat()) {
         if (!row?.departDate || (selectedMonths.length && !selectedMonths.includes(row.departDate.slice(0, 7)))) continue;
+        if (marketFrom && row.departDate < marketFrom) continue;
+        if (marketTo && (row.departDate > marketTo || row.returnDate > marketTo)) continue;
         const key = row.destinationCode + "-" + row.departDate + "-" + row.returnDate;
         const existing = unique.get(key);
         if (!existing || existing.price > row.price) unique.set(key, row);
@@ -546,7 +558,7 @@ export default function FlexibleFlightsExplorer({
       setCalendarResults([...unique.values()].sort((a,b) => a.price - b.price));
     }).finally(() => setCalendarLoading(false));
     return () => controller.abort();
-  }, [submitted, destinationAnywhere, selectedMonths.join(","), activeRoute?.origin.code, effectiveDestinationCode, fallbackDestinationCode, daysMin, daysMax, directOnly]);
+  }, [submitted, destinationAnywhere, selectedMonths.join(","), activeRoute?.origin.code, effectiveDestinationCode, fallbackDestinationCode, daysMin, daysMax, directOnly, marketFrom, marketTo]);
 
   const mapSrc = "";
 

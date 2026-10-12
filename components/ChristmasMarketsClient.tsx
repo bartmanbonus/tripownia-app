@@ -125,7 +125,7 @@ const MARKET_AIRPORTS: Record<string, string> = {
 
 // Known scheduled nonstop routes, confirmed against airline timetables (October 2026).
 // A route being scheduled does NOT guarantee a fare or seat on a selected date.
-const SCHEDULED_DIRECT_FROM_WAW = new Set(["Wiedeń", "Budapeszt"]);
+const SCHEDULED_DIRECT_FROM_WAW = new Set(["Wiedeń", "Budapeszt", "Praga", "Berlin"]);
 
 function knownDirectOrigin(airport: string, city: string) {
   // With "Cała Polska", direct people to the specific confirmed Warsaw origin.
@@ -167,10 +167,21 @@ function bookingHotelHref(idea: MarketIdea) {
   }).toString();
 }
 
-function flightsHref(idea: MarketIdea, airport: string, month: string) {
-  return "/loty?" + new URLSearchParams({
-    destination: idea.city, origin: airport, month,
-  }).toString();
+function flightsHref(idea: MarketIdea, airport: string, month: string, duration: string) {
+  const bounds = marketDepartureWindow(idea, month);
+  const params = new URLSearchParams({
+    destination: idea.city,
+    destinationCode: MARKET_AIRPORTS[idea.city],
+    origin: airport,
+    month,
+    duration,
+    autoSearch: "1",
+  });
+  if (bounds) {
+    params.set("marketFrom", bounds.from);
+    params.set("marketTo", bounds.to);
+  }
+  return "/loty?" + params.toString();
 }
 
 export default function ChristmasMarketsClient() {
@@ -303,7 +314,7 @@ export default function ChristmasMarketsClient() {
           <div>
             <span className={styles.eyebrow}>WYBIERZ SWÓJ KIERUNEK</span>
             <h2 id="market-results-title">Jarmarki na {monthLabel.toLocaleLowerCase("pl-PL")}</h2>
-            <p>Sprawdź loty do Wiednia i Budapesztu z Warszawy oraz inne loty znalezione w kalendarzu cenowym. Do każdego miasta możesz wybrać też pociąg i hotel.</p>
+            <p>Sprawdź loty z Warszawy do Wiednia, Budapesztu, Pragi i Berlina oraz inne trasy znalezione w kalendarzu cenowym. Kierunek i termin wczytamy automatycznie. Pociąg i hotel pozostają dostępne.</p>
           </div>
           <span className={styles.counter} role="status" aria-live="polite">
             <Search size={16} /> {availableMarkets.length} {availableMarkets.length === 1 ? "kierunek" : availableMarkets.length > 4 ? "kierunków" : "kierunki"}
@@ -357,7 +368,7 @@ export default function ChristmasMarketsClient() {
 
               <div className={styles.cardActions}>
                 {showFlight ? (
-                  <Link className={styles.primaryAction} href={flightsHref(idea, flightOrigin, month)}>
+                  <Link className={styles.primaryAction} href={flightsHref(idea, flightOrigin, month, duration)}>
                     <Plane size={17}/> {airport === "ALL" && scheduledOrigin ? "Loty z Warszawy" : "Sprawdź loty"} <ArrowRight size={17}/>
                   </Link>
                 ) : (
@@ -387,7 +398,7 @@ export default function ChristmasMarketsClient() {
 
         <div className={styles.note}>
           <CheckCircle2 size={19} aria-hidden="true" />
-          <p><strong>Ważne:</strong> loty Warszawa–Wiedeń i Warszawa–Budapeszt wynikają z rozkładów połączeń, a nie z gwarantowanej dostępności miejsc w wybranym terminie. Brak lotu w kalendarzu cen nie dowodzi, że lot nie istnieje. Pociągi prowadzą do afiliacyjnej wyszukiwarki Klook — tam wybierzesz stacje i konkretne daty; dostępność połączeń z Polski nie jest gwarantowana. Hotele otwierają wyszukiwanie miasta w Booking.com z afiliacją Tripowni. Daty i ceny potwierdź u dostawców, a daty jarmarków u organizatorów.</p>
+          <p><strong>Ważne:</strong> połączenia Warszawa–Wiedeń, Warszawa–Budapeszt, Warszawa–Praga i Warszawa–Berlin wynikają z rozkładów lotów, a nie z gwarantowanej dostępności miejsc w wybranym terminie. Brak lotu w kalendarzu cen nie dowodzi, że lot nie istnieje. Pociągi prowadzą do afiliacyjnej wyszukiwarki Klook — tam wybierzesz stacje i konkretne daty; dostępność połączeń z Polski nie jest gwarantowana. Hotele otwierają wyszukiwanie miasta w Booking.com z afiliacją Tripowni. Daty i ceny potwierdź u dostawców, a daty jarmarków u organizatorów.</p>
         </div>
         <nav className={styles.moreLinks} aria-label="Inne sposoby planowania">
           <Link href="/hotele">Znajdź nocleg <ArrowRight size={15}/></Link>
