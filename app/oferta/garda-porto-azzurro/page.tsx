@@ -52,12 +52,12 @@ export default function GardaPortoAzzurroOfferPage() {
                 <small>lot + hotel</small> <strong>Sprawdź aktualną cenę</strong>
               </div>
               <div className="price-status detail-price-status">
-                Cena i dostępność są potwierdzane na bieżąco po przejściu do eSky.
+                Cena i dostępność są potwierdzane na bieżąco po przejściu do rezerwacji.
               </div>
             </div>
 
             <p className="detail-lead">
-              Konkretny pakiet eSky: lot z Warszawy do Bergamo + 3 noce w Hotelu Porto Azzurro 3★ w Sirmione nad jeziorem Garda.
+              Konkretny pakiet lot + hotel: lot z Warszawy do Bergamo + 3 noce w Hotelu Porto Azzurro 3★ w Sirmione nad jeziorem Garda.
             </p>
 
             <div className="detail-meta">
@@ -74,12 +74,12 @@ export default function GardaPortoAzzurroOfferPage() {
               <div><small>Termin</small><strong>12–15.11.2026</strong></div>
               <div><small>Pobyt</small><strong>3 noce</strong></div>
               <div><small>Hotel</small><strong>Porto Azzurro 3★</strong></div>
-              <div><small>Wyżywienie</small><strong>do wyboru w eSky</strong></div>
+              <div><small>Wyżywienie</small><strong>do wyboru przy rezerwacji</strong></div>
             </div>
 
             <div className="offer-decision-box">
               <small>CO DOSTAJESZ PO KLIKNIĘCIU</small>
-              <strong>Dokładnie tę konfigurację wyjazdu w eSky.</strong>
+              <strong>Dokładnie tę konfigurację wyjazdu.</strong>
               <span>Tripownia pokazuje ofertę i jej najważniejsze parametry. Rezerwację i płatność finalizujesz dopiero u partnera.</span>
             </div>
 
