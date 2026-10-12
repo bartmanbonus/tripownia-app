@@ -53,3 +53,16 @@
 @media(prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
 
 .transportNote{display:flex;align-items:flex-start;gap:7px;min-height:35px;margin:0 0 13px;color:#665d53;font-size:12px;line-height:1.45}.transportNote svg{flex:0 0 auto;margin-top:1px;color:#976044}.cardActions .secondaryActions{grid-template-columns:repeat(2,minmax(0,1fr))}.cardActions .secondaryActions a{min-width:0;white-space:nowrap}.cardActions .primaryAction{gap:8px}
+
+/* Immediately visible entry into the newly added transport options */
+.newOptionsBanner{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:23px 26px;border:1px solid #f1c9b5;border-radius:20px;background:linear-gradient(105deg,#fff4eb 0%,#fffaf5 58%,#fff 100%);box-shadow:0 9px 26px rgba(168,79,38,.07);margin:4px 0 20px}
+.newOptionsCopy{max-width:680px;min-width:0}
+.newOptionsEyebrow{color:#a74527;font-size:11px;letter-spacing:.07em;font-weight:850}
+.newOptionsCopy h2{color:#271e19;font-size:clamp(19px,2vw,25px);letter-spacing:-.035em;line-height:1.2;margin:8px 0}
+.newOptionsCopy p{color:#66564d;font-size:12px;line-height:1.6;margin:0}
+.newOptionsActions{display:flex;align-items:flex-end;flex-direction:column;gap:15px;flex:0 0 auto}
+.newOptionsPills{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.newOptionsPills span{display:inline-flex;align-items:center;gap:5px;padding:7px 9px;background:white;border:1px solid #eedccf;border-radius:100px;color:#8b4a33;font-size:11px;font-weight:800}
+.newOptionsActions>a{display:inline-flex;justify-content:center;align-items:center;gap:9px;padding:12px 15px;border-radius:11px;background:#e95430;color:#fff!important;text-decoration:none!important;font-size:12px;font-weight:850}
+.newOptionsActions>a:hover{background:#ce4423}
+@media(max-width:850px){.newOptionsBanner{flex-direction:column;align-items:stretch;padding:20px}.newOptionsActions{align-items:stretch}.newOptionsPills{justify-content:flex-start}.newOptionsActions>a{width:100%}}
