@@ -38,6 +38,11 @@ export default async function FlightsPage({ searchParams }: FlightsPageProps) {
   const origin = firstParam(params.origin) || "WAW";
   const outbound = firstParam(params.outbound);
   const inbound = firstParam(params.inbound);
+  const destinationCode = /^[A-Z]{3}$/.test(firstParam(params.destinationCode).toUpperCase()) ? firstParam(params.destinationCode).toUpperCase() : "";
+  const autoSearch = firstParam(params.autoSearch) === "1";
+  const duration = /^\d{1,2}-\d{1,2}$/.test(firstParam(params.duration)) ? firstParam(params.duration) : "2-4";
+  const marketFrom = /^20\d{2}-\d{2}-\d{2}$/.test(firstParam(params.marketFrom)) ? firstParam(params.marketFrom) : "";
+  const marketTo = /^20\d{2}-\d{2}-\d{2}$/.test(firstParam(params.marketTo)) ? firstParam(params.marketTo) : "";
   const requestedMonth = firstParam(params.month);
   const initialMonth = /^20\d{2}-(0[1-9]|1[0-2])$/.test(requestedMonth)
     ? requestedMonth
@@ -54,6 +59,11 @@ export default async function FlightsPage({ searchParams }: FlightsPageProps) {
         </section>
         <FlightsPageClient
           initialDestination={destination}
+          initialDestinationCode={destinationCode}
+          autoSearch={autoSearch}
+          initialDuration={duration}
+          marketFrom={marketFrom}
+          marketTo={marketTo}
           initialOrigin={origin}
           initialMonth={initialMonth}
           initialOutbound={outbound}
