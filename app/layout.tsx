@@ -41,6 +41,7 @@ import "./homepage-restore.css";
 import "./competitive-growth.css";
 import "./offer-journey.css";
 import "./flight-search-polish.css";
+import "./hotel-search-polish.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 import OfferRailDeduper from "@/components/OfferRailDeduper";
