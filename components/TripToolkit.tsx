@@ -276,14 +276,14 @@ export default function TripToolkit({ city, country, tripId }: { city: string; c
       <section id="uslugi" className="trip-toolkit-section">
         <div className="trip-section-heading"><div><h2>Do Twojej podróży</h2><p>Usługi pojawiają się tam, gdzie realnie mogą ułatwić wyjazd.</p></div></div>
         <div className="trip-market-grid">
-          <a className="trip-market-link" href={gyGuide} target="_blank" rel="sponsored noopener noreferrer"><TicketCheck size={21}/><div><strong>Atrakcje i bilety</strong><span>GetYourGuide dla {city}</span></div><ArrowRight size={16}/></a>
-          <a className="trip-market-link" href={booking} target="_blank" rel="sponsored noopener noreferrer"><MapPin size={21}/><div><strong>Noclegi</strong><span>Booking.com w {city}</span></div><ArrowRight size={16}/></a>
+          <a className="trip-market-link" href={gyGuide} target="_blank" rel="sponsored noopener noreferrer"><TicketCheck size={21}/><div><strong>Atrakcje i bilety</strong><span>Wycieczki i bilety w {city}</span></div><ArrowRight size={16}/></a>
+          <a className="trip-market-link" href={booking} target="_blank" rel="sponsored noopener noreferrer"><MapPin size={21}/><div><strong>Noclegi</strong><span>Sprawdź noclegi w {city}</span></div><ArrowRight size={16}/></a>
           <a className="trip-market-link" href={esim} target="_blank" rel="sponsored noopener noreferrer"><Smartphone size={21}/><div><strong>Internet / eSIM</strong><span>Internet na wyjazd bez szukania lokalnej karty SIM</span></div><ArrowRight size={16}/></a>
           <a className="trip-market-link" href={parking} target="_blank" rel="sponsored noopener noreferrer"><Car size={21}/><div><strong>Parking przy lotnisku</strong><span>Zarezerwuj przed wyjazdem</span></div><ArrowRight size={16}/></a>
           <a className="trip-market-link" href={kiwi} target="_blank" rel="sponsored noopener noreferrer"><Plane size={21}/><div><strong>Loty</strong><span>Porównaj połączenia i alternatywne terminy</span></div><ArrowRight size={16}/></a>
           <a className="trip-market-link" href={`https://www.google.com/search?q=${encodeURIComponent(`${city} travel insurance ${country}`)}`} target="_blank" rel="noopener noreferrer"><ShieldCheck size={21}/><div><strong>Ubezpieczenie</strong><span>Porównaj zakres ochrony pod konkretny wyjazd</span></div><ArrowRight size={16}/></a>
         </div>
-        <div className="trip-service-disclosure">Linki do GetYourGuide, Booking.com, Fonia, Parklot i Kiwi mogą być linkami afiliacyjnymi Tripowni. Cena dla użytkownika nie powinna się przez to zwiększać.</div>
+        <div className="trip-service-disclosure">Niektóre linki do usług zewnętrznych mają charakter afiliacyjny. Tripownia może otrzymać prowizję bez doliczania dodatkowej opłaty użytkownikowi.</div>
       </section>
     </>
   );
