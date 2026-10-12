@@ -58,3 +58,17 @@ test("Poznan hub links to dedicated commercial city-break page", async ({ reques
   expect(html).toContain("City break z Poznania");
   expect(html).toContain("/podroze/city-break-z-poznania");
 });
+
+test("Alicante vs Malaga guide never recommends unrelated destination cards", async ({ request }) => {
+  const response = await request.get("/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje");
+  expect(response.status()).toBe(200);
+  const html = await response.text();
+  // This page must compare the two cities and never fall back to arbitrary destinations.
+  expect(html).toContain("Czy Alicante leży w Andaluzji?");
+  const offersSection = html.match(/<section class="legacy-offers article-related-offers">([\\s\\S]*?)<\\/section>/);
+  if (offersSection) {
+    expect(offersSection[1]).not.toContain("Djerba");
+    expect(offersSection[1]).not.toContain("Marrakesz");
+    expect(offersSection[1]).not.toContain("Kreta");
+  }
+});
