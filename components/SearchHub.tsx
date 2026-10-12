@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Sparkles, Trash2, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import HotelGuestsPicker, { type HotelGuestsValue } from "@/components/HotelGuestsPicker";
+import HotelStayPicker from "@/components/HotelStayPicker";
 import DresdenCityBreakOptions from "@/components/DresdenCityBreakOptions";
 import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type WorldDestination } from "@/lib/worldDestinations";
@@ -1067,6 +1068,10 @@ export default function SearchHub({
         setDateOpen(true);
         return;
       }
+      if (activeTab === "Hotele" && hotelGuests.childAges.some((age) => age < 0 || age > 17)) {
+        setHotelError("Wybierz wiek każdego dziecka przed wyszukaniem noclegu.");
+        return;
+      }
       setHotelError("");
       const conversionContext = {
         mode: activeTab.toLowerCase(),
@@ -1513,6 +1518,21 @@ export default function SearchHub({
 
           )}
 
+          {activeTab === "Hotele" ? (
+            <HotelStayPicker
+              from={dateFrom}
+              to={dateTo}
+              open={dateOpen}
+              onOpenChange={setDateOpen}
+              containerRef={dateRef}
+              onChange={(nextFrom, nextTo) => {
+                setDateMode("range");
+                setDateFrom(nextFrom);
+                setDateTo(nextTo);
+                setHotelError("");
+              }}
+            />
+          ) : (
           <div className={`search-v3-field search-v3-date search-v3-smart-date${dateOpen ? " is-open" : ""}`} ref={dateRef}>
             <span><CalendarDays size={15}/> {activeTab === "Loty" ? (flightTripType === "round" ? "Wylot i powrót" : "Data wylotu") : activeTab === "Hotele" ? "Pobyt" : "Kiedy?"}</span>
             <button type="button" className="search-v3-date-trigger" onClick={toggleDatePanel} aria-expanded={dateOpen}>
@@ -1657,8 +1677,9 @@ export default function SearchHub({
               </div>
             )}
           </div>
+          )}
 
-          {activeTab === "Hotele" ? <HotelGuestsPicker value={hotelGuests} onChange={setHotelGuests}/> : activeTab === "Loty" ? (
+          {activeTab === "Hotele" ? <HotelGuestsPicker value={hotelGuests} onChange={(next) => { setHotelGuests(next); setHotelError(""); }}/> : activeTab === "Loty" ? (
             <label className="search-v3-field search-v3-duration">
               <span>Podróżni</span>
               <select value={flightAdults} onChange={(event) => setFlightAdults(Number(event.target.value))}>
