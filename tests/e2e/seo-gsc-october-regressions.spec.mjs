@@ -23,7 +23,7 @@ test("migrated baggage article has only one primary H1", async ({ request }) => 
   const response = await request.get("/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych");
   expect(response.status()).toBe(200);
   const html = await response.text();
-  expect((html.match(/<h1(?:\\s|>)/gi) || []).length).toBe(1);
+  expect((html.match(/<h1(?:\s|>)/gi) || []).length).toBe(1);
 });
 
 test("legacy WordPress post_id alias redirects to the canonical article", async ({ request }) => {
