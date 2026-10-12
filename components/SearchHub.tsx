@@ -37,6 +37,9 @@ type Props = {
   initialDateTo?: string;
   initialMonth?: string;
   initialWeekendOnly?: boolean;
+  initialHotelAdults?: number;
+  initialHotelRooms?: number;
+  initialHotelChildAges?: number[];
   embedded?: boolean;
   destinationQuickPicks?: string[];
 };
@@ -367,6 +370,9 @@ export default function SearchHub({
   initialDateTo = "",
   initialMonth = "",
   initialWeekendOnly = false,
+  initialHotelAdults = 2,
+  initialHotelRooms = 1,
+  initialHotelChildAges = [],
   embedded = false,
   destinationQuickPicks = [],
 }: Props) {
@@ -394,7 +400,7 @@ export default function SearchHub({
   const [customBudgetMax, setCustomBudgetMax] = useState("");
   const [board, setBoard] = useState(initialBoard);
   const [weekendOnly, setWeekendOnly] = useState(initialWeekendOnly);
-  const [hotelGuests, setHotelGuests] = useState<HotelGuestsValue>({ adults: 2, rooms: 1, childAges: [] });
+  const [hotelGuests, setHotelGuests] = useState<HotelGuestsValue>({ adults: initialHotelAdults, rooms: initialHotelRooms, childAges: initialHotelChildAges });
   const [hotelError, setHotelError] = useState("");
   const [flightAdults, setFlightAdults] = useState(1);
   const [flightCabin, setFlightCabin] = useState("ECONOMY");
@@ -1055,7 +1061,7 @@ export default function SearchHub({
         return;
       }
 
-      if (activeTab === "Hotele" && (dateMode !== "range" || !dateFrom || !dateTo || dateTo <= dateFrom || dateFrom < new Date().toLocaleDateString("en-CA"))) {
+      if (activeTab === "Hotele" && (dateMode !== "range" || !dateFrom || !dateTo || dateTo <= dateFrom || dateFrom < todayISO)) {
         setHotelError("Wybierz datę zameldowania i późniejszą datę wymeldowania.");
         setDateMode("range");
         setDateOpen(true);
