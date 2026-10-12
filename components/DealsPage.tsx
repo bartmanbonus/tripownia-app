@@ -14,7 +14,6 @@ import { touristDestinationKey } from "@/lib/destinationGrouping";
 import { useLiveOffers } from "@/lib/useLiveOffers";
 import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
 import { trackEvent } from "@/lib/analytics";
-import { eskySearchUrl } from "@/lib/eskySearch";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ReadySearchGrid, { type ReadySearchItem } from "@/components/ReadySearchGrid";
 import DestinationCheapFlights from "@/components/DestinationCheapFlights";
@@ -249,15 +248,8 @@ export default function DealsPage({
   );
   const destinationPackageHref = useMemo(() => {
     if (!destination) return "";
-    const target = eskySearchUrl({ query: destination });
-    const params = new URLSearchParams({
-      partner: "esky",
-      target,
-      source: "deals_empty_package",
-      destination,
-      page: "/okazje",
-    });
-    return `/go/live?${params.toString()}`;
+    // No live offer means there is no valid partner-issued package URL yet.
+    return `/szukaj?${new URLSearchParams({ destination, tab: "Lot + hotel" }).toString()}`;
   }, [destination]);
   const destinationAlternativeSearches = useMemo(() => {
     if (!destination || !rows.length) return [];
@@ -296,32 +288,21 @@ export default function DealsPage({
       return { year: date.getFullYear(), month: date.getMonth() + 1 };
     }).flatMap(({ year: searchYear, month: searchMonth }) => {
       const monthValue = String(searchMonth).padStart(2, "0");
-      const lastDay = new Date(searchYear, searchMonth, 0).getDate();
-      const start = `${searchYear}-${monthValue}-01`;
-      const end = `${searchYear}-${monthValue}-${String(lastDay).padStart(2, "0")}`;
       const monthLabel = `${MONTH_NAMES[searchMonth - 1]} ${searchYear}`;
 
       return stayVariants.map(({ minNights, maxNights, stayLabel }) => {
-        const target = eskySearchUrl({
-          query: destination,
-          start,
-          end,
-          minNights,
-          maxNights,
-          departure: airport !== "any" ? airport : "",
-        });
         const params = new URLSearchParams({
-          partner: "esky",
-          target,
-          source: "destination_alternative",
           destination,
-          page: "/okazje",
+          tab: "Lot + hotel",
+          month: `${searchYear}-${monthValue}`,
+          duration: `${minNights}-${maxNights}`,
         });
+        if (airport !== "any") params.set("airport", airport);
         return {
           key: `alt-${searchYear}-${monthValue}-${minNights}-${maxNights}`,
           label: monthLabel,
           stayLabel,
-          href: `/go/live?${params.toString()}`,
+          href: `/szukaj?${params.toString()}`,
         };
       });
     }).slice(0, 6);
