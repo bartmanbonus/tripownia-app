@@ -655,7 +655,7 @@ export default function FlexibleFlightsExplorer({
                     disabled={!selectedMonths.includes(item.value) && selectedMonths.length >= 6}
                     className={selectedMonths.includes(item.value) ? "active" : ""}
                     onClick={() => toggleMonth(item.value)}>
-                    <small>{item.value.slice(0,4)}</small><strong>{item.label.replace(/\\s+\\d{4}$/, "")}</strong>
+                    <small>{item.value.slice(0,4)}</small><strong>{item.label.replace(/\s+\d{4}$/, "")}</strong>
                   </button>
                 ))}
               </div>
