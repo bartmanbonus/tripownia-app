@@ -40,6 +40,9 @@ export default async function HotelsPage({ searchParams }: Props) {
   const origin = first(params.origin).trim();
   const from = first(params.from).trim();
   const to = first(params.to).trim();
+  const hotelAdults = Math.min(16, Math.max(1, Number(first(params.adults)) || 2));
+  const hotelRooms = Math.min(8, Math.max(1, Number(first(params.rooms)) || 1));
+  const ages = first(params.ages).split(",").filter(Boolean).map(Number).filter((age) => Number.isInteger(age) && age >= 0 && age <= 17).slice(0, 8);
   const hasRange = /^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to) && to > from;
 
   return (
@@ -65,7 +68,7 @@ export default async function HotelsPage({ searchParams }: Props) {
         </div>
 
         <div className="service-search-shell">
-          <SearchHub embedded initialTab="Hotele" initialDestinations={destination ? [destination] : []} initialAirports={origin ? [origin] : []} initialDateMode="range" initialDateFrom={hasRange ? from : ""} initialDateTo={hasRange ? to : ""} />
+          <SearchHub embedded initialTab="Hotele" initialDestinations={destination ? [destination] : []} initialAirports={origin ? [origin] : []} initialDateMode="range" initialDateFrom={hasRange ? from : ""} initialDateTo={hasRange ? to : ""} initialHotelAdults={Math.max(hotelAdults, hotelRooms)} initialHotelRooms={hotelRooms} initialHotelChildAges={ages} />
         </div>
       </section>
       <SiteFooter />
