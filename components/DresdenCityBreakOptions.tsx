@@ -13,19 +13,19 @@ type Props = {
 };
 
 const RAIL_ORIGINS: Record<string, string> = {
-  WAW: "Warszawa",
-  WMI: "Warszawa",
-  WAWA: "Warszawa",
-  KRK: "Kraków",
-  KTW: "Katowice",
-  GDN: "Gdańsk",
-  WRO: "Wrocław",
-  POZ: "Poznań",
-  RZE: "Rzeszów",
-  LUZ: "Lublin",
-  SZZ: "Szczecin",
-  LCJ: "Łódź",
-  BZG: "Bydgoszcz",
+  WAW: "Warszawy",
+  WMI: "Warszawy",
+  WAWA: "Warszawy",
+  KRK: "Krakowa",
+  KTW: "Katowic",
+  GDN: "Gdańska",
+  WRO: "Wrocławia",
+  POZ: "Poznania",
+  RZE: "Rzeszowa",
+  LUZ: "Lublina",
+  SZZ: "Szczecina",
+  LCJ: "Łodzi",
+  BZG: "Bydgoszczy",
 };
 
 type Stay = { from: string; to: string; label: string };
@@ -87,7 +87,7 @@ export default function DresdenCityBreakOptions({
   if (!/^(drezno|dresden)(?:\s*,|$)/i.test(destination.trim())) return null;
 
   const stations = [...new Set(departures.map((code) => RAIL_ORIGINS[code]).filter(Boolean))];
-  const origin = stations.length === 1 ? stations[0] : "Polska";
+  const origin = stations.length === 1 ? stations[0] : "Polski";
   const stays = suggestedStays(month, duration, dateFrom, dateTo);
 
   return (
@@ -96,7 +96,7 @@ export default function DresdenCityBreakOptions({
       <h4>Drezno: sprawdź też pociąg + nocleg</h4>
       <p>
         Dla tego kierunku może brakować gotowych pakietów lotniczych z wybranego lotniska.
-        Sprawdź dojazd kolejowy z {origin === "Polska" ? "Polski" : origin} i nocleg w Dreźnie.
+        Sprawdź dojazd kolejowy z {origin} i nocleg w Dreźnie.
         To dwa osobne wyszukiwania, bez obietnicy dostępności lub ceny pakietu.
       </p>
       <div className="search-v3-ground-actions">
