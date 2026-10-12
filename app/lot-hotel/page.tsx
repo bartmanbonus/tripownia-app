@@ -33,7 +33,7 @@ export const metadata: Metadata = {
 };
 
 const faq = [
-  ["Co oznacza lot + hotel?", "To wyszukiwanie wyjazdu, w którym porównujesz przelot i nocleg dla tego samego kierunku i terminu. Finalne warunki oraz płatność potwierdzasz u partnera."],
+  ["Co oznacza lot + hotel?", "To wyszukiwanie wyjazdu, w którym porównujesz przelot i nocleg dla tego samego kierunku i terminu. Finalne warunki i cenę sprawdzasz przed potwierdzeniem płatności."],
   ["Czy lot + hotel nadaje się tylko na city break?", "Nie. Sprawdza się zarówno na 2–4 dni, jak i na dłuższy urlop. Przy krótkim wyjeździe szczególnie ważne są godziny lotów i lokalizacja hotelu."],
   ["Jak znaleźć tani lot z hotelem?", "Porównaj kilka kierunków dla tych samych dat, sprawdź różne lotniska wylotu i policz pełny koszt z bagażem, transferem i dojazdem na lotnisko."],
 ];
