@@ -690,123 +690,70 @@ export default function FlexibleFlightsExplorer({
 
   return (
     <section className="flight-hunt flight-hunt-clean" aria-label="Wyszukiwarka elastycznych lotów">
-      <div className="flight-hunt-modebar">
-        <div>
-          <div className="kicker">ELASTYCZNE DATY, WIĘCEJ OKAZJI</div>
-          <strong>Wybierz trasę i długość wyjazdu</strong>
-          <span>Nie potrzebujesz konkretnych dat. Pokażemy dostępne kierunki i najtańsze terminy.</span>
-        </div>
-      </div>
-
-      <div className="flight-hunt-controls-clean">
-        <TPCheckboxPlacePicker
-          label="Skąd lecisz?"
-          values={origins}
-          onChange={(next) => { setOrigins(next); dirty(); }}
-          placeholder="Miasto lub lotnisko"
-          specialLabel="Skądkolwiek"
-          specialActive={originAnywhere}
-          onSpecialChange={(active) => { setOriginAnywhere(active); dirty(); }}
-          defaultOptions={FLEXIBLE_ORIGINS}
-        />
-
-        <TPCheckboxPlacePicker
-          label="Dokąd?"
-          values={destinations}
-          onChange={(next) => { setDestinations(next); dirty(); }}
-          placeholder="Miasto, kraj lub lotnisko"
-          specialLabel="Gdziekolwiek"
-          specialActive={destinationAnywhere}
-          onSpecialChange={(active) => { setDestinationAnywhere(active); dirty(); }}
-          defaultOptions={POPULAR_DESTINATIONS}
-        />
-
-        <div className="flight-hunt-month flight-hunt-month-multi" ref={monthsRef}>
-          <label id={monthSelectId}>Kiedy?</label>
-          <button type="button" className="flight-hunt-picker-trigger" aria-labelledby={monthSelectId} aria-expanded={monthsOpen} onClick={() => setMonthsOpen(!monthsOpen)}>
-            <span>{monthSummary}</span><ChevronDown size={17}/>
-          </button>
-          {monthsOpen && (
-            <div className="flight-multi-month-panel" role="group" aria-label="Wybierz jeden lub wiele miesięcy">
-              <div className="flight-multi-month-head">
-                <strong>Wybierz miesiące podróży</strong>
-                <button type="button" aria-label="Zamknij wybór miesięcy" onClick={() => setMonthsOpen(false)}><X size={18}/></button>
-              </div>
-              <p>Możesz zaznaczyć kilka miesięcy, np. grudzień i styczeń. Maksymalnie 6.</p>
-              <div className="flight-multi-month-nav">
-                <button type="button" aria-label="Poprzednie miesiące" disabled={monthPage===0} onClick={() => setMonthPage(Math.max(0,monthPage-3))}><ChevronLeft size={18}/></button>
-                <span>{monthOptions[monthPage]?.label} – {monthOptions[Math.min(monthPage+5,monthOptions.length-1)]?.label}</span>
-                <button type="button" aria-label="Następne miesiące" disabled={monthPage+6 >= monthOptions.length} onClick={() => setMonthPage(Math.min(monthPage+3,Math.max(0,monthOptions.length-6)))}><ChevronRight size={18}/></button>
-              </div>
-              <div className="flight-multi-month-grid">
-                {monthOptions.slice(monthPage,monthPage+6).map((item) => (
-                  <button key={item.value} type="button" aria-pressed={selectedMonths.includes(item.value)}
-                    disabled={!selectedMonths.includes(item.value) && selectedMonths.length >= 6}
-                    className={selectedMonths.includes(item.value) ? "active" : ""}
-                    onClick={() => toggleMonth(item.value)}>
-                    <small>{item.value.slice(0,4)}</small><strong>{item.label.replace(/\s+\d{4}$/, "")}</strong>
-                  </button>
-                ))}
-              </div>
-              <div className="flight-multi-month-actions">
-                <button type="button" onClick={() => {setSelectedMonths([]);dirty();}}>Dowolny termin</button>
-                <span>{selectedMonths.length ? selectedMonths.length + " mies." : "Wszystkie miesiące"}</span>
-                <button type="button" className="primary" onClick={() => setMonthsOpen(false)}>Zastosuj</button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="flight-hunt-stay">
-          <span id={stayGroupId}>Na ile dni?</span>
-          <div className="flight-hunt-stay-pills" role="group" aria-labelledby={stayGroupId}>
-            <button type="button" aria-pressed={daysMin === 2 && daysMax === 4} className={daysMin === 2 && daysMax === 4 ? "active" : ""} onClick={() => setTripLength(2, 4)}><strong>Weekend</strong><small>2–4 dni</small></button>
-            <button type="button" aria-pressed={daysMin === 5 && daysMax === 7} className={daysMin === 5 && daysMax === 7 ? "active" : ""} onClick={() => setTripLength(5, 7)}><strong>Krótki urlop</strong><small>5–7 dni</small></button>
-            <button type="button" aria-pressed={daysMin === 8 && daysMax === 10} className={daysMin === 8 && daysMax === 10 ? "active" : ""} onClick={() => setTripLength(8, 10)}><strong>Dłuższy urlop</strong><small>8–10 dni</small></button>
-            <button type="button" aria-pressed={daysMin === 11 && daysMax === 14} className={daysMin === 11 && daysMax === 14 ? "active" : ""} onClick={() => setTripLength(11, 14)}><strong>Wyprawa</strong><small>11–14 dni</small></button>
+      <div className="skyline-search">
+        <div className="skyline-search-top">
+          <div className="skyline-toggle" role="group" aria-label="Rodzaj podróży">
+            <button type="button" className={tripType==="round"?"active":""} aria-pressed={tripType==="round"} onClick={()=>{setTripType("round");dirty();}}>W obie strony</button>
+            <button type="button" className={tripType==="oneway"?"active":""} aria-pressed={tripType==="oneway"} onClick={()=>{setTripType("oneway");setReturnDate("");dirty();}}>W jedną stronę</button>
+          </div>
+          <div className="skyline-baggage" ref={baggageRef}>
+            <button type="button" onClick={()=>setBaggageOpen(!baggageOpen)} aria-expanded={baggageOpen}><Briefcase size={16}/> {baggage==="cabin"?"Bagaż podręczny":"Bagaż rejestrowany"} <ChevronDown size={15}/></button>
+            {baggageOpen&&<div className="skyline-baggage-menu">
+              <button type="button" onClick={()=>{setBaggage("cabin");setBaggageOpen(false);}}>Bagaż podręczny</button>
+              <button type="button" onClick={()=>{setBaggage("checked");setBaggageOpen(false);}}>Bagaż rejestrowany</button>
+              <small>Dokładną cenę i warunki bagażu sprawdzisz przy rezerwacji.</small>
+            </div>}
           </div>
         </div>
-
-        <div className="flight-passenger-control">
-          <button type="button" className="flight-hunt-picker-trigger" onClick={() => setGuestsOpen(!guestsOpen)} aria-expanded={guestsOpen}>
-            <span><small>Podróżni i klasa</small>{adults+children} os. · {cabin}</span><ChevronDown size={17}/>
-          </button>
-          {guestsOpen && <div className="flight-guests-panel">
-            <label>Klasa podróży<select value={cabin} onChange={(e) => setCabin(e.target.value)}><option>Ekonomiczna</option><option>Premium Economy</option><option>Biznesowa</option><option>Pierwsza</option></select></label>
-            <div><span>Dorośli</span><button type="button" disabled={adults<=1} onClick={() => setAdults(adults-1)}>−</button><strong>{adults}</strong><button type="button" disabled={adults>=9} onClick={() => setAdults(adults+1)}>+</button></div>
-            <div><span>Dzieci</span><button type="button" disabled={children<=0} onClick={() => setChildren(children-1)}>−</button><strong>{children}</strong><button type="button" disabled={children>=8} onClick={() => setChildren(children+1)}>+</button></div>
-            <button type="button" className="primary" onClick={() => setGuestsOpen(false)}>Zastosuj</button>
-            <small>Wyszukiwanie cen orientacyjnych jest dla jednej osoby; liczbę pasażerów i klasę potwierdzisz przy wyborze oferty.</small>
-          </div>}
+        <div className="skyline-main-row">
+          <div className="skyline-field skyline-origin">
+            <TPCheckboxPlacePicker label="Z:" values={origins} onChange={(next)=>{setOrigins(next);dirty();}} placeholder="Kraj, miasto lub lotnisko" specialLabel="Skądkolwiek" specialActive={originAnywhere} onSpecialChange={(active)=>{setOriginAnywhere(active);dirty();}} defaultOptions={FLEXIBLE_ORIGINS}/>
+          </div>
+          <button type="button" className="skyline-swap" aria-label="Zamień kierunek lotu" onClick={()=>{
+            if(origins.length!==1||destinations.length!==1||originAnywhere||destinationAnywhere)return;
+            const oldOrigin=origins[0],oldDestination=destinations[0];
+            setOrigins([oldDestination]);setDestinations([oldOrigin]);dirty();
+          }}><ArrowLeftRight size={19}/></button>
+          <div className="skyline-field skyline-destination">
+            <TPCheckboxPlacePicker label="Do:" values={destinations} onChange={(next)=>{setDestinations(next);dirty();}} placeholder="Kraj, miasto lub lotnisko" specialLabel="Gdziekolwiek" specialActive={destinationAnywhere} onSpecialChange={(active)=>{setDestinationAnywhere(active);dirty();}} defaultOptions={POPULAR_DESTINATIONS}/>
+          </div>
+          <div className="skyline-dates" ref={monthsRef}>
+            <button type="button" className="skyline-date-field" onClick={()=>setMonthsOpen(!monthsOpen)} aria-expanded={monthsOpen}><small>Wylot</small><strong>{dateMode==="exact"?formatTravelDate(departureDate)||"Dodaj datę":selectedMonths.length?monthSummary:"Dowolny termin"}</strong></button>
+            <button type="button" className="skyline-date-field" disabled={tripType==="oneway"} onClick={()=>setMonthsOpen(!monthsOpen)}><small>Powrót</small><strong>{tripType==="oneway"?"Nie dotyczy":dateMode==="exact"?formatTravelDate(returnDate)||"Dodaj datę":selectedMonths.length?monthSummary:"Elastycznie"}</strong></button>
+            {monthsOpen&&<div className="skyline-date-panel" role="dialog" aria-label="Wybierz terminy podróży">
+              <div className="skyline-date-panel-head"><strong>Kiedy chcesz lecieć?</strong><button type="button" onClick={()=>setMonthsOpen(false)} aria-label="Zamknij"><X size={19}/></button></div>
+              <div className="skyline-date-modes">
+                <button type="button" className={dateMode==="exact"?"active":""} onClick={()=>selectDateMode("exact")}>Konkretne daty</button>
+                <button type="button" className={dateMode==="flex"?"active":""} onClick={()=>selectDateMode("flex")}>Dowolny termin</button>
+              </div>
+              {dateMode==="flex"?<><p>Wybierz nawet 6 miesięcy jednocześnie.</p>
+                <div className="flight-multi-month-nav"><button type="button" disabled={monthPage===0} onClick={()=>setMonthPage(Math.max(0,monthPage-3))}><ChevronLeft size={18}/></button>
+                  <strong>{monthOptions[monthPage]?.label} – {monthOptions[Math.min(monthPage+5,monthOptions.length-1)]?.label}</strong>
+                  <button type="button" disabled={monthPage+6>=monthOptions.length} onClick={()=>setMonthPage(Math.min(monthPage+3,Math.max(0,monthOptions.length-6)))}><ChevronRight size={18}/></button></div>
+                <div className="flight-multi-month-grid">{monthOptions.slice(monthPage,monthPage+6).map(item=><button key={item.value} type="button" className={selectedMonths.includes(item.value)?"active":""} aria-pressed={selectedMonths.includes(item.value)} disabled={!selectedMonths.includes(item.value)&&selectedMonths.length>=6} onClick={()=>toggleMonth(item.value)}><small>{item.value.slice(0,4)}</small><strong>{item.label.replace(/\s+\d{4}$/,"")}</strong></button>)}</div>
+              </>:<>
+                <div className="skyline-calendar-navigation"><button type="button" onClick={()=>setCalendarStart(nextMonth(calendarStart,-1))}><ChevronLeft size={18}/></button><strong>Wylot: {formatTravelDate(departureDate)||"wybierz"} · Powrót: {formatTravelDate(returnDate)||"wybierz"}</strong><button type="button" onClick={()=>setCalendarStart(nextMonth(calendarStart,1))}><ChevronRight size={18}/></button></div>
+                <div className="skyline-calendar-pair">{[calendarStart,nextMonth(calendarStart,1)].map(month=><div key={month}><strong>{new Intl.DateTimeFormat("pl-PL",{month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(month+"-01T12:00:00Z"))}</strong><div className="skyline-calendar-days">{["P","W","Ś","C","P","S","N"].map((d,i)=><small key={i}>{d}</small>)}{calendarDays(month).map((day,i)=>day?<button key={day} type="button" disabled={day<new Date().toISOString().slice(0,10)} className={[day===departureDate||day===returnDate?"chosen":"",departureDate&&returnDate&&day>departureDate&&day<returnDate?"within":""].join(" ")} onClick={()=>chooseTravelDate(day)}>{Number(day.slice(-2))}</button>:<span key={"pad"+i}/>)}</div></div>)}</div>
+              </>}
+              <div className="skyline-date-actions"><button type="button" onClick={()=>{setSelectedMonths([]);setDepartureDate("");setReturnDate("");dirty();}}>Wyczyść</button><button type="button" className="primary" onClick={()=>setMonthsOpen(false)}>Zastosuj</button></div>
+            </div>}
+          </div>
+          <div className="skyline-travellers">
+            <button type="button" className="skyline-passenger-trigger" onClick={()=>setGuestsOpen(!guestsOpen)} aria-expanded={guestsOpen}><small>Podróżni i klasa</small><strong>{adults+children} os. · {cabin}</strong></button>
+            {guestsOpen&&<div className="flight-guests-panel"><label>Klasa podróży<select value={cabin} onChange={e=>setCabin(e.target.value)}><option>Ekonomiczna</option><option>Premium Economy</option><option>Biznesowa</option><option>Pierwsza</option></select></label><div><span>Dorośli</span><button type="button" disabled={adults<=1} onClick={()=>setAdults(adults-1)}>−</button><strong>{adults}</strong><button type="button" disabled={adults>=9} onClick={()=>setAdults(adults+1)}>+</button></div><div><span>Dzieci</span><button type="button" disabled={children<=0} onClick={()=>setChildren(children-1)}>−</button><strong>{children}</strong><button type="button" disabled={children>=8} onClick={()=>setChildren(children+1)}>+</button></div><button type="button" className="primary" onClick={()=>setGuestsOpen(false)}>Zastosuj</button><small>Cena orientacyjna z porównywarki dla jednej osoby; liczbę osób, klasę i bagaż zweryfikuj u partnera.</small></div>}
+          </div>
+          <button type="button" className="skyline-submit" disabled={!canSearch} onClick={submitFlightSearch}><Search size={19}/> Szukaj</button>
         </div>
-        <label className="flight-hunt-direct">
-          <input
-            type="checkbox"
-            checked={directOnly}
-            onChange={(event) => {
-              setDirectOnly(event.target.checked);
-              dirty();
-            }}
-          />
-          <span>Bez przesiadek</span>
-        </label>
-
-        <button
-          type="button"
-          className="flight-hunt-submit"
-          disabled={!canSearch}
-          onClick={() => {
-            setSubmitted(true);
-            requestAnimationFrame(() => document.querySelector(".flight-hunt-results-shell")?.scrollIntoView({ behavior: "smooth", block: "start" }));
-          }}
-        >
-          <span>{destinationAnywhere ? "Odkryj tanie kierunki" : "Pokaż najtańsze loty"}</span>
-          <ArrowRight size={19} aria-hidden="true" />
-        </button>
+        <div className="skyline-under-row">
+          <label><input type="checkbox" checked={directOnly} onChange={e=>{setDirectOnly(e.target.checked);dirty();}}/> Loty bezpośrednie</label>
+          <label><input type="checkbox" checked={daysMin===2&&daysMax===4} onChange={e=>setTripLength(e.target.checked?2:5,e.target.checked?4:7)}/> Weekend (2–4 dni)</label>
+          <div className="skyline-stay" ref={stayRef}><button type="button" onClick={()=>setStayOpen(!stayOpen)}>Długość pobytu: {daysMin}–{daysMax} dni <ChevronDown size={14}/></button>{stayOpen&&<div className="skyline-stay-menu">{[[2,4,"Weekend"],[5,7,"Krótki urlop"],[8,10,"Dłuższy urlop"],[11,14,"Wyprawa"]].map(([min,max,label])=><button type="button" key={String(min)} onClick={()=>{setTripLength(Number(min),Number(max));setStayOpen(false);}}>{label}: {min}–{max} dni</button>)}</div>}</div>
+          <span>{dateMode==="flex"?"Wiele miesięcy · wiele lotnisk · Gdziekolwiek":"Wybierz dokładne daty i trasę"}</span>
+        </div>
+        {searchError&&<p className="skyline-error" role="alert">{searchError}</p>}
       </div>
-
       <div className="flight-hunt-shortcuts flight-hunt-shortcuts-clean" aria-label="Gotowe pomysły na wyszukiwanie">
-        <span>Gotowe pomysły:</span>
+        <span>Szybkie wyszukiwanie:</span>
         <button type="button" onClick={() => { setAnywhere(); setTripLength(2, 4); setSelectedMonths([]); }}>Gdziekolwiek na weekend</button>
         <button type="button" onClick={() => { setAnywhere(); setTripLength(5, 7); setSelectedMonths([]); }}>Gdziekolwiek na tydzień</button>
         <button type="button" onClick={() => { setOriginAnywhere(true); setOrigins([]); dirty(); }}>Wylot z całej Polski</button>
