@@ -95,3 +95,31 @@
 .hotel-stay-inputs input{font-size:13px;padding:0 6px}
 .hotel-stay-footer{position:sticky;bottom:-14px;background:#fff;padding:14px 0 5px}
 }
+
+
+/* Homepage legacy layout assumes five inputs. Hotels need exactly four. */
+body:has(.dream-hero) #wyszukiwarka .search-v3-hotels .search-v3-form {
+  grid-template-columns:minmax(280px,1.7fr) minmax(190px,1fr) minmax(210px,1.1fr) minmax(175px,.92fr)!important;
+}
+@media (min-width:901px) and (max-width:1180px){
+  body:has(.dream-hero) #wyszukiwarka .search-v3-hotels .search-v3-form{
+    grid-template-columns:minmax(250px,1.6fr) minmax(180px,1fr)!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-hotels .search-v3-submit{
+    grid-column:auto!important;
+  }
+}
+@media (max-width:900px){
+  body:has(.dream-hero) #wyszukiwarka .search-v3-hotels .search-v3-form{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+  body:has(.dream-hero) #wyszukiwarka .search-v3-hotels .search-v3-destination,
+  body:has(.dream-hero) #wyszukiwarka .search-v3-hotels .search-v3-submit {
+    grid-column:1/-1!important;
+  }
+}
+@media (max-width:560px){
+  body:has(.dream-hero) #wyszukiwarka .search-v3-hotels .search-v3-form {
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+}
