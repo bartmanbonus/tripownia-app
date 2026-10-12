@@ -259,7 +259,7 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     links: [
       { href: "/podroze/city-break-do-700-zl", label: "City break do 700 zł" },
       { href: "/podroze/city-break-do-1000-zl", label: "City break do 1000 zł" },
-      { href: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem", label: "Lot + hotel" },
+      { href: "/lot-hotel", label: "Lot + hotel" },
       { href: "/tanie-loty", label: "Porównaj tanie loty" },
     ],
   },
@@ -286,7 +286,7 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     lead: "Na przełom roku warto najpierw zdecydować, czy chcesz city break, ciepły kierunek czy dłuższy wyjazd. Potem porównaj pogodę, długość lotu, ceny noclegów i dostępność powrotów 1–3 stycznia.",
     links: [
       { href: "/sylwester", label: "City break na Sylwestra" },
-      { href: "/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok", label: "Ciepłe kraje na Sylwestra" },
+      { href: "/gdzie-jest-cieplo-zima-bez-dalekiego-lotu", label: "Ciepłe kierunki zimą" },
       { href: "/okazje", label: "Aktualne okazje" },
       { href: "/planer-podrozy", label: "Ułóż wyjazd w darmowym planerze" },
     ],
@@ -550,6 +550,10 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const growthLinks = contextualGrowthLinks(item);
   const archived = item.type === "product";
   const canonicalPath = legacyCanonicalPath(item.path);
+  // Match the searched baggage-weight question while keeping the original article URL.
+  const editorialHeadline = canonicalPath === "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych"
+    ? "Czy bagaż podręczny jest ważony? Limity i zasady dwóch bagaży"
+    : item.title;
   const isDestination = destinationGuidePaths.includes(canonicalPath);
   const hasConversionPanel = hasDestinationLanding(canonicalPath);
   const seoOpportunity = seoOpportunityBlocks[canonicalPath];
@@ -585,14 +589,14 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Tripownia", item: "https://tripownia.pl/" },
       { "@type": "ListItem", position: 2, name: parent.name, item: `https://tripownia.pl${parent.href}` },
-      { "@type": "ListItem", position: 3, name: item.title, item: canonicalUrl },
+      { "@type": "ListItem", position: 3, name: editorialHeadline, item: canonicalUrl },
     ],
   };
   const dateModified = checkedAtIso(deepDive?.checkedAt);
   const articleJsonLd = item.type === "post" ? {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: item.title,
+    headline: editorialHeadline,
     description: item.description || undefined,
     mainEntityOfPage: canonicalUrl,
     url: canonicalUrl,
@@ -618,20 +622,20 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(breadcrumbJsonLd).replace(/</g,"\\u003c")}}/>
     {articleJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(articleJsonLd).replace(/</g,"\\u003c")}}/>}
     <div className="legacy-shell shell">
-      <div className="legacy-breadcrumb"><Link href="/">Tripownia</Link><span>›</span><Link href={parent.href}>{parent.name}</Link><span>›</span><span aria-current="page">{item.title}</span></div>
+      <div className="legacy-breadcrumb"><Link href="/">Tripownia</Link><span>›</span><Link href={parent.href}>{parent.name}</Link><span>›</span><span aria-current="page">{editorialHeadline}</span></div>
       {archived && <div className="archive-banner"><strong>Oferta archiwalna</strong><span>Cena i dostępność mogły się zmienić. Na dole znajdziesz aktualne propozycje.</span></div>}
       {hasConversionPanel && <DestinationLandingPanel path={canonicalPath} />}
 
       <article className={`legacy-article${isPost ? " legacy-article-post" : ""}`}>
         {!hasConversionPanel && <header className="article-hero">
           <div className="kicker">{archived ? "ARCHIWUM OFERT" : isPost ? "MAGAZYN TRIPOWNI" : "TRIPOWNIA"}</div>
-          <h1>{item.title}</h1>
+          <h1>{editorialHeadline}</h1>
           {isPost && item.description && <p className="article-lead">{item.description}</p>}
           {isPost && <div className="article-publisher-note">
             <span>Redakcja Tripowni</span>
             {dateModified && <span>Zweryfikowano: {dateModified}</span>}
             <Link href="/standardy-redakcyjne">Standardy redakcyjne →</Link>
-            <ArticleShare title={item.title} />
+            <ArticleShare title={editorialHeadline} />
           </div>}
         </header>}
 
@@ -780,7 +784,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         </div>
       </section>}
 
-      {(isPost || isDestination) && <RelatedTravelGuides path={canonicalPath} title={item.title} isDestination={isDestination} />}
+      {(isPost || isDestination) && <RelatedTravelGuides path={canonicalPath} title={editorialHeadline} isDestination={isDestination} />}
       {(isDestination || (isPost && !seoOpportunity && !isAirportLiquidsGuide)) && <section className="section shell"><FacebookFollowCTA placement={isDestination ? "destination_legacy" : "article_legacy"} compact /></section>}
     </div>
     <SiteFooter/>
