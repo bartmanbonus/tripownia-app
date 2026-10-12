@@ -14,11 +14,18 @@ type MarketIdea = {
   see: string;
   accent: string;
   months: string[];
+  opens: string;
+  closes: string;
+  january?: { opens: string; closes: string; market: string; note: string; see: string };
 };
 
 const MARKET_IDEAS: MarketIdea[] = [
   {
     city: "Wiedeń", country: "Austria", flag: "🇦🇹", accent: "KLASYK",
+    opens: "2026-11-13", closes: "2026-12-26",
+    january: { opens: "2027-01-01", closes: "2027-01-06", market: "Schönbrunn: do 6 stycznia 2027",
+      note: "W styczniu nadal działa jarmark przy pałacu Schönbrunn (nie Rathausplatz).",
+      see: "Schönbrunn · ogrody pałacowe · centrum Wiednia" },
     market: "13 listopada – 26 grudnia 2026",
     note: "Klasyczny pierwszy jarmarkowy city break. Kilka pięknych lokalizacji w jednym mieście.",
     see: "Rathausplatz · Schönbrunn · Belweder",
@@ -26,6 +33,7 @@ const MARKET_IDEAS: MarketIdea[] = [
   },
   {
     city: "Praga", country: "Czechy", flag: "🇨🇿", accent: "RÓWNIEŻ W STYCZNIU",
+    opens: "2026-11-28", closes: "2027-01-06",
     market: "28 listopada 2026 – 6 stycznia 2027",
     note: "Dobry wybór także na przełom roku. W styczniu szukaj terminów przed 6 stycznia.",
     see: "Rynek Staromiejski · Most Karola · Zamek",
@@ -33,6 +41,7 @@ const MARKET_IDEAS: MarketIdea[] = [
   },
   {
     city: "Drezno", country: "Niemcy", flag: "🇩🇪", accent: "TRADYCYJNY",
+    opens: "2026-11-25", closes: "2026-12-24",
     market: "25 listopada – 24 grudnia 2026",
     note: "Striezelmarkt i klasyczny świąteczny klimat. Jarmark kończy się przed świętami.",
     see: "Altmarkt · Frauenkirche · Stare Miasto",
@@ -40,6 +49,7 @@ const MARKET_IDEAS: MarketIdea[] = [
   },
   {
     city: "Norymberga", country: "Niemcy", flag: "🇩🇪", accent: "NIEMIECKI KLASYK",
+    opens: "2026-11-27", closes: "2026-12-24",
     market: "27 listopada – 24 grudnia 2026",
     note: "Christkindlesmarkt w historycznym centrum, idealny na krótki przedświąteczny wypad.",
     see: "Hauptmarkt · Frauenkirche · Kaiserburg",
@@ -47,6 +57,10 @@ const MARKET_IDEAS: MarketIdea[] = [
   },
   {
     city: "Berlin", country: "Niemcy", flag: "🇩🇪", accent: "DUŻY WYBÓR",
+    opens: "2026-11-23", closes: "2026-12-31",
+    january: { opens: "2027-01-01", closes: "2027-01-03", market: "Rotes Rathaus: do 3 stycznia 2027",
+      note: "Gendarmenmarkt kończy się 31 grudnia. W styczniu wybierz jarmark przy Rotes Rathaus.",
+      see: "Rotes Rathaus · Neptunbrunnen · Humboldt Forum" },
     market: "23 listopada – 31 grudnia 2026",
     note: "Wiele jarmarków w różnych dzielnicach — od klasycznych po nowoczesne.",
     see: "Gendarmenmarkt · Charlottenburg · Mitte",
@@ -54,6 +68,7 @@ const MARKET_IDEAS: MarketIdea[] = [
   },
   {
     city: "Budapeszt", country: "Węgry", flag: "🇭🇺", accent: "JARMARK + TERMY",
+    opens: "2026-11-13", closes: "2027-01-01",
     market: "połowa listopada – 31 grudnia 2026",
     note: "Świąteczne place, termy i wieczorny Dunaj w jednym krótkim wyjeździe.",
     see: "Bazylika św. Stefana · Vörösmarty tér · termy",
@@ -61,6 +76,7 @@ const MARKET_IDEAS: MarketIdea[] = [
   },
   {
     city: "Salzburg", country: "Austria", flag: "🇦🇹", accent: "ALPEJSKI KLIMAT",
+    opens: "2026-11-19", closes: "2027-01-01",
     market: "19 listopada 2026 – 1 stycznia 2027",
     note: "Kameralny, alpejski klimat. Na pełny city break najlepiej wybrać listopad lub grudzień.",
     see: "Domplatz · Residenzplatz · Mirabell · Hellbrunn",
@@ -92,13 +108,27 @@ const STAYS = [
   { value: "5-7", label: "5–7 nocy · dłuższy wyjazd" },
 ];
 
+function marketDepartureWindow(idea: MarketIdea, month: string) {
+  const period = month === "2027-01" && idea.january ? idea.january : idea;
+  const [year, monthNumber] = month.split("-").map(Number);
+  const monthEnd = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
+  const from = [period.opens, `${month}-01`].sort().at(-1) || "";
+  const to = [period.closes, `${month}-${String(monthEnd).padStart(2, "0")}`].sort()[0] || "";
+  return from <= to ? { from, to } : null;
+}
+
 function packageHref(idea: MarketIdea, airport: string, month: string, duration: string) {
+  const bounds = marketDepartureWindow(idea, month);
   const params = new URLSearchParams({
     destination: idea.city,
     tab: duration === "5-7" ? "Lot + hotel" : "City break",
     duration,
-    month,
   });
+  // Preserve flexible departure dates, but do not search after the market closes.
+  if (bounds) {
+    params.set("from", bounds.from);
+    params.set("to", bounds.to);
+  }
   if (airport !== "ALL") params.set("airport", airport);
   return "/szukaj?" + params.toString();
 }
@@ -118,7 +148,7 @@ export default function ChristmasMarketsClient() {
   const [duration, setDuration] = useState("2-4");
 
   const availableMarkets = useMemo(
-    () => MARKET_IDEAS.filter((idea) => idea.months.includes(month)),
+    () => MARKET_IDEAS.filter((idea) => Boolean(marketDepartureWindow(idea, month))),
     [month],
   );
   const monthLabel = MONTHS.find((item) => item.value === month)?.label || "wybrany miesiąc";
@@ -208,17 +238,17 @@ export default function ChristmasMarketsClient() {
                 <span className={styles.cardBadge}>{idea.accent}</span>
               </div>
 
-              <p className={styles.cardNote}>{idea.note}</p>
+              <p className={styles.cardNote}>{month === "2027-01" && idea.january ? idea.january.note : idea.note}</p>
 
               <div className={styles.dates}>
                 <CalendarDays size={19} aria-hidden="true" />
                 <div>
                   <small>OKRES JARMARKU</small>
-                  <strong>{idea.market}</strong>
+                  <strong>{month === "2027-01" && idea.january ? idea.january.market : idea.market}</strong>
                 </div>
               </div>
 
-              <div className={styles.sights}><strong>Warto zobaczyć</strong><span>{idea.see}</span></div>
+              <div className={styles.sights}><strong>Warto zobaczyć</strong><span>{month === "2027-01" && idea.january ? idea.january.see : idea.see}</span></div>
 
               <div className={styles.cardActions}>
                 <Link className={styles.primaryAction} href={packageHref(idea, airport, month, duration)}>
