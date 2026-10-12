@@ -363,17 +363,27 @@ const relatedDestinationAliases: Record<string, string[]> = {
   hiszpania: ["hiszpania", "majorka", "teneryfa", "alicante", "malaga", "barcelona"],
 };
 
-function relatedOffers(context: ArticleContext, destinationOverride?: string) {
-  const selectedDestination = destinationOverride || context.destination;
-  if (selectedDestination) {
-    const destination = norm(selectedDestination);
-    const terms = relatedDestinationAliases[destination] || [destination];
-    const matched = offers.filter((offer) => {
+function relatedOffers(
+  context: ArticleContext,
+  destinationOverride?: string,
+  comparisonDestinations: string[] = [],
+) {
+  const selectedDestinations = comparisonDestinations.length
+    ? comparisonDestinations
+    : [destinationOverride || context.destination || ""].filter(Boolean);
+
+  if (selectedDestinations.length) {
+    const terms = selectedDestinations.flatMap((place) => {
+      const destination = norm(place);
+      return relatedDestinationAliases[destination] || [destination];
+    });
+    // Never replace a destination-specific suggestion with unrelated generic
+    // offers. In comparison articles, consider both destinations, not only one.
+    return offers.filter((offer) => {
       const city = norm(offer.city);
       const country = norm(offer.country);
-      return terms.some((term) => term.includes(city) || term.includes(country) || city.includes(term) || country.includes(term));
+      return terms.some((term) => term && (term.includes(city) || term.includes(country) || city.includes(term) || country.includes(term)));
     }).slice(0, 3);
-    if (matched.length) return matched;
   }
 
   if (context.mode === "city") {
@@ -586,7 +596,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const articleSearchHref = readyArticleSearchHref(item, context, effectiveDestination);
   const articleCityBreakHref = "/city-break";
   const articleCheapFlightsHref = "/tanie-loty";
-  const related = relatedOffers(context, effectiveDestination);
+  const related = relatedOffers(context, effectiveDestination, comparisonDestinations);
   const nextLinks = growthLinks.slice(0, 3);
   const shouldRenderSearch = item.type === "post"
     && !deepDive?.hideSearch
