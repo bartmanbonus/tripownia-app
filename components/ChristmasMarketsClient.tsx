@@ -222,7 +222,7 @@ export default function ChristmasMarketsClient() {
 
               <div className={styles.cardActions}>
                 <Link className={styles.primaryAction} href={packageHref(idea, airport, month, duration)}>
-                  Szukaj lot + nocleg <ArrowRight size={17} />
+                  {idea.city === "Drezno" ? "Zaplanuj dojazd + nocleg" : "Szukaj lot + nocleg"} <ArrowRight size={17} />
                 </Link>
                 <div className={styles.secondaryActions}>
                   <Link href={flightsHref(idea, airport, month)}><Plane size={15} /> Tylko loty</Link>
