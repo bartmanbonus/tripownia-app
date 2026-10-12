@@ -34,12 +34,12 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     ],
   },
   "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje": {
-    title: "Malaga czy Alicante — co wybrać i czy Alicante leży w Andaluzji?",
-    lead: "Alicante nie leży w Andaluzji — znajduje się we Wspólnocie Walenckiej. Malaga leży w Andaluzji i daje dostęp do Costa del Sol. Na krótki city break Alicante jest kompaktowe, a Malaga daje więcej opcji na dłuższe zwiedzanie regionu.",
+    title: "Alicante czy Malaga — co wybrać i czy Alicante leży w Andaluzji?",
+    lead: "Alicante nie leży w Andaluzji — znajduje się we Wspólnocie Walenckiej, na Costa Blanca. Malaga leży w Andaluzji, na Costa del Sol. Na spokojny city break i plaże wybierz Alicante, a na zwiedzanie Andaluzji — Malagę. Sprawdź oba kierunki dla tych samych dat.",
     links: [
-      { href: "/podroze/city-break-do-1000-zl", label: "City break do 1000 zł" },
-      { href: "/podroze/hiszpania-all-inclusive", label: "Hiszpania All Inclusive" },
-      { href: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem", label: "Porównaj lot + hotel" },
+      { href: "/szukaj?destination=Alicante&duration=3-4&tab=City%20break", label: "Alicante — sprawdź lot + hotel" },
+      { href: "/szukaj?destination=Malaga&duration=3-4&tab=City%20break", label: "Malaga — sprawdź lot + hotel" },
+      { href: "/lot-hotel", label: "Wszystkie warianty lot + hotel" },
     ],
   },
   "/sagrada-familia-osiagnela-maksymalna-wysokosc-20-lutego-2026-historyczna-data-dla-barcelony": {
@@ -553,7 +553,9 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   // Match the searched baggage-weight question while keeping the original article URL.
   const editorialHeadline = canonicalPath === "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych"
     ? "Czy bagaż podręczny jest ważony? Limity i zasady dwóch bagaży"
-    : item.title;
+    : canonicalPath === "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje"
+      ? "Alicante czy Malaga? Porównanie na city break i wakacje"
+      : item.title;
   const isDestination = destinationGuidePaths.includes(canonicalPath);
   const hasConversionPanel = hasDestinationLanding(canonicalPath);
   const seoOpportunity = seoOpportunityBlocks[canonicalPath];
@@ -669,6 +671,19 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
             <strong>W skrócie</strong>
             <p>{deepDive.quickAnswer}</p>
             {deepDive.checkedAt && <small>Sprawdzone: {deepDive.checkedAt}</small>}
+          </section>
+        )}
+
+        {canonicalPath === "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje" && (
+          <section className="article-top-answer" aria-label="Szybkie porównanie Alicante i Malagi">
+            <div className="kicker">ALICANTE CZY MALAGA — SZYBKA ODPOWIEDŹ</div>
+            <h2>Czy Alicante leży w Andaluzji?</h2>
+            <p>Nie. Alicante znajduje się we Wspólnocie Walenckiej, na Costa Blanca. Malaga leży w Andaluzji, na Costa del Sol. To dwa różne regiony Hiszpanii.</p>
+            <p>Na spokojniejszy city break z plażą warto rozważyć Alicante. Jeśli chcesz połączyć miasto ze zwiedzaniem Andaluzji, sprawdź Malagę. Jesienią porównaj pogodę, godziny lotów i łączny koszt hotelu dla tych samych dat.</p>
+            <nav className="article-context-links" aria-label="Porównaj oba kierunki w Tripowni">
+              <Link href="/szukaj?destination=Alicante&duration=3-4&tab=City%20break">Alicante — lot + hotel →</Link>
+              <Link href="/szukaj?destination=Malaga&duration=3-4&tab=City%20break">Malaga — lot + hotel →</Link>
+            </nav>
           </section>
         )}
 
