@@ -21,6 +21,7 @@ const DESTINATIONS: Record<string, string> = {
   wieden: "ci-VIE", budapeszt: "ci-BUD", lizbona: "ci-LIS", lisbon: "ci-LIS", neapol: "ci-NAP",
   sewilla: "ci-SVQ", amsterdam: "ci-AMS", kopenhaga: "ci-CPH", malaga: "ci-AGP", split: "ci-SPU",
   barcelona: "ci-BCN", madryt: "ci-MAD", ateny: "ci-ATH", porto: "ci-OPO", wenecja: "ci-VCE",
+  drezno: "ci-DRS", dresden: "ci-DRS", norymberga: "ci-NUE", nuremberg: "ci-NUE", salzburg: "ci-SZG",
   alicante: "ci-ALC", walencja: "ci-VLC", nicea: "ci-NCE", berlin: "ci-BER", dublin: "ci-DUB",
   bari: "ci-BRI", brindisi: "ci-BDS",
   helsinki: "ci-HEL", oslo: "ci-OSL", zurych: "ci-ZRH", zurich: "ci-ZRH", genewa: "ci-GVA",
