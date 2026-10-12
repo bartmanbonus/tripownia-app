@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { EXPERIENCE_IMAGES } from "@/lib/experienceImages";
 import SearchHub from "@/components/SearchHub";
+import "./experience-ux.css";
 
 export const metadata: Metadata = {
   title: "Podróże po przeżycia — kiedy lecieć na zorzę, sakurę i safari",
@@ -91,6 +92,13 @@ function plannerExperienceLink(i: Idea, experienceId: string) {
   return `/dodaj-podroz?${params.toString()}`;
 }
 
+
+function readableDate(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  return new Intl.DateTimeFormat("pl-PL", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" })
+    .format(new Date(`${value}T12:00:00Z`));
+}
+
 export default async function ExperiencesPage({ searchParams }: PageProps){
   const params = await searchParams;
   const selectedDestination = typeof params.destination === "string" ? params.destination : "";
@@ -107,51 +115,113 @@ export default async function ExperiencesPage({ searchParams }: PageProps){
   const flightHref = `/loty?${new URLSearchParams({ destination: selectedCity, ...datesForLinks }).toString()}`;
   const hotelHref = `/hotele?${new URLSearchParams({ destination: selectedDestination, ...stayDates }).toString()}`;
   const combinedHref = `/szukaj?${new URLSearchParams({ destination: selectedDestination, tab: "Lot + hotel", ...(selectedDatesValid ? { from: selectedFrom, to: selectedTo } : {}) }).toString()}`;
+  const selectedNights = selectedDatesValid
+    ? Math.round((Date.parse(`${selectedTo}T12:00:00Z`) - Date.parse(`${selectedFrom}T12:00:00Z`)) / 86400000)
+    : 0;
+  const durationForSearch = selectedNights > 0
+    ? selectedNights > 14 ? "15+" : String(selectedNights)
+    : "all";
+  const selectedPlannerHref = `/dodaj-podroz?${new URLSearchParams({
+    source: "experience",
+    city: selectedCity,
+    country: selectedDestination.split(",").slice(1).join(",").trim(),
+    ...(selectedDatesValid ? { start: selectedFrom, end: selectedTo } : {}),
+    ...(selectedExperience ? { experience: selectedExperience } : {}),
+  }).toString()}`;
   const otherExperienceIdeas = (selectedExperienceData?.ideas || []).filter((idea) => idea.city.toLowerCase() !== selectedCity.toLowerCase());
   const showMarkets = Date.now() <= new Date("2027-01-07T22:59:59Z").getTime();
   return <main className="experience-expanded-page"><SiteHeader/><BreadcrumbSchema items={[{name:"Tripownia",url:"https://tripownia.pl/"},{name:"Podróże po przeżycia",url:"https://tripownia.pl/podroze-po-przezycia"}]}/>
-    <section className="experience-expanded-hero"><div className="shell"><div className="kicker">PODRÓŻE PO PRZEŻYCIA</div><h1>Najpierw wybierz przeżycie. Potem dobierzemy miejsce i termin.</h1><p>Zorza, sakura, fiordy, safari czy egzotyka mają swój sezon. Tripownia pokazuje sensowne okno, konkretne bazy i pozwala od razu wyszukać wyjazd bez wyrzucania Cię do zewnętrznej strony.</p><div className="experience-season-nav"><a href="#zorza">🌌 Zorza</a><a href="#sakura">🌸 Sakura</a><a href="#fiordy">🏔️ Fiordy</a><a href="#nowa-zelandia">🥾 Nowa Zelandia</a><a href="#tulipany">🌷 Tulipany</a><a href="#safari">🦁 Safari</a><a href="#wieloryby">🐋 Wieloryby</a><a href="#egzotyka">🌴 Egzotyka</a>{showMarkets&&<Link href="/jarmarki-bozonarodzeniowe">🎄 Jarmarki</Link>}<Link href="/sylwester">🥂 Sylwester</Link></div></div></section>
-    {hasSelection ? <section className="section shell experience-selected-search" id="szukaj-przezycie">
-      <div className="section-heading">
-        <div>
-          <div className="kicker">WYBRANE: {selectedExperienceData?.title || "PODRÓŻ"}</div>
-          <h2>Sprawdź {selectedDestination} w wybranym oknie</h2>
-          <p>Ustawiliśmy przykładowy termin. Możesz go zmienić, wybrać lotnisko wylotu albo poszerzyć zakres — cały czas zostajesz w Tripowni.</p>
-        </div>
-      </div>
-      <div className="experience-rescue-options" aria-label="Gotowe sposoby znalezienia podróży" style={{ marginBottom: 24 }}>
-        <h3>Nie czekaj na gotowy pakiet — ułóż ten wyjazd po swojemu</h3>
-        <p>Gotowe pakiety nie zawsze obejmują odległe kierunki i wczesne rezerwacje. Sprawdź osobno loty i noclegi z zachowaniem wybranych dat. Pokazujemy propozycje wyszukiwań, a nie niepotwierdzone ceny.</p>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 12, marginTop: 14 }}>
-          <Link className="btn primary" href={flightHref}>✈️ Loty do {selectedCity} →</Link>
-          <Link className="btn secondary" href={hotelHref}>🏨 Noclegi w {selectedCity} →</Link>
-          <Link className="btn secondary" href={combinedHref}>🌏 Spróbuj lot + hotel →</Link>
-        </div>
-        {otherExperienceIdeas.length > 0 && <div style={{ marginTop: 18 }}>
-          <strong>Ten sam sezon, inne miejsca:</strong>
-          <div className="experience-idea-actions" style={{ marginTop: 10, display: "flex", flexWrap: "wrap", gap: 10 }}>
-            {otherExperienceIdeas.map(idea => <Link key={idea.city} href={internalExperienceSearch(idea, selectedExperience)}>{idea.city} · {idea.sample[0]}–{idea.sample[1]} →</Link>)}
+    <section className={`experience-expanded-hero${hasSelection ? " experience-expanded-hero--selected" : ""}`}>
+      <div className="shell">
+        {hasSelection ? <div className="experience-hero-selected-layout">
+          <div className="experience-hero-selected-copy">
+            <div className="kicker">PODRÓŻE PO PRZEŻYCIA / {selectedExperienceData?.title || "TWÓJ WYJAZD"}</div>
+            <h1>{selectedExperienceData ? `${selectedExperienceData.title}. Zaplanuj wyjazd do ${selectedCity}.` : `Zaplanuj wyjazd do ${selectedCity}.`}</h1>
+            <p>Sprawdź termin, porównaj opcje i wybierz sposób rezerwacji. Wszystko zaczyna się od gotowego pomysłu, który możesz dowolnie zmienić.</p>
+            <div className="experience-hero-selected-actions">
+              <a className="experience-hero-main-link" href="#szukaj-przezycie">Przejdź do wyszukiwania ↓</a>
+              <Link href="/podroze-po-przezycia">Zobacz wszystkie przeżycia</Link>
+            </div>
           </div>
-        </div>}
+          {selectedExperienceData && <img className="experience-hero-selected-image" src={selectedExperienceData.image} alt={selectedExperienceData.title} />}
+        </div> : <>
+          <div className="kicker">PODRÓŻE PO PRZEŻYCIA</div>
+          <h1>Najpierw wybierz przeżycie. Potem dobierzemy miejsce i termin.</h1>
+          <p>Zorza, sakura, fiordy, safari czy egzotyka mają swój sezon. Tripownia pokazuje sensowne okno, konkretne bazy i pozwala od razu wyszukać wyjazd bez wyrzucania Cię do zewnętrznej strony.</p>
+          <div className="experience-season-nav">
+            <a href="#zorza">🌌 Zorza</a><a href="#sakura">🌸 Sakura</a><a href="#fiordy">🏔️ Fiordy</a><a href="#nowa-zelandia">🥾 Nowa Zelandia</a><a href="#tulipany">🌷 Tulipany</a><a href="#safari">🦁 Safari</a><a href="#wieloryby">🐋 Wieloryby</a><a href="#egzotyka">🌴 Egzotyka</a>
+            {showMarkets && <Link href="/jarmarki-bozonarodzeniowe">🎄 Jarmarki</Link>}
+            <Link href="/sylwester">🥂 Sylwester</Link>
+          </div>
+        </>}
       </div>
-      <div className="single-partner-search-wrap">
-        <SearchHub
-          key={`${selectedDestination}|${selectedFrom}|${selectedTo}`}
-          embedded
-          initialTab={selectedExperienceData?.searchTab || "Wakacje"}
-          initialDestinations={[selectedDestination]}
-          initialDateMode="range"
-          initialDateFrom={selectedFrom}
-          initialDateTo={selectedTo}
-          searchRequest={1}
-        />
+    </section>
+    {hasSelection ? <section className="section shell experience-selected-search" id="szukaj-przezycie">
+      <div className="experience-selection-overview">
+        <div className="experience-selection-overview-copy">
+          <div className="experience-selection-eyebrow">{selectedExperienceData?.icon || "🧭"} WYBRANY POMYSŁ NA WYJAZD</div>
+          <h2>{selectedExperienceData ? `${selectedExperienceData.title} — ${selectedCity}` : `Wyjazd do ${selectedCity}`}</h2>
+          <p>Masz już kierunek i proponowany termin. Wybierz lotnisko wylotu i porównaj opcje — bez zaczynania planowania od zera.</p>
+          <div className="experience-selection-chips" aria-label="Wybrane parametry podróży">
+            <span>📍 {selectedDestination}</span>
+            {selectedDatesValid && <span>📅 <time dateTime={selectedFrom}>{readableDate(selectedFrom)}</time> – <time dateTime={selectedTo}>{readableDate(selectedTo)}</time></span>}
+            {selectedNights > 0 && <span>🌙 {selectedNights} {selectedNights === 1 ? "noc" : [2,3,4].includes(selectedNights) ? "noce" : "nocy"}</span>}
+          </div>
+          {selectedExperienceData?.note && <p className="experience-selection-disclaimer"><strong>Ważne:</strong> {selectedExperienceData.note}</p>}
+        </div>
+        {selectedExperienceData && <img className="experience-selection-overview-image" src={selectedExperienceData.image} alt="" loading="lazy" />}
       </div>
+      <div className="experience-booking-flow">
+        <div className="experience-booking-flow-heading">
+          <div>
+            <small>KROK 1 · WYBIERZ NAJLEPSZY WARIANT</small>
+            <h3>Znajdź wyjazd do {selectedCity}</h3>
+            <p>Zmień lotnisko, daty, liczbę nocy albo wybierz cały miesiąc. Poniżej porównasz dostępne warianty podróży.</p>
+          </div>
+          <Link className="experience-planner-shortcut" href={selectedPlannerHref}>＋ Dodaj do planera</Link>
+        </div>
+        <div className="single-partner-search-wrap">
+          <SearchHub
+            key={`${selectedDestination}|${selectedFrom}|${selectedTo}`}
+            embedded
+            initialTab="Lot + hotel"
+            initialDestinations={[selectedDestination]}
+            initialDuration={durationForSearch}
+            initialDateMode={selectedDatesValid ? "exact" : "any"}
+            initialDateFrom={selectedDatesValid ? selectedFrom : ""}
+            initialDateTo={selectedDatesValid ? selectedTo : ""}
+            searchRequest={1}
+          />
+        </div>
+      </div>
+      <section className="experience-rescue-options" aria-label="Alternatywne sposoby rezerwacji">
+        <div className="experience-rescue-copy">
+          <small>KROK 2 · WIĘCEJ MOŻLIWOŚCI</small>
+          <h3>Nie ma dobrego pakietu? Połącz lot i nocleg samodzielnie.</h3>
+          <p>Przenieś ten sam kierunek i termin do wyszukiwania lotów lub hoteli. Nie pokazujemy cen, których dostępności nie potwierdziliśmy.</p>
+        </div>
+        <div className="experience-rescue-links">
+          <Link href={flightHref}><span aria-hidden="true">✈️</span><span><strong>Porównaj loty</strong><small>Do {selectedCity}</small></span><span aria-hidden="true">→</span></Link>
+          <Link href={hotelHref}><span aria-hidden="true">🏨</span><span><strong>Znajdź nocleg</strong><small>W {selectedCity}</small></span><span aria-hidden="true">→</span></Link>
+          <Link href={combinedHref}><span aria-hidden="true">🌏</span><span><strong>Lot + hotel</strong><small>Sprawdź inne oferty</small></span><span aria-hidden="true">→</span></Link>
+        </div>
+      </section>
+      {otherExperienceIdeas.length > 0 && <details className="experience-alternative-cities">
+        <summary>Ten sam sezon, inne miasta <span aria-hidden="true">＋</span></summary>
+        <div className="experience-alternative-grid">
+          {otherExperienceIdeas.map(idea => <Link key={idea.city} href={internalExperienceSearch(idea, selectedExperience)}>
+            <strong>{idea.city}</strong><span>{readableDate(idea.sample[0])} – {readableDate(idea.sample[1])}</span><span aria-hidden="true">→</span>
+          </Link>)}
+        </div>
+      </details>}
     </section> : <section className="shell experience-choice-guide">
       <div><strong>1. Wybierz przeżycie</strong><span>Sakura, fiordy, zorza, safari albo inny sezonowy pomysł.</span></div>
       <div><strong>2. Wybierz bazę</strong><span>Podajemy konkretne miasta zamiast ogólnego kraju.</span></div>
       <div><strong>3. Sprawdź w Tripowni</strong><span>Kierunek i daty wpadają od razu do wyszukiwarki poniżej.</span></div>
     </section>}
-    <section className="section shell"><div className="experience-expanded-grid">{experiences.map(item=><article className="experience-expanded-card" id={item.id} key={item.id}><div className="experience-expanded-card-image"><img src={item.image} alt={item.title}/></div><div className="experience-expanded-card-top"><span>{item.icon}</span><div><small>REKOMENDOWANE OKNO</small><h2>{item.title}</h2><b className="experience-window">{item.window}</b></div></div><p className="experience-expanded-lead">{item.lead}</p>{item.note && <div className="experience-forecast-note"><strong>Ważne:</strong> {item.note}</div>}<div className="experience-ideas">{item.ideas.map(i=><div className="experience-idea" key={i.city}><strong>{i.city}</strong><small>{i.label}</small><div className="experience-idea-actions"><Link href={internalExperienceSearch(i, item.id)}>Sprawdź w Tripowni →</Link><Link href={plannerExperienceLink(i, item.id)}>Dodaj do planu</Link></div></div>)}</div></article>)}</div></section>
-    {showMarkets&&<section className="shell experience-market-callout"><div><small>SEZONOWO</small><strong>Jarmarki bożonarodzeniowe 2026</strong><span>Sekcja działa tylko w sezonie i znika automatycznie po zakończeniu jarmarków.</span></div><Link href="/jarmarki-bozonarodzeniowe">Zobacz terminy jarmarków →</Link></section>}
+    <section className="section shell">
+      {hasSelection && <div className="experience-more-heading"><div><div className="kicker">DALEJ W DROGĘ</div><h2>Poznaj inne podróże po przeżycia</h2></div><Link href="/podroze-po-przezycia">Zobacz wszystkie pomysły →</Link></div>}
+      <div className="experience-expanded-grid">{(hasSelection ? experiences.filter(item => item.id !== selectedExperience).slice(0, 2) : experiences).map(item=><article className="experience-expanded-card" id={item.id} key={item.id}><div className="experience-expanded-card-image"><img src={item.image} alt={item.title}/></div><div className="experience-expanded-card-top"><span>{item.icon}</span><div><small>REKOMENDOWANE OKNO</small><h2>{item.title}</h2><b className="experience-window">{item.window}</b></div></div><p className="experience-expanded-lead">{item.lead}</p>{item.note && <div className="experience-forecast-note"><strong>Ważne:</strong> {item.note}</div>}<div className="experience-ideas">{item.ideas.map(i=><div className="experience-idea" key={i.city}><strong>{i.city}</strong><small>{i.label}</small><div className="experience-idea-actions"><Link href={internalExperienceSearch(i, item.id)}>Sprawdź w Tripowni →</Link><Link href={plannerExperienceLink(i, item.id)}>Dodaj do planu</Link></div></div>)}</div></article>)}</div></section>
+    {!hasSelection&&showMarkets&&<section className="shell experience-market-callout"><div><small>SEZONOWO</small><strong>Jarmarki bożonarodzeniowe 2026</strong><span>Sekcja działa tylko w sezonie i znika automatycznie po zakończeniu jarmarków.</span></div><Link href="/jarmarki-bozonarodzeniowe">Zobacz terminy jarmarków →</Link></section>}
     <SiteFooter/></main>
 }
