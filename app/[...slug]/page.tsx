@@ -134,8 +134,8 @@ const seoOverrides: Record<string, Metadata> = {
     description: "Pomysły na babski wyjazd za granicę: 12 kierunków na weekend z przyjaciółkami, od city breaku po słońce, plażę i spa.",
   },
   "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje": {
-    title: "Alicante czy Malaga? Gdzie lepiej lecieć i co wybrać w 2026",
-    description: "Alicante czy Malaga? Porównaj pogodę, plaże, zwiedzanie, region i odległości. Zobacz, które miasto lepiej pasuje do city breaku lub wakacji.",
+    title: "Alicante czy Malaga? Plaże, pogoda i Andaluzja",
+    description: "Alicante nie leży w Andaluzji — to Costa Blanca we Wspólnocie Walenckiej. Malaga leży na Costa del Sol. Porównaj plaże, pogodę i city break w obu miastach.",
   },
   "/wyspy-zielonego-przyladka": {
     title: "Wyspy Zielonego Przylądka wakacje 2026 – Sal, Boa Vista, All Inclusive | Tripownia",
