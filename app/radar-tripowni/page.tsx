@@ -24,7 +24,6 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default function RadarTripowniPage() {
-  const picks: Array<never> = [];
   const checked = new Intl.DateTimeFormat("pl-PL", {
     timeZone: "Europe/Warsaw",
     day: "2-digit",
@@ -51,8 +50,7 @@ export default function RadarTripowniPage() {
         </div>
       </header>
 
-      <LivePriceRadar />)}
-      </section>
+      <LivePriceRadar />
 
       <section className="guides-checklist">
         <div>
