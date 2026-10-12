@@ -12,6 +12,7 @@ const ALLOWED_PARTNERS = new Set<PartnerKey>([
   "esky_flights",
   "tui",
   "getyourguide",
+  "klook",
   "seeplaces",
   "holidaypark",
   "fonia",
@@ -41,6 +42,8 @@ const ALLOWED_HOSTS = new Set([
   "wakacje.pl",
   "c111.travelpayouts.com",
   "kiwi.tpk.lv",
+  "klook.tpk.lv",
+  "tp.media",
   "www.kiwi.com",
   "kiwi.com",
   "www.booking.com",
@@ -164,6 +167,23 @@ function belongsToPartner(partner: PartnerKey, target: URL) {
     && (target.pathname === "/lot+hotel/portfolio" || target.pathname.startsWith("/lot+hotel/portfolio/"));
   if (partner === "esky_flights") return ["www2.esky.pl", "www.esky.pl"].includes(host)
     && target.pathname.startsWith("/flights/");
+
+  if (partner === "klook") {
+    // Only links supplied by Tripownia, never arbitrary tracking redirects.
+    if (host === "klook.tpk.lv") return target.pathname === "/vG67MGgk";
+    if (host !== "tp.media" || target.pathname !== "/r") return false;
+    if (target.searchParams.get("campaign_id") !== "137"
+      || target.searchParams.get("p") !== "4110"
+      || target.searchParams.get("marker") !== "695999"
+      || target.searchParams.get("sub_id") !== "TRIPOWNIAPL"
+      || target.searchParams.get("trs") !== "488160") return false;
+    try {
+      const destination = new URL(target.searchParams.get("u") || "");
+      return destination.protocol === "https:"
+        && ["klook.com", "www.klook.com"].includes(destination.hostname.toLowerCase())
+        && !destination.username && !destination.password;
+    } catch { return false; }
+  }
 
   if (partner === "exim") {
     if (host === "exim.pl" || host === "www.exim.pl") return true;
