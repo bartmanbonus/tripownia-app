@@ -829,6 +829,7 @@ export default function Home() {
       </section>
 
       <SearchHub />
+      <div className="shell" style={{ textAlign: "center" }}><Link className="home-hotel-quicklink" href="/hotele">🏨 Szukasz samego noclegu? Wybierz hotel, daty i gości <ArrowRight size={16}/></Link></div>
       <TripCommandCenter compact />
       <TripowniaLive />
       <SocialOfferCatalog compact />

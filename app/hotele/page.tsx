@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { BedDouble, CheckCircle2, MapPin, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { CheckCircle2, MapPin, ShieldCheck } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SearchHub from "@/components/SearchHub";
@@ -39,18 +40,27 @@ export default async function HotelsPage({ searchParams }: Props) {
   const origin = first(params.origin).trim();
   const from = first(params.from).trim();
   const to = first(params.to).trim();
-  const hasRange = /^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to);
+  const hotelAdults = Math.min(16, Math.max(1, Number(first(params.adults)) || 2));
+  const hotelRooms = Math.min(8, Math.max(1, Number(first(params.rooms)) || 1));
+  const ages = first(params.ages).split(",").filter(Boolean).map(Number).filter((age) => Number.isInteger(age) && age >= 0 && age <= 17).slice(0, 8);
+  const hasRange = /^\d{4}-\d{2}-\d{2}$/.test(from) && /^\d{4}-\d{2}-\d{2}$/.test(to) && to > from;
 
   return (
     <main>
       <SiteHeader />
       <section className="shell service-page">
-        <div className="kicker">NOCLEG</div>
-        <h1>Najpierw wybierz miejsce. Potem konkretny hotel.</h1>
+        <div className="kicker">HOTELE I NOCLEGI</div>
+        <h1>Znajdź nocleg, który pasuje do Twojej podróży.</h1>
         <p className="hub-lead">
-          Wyszukaj kierunek w Tripowni i dopiero po ustawieniu miejsca przejdź do aktualnych noclegów. Bez przypadkowego wyjścia z serwisu po kliknięciu samego „Hotele”.
+          Wybierz miejsce, daty pobytu, gości i pokoje. Najpierw ułożysz wyszukiwanie w Tripowni, a aktualne ceny sprawdzisz w systemie rezerwacyjnym.
         </p>
 
+        <nav className="hotel-popular-destinations" aria-label="Popularne kierunki noclegów">
+          <span>Popularne:</span>
+          {["Rzym","Barcelona","Kraków","Praga","Londyn"].map((city) => (
+            <Link key={city} href={`/hotele?destination=${encodeURIComponent(city)}`}>{city} →</Link>
+          ))}
+        </nav>
         <div className="service-signal-row" aria-label="Jak wybierać hotel">
           <div><MapPin size={19}/><strong>Lokalizacja</strong><span>Sprawdź odległość od miejsc, do których naprawdę będziesz jeździć.</span></div>
           <div><ShieldCheck size={19}/><strong>Warunki</strong><span>Porównaj anulację, śniadanie, podatki i finalną cenę.</span></div>
@@ -58,7 +68,7 @@ export default async function HotelsPage({ searchParams }: Props) {
         </div>
 
         <div className="service-search-shell">
-          <SearchHub embedded initialTab="Hotele" initialDestinations={destination ? [destination] : []} initialAirports={origin ? [origin] : []} initialDateMode="range" initialDateFrom={hasRange ? from : ""} initialDateTo={hasRange ? to : ""} />
+          <SearchHub embedded initialTab="Hotele" initialDestinations={destination ? [destination] : []} initialAirports={origin ? [origin] : []} initialDateMode="range" initialDateFrom={hasRange ? from : ""} initialDateTo={hasRange ? to : ""} initialHotelAdults={Math.max(hotelAdults, hotelRooms)} initialHotelRooms={hotelRooms} initialHotelChildAges={ages} />
         </div>
       </section>
       <SiteFooter />

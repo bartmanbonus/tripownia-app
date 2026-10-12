@@ -5,6 +5,8 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Sparkles, Trash2, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
+import HotelGuestsPicker, { type HotelGuestsValue } from "@/components/HotelGuestsPicker";
+import HotelStayPicker from "@/components/HotelStayPicker";
 import DresdenCityBreakOptions from "@/components/DresdenCityBreakOptions";
 import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type WorldDestination } from "@/lib/worldDestinations";
@@ -36,6 +38,9 @@ type Props = {
   initialDateTo?: string;
   initialMonth?: string;
   initialWeekendOnly?: boolean;
+  initialHotelAdults?: number;
+  initialHotelRooms?: number;
+  initialHotelChildAges?: number[];
   embedded?: boolean;
   destinationQuickPicks?: string[];
 };
@@ -169,7 +174,7 @@ function standaloneFlightPartnerUrl(
   return partners.kiwi.buildUrl(kiwiBase.toString());
 }
 
-function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: string) {
+function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: string, guests?: HotelGuestsValue) {
   const target = destinations[0]?.trim() || "";
   const bookingBase = new URL("https://www.booking.com/searchresults.pl.html");
   if (target) bookingBase.searchParams.set("ss", target);
@@ -177,6 +182,13 @@ function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: s
     bookingBase.searchParams.set("checkin", String(from));
     bookingBase.searchParams.set("checkout", String(to));
   }
+  if (guests) {
+    bookingBase.searchParams.set("group_adults", String(guests.adults));
+    bookingBase.searchParams.set("no_rooms", String(guests.rooms));
+    bookingBase.searchParams.set("group_children", String(guests.childAges.length));
+    for (const age of guests.childAges) bookingBase.searchParams.append("age", String(age));
+  }
+  bookingBase.searchParams.set("selected_currency", "PLN");
   return partners.booking.buildUrl(bookingBase.toString());
 }
 
@@ -359,6 +371,9 @@ export default function SearchHub({
   initialDateTo = "",
   initialMonth = "",
   initialWeekendOnly = false,
+  initialHotelAdults = 2,
+  initialHotelRooms = 1,
+  initialHotelChildAges = [],
   embedded = false,
   destinationQuickPicks = [],
 }: Props) {
@@ -386,6 +401,8 @@ export default function SearchHub({
   const [customBudgetMax, setCustomBudgetMax] = useState("");
   const [board, setBoard] = useState(initialBoard);
   const [weekendOnly, setWeekendOnly] = useState(initialWeekendOnly);
+  const [hotelGuests, setHotelGuests] = useState<HotelGuestsValue>({ adults: initialHotelAdults, rooms: initialHotelRooms, childAges: initialHotelChildAges });
+  const [hotelError, setHotelError] = useState("");
   const [flightAdults, setFlightAdults] = useState(1);
   const [flightCabin, setFlightCabin] = useState("ECONOMY");
   const [flightTripType, setFlightTripType] = useState<"round" | "oneway">("round");
@@ -1039,11 +1056,23 @@ export default function SearchHub({
       if (activeTab === "Hotele" && !destinations.length) {
         setSearched(false);
         setResults([]);
-        setNotice("Wybierz miasto lub kraj, żeby wyszukać nocleg.");
+        setHotelError("Wpisz miejscowość, region lub nazwę hotelu.");
+        setNotice("Wybierz miejsce, żeby wyszukać nocleg.");
         setSuggestionsOpen(true);
         return;
       }
 
+      if (activeTab === "Hotele" && (dateMode !== "range" || !dateFrom || !dateTo || dateTo <= dateFrom || dateFrom < todayISO)) {
+        setHotelError("Wybierz datę zameldowania i późniejszą datę wymeldowania.");
+        setDateMode("range");
+        setDateOpen(true);
+        return;
+      }
+      if (activeTab === "Hotele" && hotelGuests.childAges.some((age) => age < 0 || age > 17)) {
+        setHotelError("Wybierz wiek każdego dziecka przed wyszukaniem noclegu.");
+        return;
+      }
+      setHotelError("");
       const conversionContext = {
         mode: activeTab.toLowerCase(),
         destination: destinations.join(" + ").slice(0, 160) || "dowolnie",
@@ -1074,6 +1103,9 @@ export default function SearchHub({
         if (departures[0]) params.set("origin", departures[0]);
         if (dateFrom) params.set("from", dateFrom);
         if (dateTo) params.set("to", dateTo);
+        params.set("adults", String(hotelGuests.adults));
+        params.set("rooms", String(hotelGuests.rooms));
+        if (hotelGuests.childAges.length) params.set("ages", hotelGuests.childAges.join(","));
         trackEvent("hotel_search_intent", conversionContext);
         setSearched(true);
         setResults([]);
@@ -1157,6 +1189,7 @@ export default function SearchHub({
     setResultDestinationCount(0);
     setVisibleCount(18);
     setNotice("");
+    setHotelError("");
   }
 
   function quickSearch(label: string, overrides: SearchOverrides) {
@@ -1208,6 +1241,8 @@ export default function SearchHub({
     setBoard("all");
     setWeekendOnly(false);
     setFlightAdults(1);
+    setHotelGuests({ adults: 2, rooms: 1, childAges: [] });
+    setHotelError("");
     setFlightCabin("ECONOMY");
     setFlightTripType("round");
     setFlightSearchMode("flex");
@@ -1282,7 +1317,7 @@ export default function SearchHub({
   ];
   const hotelSearchDestination = selectedDestinations[0] || destination.trim();
   const hotelPartnerTarget = hotelSearchDestination
-    ? standaloneHotelPartnerUrl([hotelSearchDestination], dateFrom, dateTo)
+    ? standaloneHotelPartnerUrl([hotelSearchDestination], dateFrom, dateTo, hotelGuests)
     : "";
   const hotelSearchHref = hotelPartnerTarget
     ? `/go/live?${new URLSearchParams({
@@ -1305,12 +1340,12 @@ export default function SearchHub({
 
   return (
     <section className={embedded ? "search-v3-section search-v3-embedded" : "section shell search-v3-section"} id={embedded ? undefined : "wyszukiwarka"}>
-      <div className={`search-v3${activeTab === "Loty" ? " search-v3-flights" : ""}${simpleHomePackage ? " search-v3-simple" : ""}`}>
+      <div className={`search-v3${activeTab === "Loty" ? " search-v3-flights" : ""}${activeTab === "Hotele" ? " search-v3-hotels" : ""}${simpleHomePackage ? " search-v3-simple" : ""}`}>
         <div className="search-v3-head">
           <div>
             <small>WYSZUKIWARKA TRIPOWNI</small>
-            {!embedded && <h2>{activeTab === "Loty" ? "Znajdź tani lot" : "Gdzie chcesz lecieć?"}</h2>}
-            {!embedded && <p>{activeTab === "Loty" ? "Odkrywaj tanie kierunki i terminy albo sprawdź lot na konkretne daty." : activeTab === "Hotele" ? "Wpisz kierunek i termin pobytu." : "Wybierz dokąd, skąd i kiedy. Możesz też zostawić pola puste — najtańsze kierunki pokażemy jako pierwsze."}</p>}
+            {!embedded && <h2>{activeTab === "Loty" ? "Znajdź tani lot" : activeTab === "Hotele" ? "Znajdź idealny nocleg" : "Gdzie chcesz lecieć?"}</h2>}
+            {!embedded && <p>{activeTab === "Loty" ? "Odkrywaj tanie kierunki i terminy albo sprawdź lot na konkretne daty." : activeTab === "Hotele" ? "Wybierz miejsce, termin i gości. Bez zbędnych kroków." : "Wybierz dokąd, skąd i kiedy. Możesz też zostawić pola puste — najtańsze kierunki pokażemy jako pierwsze."}</p>}
           </div>
           <button type="button" className="search-v3-reset" onClick={resetSearch}>Wyczyść</button>
         </div>
@@ -1370,7 +1405,7 @@ export default function SearchHub({
                 value={destination}
                 onChange={(event) => { setAnywhereSelected(false); setDestination(event.target.value); openDestinationPanel(); }}
                 onFocus={openDestinationPanel}
-                placeholder={anywhereSelected || selectedDestinations.length ? "Dodaj konkretny kierunek" : "Wpisz kierunek lub wybierz Gdziekolwiek"}
+                placeholder={activeTab === "Hotele" ? "Miasto, region lub nazwa hotelu" : anywhereSelected || selectedDestinations.length ? "Dodaj konkretny kierunek" : "Wpisz kierunek lub wybierz Gdziekolwiek"}
                 autoComplete="off"
               />
               {destination && <button type="button" aria-label="Wyczyść wpisany kierunek" onClick={() => { setDestination(""); setSuggestionsOpen(true); }}><X size={16}/></button>}
@@ -1483,6 +1518,21 @@ export default function SearchHub({
 
           )}
 
+          {activeTab === "Hotele" ? (
+            <HotelStayPicker
+              from={dateFrom}
+              to={dateTo}
+              open={dateOpen}
+              onOpenChange={setDateOpen}
+              containerRef={dateRef}
+              onChange={(nextFrom, nextTo) => {
+                setDateMode("range");
+                setDateFrom(nextFrom);
+                setDateTo(nextTo);
+                setHotelError("");
+              }}
+            />
+          ) : (
           <div className={`search-v3-field search-v3-date search-v3-smart-date${dateOpen ? " is-open" : ""}`} ref={dateRef}>
             <span><CalendarDays size={15}/> {activeTab === "Loty" ? (flightTripType === "round" ? "Wylot i powrót" : "Data wylotu") : activeTab === "Hotele" ? "Pobyt" : "Kiedy?"}</span>
             <button type="button" className="search-v3-date-trigger" onClick={toggleDatePanel} aria-expanded={dateOpen}>
@@ -1627,8 +1677,9 @@ export default function SearchHub({
               </div>
             )}
           </div>
+          )}
 
-          {activeTab === "Hotele" ? null : activeTab === "Loty" ? (
+          {activeTab === "Hotele" ? <HotelGuestsPicker value={hotelGuests} onChange={(next) => { setHotelGuests(next); setHotelError(""); }}/> : activeTab === "Loty" ? (
             <label className="search-v3-field search-v3-duration">
               <span>Podróżni</span>
               <select value={flightAdults} onChange={(event) => setFlightAdults(Number(event.target.value))}>
@@ -1799,6 +1850,7 @@ export default function SearchHub({
             )}
           </div>}
 
+          {activeTab === "Hotele" && hotelError && <p className="hotel-form-error" role="alert">{hotelError}</p>}
           <button type="submit" className="search-v3-submit" disabled={loading || budgetInvalid}><Search size={18}/>{loading ? "Szukamy…" : budgetInvalid ? "Popraw budżet" : activeTab === "Loty" ? "Porównaj loty" : activeTab === "Hotele" ? "Szukaj hoteli" : "Szukaj wyjazdu"}</button>
         </form>
         )}
@@ -1822,6 +1874,7 @@ export default function SearchHub({
             <div className="hotel-search-ready-summary">
               <div><span>Miejsce</span><strong>{hotelSearchDestination}</strong></div>
               <div><span>Pobyt</span><strong>{hotelStayLabel}</strong></div>
+              <div><span>Goście</span><strong>{hotelGuests.adults} dorosłych · {hotelGuests.childAges.length} dzieci · {hotelGuests.rooms} pok.</strong></div>
             </div>
 
             <div className="hotel-search-ready-actions">
