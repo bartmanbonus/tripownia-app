@@ -177,14 +177,14 @@ export default async function SocialOfferLanding({
                     <small>znaleźliśmy od</small> <strong>{price.toLocaleString("pl-PL")} zł</strong> / os.
                   </div>
                   <div className="price-status detail-price-status">
-                    {checkedAt ? `Cena zapisana ${checkedAt}. ` : "Cena z wybranej propozycji. "}Aktualną cenę i dostępność potwierdzisz u partnera.
+                    {checkedAt ? `Cena zapisana ${checkedAt}. ` : "Cena z wybranej propozycji. "}Aktualną cenę i dostępność sprawdzisz przed rezerwacją.
                   </div>
                 </>
               ) : (
                 <>
                   <div className="detail-price"><strong>Sprawdź aktualną cenę</strong></div>
                   <div className="price-status detail-price-status">
-                    {checkedAt ? `Cena zapisana ${checkedAt}. ` : "Cena z wybranej propozycji. "}Aktualną cenę i dostępność potwierdzisz u partnera.
+                    {checkedAt ? `Cena zapisana ${checkedAt}. ` : "Cena z wybranej propozycji. "}Aktualną cenę i dostępność sprawdzisz przed rezerwacją.
                   </div>
                 </>
               )}
@@ -208,9 +208,9 @@ export default async function SocialOfferLanding({
                   end,
                 }}
               >
-                Sprawdź aktualną cenę w {target.partner.label}
+                Sprawdź aktualną cenę
               </TrackedPartnerLink>
-              <small className="tripownia-buy-trust">Finalną cenę i dostępność potwierdzisz u partnera przed płatnością.</small>
+              <small className="tripownia-buy-trust">Finalną cenę i dostępność sprawdzisz przed płatnością.</small>
               <div className="tripownia-purchase-secondary">
                 <Link className="btn secondary" href={plannerHref}>
                   <PlusCircle size={17}/> Dodaj do mojego planu
