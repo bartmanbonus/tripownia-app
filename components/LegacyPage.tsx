@@ -568,6 +568,12 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     ? getArticleDeepDiveWave9(deepDiveLookupPath) || getArticleDeepDiveWave8(deepDiveLookupPath) || getArticleDeepDiveWave7(deepDiveLookupPath) || getArticleDeepDive(deepDiveLookupPath)
     : undefined;
   const isPost = item.type === "post";
+  // Migrated WordPress content often embeds its own H1 inside an article.
+  // The page already renders the canonical H1 above, so keep the imported
+  // article structure as H2+ and avoid competing top-level headings.
+  const editorialContentHtml = isPost
+    ? item.html.replace(/<(\/?)h1(?=[\s>])/gi, "<$1h2")
+    : item.html;
   const isAirportLiquidsGuide = canonicalPath === "/lotniska-w-polsce-bez-limitu-100-ml-plynow";
   const effectiveDestination = context.destination || (deepDive?.searchPresets?.length === 1 ? deepDive.searchPresets[0] : undefined);
   const comparisonDestinations = canonicalPath === "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje"
@@ -703,7 +709,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
 
         <section className={`article-longform${deepDive ? " article-longform-after-answer" : ""}`}>
           {deepDive && <div className="article-longform-label">PEŁNY PORADNIK</div>}
-          <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
+          <div className="legacy-content" dangerouslySetInnerHTML={{__html:editorialContentHtml}}/>
         </section>
       </article>
 
