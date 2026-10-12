@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowRight, CalendarDays, CheckCircle2, MapPin, Plane, RotateCcw, Search, Ticket } from "lucide-react";
+import { ArrowRight, CalendarDays, CheckCircle2, MapPin, Plane, TrainFront, RotateCcw, Search, Ticket } from "lucide-react";
 import styles from "@/app/jarmarki-bozonarodzeniowe/markets.module.css";
+import { partners } from "@/lib/partners";
 
 type MarketIdea = {
   city: string;
@@ -133,6 +134,15 @@ function packageHref(idea: MarketIdea, airport: string, month: string, duration:
   return "/szukaj?" + params.toString();
 }
 
+function railHref(idea: MarketIdea) {
+  return "/sprawdz-oferte?" + new URLSearchParams({
+    partner: "klook",
+    target: partners.klook.buildUrl(),
+    destination: idea.city,
+    source: "christmas_market_rail_discovery",
+  }).toString();
+}
+
 function flightsHref(idea: MarketIdea, airport: string, month: string) {
   const params = new URLSearchParams({
     destination: idea.city,
@@ -256,6 +266,7 @@ export default function ChristmasMarketsClient() {
                 </Link>
                 <div className={styles.secondaryActions}>
                   <Link href={flightsHref(idea, airport, month)}><Plane size={15} /> Tylko loty</Link>
+                  <Link href={railHref(idea)} rel="sponsored" title="Ogólna oferta biletów kolejowych Klook — dostępność konkretnej trasy sprawdzisz u partnera"><TrainFront size={15} /> Sprawdź pociągi</Link>
                   <Link href={"/atrakcje?q=" + encodeURIComponent(idea.city + " jarmark bożonarodzeniowy")}><Ticket size={15} /> Atrakcje</Link>
                 </div>
               </div>
@@ -265,7 +276,7 @@ export default function ChristmasMarketsClient() {
 
         <div className={styles.note}>
           <CheckCircle2 size={19} aria-hidden="true" />
-          <p><strong>Ważne przed rezerwacją:</strong> daty jarmarków mogą się zmienić. Wybrany miesiąc oznacza okres wyszukiwania, nie gwarancję, że jarmark działa przez cały miesiąc. Sprawdź termin konkretnego wydarzenia i cenę u organizatora oraz dostawcy.</p>
+          <p><strong>Ważne przed rezerwacją:</strong> daty jarmarków mogą się zmienić. Wybrany miesiąc oznacza okres wyszukiwania, nie gwarancję, że jarmark działa przez cały miesiąc. Klook otwiera ogólną ofertę biletów kolejowych, nie potwierdza konkretnej trasy. Sprawdź termin wydarzenia i cenę u organizatora oraz dostawcy.</p>
         </div>
         <nav className={styles.moreLinks} aria-label="Inne sposoby planowania">
           <Link href="/loty">Porównaj wszystkie loty <ArrowRight size={15}/></Link>
