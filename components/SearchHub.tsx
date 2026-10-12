@@ -1350,41 +1350,8 @@ export default function SearchHub({
 
         {activeTab === "Loty" ? (
           <div className="search-v3-flight-center">
-            <div className="search-v3-flight-mode-switch" role="tablist" aria-label="Sposób wyszukiwania lotów">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={flightSearchMode === "flex"}
-                className={flightSearchMode === "flex" ? "active" : ""}
-                onClick={() => setFlightSearchMode("flex")}
-              >
-                <Sparkles size={21} aria-hidden="true" />
-                <span className="search-v3-flight-mode-copy"><strong>Szukam okazji</strong><small>Elastyczne daty i Gdziekolwiek</small></span>
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={flightSearchMode === "exact"}
-                className={flightSearchMode === "exact" ? "active" : ""}
-                onClick={() => setFlightSearchMode("exact")}
-              >
-                <CalendarDays size={21} aria-hidden="true" />
-                <span className="search-v3-flight-mode-copy"><strong>Mam konkretne daty</strong><small>Porównaj lot na wybrany termin</small></span>
-              </button>
-            </div>
+            <FlexibleFlightsExplorer />
 
-            {flightSearchMode === "flex" ? (
-              <FlexibleFlightsExplorer />
-            ) : (
-              <div className="search-v3-flight-exact">
-                <div className="search-v3-flight-exact-head">
-                  <div className="kicker">KONKRETNY TERMIN</div>
-                  <h3>Porównaj loty dla wybranych dat</h3>
-                  <p>Wyszukaj dokładną trasę i termin w porównywarce Tripowni.</p>
-                </div>
-                <TravelpayoutsFlightsWidget />
-              </div>
-            )}
           </div>
         ) : (
         <form className={`search-v3-form${activeTab === "Hotele" ? " is-hotels" : ""}`} onSubmit={submitSearch}>
