@@ -31,7 +31,6 @@ export const LEGACY_PAGE_REDIRECTS: Record<string, string> = {
   "/krakow": "/z-krakowa",
   "/katowice": "/z-katowic",
   "/city-break-2": "/city-break",
-  "/gdzie-na-sylwestra-2026-2027-15-kierunkow": "/sylwester",
   "/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok": "/sylwester",
   "/aletry-todroznicze": "/alerty",
   "/moj-planner": "/moja-podroz",
