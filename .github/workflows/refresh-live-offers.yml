@@ -2,10 +2,14 @@ name: Refresh live offers snapshot
 
 on:
   schedule:
-    # 04:35 UTC = 06:35 in Poland during CEST. Fresh offers are ready before 07:00.
-    - cron: "35 4 * * *"
-    # Midday safety refresh catches price/availability changes from partner feeds.
-    - cron: "10 12 * * *"
+    # Local Warsaw time: early enough for the 06:00 offer briefing, including DST changes.
+    - cron: "17 4 * * *"
+      timezone: "Europe/Warsaw"
+    # Refresh verified price/deeplink snapshots before the afternoon and evening traffic.
+    - cron: "13 12 * * *"
+      timezone: "Europe/Warsaw"
+    - cron: "17 18 * * *"
+      timezone: "Europe/Warsaw"
   workflow_dispatch:
 
 permissions:
