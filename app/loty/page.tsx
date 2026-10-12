@@ -38,7 +38,10 @@ export default async function FlightsPage({ searchParams }: FlightsPageProps) {
   const origin = firstParam(params.origin) || "WAW";
   const outbound = firstParam(params.outbound);
   const inbound = firstParam(params.inbound);
-  const initialMonth = /^\d{4}-\d{2}-\d{2}$/.test(outbound) ? outbound.slice(0, 7) : "";
+  const requestedMonth = firstParam(params.month);
+  const initialMonth = /^20\d{2}-(0[1-9]|1[0-2])$/.test(requestedMonth)
+    ? requestedMonth
+    : /^\d{4}-\d{2}-\d{2}$/.test(outbound) ? outbound.slice(0, 7) : "";
 
   return (
     <main className="tpwl-tripownia-page">
