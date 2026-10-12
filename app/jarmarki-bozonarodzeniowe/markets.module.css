@@ -1,0 +1,53 @@
+.finder{border:1px solid #e6dcd5;border-radius:24px;background:#fff;padding:28px;box-shadow:0 12px 34px rgba(44,32,24,.06);margin:22px 0 35px}
+.finderIntro,.resultsHead{display:flex;align-items:flex-start;justify-content:space-between;gap:22px}
+.eyebrow{color:#b44626;font-size:11px;font-weight:850;letter-spacing:.1em}
+.finderIntro h2,.resultsHead h2{color:#211d1a;margin:8px 0 8px;font-size:clamp(25px,2.5vw,33px);line-height:1.15;letter-spacing:-.035em}
+.finderIntro p,.resultsHead p{margin:0;color:#685f58;line-height:1.5;font-size:14px;max-width:650px}
+.finderStep{display:inline-flex;align-items:center;gap:8px;border:1px solid #c9e8d5;background:#effaf2;color:#226144;padding:10px 13px;border-radius:100px;white-space:nowrap;font-size:12px;font-weight:750}
+.controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.24fr) minmax(0,1fr);gap:14px;margin-top:24px}
+.field,.monthSelector{display:flex;flex-direction:column;gap:9px;min-width:0}
+.field>span,.fieldCaption{display:flex;align-items:center;gap:7px;font-size:12px;color:#5c4f47;font-weight:800}
+.field select{height:52px;min-width:0;width:100%;border:1px solid #daccc2;border-radius:12px;background:#fff;padding:0 13px;color:#2b241e;font-size:13px;font-weight:700;cursor:pointer}
+.monthButtons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.monthButtons button{min-height:52px;border:1px solid #daccc2;border-radius:12px;background:#fff;color:#332b26;font-size:12px;font-weight:750;cursor:pointer}
+.monthButtons button:hover,.field select:hover{border-color:#e75a33}
+.monthButtons .monthActive{background:#f15a33;color:#fff;border-color:#f15a33}
+.finderBottom{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:19px;border-top:1px solid #f0e8e3;padding-top:16px}
+.finderBottom p{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0;color:#625950;font-size:12px;line-height:1.5}
+.finderBottom p svg{color:#27784b;flex:0 0 auto}
+.finderBottom>button{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:#a64225;font-size:12px;font-weight:750;cursor:pointer;white-space:nowrap}
+.results{padding-bottom:18px}
+.resultsHead{align-items:center;margin-bottom:20px}
+.counter{display:inline-flex;align-items:center;gap:7px;padding:9px 13px;border-radius:100px;background:#f4eee9;border:1px solid #e7dbd1;color:#6f4938;font-size:12px;font-weight:800;white-space:nowrap}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:17px}
+.card{display:flex;flex-direction:column;min-width:0;padding:21px;border:1px solid #e5dcd4;border-radius:20px;background:#fff;box-shadow:0 8px 23px rgba(35,25,19,.05);transition:border-color .18s ease,transform .18s ease}
+.card:hover{border-color:#dfb8a4;transform:translateY(-2px)}
+.cardHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:15px}
+.cityWrap{display:flex;align-items:center;gap:11px;min-width:0}
+.flag{display:grid;place-items:center;flex:0 0 45px;width:45px;height:45px;border-radius:13px;background:#f8f3ee;font-size:25px}
+.cityWrap small{display:block;color:#78685f;font-size:11px;margin-bottom:3px}
+.cityWrap h3{margin:0;color:#211c18;font-size:23px;line-height:1.1;letter-spacing:-.025em}
+.cardBadge{font-size:9px;font-weight:850;color:#25734c;background:#ebf7ef;border-radius:100px;padding:6px 8px;text-align:center;letter-spacing:.015em}
+.cardNote{margin:0 0 15px;color:#605852;font-size:13px;line-height:1.55}
+.dates{display:flex;gap:10px;align-items:flex-start;background:#f8f4f0;border:1px solid #eee6df;padding:13px;border-radius:12px}
+.dates svg{color:#ad6146;flex:0 0 auto}
+.dates small{display:block;color:#8a7466;font-size:10px;font-weight:800;margin:0 0 5px;letter-spacing:.05em}
+.dates strong{font-size:12px;line-height:1.4;color:#2e231e;display:block}
+.sights{display:grid;gap:5px;margin:13px 0 19px;color:#625950;font-size:12px;line-height:1.5}
+.sights strong{color:#3d322c}
+.cardActions{margin-top:auto}
+.primaryAction{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 10px;min-height:48px;border-radius:11px;background:#eb552f;color:white!important;text-decoration:none!important;font-size:13px;font-weight:850;white-space:nowrap}
+.primaryAction:hover{background:#cf4524}
+.secondaryActions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}
+.secondaryActions a{display:flex;align-items:center;justify-content:center;gap:6px;min-height:42px;border:1px solid #e6d9d1;border-radius:10px;background:white;text-decoration:none!important;color:#514036!important;font-size:12px;font-weight:750}
+.secondaryActions a:hover{border-color:#e28d71}
+.note{display:flex;gap:12px;align-items:flex-start;margin-top:25px;padding:14px 17px;background:#f6f4f0;border-radius:13px;color:#65594f}
+.note>svg{flex:0 0 auto;color:#2d7a4f}
+.note p{margin:0;font-size:12px;line-height:1.55}
+.moreLinks{display:flex;flex-wrap:wrap;gap:9px;margin:22px 0}
+.moreLinks a{display:inline-flex;align-items:center;gap:7px;padding:11px 13px;border:1px solid #e9dcd3;border-radius:12px;color:#593e30;text-decoration:none;font-weight:750;font-size:12px}
+.moreLinks a:hover{background:#fff4ed}
+.finder :is(button,select):focus-visible,.results a:focus-visible{outline:3px solid #e88b6a;outline-offset:3px}
+@media(max-width:1100px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.controls{grid-template-columns:repeat(2,minmax(0,1fr))}.monthSelector{grid-column:1/-1;grid-row:2}}
+@media(max-width:700px){.finder{padding:19px;margin-bottom:26px;border-radius:18px}.finderIntro,.resultsHead{flex-direction:column;gap:11px;align-items:flex-start}.finderStep{font-size:11px;padding:7px 10px}.controls{grid-template-columns:1fr;gap:15px;margin-top:21px}.monthSelector{grid-column:auto;grid-row:auto}.finderBottom{align-items:flex-start;flex-direction:column;gap:10px}.cards{grid-template-columns:1fr;gap:13px}.card{padding:18px}.cardHeader{gap:6px}.cardBadge{max-width:108px}.resultsHead h2{font-size:27px}.moreLinks a{flex:1 1 100%;justify-content:space-between}.monthButtons button{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
