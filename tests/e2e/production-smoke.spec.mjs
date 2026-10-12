@@ -38,3 +38,13 @@ test.describe("Tripownia production smoke", () => {
     await checkSalesCards(page);
   });
 });
+
+test("historical social landing never advertises its old price as current", async ({ page }) => {
+  const response = await page.goto("/o/wieden-469", { waitUntil: "domcontentloaded" });
+  expect(response?.status()).toBe(200);
+  await expect(page.locator(".detail-price")).toContainText("Sprawdź aktualną cenę");
+  await expect(page.locator(".detail-price")).not.toContainText("469");
+  await expect(page.locator(".detail-price-status")).toContainText("cena historyczna");
+  const href = await page.locator(".detail-action-box .primary-cta").getAttribute("href");
+  expect(new URL(href || "", "https://tripownia.pl").searchParams.has("price")).toBe(false);
+});
