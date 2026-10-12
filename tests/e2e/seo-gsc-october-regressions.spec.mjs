@@ -65,10 +65,13 @@ test("Alicante vs Malaga guide never recommends unrelated destination cards", as
   const html = await response.text();
   // This page must compare the two cities and never fall back to arbitrary destinations.
   expect(html).toContain("Czy Alicante leży w Andaluzji?");
-  const offersSection = html.match(/<section class="legacy-offers article-related-offers">([\\s\\S]*?)<\\/section>/);
-  if (offersSection) {
-    expect(offersSection[1]).not.toContain("Djerba");
-    expect(offersSection[1]).not.toContain("Marrakesz");
-    expect(offersSection[1]).not.toContain("Kreta");
+  // Limit assertions to the actual recommendation section; unrelated cities
+  // can legitimately occur in the full article as travel comparisons.
+  const offersStart = html.indexOf('class="legacy-offers article-related-offers"');
+  if (offersStart >= 0) {
+    const offersHtml = html.slice(offersStart, html.indexOf("</section>", offersStart));
+    expect(offersHtml).not.toContain("Djerba");
+    expect(offersHtml).not.toContain("Marrakesz");
+    expect(offersHtml).not.toContain("Kreta");
   }
 });
