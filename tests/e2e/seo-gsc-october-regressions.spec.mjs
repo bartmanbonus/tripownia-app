@@ -55,6 +55,6 @@ test("Poznan hub links to dedicated commercial city-break page", async ({ reques
   const response = await request.get("/z-poznania");
   expect(response.status()).toBe(200);
   const html = await response.text();
-  expect(html).toContain("city break z Poznania");
+  expect(html).toContain("City break z Poznania");
   expect(html).toContain("/podroze/city-break-z-poznania");
 });
