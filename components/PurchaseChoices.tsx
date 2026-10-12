@@ -194,7 +194,7 @@ export default function PurchaseChoices({
             {typeof currentPrice === "number" && currentPrice > 0 ? ` Punkt odniesienia: od ${currentPrice.toLocaleString("pl-PL")} zł/os.` : ""}
           </p>
         </div>
-        <div className="purchase-choices-trust"><ShieldCheck size={18}/> Najpierw wybór w Tripowni, potem płatność u partnera.</div>
+        <div className="purchase-choices-trust"><ShieldCheck size={18}/> Najpierw wybór w Tripowni, potem bezpieczne potwierdzenie rezerwacji.</div>
       </div>
 
       {loading ? (
@@ -244,7 +244,7 @@ export default function PurchaseChoices({
               );
             })}
           </div>
-          {partial && <p className="purchase-choices-note">Porównanie obejmuje dostępne wyniki z ostatnich 6 godzin. Cenę i dostępność potwierdzisz u partnera.</p>}
+          {partial && <p className="purchase-choices-note">Porównanie obejmuje dostępne wyniki z ostatnich 6 godzin. Cenę i dostępność potwierdzisz przed płatnością.</p>}
         </>
       )}
     </section>
