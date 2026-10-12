@@ -1,10 +1,10 @@
-import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
+import LivePriceRadar from "@/components/LivePriceRadar";
 import type { Metadata } from "next";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
-import { getDailyOffers } from "@/lib/offers";
+
 
 const title = "Radar Tripowni – codzienny wybór okazji podróżniczych";
 const description = "Radar Tripowni: krótka codzienna selekcja ciekawych wyjazdów z Polski. City break, ciepło, All Inclusive i tanie podróże bez ściany przypadkowych ofert.";
@@ -21,10 +21,10 @@ export const metadata: Metadata = {
   },
 };
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export default function RadarTripowniPage() {
-  const picks = getDailyOffers(undefined, 5);
+  const picks: Array<never> = [];
   const checked = new Intl.DateTimeFormat("pl-PL", {
     timeZone: "Europe/Warsaw",
     day: "2-digit",
@@ -32,22 +32,11 @@ export default function RadarTripowniPage() {
     year: "numeric",
   }).format(new Date());
 
-  const itemList = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "Radar Tripowni",
-    numberOfItems: picks.length,
-    itemListElement: picks.map((offer, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: `${offer.city}, ${offer.country} – od ${offer.price} zł`,
-      url: "https://tripownia.pl/okazje",
-    })),
-  };
+
 
   return <main>
     <SiteHeader/>
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
+
     <BreadcrumbSchema items={[
       { name: "Tripownia", url: "https://tripownia.pl/" },
       { name: "Radar Tripowni", url: "https://tripownia.pl/radar-tripowni" },
@@ -57,20 +46,12 @@ export default function RadarTripowniPage() {
       <header className="guides-hero">
         <div>
           <div className="kicker">RADAR TRIPOWNI · {checked}</div>
-          <h1>5 wyjazdów, które dziś warto mieć na radarze.</h1>
-          <p>Nie wrzucamy tu wszystkiego. Radar Tripowni to krótka selekcja różnych typów podróży: szybki city break, ciepło, plaża albo wyjazd z dobrą relacją ceny do długości pobytu.</p>
+          <h1>Prawdziwe okazje cenowe – sprawdzane na bieżąco.</h1>
+          <p>Pokazujemy wyłącznie aktualne ceny z konkretnymi terminami i dokładnymi linkami. Gdy nie ma wiarygodnych okazji, nie wyświetlamy fikcyjnych promocji.</p>
         </div>
       </header>
 
-      <section className="guides-section-grid">
-        {picks.map((offer, index) => <section className="guides-section-card" key={offer.id}>
-          <div className="kicker">#{index + 1} · {offer.tag}</div>
-          <h2>{offer.flag} {offer.city}, {offer.country}</h2>
-          <p><strong>od {offer.price.toLocaleString("pl-PL")} zł/os.</strong> · {offer.nights} nocy · wylot: {offer.departure}</p>
-          <p>{offer.reason}</p>
-          <p><small>{offer.dates} · {offer.board}</small></p>
-          <a href={liveOfferLandingHref(offer, { source: "radar-tripowni" })}>Sprawdź aktualną cenę →</a>
-        </section>)}
+      <LivePriceRadar />)}
       </section>
 
       <section className="guides-checklist">
