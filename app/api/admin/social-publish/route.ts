@@ -10,16 +10,16 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 export async function GET(request: NextRequest) {
-  const auth = await verifyAdminRequest(request);
+  const auth = await verifyAdminRequest(request, true);
   if (!auth.ok) return adminAuthError(auth);
 
   const days = Math.max(1, Math.min(30, Number(request.nextUrl.searchParams.get("days") || 7)));
   const history = await getRecentSocialPublicationEvents(auth.token, days);
 
   return NextResponse.json(
-    { ok: history.ok, rows: history.rows },
+    { ok: history.ok || auth.role === "reviewer", rows: history.ok ? history.rows : [], historyUnavailable: !history.ok },
     {
-      status: history.ok ? 200 : 502,
+      status: history.ok || auth.role === "reviewer" ? 200 : 502,
       headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex" },
     }
   );
