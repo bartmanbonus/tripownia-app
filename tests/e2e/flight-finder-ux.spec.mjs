@@ -32,8 +32,17 @@ test("elastyczne loty mają jasne ustawienia początkowe i działające filtry",
   await expect(searchButton).toContainText("Pokaż najtańsze loty");
   await expect(searchButton).toBeEnabled();
 
-  const months = finder.locator(".flight-hunt-month select option");
-  await expect(months).toHaveCount(16);
+  const monthsToggle = finder.locator(".flight-hunt-month-multi .flight-hunt-picker-trigger");
+  await expect(monthsToggle).toContainText("Dowolny miesiąc");
+  await monthsToggle.click();
+  const monthGrid = finder.locator(".flight-multi-month-grid");
+  await expect(monthGrid.getByRole("button")).toHaveCount(6);
+  await monthGrid.getByRole("button").nth(0).click();
+  await monthGrid.getByRole("button").nth(1).click();
+  await expect(monthGrid.getByRole("button").nth(0)).toHaveAttribute("aria-pressed", "true");
+  await expect(monthGrid.getByRole("button").nth(1)).toHaveAttribute("aria-pressed", "true");
+  await finder.locator(".flight-multi-month-panel").getByRole("button", { name: "Zastosuj" }).click();
+  await expect(monthsToggle).toContainText("2 wybrane miesiące");
 
   // The search button must fit in the viewport on small screens.
   if (page.viewportSize()?.width <= 780) {
@@ -53,4 +62,24 @@ test("zmiana na konkretne daty zachowuje oddzielną wyszukiwarkę lotów", async
   await switcher.getByRole("tab", { name: /Mam konkretne daty/ }).click();
   await expect(page.locator(".flights-exact-panel")).toBeVisible();
   await expect(page.locator(".flight-hunt-clean")).toHaveCount(0);
+});
+
+test("elastyczne loty pokazują filtry i kraje po wyszukaniu", async ({ page }) => {
+  await page.route("**/api/flight-deals?**", async (route) => {
+    await route.fulfill({ json: { ok: true, offers: [
+      {destination:"FCO",name:"Rzym",country:"Włochy",price:250,departDate:"2026-12-05",returnDate:"2026-12-08",changes:0,affiliateUrl:"/go/live"},
+      {destination:"MXP",name:"Mediolan",country:"Włochy",price:300,departDate:"2026-12-12",returnDate:"2026-12-16",changes:0,affiliateUrl:"/go/live"},
+      {destination:"ARN",name:"Sztokholm",country:"Szwecja",price:200,departDate:"2026-12-20",returnDate:"2026-12-23",changes:1,affiliateUrl:"/go/live"},
+    ] } });
+  });
+  await page.goto("/loty", { waitUntil: "domcontentloaded" });
+  await page.locator(".flight-hunt-submit").first().click();
+  await expect(page.locator(".flight-discovery-toolbar")).toBeVisible();
+  await expect(page.locator(".flight-country-card")).toHaveCount(2);
+  await page.locator(".flight-discovery-toolbar").getByLabel("Budżet na lot").selectOption("250");
+  await expect(page.locator(".flight-country-card")).toHaveCount(2);
+  await page.locator(".flight-discovery-toolbar").getByLabel("Państwo").selectOption("Włochy");
+  await expect(page.locator(".flight-country-card")).toHaveCount(1);
+  await page.locator(".flight-country-expand").click();
+  await expect(page.locator(".flight-country-options a")).toHaveCount(1);
 });
