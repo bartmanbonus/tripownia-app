@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Archive, ArrowRight, CalendarDays, MapPinned, Plus, RotateCcw, Trash2 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import { BookingInbox } from "@/components/BookingInbox";
 import { ensureFreshAccountSession, readAccountSession } from "@/lib/accountAuth";
 import {
   TRIP_ARCHIVE_EVENT,
@@ -134,6 +135,7 @@ export default function MyTripsPage() {
             </div>
           </div>
         )}
+        <BookingInbox />
       </section>
       <SiteFooter />
     </main>
