@@ -3,7 +3,25 @@
 import { useState, type RefObject } from "react";
 import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
 
+export type HotelDatePreferences = {
+  mode: "dates" | "months";
+  flexDays: 0 | 1 | 2 | 3 | 7;
+  months: string[];
+  stayLength: "weekend" | "week" | "month" | "custom";
+  nights: number;
+};
+
+export const DEFAULT_HOTEL_DATE_PREFERENCES: HotelDatePreferences = {
+  mode: "dates",
+  flexDays: 0,
+  months: [],
+  stayLength: "weekend",
+  nights: 3,
+};
+
 type Props = {
+  preferences: HotelDatePreferences;
+  onPreferencesChange: (next: HotelDatePreferences) => void;
   from: string;
   to: string;
   open: boolean;
@@ -64,7 +82,7 @@ function monthDays(key: string) {
 }
 
 export default function HotelStayPicker({
-  from, to, open, onOpenChange, onChange, containerRef,
+  from, to, open, onOpenChange, onChange, containerRef, preferences, onPreferencesChange,
 }: Props) {
   const now = new Date();
   const today = isoLocal(now);
@@ -72,9 +90,16 @@ export default function HotelStayPicker({
   const [visibleMonth, setVisibleMonth] = useState(() => from?.slice(0, 7) || currentMonth);
   const month = visibleMonth < currentMonth ? currentMonth : visibleMonth;
   const nights = nightsBetween(from, to);
-  const summary = from && to
-    ? `${shortDate(from)} – ${shortDate(to)} · ${nightsLabel(nights)}`
-    : from ? `Od ${shortDate(from)} · wybierz wyjazd` : "Wybierz daty";
+  const selectedMonthNames = preferences.months.map((key) => monthTitle(key).replace(" ", " ")).join(", ");
+  const flexStayLabel = preferences.stayLength === "weekend" ? "weekend"
+    : preferences.stayLength === "week" ? "tydzień"
+    : preferences.stayLength === "month" ? "miesiąc"
+    : nightsLabel(preferences.nights);
+  const summary = preferences.mode === "months"
+    ? preferences.months.length ? `${selectedMonthNames} · ${flexStayLabel}` : "Wybierz miesiące"
+    : from && to
+      ? `${shortDate(from)} – ${shortDate(to)} · ${nightsLabel(nights)}${preferences.flexDays ? ` · ±${preferences.flexDays} dni` : ""}`
+      : from ? `Od ${shortDate(from)} · wybierz wyjazd` : "Wybierz daty";
 
   function chooseDay(day: string) {
     if (!from || to || day <= from) {
@@ -88,6 +113,15 @@ export default function HotelStayPicker({
     const friday = addDays(today, daysUntilFriday);
     onChange(friday, addDays(friday, 2));
     setVisibleMonth(friday.slice(0, 7));
+    onPreferencesChange({ ...preferences, mode: "dates", flexDays: 0 });
+  }
+
+  function toggleMonth(key: string) {
+    const selected = preferences.months.includes(key);
+    const months = selected
+      ? preferences.months.filter((item) => item !== key)
+      : preferences.months.length < 3 ? [...preferences.months, key].sort() : preferences.months;
+    onPreferencesChange({ ...preferences, mode: "months", months });
   }
 
   const fridayOffset = (5 - now.getDay() + 7) % 7;
@@ -112,6 +146,51 @@ export default function HotelStayPicker({
             <div><strong>Termin pobytu</strong><small>Wybierz dzień zameldowania i wymeldowania.</small></div>
             <button type="button" onClick={() => onOpenChange(false)} aria-label="Zamknij kalendarz"><X size={19}/></button>
           </div>
+          <div className="hotel-stay-mode-tabs" role="tablist" aria-label="Sposób wyboru dat">
+            <button type="button" role="tab" aria-selected={preferences.mode === "dates"} className={preferences.mode === "dates" ? "active" : ""} onClick={() => onPreferencesChange({ ...preferences, mode: "dates" })}>Konkretne daty</button>
+            <button type="button" role="tab" aria-selected={preferences.mode === "months"} className={preferences.mode === "months" ? "active" : ""} onClick={() => onPreferencesChange({ ...preferences, mode: "months" })}>Dowolny termin</button>
+          </div>
+          {preferences.mode === "months" ? (
+            <div className="hotel-stay-flex-months">
+              <strong>Na jak długo?</strong>
+              <div className="hotel-stay-length-options" role="group" aria-label="Długość pobytu">
+                {([
+                  ["weekend", "Weekend"],
+                  ["week", "Tydzień"],
+                  ["month", "Miesiąc"],
+                  ["custom", "Własna liczba nocy"],
+                ] as const).map(([key, label]) => (
+                  <button key={key} type="button" aria-pressed={preferences.stayLength === key}
+                    className={preferences.stayLength === key ? "active" : ""}
+                    onClick={() => onPreferencesChange({ ...preferences, stayLength: key })}>{label}</button>
+                ))}
+              </div>
+              {preferences.stayLength === "custom" && (
+                <label className="hotel-stay-custom-nights">Liczba nocy
+                  <input type="number" min={1} max={30} value={preferences.nights}
+                    onChange={(event) => onPreferencesChange({
+                      ...preferences, nights: Math.max(1, Math.min(30, Number(event.target.value) || 1))
+                    })}/>
+                </label>
+              )}
+              <strong>Kiedy chcesz wyjechać?</strong>
+              <p>Wybierz maksymalnie 3 miesiące. Możesz zaznaczyć miesiące nieobok siebie.</p>
+              <div className="hotel-stay-month-options" role="group" aria-label="Miesiące podróży">
+                {Array.from({ length: 16 }, (_, index) => addMonths(currentMonth, index)).map((key) => {
+                  const selected = preferences.months.includes(key);
+                  return <button type="button" key={key}
+                    aria-pressed={selected}
+                    disabled={!selected && preferences.months.length >= 3}
+                    className={selected ? "active" : ""}
+                    onClick={() => toggleMonth(key)}>
+                    <span>{monthTitle(key).split(" ")[0]}</span><small>{key.slice(0, 4)}</small>
+                  </button>;
+                })}
+              </div>
+              <p className="hotel-stay-month-count">{preferences.months.length}/3 miesiące</p>
+            </div>
+          ) : (
+          <>
           <div className="hotel-stay-inputs">
             <label>Zameldowanie
               <input type="date" min={today} value={from} onChange={(event) => {
@@ -133,6 +212,7 @@ export default function HotelStayPicker({
             <button type="button" onClick={() => {
               onChange(tomorrow, addDays(tomorrow, 7));
               setVisibleMonth(tomorrow.slice(0, 7));
+              onPreferencesChange({ ...preferences, flexDays: 0 });
             }}>7 nocy od jutra</button>
           </div>
           <div className="hotel-stay-navigation">
@@ -163,9 +243,26 @@ export default function HotelStayPicker({
               </section>
             ))}
           </div>
+          <div className="hotel-stay-flex-days" role="group" aria-label="Elastyczność dat">
+            <strong>Elastyczność dat</strong>
+            <div>
+              {([0, 1, 2, 3, 7] as const).map((days) => (
+                <button type="button" key={days} aria-pressed={preferences.flexDays === days}
+                  className={preferences.flexDays === days ? "active" : ""}
+                  onClick={() => onPreferencesChange({ ...preferences, mode: "dates", flexDays: days })}>
+                  {days === 0 ? "Dokładnie" : `±${days} ${days === 1 ? "dzień" : "dni"}`}
+                </button>
+              ))}
+            </div>
+          </div>
+          </>
+          )}
           <div className="hotel-stay-footer">
-            <span>{nights ? `Pobyt: ${nightsLabel(nights)}` : from ? "Teraz wybierz wymeldowanie" : "Wybierz daty pobytu"}</span>
-            <button type="button" onClick={() => onOpenChange(false)} disabled={!nights}>
+            <span>{preferences.mode === "months"
+              ? preferences.months.length ? `${preferences.months.length} mies. · ${flexStayLabel}` : "Wybierz przynajmniej jeden miesiąc"
+              : nights ? `Pobyt: ${nightsLabel(nights)}` : from ? "Teraz wybierz wymeldowanie" : "Wybierz daty pobytu"}</span>
+            <button type="button" onClick={() => onOpenChange(false)}
+              disabled={preferences.mode === "months" ? !preferences.months.length : !nights}>
               Zastosuj termin
             </button>
           </div>
