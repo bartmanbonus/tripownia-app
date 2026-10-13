@@ -6,6 +6,7 @@ import { ArrowRight, BedDouble, CalendarDays, CheckCircle2, MapPin, Plane, Train
 import styles from "@/app/jarmarki-bozonarodzeniowe/markets.module.css";
 import { partners } from "@/lib/partners";
 import { marketFlightDateSuggestions, marketFlightDateLabel, marketKiwiFlightHref } from "@/lib/marketFlightDates";
+import { parseMarketFlightPrices, marketFlightPriceDateLabel, type MarketFlightPrice } from "@/lib/marketFlightPrices";
 
 type MarketIdea = {
   city: string;
@@ -136,7 +137,7 @@ function knownDirectOrigin(airport: string, city: string) {
 }
 
 type FlightAvailability = "found" | "none" | "unknown";
-type FlightStatuses = { query: string; byCity: Record<string, FlightAvailability> };
+type FlightStatuses = { query: string; byCity: Record<string, FlightAvailability>; prices: Record<string, MarketFlightPrice[]> };
 
 // Preserve the approved Klook tracking IDs and link to its Europe rail section.
 function railHref(idea: MarketIdea, origin: string, month: string) {
@@ -191,14 +192,14 @@ export default function ChristmasMarketsClient() {
   const [duration, setDuration] = useState("2-4");
 
   const queryKey = [airport, month, duration].join("|");
-  const [flights, setFlights] = useState<FlightStatuses>({ query: "", byCity: {} });
+  const [flights, setFlights] = useState<FlightStatuses>({ query: "", byCity: {}, prices: {} });
 
   // In addition to verified scheduled routes, use the price calendar to discover
   // other non-stop flights. Empty/failed calendar results do not invalidate a
   // known route from a separate timetable.
   useEffect(() => {
     const controller = new AbortController();
-    setFlights({ query: queryKey, byCity: {} });
+    setFlights({ query: queryKey, byCity: {}, prices: {} });
     if (airport === "ALL") return () => controller.abort();
 
     const [minDays, maxDays] = duration.split("-").map(Number);
@@ -216,28 +217,26 @@ export default function ChristmasMarketsClient() {
 
       fetch("/api/flight-calendar?" + params.toString(), { signal: controller.signal })
         .then(async (response) => {
-          if (!response.ok) return "unknown" as const;
+          if (!response.ok) return { status: "unknown" as FlightAvailability, prices: [] as MarketFlightPrice[] };
           const data = await response.json();
-          if (!data?.ok || !Array.isArray(data.results)) return "unknown" as const;
-          const hasDirectFlight = data.results.some((item: {
-            departDate?: string; returnDate?: string; price?: number;
-            outboundStops?: number; returnStops?: number;
-          }) =>
-            Number(item.price || 0) > 0
-            && Boolean(item.departDate && item.returnDate)
-            && String(item.departDate) >= bounds.from
-            && String(item.departDate) <= bounds.to
-            && String(item.returnDate) <= bounds.to
-            && Number(item.outboundStops || 0) === 0
-            && Number(item.returnStops || 0) === 0
-          );
-          return hasDirectFlight ? "found" as const : "none" as const;
+          if (!data?.ok) return { status: "unknown" as FlightAvailability, prices: [] as MarketFlightPrice[] };
+          const prices = parseMarketFlightPrices(data, {
+            from: bounds.from,
+            to: bounds.to,
+            minNights: minDays,
+            maxNights: maxDays,
+          });
+          return { status: (prices.length ? "found" : "none") as FlightAvailability, prices };
         })
-        .catch(() => "unknown" as const)
-        .then((availability: FlightAvailability) => {
+        .catch(() => ({ status: "unknown" as FlightAvailability, prices: [] as MarketFlightPrice[] }))
+        .then(({ status, prices }) => {
           if (controller.signal.aborted) return;
           setFlights((current) => current.query === queryKey
-            ? { ...current, byCity: { ...current.byCity, [idea.city]: availability } }
+            ? {
+                ...current,
+                byCity: { ...current.byCity, [idea.city]: status },
+                prices: { ...current.prices, [idea.city]: prices },
+              }
             : current);
         });
     }
@@ -325,7 +324,8 @@ export default function ChristmasMarketsClient() {
         <div className={styles.cards}>
           {availableMarkets.map((idea) => {
             const status = flights.query === queryKey ? flights.byCity[idea.city] : undefined;
-            const flightConfirmed = status === "found";
+            const pricedFlights = flights.query === queryKey ? flights.prices[idea.city] || [] : [];
+            const flightConfirmed = pricedFlights.length > 0;
             const scheduledOrigin = knownDirectOrigin(airport, idea.city);
             const showFlight = flightConfirmed || Boolean(scheduledOrigin);
             const flightOrigin = scheduledOrigin || airport;
@@ -370,10 +370,23 @@ export default function ChristmasMarketsClient() {
                 }
               </p>
 
-              {showFlight && proposedDates.length > 0 && (
+              {pricedFlights.length > 0 ? (
+                <div className={styles.flightSuggestions} aria-label={"Dostępne ceny lotów do " + idea.city}>
+                  <strong>Najtańsze znalezione loty z {flightOrigin} · od {pricedFlights[0].price.toLocaleString("pl-PL")} zł</strong>
+                  <small>Ceny z kalendarza lotów · bez przesiadek · sprawdź aktualną dostępność przed zakupem</small>
+                  <div className={styles.flightPriceList}>
+                    {pricedFlights.slice(0, 4).map((offer) => (
+                      <a key={offer.departDate + offer.returnDate} href={offer.affiliateUrl} rel="sponsored" className={styles.flightPriceLink}>
+                        <span><Plane size={15}/> {marketFlightPriceDateLabel(offer)}</span>
+                        <b>od {offer.price.toLocaleString("pl-PL")} zł <ArrowRight size={15}/></b>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ) : showFlight && proposedDates.length > 0 ? (
                 <div className={styles.flightSuggestions}>
                   <strong>Sprawdź loty na konkretne terminy</strong>
-                  <small>Terminy proponowane do wyszukania · cena i miejsca do sprawdzenia u partnera</small>
+                  <small>Brak potwierdzonych cen w kalendarzu · sprawdź dostępność u partnera</small>
                   <div className={styles.flightSuggestionsLinks}>
                     {proposedDates.map((dates) => (
                       <a key={dates.departure} href={marketKiwiFlightHref({origin:flightOrigin,destination:MARKET_AIRPORTS[idea.city],city:idea.city,dates})} rel="sponsored">
@@ -382,7 +395,7 @@ export default function ChristmasMarketsClient() {
                     ))}
                   </div>
                 </div>
-              )}
+              ) : null}
 
               <div className={styles.cardActions}>
                 {showFlight ? (
@@ -416,7 +429,7 @@ export default function ChristmasMarketsClient() {
 
         <div className={styles.note}>
           <CheckCircle2 size={19} aria-hidden="true" />
-          <p><strong>Ważne:</strong> terminy obok lotów są propozycjami wyszukiwania w Kiwi.com, a nie potwierdzonymi ofertami lub cenami.  połączenia Warszawa–Wiedeń, Warszawa–Budapeszt, Warszawa–Praga i Warszawa–Berlin wynikają z rozkładów lotów, a nie z gwarantowanej dostępności miejsc w wybranym terminie. Brak lotu w kalendarzu cen nie dowodzi, że lot nie istnieje. Pociągi prowadzą do afiliacyjnej wyszukiwarki Klook — tam wybierzesz stacje i konkretne daty; dostępność połączeń z Polski nie jest gwarantowana. Hotele otwierają wyszukiwanie miasta w Booking.com z afiliacją Tripowni. Daty i ceny potwierdź u dostawców, a daty jarmarków u organizatorów.</p>
+          <p><strong>Ważne:</strong> znalezione ceny lotów pochodzą z kalendarza taryf, nie są gwarantowaną ceną zakupu. Daty bez ceny są propozycjami wyszukiwania w Kiwi.com. Połączenia Warszawa–Wiedeń, Warszawa–Budapeszt, Warszawa–Praga i Warszawa–Berlin wynikają z rozkładów lotów, a nie z gwarantowanej dostępności miejsc w wybranym terminie. Brak lotu w kalendarzu cen nie dowodzi, że lot nie istnieje. Pociągi prowadzą do afiliacyjnej wyszukiwarki Klook — tam wybierzesz stacje i konkretne daty; dostępność połączeń z Polski nie jest gwarantowana. Hotele otwierają wyszukiwanie miasta w Booking.com z afiliacją Tripowni. Daty i ceny potwierdź u dostawców, a daty jarmarków u organizatorów.</p>
         </div>
         <nav className={styles.moreLinks} aria-label="Inne sposoby planowania">
           <Link href="/hotele">Znajdź nocleg <ArrowRight size={15}/></Link>
