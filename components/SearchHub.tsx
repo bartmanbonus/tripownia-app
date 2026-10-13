@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Sparkles, Trash2, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import HotelGuestsPicker, { type HotelGuestsValue } from "@/components/HotelGuestsPicker";
-import HotelStayPicker from "@/components/HotelStayPicker";
+import HotelStayPicker, { DEFAULT_HOTEL_DATE_PREFERENCES, type HotelDatePreferences } from "@/components/HotelStayPicker";
 import DresdenCityBreakOptions from "@/components/DresdenCityBreakOptions";
 import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type WorldDestination } from "@/lib/worldDestinations";
@@ -403,6 +403,9 @@ export default function SearchHub({
   const [weekendOnly, setWeekendOnly] = useState(initialWeekendOnly);
   const [hotelGuests, setHotelGuests] = useState<HotelGuestsValue>({ adults: initialHotelAdults, rooms: initialHotelRooms, childAges: initialHotelChildAges });
   const [hotelError, setHotelError] = useState("");
+  const [hotelDatePreferences, setHotelDatePreferences] = useState<HotelDatePreferences>(DEFAULT_HOTEL_DATE_PREFERENCES);
+  const [hotelEntireHome, setHotelEntireHome] = useState(false);
+  const [hotelBusinessTrip, setHotelBusinessTrip] = useState(false);
   const [flightAdults, setFlightAdults] = useState(1);
   const [flightCabin, setFlightCabin] = useState("ECONOMY");
   const [flightTripType, setFlightTripType] = useState<"round" | "oneway">("round");
@@ -1062,9 +1065,14 @@ export default function SearchHub({
         return;
       }
 
-      if (activeTab === "Hotele" && (dateMode !== "range" || !dateFrom || !dateTo || dateTo <= dateFrom || dateFrom < todayISO)) {
+      if (activeTab === "Hotele" && hotelDatePreferences.mode === "dates" && (dateMode !== "range" || !dateFrom || !dateTo || dateTo <= dateFrom || dateFrom < todayISO)) {
         setHotelError("Wybierz datę zameldowania i późniejszą datę wymeldowania.");
         setDateMode("range");
+        setDateOpen(true);
+        return;
+      }
+      if (activeTab === "Hotele" && hotelDatePreferences.mode === "months" && hotelDatePreferences.months.length === 0) {
+        setHotelError("Wybierz przynajmniej jeden miesiąc.");
         setDateOpen(true);
         return;
       }
@@ -1103,6 +1111,13 @@ export default function SearchHub({
         if (departures[0]) params.set("origin", departures[0]);
         if (dateFrom) params.set("from", dateFrom);
         if (dateTo) params.set("to", dateTo);
+        params.set("dateMode", hotelDatePreferences.mode);
+        params.set("flexDays", String(hotelDatePreferences.flexDays));
+        if (hotelDatePreferences.months.length) params.set("months", hotelDatePreferences.months.join(","));
+        params.set("stayLength", hotelDatePreferences.stayLength);
+        params.set("nights", String(hotelDatePreferences.nights));
+        if (hotelEntireHome) params.set("entireHome", "1");
+        if (hotelBusinessTrip) params.set("businessTrip", "1");
         params.set("adults", String(hotelGuests.adults));
         params.set("rooms", String(hotelGuests.rooms));
         if (hotelGuests.childAges.length) params.set("ages", hotelGuests.childAges.join(","));
@@ -1242,6 +1257,9 @@ export default function SearchHub({
     setWeekendOnly(false);
     setFlightAdults(1);
     setHotelGuests({ adults: 2, rooms: 1, childAges: [] });
+    setHotelDatePreferences(DEFAULT_HOTEL_DATE_PREFERENCES);
+    setHotelEntireHome(false);
+    setHotelBusinessTrip(false);
     setHotelError("");
     setFlightCabin("ECONOMY");
     setFlightTripType("round");
@@ -1522,6 +1540,8 @@ export default function SearchHub({
             <HotelStayPicker
               from={dateFrom}
               to={dateTo}
+              preferences={hotelDatePreferences}
+              onPreferencesChange={setHotelDatePreferences}
               open={dateOpen}
               onOpenChange={setDateOpen}
               containerRef={dateRef}
@@ -1850,6 +1870,12 @@ export default function SearchHub({
             )}
           </div>}
 
+          {activeTab === "Hotele" && (
+            <div className="hotel-booking-preferences">
+              <label><input type="checkbox" checked={hotelEntireHome} onChange={(event) => setHotelEntireHome(event.target.checked)}/> Cały dom lub apartament</label>
+              <label><input type="checkbox" checked={hotelBusinessTrip} onChange={(event) => setHotelBusinessTrip(event.target.checked)}/> Podróż służbowa</label>
+            </div>
+          )}
           {activeTab === "Hotele" && hotelError && <p className="hotel-form-error" role="alert">{hotelError}</p>}
           <button type="submit" className="search-v3-submit" disabled={loading || budgetInvalid}><Search size={18}/>{loading ? "Szukamy…" : budgetInvalid ? "Popraw budżet" : activeTab === "Loty" ? "Porównaj loty" : activeTab === "Hotele" ? "Szukaj hoteli" : "Szukaj wyjazdu"}</button>
         </form>
