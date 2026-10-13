@@ -276,7 +276,7 @@ function isUpcomingMatch(match: FootballDataMatch) {
 }
 
 export function getSportsTravelWindow(kickoff: string, nights = 3) {
-  const safeNights = [2, 3, 4].includes(nights) ? nights : 3;
+  const safeNights = [1, 2, 3, 4].includes(nights) ? nights : 3;
   const match = new Date(kickoff);
   const departure = new Date(Date.UTC(match.getUTCFullYear(), match.getUTCMonth(), match.getUTCDate()));
   departure.setUTCDate(departure.getUTCDate() - 1);
