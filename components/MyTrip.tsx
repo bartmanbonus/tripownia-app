@@ -6,6 +6,7 @@ import { BedDouble, CheckCircle2, Circle, MapPinned, Plane, Ticket, WalletCards,
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import TripToolkit from "@/components/TripToolkit";
+import { BookingInbox } from "@/components/BookingInbox";
 import { inferOfferStartDate, offers, publishedOfferOverrides, type Offer } from "@/lib/offers";
 import { accountAuthEventName, ensureFreshAccountSession, readAccountSession } from "@/lib/accountAuth";
 import { estimateTripCost } from "@/lib/tripCost";
@@ -634,6 +635,7 @@ export default function MyTrip() {
               <div className="trip-attraction-grid">{attractions.map((pick) => { const Icon = pick.icon === "landmark" ? Landmark : pick.icon === "food" ? UtensilsCrossed : pick.icon === "water" ? Waves : Sparkles; const href = `/atrakcje?q=${encodeURIComponent(pick.query)}`; return <Link key={pick.title} href={href}><Icon size={20}/><div><strong>{pick.title}</strong><span>{pick.subtitle}</span></div><ArrowRight size={16}/></Link>; })}</div>
             </section>
 
+            <BookingInbox tripOnly />
             <TripToolkit city={offer.city || offer.country} country={offer.country} tripId={trip.tripId || `trip-${offer.id}`} />
 
             {flightReady && (
