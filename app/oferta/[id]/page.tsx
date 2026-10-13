@@ -25,9 +25,14 @@ export async function generateMetadata({params}:{params:Promise<{id:string}>}):P
   const {id}=await params;
   const o=offers.find(x=>x.id===Number(id));
   if (!o) return {};
-  const title = `${o.city} z ${o.departure} — od ${o.price.toLocaleString("pl-PL")} zł/os.`;
+  const verifiedEsky = o.partner !== "esky" || getLinkMatch(o) === "exact";
+  const title = verifiedEsky
+    ? `${o.city} z ${o.departure} — od ${o.price.toLocaleString("pl-PL")} zł/os.`
+    : `${o.city} z ${o.departure} — sprawdź pakiety i ceny`;
   const socialTitle = `${title} | Tripownia.pl`;
-  const description = `${o.city}, ${o.nights} nocy, ${o.board}, wylot z ${o.departure}. Ostatnio znaleźliśmy od ${o.price.toLocaleString("pl-PL")} zł/os. Sprawdź aktualną cenę i dostępność.`;
+  const description = verifiedEsky
+    ? `${o.city}, ${o.nights} nocy, ${o.board}, wylot z ${o.departure}. Ostatnio znaleźliśmy od ${o.price.toLocaleString("pl-PL")} zł/os. Sprawdź aktualną cenę i dostępność.`
+    : `${o.city}, ${o.nights} nocy, wylot z ${o.departure}. Porównaj aktualnie dostępne pakiety lot + hotel.`;
   const socialImage = `/oferta/${o.id}/opengraph-image`;
   return {
     title,
@@ -86,6 +91,17 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
   const linkMatch = getLinkMatch(o);
   const isExact = linkMatch === "exact";
   const isParameterized = linkMatch === "parameters";
+  const isUnverifiedEskySearch = o.partner === "esky" && !isExact;
+  // Static catalogue entries are inspirations, not supplier-issued bookable
+  // packages. Never send their synthetic /portfolio search URLs to eSky.
+  if (isUnverifiedEskySearch) {
+    detailAffiliateUrl = `/szukaj?${new URLSearchParams({
+      destination: o.city,
+      airport: o.airportCode || "",
+      duration: String(o.nights || "all"),
+      tab: "Lot + hotel",
+    }).toString()}`;
+  }
   void isExact;
   void isParameterized;
   const checkedAt = formatPriceCheckedAt(o.priceCheckedAt);
@@ -113,7 +129,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
     offers: {
       "@type": "Offer",
       priceCurrency: "PLN",
-      ...(o.partner === "exim" ? {} : { price: o.price }),
+      ...(o.partner === "exim" || isUnverifiedEskySearch ? {} : { price: o.price }),
       availability: o.availabilityStatus === "expired" ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
       url: `https://tripownia.pl/oferta/${o.id}`,
     },
@@ -146,6 +162,11 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
           <div className="detail-price-card">
             {o.partner === "exim" ? (
               <EximLivePrice destination={o.city} country={o.country} from={o.airportCode} nights={o.nights} board={o.board} fallbackPrice={o.price} />
+            ) : isUnverifiedEskySearch ? (
+              <>
+                <div className="detail-price"><small>Cena niepotwierdzona</small> <strong>Sprawdź aktualne pakiety</strong></div>
+                <div className="price-status detail-price-status">To propozycja kierunku, nie potwierdzona rezerwacja. Pokażemy dostępne oferty z aktualną ceną i dokładnym linkiem.</div>
+              </>
             ) : (
               <>
                 <div className="detail-price"><small>ostatnio znaleźliśmy od</small> <strong>{o.price} zł</strong> / os.</div>
@@ -160,6 +181,11 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
             <div className="expired-offer">Ta oferta nie jest już dostępna. Poniżej znajdziesz podobne aktualne okazje.</div>
           ) : (
             <div className="detail-action-box">
+              {isUnverifiedEskySearch ? (
+                <Link className="primary-cta" href={detailAffiliateUrl}>
+                  Zobacz aktualne pakiety <ExternalLink size={18}/>
+                </Link>
+              ) : (
               <TrackedPartnerLink
                 className="primary-cta"
                 href={detailAffiliateUrl}
@@ -172,6 +198,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
               >
                 Sprawdź aktualną cenę i dostępność <ExternalLink size={18}/>
               </TrackedPartnerLink>
+              )}
               <OfferAlternativeJump />
               <small className="booking-note"><strong>Bez dodatkowej opłaty od Tripowni.</strong> Cena i dostępność mogą zmienić się do momentu rezerwacji — finalne warunki sprawdzasz przed płatnością.</small>
             </div>
@@ -279,7 +306,14 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
       )}
 
       {o.availabilityStatus !== "expired" && <div className="mobile-booking-bar">
-        <div>{o.partner === "exim" ? <><small>Cena od</small><strong>{o.price} zł / os.</strong></> : <><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></>}</div>
+        <div>{isUnverifiedEskySearch
+          ? <><small>Cena do sprawdzenia</small><strong>Aktualne pakiety</strong></>
+          : o.partner === "exim"
+          ? <><small>Cena od</small><strong>{o.price} zł / os.</strong></>
+          : <><small>Tripownia ostatnio znalazła</small><strong>od {o.price} zł / os.</strong></>}</div>
+        {isUnverifiedEskySearch ? (
+          <Link className="primary-cta" href={detailAffiliateUrl}>Pokaż pakiety <ExternalLink size={16}/></Link>
+        ) : (
         <TrackedPartnerLink
           href={detailAffiliateUrl}
           partner={o.partner}
@@ -291,6 +325,7 @@ export default async function OfferPage({params}:{params:Promise<{id:string}>}){
         >
           Sprawdź cenę i rezerwuj <ExternalLink size={16}/>
         </TrackedPartnerLink>
+        )}
       </div>}
       <CompleteTripSales city={o.city} country={o.country} source="offer_detail" />
       <BeforeYouGo city={o.city} country={o.country} transferIncluded={o.transferIncluded}/>
