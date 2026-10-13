@@ -78,7 +78,8 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
   const selectedMonth = one(params.month);
   const showAll = one(params.all) === "1";
   const parsedNights = Number(one(params.nights) || "3");
-  const selectedNights = [2, 3, 4].includes(parsedNights) ? parsedNights : 3;
+  const selectedNights = [1, 2, 3, 4].includes(parsedNights) ? parsedNights : 3;
+  const nightsChosenByVisitor = Boolean(one(params.nights));
   const parsedPeople = Number(one(params.people) || "2");
   const selectedPeople = [1, 2, 3, 4].includes(parsedPeople) ? parsedPeople : 2;
 
@@ -158,7 +159,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
 
             <div className={styles.filterGroupTitle}><strong>2. Ustaw wyjazd</strong><span>Te pola zmieniają lot, nocleg i długość pobytu przy każdym meczu.</span></div>
             <label><span>Skąd lecisz?</span><select name="from" defaultValue={selectedFrom}>{sportsDepartures.map(item => <option key={item.code} value={item.code}>{item.label}</option>)}</select></label>
-            <label><span>Długość</span><select name="nights" defaultValue={String(selectedNights)}><option value="2">2 noce</option><option value="3">3 noce</option><option value="4">4 noce</option></select></label>
+            <label><span>Długość</span><select name="nights" defaultValue={String(selectedNights)}><option value="1">1 noc</option><option value="2">2 noce</option><option value="3">3 noce</option><option value="4">4 noce</option></select></label>
             <label><span>Osoby</span><select name="people" defaultValue={String(selectedPeople)}><option value="1">1 osoba</option><option value="2">2 osoby</option><option value="3">3 osoby</option><option value="4">4 osoby</option></select></label>
             <div className={styles.actions}><button type="submit">Pokaż {filteredTrips.length} {filteredTrips.length === 1 ? "mecz" : "meczów"}</button><a href="/wydarzenia#wyniki-meczow">Wyczyść filtry</a></div>
           </form>
@@ -172,7 +173,15 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
           <>
             <div className={styles.grid}>
               {visibleTrips.map(trip => {
-                const links = buildSportsTripLinks(trip, selectedFrom, selectedNights, selectedPeople);
+                // The shared Inter-Fiorentina 25 October promotion is a Saturday-to-Sunday
+                // trip, unlike the regular three-night match packages. A visitor's
+                // explicit nights filter still takes precedence.
+                const featuredInterFiorentina = trip.clubSlug === "inter-mediolan"
+                  && trip.isHome
+                  && trip.kickoff.startsWith("2026-10-25")
+                  && /fiorentina/i.test(trip.awayTeam);
+                const tripNights = featuredInterFiorentina && !nightsChosenByVisitor ? 1 : selectedNights;
+                const links = buildSportsTripLinks(trip, selectedFrom, tripNights, selectedPeople);
                 const plannerParams = new URLSearchParams({
                   source: "sport",
                   city: trip.city,
@@ -183,7 +192,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                   match: `${trip.homeTeam} vs ${trip.awayTeam}`,
                   venue: trip.venue || trip.city,
                   kickoff: formatKickoff(trip.kickoff),
-                  nights: String(selectedNights),
+                  nights: String(tripNights),
                   people: String(selectedPeople),
                   flightUrl: links.flightUrl,
                   hotelUrl: links.hotelUrl,
@@ -227,7 +236,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                       <div className={styles.team}><TeamCrest src={trip.awayCrest} name={trip.awayTeam}/><strong>{trip.awayTeam}</strong></div>
                     </div>
                     <div className={styles.meta}><span>📍 {trip.venue || trip.city}</span><span>🌍 {trip.city}, {trip.country}</span></div>
-                    <div className={styles.trip}><strong>{activeDeparture.label} → {trip.city}</strong><span>{links.departureDate} – {links.returnDate} · {selectedNights} noce · {selectedPeople} os.</span></div>
+                    <div className={styles.trip}><strong>{activeDeparture.label} → {trip.city}</strong><span>{links.departureDate} – {links.returnDate} · {tripNights} {tripNights === 1 ? "noc" : "noce"} · {selectedPeople} os.</span></div>
                     <div className={styles.cardActions}>
                       <a className={styles.primary} href={"/dodaj-podroz?" + plannerParams.toString()}>Ułóż cały wyjazd →</a>
                       <a href={flightHref} rel="nofollow sponsored">Sprawdź lot</a>
