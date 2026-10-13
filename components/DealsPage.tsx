@@ -105,7 +105,8 @@ function purchaseReadinessScore(offer: DealsOffer) {
 
 function salesSort(rows: DealsOffer[]) {
   return [...rows].sort((a, b) =>
-    purchaseReadinessScore(b) - purchaseReadinessScore(a)
+    reviewSeasonalDeal(a).valueRatio - reviewSeasonalDeal(b).valueRatio
+    || purchaseReadinessScore(b) - purchaseReadinessScore(a)
     || Number(a.price) - Number(b.price)
     || Number(b.score || 0) - Number(a.score || 0)
   );
@@ -184,7 +185,7 @@ export default function DealsPage({
   destination = "",
   dealType = "",
   pageTitle = "Aktualne okazje gotowe do sprawdzenia.",
-  pageLead = "Najwyżej pokazujemy oferty z najlepszym połączeniem aktualności, konkretnego linku, pełnych danych i ceny. Jeśli chcesz, jednym kliknięciem posortujesz wyłącznie po najniższej cenie.",
+  pageLead = "Wybieramy sprawdzone oferty na dobry sezon: dokładna data, aktualna cena i odpowiednie warunki w regionie.",
   kicker = "OKAZJE TRIPOWNI",
   initialOffers = [],
   readySearchItems = [],
@@ -328,7 +329,7 @@ export default function DealsPage({
     }).slice(0, 6);
   }, [destination, rows, airport, month, year, currentYear, currentMonth]);
   const todayRows = useMemo(() => allOfferRows(todayOffers as DealsOffer[], "priceAsc").slice(0, 5), [todayOffers]);
-  const poolHighlights = useMemo(() => source === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source]);
+  const poolHighlights = useMemo(() => new Map<number, PriceHighlight>(), []);
 
   useEffect(() => {
     if (source !== "live" || !rows.length) return;
