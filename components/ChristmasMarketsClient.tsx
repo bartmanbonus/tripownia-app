@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, BedDouble, CalendarDays, CheckCircle2, MapPin, Plane, TrainFront, RotateCcw, Search, Ticket, X } from "lucide-react";
 import styles from "@/app/jarmarki-bozonarodzeniowe/markets.module.css";
 import { partners } from "@/lib/partners";
+import { MARKET_RAIL_ORIGINS, marketOriginForAirport, marketDestinationStations, marketStationDirectionsHref } from "@/lib/marketRailStations";
 import { marketFlightDateSuggestions, marketFlightDateLabel, marketKiwiFlightHref } from "@/lib/marketFlightDates";
 import { parseMarketFlightPrices, marketFlightPriceDateLabel, type MarketFlightPrice } from "@/lib/marketFlightPrices";
 
@@ -191,6 +192,9 @@ export default function ChristmasMarketsClient() {
   const [month, setMonth] = useState("2026-12");
   const [duration, setDuration] = useState("2-4");
   const [expandedFlightCity, setExpandedFlightCity] = useState<string | null>(null);
+  const [expandedRailCity, setExpandedRailCity] = useState<string | null>(null);
+  const [railOriginId, setRailOriginId] = useState("WAW");
+  const [railDestinationId, setRailDestinationId] = useState("");
 
   const queryKey = [airport, month, duration].join("|");
   const [flights, setFlights] = useState<FlightStatuses>({ query: "", byCity: {}, prices: {} });
@@ -271,6 +275,7 @@ export default function ChristmasMarketsClient() {
     : [];
 
   function toggleFlightPanel(city: string) {
+    setExpandedRailCity(null);
     const opening = expandedFlightCity !== city;
     setExpandedFlightCity(opening ? city : null);
     if (opening && typeof window !== "undefined") {
@@ -282,7 +287,24 @@ export default function ChristmasMarketsClient() {
     }
   }
 
+  const activeRailStations = expandedRailCity ? marketDestinationStations(expandedRailCity) : [];
+  const activeRailOrigin = MARKET_RAIL_ORIGINS.find((item) => item.id === railOriginId) || MARKET_RAIL_ORIGINS[0];
+  const activeRailDestination = activeRailStations.find((item) => item.id === railDestinationId) || activeRailStations[0];
+
+  function toggleRailPanel(city: string) {
+    if (expandedRailCity === city) { setExpandedRailCity(null); return; }
+    const stations = marketDestinationStations(city);
+    setRailOriginId(marketOriginForAirport(airport).id);
+    setRailDestinationId(stations[0]?.id || "");
+    setExpandedFlightCity(null);
+    setExpandedRailCity(city);
+    if (typeof window !== "undefined") {
+      window.requestAnimationFrame(() => document.getElementById("jarmarki-rail-panel")?.scrollIntoView({behavior:"smooth",block:"center"}));
+    }
+  }
+
   const restore = () => {
+    setExpandedRailCity(null);
     setExpandedFlightCity(null);
     setAirport("WAW");
     setMonth("2026-12");
@@ -304,7 +326,7 @@ export default function ChristmasMarketsClient() {
         <div className={styles.controls}>
           <label className={styles.field} htmlFor="market-airport">
             <span><MapPin size={16} /> Skąd wyruszasz?</span>
-            <select id="market-airport" value={airport} onChange={(event) => {setAirport(event.target.value);setExpandedFlightCity(null);}}>
+            <select id="market-airport" value={airport} onChange={(event) => {setAirport(event.target.value);setExpandedFlightCity(null);setExpandedRailCity(null);}}>
               {AIRPORTS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
           </label>
@@ -318,7 +340,7 @@ export default function ChristmasMarketsClient() {
                   type="button"
                   className={month === item.value ? styles.monthActive : undefined}
                   aria-pressed={month === item.value}
-                  onClick={() => {setMonth(item.value);setExpandedFlightCity(null);}}
+                  onClick={() => {setMonth(item.value);setExpandedFlightCity(null);setExpandedRailCity(null);}}
                   title={item.label}
                 >
                   {item.short}
@@ -329,7 +351,7 @@ export default function ChristmasMarketsClient() {
 
           <label className={styles.field} htmlFor="market-duration">
             <span><CalendarDays size={16} /> Na jak długo?</span>
-            <select id="market-duration" value={duration} onChange={(event) => {setDuration(event.target.value);setExpandedFlightCity(null);}}>
+            <select id="market-duration" value={duration} onChange={(event) => {setDuration(event.target.value);setExpandedFlightCity(null);setExpandedRailCity(null);}}>
               {STAYS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
           </label>
@@ -400,12 +422,10 @@ export default function ChristmasMarketsClient() {
                     <Plane size={17}/> {expandedFlightCity === idea.city ? "Ukryj loty" : "Zobacz loty"} <ArrowRight size={17}/>
                   </button>
                 ) : (
-                  <Link className={styles.primaryAction} href={railHref(idea, airport, month)} rel="sponsored">
-                    <TrainFront size={17}/> Sprawdź pociągi <ArrowRight size={17}/>
-                  </Link>
+                  <button type="button" className={styles.primaryAction} onClick={() => toggleRailPanel(idea.city)} aria-expanded={expandedRailCity===idea.city} aria-controls="jarmarki-rail-panel"><TrainFront size={17}/> Wybierz pociąg <ArrowRight size={17}/></button>
                 )}
                 <div className={styles.secondaryActions}>
-                  {showFlight && <Link href={railHref(idea, airport, month)} rel="sponsored"><TrainFront size={15}/> Pociągi</Link>}
+                  {showFlight && <button type="button" onClick={() => toggleRailPanel(idea.city)}><TrainFront size={15}/> Pociągi</button>}
                   <Link href={bookingHotelHref(idea)} rel="sponsored"><BedDouble size={15}/> Hotele</Link>
                   <Link href={"/atrakcje?q=" + encodeURIComponent(idea.city + " jarmark bożonarodzeniowy")}><Ticket size={15}/> Atrakcje</Link>
                 </div>
@@ -441,9 +461,38 @@ export default function ChristmasMarketsClient() {
             <div className={styles.flightPanelFooter}>
               <Link href={flightsHref(expandedIdea, expandedOrigin, month, duration)}><Plane size={16}/> Więcej terminów</Link>
               <Link href={bookingHotelHref(expandedIdea)} rel="sponsored"><BedDouble size={16}/> Hotele Booking</Link>
-              <Link href={railHref(expandedIdea, airport, month)} rel="sponsored"><TrainFront size={16}/> Pociągi</Link>
+              <button type="button" onClick={() => toggleRailPanel(expandedIdea.city)}><TrainFront size={16}/> Pociągi</button>
             </div>
             <p className={styles.flightPanelDisclaimer}>Ceny orientacyjne; dostępność i cenę ostateczną potwierdza partner przy rezerwacji.</p>
+          </section>
+        )}
+        {expandedRailCity && activeRailDestination && (
+          <section id="jarmarki-rail-panel" className={styles.flightPanel} aria-label={"Zaplanuj pociąg do " + expandedRailCity}>
+            <div className={styles.flightPanelHead}>
+              <div>
+                <span className={styles.eyebrow}>PODRÓŻ POCIĄGIEM</span>
+                <h3>{activeRailOrigin.label} → {activeRailDestination.label}</h3>
+                <p>Ustawiliśmy domyślne dworce dla Twojej trasy. Możesz zmienić je przed sprawdzeniem połączeń.</p>
+              </div>
+              <button type="button" className={styles.closePanel} onClick={() => setExpandedRailCity(null)}>Zamknij <X size={17}/></button>
+            </div>
+            <div className={styles.railInputs}>
+              <label>Stacja wyjazdu
+                <select value={railOriginId} onChange={e=>setRailOriginId(e.target.value)}>
+                  {MARKET_RAIL_ORIGINS.map(station=><option key={station.id} value={station.id}>{station.label}</option>)}
+                </select>
+              </label>
+              <label>Stacja docelowa
+                <select value={activeRailDestination.id} onChange={e=>setRailDestinationId(e.target.value)}>
+                  {activeRailStations.map(station=><option key={station.id} value={station.id}>{station.label}</option>)}
+                </select>
+              </label>
+            </div>
+            <div className={styles.flightPanelFooter}>
+              <a href={marketStationDirectionsHref(activeRailOrigin,activeRailDestination)} target="_blank" rel="noopener noreferrer"><TrainFront size={16}/> Sprawdź tę trasę i rozkład <ArrowRight size={16}/></a>
+              <Link href={railHref(MARKET_IDEAS.find(x=>x.city===expandedRailCity)!,airport,month)} rel="sponsored"><TrainFront size={16}/> Bilety kolejowe Klook</Link>
+            </div>
+            <p className={styles.flightPanelDisclaimer}>Rozkład otwiera się z uzupełnionymi stacjami. Klook nie potwierdza przekazywania tych parametrów, więc w jego wyszukiwarce może być konieczny ponowny wybór stacji i daty.</p>
           </section>
         )}
         <div className={styles.note}>
