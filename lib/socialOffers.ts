@@ -78,6 +78,24 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "dublin-easyhotel-749": {
+    slug: "dublin-easyhotel-749",
+    city: "Dublin",
+    country: "Irlandia",
+    price: 749,
+    departure: "Warszawa–Modlin",
+    nights: 2,
+    dates: "20–22 stycznia 2027",
+    board: "Bez wyżywienia",
+    hotel: "easyHotel Dublin City Centre 3★",
+    partner: "esky",
+    partnerLabel: "eSky",
+    affiliateUrl: "https://www2.esky.pl/lot+hotel/portfolio/details/select-room?rooms%5B0%5D%5Badults%5D=2&datesTab=flexDates&stayLength=2:4&departurePlaces=ap-WAW,ap-WMI&arrivalPlaces=co-IE&context=pl-packages&sort%5BTotalPrice%5D=asc&fmg_filter=1ot&partner_id=TRIPOWNIAPLPACKAGES&portfolioToken=388c0250-46b5-4fdf-a795-5694dab20703&packageId=MjcwMTIwOjI6cGw6NDE0MjE5MQ&flightOptionId=V01JRFVCMjcwMTIwNzh8fEZSMTkyNDowOjAsRFVCV01JMjcwMTIyNzhJfHxGUjE5MjU6MDox&departureCode=WMI&arrivalCode=DUB&checkInDate=2027-01-20&checkOutDate=2027-01-22&destinationDepartureDate=2027-01-20&returnArrivalDate=2027-01-22&psp_id=0fce6ecc-ef0a-4b8d-9343-d58c47d429a8&metaCode=4142191&pricePresentation=perpax&selectedDeparturePlaces=ap-WAW,ap-WMI&eventSource=packages.search.results",
+    imageCountry: "Irlandia",
+    checkedAt: "2026-10-13T12:09:00+02:00",
+    status: "active",
+  },
+
   "madryt-globales-acis-galatea-1259": {
     slug: "madryt-globales-acis-galatea-1259",
     city: "Madryt",
