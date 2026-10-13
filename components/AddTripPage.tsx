@@ -876,7 +876,7 @@ export default function AddTripPage() {
                     rel="nofollow sponsored"
                     onClick={() => rememberSportPartnerClick("hotel", "booking")}
                   >
-                    <BedDouble size={17}/> Pokaż gotowe hotele <ArrowRight size={16}/>
+                    <BedDouble size={17}/> Pokaż hotele od najtańszych <ArrowRight size={16}/>
                   </a>
                   <button
                     type="button"

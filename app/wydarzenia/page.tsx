@@ -231,7 +231,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                     <div className={styles.cardActions}>
                       <a className={styles.primary} href={"/dodaj-podroz?" + plannerParams.toString()}>Ułóż cały wyjazd →</a>
                       <a href={flightHref} rel="nofollow sponsored">Sprawdź lot</a>
-                      <a href={hotelHref} rel="nofollow sponsored">Znajdź nocleg</a>
+                      <a href={hotelHref} rel="nofollow sponsored">Hotele od najtańszych</a>
                       {links.ticketUrl && <a href={links.ticketUrl} rel="noopener noreferrer">Oficjalne bilety</a>}
                     </div>
                   </article>

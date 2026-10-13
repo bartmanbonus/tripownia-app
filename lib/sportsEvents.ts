@@ -322,6 +322,7 @@ export function buildSportsTripLinks(
   hotelUrl.searchParams.set("no_rooms", "1");
   hotelUrl.searchParams.set("group_children", "0");
   hotelUrl.searchParams.set("aid", "818288");
+  hotelUrl.searchParams.set("order", "price");
 
   return {
     ...window,

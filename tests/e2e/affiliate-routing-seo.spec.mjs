@@ -116,3 +116,27 @@ test("Kiwi unknown or incomplete routes cannot send visitors to a wrong city", a
     expect(new URL(response.headers()["location"]).pathname).toBe("/okazje");
   }
 });
+
+test("Sports Booking links show cheapest hotels first, including older links", async ({ request }) => {
+  const bookingUrl = new URL("https://www.booking.com/searchresults.pl.html");
+  bookingUrl.searchParams.set("ss", "Mediolan");
+  bookingUrl.searchParams.set("checkin", "2026-10-24");
+  bookingUrl.searchParams.set("checkout", "2026-10-27");
+  bookingUrl.searchParams.set("group_adults", "2");
+  bookingUrl.searchParams.set("no_rooms", "1");
+  bookingUrl.searchParams.set("aid", "818288");
+
+  for (const source of ["sports_event_hotel", "sports_planner_hotel"]) {
+    const query = new URLSearchParams({ partner: "booking", target: bookingUrl.toString(), source });
+    const response = await request.get(`/go/live?${query.toString()}`, { maxRedirects: 0 });
+    expect(response.status()).toBe(307);
+    const destination = new URL(response.headers()["location"]);
+    expect(destination.hostname).toBe("www.booking.com");
+    expect(destination.searchParams.get("order")).toBe("price");
+    expect(destination.searchParams.get("ss")).toBe("Mediolan");
+    expect(destination.searchParams.get("checkin")).toBe("2026-10-24");
+    expect(destination.searchParams.get("checkout")).toBe("2026-10-27");
+    expect(destination.searchParams.get("group_adults")).toBe("2");
+    expect(destination.searchParams.get("aid")).toBe("818288");
+  }
+});
