@@ -11,6 +11,7 @@ import { getLinkMatch } from "@/lib/offers";
 import { isPriceStale } from "@/lib/offerQuality";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
+import { selectEditorialDeals } from "@/lib/editorialDeals";
 import { useLiveOffers } from "@/lib/useLiveOffers";
 import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
 import { trackEvent } from "@/lib/analytics";
@@ -206,7 +207,8 @@ export default function DealsPage({
   const [historyVersion, setHistoryVersion] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState<QuickFilter>(dealType === "allinclusive" ? "allinclusive" : "all");
-  const [sortMode, setSortMode] = useState<SortMode>(destination ? "priceAsc" : "sales");
+  const isEditorialLanding = !destination && !dealType;
+  const [sortMode, setSortMode] = useState<SortMode>(destination ? "priceAsc" : isEditorialLanding ? "mix" : "sales");
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
@@ -228,7 +230,9 @@ export default function DealsPage({
   const todayLoading = false;
   const todayCheckedAt: string | null = null;
   const quickFilteredOffers = useMemo(() => {
-    const sourceRows = offers as DealsOffer[];
+    // Reuse recent verified snapshot only on the default landing, never for filtered searches.
+    const sourceRows = (isEditorialLanding && endpoint === "/api/deals"
+      ? [...offers, ...initialOffers] : offers) as DealsOffer[];
     if (quickFilter === "city") return sourceRows.filter((offer) => offer.category.includes("city") || offer.category.includes("weekend"));
     if (quickFilter === "allinclusive") return sourceRows.filter((offer) => offer.category.includes("allinclusive"));
     if (quickFilter === "sun") return sourceRows.filter((offer) => offer.category.includes("cieplo") || offer.category.includes("plaza"));
@@ -236,12 +240,12 @@ export default function DealsPage({
     if (quickFilter === "flight") return sourceRows.filter((offer) => offer.category.includes("flight"));
     if (quickFilter === "package") return sourceRows.filter((offer) => !offer.category.includes("flight"));
     return sourceRows;
-  }, [offers, quickFilter]);
+  }, [offers, initialOffers, endpoint, isEditorialLanding, quickFilter]);
   const rows = useMemo(
     () => destination
       ? destinationOfferRows(quickFilteredOffers, sortMode)
-      : allOfferRows(quickFilteredOffers, sortMode),
-    [quickFilteredOffers, source, destination, sortMode]
+      : allOfferRows(isEditorialLanding ? selectEditorialDeals(quickFilteredOffers, 18) : quickFilteredOffers, sortMode),
+    [quickFilteredOffers, source, destination, sortMode, isEditorialLanding]
   );
   const destinationHotelHref = useMemo(
     () => destination ? `/hotele?q=${encodeURIComponent(destination)}` : "",
@@ -327,7 +331,7 @@ export default function DealsPage({
     }).slice(0, 6);
   }, [destination, rows, airport, month, year, currentYear, currentMonth]);
   const todayRows = useMemo(() => allOfferRows(todayOffers as DealsOffer[], "priceAsc").slice(0, 5), [todayOffers]);
-  const poolHighlights = useMemo(() => source === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source]);
+  const poolHighlights = useMemo(() => source === "live" && !isEditorialLanding ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source, isEditorialLanding]);
 
   useEffect(() => {
     if (source !== "live" || !rows.length) return;
@@ -350,7 +354,7 @@ export default function DealsPage({
     return result;
   }, [rows, poolHighlights, historyVersion, source]);
 
-  const isGenericDealsPage = !destination && dealType !== "allinclusive";
+  const isGenericDealsPage = isEditorialLanding;
   const todayDirectionKeys = useMemo(
     () => new Set(todayRows.map((offer) => touristDestinationKey(offer))),
     [todayRows]
@@ -389,7 +393,9 @@ export default function DealsPage({
     ? new Intl.DateTimeFormat("pl-PL", { dateStyle: "short", timeStyle: "short", timeZone: "Europe/Warsaw" }).format(new Date(todayCheckedAt))
     : "";
 
-  const sourceCopy = loading && !offers.length
+  const sourceCopy = isEditorialLanding && rows.length
+    ? "Ceny z feedów · sprawdzone w ostatnich 6 h · potwierdź u partnera"
+    : loading && !offers.length
     ? "Sprawdzamy aktualne ceny…"
     : source === "live"
       ? `Aktualne${checkedLabel ? ` · ${checkedLabel}` : ""}`
@@ -424,9 +430,11 @@ export default function DealsPage({
       <div className="deals-simple-hero">
         <div>
           <div className="kicker">{kicker}</div>
-          <h1>{destination ? "Okazje: " + destination : "Najtańsze wyjazdy. Bez przekopywania się przez setki ofert."}</h1>
+          <h1>{destination ? "Okazje: " + destination : "Prawdziwe okazje. Różne kierunki, konkretne ceny."}</h1>
           <p className="deals-simple-lead">
-            {loading
+            {isEditorialLanding
+              ? "Tylko oferty z potwierdzoną w ostatnich 6 godzinach ceną, konkretnym terminem i linkiem. Maksymalnie jeden wyjazd na kierunek; wykluczamy plażowanie poza sezonem. To wybór z naszych źródeł, nie gwarancja najniższej ceny na rynku."
+              : loading
               ? "Sprawdzamy aktualne oferty. Zapisane wyniki mogą być widoczne podczas odświeżania."
               : source === "fallback" && offers.length
               ? "Pokazujemy zapisane propozycje — sprawdź aktualną cenę i dostępność przed rezerwacją."
@@ -587,7 +595,7 @@ export default function DealsPage({
               ? "Szukamy najlepszych cen…"
               : destination
                 ? (rows.length ? offerCountLabel(rows.length) + " · pakiety" : quickFilter === "flight" ? "Same loty poniżej" : "Brak pakietów dla tych filtrów")
-                : rows.length + " " + (rows.length === 1 ? "oferta" : "ofert")}
+                : offerCountLabel(rows.length)}
           </strong>
           <span>{filtering ? filterSummary : "Wszystkie lotniska · dowolny termin"}</span>
         </div>
@@ -668,8 +676,8 @@ export default function DealsPage({
           )
         ) : (
           <div className="self-search-empty deals-simple-empty">
-            <strong>Brak ofert dla tych filtrów.</strong>
-            <span>Zmień jeden filtr albo wyczyść ustawienia — nie pokazujemy sztucznych wyników.</span>
+            <strong>{isEditorialLanding ? "Brak dziś wystarczająco dobrych, potwierdzonych okazji." : "Brak ofert dla tych filtrów."}</strong>
+            <span>{isEditorialLanding ? "Nie pokazujemy nieaktualnych cen, powtarzających się kierunków ani plażowych wyjazdów poza sezonem. Sprawdź inny termin lub wróć później." : "Zmień jeden filtr albo wyczyść ustawienia — nie pokazujemy sztucznych wyników."}</span>
           </div>
         )
       ) : null}
