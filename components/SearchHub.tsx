@@ -174,7 +174,27 @@ function standaloneFlightPartnerUrl(
   return partners.kiwi.buildUrl(kiwiBase.toString());
 }
 
-function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: string, guests?: HotelGuestsValue) {
+function resolveHotelDateRange(from: string, to: string, preferences: HotelDatePreferences) {
+  if (preferences.mode === "dates") return { from, to };
+  const key = preferences.months[0];
+  if (!key) return { from: "", to: "" };
+  const [year, month] = key.split("-").map(Number);
+  const first = new Date(year, month - 1, 1);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const candidate = new Date(Math.max(first.getTime(), today.getTime()));
+  if (preferences.stayLength === "weekend") {
+    candidate.setDate(candidate.getDate() + (5 - candidate.getDay() + 7) % 7);
+  }
+  const nights = preferences.stayLength === "weekend" ? 2 : preferences.stayLength === "week" ? 7
+    : preferences.stayLength === "month" ? 28 : preferences.nights;
+  const departure = new Date(candidate);
+  departure.setDate(departure.getDate() + nights);
+  const fmt = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  return { from: fmt(candidate), to: fmt(departure) };
+}
+
+function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: string, guests?: HotelGuestsValue, entireHome = false, businessTrip = false) {
   const target = destinations[0]?.trim() || "";
   const bookingBase = new URL("https://www.booking.com/searchresults.pl.html");
   if (target) bookingBase.searchParams.set("ss", target);
@@ -188,6 +208,10 @@ function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: s
     bookingBase.searchParams.set("group_children", String(guests.childAges.length));
     for (const age of guests.childAges) bookingBase.searchParams.append("age", String(age));
   }
+  if (businessTrip) bookingBase.searchParams.set("sb_travel_purpose", "business");
+  // Entire-home preference is kept as a request in Tripownia. Booking filters must be
+  // rechecked in Booking because a stable, documented partner deep-link filter is unavailable.
+  void entireHome;
   bookingBase.searchParams.set("selected_currency", "PLN");
   return partners.booking.buildUrl(bookingBase.toString());
 }
@@ -1109,8 +1133,8 @@ export default function SearchHub({
         const params = new URLSearchParams();
         if (destinations[0]) params.set("destination", destinations[0]);
         if (departures[0]) params.set("origin", departures[0]);
-        if (dateFrom) params.set("from", dateFrom);
-        if (dateTo) params.set("to", dateTo);
+        if (hotelDatePreferences.mode === "dates" && dateFrom) params.set("from", dateFrom);
+        if (hotelDatePreferences.mode === "dates" && dateTo) params.set("to", dateTo);
         params.set("dateMode", hotelDatePreferences.mode);
         params.set("flexDays", String(hotelDatePreferences.flexDays));
         if (hotelDatePreferences.months.length) params.set("months", hotelDatePreferences.months.join(","));
@@ -1334,8 +1358,9 @@ export default function SearchHub({
     ["Djerba, Tunezja", "All Inclusive do 3 000 zł", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Lot + hotel" }],
   ];
   const hotelSearchDestination = selectedDestinations[0] || destination.trim();
+  const resolvedHotelDates = resolveHotelDateRange(dateFrom, dateTo, hotelDatePreferences);
   const hotelPartnerTarget = hotelSearchDestination
-    ? standaloneHotelPartnerUrl([hotelSearchDestination], dateFrom, dateTo, hotelGuests)
+    ? standaloneHotelPartnerUrl([hotelSearchDestination], resolvedHotelDates.from, resolvedHotelDates.to, hotelGuests, hotelEntireHome, hotelBusinessTrip)
     : "";
   const hotelSearchHref = hotelPartnerTarget
     ? `/go/live?${new URLSearchParams({
@@ -1345,7 +1370,9 @@ export default function SearchHub({
         destination: hotelSearchDestination,
       }).toString()}`
     : "";
-  const hotelStayLabel = dateFrom && dateTo
+  const hotelStayLabel = hotelDatePreferences.mode === "months"
+    ? `${hotelDatePreferences.months.join(", ")} · termin orientacyjny`
+    : dateFrom && dateTo
     ? `${isoLabel(dateFrom)} – ${isoLabel(dateTo)}`
     : dateFrom
       ? `od ${isoLabel(dateFrom)}`
@@ -1903,6 +1930,13 @@ export default function SearchHub({
               <div><span>Goście</span><strong>{hotelGuests.adults} dorosłych · {hotelGuests.childAges.length} dzieci · {hotelGuests.rooms} pok.</strong></div>
             </div>
 
+            {(hotelDatePreferences.mode === "months" || hotelDatePreferences.flexDays > 0 || hotelEntireHome) && (
+              <p className="hotel-search-ready-note">W Booking.com sprawdzisz ceny dla wybranego terminu.
+                {hotelDatePreferences.mode === "months" ? " Wyszukiwanie startuje od pierwszego możliwego pobytu w wybranym miesiącu; pozostałe miesiące i terminy porównasz u partnera." : ""}
+                {hotelDatePreferences.flexDays > 0 ? " Elastyczność dat potwierdź na stronie partnera." : ""}
+                {hotelEntireHome ? " Filtr całego apartamentu ustaw w wynikach Booking.com." : ""}
+              </p>
+            )}
             <div className="hotel-search-ready-actions">
               <a
                 href={hotelSearchHref}
