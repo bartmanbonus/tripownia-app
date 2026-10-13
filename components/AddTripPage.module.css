@@ -1205,3 +1205,74 @@
   .sportFootnote{font-size:11px}
 }
 
+
+
+/* Sports booking confirmations and optional reference fields. */
+.sportStatusRow{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-bottom:14px;
+}
+.sportStatusRow .sportStatus{margin-bottom:0}
+.sportBookingProgress{
+  color:#6b625b;
+  font-size:12px;
+  font-weight:760;
+}
+.sportWarning{
+  padding:9px 10px;
+  margin:-6px 0 13px;
+  border:1px solid #efdaa8;
+  border-radius:10px;
+  background:#fff7e9;
+  color:#745021;
+  font-size:11px;
+  line-height:1.48;
+}
+.sportExtras{
+  margin-top:16px;
+  padding:0 17px;
+  border:1px solid #e8e1da;
+  border-radius:14px;
+  background:#fdfbfa;
+}
+.sportExtras summary{
+  padding:14px 0;
+  color:#4f4540;
+  font-size:12px;
+  font-weight:780;
+  cursor:pointer;
+}
+.sportExtras summary:focus-visible{outline:3px solid #f29c78;outline-offset:3px}
+.sportExtrasGrid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:11px;
+  padding:0 0 16px;
+}
+.sportExtrasGrid label{
+  display:grid;
+  gap:6px;
+  color:#635850;
+  font-size:11px;
+  font-weight:720;
+}
+.sportExtrasGrid input{
+  width:100%;
+  min-width:0;
+  min-height:42px;
+  padding:10px 11px;
+  border:1px solid #ddd4cc;
+  border-radius:9px;
+  background:#fff;
+  color:#26211e;
+  font:inherit;
+  font-size:13px;
+}
+.sportExtrasGrid input:focus-visible{outline:2px solid #e95d38;outline-offset:1px}
+@media(max-width:760px){
+  .sportExtrasGrid{grid-template-columns:1fr}
+}
