@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Sparkles, Trash2, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
 import HotelGuestsPicker, { type HotelGuestsValue } from "@/components/HotelGuestsPicker";
-import HotelStayPicker from "@/components/HotelStayPicker";
+import HotelStayPicker, { DEFAULT_HOTEL_DATE_PREFERENCES, type HotelDatePreferences } from "@/components/HotelStayPicker";
 import DresdenCityBreakOptions from "@/components/DresdenCityBreakOptions";
 import { airportOptions } from "@/lib/offers";
 import { WORLD_DESTINATIONS, destinationMatches, normalizeDestination, type WorldDestination } from "@/lib/worldDestinations";
@@ -174,7 +174,27 @@ function standaloneFlightPartnerUrl(
   return partners.kiwi.buildUrl(kiwiBase.toString());
 }
 
-function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: string, guests?: HotelGuestsValue) {
+function resolveHotelDateRange(from: string, to: string, preferences: HotelDatePreferences) {
+  if (preferences.mode === "dates") return { from, to };
+  const key = preferences.months[0];
+  if (!key) return { from: "", to: "" };
+  const [year, month] = key.split("-").map(Number);
+  const first = new Date(year, month - 1, 1);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const candidate = new Date(Math.max(first.getTime(), today.getTime()));
+  if (preferences.stayLength === "weekend") {
+    candidate.setDate(candidate.getDate() + (5 - candidate.getDay() + 7) % 7);
+  }
+  const nights = preferences.stayLength === "weekend" ? 2 : preferences.stayLength === "week" ? 7
+    : preferences.stayLength === "month" ? 28 : preferences.nights;
+  const departure = new Date(candidate);
+  departure.setDate(departure.getDate() + nights);
+  const fmt = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+  return { from: fmt(candidate), to: fmt(departure) };
+}
+
+function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: string, guests?: HotelGuestsValue, entireHome = false, businessTrip = false) {
   const target = destinations[0]?.trim() || "";
   const bookingBase = new URL("https://www.booking.com/searchresults.pl.html");
   if (target) bookingBase.searchParams.set("ss", target);
@@ -188,6 +208,10 @@ function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: s
     bookingBase.searchParams.set("group_children", String(guests.childAges.length));
     for (const age of guests.childAges) bookingBase.searchParams.append("age", String(age));
   }
+  if (businessTrip) bookingBase.searchParams.set("sb_travel_purpose", "business");
+  // Entire-home preference is kept as a request in Tripownia. Booking filters must be
+  // rechecked in Booking because a stable, documented partner deep-link filter is unavailable.
+  void entireHome;
   bookingBase.searchParams.set("selected_currency", "PLN");
   return partners.booking.buildUrl(bookingBase.toString());
 }
@@ -403,6 +427,9 @@ export default function SearchHub({
   const [weekendOnly, setWeekendOnly] = useState(initialWeekendOnly);
   const [hotelGuests, setHotelGuests] = useState<HotelGuestsValue>({ adults: initialHotelAdults, rooms: initialHotelRooms, childAges: initialHotelChildAges });
   const [hotelError, setHotelError] = useState("");
+  const [hotelDatePreferences, setHotelDatePreferences] = useState<HotelDatePreferences>(DEFAULT_HOTEL_DATE_PREFERENCES);
+  const [hotelEntireHome, setHotelEntireHome] = useState(false);
+  const [hotelBusinessTrip, setHotelBusinessTrip] = useState(false);
   const [flightAdults, setFlightAdults] = useState(1);
   const [flightCabin, setFlightCabin] = useState("ECONOMY");
   const [flightTripType, setFlightTripType] = useState<"round" | "oneway">("round");
@@ -1062,9 +1089,14 @@ export default function SearchHub({
         return;
       }
 
-      if (activeTab === "Hotele" && (dateMode !== "range" || !dateFrom || !dateTo || dateTo <= dateFrom || dateFrom < todayISO)) {
+      if (activeTab === "Hotele" && hotelDatePreferences.mode === "dates" && (dateMode !== "range" || !dateFrom || !dateTo || dateTo <= dateFrom || dateFrom < todayISO)) {
         setHotelError("Wybierz datę zameldowania i późniejszą datę wymeldowania.");
         setDateMode("range");
+        setDateOpen(true);
+        return;
+      }
+      if (activeTab === "Hotele" && hotelDatePreferences.mode === "months" && hotelDatePreferences.months.length === 0) {
+        setHotelError("Wybierz przynajmniej jeden miesiąc.");
         setDateOpen(true);
         return;
       }
@@ -1101,8 +1133,15 @@ export default function SearchHub({
         const params = new URLSearchParams();
         if (destinations[0]) params.set("destination", destinations[0]);
         if (departures[0]) params.set("origin", departures[0]);
-        if (dateFrom) params.set("from", dateFrom);
-        if (dateTo) params.set("to", dateTo);
+        if (hotelDatePreferences.mode === "dates" && dateFrom) params.set("from", dateFrom);
+        if (hotelDatePreferences.mode === "dates" && dateTo) params.set("to", dateTo);
+        params.set("dateMode", hotelDatePreferences.mode);
+        params.set("flexDays", String(hotelDatePreferences.flexDays));
+        if (hotelDatePreferences.months.length) params.set("months", hotelDatePreferences.months.join(","));
+        params.set("stayLength", hotelDatePreferences.stayLength);
+        params.set("nights", String(hotelDatePreferences.nights));
+        if (hotelEntireHome) params.set("entireHome", "1");
+        if (hotelBusinessTrip) params.set("businessTrip", "1");
         params.set("adults", String(hotelGuests.adults));
         params.set("rooms", String(hotelGuests.rooms));
         if (hotelGuests.childAges.length) params.set("ages", hotelGuests.childAges.join(","));
@@ -1242,6 +1281,9 @@ export default function SearchHub({
     setWeekendOnly(false);
     setFlightAdults(1);
     setHotelGuests({ adults: 2, rooms: 1, childAges: [] });
+    setHotelDatePreferences(DEFAULT_HOTEL_DATE_PREFERENCES);
+    setHotelEntireHome(false);
+    setHotelBusinessTrip(false);
     setHotelError("");
     setFlightCabin("ECONOMY");
     setFlightTripType("round");
@@ -1316,8 +1358,9 @@ export default function SearchHub({
     ["Djerba, Tunezja", "All Inclusive do 3 000 zł", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Lot + hotel" }],
   ];
   const hotelSearchDestination = selectedDestinations[0] || destination.trim();
+  const resolvedHotelDates = resolveHotelDateRange(dateFrom, dateTo, hotelDatePreferences);
   const hotelPartnerTarget = hotelSearchDestination
-    ? standaloneHotelPartnerUrl([hotelSearchDestination], dateFrom, dateTo, hotelGuests)
+    ? standaloneHotelPartnerUrl([hotelSearchDestination], resolvedHotelDates.from, resolvedHotelDates.to, hotelGuests, hotelEntireHome, hotelBusinessTrip)
     : "";
   const hotelSearchHref = hotelPartnerTarget
     ? `/go/live?${new URLSearchParams({
@@ -1327,7 +1370,9 @@ export default function SearchHub({
         destination: hotelSearchDestination,
       }).toString()}`
     : "";
-  const hotelStayLabel = dateFrom && dateTo
+  const hotelStayLabel = hotelDatePreferences.mode === "months"
+    ? `${hotelDatePreferences.months.join(", ")} · termin orientacyjny`
+    : dateFrom && dateTo
     ? `${isoLabel(dateFrom)} – ${isoLabel(dateTo)}`
     : dateFrom
       ? `od ${isoLabel(dateFrom)}`
@@ -1522,6 +1567,8 @@ export default function SearchHub({
             <HotelStayPicker
               from={dateFrom}
               to={dateTo}
+              preferences={hotelDatePreferences}
+              onPreferencesChange={setHotelDatePreferences}
               open={dateOpen}
               onOpenChange={setDateOpen}
               containerRef={dateRef}
@@ -1850,6 +1897,12 @@ export default function SearchHub({
             )}
           </div>}
 
+          {activeTab === "Hotele" && (
+            <div className="hotel-booking-preferences">
+              <label><input type="checkbox" checked={hotelEntireHome} onChange={(event) => setHotelEntireHome(event.target.checked)}/> Cały dom lub apartament</label>
+              <label><input type="checkbox" checked={hotelBusinessTrip} onChange={(event) => setHotelBusinessTrip(event.target.checked)}/> Podróż służbowa</label>
+            </div>
+          )}
           {activeTab === "Hotele" && hotelError && <p className="hotel-form-error" role="alert">{hotelError}</p>}
           <button type="submit" className="search-v3-submit" disabled={loading || budgetInvalid}><Search size={18}/>{loading ? "Szukamy…" : budgetInvalid ? "Popraw budżet" : activeTab === "Loty" ? "Porównaj loty" : activeTab === "Hotele" ? "Szukaj hoteli" : "Szukaj wyjazdu"}</button>
         </form>
@@ -1877,6 +1930,13 @@ export default function SearchHub({
               <div><span>Goście</span><strong>{hotelGuests.adults} dorosłych · {hotelGuests.childAges.length} dzieci · {hotelGuests.rooms} pok.</strong></div>
             </div>
 
+            {(hotelDatePreferences.mode === "months" || hotelDatePreferences.flexDays > 0 || hotelEntireHome) && (
+              <p className="hotel-search-ready-note">W Booking.com sprawdzisz ceny dla wybranego terminu.
+                {hotelDatePreferences.mode === "months" ? " Wyszukiwanie startuje od pierwszego możliwego pobytu w wybranym miesiącu; pozostałe miesiące i terminy porównasz u partnera." : ""}
+                {hotelDatePreferences.flexDays > 0 ? " Elastyczność dat potwierdź na stronie partnera." : ""}
+                {hotelEntireHome ? " Filtr całego apartamentu ustaw w wynikach Booking.com." : ""}
+              </p>
+            )}
             <div className="hotel-search-ready-actions">
               <a
                 href={hotelSearchHref}
