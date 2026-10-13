@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import DealsPage from "@/components/DealsPage";
 import Link from "next/link";
-import { homepageFallbackOffers, isOfferExpired } from "@/lib/offers";
-import { isTravelDestinationAllowed } from "@/lib/travelSafety";
+import type { Offer } from "@/lib/offers";
+import { selectEditorialDeals } from "@/lib/editorialDeals";
+import liveSnapshot from "@/data/live-offers-snapshot.json";
 
 export const metadata: Metadata = {
   title: "Aktualne okazje podróżnicze – wakacje, city break i last minute",
-  description: "Sprawdź aktualne wakacje, city breaki i last minute z polskich lotnisk. Najwyżej pokazujemy oferty z aktualną ceną, konkretnym linkiem i pełnymi danymi do decyzji.",
+  description: "Sprawdź aktualne wakacje, city breaki i last minute z polskich lotnisk. Wybieramy świeże oferty z konkretną ceną, dobrym terminem i różnymi kierunkami. Nie pokazujemy cen orientacyjnych jako okazji.",
   alternates: { canonical: "/okazje" },
   openGraph: {
     type: "website",
     title: "Aktualne okazje podróżnicze | Tripownia.pl",
-    description: "Aktualne wakacje, city breaki i last minute. Tripownia priorytetyzuje oferty gotowe do sprawdzenia i rezerwacji, a użytkownik może sortować także po cenie.",
+    description: "Aktualne wakacje, city breaki i last minute. Tripownia wybiera potwierdzone ceny, sezonowo odpowiednie terminy i zróżnicowane kierunki.",
     url: "https://tripownia.pl/okazje",
   },
   robots: { index: true, follow: true },
@@ -40,9 +41,9 @@ export default async function DealsRoute({ searchParams }:{ searchParams: Promis
   const params = await searchParams;
   const destination = (params.q || params.destination || "").trim();
   const dealType = params.type === "allinclusive" ? "allinclusive" : "";
+  // Initial cards come from verified feed snapshots, not old indicative sample prices.
   const initialOffers = !destination && !dealType
-    ? homepageFallbackOffers
-        .filter((offer) => !isOfferExpired(offer) && isTravelDestinationAllowed(offer.city, offer.country))
+    ? selectEditorialDeals((liveSnapshot.offers || []) as unknown as Offer[], 18)
     : [];
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c") }} />
