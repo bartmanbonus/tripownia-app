@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
+import { savePendingBooking } from "@/components/BookingInbox";
 
 type Props = {
   href: string;
@@ -43,6 +44,7 @@ export default function TrackedPartnerLink({
       price,
       placement,
     };
+    savePendingBooking({ partner, destination });
     saveAffiliateReturnContext({
       partner,
       destination,
