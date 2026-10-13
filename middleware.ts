@@ -74,6 +74,66 @@ function cleanLegacyWordPressUrl(request: NextRequest) {
   return null;
 }
 
+
+/**
+ * Existing shared links to Inter – Fiorentina (25 October 2026) were published
+ * with a three-night itinerary. Keep those links working, but repair their
+ * dates—including the embedded affiliate searches—before the planner loads.
+ */
+function correctLegacyInterFiorentinaTrip(request: NextRequest) {
+  const current = request.nextUrl;
+  const params = current.searchParams;
+  const match = params.get("match") || "";
+  if (
+    current.pathname !== "/dodaj-podroz" ||
+    params.get("source") !== "sport" ||
+    params.get("city") !== "Mediolan" ||
+    params.get("start") !== "2026-10-24" ||
+    params.get("end") !== "2026-10-27" ||
+    !/\binter(?:nazionale)?\b/i.test(match) ||
+    !/fiorentina/i.test(match)
+  ) {
+    return null;
+  }
+
+  const target = current.clone();
+  const query = target.searchParams;
+  query.set("end", "2026-10-25");
+  query.set("nights", "1");
+
+  const flightValue = query.get("flightUrl");
+  if (flightValue) {
+    try {
+      const affiliateFlight = new URL(flightValue);
+      const customUrl = affiliateFlight.searchParams.get("custom_url");
+      if (customUrl) {
+        const flightSearch = new URL(customUrl);
+        flightSearch.searchParams.set("return", "2026-10-25");
+        affiliateFlight.searchParams.set("custom_url", flightSearch.toString());
+      }
+      query.set("flightUrl", affiliateFlight.toString());
+    } catch {
+      // Keep the original flight link if a third-party URL cannot be parsed.
+    }
+  }
+
+  const hotelValue = query.get("hotelUrl");
+  if (hotelValue) {
+    try {
+      const hotelSearch = new URL(hotelValue);
+      hotelSearch.searchParams.set("checkout", "2026-10-25");
+      query.set("hotelUrl", hotelSearch.toString());
+    } catch {
+      // Preserve the original accommodation link rather than dropping it.
+    }
+  }
+
+  const response = NextResponse.redirect(target, 307);
+  response.headers.set("Cache-Control", "private, no-store");
+  response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  return response;
+}
+
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const normalizedPath = pathname.toLowerCase();
@@ -106,6 +166,10 @@ export function middleware(request: NextRequest) {
     target.protocol = "https:";
     return NextResponse.redirect(target, 308);
   }
+
+  // Repair previously shared Inter - Fiorentina itinerary links (3 nights -> 1).
+  const fixedSportsTrip = correctLegacyInterFiorentinaTrip(request);
+  if (fixedSportsTrip) return fixedSportsTrip;
 
   // Keep the old organizer URL as a temporary private redirect. The explicit
   // middleware redirect guarantees the expected 307 status and private headers.
