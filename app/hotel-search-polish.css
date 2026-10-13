@@ -123,3 +123,25 @@ body:has(.dream-hero) #wyszukiwarka .search-v3-hotels .search-v3-form {
     grid-template-columns:minmax(0,1fr)!important;
   }
 }
+
+/* Booking-inspired hotel search date modes and concise extras */
+.hotel-stay-mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 0 18px;padding:4px;background:#f7f4f0;border-radius:12px}
+.hotel-stay-mode-tabs button{border:0;border-radius:9px;padding:11px 8px;background:transparent;font-weight:800;font-size:12px;cursor:pointer;color:#615850}
+.hotel-stay-mode-tabs button.active{background:white;color:#191614;box-shadow:0 2px 8px #231b1517}
+.hotel-stay-flex-days{margin:14px 0 0;padding:13px 0;border-top:1px solid #eee5dd}
+.hotel-stay-flex-days strong,.hotel-stay-flex-months>strong{font-size:12px;display:block;margin-bottom:9px}
+.hotel-stay-flex-days>div,.hotel-stay-length-options{display:flex;flex-wrap:wrap;gap:6px}
+.hotel-stay-flex-days button,.hotel-stay-length-options button{border:1px solid #dfd6cf;background:white;padding:9px 11px;border-radius:999px;cursor:pointer;color:#39302b;font-size:11px;font-weight:800}
+.hotel-stay-flex-days button.active,.hotel-stay-length-options button.active{background:#fff0e9;color:#b33e22;border-color:#ef8e6e}
+.hotel-stay-flex-months>p{font-size:12px;color:#786b62;line-height:1.5}
+.hotel-stay-month-options{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:12px 0}
+.hotel-stay-month-options button{display:grid;gap:4px;justify-items:center;min-height:55px;padding:10px 3px;border-radius:12px;border:1px solid #e3d8d0;background:#fff;cursor:pointer;text-transform:capitalize;font-size:12px;font-weight:750}
+.hotel-stay-month-options button small{font-size:10px;color:#83766c}
+.hotel-stay-month-options button.active{border-color:#e65c34;background:#fff0e8;color:#a83b20}
+.hotel-stay-month-options button:disabled{opacity:.45;cursor:not-allowed}
+.hotel-stay-custom-nights{display:grid;gap:6px;margin:12px 0;font-size:12px;font-weight:800}
+.hotel-stay-custom-nights input{width:85px;min-height:39px;border-radius:9px;border:1px solid #e0d5cf;padding:0 9px}
+.hotel-booking-preferences{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:12px 22px;padding:0 4px 1px;color:#312720}
+.hotel-booking-preferences label{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:750;cursor:pointer}
+.hotel-booking-preferences input{accent-color:#ee5932;width:16px;height:16px}
+@media(max-width:640px){.hotel-stay-month-options{grid-template-columns:repeat(3,minmax(0,1fr))}.hotel-stay-mode-tabs button{min-height:43px}}
