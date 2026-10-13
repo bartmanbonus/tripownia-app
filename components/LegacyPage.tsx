@@ -34,12 +34,12 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     ],
   },
   "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje": {
-    title: "Malaga czy Alicante — co wybrać i czy Alicante leży w Andaluzji?",
-    lead: "Alicante nie leży w Andaluzji — znajduje się we Wspólnocie Walenckiej. Malaga leży w Andaluzji i daje dostęp do Costa del Sol. Na krótki city break Alicante jest kompaktowe, a Malaga daje więcej opcji na dłuższe zwiedzanie regionu.",
+    title: "Alicante czy Malaga — co wybrać i czy Alicante leży w Andaluzji?",
+    lead: "Alicante nie leży w Andaluzji — znajduje się we Wspólnocie Walenckiej, na Costa Blanca. Malaga leży w Andaluzji, na Costa del Sol. Na spokojny city break i plaże wybierz Alicante, a na zwiedzanie Andaluzji — Malagę. Sprawdź oba kierunki dla tych samych dat.",
     links: [
-      { href: "/podroze/city-break-do-1000-zl", label: "City break do 1000 zł" },
-      { href: "/podroze/hiszpania-all-inclusive", label: "Hiszpania All Inclusive" },
-      { href: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem", label: "Porównaj lot + hotel" },
+      { href: "/szukaj?destination=Alicante&duration=3-4&tab=City%20break", label: "Alicante — sprawdź lot + hotel" },
+      { href: "/szukaj?destination=Malaga&duration=3-4&tab=City%20break", label: "Malaga — sprawdź lot + hotel" },
+      { href: "/lot-hotel", label: "Wszystkie warianty lot + hotel" },
     ],
   },
   "/sagrada-familia-osiagnela-maksymalna-wysokosc-20-lutego-2026-historyczna-data-dla-barcelony": {
@@ -259,7 +259,7 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     links: [
       { href: "/podroze/city-break-do-700-zl", label: "City break do 700 zł" },
       { href: "/podroze/city-break-do-1000-zl", label: "City break do 1000 zł" },
-      { href: "/pakiety-lot-hotel-gotowe-wyjazdy-z-lotem-i-noclegiem", label: "Lot + hotel" },
+      { href: "/lot-hotel", label: "Lot + hotel" },
       { href: "/tanie-loty", label: "Porównaj tanie loty" },
     ],
   },
@@ -286,7 +286,7 @@ const seoOpportunityBlocks: Record<string, SeoOpportunityBlock> = {
     lead: "Na przełom roku warto najpierw zdecydować, czy chcesz city break, ciepły kierunek czy dłuższy wyjazd. Potem porównaj pogodę, długość lotu, ceny noclegów i dostępność powrotów 1–3 stycznia.",
     links: [
       { href: "/sylwester", label: "City break na Sylwestra" },
-      { href: "/sylwester-2026-2027-za-granica-gdzie-poleciec-na-nowy-rok", label: "Ciepłe kraje na Sylwestra" },
+      { href: "/gdzie-jest-cieplo-zima-bez-dalekiego-lotu", label: "Ciepłe kierunki zimą" },
       { href: "/okazje", label: "Aktualne okazje" },
       { href: "/planer-podrozy", label: "Ułóż wyjazd w darmowym planerze" },
     ],
@@ -363,17 +363,27 @@ const relatedDestinationAliases: Record<string, string[]> = {
   hiszpania: ["hiszpania", "majorka", "teneryfa", "alicante", "malaga", "barcelona"],
 };
 
-function relatedOffers(context: ArticleContext, destinationOverride?: string) {
-  const selectedDestination = destinationOverride || context.destination;
-  if (selectedDestination) {
-    const destination = norm(selectedDestination);
-    const terms = relatedDestinationAliases[destination] || [destination];
-    const matched = offers.filter((offer) => {
+function relatedOffers(
+  context: ArticleContext,
+  destinationOverride?: string,
+  comparisonDestinations: string[] = [],
+) {
+  const selectedDestinations = comparisonDestinations.length
+    ? comparisonDestinations
+    : [destinationOverride || context.destination || ""].filter(Boolean);
+
+  if (selectedDestinations.length) {
+    const terms = selectedDestinations.flatMap((place) => {
+      const destination = norm(place);
+      return relatedDestinationAliases[destination] || [destination];
+    });
+    // Never replace a destination-specific suggestion with unrelated generic
+    // offers. In comparison articles, consider both destinations, not only one.
+    return offers.filter((offer) => {
       const city = norm(offer.city);
       const country = norm(offer.country);
-      return terms.some((term) => term.includes(city) || term.includes(country) || city.includes(term) || country.includes(term));
+      return terms.some((term) => term && (term.includes(city) || term.includes(country) || city.includes(term) || country.includes(term)));
     }).slice(0, 3);
-    if (matched.length) return matched;
   }
 
   if (context.mode === "city") {
@@ -550,6 +560,12 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const growthLinks = contextualGrowthLinks(item);
   const archived = item.type === "product";
   const canonicalPath = legacyCanonicalPath(item.path);
+  // Match the searched baggage-weight question while keeping the original article URL.
+  const editorialHeadline = canonicalPath === "/czy-mozna-miec-dwa-bagaze-podreczne-w-samolocie-zasady-w-liniach-lotniczych"
+    ? "Czy bagaż podręczny jest ważony? Limity i zasady dwóch bagaży"
+    : canonicalPath === "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje"
+      ? "Alicante czy Malaga? Porównanie na city break i wakacje"
+      : item.title;
   const isDestination = destinationGuidePaths.includes(canonicalPath);
   const hasConversionPanel = hasDestinationLanding(canonicalPath);
   const seoOpportunity = seoOpportunityBlocks[canonicalPath];
@@ -564,6 +580,12 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     ? getArticleDeepDiveWave9(deepDiveLookupPath) || getArticleDeepDiveWave8(deepDiveLookupPath) || getArticleDeepDiveWave7(deepDiveLookupPath) || getArticleDeepDive(deepDiveLookupPath)
     : undefined;
   const isPost = item.type === "post";
+  // Migrated WordPress content often embeds its own H1 inside an article.
+  // The page already renders the canonical H1 above, so keep the imported
+  // article structure as H2+ and avoid competing top-level headings.
+  const editorialContentHtml = isPost
+    ? item.html.replace(/<(\/?)h1(?=[\s>])/gi, "<$1h2")
+    : item.html;
   const isAirportLiquidsGuide = canonicalPath === "/lotniska-w-polsce-bez-limitu-100-ml-plynow";
   const effectiveDestination = context.destination || (deepDive?.searchPresets?.length === 1 ? deepDive.searchPresets[0] : undefined);
   const comparisonDestinations = canonicalPath === "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje"
@@ -574,7 +596,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
   const articleSearchHref = readyArticleSearchHref(item, context, effectiveDestination);
   const articleCityBreakHref = "/city-break";
   const articleCheapFlightsHref = "/tanie-loty";
-  const related = relatedOffers(context, effectiveDestination);
+  const related = relatedOffers(context, effectiveDestination, comparisonDestinations);
   const nextLinks = growthLinks.slice(0, 3);
   const shouldRenderSearch = item.type === "post"
     && !deepDive?.hideSearch
@@ -585,14 +607,14 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Tripownia", item: "https://tripownia.pl/" },
       { "@type": "ListItem", position: 2, name: parent.name, item: `https://tripownia.pl${parent.href}` },
-      { "@type": "ListItem", position: 3, name: item.title, item: canonicalUrl },
+      { "@type": "ListItem", position: 3, name: editorialHeadline, item: canonicalUrl },
     ],
   };
   const dateModified = checkedAtIso(deepDive?.checkedAt);
   const articleJsonLd = item.type === "post" ? {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: item.title,
+    headline: editorialHeadline,
     description: item.description || undefined,
     mainEntityOfPage: canonicalUrl,
     url: canonicalUrl,
@@ -618,20 +640,20 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
     <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(breadcrumbJsonLd).replace(/</g,"\\u003c")}}/>
     {articleJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(articleJsonLd).replace(/</g,"\\u003c")}}/>}
     <div className="legacy-shell shell">
-      <div className="legacy-breadcrumb"><Link href="/">Tripownia</Link><span>›</span><Link href={parent.href}>{parent.name}</Link><span>›</span><span aria-current="page">{item.title}</span></div>
+      <div className="legacy-breadcrumb"><Link href="/">Tripownia</Link><span>›</span><Link href={parent.href}>{parent.name}</Link><span>›</span><span aria-current="page">{editorialHeadline}</span></div>
       {archived && <div className="archive-banner"><strong>Oferta archiwalna</strong><span>Cena i dostępność mogły się zmienić. Na dole znajdziesz aktualne propozycje.</span></div>}
       {hasConversionPanel && <DestinationLandingPanel path={canonicalPath} />}
 
       <article className={`legacy-article${isPost ? " legacy-article-post" : ""}`}>
         {!hasConversionPanel && <header className="article-hero">
           <div className="kicker">{archived ? "ARCHIWUM OFERT" : isPost ? "MAGAZYN TRIPOWNI" : "TRIPOWNIA"}</div>
-          <h1>{item.title}</h1>
+          <h1>{editorialHeadline}</h1>
           {isPost && item.description && <p className="article-lead">{item.description}</p>}
           {isPost && <div className="article-publisher-note">
             <span>Redakcja Tripowni</span>
             {dateModified && <span>Zweryfikowano: {dateModified}</span>}
             <Link href="/standardy-redakcyjne">Standardy redakcyjne →</Link>
-            <ArticleShare title={item.title} />
+            <ArticleShare title={editorialHeadline} />
           </div>}
         </header>}
 
@@ -659,6 +681,19 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
             <strong>W skrócie</strong>
             <p>{deepDive.quickAnswer}</p>
             {deepDive.checkedAt && <small>Sprawdzone: {deepDive.checkedAt}</small>}
+          </section>
+        )}
+
+        {canonicalPath === "/alicante-czy-malaga-gdzie-lepiej-poleciec-na-wakacje" && (
+          <section className="article-top-answer" aria-label="Szybkie porównanie Alicante i Malagi">
+            <div className="kicker">ALICANTE CZY MALAGA — SZYBKA ODPOWIEDŹ</div>
+            <h2>Czy Alicante leży w Andaluzji?</h2>
+            <p>Nie. Alicante znajduje się we Wspólnocie Walenckiej, na Costa Blanca. Malaga leży w Andaluzji, na Costa del Sol. To dwa różne regiony Hiszpanii.</p>
+            <p>Na spokojniejszy city break z plażą warto rozważyć Alicante. Jeśli chcesz połączyć miasto ze zwiedzaniem Andaluzji, sprawdź Malagę. Jesienią porównaj pogodę, godziny lotów i łączny koszt hotelu dla tych samych dat.</p>
+            <nav className="article-context-links" aria-label="Porównaj oba kierunki w Tripowni">
+              <Link href="/szukaj?destination=Alicante&duration=3-4&tab=City%20break">Alicante — lot + hotel →</Link>
+              <Link href="/szukaj?destination=Malaga&duration=3-4&tab=City%20break">Malaga — lot + hotel →</Link>
+            </nav>
           </section>
         )}
 
@@ -699,7 +734,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
 
         <section className={`article-longform${deepDive ? " article-longform-after-answer" : ""}`}>
           {deepDive && <div className="article-longform-label">PEŁNY PORADNIK</div>}
-          <div className="legacy-content" dangerouslySetInnerHTML={{__html:item.html}}/>
+          <div className="legacy-content" dangerouslySetInnerHTML={{__html:editorialContentHtml}}/>
         </section>
       </article>
 
@@ -780,7 +815,7 @@ export default function LegacyPage({ item }: { item: LegacyItem }) {
         </div>
       </section>}
 
-      {(isPost || isDestination) && <RelatedTravelGuides path={canonicalPath} title={item.title} isDestination={isDestination} />}
+      {(isPost || isDestination) && <RelatedTravelGuides path={canonicalPath} title={editorialHeadline} isDestination={isDestination} />}
       {(isDestination || (isPost && !seoOpportunity && !isAirportLiquidsGuide)) && <section className="section shell"><FacebookFollowCTA placement={isDestination ? "destination_legacy" : "article_legacy"} compact /></section>}
     </div>
     <SiteFooter/>

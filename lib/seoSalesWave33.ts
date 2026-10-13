@@ -8,9 +8,9 @@ import type { SeoLanding } from "@/lib/seoLandings";
 export const seoSalesWave33: SeoLanding[] = [
   {
     slug: "city-break-z-poznania",
-    title: "City break z Poznania — tanie loty + hotel z POZ",
+    title: "City break z Poznania — tani weekend, lot + hotel na 2–5 dni",
     eyebrow: "CITY BREAK Z POZNANIA / ŁAWICY",
-    lead: "City break z Poznania (POZ): tanie loty + hotel na 2–5 dni, weekendy i krótkie wyjazdy z Ławicy. Porównaj aktualne kierunki, ceny i godziny lotów.",
+    lead: "Tani city break z Poznania (POZ): lot + hotel na 2–5 dni, weekend w Europie i elastyczne terminy. Sprawdź kierunki z Ławicy, godziny lotów i pełny koszt.",
     query: "City break",
     departure: "Poznań",
     departureCode: "POZ",
