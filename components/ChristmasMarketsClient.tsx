@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, BedDouble, CalendarDays, CheckCircle2, MapPin, Plane, TrainFront, RotateCcw, Search, Ticket } from "lucide-react";
 import styles from "@/app/jarmarki-bozonarodzeniowe/markets.module.css";
 import { partners } from "@/lib/partners";
+import { marketFlightDateSuggestions, marketFlightDateLabel, marketKiwiFlightHref } from "@/lib/marketFlightDates";
 
 type MarketIdea = {
   city: string;
@@ -328,6 +329,9 @@ export default function ChristmasMarketsClient() {
             const scheduledOrigin = knownDirectOrigin(airport, idea.city);
             const showFlight = flightConfirmed || Boolean(scheduledOrigin);
             const flightOrigin = scheduledOrigin || airport;
+            const window = marketDepartureWindow(idea, month);
+            const nights = duration.split("-").map(Number);
+            const proposedDates = showFlight && window ? marketFlightDateSuggestions({month,from:window.from,to:window.to,minNights:nights[0],maxNights:nights[1],limit:3}) : [];
             return (
             <article className={styles.card} key={idea.city}>
               <div className={styles.cardHeader}>
@@ -366,6 +370,20 @@ export default function ChristmasMarketsClient() {
                 }
               </p>
 
+              {showFlight && proposedDates.length > 0 && (
+                <div className={styles.flightSuggestions}>
+                  <strong>Sprawdź loty na konkretne terminy</strong>
+                  <small>Terminy proponowane do wyszukania · cena i miejsca do sprawdzenia u partnera</small>
+                  <div className={styles.flightSuggestionsLinks}>
+                    {proposedDates.map((dates) => (
+                      <a key={dates.departure} href={marketKiwiFlightHref({origin:flightOrigin,destination:MARKET_AIRPORTS[idea.city],city:idea.city,dates})} rel="sponsored">
+                        <Plane size={14}/> {marketFlightDateLabel(dates)} <ArrowRight size={14}/>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className={styles.cardActions}>
                 {showFlight ? (
                   <Link className={styles.primaryAction} href={flightsHref(idea, flightOrigin, month, duration)}>
@@ -398,7 +416,7 @@ export default function ChristmasMarketsClient() {
 
         <div className={styles.note}>
           <CheckCircle2 size={19} aria-hidden="true" />
-          <p><strong>Ważne:</strong> połączenia Warszawa–Wiedeń, Warszawa–Budapeszt, Warszawa–Praga i Warszawa–Berlin wynikają z rozkładów lotów, a nie z gwarantowanej dostępności miejsc w wybranym terminie. Brak lotu w kalendarzu cen nie dowodzi, że lot nie istnieje. Pociągi prowadzą do afiliacyjnej wyszukiwarki Klook — tam wybierzesz stacje i konkretne daty; dostępność połączeń z Polski nie jest gwarantowana. Hotele otwierają wyszukiwanie miasta w Booking.com z afiliacją Tripowni. Daty i ceny potwierdź u dostawców, a daty jarmarków u organizatorów.</p>
+          <p><strong>Ważne:</strong> terminy obok lotów są propozycjami wyszukiwania w Kiwi.com, a nie potwierdzonymi ofertami lub cenami.  połączenia Warszawa–Wiedeń, Warszawa–Budapeszt, Warszawa–Praga i Warszawa–Berlin wynikają z rozkładów lotów, a nie z gwarantowanej dostępności miejsc w wybranym terminie. Brak lotu w kalendarzu cen nie dowodzi, że lot nie istnieje. Pociągi prowadzą do afiliacyjnej wyszukiwarki Klook — tam wybierzesz stacje i konkretne daty; dostępność połączeń z Polski nie jest gwarantowana. Hotele otwierają wyszukiwanie miasta w Booking.com z afiliacją Tripowni. Daty i ceny potwierdź u dostawców, a daty jarmarków u organizatorów.</p>
         </div>
         <nav className={styles.moreLinks} aria-label="Inne sposoby planowania">
           <Link href="/hotele">Znajdź nocleg <ArrowRight size={15}/></Link>
