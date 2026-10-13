@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, BedDouble, CalendarDays, CheckCircle2, MapPin, Plane, TrainFront, RotateCcw, Search, Ticket } from "lucide-react";
+import { ArrowRight, BedDouble, CalendarDays, CheckCircle2, MapPin, Plane, TrainFront, RotateCcw, Search, Ticket, X } from "lucide-react";
 import styles from "@/app/jarmarki-bozonarodzeniowe/markets.module.css";
 import { partners } from "@/lib/partners";
 import { marketFlightDateSuggestions, marketFlightDateLabel, marketKiwiFlightHref } from "@/lib/marketFlightDates";
@@ -190,6 +190,7 @@ export default function ChristmasMarketsClient() {
   const [airport, setAirport] = useState("WAW");
   const [month, setMonth] = useState("2026-12");
   const [duration, setDuration] = useState("2-4");
+  const [expandedFlightCity, setExpandedFlightCity] = useState<string | null>(null);
 
   const queryKey = [airport, month, duration].join("|");
   const [flights, setFlights] = useState<FlightStatuses>({ query: "", byCity: {}, prices: {} });
@@ -251,8 +252,38 @@ export default function ChristmasMarketsClient() {
   const monthLabel = MONTHS.find((item) => item.value === month)?.label || "wybrany miesiąc";
   const airportLabel = AIRPORTS.find((item) => item.value === airport)?.label || "wybrane lotnisko";
   const stayLabel = STAYS.find((item) => item.value === duration)?.label || "wybrany pobyt";
+  const monthHeading = ({
+    "2026-11": "listopadzie 2026",
+    "2026-12": "grudniu 2026",
+    "2027-01": "styczniu 2027",
+  } as Record<string, string>)[month] || month;
+
+  const expandedIdea = availableMarkets.find((idea) => idea.city === expandedFlightCity) || null;
+  const expandedPrices = expandedIdea && flights.query === queryKey ? flights.prices[expandedIdea.city] || [] : [];
+  const expandedOrigin = expandedIdea ? knownDirectOrigin(airport, expandedIdea.city) || airport : airport;
+  const expandedBounds = expandedIdea ? marketDepartureWindow(expandedIdea, month) : null;
+  const [minimumNights, maximumNights] = duration.split("-").map(Number);
+  const suggestedDates = expandedBounds
+    ? marketFlightDateSuggestions({
+        month, from: expandedBounds.from, to: expandedBounds.to,
+        minNights: minimumNights, maxNights: maximumNights, limit: 3,
+      })
+    : [];
+
+  function toggleFlightPanel(city: string) {
+    const opening = expandedFlightCity !== city;
+    setExpandedFlightCity(opening ? city : null);
+    if (opening && typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        document.getElementById("jarmarki-flight-panel")?.scrollIntoView({
+          behavior: "smooth", block: "center",
+        });
+      });
+    }
+  }
 
   const restore = () => {
+    setExpandedFlightCity(null);
     setAirport("WAW");
     setMonth("2026-12");
     setDuration("2-4");
@@ -273,7 +304,7 @@ export default function ChristmasMarketsClient() {
         <div className={styles.controls}>
           <label className={styles.field} htmlFor="market-airport">
             <span><MapPin size={16} /> Skąd wyruszasz?</span>
-            <select id="market-airport" value={airport} onChange={(event) => setAirport(event.target.value)}>
+            <select id="market-airport" value={airport} onChange={(event) => {setAirport(event.target.value);setExpandedFlightCity(null);}}>
               {AIRPORTS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
           </label>
@@ -287,7 +318,7 @@ export default function ChristmasMarketsClient() {
                   type="button"
                   className={month === item.value ? styles.monthActive : undefined}
                   aria-pressed={month === item.value}
-                  onClick={() => setMonth(item.value)}
+                  onClick={() => {setMonth(item.value);setExpandedFlightCity(null);}}
                   title={item.label}
                 >
                   {item.short}
@@ -298,7 +329,7 @@ export default function ChristmasMarketsClient() {
 
           <label className={styles.field} htmlFor="market-duration">
             <span><CalendarDays size={16} /> Na jak długo?</span>
-            <select id="market-duration" value={duration} onChange={(event) => setDuration(event.target.value)}>
+            <select id="market-duration" value={duration} onChange={(event) => {setDuration(event.target.value);setExpandedFlightCity(null);}}>
               {STAYS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
           </label>
@@ -313,8 +344,8 @@ export default function ChristmasMarketsClient() {
         <div className={styles.resultsHead}>
           <div>
             <span className={styles.eyebrow}>WYBIERZ SWÓJ KIERUNEK</span>
-            <h2 id="market-results-title">Jarmarki na {monthLabel.toLocaleLowerCase("pl-PL")}</h2>
-            <p>Sprawdź loty z Warszawy do Wiednia, Budapesztu, Pragi i Berlina oraz inne trasy znalezione w kalendarzu cenowym. Kierunek i termin wczytamy automatycznie. Pociąg i hotel pozostają dostępne.</p>
+            <h2 id="market-results-title">Jarmarki w {monthHeading}</h2>
+            <p>Wybierz miasto i porównaj transport oraz noclegi. Ceny lotów i terminy otworzysz w osobnym panelu, bez rozciągania kart.</p>
           </div>
           <span className={styles.counter} role="status" aria-live="polite">
             <Search size={16} /> {availableMarkets.length} {availableMarkets.length === 1 ? "kierunek" : availableMarkets.length > 4 ? "kierunków" : "kierunki"}
@@ -323,15 +354,9 @@ export default function ChristmasMarketsClient() {
 
         <div className={styles.cards}>
           {availableMarkets.map((idea) => {
-            const status = flights.query === queryKey ? flights.byCity[idea.city] : undefined;
             const pricedFlights = flights.query === queryKey ? flights.prices[idea.city] || [] : [];
-            const flightConfirmed = pricedFlights.length > 0;
             const scheduledOrigin = knownDirectOrigin(airport, idea.city);
-            const showFlight = flightConfirmed || Boolean(scheduledOrigin);
-            const flightOrigin = scheduledOrigin || airport;
-            const window = marketDepartureWindow(idea, month);
-            const nights = duration.split("-").map(Number);
-            const proposedDates = showFlight && window ? marketFlightDateSuggestions({month,from:window.from,to:window.to,minNights:nights[0],maxNights:nights[1],limit:3}) : [];
+            const showFlight = pricedFlights.length > 0 || Boolean(scheduledOrigin);
             return (
             <article className={styles.card} key={idea.city}>
               <div className={styles.cardHeader}>
@@ -357,76 +382,70 @@ export default function ChristmasMarketsClient() {
 
               <div className={styles.sights}><strong>Warto zobaczyć</strong><span>{month === "2027-01" && idea.january ? idea.january.see : idea.see}</span></div>
 
-              <p className={styles.transportNote} aria-live="polite">
-                {flightConfirmed
-                  ? <><Plane size={14}/> Znaleziono lot bezpośredni w kalendarzu cenowym.</>
-                  : scheduledOrigin
-                    ? <><Plane size={14}/> Z Warszawy Chopina kursują loty bezpośrednie. Sprawdź dostępność i cenę na wybrany termin.</>
-                  : status === "none"
-                    ? <><TrainFront size={14}/> Nie znaleziono lotu bezpośredniego w tym okresie. Sprawdź pociąg.</>
-                    : status === "unknown"
-                      ? <><TrainFront size={14}/> Nie możemy potwierdzić lotu. Możesz sprawdzić pociąg.</>
-                      : <><TrainFront size={14}/> {airport === "ALL" ? "Pociąg: miasto odjazdu wybierzesz u partnera." : "Sprawdzamy loty; pociągi już dostępne."}</>
-                }
-              </p>
-
-              {pricedFlights.length > 0 ? (
-                <div className={styles.flightSuggestions} aria-label={"Dostępne ceny lotów do " + idea.city}>
-                  <strong>Najtańsze znalezione loty z {flightOrigin} · od {pricedFlights[0].price.toLocaleString("pl-PL")} zł</strong>
-                  <small>Ceny z kalendarza lotów · bez przesiadek · sprawdź aktualną dostępność przed zakupem</small>
-                  <div className={styles.flightPriceList}>
-                    {pricedFlights.slice(0, 4).map((offer) => (
-                      <a key={offer.departDate + offer.returnDate} href={offer.affiliateUrl} rel="sponsored" className={styles.flightPriceLink}>
-                        <span><Plane size={15}/> {marketFlightPriceDateLabel(offer)}</span>
-                        <b>od {offer.price.toLocaleString("pl-PL")} zł <ArrowRight size={15}/></b>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              ) : showFlight && proposedDates.length > 0 ? (
-                <div className={styles.flightSuggestions}>
-                  <strong>Sprawdź loty na konkretne terminy</strong>
-                  <small>Brak potwierdzonych cen w kalendarzu · sprawdź dostępność u partnera</small>
-                  <div className={styles.flightSuggestionsLinks}>
-                    {proposedDates.map((dates) => (
-                      <a key={dates.departure} href={marketKiwiFlightHref({origin:flightOrigin,destination:MARKET_AIRPORTS[idea.city],city:idea.city,dates})} rel="sponsored">
-                        <Plane size={14}/> {marketFlightDateLabel(dates)} <ArrowRight size={14}/>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
+              <div className={styles.transportSummary}>
+                {pricedFlights.length ? (
+                  <span className={styles.pricedBadge}><Plane size={15}/> Loty od <strong>{pricedFlights[0].price.toLocaleString("pl-PL")} zł</strong></span>
+                ) : showFlight ? (
+                  <span className={styles.routeBadge}><Plane size={15}/> Sprawdź loty</span>
+                ) : (
+                  <span className={styles.railBadge}><TrainFront size={15}/> Podróż pociągiem</span>
+                )}
+              </div>
               <div className={styles.cardActions}>
                 {showFlight ? (
-                  <Link className={styles.primaryAction} href={flightsHref(idea, flightOrigin, month, duration)}>
-                    <Plane size={17}/> {airport === "ALL" && scheduledOrigin ? "Loty z Warszawy" : "Sprawdź loty"} <ArrowRight size={17}/>
-                  </Link>
+                  <button type="button" className={styles.primaryAction}
+                    aria-expanded={expandedFlightCity === idea.city}
+                    aria-controls="jarmarki-flight-panel"
+                    onClick={() => toggleFlightPanel(idea.city)}>
+                    <Plane size={17}/> {expandedFlightCity === idea.city ? "Ukryj loty" : "Zobacz loty"} <ArrowRight size={17}/>
+                  </button>
                 ) : (
-                  <Link className={styles.primaryAction} href={railHref(idea, airport, month)} rel="sponsored"
-                    title={"Sprawdź pociągi do " + idea.city + " — stację i daty wybierzesz u partnera"}>
-                    <TrainFront size={18}/> Sprawdź pociągi <ArrowRight size={17}/>
+                  <Link className={styles.primaryAction} href={railHref(idea, airport, month)} rel="sponsored">
+                    <TrainFront size={17}/> Sprawdź pociągi <ArrowRight size={17}/>
                   </Link>
                 )}
                 <div className={styles.secondaryActions}>
-                  {showFlight && (
-                    <Link href={railHref(idea, airport, month)} rel="sponsored" title="Wybierz stację i daty na stronie partnera">
-                      <TrainFront size={15}/> Pociągi
-                    </Link>
-                  )}
-                  <Link href={bookingHotelHref(idea)} rel="sponsored" title={"Noclegi w " + idea.city + " — konkretne daty wybierzesz na Booking.com"}>
-                    <BedDouble size={15}/> Hotele
-                  </Link>
-                  <Link href={"/atrakcje?q=" + encodeURIComponent(idea.city + " jarmark bożonarodzeniowy")}>
-                    <Ticket size={15}/> Atrakcje
-                  </Link>
+                  {showFlight && <Link href={railHref(idea, airport, month)} rel="sponsored"><TrainFront size={15}/> Pociągi</Link>}
+                  <Link href={bookingHotelHref(idea)} rel="sponsored"><BedDouble size={15}/> Hotele</Link>
+                  <Link href={"/atrakcje?q=" + encodeURIComponent(idea.city + " jarmark bożonarodzeniowy")}><Ticket size={15}/> Atrakcje</Link>
                 </div>
               </div>
             </article>
             );
           })}
         </div>
-
+        {expandedIdea && (
+          <section id="jarmarki-flight-panel" className={styles.flightPanel} aria-labelledby="jarmarki-flight-title">
+            <div className={styles.flightPanelHead}>
+              <div>
+                <span className={styles.eyebrow}>LOTY DO {expandedIdea.city.toLocaleUpperCase("pl-PL")}</span>
+                <h3 id="jarmarki-flight-title">{expandedIdea.city} · {expandedOrigin} · {monthLabel}</h3>
+                <p>{expandedPrices.length ? "Wybierz termin i sprawdź aktualną cenę u partnera." : "Nie mamy aktualnej ceny w kalendarzu. Sprawdź propozycje terminów u partnera."}</p>
+              </div>
+              <button type="button" className={styles.closePanel} onClick={() => setExpandedFlightCity(null)}>Zamknij <X size={17}/></button>
+            </div>
+            <div className={styles.flightPanelOffers}>
+              {expandedPrices.length ? expandedPrices.slice(0, 4).map(offer => (
+                <a key={offer.departDate + offer.returnDate} href={offer.affiliateUrl} rel="sponsored" className={styles.flightOffer}>
+                  <span><Plane size={18}/> {marketFlightPriceDateLabel(offer)}</span>
+                  <strong>od {offer.price.toLocaleString("pl-PL")} zł <ArrowRight size={16}/></strong>
+                </a>
+              )) : suggestedDates.map(dates => (
+                <a key={dates.departure} href={marketKiwiFlightHref({origin:expandedOrigin,destination:MARKET_AIRPORTS[expandedIdea.city],city:expandedIdea.city,dates})} rel="sponsored" className={styles.flightOffer}>
+                  <span><Plane size={18}/> {marketFlightDateLabel(dates)}</span>
+                  <strong>Sprawdź cenę <ArrowRight size={16}/></strong>
+                </a>
+              ))}
+            </div>
+            {!expandedPrices.length && !suggestedDates.length && <p>Brak propozycji terminów w tym okresie.</p>}
+            <div className={styles.flightPanelFooter}>
+              <Link href={flightsHref(expandedIdea, expandedOrigin, month, duration)}><Plane size={16}/> Więcej terminów</Link>
+              <Link href={bookingHotelHref(expandedIdea)} rel="sponsored"><BedDouble size={16}/> Hotele Booking</Link>
+              <Link href={railHref(expandedIdea, airport, month)} rel="sponsored"><TrainFront size={16}/> Pociągi</Link>
+            </div>
+            <p className={styles.flightPanelDisclaimer}>Ceny orientacyjne; dostępność i cenę ostateczną potwierdza partner przy rezerwacji.</p>
+          </section>
+        )}
         <div className={styles.note}>
           <CheckCircle2 size={19} aria-hidden="true" />
           <p><strong>Ważne:</strong> znalezione ceny lotów pochodzą z kalendarza taryf, nie są gwarantowaną ceną zakupu. Daty bez ceny są propozycjami wyszukiwania w Kiwi.com. Połączenia Warszawa–Wiedeń, Warszawa–Budapeszt, Warszawa–Praga i Warszawa–Berlin wynikają z rozkładów lotów, a nie z gwarantowanej dostępności miejsc w wybranym terminie. Brak lotu w kalendarzu cen nie dowodzi, że lot nie istnieje. Pociągi prowadzą do afiliacyjnej wyszukiwarki Klook — tam wybierzesz stacje i konkretne daty; dostępność połączeń z Polski nie jest gwarantowana. Hotele otwierają wyszukiwanie miasta w Booking.com z afiliacją Tripowni. Daty i ceny potwierdź u dostawców, a daty jarmarków u organizatorów.</p>
