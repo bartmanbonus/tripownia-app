@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, BedDouble, CalendarDays, CheckCircle2, MapPin, Plane, TrainFront, RotateCcw, Search, Ticket } from "lucide-react";
+import { ArrowRight, BedDouble, CalendarDays, CheckCircle2, MapPin, Plane, TrainFront, RotateCcw, Search, Ticket, X } from "lucide-react";
 import styles from "@/app/jarmarki-bozonarodzeniowe/markets.module.css";
 import { partners } from "@/lib/partners";
 import { marketFlightDateSuggestions, marketFlightDateLabel, marketKiwiFlightHref } from "@/lib/marketFlightDates";
@@ -190,6 +190,7 @@ export default function ChristmasMarketsClient() {
   const [airport, setAirport] = useState("WAW");
   const [month, setMonth] = useState("2026-12");
   const [duration, setDuration] = useState("2-4");
+  const [expandedFlightCity, setExpandedFlightCity] = useState<string | null>(null);
 
   const queryKey = [airport, month, duration].join("|");
   const [flights, setFlights] = useState<FlightStatuses>({ query: "", byCity: {}, prices: {} });
@@ -251,8 +252,38 @@ export default function ChristmasMarketsClient() {
   const monthLabel = MONTHS.find((item) => item.value === month)?.label || "wybrany miesiąc";
   const airportLabel = AIRPORTS.find((item) => item.value === airport)?.label || "wybrane lotnisko";
   const stayLabel = STAYS.find((item) => item.value === duration)?.label || "wybrany pobyt";
+  const monthHeading = ({
+    "2026-11": "listopadzie 2026",
+    "2026-12": "grudniu 2026",
+    "2027-01": "styczniu 2027",
+  } as Record<string, string>)[month] || month;
+
+  const expandedIdea = availableMarkets.find((idea) => idea.city === expandedFlightCity) || null;
+  const expandedPrices = expandedIdea && flights.query === queryKey ? flights.prices[expandedIdea.city] || [] : [];
+  const expandedOrigin = expandedIdea ? knownDirectOrigin(airport, expandedIdea.city) || airport : airport;
+  const expandedBounds = expandedIdea ? marketDepartureWindow(expandedIdea, month) : null;
+  const [minimumNights, maximumNights] = duration.split("-").map(Number);
+  const suggestedDates = expandedBounds
+    ? marketFlightDateSuggestions({
+        month, from: expandedBounds.from, to: expandedBounds.to,
+        minNights: minimumNights, maxNights: maximumNights, limit: 3,
+      })
+    : [];
+
+  function toggleFlightPanel(city: string) {
+    const opening = expandedFlightCity !== city;
+    setExpandedFlightCity(opening ? city : null);
+    if (opening && typeof window !== "undefined") {
+      window.requestAnimationFrame(() => {
+        document.getElementById("jarmarki-flight-panel")?.scrollIntoView({
+          behavior: "smooth", block: "center",
+        });
+      });
+    }
+  }
 
   const restore = () => {
+    setExpandedFlightCity(null);
     setAirport("WAW");
     setMonth("2026-12");
     setDuration("2-4");
@@ -273,7 +304,7 @@ export default function ChristmasMarketsClient() {
         <div className={styles.controls}>
           <label className={styles.field} htmlFor="market-airport">
             <span><MapPin size={16} /> Skąd wyruszasz?</span>
-            <select id="market-airport" value={airport} onChange={(event) => setAirport(event.target.value)}>
+            <select id="market-airport" value={airport} onChange={(event) => {setAirport(event.target.value);setExpandedFlightCity(null);}}>
               {AIRPORTS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
           </label>
@@ -287,7 +318,7 @@ export default function ChristmasMarketsClient() {
                   type="button"
                   className={month === item.value ? styles.monthActive : undefined}
                   aria-pressed={month === item.value}
-                  onClick={() => setMonth(item.value)}
+                  onClick={() => {setMonth(item.value);setExpandedFlightCity(null);}}
                   title={item.label}
                 >
                   {item.short}
@@ -298,7 +329,7 @@ export default function ChristmasMarketsClient() {
 
           <label className={styles.field} htmlFor="market-duration">
             <span><CalendarDays size={16} /> Na jak długo?</span>
-            <select id="market-duration" value={duration} onChange={(event) => setDuration(event.target.value)}>
+            <select id="market-duration" value={duration} onChange={(event) => {setDuration(event.target.value);setExpandedFlightCity(null);}}>
               {STAYS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
           </label>
@@ -313,8 +344,8 @@ export default function ChristmasMarketsClient() {
         <div className={styles.resultsHead}>
           <div>
             <span className={styles.eyebrow}>WYBIERZ SWÓJ KIERUNEK</span>
-            <h2 id="market-results-title">Jarmarki na {monthLabel.toLocaleLowerCase("pl-PL")}</h2>
-            <p>Sprawdź loty z Warszawy do Wiednia, Budapesztu, Pragi i Berlina oraz inne trasy znalezione w kalendarzu cenowym. Kierunek i termin wczytamy automatycznie. Pociąg i hotel pozostają dostępne.</p>
+            <h2 id="market-results-title">Jarmarki w {monthHeading}</h2>
+            <p>Wybierz miasto i porównaj transport oraz noclegi. Ceny lotów i terminy otworzysz w osobnym panelu, bez rozciągania kart.</p>
           </div>
           <span className={styles.counter} role="status" aria-live="polite">
             <Search size={16} /> {availableMarkets.length} {availableMarkets.length === 1 ? "kierunek" : availableMarkets.length > 4 ? "kierunków" : "kierunki"}
@@ -323,15 +354,9 @@ export default function ChristmasMarketsClient() {
 
         <div className={styles.cards}>
           {availableMarkets.map((idea) => {
-            const status = flights.query === queryKey ? flights.byCity[idea.city] : undefined;
             const pricedFlights = flights.query === queryKey ? flights.prices[idea.city] || [] : [];
-            const flightConfirmed = pricedFlights.length > 0;
             const scheduledOrigin = knownDirectOrigin(airport, idea.city);
-            const showFlight = flightConfirmed || Boolean(scheduledOrigin);
-            const flightOrigin = scheduledOrigin || airport;
-            const window = marketDepartureWindow(idea, month);
-            const nights = duration.split("-").map(Number);
-            const proposedDates = showFlight && window ? marketFlightDateSuggestions({month,from:window.from,to:window.to,minNights:nights[0],maxNights:nights[1],limit:3}) : [];
+            const showFlight = pricedFlights.length > 0 || Boolean(scheduledOrigin);
             return (
             <article className={styles.card} key={idea.city}>
               <div className={styles.cardHeader}>
