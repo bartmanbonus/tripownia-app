@@ -18,6 +18,7 @@ import { eskySearchUrl } from "@/lib/eskySearch";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ReadySearchGrid, { type ReadySearchItem } from "@/components/ReadySearchGrid";
 import DestinationCheapFlights from "@/components/DestinationCheapFlights";
+import { isSeasonallyRelevantDeal, seasonalDealBoost } from "@/lib/dealsSeasonality";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -228,7 +229,8 @@ export default function DealsPage({
   const todayLoading = false;
   const todayCheckedAt: string | null = null;
   const quickFilteredOffers = useMemo(() => {
-    const sourceRows = offers as DealsOffer[];
+    const context = { month, year, quickFilter, destination, dealType, now };
+    const sourceRows = (offers as DealsOffer[]).filter((offer) => isSeasonallyRelevantDeal(offer, context));
     if (quickFilter === "city") return sourceRows.filter((offer) => offer.category.includes("city") || offer.category.includes("weekend"));
     if (quickFilter === "allinclusive") return sourceRows.filter((offer) => offer.category.includes("allinclusive"));
     if (quickFilter === "sun") return sourceRows.filter((offer) => offer.category.includes("cieplo") || offer.category.includes("plaza"));
@@ -236,13 +238,15 @@ export default function DealsPage({
     if (quickFilter === "flight") return sourceRows.filter((offer) => offer.category.includes("flight"));
     if (quickFilter === "package") return sourceRows.filter((offer) => !offer.category.includes("flight"));
     return sourceRows;
-  }, [offers, quickFilter]);
-  const rows = useMemo(
-    () => destination
+  }, [offers, quickFilter, month, year, destination, dealType, now]);
+  const rows = useMemo(() => {
+    const sorted = destination
       ? destinationOfferRows(quickFilteredOffers, sortMode)
-      : allOfferRows(quickFilteredOffers, sortMode),
-    [quickFilteredOffers, source, destination, sortMode]
-  );
+      : allOfferRows(quickFilteredOffers, sortMode);
+    if (destination || !["sales", "mix"].includes(sortMode)) return sorted;
+    const context = { month, year, quickFilter, destination, dealType, now };
+    return [...sorted].sort((a, b) => seasonalDealBoost(b, context) - seasonalDealBoost(a, context));
+  }, [quickFilteredOffers, source, destination, sortMode, month, year, quickFilter, dealType, now]);
   const destinationHotelHref = useMemo(
     () => destination ? `/hotele?q=${encodeURIComponent(destination)}` : "",
     [destination]
@@ -441,6 +445,17 @@ export default function DealsPage({
           <Search size={16}/> Wyszukaj po swojemu
         </Link>
       </div>
+
+      {!destination && dealType !== "allinclusive" && (
+        <div className="deals-seasonal-banner">
+          <div>
+            <span className="deals-seasonal-eyebrow">SEZON LISTOPAD–GRUDZIEŃ</span>
+            <strong>Przed świętami? Wybierz jarmark, nie przypadkowy wyjazd.</strong>
+            <p>Wiedeń, Praga, Budapeszt, Drezno, Berlin, Norymberga i Salzburg. Krótkie wypady z opcjami lotu, pociągu i noclegu. Po 26 grudnia wracają też propozycje na zimowe słońce.</p>
+          </div>
+          <Link href="/jarmarki-bozonarodzeniowe">Zobacz jarmarki <ArrowRight size={17}/></Link>
+        </div>
+      )}
 
       {readySearchItems.length > 0 && (
         <section className="deals-ready-searches">
@@ -718,6 +733,13 @@ export default function DealsPage({
         white-space: nowrap;
       }
 
+      .deals-seasonal-banner{display:flex;justify-content:space-between;align-items:center;gap:24px;margin:0 0 22px;padding:22px 24px;border:1px solid #e7d6c6;border-radius:18px;background:linear-gradient(115deg,#fff8ef,#f8f0e6)}
+      .deals-seasonal-banner>div{display:grid;gap:8px}
+      .deals-seasonal-eyebrow{font-size:11px;font-weight:850;letter-spacing:.08em;color:#955f31}
+      .deals-seasonal-banner strong{font-size:20px;line-height:1.25;color:#2a2724}
+      .deals-seasonal-banner p{max-width:720px;margin:0;font-size:14px;line-height:1.55;color:#605c56}
+      .deals-seasonal-banner>a{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:14px 17px;min-height:44px;background:#24382d;color:#fff;border-radius:12px;text-decoration:none;font-size:13px;font-weight:800;white-space:nowrap}
+      @media(max-width:680px){.deals-seasonal-banner{flex-direction:column;align-items:stretch;padding:18px}.deals-seasonal-banner>a{width:100%}}
       .deals-simple-controls {
         margin: 8px 0 16px;
         padding: 14px;
