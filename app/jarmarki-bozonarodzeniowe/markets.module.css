@@ -70,3 +70,64 @@
 .flightSuggestions{margin:0 0 15px;padding:13px;border:1px solid #e8d8cd;border-radius:12px;background:#fffbf7;display:grid;gap:8px}.flightSuggestions>strong{font-size:12px;color:#332822}.flightSuggestions>small{font-size:11px;line-height:1.5;color:#75685f}.flightSuggestionsLinks{display:flex;flex-wrap:wrap;gap:7px}.flightSuggestionsLinks>a{display:inline-flex;align-items:center;gap:6px;padding:9px 10px;border:1px solid #e6c9b8;border-radius:10px;background:#fff;color:#aa4828!important;text-decoration:none!important;font-size:12px;font-weight:750}.flightSuggestionsLinks>a:hover{border-color:#dc6443;background:#fff5ee}@media(max-width:450px){.flightSuggestionsLinks>a{flex:1 1 100%;justify-content:space-between}}
 
 .flightPriceList{display:grid;gap:7px}.flightPriceLink{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;border:1px solid #ebd8ca;border-radius:10px;background:#fff;padding:10px 11px;text-decoration:none!important;color:#38302a!important;font-size:12px;font-weight:700}.flightPriceLink>span,.flightPriceLink>b{display:inline-flex;align-items:center;gap:7px}.flightPriceLink>b{color:#bb4b2b;font-weight:850;white-space:nowrap}.flightPriceLink:hover{border-color:#e77855;background:#fff7f2}
+
+
+/* 2026-10: Uniform Christmas-market cards and a single details panel. */
+.marketPage{width:100%;min-width:0}
+.marketPage :global(.market-hero-compact){padding:34px 38px 32px;margin-top:22px}
+.marketPage :global(.market-hero-compact h1){font-size:clamp(32px,3.3vw,49px);line-height:1.07;max-width:850px}
+.marketPage :global(.market-hero-compact p){font-size:15px;line-height:1.5;margin-top:13px;max-width:750px}
+.marketPage :global(.market-section-compact){padding-top:4px}
+.finder{margin:16px 0 27px;padding:23px;border-radius:20px}
+.finderIntro h2{font-size:clamp(22px,2.5vw,29px)}
+.finderIntro p{max-width:730px}
+.resultsHead{margin-bottom:16px}
+.resultsHead h2{font-size:clamp(24px,2.6vw,32px)}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
+.card{display:flex;flex-direction:column;gap:0;min-width:0;min-height:352px;padding:19px;border-radius:18px;box-shadow:0 5px 18px rgba(35,25,19,.045)}
+.cardHeader{margin-bottom:11px}
+.cardNote{margin:0 0 12px;line-height:1.45;min-height:38px}
+.dates{padding:11px 12px}
+.sights{margin:12px 0 10px;gap:4px}
+.transportSummary{margin:2px 0 14px;min-height:30px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pricedBadge,.routeBadge,.railBadge{display:inline-flex;align-items:center;gap:6px;padding:7px 9px;border-radius:9px;font-size:12px;font-weight:800}
+.pricedBadge{color:#b84629;background:#fff1ea}
+.routeBadge{color:#b84629;background:#fff6f1}
+.railBadge{color:#276048;background:#eaf6ef}
+.pricedBadge strong{font-weight:900}
+.cardActions{margin-top:auto}
+.cardActions .primaryAction{width:100%;min-height:44px;cursor:pointer;border:none;font-family:inherit;line-height:1.2;text-align:center}
+.cardActions .secondaryActions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:7px}
+.cardActions .secondaryActions a{min-height:40px;font-size:11px;padding:6px;gap:5px;white-space:nowrap}
+.cardActions .secondaryActions a svg{width:14px;height:14px;flex-shrink:0}
+.flightPanel{margin:19px 0 25px;padding:23px;border:1px solid #eacabd;border-radius:20px;background:#fff9f5;box-shadow:0 9px 28px rgba(60,25,15,.065);scroll-margin-top:100px}
+.flightPanelHead{display:flex;align-items:start;justify-content:space-between;gap:20px}
+.flightPanelHead h3{font-size:clamp(22px,2.5vw,30px);letter-spacing:-.035em;color:#231b17;margin:7px 0}
+.flightPanelHead p{font-size:13px;color:#76675e;margin:0 0 16px;line-height:1.5}
+.closePanel{border:1px solid #ead4c8;border-radius:10px;background:white;display:inline-flex;align-items:center;gap:7px;padding:10px 12px;cursor:pointer;color:#773f31;font-weight:750;white-space:nowrap}
+.flightPanelOffers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.flightOffer{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border:1px solid #e7d4c9;background:#fff;color:#342b26!important;text-decoration:none!important;padding:14px;border-radius:12px;font-size:13px}
+.flightOffer:hover{border-color:#e5673f;box-shadow:0 3px 12px rgba(125,61,32,.08)}
+.flightOffer>span,.flightOffer>strong{display:inline-flex;align-items:center;gap:8px}
+.flightOffer>strong{color:#c74826;font-weight:850}
+.flightPanelFooter{display:flex;flex-wrap:wrap;gap:9px;margin:16px 0 0}
+.flightPanelFooter a{display:inline-flex;gap:7px;align-items:center;border-radius:10px;border:1px solid #e7d4c9;padding:10px 12px;background:white;color:#55372d;text-decoration:none;font-size:12px;font-weight:800}
+.flightPanelDisclaimer{font-size:11px;color:#786b63;margin:13px 0 0;line-height:1.5}
+.flightPanel :is(a,button):focus-visible{outline:3px solid #ee946e;outline-offset:2px}
+@media(max-width:1030px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.card{min-height:336px}}
+@media(max-width:700px){
+ .marketPage :global(.market-hero-compact){padding:26px 20px}
+ .marketPage :global(.market-hero-compact h1){font-size:34px}
+ .cards{grid-template-columns:1fr;gap:12px}
+ .card{min-height:0;padding:17px}
+ .cardNote{min-height:0}
+ .cardActions .secondaryActions{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .flightPanel{padding:16px;border-radius:16px}
+ .flightPanelHead{gap:9px}
+ .flightPanelOffers{grid-template-columns:1fr}
+ .flightOffer{padding:13px}
+ .closePanel{font-size:0;gap:0;padding:10px}
+ .closePanel svg{width:17px;height:17px}
+ .finder{padding:18px}
+}
+@media(prefers-reduced-motion:reduce){.flightPanel{scroll-margin-top:80px}}
