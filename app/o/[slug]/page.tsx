@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { isSharePriceFresh } from "@/lib/sharePreview";
+import SocialShare from "@/components/SocialShare";
 import Link from "next/link";
 import OfferHeroImage from "@/components/OfferHeroImage";
 import OfferJourney from "@/components/OfferJourney";
@@ -54,7 +56,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const isBariAlberobello = offer.slug === "bari-alberobello-669";
-  const title = `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł/os. | Tripownia.pl`;
+  const socialPriceOk = !isSocialOfferExpired(offer) && isSharePriceFresh(offer.checkedAt);
+  const title = socialPriceOk ? `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł/os. | Tripownia.pl` : `${offer.city} — sprawdź aktualną cenę | Tripownia.pl`;
   const description = isBariAlberobello
     ? "City break do Apulii z wylotem z Warszawy. 20–23 października 2026, 2 noce, śniadanie."
     : `${offer.hotel} • ${offer.dates} • ${offer.nights} nocy • wylot: ${offer.departure}. Sprawdź konkretną ofertę na Tripowni.`;
@@ -73,7 +76,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: pageUrl,
       title,
       description,
-      images: [{ url: image, width: 1200, height: 630, alt: `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł — Tripownia.pl` }],
+      images: [{ url: image, width: 1200, height: 630, alt: `${offer.city} — oferta Tripownia.pl` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -155,6 +158,7 @@ export default async function ShortSocialOfferPage({
           <div className="detail-copy">
             <div className="eyebrow">{offer.country}</div>
             <h1>{offer.city}</h1>
+            <SocialShare url={`/o/${offer.slug}`} title={`${offer.city} — Tripownia`} text={`${offer.dates} · ${offer.departure} · sprawdź aktualną cenę`} />
             <div className="detail-topline"><div className="detail-score"><BadgeCheck size={18}/><span>Szczegóły wybranej propozycji</span></div></div>
             <div className="detail-price-card">
               <div className="detail-price"><small>znaleźliśmy od</small> <strong>{offer.price.toLocaleString("pl-PL")} zł</strong> / os.</div>
