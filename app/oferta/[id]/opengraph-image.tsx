@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { offers } from "@/lib/offers";
+import { isSharePriceFresh } from "@/lib/sharePreview";
 
 export const alt = "Okazja Tripowni — LECIMY?";
 export const size = { width: 1200, height: 630 };
@@ -41,7 +42,7 @@ export default async function OpenGraphImage({ params }: { params: Promise<{ id:
     );
   }
 
-  const priceText = offer.partner === "exim" || offer.partner === "tui"
+  const priceText = offer.availabilityStatus !== "available" || (offer.linkMatch !== "exact" && offer.linkType !== "exact") || !isSharePriceFresh(offer.priceCheckedAt) || offer.partner === "exim" || offer.partner === "tui"
     ? "Sprawdź aktualną cenę"
     : `od ${offer.price.toLocaleString("pl-PL")} zł / os.`;
   const imageUrl = absoluteImage(offer.image);
