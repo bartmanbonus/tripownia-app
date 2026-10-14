@@ -1,5 +1,6 @@
 import { canonicalPublicPath, isPrivateAppPath } from "@/lib/seoRouting";
 import { destinationGuidePaths } from "@/lib/destinationGuides";
+import { destinationArticles } from "@/lib/destinationEditorial";
 import type { MetadataRoute } from "next";
 import { allSeoLandings } from "@/lib/allSeoLandings";
 import { legacyCanonicalPath, legacyPosts } from "@/lib/legacy";
@@ -112,7 +113,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: .72,
   }));
 
-  const destinationPages: MetadataRoute.Sitemap = destinationGuidePaths.map(path => ({
+  const destinationPages: MetadataRoute.Sitemap = [...destinationGuidePaths, ...destinationArticles.map(item => item.href)].map(path => ({
     url: `${BASE_URL}${path}`, changeFrequency: "monthly", priority: .8,
   }));
 
