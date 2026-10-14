@@ -49,6 +49,7 @@ export const eximDestinations: EximDestination[] = [
   { label: "Węgry", query: "Węgry", eximPath: "/kierunki/wegry" },
   { label: "Wietnam", query: "Wietnam", eximPath: "/kierunki/wietnam" },
   { label: "Włochy", query: "Włochy", eximPath: "/kierunki/wlochy" },
+  { label: "Zanzibar", query: "Zanzibar", eximPath: "/kierunki/tanzania" },
   { label: "Zjednoczone Emiraty Arabskie", query: "ZEA", eximPath: "/kierunki/zjednoczone-emiraty-arabskie" },
 ];
 
