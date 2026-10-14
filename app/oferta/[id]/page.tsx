@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isSharePriceFresh } from "@/lib/sharePreview";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, MapPin, Moon, Plane, Sun, Utensils, Bell } from "lucide-react";
@@ -25,9 +26,10 @@ export async function generateMetadata({params}:{params:Promise<{id:string}>}):P
   const {id}=await params;
   const o=offers.find(x=>x.id===Number(id));
   if (!o) return {};
-  const title = `${o.city} z ${o.departure} — od ${o.price.toLocaleString("pl-PL")} zł/os.`;
+  const priceOk = o.availabilityStatus === "available" && (o.linkMatch === "exact" || o.linkType === "exact") && isSharePriceFresh(o.priceCheckedAt);
+  const title = `${o.city} z ${o.departure}${priceOk ? ` — od ${o.price.toLocaleString("pl-PL")} zł/os.` : " — sprawdź aktualną cenę"}`;
   const socialTitle = `${title} | Tripownia.pl`;
-  const description = `${o.city}, ${o.nights} nocy, ${o.board}, wylot z ${o.departure}. Ostatnio znaleźliśmy od ${o.price.toLocaleString("pl-PL")} zł/os. Sprawdź aktualną cenę i dostępność.`;
+  const description = `${o.city}, ${o.nights} nocy, ${o.board}, wylot z ${o.departure}. ${priceOk ? `Niedawno znaleźliśmy od ${o.price.toLocaleString("pl-PL")} zł/os.` : "Sprawdź aktualną cenę."} Dostępność potwierdź przed rezerwacją.`;
   const socialImage = `/oferta/${o.id}/opengraph-image`;
   return {
     title,
