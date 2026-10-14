@@ -14,6 +14,7 @@ import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { readAccountSession } from "@/lib/accountAuth";
 import { customerOfferReason } from "@/lib/customerOfferCopy";
 import { liveOfferLandingHref } from "@/lib/liveOfferLanding";
+import SocialShare from "@/components/SocialShare";
 import {
   COMPARE_OFFER_SNAPSHOTS_KEY,
   FAVORITE_OFFER_SNAPSHOTS_KEY,
@@ -411,6 +412,9 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
           </Link>
         )}
 
+        {!isExpired && (
+          <SocialShare url={cardHref} title={`${offer.city} — sprawdź ofertę`} text={`${offer.city}, ${offer.dates}. Sprawdź aktualną cenę w Tripowni.`} />
+        )}
         {!isExpired && (
           <div className="offer-actions-row offer-actions-secondary">
             <button className={`compare-toggle ${compared ? "active" : ""}`} onClick={toggleCompare}><Scale size={15} /> {compared ? "W porównaniu" : "Porównaj"}</button>
