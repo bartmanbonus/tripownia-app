@@ -11,6 +11,7 @@ import { getLinkMatch } from "@/lib/offers";
 import { isPriceStale } from "@/lib/offerQuality";
 import { isTravelDestinationAllowed } from "@/lib/travelSafety";
 import { touristDestinationKey } from "@/lib/destinationGrouping";
+import { selectCuratedSeasonalDeals, reviewSeasonalDeal } from "@/lib/seasonalDeals";
 import { useLiveOffers } from "@/lib/useLiveOffers";
 import { getHistoricalPriceHighlight, recordDealPriceHistory } from "@/lib/dealPriceHistory";
 import { trackEvent } from "@/lib/analytics";
@@ -104,7 +105,8 @@ function purchaseReadinessScore(offer: DealsOffer) {
 
 function salesSort(rows: DealsOffer[]) {
   return [...rows].sort((a, b) =>
-    purchaseReadinessScore(b) - purchaseReadinessScore(a)
+    reviewSeasonalDeal(a).valueRatio - reviewSeasonalDeal(b).valueRatio
+    || purchaseReadinessScore(b) - purchaseReadinessScore(a)
     || Number(a.price) - Number(b.price)
     || Number(b.score || 0) - Number(a.score || 0)
   );
@@ -183,7 +185,7 @@ export default function DealsPage({
   destination = "",
   dealType = "",
   pageTitle = "Aktualne okazje gotowe do sprawdzenia.",
-  pageLead = "Najwyżej pokazujemy oferty z najlepszym połączeniem aktualności, konkretnego linku, pełnych danych i ceny. Jeśli chcesz, jednym kliknięciem posortujesz wyłącznie po najniższej cenie.",
+  pageLead = "Wybieramy sprawdzone oferty na dobry sezon: dokładna data, aktualna cena i odpowiednie warunki w regionie.",
   kicker = "OKAZJE TRIPOWNI",
   initialOffers = [],
   readySearchItems = [],
@@ -228,10 +230,10 @@ export default function DealsPage({
   const todayLoading = false;
   const todayCheckedAt: string | null = null;
   const quickFilteredOffers = useMemo(() => {
-    const sourceRows = offers as DealsOffer[];
+    const sourceRows = !destination ? selectCuratedSeasonalDeals(offers as DealsOffer[]) : offers as DealsOffer[];
     if (quickFilter === "city") return sourceRows.filter((offer) => offer.category.includes("city") || offer.category.includes("weekend"));
     if (quickFilter === "allinclusive") return sourceRows.filter((offer) => offer.category.includes("allinclusive"));
-    if (quickFilter === "sun") return sourceRows.filter((offer) => offer.category.includes("cieplo") || offer.category.includes("plaza"));
+    if (quickFilter === "sun") return sourceRows.filter((offer) => reviewSeasonalDeal(offer).warm);
     if (quickFilter === "under2000") return sourceRows.filter((offer) => Number(offer.price) <= 2000);
     if (quickFilter === "flight") return sourceRows.filter((offer) => offer.category.includes("flight"));
     if (quickFilter === "package") return sourceRows.filter((offer) => !offer.category.includes("flight"));
@@ -327,7 +329,7 @@ export default function DealsPage({
     }).slice(0, 6);
   }, [destination, rows, airport, month, year, currentYear, currentMonth]);
   const todayRows = useMemo(() => allOfferRows(todayOffers as DealsOffer[], "priceAsc").slice(0, 5), [todayOffers]);
-  const poolHighlights = useMemo(() => source === "live" ? buildPoolHighlights(rows) : new Map<number, PriceHighlight>(), [rows, source]);
+  const poolHighlights = useMemo(() => new Map<number, PriceHighlight>(), []);
 
   useEffect(() => {
     if (source !== "live" || !rows.length) return;
@@ -434,7 +436,7 @@ export default function DealsPage({
                 ? (rows.length
                     ? "Pokazujemy pakiety zwrócone przez dostępne źródła. Cenę i dostępność potwierdź przed rezerwacją."
                     : "Jeśli źródła pakietów nie pokazują dobrej ceny, sprawdź również same loty lub inne terminy.")
-                : "Pokazujemy całą aktualną pulę bez sztucznego limitu. Domyślnie wyżej są oferty najbardziej gotowe do rezerwacji; możesz przełączyć sortowanie na samą cenę."}
+                : "Pokazujemy wybrane oferty z potwierdzoną ceną, konkretnym terminem i dobrym sezonem w regionie. Tańsza oferta poza sezonem nie trafia automatycznie na listę."}
           </p>
         </div>
         <Link className="primary-cta deals-simple-search" href="/#wyszukiwarka">
@@ -485,7 +487,7 @@ export default function DealsPage({
             <label className="deals-sort-control">
               <span>Sortuj</span>
               <select value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)}>
-                <option value="sales">Największa szansa zakupu</option>
+                <option value="sales">Najlepsza cena i sezon</option>
                 <option value="mix">Polecany miks</option>
                 <option value="priceAsc">Cena: od najniższej</option>
                 <option value="priceDesc">Cena: od najwyższej</option>
@@ -669,7 +671,7 @@ export default function DealsPage({
         ) : (
           <div className="self-search-empty deals-simple-empty">
             <strong>Brak ofert dla tych filtrów.</strong>
-            <span>Zmień jeden filtr albo wyczyść ustawienia — nie pokazujemy sztucznych wyników.</span>
+            <span>Nie znaleźliśmy ofert łączących dobrą cenę, potwierdzoną dostępność i odpowiedni sezon. Zmień termin lub filtr — nie podstawiamy przypadkowych wyjazdów.</span>
           </div>
         )
       ) : null}

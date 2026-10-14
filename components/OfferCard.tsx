@@ -354,6 +354,11 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
         )}
         <div className="offer-trust-line"><Clock3 size={12} /> {trustText}</div>
         <div className="offer-date-line"><CalendarDays size={15} /> <strong>{offer.dates}</strong></div>
+        {sourceSurface === "okazje" && offer.weather?.startsWith("Klimat:") && (
+          <p className="offer-climate-note" style={{fontSize: "12px", lineHeight: 1.45, color: "#475569", margin: "7px 0"}}>
+            <Sun size={13} aria-hidden="true" style={{verticalAlign: "middle", marginRight: 5}} />{offer.weather}
+          </p>
+        )}
         <div className="meta">
           <span><Plane size={15} /> {offer.departure}</span>
           <span><Moon size={15} /> {offer.nights} {nightsLabel}</span>
