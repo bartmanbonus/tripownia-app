@@ -243,6 +243,7 @@ export default function AddTripPage() {
   const [sportHotelUrl, setSportHotelUrl] = useState("");
   const [sportPeople, setSportPeople] = useState(2);
   const [sportKickoff, setSportKickoff] = useState("");
+  const [sportMorningReturn, setSportMorningReturn] = useState(false);
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
   const suggestionStart = dateMode === "range" ? startDate : "";
@@ -516,18 +517,49 @@ export default function AddTripPage() {
     const sportCity = (params.get("city") || "").trim();
     const sportCountry = (params.get("country") || "").trim();
     const sportStart = (params.get("start") || "").trim();
-    const sportEnd = (params.get("end") || "").trim();
+    let sportEnd = (params.get("end") || "").trim();
     const sportDeparture = (params.get("departure") || "").trim();
     const match = (params.get("match") || "").trim();
     const venue = (params.get("venue") || "").trim();
     const ticket = (params.get("ticket") || "").trim();
-    const flightUrl = (params.get("flightUrl") || "").trim();
-    const hotelUrl = (params.get("hotelUrl") || "").trim();
+    let flightUrl = (params.get("flightUrl") || "").trim();
+    let hotelUrl = (params.get("hotelUrl") || "").trim();
     const people = Math.max(1, Math.min(4, Number(params.get("people") || 2) || 2));
-    const tripNights = Math.max(1, Math.min(7, Number(params.get("nights") || 0) || nightsBetween(sportStart, sportEnd) || 1));
     const kickoff = (params.get("kickoff") || "").trim();
+    const legacyInterFiorentina = norm(sportCity) === "mediolan"
+      && /inter|internazionale/i.test(match)
+      && /fiorentina/i.test(match)
+      && sportStart === "2026-10-24"
+      && sportEnd === "2026-10-25"
+      && params.get("nights") === "1"
+      && params.get("nightsChosen") !== "1";
+    if (legacyInterFiorentina) {
+      sportEnd = "2026-10-26";
+      // Keep the original provider and tracking URL, only adjust its travel dates.
+      try {
+        const outer = new URL(flightUrl);
+        if (outer.hostname === "c111.travelpayouts.com") {
+          const inner = new URL(outer.searchParams.get("custom_url") || "");
+          if (inner.hostname === "www.kiwi.com" && inner.searchParams.get("return") === "2026-10-25") {
+            inner.searchParams.set("return", sportEnd);
+            outer.searchParams.set("custom_url", inner.toString());
+            flightUrl = outer.toString();
+          }
+        }
+      } catch { /* Keep provided flight URL if it cannot be safely adjusted. */ }
+      try {
+        const parsedHotel = new URL(hotelUrl);
+        if (parsedHotel.hostname === "www.booking.com" && parsedHotel.searchParams.get("checkout") === "2026-10-25") {
+          parsedHotel.searchParams.set("checkout", sportEnd);
+          hotelUrl = parsedHotel.toString();
+        }
+      } catch { /* Keep provided hotel URL if it cannot be safely adjusted. */ }
+    }
+    const tripNights = legacyInterFiorentina ? 2 : Math.max(1, Math.min(7, Number(params.get("nights") || 0) || nightsBetween(sportStart, sportEnd) || 1));
+    const morningReturn = legacyInterFiorentina || params.get("returnTime") === "morning";
 
     setSportMatch(match);
+    setSportMorningReturn(morningReturn);
     setSportVenue(venue);
     setSportTicket(ticket);
     setSportFlightUrl(flightUrl);
@@ -837,6 +869,7 @@ export default function AddTripPage() {
                   {departure || "Wylot z Polski"} → {city || country} · {sourceNights || nights} {sourceNights === 1 || nights === 1 ? "noc" : "noce/nocy"} · {sportPeople} os.
                 </span>
                 {sportKickoff && <small>Mecz: {sportKickoff}</small>}
+                {sportMorningReturn && <small>Powrót: {endDate} rano (preferowany wylot przed 12:00; sprawdź godzinę u przewoźnika).</small>}
                 <small>Nie wpisujesz ponownie miasta, lotniska ani dat — przechodzisz od razu do gotowych wyników.</small>
               </div>
 
@@ -846,7 +879,7 @@ export default function AddTripPage() {
                     <span className={styles.sportBuyNumber}>1</span>
                     <div><strong>Lot</strong><small>{departure || "Polska"} → {city || country}</small></div>
                   </div>
-                  <p>Trasa i daty są już wpisane. Wybierz tylko konkretny lot z gotowej listy.</p>
+                  <p>{sportMorningReturn ? "Trasa i daty są wpisane. Wybierz lot powrotny rano, z wylotem przed 12:00 — godzina nie jest z góry zagwarantowana." : "Trasa i daty są już wpisane. Wybierz tylko konkretny lot z gotowej listy."}</p>
                   <a
                     className={styles.sportBuyCta}
                     href={sportFlightHref}
