@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { travelShareMetadata } from "@/lib/sharePreview";
+import SocialShare from "@/components/SocialShare";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, MapPin, Plane, Moon, Utensils, CalendarDays, BadgeCheck, PlusCircle, Bell } from "lucide-react";
@@ -14,12 +16,6 @@ import { partnerFromUrl } from "@/lib/affiliateJourney";
 import { affiliateLinkContext, openAffiliateLink, sealAffiliateLink } from "@/lib/affiliateLinkToken";
 
 export const runtime = "nodejs";
-
-export const metadata: Metadata = {
-  title: "Okazja podróżnicza",
-  description: "Sprawdź szczegóły okazji znalezionej przez Tripownię i zarezerwuj wyjazd.",
-  robots: { index: false, follow: true },
-};
 
 type Search = Record<string, string | string[] | undefined>;
 
@@ -58,6 +54,30 @@ function safeTarget(value: string) {
 function safePrice(value: string) {
   const parsed = Number(value.replace(/[^0-9]/g, ""));
   return Number.isFinite(parsed) && parsed > 0 && parsed < 100000 ? parsed : null;
+}
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<Search> }): Promise<Metadata> {
+  const received = await searchParams;
+  const ref = Array.isArray(received.ref) ? received.ref[0] || "" : received.ref || "";
+  const payload = openAffiliateLink(ref.slice(0, 12000));
+  const context = payload?.mode === "offer" ? payload.context : received;
+  const get = (key: string) => {
+    const value = context[key];
+    return typeof value === "string" ? value : Array.isArray(value) ? value[0] || "" : "";
+  };
+  const kind = payload?.partner === "kiwi" ? "flight" : payload?.partner === "booking" ? "hotel" : "package";
+  return travelShareMetadata({
+    city: get("city") || "Okazja podróżnicza",
+    country: get("country"),
+    departure: get("departure"),
+    dates: get("dates"),
+    hotel: get("hotel"),
+    board: get("board"),
+    price: Number(get("price")) || null,
+    checkedAt: get("checkedAt"),
+    kind,
+    url: ref ? `/okazja?ref=${encodeURIComponent(ref)}` : "/okazje",
+  });
 }
 
 export default async function SocialOfferLanding({
@@ -223,6 +243,7 @@ export default async function SocialOfferLanding({
             </div>
 
             <p className="detail-lead">{note}</p>
+            <SocialShare url={rawRef ? `/okazja?ref=${encodeURIComponent(rawRef)}` : "/okazje"} title={`${city} — Tripownia`} text={`${city} · ${dates} · sprawdź dostępność`} />
             {hotel && <p className="offer-hotel-name"><strong>{hotel}</strong></p>}
 
             <div className="detail-meta">
