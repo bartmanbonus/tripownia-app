@@ -78,6 +78,25 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "korfu-sea-bird-1299": {
+    slug: "korfu-sea-bird-1299",
+    city: "Korfu",
+    country: "Grecja",
+    price: 1299,
+    departure: "Kraków",
+    nights: 4,
+    dates: "19–24 października 2026",
+    board: "Śniadania",
+    hotel: "Sea Bird 3★",
+    partner: "exim",
+    partnerLabel: "EXIM Tours",
+    affiliateUrl: "https://www.exim.pl/kierunki/grecja/korfu/mesongi-i-moraitika/sea-bird?KEY=MjM2NjA5MXwzNTEyMTUzNjEwfDEyMDYxMzg&DS=1024&GIATA=21319&D=63316&HID=422418&MT=1&DI=GT06-BB&NN=4&MNN=0%7C1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7C10%7C11%7C12%7C13%7C14%7C15%7C16%7C17%7C18%7C19%7C20%7C21&NNM=0%7C1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7C10%7C11%7C12%7C13%7C14%7C15%7C16%7C17%7C18%7C19%7C20%7C21&DF=2026-10-13%7C2026-11-07&RD=2026-10-24&DD=2026-10-19&ERM=0&AC1=2&KC1=0&IC1=0&TO=1825&TT=1&PID=422418&DPR=EXIM+TOURS+POLAND&PC=4-2026-10-19&IFC=RlJ8Njk4MXwyMDI2LTEwLTI0VDAwOjAw&OFC=RlJ8Njk2NHwyMDI2LTEwLTE5VDIwOjI1&utm_term=feed&tduid=1c28f57c22c93726771b26b5ccaac104&utm_source=Tradedoubler_3487177&utm_medium=Affiliate&utm_campaign=Ongoing_P_TD",
+    imageSrc: "https://img.exim.pl/hotels/300/recko/korfu/mesongi-a-moraitika/sea-bird/8_dji_0229-1-1024x576.jpg",
+    imageCountry: "Grecja",
+    checkedAt: "2026-10-14T12:11:10+02:00",
+    status: "active",
+    included: ["Bagaż podręczny", "Ubezpieczenie wg warunków organizatora"],
+  },
   "dublin-easyhotel-749": {
     slug: "dublin-easyhotel-749",
     city: "Dublin",
