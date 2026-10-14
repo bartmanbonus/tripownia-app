@@ -599,7 +599,8 @@ export default function FlexibleFlightsExplorer({
       if (maxPrice && deal.price > maxPrice) continue;
       if ((directOnly || onlyDirectResults) && deal.changes > 0) continue;
       if (regionFilter !== "all" && !deal.country.toLowerCase().includes(regionFilter.toLowerCase())) continue;
-      const key = deal.country + "/" + deal.destination;
+      // Do not reduce a whole destination to one cheapest date.
+      const key = [deal.country, deal.destination, deal.departDate, deal.returnDate].join("/");
       const old = unique.get(key);
       if (!old || deal.price < old.price) unique.set(key, deal);
     }
@@ -868,7 +869,7 @@ export default function FlexibleFlightsExplorer({
                         </button>
                         {selectedCountry === group.country && <div className="flight-country-options">
                           {group.entries.map((deal) => (
-                            <a key={deal.destination} href={flightDetailHref({
+                            <a key={[deal.destination, deal.departDate, deal.returnDate].join("-")} href={flightDetailHref({
                               origin:activeRoute?.origin.code || "WAW",destination:deal.destination,destinationName:deal.name,
                               country:deal.country,departDate:deal.departDate,returnDate:deal.returnDate,price:deal.price,changes:deal.changes,
                             })}>

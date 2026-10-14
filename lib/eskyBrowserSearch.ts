@@ -44,20 +44,25 @@ const AIRPORTS: Record<string, string> = {
 
 const DEFAULT_CITY_BREAK_ARRIVALS = [
   "ci-ROM",
+  "ci-ALC",
   "ci-MIL",
+  "ci-AGP",
   "ci-BCN",
+  "ci-BRI",
+  "ci-NAP",
+  "ci-VLC",
+  "co-MT",
+  "ci-PFO",
   "ci-LIS",
+  "ci-OPO",
   "ci-PRG",
   "ci-BUD",
   "ci-VIE",
   "ci-PAR",
   "ci-LON",
   "ci-ATH",
-  "ci-BRI",
-  "ci-NAP",
-  "ci-OPO",
-  "ci-PFO",
-  "co-MT",
+  "co-AL",
+  "co-GR",
 ];
 
 function hash(value: string) {
@@ -230,6 +235,7 @@ export async function fetchEskyBrowserPackages(
       : [""];
 
   const offers: BrowserEskyPackage[] = [];
+  let sourceBlocked = false;
   let partial = false;
   let hasMore = false;
   let error: string | undefined;
@@ -241,6 +247,7 @@ export async function fetchEskyBrowserPackages(
     const maxPages = search.query ? 4 : 2;
 
     for (let page = 0; page < maxPages; page += 1) {
+      if (sourceBlocked) return;
       if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
       if (Date.now() >= deadline) {
         partial = true;
@@ -262,6 +269,7 @@ export async function fetchEskyBrowserPackages(
           signal: requestController.signal,
           headers: { Accept: "application/json" },
         });
+        if (response.status === 401 || response.status === 403) sourceBlocked = true;
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
         if (!Array.isArray(data?.offers)) throw new Error("invalid_response");
@@ -293,10 +301,13 @@ export async function fetchEskyBrowserPackages(
     hasMore = Boolean(cursor) || hasMore;
   };
 
-  for (let index = 0; index < arrivals.length; index += 3) {
+  // Try the first arrival before fan-out: blocked partner API must not cause
+  // dozens of identical 403 requests. When available, scan all directions,
+  // not only the first 24/45 offers that happened to arrive.
+  if (arrivals.length) await scan(arrivals[0]);
+  for (let index = 1; index < arrivals.length; index += 3) {
+    if (sourceBlocked || signal?.aborted || Date.now() >= deadline) break;
     await Promise.all(arrivals.slice(index, index + 3).map(scan));
-    if (search.query && offers.length >= 24) break;
-    if (!search.query && offers.length >= 45) break;
   }
 
   const unique = [...new Map(

@@ -790,7 +790,10 @@ export async function GET(request: NextRequest) {
           : mode === "search"
             ? BROAD_CORE_TERMS
             : BROAD_CORE_TERMS;
-    const searchPages = fastMode ? 1 : mode === "search" || mode === "citybreak" ? (query ? 3 : 2) : 1;
+    // General inventory scans cover many terms; paging every broad term
+    // multiplies TradeDoubler traffic and triggers 429 before all regions load.
+    // Keep deeper paging for a concrete destination, not every broad category.
+    const searchPages = query && !fastMode && (mode === "search" || mode === "citybreak") ? 3 : 1;
     const jobs: Array<() => Promise<{ provider: Provider; products: TdProduct[] }>> = [];
 
     for (const term of terms) {
@@ -825,12 +828,15 @@ export async function GET(request: NextRequest) {
     }
 
     const candidates: LiveCandidate[] = [];
-    const batchSize = mode === "citybreak" ? (fastMode ? 8 : 12) : 8;
+    // TradeDoubler responds with HTTP 429 when the wide scan bursts too fast.
+    // Smaller batches and gentle pacing improve the fraction of completed terms.
+    const batchSize = fastMode ? 6 : 4;
     let successfulFeeds = 0;
     let failedFeeds = 0;
     const feedDeadline = Date.now() + (fastMode ? 9_000 : 42_000);
     for (let index = 0; index < jobs.length; index += batchSize) {
       if (Date.now() >= feedDeadline) { failedFeeds += jobs.length - index; break; }
+      if (index > 0 && !fastMode) await new Promise((resolve) => setTimeout(resolve, 140));
       const settled = await Promise.allSettled(jobs.slice(index, index + batchSize).map((job) => job()));
       for (const item of settled) {
         if (item.status !== "fulfilled") { failedFeeds++; continue; }
