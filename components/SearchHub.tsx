@@ -443,7 +443,7 @@ export default function SearchHub({
   const [submittedSummary, setSubmittedSummary] = useState({ destination: "", details: "" });
   const [resultDestinationCount, setResultDestinationCount] = useState(0);
   const [resultView, setResultView] = useState<"all" | "destinations">("all");
-  const [resultMatchScope, setResultMatchScope] = useState<"exact" | "alternatives">("exact");
+  const [resultMatchScope, setResultMatchScope] = useState<"all" | "exact" | "alternatives">("all");
   const [packageSearchLink, setPackageSearchLink] = useState("");
   const [resultSort, setResultSort] = useState<"recommended" | "price" | "rating" | "nights">("price");
   const [visibleCount, setVisibleCount] = useState(18);
@@ -518,7 +518,7 @@ export default function SearchHub({
     [results],
   );
   const scopedResults = useMemo(
-    () => results.filter((offer) => resultMatchScope === "exact" ? searchTier(offer) === 0 : searchTier(offer) > 0),
+    () => resultMatchScope === "all" ? results : results.filter((offer) => resultMatchScope === "exact" ? searchTier(offer) === 0 : searchTier(offer) > 0),
     [results, resultMatchScope],
   );
 
@@ -768,8 +768,8 @@ export default function SearchHub({
     setExpanding(false);
     setSearched(true);
     setResultDestinationCount(requested.length);
-    setResultView(activeMode === "City break" && !requested.length ? "destinations" : "all");
-    setResultMatchScope("exact");
+    setResultView("all");
+    setResultMatchScope("all");
     setResults([]);
     setVisibleCount(18);
     setResultLocation("");
@@ -955,7 +955,6 @@ export default function SearchHub({
         if (runId !== searchRunRef.current) return;
       }
       const alternatives = rows.filter((offer) => searchTier(offer) > 0).length;
-      if (exactCount === 0 && alternatives > 0) setResultMatchScope("alternatives");
       setNotice([
         rows.length ? "Ceny za osobę. Najtańsze najpierw w każdej grupie dopasowania." : "Nie znaleźliśmy dostępnych ofert dla tych ustawień. Sprawdź inne terminy lub połącz lot z noclegiem.",
         alternatives > 0 ? `Dokładnych dopasowań: ${exactCount}. Alternatywy (${alternatives}) są oznaczone na kartach.` : "",
@@ -1996,9 +1995,11 @@ export default function SearchHub({
                 <h3>{
                   loading && results.length === 0
                     ? "Sprawdzamy aktualne oferty…"
-                    : resultMatchScope === "exact"
-                      ? exactResultCount > 0 ? `Dokładnie w Twoich filtrach: ${exactResultCount}` : "Brak dokładnego dopasowania"
-                      : `Alternatywy: ${alternativeResultCount}`
+                    : resultMatchScope === "all"
+                      ? `Znalezione oferty: ${results.length} (${exactResultCount} zgodnych, ${alternativeResultCount} alternatywnych)`
+                      : resultMatchScope === "exact"
+                        ? exactResultCount > 0 ? `Dokładnie w Twoich filtrach: ${exactResultCount}` : "Brak dokładnego dopasowania"
+                        : `Alternatywy: ${alternativeResultCount}`
                 }</h3>
               </div>
               {notice && <p>{notice}</p>}
@@ -2016,6 +2017,15 @@ export default function SearchHub({
             {!loading && results.length > 0 && (
               <>
                 <div className="search-v3-match-tabs" aria-label="Zakres dopasowania wyników">
+                  <button
+                    type="button"
+                    className={resultMatchScope === "all" ? "active" : ""}
+                    aria-pressed={resultMatchScope === "all"}
+                    onClick={() => { setResultMatchScope("all"); setResultLocation(""); setResultView("all"); setVisibleCount(18); }}
+                  >
+                    <span>Wszystkie oferty</span>
+                    <b>{results.length}</b>
+                  </button>
                   <button
                     type="button"
                     className={resultMatchScope === "exact" ? "active" : ""}
@@ -2124,7 +2134,7 @@ export default function SearchHub({
                       <span>Każda różnica względem wyszukiwania jest opisana nad kartą.</span>
                     </div>
                     <div className="search-v3-results-grid">
-                      {alternativeVisibleResults.slice(0, visibleCount).map((offer) => (
+                      {alternativeVisibleResults.slice(0, Math.max(0, visibleCount - exactVisibleResults.length)).map((offer) => (
                         <div key={offer.id} className="search-v3-result-item is-alternative" onClickCapture={() => updateSearchResumeScroll(window.scrollY)}>
                           <p className="search-v3-alternative-label">Alternatywa: {offer.searchAlternative || "inne parametry"}</p>
                           <OfferCard offer={offer} sourceSurface="search_results"/>
@@ -2135,6 +2145,33 @@ export default function SearchHub({
                 )}
 
                 {visibleResults.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(visibleResults.length, count + 12))}>Pokaż kolejne oferty ({visibleResults.length - visibleCount})</button>}
+                {!expanding && results.length > 0 && results.length < 12 && packageSearchLink && (
+                  <div className="search-v3-empty search-v3-low-inventory">
+                    <strong>To {results.length} ofert z dostępnych źródeł, a nie cały katalog partnerów.</strong>
+                    <span>Jeśli nie widzisz odpowiedniego terminu lub hotelu, sprawdź więcej możliwości w wyszukiwarce partnera. Cenę i dostępność potwierdzisz przed zakupem.</span>
+                    <div className="search-v3-empty-actions">
+                      <a
+                        href={`/sprawdz-oferte?${new URLSearchParams({ partner: "esky", target: packageSearchLink, source: "search_low_inventory", destination: selectedDestinations[0] || destination || "" }).toString()}`}
+                        rel="sponsored"
+                        onClick={() => saveAffiliateReturnContext({ partner: "esky", destination: selectedDestinations[0] || destination || "", source: "search_low_inventory", tripKind: "package" })}
+                      >
+                        Zobacz dodatkowe pakiety lot + hotel
+                      </a>
+                      {(selectedDestinations.length > 0 || destination.trim()) && (
+                        <Link href={`/szukaj?${new URLSearchParams({ tab: activeTab,
+                          ...(departures.length ? { airport: departures.join(",") } : {}),
+                          ...(budget !== "all" && budget !== "custom" ? { budget } : {}),
+                          ...(duration !== "all" ? { duration } : {}),
+                          ...(dateMode === "month" && month ? { month } : {}),
+                          ...(dateMode === "range" && dateFrom && dateTo ? { from: dateFrom, to: dateTo } : {}),
+                          ...(dateMode === "exact" && dateFrom ? { from: dateFrom, to: dateFrom } : {}),
+                        }).toString()}`}>
+                          Poszerz wyszukiwanie na inne kierunki
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                )}
               </>
             )}
             {!loading && results.length === 0 && !expanding && (() => {
