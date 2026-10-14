@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { travelShareMetadata } from "@/lib/sharePreview";
+import SocialShare from "@/components/SocialShare";
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, ExternalLink, Plane, Route } from "lucide-react";
 import OfferHeroImage from "@/components/OfferHeroImage";
@@ -8,11 +10,14 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { kiwiFlightExitHref } from "@/lib/kiwiFlights";
 
-export const metadata: Metadata = {
-  title: "Szczegóły lotu | Tripownia",
-  description: "Sprawdź trasę, termin i cenę lotu przed przejściem do rezerwacji.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({ searchParams }: { searchParams: Promise<Search> }): Promise<Metadata> {
+  const params = await searchParams;
+  const oneParam = (v: string | string[] | undefined) => Array.isArray(v) ? v[0] || "" : v || "";
+  const name = oneParam(params.name) || oneParam(params.destination) || "Loty";
+  return travelShareMetadata({ city: name, country: oneParam(params.country),
+    departure: oneParam(params.origin), dates: [oneParam(params.depart),oneParam(params.return)].filter(Boolean).join(" – "),
+    kind: "flight", url: `/loty/oferta?${new URLSearchParams(Object.entries(params).filter(([,v])=>typeof v === "string" && !["target","affiliateUrl"].includes("")).map(([k,v])=>[k,String(v)])).toString()}` });
+}
 
 type Search = Record<string, string | string[] | undefined>;
 
@@ -71,6 +76,7 @@ export default async function FlightOfferPage({ searchParams }: { searchParams: 
               {origin || "—"} → {destination || "—"}{name && name !== destination ? ` · ${name}` : ""}
             </h1>
             {country && <p>{country}</p>}
+            {valid && <SocialShare url={`/loty/oferta?${new URLSearchParams({origin,destination,depart,return:returnDate,name,country}).toString()}`} title={`Lot do ${name}`} text={`${depart} – ${returnDate} · ${origin} → ${destination}`} />}
 
             {valid ? (
               <>
