@@ -144,8 +144,8 @@ export function eskyDepartures(departure = "") {
 
 export function eskyNights(search: EskySearch) {
   const match = /^(\d+)(?:-(\d+)|(\+))?$/.exec(search.nights || "");
-  const from = Math.max(search.cityBreak ? 2 : 1, search.minNights || (match ? Number(match[1]) : search.cityBreak ? 2 : 1));
-  const to = Math.min(search.cityBreak ? 5 : 30, search.maxNights || (match ? Number(match[2] || (match[3] ? 30 : match[1])) : search.cityBreak ? 5 : 14));
+  const from = Math.max(1, search.minNights || (match ? Number(match[1]) : 1));
+  const to = Math.min(search.cityBreak ? 5 : 30, search.maxNights || (match ? Number(match[2] || (match[3] ? 30 : match[1])) : search.cityBreak ? 5 : 30));
   return { from, to };
 }
 
@@ -161,7 +161,7 @@ export function eskyInventoryUrl(search: EskySearch, arrival = eskyArrival(searc
   if (search.start) p.set("dateRange[from]", search.start);
   if (search.end) p.set("dateRange[to]", search.end);
   if (search.minPrice) p.set("priceRange[from]", String(search.minPrice));
-  const ceiling = search.cityBreak ? Math.min(search.maxPrice || 2000, 2000) : search.maxPrice;
+  const ceiling = search.maxPrice;
   if (ceiling) p.set("priceRange[to]", String(ceiling));
   if (cursor) p.set("cursor", cursor);
   return url;

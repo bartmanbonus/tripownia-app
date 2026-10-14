@@ -1,3 +1,4 @@
+import { isSeasonalDiscoveryOffer } from "@/lib/dealDiscovery";
 import type { Metadata } from "next";
 import DealsPage from "@/components/DealsPage";
 import Link from "next/link";
@@ -42,6 +43,7 @@ export default async function DealsRoute({ searchParams }:{ searchParams: Promis
   const dealType = params.type === "allinclusive" ? "allinclusive" : "";
   const initialOffers = !destination && !dealType
     ? homepageFallbackOffers
+        .filter(isSeasonalDiscoveryOffer)
         .filter((offer) => !isOfferExpired(offer) && isTravelDestinationAllowed(offer.city, offer.country))
     : [];
   return <>

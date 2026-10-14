@@ -1,0 +1,31 @@
+const fs = require('node:fs');
+const vm = require('node:vm');
+const assert = require('node:assert/strict');
+const ts = require('typescript');
+function load(file, deps = {}) {
+  const module = { exports: {} };
+  const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+  vm.runInNewContext(code, { module, exports: module.exports, require: name => { if (!(name in deps)) throw Error(name); return deps[name]; }, URL, Set, Map, Date });
+  return module.exports;
+}
+const grouping = load('lib/destinationGrouping.ts');
+const discovery = load('lib/dealDiscovery.ts', { './destinationGrouping': grouping });
+const base = { city: 'Malta', country: 'Malta', dates: '2026-12-05–2026-12-08' };
+assert.equal(discovery.isSeasonalDiscoveryOffer(base), false);
+assert.equal(discovery.isSeasonalDiscoveryOffer({ ...base, city: 'Wiedeń', reason: 'Jarmark bożonarodzeniowy' }), true);
+assert.equal(discovery.isSeasonalDiscoveryOffer({ ...base, dates: '05.12.2026–08.12.2026' }), false);
+assert.equal(discovery.isSeasonalDiscoveryOffer({ ...base, dates: '2027-01-05–2027-01-08' }), true);
+const pool = [base, { ...base, id: 2 }, { ...base, city: 'Manila', country: 'Filipiny' }, { ...base, city: 'Hanoi', country: 'Wietnam' }];
+const mixed = discovery.diversifyDestinations(pool);
+assert.equal(mixed.length, pool.length);
+assert.equal(new Set(mixed.slice(0, 3).map(x => x.country)).size, 3);
+const aliases = load('lib/destinationAliases.ts');
+assert.equal(aliases.destinationQueryMatches('Filipiny', 'Cebu', ''), true);
+assert.equal(aliases.destinationQueryMatches('Filipiny', 'Malta', ''), false);
+const esky = load('lib/eskySearch.ts', { '@/lib/partners': { buildEskyPackagesUrl: () => 'https://www2.esky.pl/lot+hotel/portfolio' } });
+assert.equal(esky.eskyArrival('Filipiny'), 'co-PH');
+assert.equal(esky.eskyNights({ nights: 'all' }).to, 30);
+assert.equal(esky.eskyNights({ cityBreak: true, nights: '1' }).from, 1);
+assert.equal(esky.eskyInventoryUrl({ cityBreak: true }).searchParams.has('priceRange[to]'), false);
+assert.equal(esky.eskyInventoryUrl({ cityBreak: true, maxPrice: 3500 }).searchParams.get('priceRange[to]'), '3500');
+console.log('PASS: December selection, destination diversity without lost variants, Philippines aliases, explicit budget and 1–30 night coverage.');

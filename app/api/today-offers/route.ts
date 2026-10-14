@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchEskyPackages } from "@/lib/eskyPackages";
-import { isAffordableShortTrip, isPromotableOffer } from "@/lib/offerValuePolicy";
+import { isAffordableShortTrip, isPromotableOffer, isSearchInventoryOffer } from "@/lib/offerValuePolicy";
 import { rankSearchOffers } from "@/lib/searchOfferRanking";
 import { destinationQueryMatches } from "@/lib/destinationAliases";
 
@@ -93,7 +93,8 @@ const BROAD_SEARCH_TERMS = [
 const BROAD_CORE_TERMS = [
   "Grecja", "Hiszpania", "Cypr", "Turcja", "Tunezja", "Egipt", "Bułgaria", "Albania",
   "Portugalia", "Włochy", "Maroko", "Malta", "Wyspy Kanaryjskie", "Djerba", "Hurghada",
-  "Marsa Alam", "Dubaj", "Zanzibar", "Kenia", "Dominikana", "Tajlandia", "Malediwy"
+  "Marsa Alam", "Dubaj", "Zanzibar", "Kenia", "Dominikana", "Tajlandia", "Malediwy",
+  "Filipiny", "Wietnam", "Japonia", "Malezja", "Seszele", "Madagaskar", "Curacao", "Mauritius", "Brazylia", "Meksyk"
 ];
 
 // Curated commercial coverage for airport hub pages. A smaller, stable set of
@@ -188,7 +189,7 @@ const SEARCH_ALIASES: Record<string, string[]> = {
   curacao: ["Curaçao", "Curacao"],
   czarnogora: ["Czarnogóra", "Montenegro"],
   dominikana: ["Dominikana", "Dominican Republic"],
-  filipiny: ["Filipiny", "Philippines"],
+  filipiny: ["Filipiny", "Philippines", "Cebu", "Palawan", "Boracay", "Bohol", "Manila"],
   indonezja: ["Indonezja", "Indonesia", "Bali"],
   jamajka: ["Jamajka", "Jamaica"],
   macedonia: ["Macedonia", "North Macedonia", "Macedonia Północna"],
@@ -796,7 +797,8 @@ export async function GET(request: NextRequest) {
     const searchPages = query && !fastMode && (mode === "search" || mode === "citybreak") ? 3 : 1;
     const jobs: Array<() => Promise<{ provider: Provider; products: TdProduct[] }>> = [];
 
-    for (const term of terms) {
+    const scanTerms = query ? terms : shuffle(terms, `coverage:${key}`);
+    for (const term of scanTerms) {
       if (eximToken && (!providerOnly || providerOnly === "exim")) {
         jobs.push(async () => {
           feedStatus.exim.attempted++;
@@ -867,7 +869,7 @@ export async function GET(request: NextRequest) {
       if (!previous || candidate.price < previous.price) unique.set(keyValue, candidate);
     }
 
-    const rawCandidates = Array.from(unique.values()).filter(isAffordableShortTrip)
+    const rawCandidates = Array.from(unique.values()).filter(mode === "search" || mode === "citybreak" ? isSearchInventoryOffer : isAffordableShortTrip)
       .filter(offer => isTravelDestinationAllowed(offer.city, offer.country));
     const allCandidates = query && (mode === "search" || mode === "citybreak")
       ? rawCandidates.filter((offer) => candidateMatchesQuery(offer, query))
@@ -1025,7 +1027,7 @@ export async function GET(request: NextRequest) {
     const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && isPromotableOffer(offer));
 
     // Short city breaks must remain affordable, even when a destination has only expensive stock.
-    const cityBreakPool = pool.filter(offer => offer.nights >= 2 && offer.nights <= 5 && offer.price <= 2000 && hasConcreteDates(offer));
+    const cityBreakPool = pool.filter(offer => offer.nights >= 1 && offer.nights <= 5 && hasConcreteDates(offer));
     const selected = mode === "newyear"
       ? cheapestPerDestination(
           pool.filter((offer) => {
@@ -1147,7 +1149,7 @@ export async function GET(request: NextRequest) {
       ? []
       : homepageFallbackOffers
           .filter((offer) => !isOfferExpired(offer))
-          .filter(isAffordableShortTrip)
+          .filter(mode === "search" || mode === "citybreak" ? isSearchInventoryOffer : isAffordableShortTrip)
           .filter((offer) => Boolean(offer.affiliateUrl))
           .filter((offer) => offer.linkMatch !== "unsafe")
           .filter((offer) => isTravelDestinationAllowed(offer.city, offer.country))
@@ -1161,7 +1163,7 @@ export async function GET(request: NextRequest) {
           .filter((offer) => (!minPrice || offer.price >= minPrice) && (!maxPrice || offer.price <= maxPrice));
 
     if (mode === "citybreak") {
-      fallbackOffers = fallbackOffers.filter((offer) => offer.nights >= 2 && offer.nights <= 5 && offer.price <= 2000);
+      fallbackOffers = fallbackOffers.filter((offer) => offer.nights >= 1 && offer.nights <= 5);
     }
     if (mode === "surprise") {
       fallbackOffers = fallbackOffers.filter((offer) => offer.price <= budget);

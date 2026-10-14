@@ -1,5 +1,6 @@
 "use client";
 
+import HybridSearchLinks from "@/components/HybridSearchLinks";
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -923,18 +924,7 @@ export default function SearchHub({
     };
 
     try {
-      if (activeMode === "City break") {
-        await fetchBatch(0, false, false, false, "primary");
-        if (runId !== searchRunRef.current) return;
-        if (rows.length < 12) {
-          setNotice(rows.length
-            ? "Pierwsze oferty są gotowe. Szukamy kolejnych propozycji."
-            : "Nadal sprawdzamy dostępne wyjazdy dla Twoich ustawień.");
-          await fetchBatch(0, false, false, false, "backup");
-        }
-      } else {
-        await fetchBatch();
-      }
+      await fetchBatch();
       if (runId !== searchRunRef.current) return;
       const exactCount = rows.filter((offer) => searchTier(offer) === 0).length;
       setLoading(false);
@@ -1349,13 +1339,6 @@ export default function SearchHub({
         ? isoLabel(dateFrom)
         : "Bez ograniczenia daty";
 
-  const quickPicks: Array<[string, string, SearchOverrides]> = [
-    ["Malta", "Malta do 1 000 zł", { duration: "3-4", budget: "1000", tab: "City break" }],
-    ["Bergamo, Włochy", "Bergamo / Mediolan do 1 000 zł", { duration: "1-2", budget: "1000", tab: "City break" }],
-    ["Praga, Czechy", "Praga na weekend", { duration: "1-2", budget: "1000", tab: "City break" }],
-    ["Rzym, Włochy", "Rzym do 1 500 zł", { duration: "3-4", budget: "1500", tab: "City break" }],
-    ["Djerba, Tunezja", "All Inclusive do 3 000 zł", { duration: "5-7", board: "all inclusive", budget: "3000", tab: "Lot + hotel" }],
-  ];
   const hotelSearchDestination = selectedDestinations[0] || destination.trim();
   const resolvedHotelDates = resolveHotelDateRange(dateFrom, dateTo, hotelDatePreferences);
   const hotelPartnerTarget = hotelSearchDestination
@@ -1907,10 +1890,7 @@ export default function SearchHub({
         </form>
         )}
 
-        {!embedded && activeTab !== "Loty" && activeTab !== "Hotele" && <div className="search-v3-quick">
-          <span>Szybki start</span>
-          <div>{quickPicks.map(([destinationLabel, label, overrides]) => <button type="button" key={destinationLabel} onClick={() => quickSearch(destinationLabel, overrides)}>{label}</button>)}</div>
-        </div>}
+
 
         {searched && activeTab === "Hotele" && pathname === "/hotele" && hotelSearchDestination && (
           <div className="hotel-search-ready" role="status" aria-live="polite">
@@ -1995,6 +1975,7 @@ export default function SearchHub({
                 <h3>{
                   loading && results.length === 0
                     ? "Sprawdzamy aktualne oferty…"
+                    : !results.length ? "Sprawdź kolejne możliwości podróży"
                     : resultMatchScope === "all"
                       ? `Znalezione oferty: ${results.length} (${exactResultCount} zgodnych, ${alternativeResultCount} alternatywnych)`
                       : resultMatchScope === "exact"
@@ -2005,6 +1986,7 @@ export default function SearchHub({
               {notice && <p>{notice}</p>}
             </div>
 
+            <HybridSearchLinks destination={submittedSummary.destination === "Gdziekolwiek" ? "" : submittedSummary.destination} departure={departures.join(",")} month={dateMode === "month" ? month : ""} start={dateMode === "exact" || dateMode === "range" ? dateFrom : ""} end={dateMode === "range" ? dateTo : ""} />
             <DresdenCityBreakOptions
               destination={selectedDestinations[0] || destination}
               departures={departures}
@@ -2158,6 +2140,7 @@ export default function SearchHub({
                         Zobacz dodatkowe pakiety lot + hotel
                       </a>
                       <Link href={`/loty?${new URLSearchParams({
+                        destination: selectedDestinations[0] || destination || "",
                         ...(departures.length === 1 ? { origin: departures[0] } : {}),
                         ...(dateMode === "month" && month ? { month } : {}),
                         ...(duration !== "all" && /^\d+-\d+$/.test(duration) ? { duration } : {}),

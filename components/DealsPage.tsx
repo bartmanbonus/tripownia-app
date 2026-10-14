@@ -1,11 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import HybridSearchLinks from "@/components/HybridSearchLinks";
+import { fetchEskyBrowserPackages } from "@/lib/eskyBrowserSearch";
+import { rankSearchOffers } from "@/lib/searchOfferRanking";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, RefreshCw, Search, SlidersHorizontal, Sparkles } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
+import { diversifyDestinations, isSeasonalDiscoveryOffer } from "@/lib/dealDiscovery";
 import type { Offer } from "@/lib/offers";
 import { getLinkMatch } from "@/lib/offers";
 import { isPriceStale } from "@/lib/offerQuality";
@@ -111,20 +115,7 @@ function salesSort(rows: DealsOffer[]) {
 }
 
 function diversifiedOfferRows(rows: DealsOffer[]) {
-  const source = priceSort(dedupedOfferRows(rows));
-  const flights = source.filter((offer) => offer.category.includes("flight"));
-  const cityPackages = source.filter((offer) => !offer.category.includes("flight") && (offer.category.includes("city") || offer.category.includes("weekend")));
-  const holidays = source.filter((offer) => !offer.category.includes("flight") && !offer.category.includes("city") && !offer.category.includes("weekend"));
-  const buckets = [flights, cityPackages, holidays];
-  const output: DealsOffer[] = [];
-  let cursor = 0;
-
-  while (buckets.some((bucket) => bucket.length)) {
-    const bucket = buckets[cursor % buckets.length];
-    if (bucket.length) output.push(bucket.shift()!);
-    cursor++;
-  }
-  return output;
+  return diversifyDestinations(salesSort(dedupedOfferRows(rows)));
 }
 
 function allOfferRows(rows: DealsOffer[], sortMode: SortMode) {
@@ -206,7 +197,7 @@ export default function DealsPage({
   const [historyVersion, setHistoryVersion] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [quickFilter, setQuickFilter] = useState<QuickFilter>(dealType === "allinclusive" ? "allinclusive" : "all");
-  const [sortMode, setSortMode] = useState<SortMode>(destination ? "priceAsc" : "sales");
+  const [sortMode, setSortMode] = useState<SortMode>(destination ? "priceAsc" : "mix");
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams();
@@ -224,11 +215,23 @@ export default function DealsPage({
     5 * 60 * 1000,
     endpoint === "/api/deals" ? initialOffers : []
   );
+  const [browserInventory, setBrowserInventory] = useState<{ endpoint: string; offers: DealsOffer[] }>({ endpoint: "", offers: [] });
+  useEffect(() => {
+    if (!destination) return;
+    const controller = new AbortController();
+    const selectedYear = year === "any" ? String(new Date().getFullYear()) : year;
+    const start = month === "any" ? undefined : `${selectedYear}-${month}-01`;
+    const end = month === "any" ? undefined : `${selectedYear}-${month}-${new Date(Number(selectedYear), Number(month), 0).getDate()}`;
+    fetchEskyBrowserPackages({ query: destination, departure: airport === "any" ? "" : airport, start, end }, controller.signal)
+      .then(data => { if (!controller.signal.aborted) setBrowserInventory({ endpoint, offers: data.offers }); })
+      .catch(() => { /* Server inventory and partner search remain available. */ });
+    return () => controller.abort();
+  }, [destination, airport, month, year, endpoint]);
   const todayOffers: Offer[] = [];
   const todayLoading = false;
   const todayCheckedAt: string | null = null;
   const quickFilteredOffers = useMemo(() => {
-    const sourceRows = offers as DealsOffer[];
+    const sourceRows = rankSearchOffers([...(offers as DealsOffer[]), ...(browserInventory.endpoint === endpoint ? browserInventory.offers : [])]).filter(offer => destination || isSeasonalDiscoveryOffer(offer));
     if (quickFilter === "city") return sourceRows.filter((offer) => offer.category.includes("city") || offer.category.includes("weekend"));
     if (quickFilter === "allinclusive") return sourceRows.filter((offer) => offer.category.includes("allinclusive"));
     if (quickFilter === "sun") return sourceRows.filter((offer) => offer.category.includes("cieplo") || offer.category.includes("plaza"));
@@ -236,7 +239,7 @@ export default function DealsPage({
     if (quickFilter === "flight") return sourceRows.filter((offer) => offer.category.includes("flight"));
     if (quickFilter === "package") return sourceRows.filter((offer) => !offer.category.includes("flight"));
     return sourceRows;
-  }, [offers, quickFilter]);
+  }, [offers, quickFilter, destination, browserInventory, endpoint]);
   const rows = useMemo(
     () => destination
       ? destinationOfferRows(quickFilteredOffers, sortMode)
@@ -457,6 +460,8 @@ export default function DealsPage({
 
       <div className="deals-simple-controls">
         <div className="deals-simple-topline">
+          <HybridSearchLinks destination={destination} departure={airport === "any" ? "" : airport} month={month === "any" ? "" : `${year === "any" ? currentYear : year}-${month}`} />
+          <p><Link href="/jarmarki-bozonarodzeniowe">Grudzień: odkryj jarmarki bożonarodzeniowe →</Link></p>
           <div className="deals-quick-filters" aria-label="Szybkie filtry okazji">
             {([
               ["all", "Wszystkie"],

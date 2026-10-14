@@ -244,7 +244,7 @@ export async function fetchEskyBrowserPackages(
   const scan = async (arrival: string) => {
     const seenCursors = new Set<string>();
     let cursor = "";
-    const maxPages = search.query ? 4 : 2;
+    const maxPages = search.query ? 12 : 6;
 
     for (let page = 0; page < maxPages; page += 1) {
       if (sourceBlocked) return;

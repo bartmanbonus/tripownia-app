@@ -1,3 +1,4 @@
+import { isSeasonalDiscoveryOffer } from "@/lib/dealDiscovery";
 import { NextRequest, NextResponse } from "next/server";
 import { homepageFallbackOffers as publishedOffers, type Offer } from "@/lib/offers";
 import { dedupeOffersByIdentity, isUsableOffer } from "@/lib/offerEngine";
@@ -385,7 +386,7 @@ export async function GET(request: NextRequest) {
   }
 
   const results = await Promise.all(sourceRequests);
-  const kiwiCityBreakFlights = destination || type === "allinclusive" ? [] : await loadKiwiCityBreakFlights(airport, month, year);
+  const kiwiCityBreakFlights = destination || type === "allinclusive" ? [] : (await loadKiwiCityBreakFlights(airport, month, year)).filter(isSeasonalDiscoveryOffer);
 
   const successful = results.filter((item) => item.response.ok);
   const unavailableSources = results.filter((item) => !item.response.ok || item.payload.partial).map((item) => item.label);
@@ -393,6 +394,7 @@ export async function GET(request: NextRequest) {
     const fallbackPool = (publishedOffers as DealsOffer[])
       .filter(isUsablePublishedFallback)
       .filter(polishDepartureMatches)
+      .filter((offer) => destination || isSeasonalDiscoveryOffer(offer))
       .filter((offer) => typeMatches(offer, type))
       .filter((offer) => destinationMatches(offer, destination));
     const fallbackExact = fallbackPool
@@ -469,11 +471,13 @@ export async function GET(request: NextRequest) {
     ? dedupeDestinationCatalogOffers(combined)
     : dedupeOffersByIdentity(combined, "live"))
     .filter(polishDepartureMatches)
-    .filter((offer) => typeMatches(offer, type))
+    .filter((offer) => destination || isSeasonalDiscoveryOffer(offer))
+      .filter((offer) => typeMatches(offer, type))
     .filter((offer) => destinationMatches(offer, destination));
 
   if (!sourceOffers.length) {
-    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsablePublishedFallback).filter(polishDepartureMatches).filter((offer) => typeMatches(offer, type)).filter((offer) => destinationMatches(offer, destination));
+    const fallbackPool = (publishedOffers as DealsOffer[]).filter(isUsablePublishedFallback).filter(polishDepartureMatches).filter((offer) => destination || isSeasonalDiscoveryOffer(offer))
+      .filter((offer) => typeMatches(offer, type)).filter((offer) => destinationMatches(offer, destination));
     const fallbackExact = fallbackPool
       .filter((offer) => requestedDepartureMatches(offer, airport))
       .filter((offer) => dateMatches(offer, month, year));
@@ -516,7 +520,8 @@ export async function GET(request: NextRequest) {
   const publishedSupplement = (publishedOffers as DealsOffer[])
     .filter(isUsablePublishedFallback)
     .filter(polishDepartureMatches)
-    .filter((offer) => typeMatches(offer, type))
+    .filter((offer) => destination || isSeasonalDiscoveryOffer(offer))
+      .filter((offer) => typeMatches(offer, type))
     .filter((offer) => destinationMatches(offer, destination))
     .filter((offer) => requestedDepartureMatches(offer, airport))
     .filter((offer) => dateMatches(offer, month, year));
@@ -528,6 +533,7 @@ export async function GET(request: NextRequest) {
     const fallbackPool = (publishedOffers as DealsOffer[])
       .filter(isUsablePublishedFallback)
       .filter(polishDepartureMatches)
+      .filter((offer) => destination || isSeasonalDiscoveryOffer(offer))
       .filter((offer) => typeMatches(offer, type))
       .filter((offer) => destinationMatches(offer, destination));
     const fallbackExact = fallbackPool
@@ -614,6 +620,7 @@ export async function GET(request: NextRequest) {
     const fallbackPool = (publishedOffers as DealsOffer[])
       .filter(isUsablePublishedFallback)
       .filter(polishDepartureMatches)
+      .filter((offer) => destination || isSeasonalDiscoveryOffer(offer))
       .filter((offer) => typeMatches(offer, type))
       .filter((offer) => destinationMatches(offer, destination));
     const fallbackExact = fallbackPool

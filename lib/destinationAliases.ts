@@ -23,7 +23,7 @@ const DESTINATION_EQUIVALENTS: Record<string, string[]> = {
   czechy: ["czechy", "czech republic", "czechia"],
   dominikana: ["dominikana", "dominican republic"],
   egipt: ["egipt", "egypt"],
-  filipiny: ["filipiny", "philippines"],
+  filipiny: ["filipiny", "philippines", "cebu", "palawan", "boracay", "bohol", "manila"],
   grecja: ["grecja", "greece"],
   hiszpania: ["hiszpania", "spain"],
   indonezja: ["indonezja", "indonesia"],
