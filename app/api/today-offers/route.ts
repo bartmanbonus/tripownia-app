@@ -171,7 +171,9 @@ const SEARCH_ALIASES: Record<string, string[]> = {
   sri_lanka: ["Sri Lanka"],
   stany_zjednoczone: ["Stany Zjednoczone", "United States", "USA"],
   szwajcaria: ["Szwajcaria", "Switzerland"],
-  tanzania: ["Tanzania"],
+  // TUI klasyfikuje te same wycieczki jako "Zanzibar", nie "Tanzania".
+  // Oba zapytania są niezbędne, by najtańsza oferta trafiła na stronę kraju.
+  tanzania: ["Tanzania", "Zanzibar"],
   wietnam: ["Wietnam", "Vietnam"],
   zjednoczone_emiraty_arabskie: ["Zjednoczone Emiraty Arabskie", "United Arab Emirates", "UAE", "ZEA"],
   rpa: ["RPA", "Republika Południowej Afryki", "South Africa", "Kapsztad", "Cape Town"],
@@ -223,6 +225,8 @@ const FLAGS: Record<string, string> = {
   bulgaria: "🇧🇬",
   bułgaria: "🇧🇬",
   maroko: "🇲🇦",
+  tanzania: "🇹🇿",
+  zanzibar: "🇹🇿",
   portugalia: "🇵🇹",
   albania: "🇦🇱",
   wlochy: "🇮🇹",
