@@ -49,7 +49,10 @@ const DESTINATION_EQUIVALENTS: Record<string, string[]> = {
   "stany zjednoczone": ["stany zjednoczone", "united states", "usa", "united states of america"],
   szwajcaria: ["szwajcaria", "switzerland"],
   tajlandia: ["tajlandia", "thailand"],
-  tanzania: ["tanzania"],
+  // Feed TUI opisuje wyloty na Zanzibar nazwą wyspy, a nie nazwą państwa.
+  // Tanzania ma obejmować także zanzibarskie kurorty, bez zawężania do słowa "Tanzania".
+  tanzania: ["tanzania", "zanzibar", "kiwengwa", "matemwe", "mangapwani", "nungwi", "kendwa", "paje", "jambiani", "makunduchi", "uroa", "pongwe", "bwejuu", "stone town"],
+  zanzibar: ["zanzibar", "kiwengwa", "matemwe", "mangapwani", "nungwi", "kendwa", "paje", "jambiani", "makunduchi", "uroa", "pongwe", "bwejuu", "stone town"],
   tunezja: ["tunezja", "tunisia"],
   turcja: ["turcja", "turkey", "turkiye"],
   wegry: ["wegry", "hungary"],
