@@ -144,6 +144,14 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
   const isLiveExact = isLiveOffer && priceVerified;
   const checkedAt = formatPriceCheckedAt(effectiveCheckedAt);
   const isExpired = availabilityStatus === "expired" || isOfferExpired({ ...offer, availabilityStatus });
+  const recordedPrice = Number(displayPrice);
+  const hasRecordedPrice = Number.isFinite(recordedPrice) && recordedPrice > 0;
+  // On deal listings, show a dated last-known price instead of hiding a valid
+  // quote merely because it is older than the six-hour verification window.
+  // Do not expose undated placeholders as if they were real market prices.
+  const showRecordedPrice = !isExpired && hasRecordedPrice &&
+    (priceVerified || (showIndicativePrice && Boolean(effectiveCheckedAt)));
+  const indicativePrice = showRecordedPrice && !priceVerified;
   const stalePrice = !isExpired && priceStale;
   const customerReason = customerOfferReason(override.note || publishedOverride.note || offer.reason);
 
@@ -298,13 +306,15 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
     : "Sprawdź cenę i dostępność";
   const trustText = isExpired
     ? "Oferta wygasła"
-    : !priceVerified
-      ? checkedAt
-        ? `Ostatni odczyt: ${checkedAt} · sprawdź aktualną cenę`
-        : "Sprawdź aktualną cenę i dostępność"
-      : checkedAt
-        ? `Cena sprawdzona: ${checkedAt}`
-        : "Aktualna cena może się zmienić do momentu rezerwacji";
+    : indicativePrice
+      ? `Ostatni odczyt: ${checkedAt} · aktualną cenę potwierdź u partnera`
+      : !priceVerified
+        ? checkedAt
+          ? `Ostatni odczyt: ${checkedAt} · sprawdź aktualną cenę`
+          : "Sprawdź aktualną cenę i dostępność"
+        : checkedAt
+          ? `Cena sprawdzona: ${checkedAt}`
+          : "Cena może się zmienić przed rezerwacją";
 
   return (
     <article
@@ -325,6 +335,13 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
     >
       <Link href={detailHref} onClick={() => trackOfferClick("image", false)} className="offer-image" aria-label={`Otwórz szczegóły oferty ${offer.city} w Tripowni`}>
         <TravelImage city={offer.city} country={offer.country} alt={`${offer.city}, ${offer.country}`} className="offer-photo-img" overrideSrc={displayImage || offer.image} />
+        {showIndicativePrice && showRecordedPrice && (
+          <span className="offer-photo-price" aria-hidden="true">
+            <span>{indicativePrice ? "OSTATNIO OD" : "CENA OD"}</span>
+            <strong>{recordedPrice.toLocaleString("pl-PL")} zł</strong>
+            <span>/ os.</span>
+          </span>
+        )}
         {isExpired && <span className="badge">WYGASŁA</span>}
         {isFeatured && !isExpired && <span className="admin-featured-badge"><Star size={12} fill="currentColor" /> HIT</span>}
       </Link>
@@ -335,6 +352,25 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
         <div className="offer-topline">
           <div><div className="eyebrow">{offer.flag} {offer.country}</div><h3>{offer.city}</h3></div>
         </div>
+        {showIndicativePrice && (
+          <div className={`offer-price-hero ${indicativePrice ? "is-indicative" : ""} ${!showRecordedPrice ? "is-unpriced" : ""}`}>
+            {showRecordedPrice ? (
+              <>
+                <div className="offer-price-hero-value">
+                  <span className="offer-price-hero-prefix">{indicativePrice ? "Ostatnio od" : "Cena od"}</span>
+                  <strong>{recordedPrice.toLocaleString("pl-PL")} <span>zł</span></strong>
+                  <span className="offer-price-hero-person">/ os.</span>
+                </div>
+                <small>{indicativePrice ? "Kwota z ostatniego odczytu — potwierdź u partnera" : "Cena aktualnej oferty"}</small>
+              </>
+            ) : (
+              <div className="offer-price-hero-empty">
+                <span>Brak potwierdzonej ceny</span>
+                <strong>Sprawdź cenę u partnera</strong>
+              </div>
+            )}
+          </div>
+        )}
         <p className="offer-story-hook">{offerStoryHook(offer)}</p>
 
         {offer.hotel && <p className="offer-hotel-name">{offer.hotel}</p>}
@@ -347,11 +383,11 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
           </div>
         )}
 
-        {priceVerified ? (
+        {!showIndicativePrice && (priceVerified ? (
           <div className="price"><small>od</small>{" "}<strong>{displayPrice.toLocaleString("pl-PL")} zł</strong> <span>/ os.</span></div>
         ) : (
           <div className="price"><strong>Sprawdź aktualną cenę</strong></div>
-        )}
+        ))}
         <div className="offer-trust-line"><Clock3 size={12} /> {trustText}</div>
         <div className="offer-date-line"><CalendarDays size={15} /> <strong>{offer.dates}</strong></div>
         <div className="meta">

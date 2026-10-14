@@ -421,3 +421,41 @@
   color:#b94727!important;
   text-decoration:underline!important;
 }
+
+
+/* Price-first deal cards: current prices and dated last-known prices */
+.deals-simple-grid .offer-card-clean .offer-image{position:relative!important;display:block!important}
+.deals-simple-grid .offer-photo-price{
+  position:absolute;z-index:3;right:12px;bottom:12px;
+  display:flex;align-items:baseline;gap:5px;flex-wrap:wrap;
+  max-width:calc(100% - 24px);padding:10px 13px;border-radius:13px;
+  color:#161616;background:rgba(255,255,255,.97);
+  box-shadow:0 8px 24px rgba(0,0,0,.2);line-height:1.1;
+}
+.deals-simple-grid .offer-photo-price>span:first-child{font-size:10px;font-weight:900;letter-spacing:.03em}
+.deals-simple-grid .offer-photo-price>strong{font-size:23px;font-weight:950;letter-spacing:-.055em}
+.deals-simple-grid .offer-photo-price>span:last-child{font-size:11px;font-weight:800}
+.deals-simple-grid .offer-price-hero{
+  display:grid;gap:5px;margin:12px 0 10px;padding:15px 16px;
+  border:1px solid #ffd6bc;border-radius:15px;
+  background:#fff5ec;color:#23150d;
+}
+.deals-simple-grid .offer-price-hero-value{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.deals-simple-grid .offer-price-hero-prefix{font-size:13px;font-weight:900;color:#7b3c17}
+.deals-simple-grid .offer-price-hero-value>strong{font-size:clamp(31px,2.7vw,39px);font-weight:950;line-height:1;letter-spacing:-.055em;color:#161616}
+.deals-simple-grid .offer-price-hero-value>strong span{font-size:.62em;letter-spacing:-.02em}
+.deals-simple-grid .offer-price-hero-person{font-size:13px;font-weight:800;color:#5b4235}
+.deals-simple-grid .offer-price-hero>small{font-size:11px!important;line-height:1.35;font-weight:650;color:#724830}
+.deals-simple-grid .offer-price-hero.is-indicative{background:#f7f8fa;border-color:#dce0e5}
+.deals-simple-grid .offer-price-hero.is-indicative .offer-price-hero-prefix{color:#475569}
+.deals-simple-grid .offer-price-hero.is-indicative>small{color:#475569}
+.deals-simple-grid .offer-price-hero.is-unpriced{background:#f9fafb;border-color:#e5e7eb}
+.deals-simple-grid .offer-price-hero-empty{display:grid;gap:5px}
+.deals-simple-grid .offer-price-hero-empty span{font-size:11px;color:#666}
+.deals-simple-grid .offer-price-hero-empty strong{font-size:17px;color:#222}
+@media(max-width:560px){
+ .deals-simple-grid .offer-photo-price{right:10px;bottom:10px;padding:9px 11px}
+ .deals-simple-grid .offer-photo-price>strong{font-size:23px}
+ .deals-simple-grid .offer-price-hero{margin:10px 0;padding:14px}
+ .deals-simple-grid .offer-price-hero-value>strong{font-size:38px}
+}
