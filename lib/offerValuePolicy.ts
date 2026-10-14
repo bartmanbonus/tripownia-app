@@ -13,6 +13,13 @@ export function isAffordableShortTrip(offer: PricedTrip) {
     && (offer.nights > 5 || longHaul(offer) || offer.price <= 2000);
 }
 
+// Search should not silently hide valid offers above an editorial price ceiling.
+// Budget filtering belongs to the traveller's selected maxPrice, not this function.
+export function isSearchInventoryOffer(offer: PricedTrip) {
+  return Number.isFinite(Number(offer.price)) && Number(offer.price) > 0
+    && Number.isInteger(Number(offer.nights)) && Number(offer.nights) > 0;
+}
+
 // Editorial price ceilings are deliberately separate from complete search inventory.
 // These are selection rules, not a claim to have compared the entire market.
 export function isPromotableOffer(offer: Offer) {
