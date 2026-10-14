@@ -1,0 +1,64 @@
+name: Affiliate conversion regression
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/go/live/route.ts"
+      - "components/AnalyticsClient.tsx"
+      - "components/AffiliateClickBridge.tsx"
+      - "lib/analytics.ts"
+      - "lib/attributionCookie.ts"
+      - "tests/e2e/commercial-path.spec.mjs"
+      - "tests/e2e/affiliate-routing-seo.spec.mjs"
+      - ".github/workflows/affiliate-regression.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  affiliate-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate ephemeral affiliate test key
+        run: echo "TRIPOWNIA_AFFILIATE_LINK_KEY=$(openssl rand -hex 32)" >> "$GITHUB_ENV"
+
+      - name: Validate project
+        run: npm run validate
+
+      - name: Verify production build
+        run: npm run build
+
+      - name: Install Playwright
+        run: npm install --no-save --package-lock=false @playwright/test@1.55.0
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Regression test partner exits and consent, desktop + mobile
+        run: npx playwright test tests/e2e/commercial-path.spec.mjs tests/e2e/affiliate-routing-seo.spec.mjs --config=playwright.config.mjs
+
+      - name: Upload failure traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: affiliate-regression-traces
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7

@@ -1,3 +1,5 @@
+import { AFFILIATE_ATTRIBUTION_COOKIE } from "@/lib/attributionCookie";
+
 export const GA_MEASUREMENT_ID = "G-GHST5CY5LL";
 export const ANALYTICS_CONSENT_KEY = "tripownia-consent-v1";
 export const ANALYTICS_CONSENT_EVENT = "tripownia-consent-updated";
@@ -62,6 +64,9 @@ export function setAnalyticsConsent(consent: Exclude<AnalyticsConsent, null>) {
     bootstrapAnalytics();
   } else {
     updateGoogleConsent(false);
+    // Do not retain source attribution after analytics consent is withdrawn.
+    try { window.sessionStorage.removeItem(ATTRIBUTION_KEY); } catch {}
+    document.cookie = `${AFFILIATE_ATTRIBUTION_COOKIE}=; Path=/; SameSite=Lax; Max-Age=0`;
   }
 
   window.dispatchEvent(new CustomEvent(ANALYTICS_CONSENT_EVENT, { detail: consent }));

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { trackEvent } from "@/lib/analytics";
+import { getAnalyticsConsent, trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
 
@@ -106,6 +106,10 @@ function createClickId() {
 }
 
 function visitAttribution() {
+  const consent = getAnalyticsConsent();
+  if (consent !== "analytics" && consent !== "marketing") {
+    return { source: "", medium: "", campaign: "", content: "", landing: "" };
+  }
   const current = new URLSearchParams(window.location.search);
   const fromUrl = {
     source: (current.get("utm_source") || "").toLowerCase(),

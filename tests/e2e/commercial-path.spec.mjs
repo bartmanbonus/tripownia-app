@@ -245,6 +245,49 @@ test("a consented partner exit emits one canonical GA4 conversion event", async 
   expect(events[0][2].partner).toBe("kiwi");
 });
 
+test("analytics consent captures a first-party source usable by server-side partner exits", async ({ page }) => {
+  await page.goto("/okazje?utm_source=google&utm_medium=organic", { waitUntil: "domcontentloaded" });
+  const beforeConsent = await page.context().cookies();
+  expect(beforeConsent.some(cookie => cookie.name === "tripownia-affiliate-attribution-v1")).toBe(false);
+  await page.getByRole("button", { name: "Analityka", exact: true }).click();
+  await expect.poll(async () => {
+    const cookies = await page.context().cookies();
+    return cookies.find(cookie => cookie.name === "tripownia-affiliate-attribution-v1")?.value || "";
+  }).not.toBe("");
+  const cookies = await page.context().cookies();
+  const stored = cookies.find(cookie => cookie.name === "tripownia-affiliate-attribution-v1");
+  const attribution = JSON.parse(decodeURIComponent(stored.value));
+  expect(attribution).toMatchObject({ source: "google", medium: "organic", landing: "/okazje" });
+});
+
+test("affiliate-link preparation omits campaign source until consent", async ({ page }) => {
+  await page.goto("/okazje?utm_source=google&utm_medium=organic", { waitUntil: "domcontentloaded" });
+  let affiliateContext;
+  await page.route("**/api/affiliate-link", async (route) => {
+    const body = route.request().postDataJSON();
+    affiliateContext = body.context;
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ href: `/przejdz/${"a".repeat(45)}` }) });
+  });
+  await page.evaluate(() => {
+    const anchor = document.createElement("a");
+    anchor.id = "no-consent-exit";
+    anchor.href = "https://www.kiwi.com/pl/search/results/warsaw-poland/rome-italy";
+    anchor.textContent = "Przejdź do partnera";
+    document.body.appendChild(anchor);
+  });
+  await page.locator("#no-consent-exit").hover();
+  await expect.poll(() => affiliateContext?.utmSource).toBe("");
+  expect(affiliateContext.utmMedium).toBe("");
+  expect(affiliateContext.landing).toBe("");
+});
+
+test("necessary-only consent never stores first-party affiliate source data", async ({ page }) => {
+  await page.goto("/okazje?utm_source=google&utm_medium=organic", { waitUntil: "domcontentloaded" });
+  await page.getByRole("button", { name: "Tylko niezbędne", exact: true }).click();
+  const cookies = await page.context().cookies();
+  expect(cookies.some(cookie => cookie.name === "tripownia-affiliate-attribution-v1")).toBe(false);
+});
+
 test("previously issued opaque review URL skips UI and preserves secure exit", async ({ page }) => {
   const token = await page.request.post("/api/affiliate-link", {
     data: {
