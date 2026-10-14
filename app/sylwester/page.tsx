@@ -7,8 +7,8 @@ import SearchHub from "@/components/SearchHub";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 
-const title = "City break na Sylwestra 2026/2027 — lot + hotel za granicą";
-const description = "City break na Sylwestra 2026/2027: lot + hotel, krótkie wyjazdy do Europy i ciepłe kierunki na przełom roku. Sprawdź aktualne terminy, ceny i gotowe wyjazdy.";
+const title = "City break na Sylwestra 2026/2027 — tanie loty + hotel";
+const description = "Tanie loty na Sylwestra 2026/2027, city break i lot + hotel na przełom roku. Porównaj aktualne terminy, ceny i gotowe wyjazdy za granicę.";
 
 const faqItems = [
   {
@@ -81,11 +81,11 @@ export default async function Page({ searchParams }: PageProps) {
   return (
     <main>
       <SiteHeader />
-      <SalesCollectionSchema name="City break Sylwester 2026/2027" description={description} path="/sylwester" about={["city break sylwester 2026","sylwester za granicą","lot + hotel","Sylwester 2026/2027"]} />
+      <SalesCollectionSchema name="City break Sylwester 2026/2027" description={description} path="/sylwester" about={["city break sylwester 2026","tanie loty sylwester 2026","loty sylwester 2026","sylwester za granicą","lot + hotel","Sylwester 2026/2027"]} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }} />
       <section className="seasonal-hero shell newyear-hero-premium">
         <div className="kicker">CITY BREAK NA SYLWESTRA 2026/2027</div>
-        <h1>City break na Sylwestra 2026/2027 – lot + hotel i gotowe wyjazdy</h1>
+        <h1>City break na Sylwestra 2026/2027 – tanie loty + hotel i gotowe wyjazdy</h1>
         <p>Porównaj krótkie city breaki, tydzień w cieple i dalsze wyjazdy na przełom roku. Najpierw realne terminy i ceny, potem wybór kierunku.</p>
         <div className="newyear-type-nav">
           <a href="#szukaj-sylwester">Znajdź wyjazd do swojego budżetu</a>

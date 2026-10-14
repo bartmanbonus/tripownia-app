@@ -10,8 +10,8 @@ import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ReadySearchGrid from "@/components/ReadySearchGrid";
 
 export const metadata: Metadata = {
-  title: "Last Minute 2026 — tanie wakacje lot + hotel i All Inclusive",
-  description: "Oferty Last Minute lot + hotel, wakacje i All Inclusive z polskich lotnisk. Porównaj aktualne ceny, terminy i przejdź do rezerwacji.",
+  title: "Oferty Last Minute 2026 — lot + hotel i All Inclusive",
+  description: "Oferty Last Minute lot + hotel i All Inclusive z polskich lotnisk. Porównaj aktualne ceny, terminy, kierunki i przejdź do konkretnej rezerwacji.",
   alternates: { canonical: "/last-minute" },
   openGraph: {
     type: "website",
@@ -29,11 +29,11 @@ export const metadata: Metadata = {
 export default function LastMinuteOffersPage() {
   return <main>
     <SiteHeader/>
-    <SalesCollectionSchema name="Last Minute 2026" description="Aktualne Last Minute 2026, wakacje i All Inclusive z polskich lotnisk." path="/last-minute" about={["last minute","wakacje","All Inclusive","pakiety wakacyjne"]} />
+    <SalesCollectionSchema name="Oferty Last Minute 2026" description="Aktualne oferty Last Minute lot + hotel i All Inclusive z polskich lotnisk." path="/last-minute" about={["oferty last minute lot hotel","last minute","lot + hotel","wakacje","All Inclusive","pakiety wakacyjne"]} />
     <section className="shopping-hero shell last-minute-shopping-hero">
       <div>
         <div className="kicker">⚡ LAST MINUTE 2026</div>
-        <h1>Last Minute 2026: tanie wakacje lot + hotel i All Inclusive do sprawdzenia teraz.</h1>
+        <h1>Oferty Last Minute 2026: lot + hotel i All Inclusive do sprawdzenia teraz.</h1>
         <p>Porównaj konkretne oferty Last Minute lot + hotel, All Inclusive i wakacje z ceną, terminem oraz kierunkiem. Tripownia pokazuje najtańsze sensowne opcje na początku i pozwala przeszukać szerszą bazę bez skakania między wieloma stronami.</p>
       </div>
       <Link className="editorial-link" href="/magazyn-podrozniczy/last-minute-2026">📚 Jak kupować last minute — poradnik →</Link>
