@@ -7,7 +7,7 @@ import { ArrowLeft, BadgeCheck, CalendarDays, MapPin, Moon, Plane, PlusCircle, U
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AffiliateOfferLink from "@/components/AffiliateOfferLink";
-import { getSocialOfferForLanding, socialOfferDateRange, isSocialOfferExpired, type SocialOffer } from "@/lib/socialOffers";
+import { getSocialOfferForLanding, socialOfferDateRange, isSocialOfferExpired, socialOfferFresh, type SocialOffer } from "@/lib/socialOffers";
 import CompleteTripSales from "@/components/CompleteTripSales";
 import OfferAlternativeFinder from "@/components/OfferAlternativeFinder";
 import OfferAlternativeJump from "@/components/OfferAlternativeJump";
@@ -54,11 +54,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const isBariAlberobello = offer.slug === "bari-alberobello-669";
-  const title = `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł/os. | Tripownia.pl`;
+  const priceFresh = !isSocialOfferExpired(offer) && socialOfferFresh(offer);
+  const title = priceFresh
+    ? `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł/os. | Tripownia.pl`
+    : `${offer.city} – sprawdź aktualną cenę | Tripownia.pl`;
   const description = isBariAlberobello
     ? "City break do Apulii z wylotem z Warszawy. 20–23 października 2026, 2 noce, śniadanie."
     : `${offer.hotel} • ${offer.dates} • ${offer.nights} nocy • wylot: ${offer.departure}. Sprawdź konkretną ofertę na Tripowni.`;
-  const image = offer.slug === "rzym-529" ? "/opengraph-image" : `/api/social-card/${offer.slug}?format=facebook`;
+  const image = offer.slug === "rzym-529"
+    ? "/opengraph-image"
+    : priceFresh ? `/api/social-card/${offer.slug}?format=facebook` : `/o/${offer.slug}/opengraph-image`;
   const pageUrl = `/o/${offer.slug}`;
 
   return {
@@ -73,7 +78,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       url: pageUrl,
       title,
       description,
-      images: [{ url: image, width: 1200, height: 630, alt: `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł — Tripownia.pl` }],
+      images: [{ url: image, width: 1200, height: 630, alt: priceFresh
+        ? `${offer.city} od ${offer.price.toLocaleString("pl-PL")} zł — Tripownia.pl`
+        : `${offer.city} – sprawdź aktualną cenę w Tripowni` }],
     },
     twitter: {
       card: "summary_large_image",
@@ -99,6 +106,8 @@ export default async function ShortSocialOfferPage({
   const tripKind = offer.partner === "kiwi" ? "flight" : offer.partner === "booking" ? "hotel" : "package";
   const dateRange = socialOfferDateRange(offer);
   const expired = offer.expired || isSocialOfferExpired(offer);
+  const priceFresh = !expired && socialOfferFresh(offer);
+  const checkedAtLabel = new Intl.DateTimeFormat("pl-PL", { timeZone: "Europe/Warsaw", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(offer.checkedAt));
   const directAffiliateHref = (() => {
     if (!offer.affiliateUrl || offer.partner === "other") return offer.affiliateUrl;
     const value = (key: string) => {
@@ -112,7 +121,7 @@ export default async function ShortSocialOfferPage({
       page: `/o/${offer.slug}`,
       offer: offer.slug,
       destination: `${offer.city}, ${offer.country}`,
-      price: String(offer.price),
+      ...(priceFresh ? { price: String(offer.price) } : {}),
       landing: `/o/${offer.slug}`,
     });
     const utmSource = value("utm_source");
@@ -149,7 +158,7 @@ export default async function ShortSocialOfferPage({
         <div className="offer-detail-top">
           <Link href="/okazje"><ArrowLeft size={17}/> Zobacz wszystkie okazje</Link>
         </div>
-        <OfferJourney offerId={offer.slug} destination={offer.city} partner={offer.partner} price={offer.price} source="social_offer" />
+        <OfferJourney offerId={offer.slug} destination={offer.city} partner={offer.partner} price={priceFresh ? offer.price : undefined} source="social_offer" />
         <section className="detail-hero">
           <OfferHeroImage city={offer.city} country={offer.country} src={offer.imageSrc} />
           <div className="detail-copy">
@@ -157,8 +166,19 @@ export default async function ShortSocialOfferPage({
             <h1>{offer.city}</h1>
             <div className="detail-topline"><div className="detail-score"><BadgeCheck size={18}/><span>Szczegóły wybranej propozycji</span></div></div>
             <div className="detail-price-card">
-              <div className="detail-price"><small>znaleźliśmy od</small> <strong>{offer.price.toLocaleString("pl-PL")} zł</strong> / os.</div>
-              <div className="price-status detail-price-status">Cena zapisana {new Intl.DateTimeFormat("pl-PL", { timeZone: "Europe/Warsaw", day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(offer.checkedAt))}. Sprawdź aktualną cenę i dostępność przed rezerwacją.</div>
+              {priceFresh ? (
+                <div className="detail-price"><small>znaleźliśmy od</small> <strong>{offer.price.toLocaleString("pl-PL")} zł</strong> / os.</div>
+              ) : (
+                <div className="detail-price">
+                  <small>{expired ? "Oferta archiwalna" : "Cena wymaga weryfikacji"}</small>
+                  <strong style={{ fontSize: "clamp(22px, 2.2vw, 32px)" }}>Sprawdź aktualną cenę</strong>
+                </div>
+              )}
+              <div className="price-status detail-price-status">
+                {priceFresh
+                  ? `Cena zapisana ${checkedAtLabel}. Cena i dostępność mogą zmienić się przed rezerwacją.`
+                  : `Ostatnio zapisaliśmy ${offer.price.toLocaleString("pl-PL")} zł/os. (${checkedAtLabel}). To cena historyczna, obecnie niepotwierdzona u partnera.`}
+              </div>
             </div>
             <p className="detail-lead"><strong>{offer.hotel}</strong></p>
             {(expired) ? (
@@ -176,7 +196,7 @@ export default async function ShortSocialOfferPage({
                     partnerLabel={offer.partnerLabel}
                     partner={offer.partner}
                     slug={offer.slug}
-                    price={offer.price}
+                    price={priceFresh ? offer.price : undefined}
                     destination={`${offer.city}, ${offer.country}`}
                     tripKind={tripKind}
                     departure={offer.departure}
@@ -208,21 +228,21 @@ export default async function ShortSocialOfferPage({
             nights={offer.nights}
             board={offer.board}
             departure={offer.departure}
-            currentPrice={offer.price}
+            currentPrice={priceFresh ? offer.price : undefined}
           />
         )}
         {!expired && directAffiliateHref && (
           <div className="social-offer-mobile-booking-bar">
             <div>
-              <small>Tripownia znalazła od</small>
-              <strong>{offer.price.toLocaleString("pl-PL")} zł / os.</strong>
+              <small>{priceFresh ? "Cena z ostatniej weryfikacji" : "Cena wymaga weryfikacji"}</small>
+              <strong>{priceFresh ? `${offer.price.toLocaleString("pl-PL")} zł / os.` : "Sprawdź u partnera"}</strong>
             </div>
             <AffiliateOfferLink
               href={directAffiliateHref}
               partnerLabel={offer.partnerLabel}
               partner={offer.partner}
               slug={offer.slug}
-              price={offer.price}
+              price={priceFresh ? offer.price : undefined}
               destination={`${offer.city}, ${offer.country}`}
               tripKind={tripKind}
               departure={offer.departure}

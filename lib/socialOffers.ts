@@ -228,8 +228,8 @@ const SOCIAL_OFFERS: Record<string, SocialOffer> = {
     departure: "Kraków",
     nights: 2,
     dates: "25–27 października 2026",
-    board: "wg oferty",
-    hotel: "Pakiet lot + hotel",
+    board: "Bez wyżywienia",
+    hotel: "a&o Wien Stadthalle",
     partner: "esky",
     partnerLabel: "eSky",
     affiliateUrl: "https://www2.esky.pl/lot+hotel/portfolio/details/select-room?context=pl-packages&packageId=MjYxMDI1OjI6cGw6MTE5NjEw&metaCode=119610&rooms%5B0%5D%5Badults%5D=2&departureCode=KRK&checkInDate=2026-10-25&checkOutDate=2026-10-27&destinationDepartureDate=2026-10-25&returnArrivalDate=2026-10-27&partner_id=TRIPOWNIAPLPACKAGES&departurePlaces=ap-GDN,ap-KTW,ap-KRK,ap-WAW,ap-WRO,ap-WMI&selectedDeparturePlaces=ap-GDN,ap-KTW,ap-KRK,ap-WAW",
@@ -1360,7 +1360,7 @@ export function getSocialOfferSlugs() {
   return Object.keys(SOCIAL_OFFERS);
 }
 
-function socialOfferFresh(offer: SocialOffer, maxHours = 6) {
+export function socialOfferFresh(offer: SocialOffer, maxHours = 6) {
   const checked = Date.parse(offer.checkedAt || "");
   if (!Number.isFinite(checked)) return false;
   const age = Date.now() - checked;
