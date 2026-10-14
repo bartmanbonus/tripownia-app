@@ -1,30 +1,19 @@
 import type { Metadata } from "next";
+import { travelShareMetadata } from "@/lib/sharePreview";
+import SocialShare from "@/components/SocialShare";
 import Link from "next/link";
 import { CheckCircle2, MapPin, ShieldCheck } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SearchHub from "@/components/SearchHub";
 
-export const metadata: Metadata = {
-  title: "Hotele i noclegi – wyszukiwarka",
-  description: "Znajdź nocleg do swojej podróży bez wychodzenia od razu z Tripowni. Wybierz kierunek i termin, a potem sprawdź aktualną dostępność.",
-  alternates: { canonical: "/hotele" },
-  openGraph: {
-    type: "website",
-    locale: "pl_PL",
-    siteName: "Tripownia",
-    title: "Hotele i noclegi | Tripownia.pl",
-    description: "Wybierz kierunek i termin, a potem sprawdź aktualne noclegi.",
-    url: "/hotele",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Hotele i noclegi | Tripownia.pl",
-    description: "Wybierz kierunek i termin, a potem sprawdź aktualne noclegi.",
-    images: ["/opengraph-image"],
-  },
-};
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const p = await searchParams;
+  const firstValue = (v: string | string[] | undefined) => Array.isArray(v) ? v[0] || "" : v || "";
+  const destination = firstValue(p.destination || p.q) || "Noclegi";
+  return travelShareMetadata({city:destination,kind:"hotel",dates:[firstValue(p.from),firstValue(p.to)].filter(Boolean).join(" – "),
+    url:`/hotele?${new URLSearchParams(Object.entries(p).map(([k,v])=>[k,firstValue(v)])).toString()}`});
+}
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -67,6 +56,7 @@ export default async function HotelsPage({ searchParams }: Props) {
           <div><CheckCircle2 size={19}/><strong>Decyzja</strong><span>Rezerwuj dopiero po sprawdzeniu całego kosztu pobytu.</span></div>
         </div>
 
+        <SocialShare url={`/hotele?${new URLSearchParams(Object.entries(params).map(([k,v])=>[k,first(v)])).toString()}`} title={`Hotele: ${destination || "szukaj noclegów"}`} text="Znajdź nocleg w Tripowni" />
         <div className="service-search-shell">
           <SearchHub embedded initialTab="Hotele" initialDestinations={destination ? [destination] : []} initialAirports={origin ? [origin] : []} initialDateMode="range" initialDateFrom={hasRange ? from : ""} initialDateTo={hasRange ? to : ""} initialHotelAdults={Math.max(hotelAdults, hotelRooms)} initialHotelRooms={hotelRooms} initialHotelChildAges={ages} />
         </div>
