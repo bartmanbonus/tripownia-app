@@ -4,6 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import DirectionsExplorer from "@/components/DirectionsExplorer";
 import DirectionsLiveDeals from "@/components/DirectionsLiveDeals";
+import { destinationArticles } from "@/lib/destinationEditorial";
 
 export const metadata: Metadata = {
   title: "Kierunki podróży – gdzie pojechać na wakacje i city break?",
@@ -359,6 +360,14 @@ export default function KierunkiPage() {
         </header>
 
         <DirectionsExplorer directions={directions} filters={filters}/>
+        <section aria-label="Wszystkie kraje i przewodniki" style={{margin:"42px 0 65px"}}>
+          <div className="kicker">45 PRZEWODNIKÓW KIERUNKÓW</div>
+          <h2>Wszystkie kierunki – od inspiracji do rezerwacji</h2>
+          <p>Każdy kraj ma własny poradnik i przejścia do lotów, hoteli oraz aktualnych ofert, również wtedy, gdy dziś nie ma dostępnego pakietu.</p>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(185px,1fr))",gap:10,marginTop:22}}>
+            {destinationArticles.map(item => <Link key={item.href} href={item.href} style={{border:"1px solid #dfe6ef",background:"#fff",borderRadius:12,padding:"14px 16px",color:"#152c66",fontWeight:700,textDecoration:"none"}}>{item.name} →</Link>)}
+          </div>
+        </section>
       </section>
 
       <SiteFooter/>
