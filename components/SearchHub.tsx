@@ -15,7 +15,7 @@ import { rankSearchOffers, searchTier } from "@/lib/searchOfferRanking";
 import { partners } from "@/lib/partners";
 import { eskySearchUrl } from "@/lib/eskySearch";
 import { fetchEskyBrowserPackages } from "@/lib/eskyBrowserSearch";
-import { isAffordableShortTrip } from "@/lib/offerValuePolicy";
+import { isSearchInventoryOffer } from "@/lib/offerValuePolicy";
 import FlexibleFlightsExplorer from "@/components/FlexibleFlightsExplorer";
 import TravelpayoutsFlightsWidget from "@/components/TravelpayoutsFlightsWidget";
 import { trackEvent } from "@/lib/analytics";
@@ -220,7 +220,7 @@ function cleanRows(rows: any[], query: string) {
   const cleaned = rows
     .filter((o: any) => ["exim", "tui", "esky"].includes(String(o.partner || "").toLowerCase()))
     .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
-    .filter(isAffordableShortTrip)
+    .filter(isSearchInventoryOffer)
     .sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity));
 
   return uniqueOfferVariants(cleaned);
@@ -2157,6 +2157,14 @@ export default function SearchHub({
                       >
                         Zobacz dodatkowe pakiety lot + hotel
                       </a>
+                      <Link href={`/loty?${new URLSearchParams({
+                        ...(departures.length === 1 ? { origin: departures[0] } : {}),
+                        ...(dateMode === "month" && month ? { month } : {}),
+                        ...(duration !== "all" && /^\d+-\d+$/.test(duration) ? { duration } : {}),
+                        ...(dateMode === "range" && dateFrom && dateTo ? { marketFrom: dateFrom, marketTo: dateTo } : {}),
+                      }).toString()}`}>
+                        Porównaj osobno tanie loty
+                      </Link>
                       {(selectedDestinations.length > 0 || destination.trim()) && (
                         <Link href={`/szukaj?${new URLSearchParams({ tab: activeTab,
                           ...(departures.length ? { airport: departures.join(",") } : {}),
