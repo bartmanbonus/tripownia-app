@@ -61,6 +61,10 @@ function normalize(value: string) {
 }
 
 export function destinationDealsHref(destination: EximDestination, source = "kierunki_menu") {
+  if (source.includes("kierunki_menu")) {
+    const slug = destination.label === "Macedonia Północna" ? "macedonia-polnocna" : destination.eximPath.split("/").filter(Boolean).pop();
+    return `/kierunki/${slug}`;
+  }
   const params = new URLSearchParams({
     destination: destination.query,
     source,
