@@ -86,7 +86,7 @@ export async function fetchEskyPackages(search: EskySearch = {}): Promise<{ offe
   // cheaper city breaks elsewhere. A specific query gets deeper cursor paging.
   const mappedArrivals = eskyArrivals(search.query);
   const arrivals = mappedArrivals.length ? mappedArrivals : search.query ? [""] : search.cityBreak
-    ? ["ci-ROM", "ci-MIL", "ci-BCN", "ci-LIS", "co-MT", "co-CY", "ci-PRG", "ci-BUD", "ci-VIE", "ci-PAR", "ci-LON", "ci-ATH"]
+    ? ["ci-ROM", "ci-ALC", "ci-MIL", "ci-AGP", "ci-BCN", "ci-BRI", "ci-VLC", "co-MT", "co-CY", "ci-LIS", "ci-OPO", "ci-PRG", "ci-BUD", "ci-VIE", "ci-PAR", "ci-ATH", "co-AL"]
     : ["co-IT", "co-ES", "co-MT", "co-CY", "co-PT", "co-GR", "co-FR", "co-CZ", "co-HU", "co-AL", "co-GB", "co-AT"];
   const deadline = Date.now() + Math.max(3_000, Math.min(38_000, search.timeoutMs || 38_000));
   let partial = false;
