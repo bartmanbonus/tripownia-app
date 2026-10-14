@@ -220,18 +220,29 @@ export async function GET(request: NextRequest) {
     const directions: Direction[] = Array.isArray(directionsRaw?.directions) ? directionsRaw.directions : [];
     const names = new Map(directions.map((item) => [String(item.iata || "").toUpperCase(), item]));
 
-    const bestByDestination = new Map<string, RawPrice>();
+    // Retain several distinct date combinations per direction. A single cheapest
+    // date previously hid every other bookable itinerary in the year feed.
+    const byDestination = new Map<string, RawPrice[]>();
     for (const row of prices) {
       const destination = String(row.destination || "").toUpperCase();
       const value = Number(row.value || 0);
       if (!/^[A-Z]{3}$/.test(destination) || !value || value <= 0) continue;
       if (row.show_to_affiliates === false || !inSelectedMonths(String(row.depart_date || ""), months)) continue;
-      const current = bestByDestination.get(destination);
-      if (!current || Number(current.value || Infinity) > value) bestByDestination.set(destination, row);
+      if (!/^20\d{2}-\d{2}-\d{2}$/.test(String(row.depart_date || "")) || !/^20\d{2}-\d{2}-\d{2}$/.test(String(row.return_date || ""))) continue;
+      if (String(row.return_date) <= String(row.depart_date)) continue;
+      const list = byDestination.get(destination) || [];
+      const identity = `${row.depart_date}|${row.return_date}`;
+      const index = list.findIndex((candidate) => `${candidate.depart_date}|${candidate.return_date}` === identity);
+      if (index === -1) list.push(row);
+      else if (Number(list[index].value || Infinity) > value) list[index] = row;
+      byDestination.set(destination, list);
     }
 
-    let offers = Array.from(bestByDestination.entries())
-      .map(([destination, row]) => {
+    let offers = Array.from(byDestination.entries())
+      .flatMap(([destination, rows]) => rows
+        .sort((a, b) => Number(a.value || Infinity) - Number(b.value || Infinity))
+        .slice(0, 4)
+        .map((row) => {
         const info = names.get(destination);
         const departDate = String(row.depart_date || "");
         const returnDate = String(row.return_date || "");
@@ -246,7 +257,7 @@ export async function GET(request: NextRequest) {
           actual: Boolean(row.actual),
           affiliateUrl: searchPath(origin, destination, departDate, returnDate),
         };
-      })
+      }))
       .sort((a, b) => a.price - b.price)
       ;
 
