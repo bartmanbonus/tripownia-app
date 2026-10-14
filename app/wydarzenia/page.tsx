@@ -173,14 +173,14 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
           <>
             <div className={styles.grid}>
               {visibleTrips.map(trip => {
-                // The shared Inter-Fiorentina 25 October promotion is a Saturday-to-Sunday
-                // trip, unlike the regular three-night match packages. A visitor's
-                // explicit nights filter still takes precedence.
+                // Featured Inter-Fiorentina match: Saturday arrival, Monday-morning return.
+                // An explicit nights selection by the visitor still takes precedence.
                 const featuredInterFiorentina = trip.clubSlug === "inter-mediolan"
                   && trip.isHome
                   && trip.kickoff.startsWith("2026-10-25")
                   && /fiorentina/i.test(trip.awayTeam);
-                const tripNights = featuredInterFiorentina && !nightsChosenByVisitor ? 1 : selectedNights;
+                const tripNights = featuredInterFiorentina && !nightsChosenByVisitor ? 2 : selectedNights;
+                const preferMorningReturn = featuredInterFiorentina && tripNights === 2;
                 const links = buildSportsTripLinks(trip, selectedFrom, tripNights, selectedPeople);
                 const plannerParams = new URLSearchParams({
                   source: "sport",
@@ -198,6 +198,8 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                   hotelUrl: links.hotelUrl,
                 });
                 if (links.ticketUrl) plannerParams.set("ticket", links.ticketUrl);
+                if (preferMorningReturn) plannerParams.set("returnTime", "morning");
+                if (nightsChosenByVisitor) plannerParams.set("nightsChosen", "1");
 
                 const flightHref = `/go/live?${new URLSearchParams({
                   partner: "kiwi",
@@ -236,7 +238,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Searc
                       <div className={styles.team}><TeamCrest src={trip.awayCrest} name={trip.awayTeam}/><strong>{trip.awayTeam}</strong></div>
                     </div>
                     <div className={styles.meta}><span>📍 {trip.venue || trip.city}</span><span>🌍 {trip.city}, {trip.country}</span></div>
-                    <div className={styles.trip}><strong>{activeDeparture.label} → {trip.city}</strong><span>{links.departureDate} – {links.returnDate} · {tripNights} {tripNights === 1 ? "noc" : "noce"} · {selectedPeople} os.</span></div>
+                    <div className={styles.trip}><strong>{activeDeparture.label} → {trip.city}</strong><span>{links.departureDate} – {links.returnDate} · {tripNights} {tripNights === 1 ? "noc" : "noce"} · {selectedPeople} os.{preferMorningReturn ? " · powrót rano (przed 12:00)" : ""}</span></div>
                     <div className={styles.cardActions}>
                       <a className={styles.primary} href={"/dodaj-podroz?" + plannerParams.toString()}>Ułóż cały wyjazd →</a>
                       <a href={flightHref} rel="nofollow sponsored">Sprawdź lot</a>
