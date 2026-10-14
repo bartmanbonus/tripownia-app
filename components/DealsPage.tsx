@@ -604,7 +604,7 @@ export default function DealsPage({
         <>
           <div className="cards-grid deals-premium-grid deals-simple-grid">
             {rows.map((offer) => (
-              <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)} sourceSurface="okazje" />
+              <OfferCard key={offer.id} offer={offer} priceHighlight={priceHighlights.get(offer.id)} sourceSurface="okazje" showIndicativePrice />
             ))}
           </div>
           {destination && (
