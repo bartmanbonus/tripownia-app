@@ -18,6 +18,7 @@ import { eskySearchUrl } from "@/lib/eskySearch";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ReadySearchGrid, { type ReadySearchItem } from "@/components/ReadySearchGrid";
 import DestinationCheapFlights from "@/components/DestinationCheapFlights";
+import { getDestinationArticleByQuery } from "@/lib/destinationEditorial";
 
 type DealsOffer = Offer & { startDateISO?: string };
 
@@ -243,6 +244,7 @@ export default function DealsPage({
       : allOfferRows(quickFilteredOffers, sortMode),
     [quickFilteredOffers, source, destination, sortMode]
   );
+  const editorialGuide = destination ? getDestinationArticleByQuery(destination) : undefined;
   const destinationHotelHref = useMemo(
     () => destination ? `/hotele?q=${encodeURIComponent(destination)}` : "",
     [destination]
@@ -676,6 +678,12 @@ export default function DealsPage({
 
             {!destination && <FacebookFollowCTA placement="deals_after_results" compact />}
 
+      {editorialGuide && <section style={{margin:"32px 0",border:"1px solid #dce7f2",borderRadius:18,padding:"24px",background:"#f7fbff"}}>
+        <div className="kicker">PRZEWODNIK PO KIERUNKU</div>
+        <h2 style={{margin:"12px 0"}}>{editorialGuide.name} – kiedy jechać, co zobaczyć i gdzie nocować?</h2>
+        <p style={{lineHeight:1.75,color:"#475569"}}>{editorialGuide.hook} {editorialGuide.season}</p>
+        <Link href={editorialGuide.href} className="primary-cta">Otwórz pełny przewodnik i zaplanuj wyjazd →</Link>
+      </section>}
       <div className="deals-simple-bottom">
         <span>Nie widzisz nic dla siebie?</span>
         <Link href="/#wyszukiwarka">Ustaw kierunek, budżet i długość pobytu</Link>
