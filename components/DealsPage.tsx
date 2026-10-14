@@ -243,6 +243,12 @@ export default function DealsPage({
       : allOfferRows(quickFilteredOffers, sortMode),
     [quickFilteredOffers, source, destination, sortMode]
   );
+  // Najniższą cenę liczymy z całej aktualnie wyświetlonej puli, niezależnie od sortowania.
+  const lowestShownPrice = rows.reduce<number | null>((lowest, offer) => {
+    const price = Number(offer.price);
+    return Number.isFinite(price) && price > 0 && (lowest === null || price < lowest) ? price : lowest;
+  }, null);
+
   const destinationHotelHref = useMemo(
     () => destination ? `/hotele?q=${encodeURIComponent(destination)}` : "",
     [destination]
@@ -589,6 +595,11 @@ export default function DealsPage({
                 ? (rows.length ? offerCountLabel(rows.length) + " · pakiety" : quickFilter === "flight" ? "Same loty poniżej" : "Brak pakietów dla tych filtrów")
                 : rows.length + " " + (rows.length === 1 ? "oferta" : "ofert")}
           </strong>
+          {destination && lowestShownPrice !== null && (
+            <span className="deals-lowest-price">
+              Najtaniej <b>od {lowestShownPrice.toLocaleString("pl-PL")} zł/os.</b>
+            </span>
+          )}
           <span>{filtering ? filterSummary : "Wszystkie lotniska · dowolny termin"}</span>
         </div>
         <small>{sourceCopy}</small>
@@ -880,8 +891,26 @@ export default function DealsPage({
       .deals-simple-summary > div {
         display: flex;
         align-items: baseline;
+        flex-wrap: wrap;
         gap: 10px;
         min-width: 0;
+      }
+
+      .deals-simple-summary .deals-lowest-price {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 6px;
+        padding: 6px 11px;
+        border-radius: 11px;
+        background: #fff0e8;
+        color: #7c2d12;
+        font-weight: 750;
+      }
+
+      .deals-simple-summary .deals-lowest-price b {
+        color: #e64b25;
+        font-size: 21px;
+        letter-spacing: -0.02em;
       }
 
       .deals-simple-summary strong {
