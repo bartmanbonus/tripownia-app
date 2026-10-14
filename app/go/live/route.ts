@@ -3,6 +3,7 @@ import { after, NextRequest, NextResponse } from "next/server";
 import { recordClick } from "@/lib/clickStats";
 import { partners, buildEskyPackagesUrl, type PartnerKey } from "@/lib/partners";
 import { recordGlobalAffiliateClick } from "@/lib/affiliateAnalyticsStore";
+import { AFFILIATE_ATTRIBUTION_COOKIE, parseAffiliateVisitAttribution } from "@/lib/attributionCookie";
 
 const ALLOWED_PARTNERS = new Set<PartnerKey>([
   "aviasales",
@@ -379,11 +380,26 @@ export async function GET(request: NextRequest) {
   const destination = safeText(request.nextUrl.searchParams.get("destination"), 160);
   const price = safeText(request.nextUrl.searchParams.get("price"), 40);
   const page = safeText(request.nextUrl.searchParams.get("page"), 160);
-  const utmSource = safeText(request.nextUrl.searchParams.get("utmSource"), 80);
-  const utmMedium = safeText(request.nextUrl.searchParams.get("utmMedium"), 80);
+  // Links rendered by the server or followed before client-side hydration often
+  // have no campaign parameters. Recover the first-party attribution captured
+  // only after analytics consent; do not overwrite a meaningful explicit source.
+  const cookieAttribution = parseAffiliateVisitAttribution(
+    request.cookies.get(AFFILIATE_ATTRIBUTION_COOKIE)?.value,
+  );
+  const explicitSource = safeText(request.nextUrl.searchParams.get("utmSource"), 80);
+  const explicitMedium = safeText(request.nextUrl.searchParams.get("utmMedium"), 80);
+  const explicitLanding = safeText(request.nextUrl.searchParams.get("landing"), 160);
+  const hasExplicitSource = Boolean(explicitSource && !["direct", "unknown", "(not set)"].includes(explicitSource.toLowerCase()));
+  const sameExplicitSource = hasExplicitSource && explicitSource?.toLowerCase() === cookieAttribution?.source;
+  const utmSource = hasExplicitSource ? explicitSource : cookieAttribution?.source || explicitSource;
+  const utmMedium = hasExplicitSource
+    ? explicitMedium || (sameExplicitSource ? cookieAttribution?.medium : undefined)
+    : cookieAttribution?.medium || explicitMedium;
   const utmCampaign = safeText(request.nextUrl.searchParams.get("utmCampaign"), 120);
   const utmContent = safeText(request.nextUrl.searchParams.get("utmContent"), 120);
-  const landing = safeText(request.nextUrl.searchParams.get("landing"), 160);
+  const landing = hasExplicitSource
+    ? explicitLanding || (sameExplicitSource ? cookieAttribution?.landing : undefined)
+    : cookieAttribution?.landing || explicitLanding;
 
   console.info(
     "[tripownia_affiliate_click]",
