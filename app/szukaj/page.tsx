@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
+import { travelShareMetadata } from "@/lib/sharePreview";
+import SocialShare from "@/components/SocialShare";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import SearchHub from "@/components/SearchHub";
 
-export const metadata: Metadata = {
-  title: "Wyniki wyszukiwania podróży | Tripownia.pl",
-  description: "Gotowe wyszukiwanie podróży z ustawionym kierunkiem, lotniskiem, terminem, długością pobytu i budżetem.",
-  robots: { index: false, follow: true },
-};
+export async function generateMetadata({ searchParams }: { searchParams: PageProps["searchParams"] }): Promise<Metadata> {
+  const params = await searchParams;
+  const city = params.destination?.split("|")[0] || "Podróże";
+  return travelShareMetadata({ city, departure: params.airport, dates: [params.from,params.to].filter(Boolean).join(" – "), kind:"search",
+    url:`/szukaj?${new URLSearchParams(Object.entries(params).filter((entry): entry is [string,string] => typeof entry[1] === "string")).toString()}` });
+}
 
 type PageProps = {
   searchParams: Promise<{
@@ -53,6 +56,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           <h1>Już ustawiliśmy najważniejsze parametry.</h1>
           <p>Nie zaczynasz od zera. Zobacz wyniki od razu, a jeśli chcesz — zmień tylko jeden parametr.</p>
         </div>
+        <SocialShare url={`/szukaj?${new URLSearchParams(Object.entries(params).filter((entry): entry is [string,string] => typeof entry[1] === "string")).toString()}`} title={`Podróże: ${destinations[0] || "Gdziekolwiek"}`} text="Sprawdź terminy i oferty w Tripowni" />
         <SearchHub
           key={searchKey}
           embedded
