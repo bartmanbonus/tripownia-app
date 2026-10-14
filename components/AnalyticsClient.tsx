@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ANALYTICS_CONSENT_EVENT, ATTRIBUTION_KEY, bootstrapAnalytics, trackEvent, trackPageView } from "@/lib/analytics";
+import { AFFILIATE_ATTRIBUTION_COOKIE, AFFILIATE_ATTRIBUTION_MAX_AGE_MS, parseAffiliateVisitAttribution } from "@/lib/attributionCookie";
 
 type ReferralAttribution = {
   source: string;
@@ -21,9 +22,19 @@ function hasManualAttribution(searchParams: URLSearchParams) {
   );
 }
 
+function persistAttributionCookie(value: ReferralAttribution) {
+  // Consent is checked by trackCurrentVisit, which is the only caller.
+  const parsed = parseAffiliateVisitAttribution(JSON.stringify(value));
+  if (!parsed) return;
+  const encoded = encodeURIComponent(JSON.stringify(parsed));
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `${AFFILIATE_ATTRIBUTION_COOKIE}=${encoded}; Path=/; SameSite=Lax; Max-Age=${AFFILIATE_ATTRIBUTION_MAX_AGE_MS / 1000}${secure}`;
+}
+
 function persistAttribution(value: ReferralAttribution) {
   try {
     sessionStorage.setItem(ATTRIBUTION_KEY, JSON.stringify(value));
+    persistAttributionCookie(value);
     return true;
   } catch {
     return false;
@@ -32,7 +43,12 @@ function persistAttribution(value: ReferralAttribution) {
 
 function hasStoredAttribution() {
   try {
-    return Boolean(sessionStorage.getItem(ATTRIBUTION_KEY));
+    const raw = sessionStorage.getItem(ATTRIBUTION_KEY);
+    const parsed = parseAffiliateVisitAttribution(raw);
+    if (!parsed) return false;
+    // Also cover visitors with an older sessionStorage entry from before this release.
+    persistAttributionCookie({ ...parsed, campaign: "", content: "" });
+    return true;
   } catch {
     return false;
   }
