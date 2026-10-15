@@ -65,9 +65,9 @@ export function createProductFeedClient(fetcher: typeof fetch = fetch, now = Dat
   return async function read(provider: 'exim' | 'tui', query: string, token: string, maxPages: number, deadline: number, field?: 'Country'): Promise<FeedResult> {
     const result: FeedResult = { products: [], partial: false, truncated: false, pages: 0, failedPages: 0, retries: 0 };
     const seen = new Set<string>();
-    for (let page = 0; page < maxPages; page++) {
+    for (let page = 1; page <= maxPages; page++) {
       const filter = field ? `field=${encodeURIComponent(`${field}=${query}`)}` : `q=${encodeURIComponent(query)}`;
-      const url = `https://api.tradedoubler.com/1.0/products.json;fid=${provider === 'exim' ? 103442 : 24864};${filter};orderBy=priceAsc;page=${page};pageSize=100;limit=${100 * (page + 1)}?token=${encodeURIComponent(token)}`;
+      const url = `https://api.tradedoubler.com/1.0/products.json;fid=${provider === 'exim' ? 103442 : 24864};${filter};orderBy=priceAsc;page=${page};pageSize=100;limit=${100 * page}?token=${encodeURIComponent(token)}`;
       // Credentials never appear in diagnostics or cache keys.
       const key = createHash('sha256').update(url).digest('hex');
       try {
