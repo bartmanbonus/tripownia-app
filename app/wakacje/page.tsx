@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
+import WakacjePrimarySearch from "@/components/WakacjePrimarySearch";
 import { homepageFallbackOffers } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ReadySearchGrid from "@/components/ReadySearchGrid";
@@ -33,6 +34,9 @@ export default function WakacjePage() {
       <div className="kicker">WAKACJE 2026/2027 — PEŁNA OFERTA</div>
       <h1>Tanie wakacje 2026/2027: All Inclusive, last minute i lot + hotel.</h1>
       <p>Porównaj All Inclusive, rodzinne wakacje, plażę, egzotykę i klasyczne pakiety. Tripownia pokazuje wybrane oferty i pozwala przejść do aktualnej dostępności — bez przekopywania wielu osobnych serwisów.</p>
+    </section>
+    <section className="section shell">
+      <WakacjePrimarySearch title="Wyszukaj wakacje w pełnej ofercie" description="Zacznij od wielu organizatorów: All Inclusive, egzotyka, rodzinne wycieczki i last minute. Poniżej pokazujemy też propozycje z dodatkowych źródeł." />
     </section>
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">WYBRANE PRZEZ NAS</div><h2>Aktualne wakacje warte sprawdzenia</h2><p>Porównuj nie tylko cenę startową, ale też termin, liczbę nocy, wyżywienie i koszt całej podróży.</p></div></div>
