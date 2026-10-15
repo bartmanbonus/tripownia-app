@@ -6,6 +6,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Sparkles, Trash2, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
+import WakacjePrimarySearch from "@/components/WakacjePrimarySearch";
 import HotelGuestsPicker, { type HotelGuestsValue } from "@/components/HotelGuestsPicker";
 import HotelStayPicker, { DEFAULT_HOTEL_DATE_PREFERENCES, type HotelDatePreferences } from "@/components/HotelStayPicker";
 import DresdenCityBreakOptions from "@/components/DresdenCityBreakOptions";
@@ -188,7 +189,7 @@ function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: s
 
 function cleanRows(rows: any[], query: string) {
   const cleaned = rows
-    .filter((o: any) => ["exim", "tui", "esky"].includes(String(o.partner || "").toLowerCase()))
+    .filter((o: any) => ["wakacje", "exim", "tui", "esky"].includes(String(o.partner || "").toLowerCase()))
     .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
     .filter(isSearchInventoryOffer)
     .sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity));
@@ -1860,6 +1861,10 @@ export default function SearchHub({
         )}
 
 
+
+        {["Wakacje", "All Inclusive", "Last minute"].includes(activeTab) && !["/wakacje", "/last-minute", "/szukaj-wakacji"].includes(pathname || "") && (
+          <WakacjePrimarySearch compact title="Wakacje i egzotyka — pełna wyszukiwarka" description="Główna baza wycieczek wielu organizatorów. Poniżej, po wyszukaniu, pokazujemy również pakiety z pozostałych źródeł, w tym Exim." />
+        )}
 
         {searched && activeTab === "Hotele" && pathname === "/hotele" && hotelSearchDestination && (
           <div className="hotel-search-ready" role="status" aria-live="polite">
