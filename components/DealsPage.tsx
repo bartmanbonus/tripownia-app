@@ -9,6 +9,7 @@ import { ArrowRight, CalendarDays, MapPin, RefreshCw, Search, SlidersHorizontal,
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import OfferCard from "@/components/OfferCard";
+import WakacjePrimarySearch from "@/components/WakacjePrimarySearch";
 import { diversifyDestinations, isSeasonalDiscoveryOffer } from "@/lib/dealDiscovery";
 import type { Offer } from "@/lib/offers";
 import { getLinkMatch } from "@/lib/offers";
@@ -444,6 +445,10 @@ export default function DealsPage({
           <Search size={16}/> Wyszukaj po swojemu
         </Link>
       </div>
+
+      {(dealType === "allinclusive" || Boolean(destination)) && (
+        <WakacjePrimarySearch compact title={destination ? `Więcej wyjazdów: ${destination}` : "Porównaj pełną pulę All Inclusive"} description="Wybierz lotnisko, termin i wyżywienie w głównej wyszukiwarce wycieczek. Poniżej znajdziesz również oferty z dodatkowych źródeł." />
+      )}
 
       {readySearchItems.length > 0 && (
         <section className="deals-ready-searches">
