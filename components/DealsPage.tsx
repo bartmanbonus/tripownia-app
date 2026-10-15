@@ -458,10 +458,17 @@ export default function DealsPage({
         </section>
       )}
 
-      <div className="deals-simple-controls">
+      <div className="deals-simple-controls deals-direction-controls">
+        {destination && (
+          <div className="deals-direction-partner-choices">
+            <HybridSearchLinks destination={destination} departure={airport === "any" ? "" : airport} month={month === "any" ? "" : `${year === "any" ? currentYear : year}-${month}`} />
+          </div>
+        )}
+        <div className="deals-direction-filter-heading">
+          <strong>Filtruj okazje</strong>
+          <span>Wybierz rodzaj wyjazdu, lotnisko i termin</span>
+        </div>
         <div className="deals-simple-topline">
-          <HybridSearchLinks destination={destination} departure={airport === "any" ? "" : airport} month={month === "any" ? "" : `${year === "any" ? currentYear : year}-${month}`} />
-          <p><Link href="/jarmarki-bozonarodzeniowe">Grudzień: odkryj jarmarki bożonarodzeniowe →</Link></p>
           <div className="deals-quick-filters" aria-label="Szybkie filtry okazji">
             {([
               ["all", "Wszystkie"],
@@ -685,6 +692,9 @@ export default function DealsPage({
         <span>Nie widzisz nic dla siebie?</span>
         <Link href="/#wyszukiwarka">Ustaw kierunek, budżet i długość pobytu</Link>
       </div>
+      <p className="deals-direction-seasonal-link">
+        <Link href="/jarmarki-bozonarodzeniowe">Szukasz inspiracji na grudzień? Odkryj jarmarki bożonarodzeniowe →</Link>
+      </p>
     </section>
     <SiteFooter/>
 
@@ -1081,6 +1091,155 @@ export default function DealsPage({
           text-align: center;
         }
       }
+    `}</style>
+    <style jsx global>{`
+  /* Direction-specific deals layout: avoid mixing a partner search card into filter toolbar. */
+  .deals-simple-page .deals-simple-controls.deals-direction-controls{
+    display:grid;gap:16px;min-width:0;width:100%;box-sizing:border-box;
+    padding:18px;overflow:hidden;
+  }
+  .deals-direction-controls .deals-direction-partner-choices,
+  .deals-direction-controls .deals-simple-topline,
+  .deals-direction-controls .deals-simple-filter-panel{min-width:0}
+  .deals-direction-controls .deals-direction-partner-choices .search-v3-empty{
+    display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.7fr);
+    grid-template-rows:auto 1fr auto;gap:7px 20px;align-items:start;
+    min-height:0;width:100%;min-width:0;margin:0;box-sizing:border-box;
+    padding:18px 20px;border:1px solid #eaded8;border-radius:16px;background:#fffcfa;box-shadow:none;
+  }
+  .deals-direction-controls .deals-direction-partner-choices .search-v3-empty>strong{
+    grid-column:1;grid-row:1;margin:0;color:#24201d;font-size:18px;line-height:1.3;overflow-wrap:anywhere;
+  }
+  .deals-direction-controls .deals-direction-partner-choices .search-v3-empty>p{
+    grid-column:1;grid-row:2;margin:0;max-width:370px;color:#756b65;font-size:13px;line-height:1.5;
+  }
+  .deals-direction-controls .deals-direction-partner-choices .search-v3-empty>small{
+    grid-column:1/-1;grid-row:3;margin:2px 0 0;color:#897d75;font-size:11px;line-height:1.4;
+  }
+  .deals-direction-controls .deals-direction-partner-choices .search-v3-empty-actions{
+    grid-column:2;grid-row:1/span 2;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+    align-self:start;gap:8px;min-width:0;margin:0;
+  }
+  .deals-direction-controls .deals-direction-partner-choices .search-v3-empty-actions a{
+    display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;
+    width:100%;min-width:0;min-height:46px;padding:9px 11px;
+    border:1px solid #e7dcd6;border-radius:11px;background:#fff;color:#332d28;
+    font-size:12px;font-weight:750;line-height:1.35;text-align:center;white-space:normal;
+    overflow-wrap:anywhere;box-shadow:none;
+  }
+  .deals-direction-controls .deals-direction-partner-choices .search-v3-empty-actions a:first-child{
+    border-color:#171513;background:#171513;color:#fff;
+  }
+  .deals-direction-controls .deals-direction-partner-choices .search-v3-empty-actions a:hover,
+  .deals-direction-controls .deals-direction-partner-choices .search-v3-empty-actions a:focus-visible{
+    border-color:#ff603a;outline-offset:3px;
+  }
+  .deals-direction-controls .deals-direction-filter-heading{
+    display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px;padding:0 2px;
+  }
+  .deals-direction-controls .deals-direction-filter-heading strong{color:#24201d;font-size:16px;font-weight:850}
+  .deals-direction-controls .deals-direction-filter-heading span{color:#817770;font-size:12px}
+  .deals-simple-page .deals-direction-controls .deals-simple-topline{
+    display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;
+    justify-content:initial;gap:16px;width:100%;min-width:0;
+  }
+  .deals-simple-page .deals-direction-controls .deals-quick-filters{
+    display:flex;flex-wrap:wrap;gap:8px;min-width:0;margin:0;padding:0;overflow:visible;
+  }
+  .deals-simple-page .deals-direction-controls .deals-quick-filters button{
+    flex:0 0 auto;min-height:40px;padding:0 14px;font-size:12px!important;line-height:1.2;white-space:nowrap;
+  }
+  .deals-simple-page .deals-direction-controls .deals-sort-refresh{
+    display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0;margin:0;
+  }
+  .deals-simple-page .deals-direction-controls .deals-sort-control{min-width:0;gap:8px}
+  .deals-simple-page .deals-direction-controls .deals-sort-control select{max-width:230px;min-height:42px}
+  .deals-simple-page .deals-direction-controls .deals-simple-refresh{
+    display:inline-flex;align-items:center;justify-content:center;
+    min-height:42px;gap:7px;padding:0 6px;font-size:12px;
+  }
+  .deals-simple-page .deals-direction-controls .deals-simple-filter-panel{
+    box-sizing:border-box;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto auto;
+    width:100%;min-width:0;margin:0;padding:14px 0 0;border:0;border-top:1px solid #f0eae6;
+    border-radius:0;background:transparent;box-shadow:none;
+  }
+  .deals-simple-page .deals-direction-controls .deals-simple-filter-panel label,
+  .deals-simple-page .deals-direction-controls .deals-simple-filter-panel select{min-width:0}
+  .deals-simple-page .deals-direction-controls .deals-simple-filter-panel select{height:44px;width:100%}
+  .deals-simple-page .deals-direction-seasonal-link{
+    margin:6px 0 0;padding:0 2px;color:#7e726c;font-size:12px;text-align:center;
+  }
+  .deals-simple-page .deals-direction-seasonal-link a{
+    color:inherit;text-decoration:underline;text-decoration-color:#c6b8b0;text-underline-offset:3px;
+  }
+  @media(max-width:1080px){
+    .deals-direction-controls .deals-direction-partner-choices .search-v3-empty{
+      grid-template-columns:minmax(0,1fr);grid-template-rows:none;gap:9px;
+    }
+    .deals-direction-controls .deals-direction-partner-choices .search-v3-empty>strong,
+    .deals-direction-controls .deals-direction-partner-choices .search-v3-empty>p,
+    .deals-direction-controls .deals-direction-partner-choices .search-v3-empty>small,
+    .deals-direction-controls .deals-direction-partner-choices .search-v3-empty-actions{
+      grid-column:1;grid-row:auto;
+    }
+    .deals-direction-controls .deals-direction-partner-choices .search-v3-empty>p{max-width:700px}
+    .deals-simple-page .deals-direction-controls .deals-simple-topline{grid-template-columns:minmax(0,1fr)}
+    .deals-simple-page .deals-direction-controls .deals-sort-refresh{justify-content:flex-start}
+  }
+  @media(max-width:820px){
+    .deals-simple-page .deals-simple-controls.deals-direction-controls{gap:12px;padding:14px}
+    .deals-simple-page .deals-direction-controls .deals-simple-topline{
+      display:grid;grid-template-columns:minmax(0,1fr);gap:12px;
+    }
+    .deals-simple-page .deals-direction-controls .deals-quick-filters{
+      display:flex;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;
+      scrollbar-width:none;padding:2px 0 5px;
+    }
+    .deals-simple-page .deals-direction-controls .deals-quick-filters::-webkit-scrollbar{display:none}
+    .deals-simple-page .deals-direction-controls .deals-simple-refresh{display:inline-flex!important}
+    .deals-simple-page .deals-direction-controls .deals-sort-refresh{
+      width:100%;justify-content:space-between;
+    }
+    .deals-simple-page .deals-direction-controls .deals-sort-control{flex:1;justify-content:flex-start}
+    .deals-simple-page .deals-direction-controls .deals-sort-control select{
+      flex:1;width:100%;max-width:280px;
+    }
+    .deals-simple-page .deals-direction-controls .deals-simple-filter-toggle{
+      display:flex;width:100%;margin:0;
+    }
+    .deals-simple-page .deals-direction-controls .deals-simple-filter-panel{
+      display:none!important;grid-template-columns:minmax(0,1fr);margin:0;padding:12px 0 0;
+    }
+    .deals-simple-page .deals-direction-controls .deals-simple-filter-panel.is-open{display:grid!important}
+  }
+  @media(max-width:600px){
+    .deals-direction-controls .deals-direction-partner-choices .search-v3-empty{
+      padding:14px;gap:8px;border-radius:13px;
+    }
+    .deals-direction-controls .deals-direction-partner-choices .search-v3-empty>strong{font-size:16px}
+    .deals-direction-controls .deals-direction-partner-choices .search-v3-empty-actions{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    .deals-direction-controls .deals-direction-partner-choices .search-v3-empty-actions a{
+      min-height:46px;padding:8px 9px;font-size:11px;
+    }
+    .deals-simple-page .deals-direction-controls .deals-sort-control>span{display:none}
+    .deals-simple-page .deals-direction-controls .deals-sort-control select{max-width:none}
+    .deals-simple-page .deals-direction-controls .deals-simple-refresh{
+      width:44px;flex:0 0 44px;padding:0;
+    }
+    .deals-simple-page .deals-direction-controls .deals-simple-refresh>span{display:none}
+    .deals-simple-page .deals-direction-controls .deals-simple-filter-panel{
+      grid-template-columns:minmax(0,1fr)!important;
+    }
+    .deals-simple-page .deals-direction-controls .deals-simple-filter-panel .deals-clear-filters,
+    .deals-simple-page .deals-direction-controls .deals-simple-filter-panel .deals-filter-apply{width:100%}
+  }
+  @media(max-width:380px){
+    .deals-direction-controls .deals-direction-partner-choices .search-v3-empty-actions{
+      grid-template-columns:1fr;
+    }
+  }
     `}</style>
   </main>;
 }
