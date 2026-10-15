@@ -49,6 +49,8 @@ export function createProductFeedClient(fetcher: typeof fetch = fetch, now = Dat
         }
         if (!response.ok) throw new Error(`feed_http_${response.status}`);
         const data = await response.json();
+        // Empty catalog searches can omit products while explicitly reporting zero hits.
+        if (!Array.isArray(data?.products) && data?.productHeader && Number(data.productHeader.totalHits) === 0) data.products = [];
         if (!Array.isArray(data?.products)) throw new Error('feed_invalid_schema');
         const page = { products: data.products as FeedProduct[], attempts: attempt + 1, retries };
         cache.set(key, { expires: now() + ttl, page });
