@@ -460,7 +460,7 @@ export default function ChristmasMarketsClient() {
             {!expandedPrices.length && !suggestedDates.length && <p>Brak propozycji terminów w tym okresie.</p>}
             <div className={styles.flightPanelFooter}>
               <Link href={flightsHref(expandedIdea, expandedOrigin, month, duration)}><Plane size={16}/> Więcej terminów</Link>
-              <Link href={bookingHotelHref(expandedIdea)} rel="sponsored"><BedDouble size={16}/> Hotele Booking</Link>
+              <Link href={bookingHotelHref(expandedIdea)} rel="sponsored"><BedDouble size={16}/> Sprawdź noclegi</Link>
               <button type="button" onClick={() => toggleRailPanel(expandedIdea.city)}><TrainFront size={16}/> Pociągi</button>
             </div>
             <p className={styles.flightPanelDisclaimer}>Ceny orientacyjne; dostępność i cenę ostateczną potwierdza partner przy rezerwacji.</p>

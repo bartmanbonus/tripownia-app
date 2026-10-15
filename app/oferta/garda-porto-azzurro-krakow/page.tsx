@@ -52,7 +52,7 @@ export default function GardaPortoAzzurroKrakowOfferPage() {
                 <small>lot + hotel</small> <strong>Sprawdź aktualną cenę</strong>
               </div>
               <div className="price-status detail-price-status">
-                Cena i dostępność są potwierdzane na bieżąco po przejściu do eSky.
+                Cena i dostępność są potwierdzane na bieżąco w serwisie rezerwacyjnym.
               </div>
             </div>
 

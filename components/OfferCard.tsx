@@ -304,7 +304,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
   const nightsLabel = offer.nights === 1 ? "noc" : offer.nights % 10 >= 2 && offer.nights % 10 <= 4 && !(offer.nights % 100 >= 12 && offer.nights % 100 <= 14) ? "noce" : "nocy";
   const ctaText = isExpired
     ? "Zobacz podobne oferty"
-    : "Sprawdź cenę i dostępność";
+    : "Sprawdź wycieczkę";
   const trustText = isExpired
     ? "Oferta wygasła"
     : indicativePrice
@@ -413,7 +413,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
         )}
 
         {!isExpired && (
-          <SocialShare url={cardHref} title={`${offer.city} — sprawdź ofertę`} text={`${offer.city}, ${offer.dates}. Sprawdź aktualną cenę w Tripowni.`} />
+          <details className="offer-share-disclosure"><summary>Udostępnij wyjazd</summary><SocialShare url={cardHref} title={`${offer.city} — sprawdź ofertę`} text={`${offer.city}, ${offer.dates}. Sprawdź aktualną cenę w Tripowni.`} /></details>
         )}
         {!isExpired && (
           <div className="offer-actions-row offer-actions-secondary">

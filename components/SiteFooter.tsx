@@ -48,7 +48,7 @@ export default function SiteFooter() {
 
             <div className="footer-v2-column">
               <h3>Rezerwuj</h3>
-              <Link href="/szukaj-wakacji">Wycieczki Wakacje.pl</Link>
+              <Link href="/szukaj-wakacji">Sprawdź wycieczkę</Link>
               <Link href="/lot-hotel">Lot + hotel</Link>
               <Link href="/city-break">City break</Link>
               <Link href="/last-minute">Last Minute</Link>

@@ -107,7 +107,7 @@ export default function BarcelonaNewYearOfferPage() {
                 destination="Barcelona, Hiszpania"
                 tripKind="package"
                 departure="Warszawa"
-                hotel="Pakiet lot + hotel eSky"
+                hotel="Pakiet lot + hotel"
                 board="Według wybranej oferty"
                 nights={4}
                 start="2026-12-29"

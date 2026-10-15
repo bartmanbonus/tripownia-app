@@ -126,37 +126,6 @@ function canonicalSearchDestination(value: string) {
   return normalized;
 }
 
-function destinationPartnerLinks(
-  destination: string,
-  options?: { departures?: string[]; from?: string; to?: string },
-) {
-  const query = destination.trim();
-  if (!query) return null;
-
-  const bookingBase = new URL("https://www.booking.com/searchresults.pl.html");
-  bookingBase.searchParams.set("ss", query);
-  if (/^\d{4}-\d{2}-\d{2}$/.test(options?.from || "")
-    && /^\d{4}-\d{2}-\d{2}$/.test(options?.to || "")
-    && String(options?.to) > String(options?.from)) {
-    bookingBase.searchParams.set("checkin", String(options?.from));
-    bookingBase.searchParams.set("checkout", String(options?.to));
-  }
-
-  const kiwiBase = new URL("https://www.kiwi.com/pl/");
-  kiwiBase.searchParams.set("destination", query);
-  const normalizedDepartures = (options?.departures || []).flatMap((code) => code === "WAWA" ? ["WAW", "WMI"] : [code]);
-  if (normalizedDepartures.length === 1) kiwiBase.searchParams.set("origin", normalizedDepartures[0]);
-  if (/^\d{4}-\d{2}-\d{2}$/.test(options?.from || "")) kiwiBase.searchParams.set("outboundDate", String(options?.from));
-  if (/^\d{4}-\d{2}-\d{2}$/.test(options?.to || "") && options?.to !== options?.from) {
-    kiwiBase.searchParams.set("inboundDate", String(options?.to));
-  }
-  kiwiBase.searchParams.set("currency", "PLN");
-
-  return {
-    booking: partners.booking.buildUrl(bookingBase.toString()),
-    kiwi: partners.kiwi.buildUrl(kiwiBase.toString()),
-  };
-}
 
 function standaloneFlightPartnerUrl(
   destinations: string[],
@@ -946,9 +915,9 @@ export default function SearchHub({
       }
       const alternatives = rows.filter((offer) => searchTier(offer) > 0).length;
       setNotice([
-        rows.length ? "Ceny za osobę. Najtańsze najpierw w każdej grupie dopasowania." : "Nie znaleźliśmy dostępnych ofert dla tych ustawień. Sprawdź inne terminy lub połącz lot z noclegiem.",
+        rows.length ? "Ceny za osobę. Najtańsze najpierw w każdej grupie dopasowania." : "Zmień termin lub sprawdź wyjazd w dodatkowej wyszukiwarce.",
         alternatives > 0 ? `Dokładnych dopasowań: ${exactCount}. Alternatywy (${alternatives}) są oznaczone na kartach.` : "",
-        failedSources ? "Część źródeł jest chwilowo niedostępna; lista może być niepełna." : "",
+        failedSources ? "Nie udało się sprawdzić wszystkich ofert. Lista może być niepełna." : "",
         requestedRaw.some(item => /bergamo/i.test(item)) ? "Bergamo uwzględniamy razem z Mediolanem." : "",
       ].filter(Boolean).join(" "));
     } finally {
@@ -1910,10 +1879,10 @@ export default function SearchHub({
             </div>
 
             {(hotelDatePreferences.mode === "months" || hotelDatePreferences.flexDays > 0 || hotelEntireHome) && (
-              <p className="hotel-search-ready-note">W Booking.com sprawdzisz ceny dla wybranego terminu.
+              <p className="hotel-search-ready-note">Sprawdź ceny noclegów dla wybranego terminu.
                 {hotelDatePreferences.mode === "months" ? " Wyszukiwanie startuje od pierwszego możliwego pobytu w wybranym miesiącu; pozostałe miesiące i terminy porównasz u partnera." : ""}
                 {hotelDatePreferences.flexDays > 0 ? " Elastyczność dat potwierdź na stronie partnera." : ""}
-                {hotelEntireHome ? " Filtr całego apartamentu ustaw w wynikach Booking.com." : ""}
+                {hotelEntireHome ? " Filtr całego apartamentu ustaw po otwarciu wyników." : ""}
               </p>
             )}
             <div className="hotel-search-ready-actions">
@@ -1975,7 +1944,7 @@ export default function SearchHub({
                 <h3>{
                   loading && results.length === 0
                     ? "Sprawdzamy aktualne oferty…"
-                    : !results.length ? "Sprawdź kolejne możliwości podróży"
+                    : !results.length ? "Brak ofert dla tych ustawień"
                     : resultMatchScope === "all"
                       ? `Znalezione oferty: ${results.length} (${exactResultCount} zgodnych, ${alternativeResultCount} alternatywnych)`
                       : resultMatchScope === "exact"
@@ -1986,7 +1955,7 @@ export default function SearchHub({
               {notice && <p>{notice}</p>}
             </div>
 
-            <HybridSearchLinks destination={submittedSummary.destination === "Gdziekolwiek" ? "" : submittedSummary.destination} departure={departures.join(",")} month={dateMode === "month" ? month : ""} start={dateMode === "exact" || dateMode === "range" ? dateFrom : ""} end={dateMode === "range" ? dateTo : ""} />
+
             <DresdenCityBreakOptions
               destination={selectedDestinations[0] || destination}
               departures={departures}
@@ -2127,123 +2096,19 @@ export default function SearchHub({
                 )}
 
                 {visibleResults.length > visibleCount && <button className="search-v3-show-more" type="button" onClick={() => setVisibleCount((count) => Math.min(visibleResults.length, count + 12))}>Pokaż kolejne oferty ({visibleResults.length - visibleCount})</button>}
-                {!expanding && results.length > 0 && results.length < 12 && packageSearchLink && (
-                  <div className="search-v3-empty search-v3-low-inventory">
-                    <strong>To {results.length} ofert z dostępnych źródeł, a nie cały katalog partnerów.</strong>
-                    <span>Jeśli nie widzisz odpowiedniego terminu lub hotelu, sprawdź więcej możliwości w wyszukiwarce partnera. Cenę i dostępność potwierdzisz przed zakupem.</span>
-                    <div className="search-v3-empty-actions">
-                      <a
-                        href={`/sprawdz-oferte?${new URLSearchParams({ partner: "esky", target: packageSearchLink, source: "search_low_inventory", destination: selectedDestinations[0] || destination || "" }).toString()}`}
-                        rel="sponsored"
-                        onClick={() => saveAffiliateReturnContext({ partner: "esky", destination: selectedDestinations[0] || destination || "", source: "search_low_inventory", tripKind: "package" })}
-                      >
-                        Zobacz dodatkowe pakiety lot + hotel
-                      </a>
-                      <Link href={`/loty?${new URLSearchParams({
-                        destination: selectedDestinations[0] || destination || "",
-                        ...(departures.length === 1 ? { origin: departures[0] } : {}),
-                        ...(dateMode === "month" && month ? { month } : {}),
-                        ...(duration !== "all" && /^\d+-\d+$/.test(duration) ? { duration } : {}),
-                        ...(dateMode === "range" && dateFrom && dateTo ? { marketFrom: dateFrom, marketTo: dateTo } : {}),
-                      }).toString()}`}>
-                        Porównaj osobno tanie loty
-                      </Link>
-                      {(selectedDestinations.length > 0 || destination.trim()) && (
-                        <Link href={`/szukaj?${new URLSearchParams({ tab: activeTab,
-                          ...(departures.length ? { airport: departures.join(",") } : {}),
-                          ...(budget !== "all" && budget !== "custom" ? { budget } : {}),
-                          ...(duration !== "all" ? { duration } : {}),
-                          ...(dateMode === "month" && month ? { month } : {}),
-                          ...(dateMode === "range" && dateFrom && dateTo ? { from: dateFrom, to: dateTo } : {}),
-                          ...(dateMode === "exact" && dateFrom ? { from: dateFrom, to: dateFrom } : {}),
-                        }).toString()}`}>
-                          Poszerz wyszukiwanie na inne kierunki
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                )}
+
               </>
             )}
-            {!loading && results.length === 0 && !expanding && (() => {
-              const fallbackDestination = selectedDestinations[0] || destination;
-              const fallback = fallbackDestination ? destinationPartnerLinks(fallbackDestination, {
-                departures,
-                from: dateMode === "exact" || dateMode === "range" ? dateFrom : "",
-                to: dateMode === "range" ? dateTo : dateMode === "exact" ? dateFrom : "",
-              }) : null;
-              return <div className="search-v3-empty">
-                <strong>{fallbackDestination ? `Nie kończymy na 0 wyników dla „${fallbackDestination}”.` : "Nie kończymy na pustej liście."}</strong>
-                <span>Zmień termin lub poluzuj filtry. Zachowamy Twój kierunek, żeby nie trzeba było zaczynać od nowa.</span>
-                <div className="search-v3-empty-actions">
-                  {packageSearchLink && (
-                    <a
-                      href={`/sprawdz-oferte?${new URLSearchParams({
-                        partner: "esky",
-                        target: packageSearchLink,
-                        source: "search_zero_rescue",
-                        destination: fallbackDestination || "",
-                      }).toString()}`}
-                      rel="sponsored"
-                      onClick={() => saveAffiliateReturnContext({
-                        partner: "esky",
-                        destination: fallbackDestination || "",
-                        source: "search_zero_rescue",
-                        tripKind: "package",
-                      })}
-                    >
-                      Sprawdź pakiety lot + hotel
-                    </a>
-                  )}
-                  <button type="button" onClick={searchNearestDates}>Pokaż inne terminy</button>
+            {!loading && !expanding && (
+              <HybridSearchLinks destination={submittedSummary.destination === "Gdziekolwiek" ? "" : submittedSummary.destination}
+                departure={departures.join(",")} month={dateMode === "month" ? month : ""}
+                start={dateMode === "exact" || dateMode === "range" ? dateFrom : ""} end={dateMode === "range" ? dateTo : ""}>
+                {results.length === 0 && <>
+                  <button type="button" onClick={searchNearestDates}>Sprawdź inne terminy</button>
                   <button type="button" onClick={relaxSearchFilters}>Usuń dodatkowe filtry</button>
-                  {fallback?.kiwi && (
-                    <a
-                      href={`/sprawdz-oferte?${new URLSearchParams({
-                        partner: "kiwi",
-                        target: fallback.kiwi,
-                        source: "search_zero_flight_rescue",
-                        destination: fallbackDestination || "",
-                      }).toString()}`}
-                      rel="sponsored"
-                      onClick={() => saveAffiliateReturnContext({
-                        partner: "kiwi",
-                        destination: fallbackDestination || "",
-                        source: "search_zero_flight_rescue",
-                        tripKind: "flight",
-                        start: dateFrom,
-                        end: dateTo,
-                      })}
-                    >
-                      Znajdź loty do tego kierunku
-                    </a>
-                  )}
-                  {fallback?.booking && (
-                    <a
-                      href={`/sprawdz-oferte?${new URLSearchParams({
-                        partner: "booking",
-                        target: fallback.booking,
-                        source: "search_zero_hotel_rescue",
-                        destination: fallbackDestination || "",
-                      }).toString()}`}
-                      rel="sponsored"
-                      onClick={() => saveAffiliateReturnContext({
-                        partner: "booking",
-                        destination: fallbackDestination || "",
-                        source: "search_zero_hotel_rescue",
-                        tripKind: "hotel",
-                        start: dateFrom,
-                        end: dateTo,
-                      })}
-                    >
-                      Znajdź nocleg w tym kierunku
-                    </a>
-                  )}
-                  {fallbackDestination && <Link href={`/loty?destination=${encodeURIComponent(fallbackDestination)}`}>Porównaj loty w Tripowni</Link>}
-                  {fallbackDestination && <Link href={`/hotele?destination=${encodeURIComponent(fallbackDestination)}`}>Porównaj noclegi w Tripowni</Link>}
-                </div>
-              </div>;
-            })()}
+                </>}
+              </HybridSearchLinks>
+            )}
           </div>
         )}
       </div>

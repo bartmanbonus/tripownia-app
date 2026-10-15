@@ -68,10 +68,10 @@ export default function VeniceWomenDayOfferPage() {
               rel="sponsored nofollow"
               style={{ display: "inline-block", padding: "16px 26px", borderRadius: 999, background: "#ff6f1a", color: "#fff", fontWeight: 800, textDecoration: "none", fontSize: 18 }}
             >
-              Sprawdź aktualną cenę w eSky →
+              Sprawdź wycieczkę →
             </a>
             <p style={{ fontSize: 13, color: "#6b7280", marginTop: 14 }}>
-              Cena i dostępność są dynamiczne. Rezerwacja i płatność odbywają się u partnera eSky.
+              Cena i dostępność są dynamiczne. Rezerwacja i płatność odbywają się w serwisie rezerwacyjnym.
             </p>
           </div>
         </div>
