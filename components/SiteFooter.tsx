@@ -1,5 +1,6 @@
 "use client";
 
+import WakacjeDiscovery from "@/components/WakacjeDiscovery";
 import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin } from "lucide-react";
@@ -8,6 +9,7 @@ import { trackEvent } from "@/lib/analytics";
 export default function SiteFooter() {
   return (
     <>
+      <WakacjeDiscovery />
       <footer className="footer footer-v2">
         <div className="shell footer-v2-shell">
           <div className="footer-v2-grid">
@@ -46,6 +48,7 @@ export default function SiteFooter() {
 
             <div className="footer-v2-column">
               <h3>Rezerwuj</h3>
+              <Link href="/szukaj-wakacji">Wycieczki Wakacje.pl</Link>
               <Link href="/lot-hotel">Lot + hotel</Link>
               <Link href="/city-break">City break</Link>
               <Link href="/last-minute">Last Minute</Link>

@@ -190,6 +190,7 @@ export default function SiteHeader() {
                   <Link href="/#wyszukiwarka"><Search size={18} /><span>Wyszukiwarka</span></Link>
                   <Link href="/okazje"><Sparkles size={18} /><span>Okazje</span></Link>
                   <Link href="/wakacje"><Palmtree size={18} /><span>Wakacje</span></Link>
+                  <Link href="/szukaj-wakacji"><Palmtree size={18} /><span>Wycieczki Wakacje.pl</span></Link>
                   <Link href="/city-break"><Building2 size={18} /><span>City break</span></Link>
                   <Link href="/last-minute"><Zap size={18} /><span>Last minute</span></Link>
                   <details className="trip-mobile-destinations">
