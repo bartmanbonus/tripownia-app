@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const showMarkets = now.getTime() <= new Date("2027-01-07T22:59:59Z").getTime();
   const staticPages: MetadataRoute.Sitemap = [
+    { url: `${BASE_URL}/szukaj-wakacji`, lastModified: new Date("2026-10-15T17:35:00Z"), changeFrequency: "weekly", priority: .85 },
     { url: `${BASE_URL}/planer-podrozy`, lastModified: new Date("2026-09-20T00:00:00Z"), changeFrequency: "monthly", priority: .9 },
     { url:`${BASE_URL}/`,changeFrequency:"daily",priority:1 },
     { url:`${BASE_URL}/okazje`,changeFrequency:"daily",priority:.95 },

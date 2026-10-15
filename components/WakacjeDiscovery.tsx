@@ -20,6 +20,7 @@ export default function WakacjeDiscovery() {
       <div className="search-v3-empty-actions">
         <Link href={`/szukaj-wakacji?${new URLSearchParams({ source: path })}`}>Wyszukaj wycieczkę →</Link>
       </div>
+      <p><Link href="/last-minute">Wycieczki last minute</Link> · <Link href="/tanie-all-inclusive">Wakacje All Inclusive</Link> · <Link href="/wakacje-2027">Wakacje 2027</Link></p>
       <small>Wyniki i aktualne ceny zobaczysz w Wakacje.pl. Rezerwujesz bezpośrednio u partnera.</small>
     </div>
   </section>;

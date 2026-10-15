@@ -10,28 +10,28 @@ import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ReadySearchGrid from "@/components/ReadySearchGrid";
 
 export const metadata: Metadata = {
-  title: "Tanie wakacje 2026 — All Inclusive, last minute i lot + hotel",
-  description: "Tanie wakacje 2026 z polskich lotnisk: All Inclusive, last minute i lot + hotel. Porównaj aktualne oferty, terminy i pełny koszt wyjazdu.",
+  title: "Tanie wakacje 2026/2027 — All Inclusive, last minute i lot + hotel",
+  description: "Tanie wakacje 2026/2027 z polskich lotnisk: All Inclusive, last minute i lot + hotel. Porównaj aktualne oferty, terminy i pełny koszt wyjazdu.",
   alternates: { canonical: "/wakacje" },
   openGraph: {
     type: "website",
-    title: "Wakacje 2026 — aktualne oferty | Tripownia.pl",
+    title: "Wakacje 2026/2027 — aktualne oferty | Tripownia.pl",
     description: "All Inclusive, lot + hotel, rodzinne wakacje i egzotyka — porównaj aktualne propozycje w jednym miejscu.",
     url: "https://tripownia.pl/wakacje",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Wakacje 2026 — aktualne oferty | Tripownia.pl",
+    title: "Wakacje 2026/2027 — aktualne oferty | Tripownia.pl",
     description: "All Inclusive, lot + hotel, rodzinne wakacje i egzotyka — porównaj aktualne propozycje w jednym miejscu.",
   },
 };
 
 export default function WakacjePage() {
   return <main><SiteHeader/>
-    <SalesCollectionSchema name="Tanie wakacje 2026" description="Tanie wakacje 2026, All Inclusive, last minute i lot + hotel z polskich lotnisk." path="/wakacje" about={["tanie wakacje","All Inclusive","last minute","lot + hotel"]} />
+    <SalesCollectionSchema name="Tanie wakacje 2026/2027" description="Tanie wakacje 2026/2027, All Inclusive, last minute i lot + hotel z polskich lotnisk." path="/wakacje" about={["tanie wakacje","All Inclusive","last minute","lot + hotel"]} />
     <section className="shopping-hero shell">
-      <div className="kicker">WAKACJE 2026 — PEŁNA OFERTA</div>
-      <h1>Tanie wakacje 2026: All Inclusive, last minute i lot + hotel.</h1>
+      <div className="kicker">WAKACJE 2026/2027 — PEŁNA OFERTA</div>
+      <h1>Tanie wakacje 2026/2027: All Inclusive, last minute i lot + hotel.</h1>
       <p>Porównaj All Inclusive, rodzinne wakacje, plażę, egzotykę i klasyczne pakiety. Tripownia pokazuje wybrane oferty i pozwala przejść do aktualnej dostępności — bez przekopywania wielu osobnych serwisów.</p>
     </section>
     <section className="section shell">
@@ -49,7 +49,7 @@ export default function WakacjePage() {
         { href: "/szukaj?airport=KTW&budget=2500&duration=7&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "KATOWICE · DO 2 500 ZŁ", title: "All Inclusive z Katowic", meta: "7 nocy · ciepłe kierunki · najtańsze najpierw" },
         { href: "/szukaj?airport=POZ&budget=3000&duration=7&tab=Lot%20%2B%20hotel", eyebrow: "POZNAŃ · DO 3 000 ZŁ", title: "Wakacje z Poznania", meta: "7 nocy · różne kierunki · lot + hotel" },
         { href: "/szukaj?destination=Egipt&month=2026-11&budget=3000&duration=7&board=all%20inclusive&tab=All%20Inclusive", eyebrow: "LISTOPAD 2026 · EGIPT", title: "Ciepło w listopadzie", meta: "7 nocy · All Inclusive · do 3 000 zł/os." },
-        { href: "/szukaj?month=2026-12&budget=3000&duration=7&tab=Lot%20%2B%20hotel", eyebrow: "GRUDZIEŃ 2026 · DO 3 000 ZŁ", title: "Ciepłe wakacje w grudniu", meta: "7 nocy · różne kierunki z polskich lotnisk" },
+        { href: "/jarmarki-bozonarodzeniowe", eyebrow: "GRUDZIEŃ 2026", title: "Wyjazdy na jarmarki świąteczne", meta: "Wybierz miasto, dojazd i nocleg" },
       ]} />
     </section>
     <section className="section shell">
