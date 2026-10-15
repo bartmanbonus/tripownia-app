@@ -1,3 +1,4 @@
+import { readProductFeed } from "@/lib/productFeed";
 import { NextRequest, NextResponse } from "next/server";
 import { fetchEskyPackages } from "@/lib/eskyPackages";
 import { isAffordableShortTrip, isPromotableOffer, isSearchInventoryOffer } from "@/lib/offerValuePolicy";
@@ -423,29 +424,6 @@ function reasonFor(provider: Provider, price: number, nights: number, board: str
   return `${nights} nocy${boardText} w cenie od ${price.toLocaleString("pl-PL")} zł/os.`;
 }
 
-async function fetchProducts(provider: "exim" | "tui", query: string, token: string, pages = 1) {
-  const fid = provider === "exim" ? 103442 : 24864;
-  // TradeDoubler's generated Product Feed endpoints use one-based page numbers.
-  // Keep the matrix parameters aligned with the official API examples and sort at source.
-  const results = await Promise.allSettled(Array.from({ length: pages }, async (_, pageIndex) => {
-    const page = pageIndex + 1;
-    const path = `https://api.tradedoubler.com/1.0/products.json;fid=${fid};q=${encodeURIComponent(query)};orderBy=priceAsc;page=${page};pageSize=100?token=${encodeURIComponent(token)}`;
-    const response = await fetch(path, {
-      headers: { Accept: "application/json" },
-      next: { revalidate: 60 },
-      signal: AbortSignal.timeout(6000),
-    });
-    if (!response.ok) throw new Error(`${provider.toUpperCase()} feed ${response.status}`);
-    const data = await response.json();
-    return Array.isArray(data?.products) ? (data.products as TdProduct[]) : [];
-  }));
-  if (results.every(result => result.status === "rejected")) {
-    const firstFailure = results.find((result) => result.status === "rejected");
-    if (firstFailure?.status === "rejected" && firstFailure.reason instanceof Error) throw firstFailure.reason;
-    throw new Error(`${provider.toUpperCase()} feed unavailable`);
-  }
-  return results.flatMap(result => result.status === "fulfilled" ? result.value : []);
-}
 
 function fromExim(product: TdProduct): LiveCandidate | null {
   const fields = fieldMap(product);
@@ -753,11 +731,12 @@ export async function GET(request: NextRequest) {
   const eximToken = process.env.TRADEDOUBLER_EXIM_TOKEN || process.env.TRADEDOUBLER_TOKEN || process.env.TRADEDOUBLER_TUI_TOKEN;
   const tuiToken = process.env.TRADEDOUBLER_TUI_TOKEN || process.env.TRADEDOUBLER_TOKEN;
   let eskyStatus: { partial: boolean; error?: string; searchUrl?: string; hasMore?: boolean } = { partial: false };
-  const feedStatus: Record<"exim" | "tui", { configured: boolean; attempted: number; succeeded: number; failed: number; error?: string }> = {
-    exim: { configured: Boolean(eximToken), attempted: 0, succeeded: 0, failed: 0 },
-    tui: { configured: Boolean(tuiToken), attempted: 0, succeeded: 0, failed: 0 },
+  const feedStatus: Record<"exim" | "tui", { configured: boolean; attempted: number; succeeded: number; failed: number; pages: number; failedPages: number; retries: number; truncated: boolean; products: number; error?: string }> = {
+    exim: { configured: Boolean(eximToken), attempted: 0, succeeded: 0, failed: 0, pages: 0, failedPages: 0, retries: 0, truncated: false, products: 0 },
+    tui: { configured: Boolean(tuiToken), attempted: 0, succeeded: 0, failed: 0, pages: 0, failedPages: 0, retries: 0, truncated: false, products: 0 },
   };
 
+  const diagnostics: Record<string, number> = { products: 0, variants: 0, missingVariants: 0, normalizationRejected: 0, normalizationErrors: 0 };
   try {
     const eskyPromise = !skipEsky && (!providerOnly || providerOnly === "esky")
       ? fetchEskyPackages({ query, departure: departureFilter, cityBreak: mode === "citybreak", nights: nightsFilter,
@@ -794,37 +773,34 @@ export async function GET(request: NextRequest) {
     // General inventory scans cover many terms; paging every broad term
     // multiplies TradeDoubler traffic and triggers 429 before all regions load.
     // Keep deeper paging for a concrete destination, not every broad category.
-    const searchPages = query && !fastMode && (mode === "search" || mode === "citybreak") ? 3 : 1;
-    const jobs: Array<() => Promise<{ provider: Provider; products: TdProduct[] }>> = [];
+    const searchPages = query && !fastMode && (mode === "search" || mode === "citybreak") ? 8 : 1;
+    const jobs: Array<() => Promise<{ provider: Provider; products: TdProduct[]; partial: boolean }>> = [];
 
     const scanTerms = query ? terms : shuffle(terms, `coverage:${key}`);
-    for (const term of scanTerms) {
-      if (eximToken && (!providerOnly || providerOnly === "exim")) {
+    const feedDeadline = Date.now() + (fastMode ? 9_000 : 42_000);
+    // Keyword search covers product names/descriptions, not custom country fields.
+    const countryNames = ["Filipiny", "Wietnam", "Madagaskar", "Curaçao", "Polinezja Francuska", "Seszele", "Tajlandia", "Indonezja", "Malezja", "Japonia", "Malediwy", "Mauritius", "Kenia", "Tanzania", "Meksyk", "Dominikana", "Brazylia", "Grecja", "Hiszpania", "Włochy", "Egipt", "Turcja", "Tunezja", "Cypr", "Malta", "Portugalia"];
+    const country = countryNames.find(name => normalize(name) === normalize(query));
+    const queries: Array<{ term: string; field?: "Country" }> = [
+      ...(country ? [{ term: country, field: "Country" as const }] : []),
+      ...scanTerms.map(term => ({ term })),
+    ];
+    for (const { term, field } of queries) {
+      for (const provider of ["exim", "tui"] as const) {
+        const token = provider === "exim" ? eximToken : tuiToken;
+        if (!token || (providerOnly && providerOnly !== provider) || (field && provider !== "tui")) continue;
         jobs.push(async () => {
-          feedStatus.exim.attempted++;
-          try {
-            const products = await fetchProducts("exim", term, eximToken, searchPages);
-            feedStatus.exim.succeeded++;
-            return { provider: "exim" as const, products };
-          } catch (error) {
-            feedStatus.exim.failed++;
-            if (!feedStatus.exim.error) feedStatus.exim.error = error instanceof Error ? error.message.slice(0, 120) : "feed_unavailable";
-            throw error;
-          }
-        });
-      }
-      if (tuiToken && (!providerOnly || providerOnly === "tui")) {
-        jobs.push(async () => {
-          feedStatus.tui.attempted++;
-          try {
-            const products = await fetchProducts("tui", term, tuiToken, searchPages);
-            feedStatus.tui.succeeded++;
-            return { provider: "tui" as const, products };
-          } catch (error) {
-            feedStatus.tui.failed++;
-            if (!feedStatus.tui.error) feedStatus.tui.error = error instanceof Error ? error.message.slice(0, 120) : "feed_unavailable";
-            throw error;
-          }
+          const status = feedStatus[provider];
+          status.attempted++;
+          const result = await readProductFeed(provider, term, token, searchPages, feedDeadline, field);
+          status.pages += result.pages;
+          status.failedPages += result.failedPages;
+          status.retries += result.retries;
+          status.truncated ||= result.truncated;
+          status.products += result.products.length;
+          if (result.partial) { status.failed++; status.error ||= result.error || "feed_page_limit"; }
+          if (result.pages) status.succeeded++;
+          return { provider, products: result.products as TdProduct[], partial: result.partial };
         });
       }
     }
@@ -832,24 +808,29 @@ export async function GET(request: NextRequest) {
     const candidates: LiveCandidate[] = [];
     // TradeDoubler responds with HTTP 429 when the wide scan bursts too fast.
     // Smaller batches and gentle pacing improve the fraction of completed terms.
-    const batchSize = fastMode ? 6 : 4;
+    const batchSize = 2;
     let successfulFeeds = 0;
     let failedFeeds = 0;
-    const feedDeadline = Date.now() + (fastMode ? 9_000 : 42_000);
     for (let index = 0; index < jobs.length; index += batchSize) {
       if (Date.now() >= feedDeadline) { failedFeeds += jobs.length - index; break; }
       if (index > 0 && !fastMode) await new Promise((resolve) => setTimeout(resolve, 140));
       const settled = await Promise.allSettled(jobs.slice(index, index + batchSize).map((job) => job()));
       for (const item of settled) {
         if (item.status !== "fulfilled") { failedFeeds++; continue; }
-        successfulFeeds++;
+        if (item.value.partial) failedFeeds++;
+        else successfulFeeds++;
+        diagnostics.products += item.value.products.length;
         for (const product of item.value.products) {
+          if (!product.offers?.length) diagnostics.missingVariants++;
           for (const variant of product.offers || []) {
+            diagnostics.variants++;
             try {
               const row = { ...product, offers: [variant] };
               const candidate = item.value.provider === "exim" ? fromExim(row) : fromTui(row);
               if (candidate) candidates.push(candidate);
+              else diagnostics.normalizationRejected++;
             } catch {
+              diagnostics.normalizationErrors++;
               // A malformed variant must not discard the rest of the product.
             }
           }
@@ -860,7 +841,7 @@ export async function GET(request: NextRequest) {
     const esky = await eskyPromise;
     eskyStatus = esky;
     candidates.push(...esky.offers);
-    if (!successfulFeeds && !esky.offers.length && (esky.partial || skipEsky || providerOnly === "exim" || providerOnly === "tui")) throw new Error("Źródła ofert chwilowo nie odpowiadają. Spróbuj ponownie.");
+    if (!successfulFeeds && !candidates.length && !esky.offers.length && (esky.partial || skipEsky || providerOnly === "exim" || providerOnly === "tui")) throw new Error("Źródła ofert chwilowo nie odpowiadają. Spróbuj ponownie.");
 
     const unique = new Map<string, LiveCandidate>();
     for (const candidate of candidates) {
@@ -979,6 +960,13 @@ export async function GET(request: NextRequest) {
           lastMinuteMatches(offer)
         );
 
+    Object.assign(diagnostics, {
+      normalized: candidates.length, unique: unique.size, validAndAllowed: rawCandidates.length,
+      destinationMatched: allCandidates.length, budgetMatched: budgetCandidates.length,
+      dateMatched: dateCandidates.length, departureMatched: dateCandidates.filter(departureMatches).length,
+      nightsMatched: dateCandidates.filter(nightsMatches).length, boardMatched: dateCandidates.filter(boardMatches).length,
+      exact: exactPool.length,
+    });
     let pool = exactPool;
     let notice = rescueMode
       ? "Pokazujemy najlepsze aktualne oferty dostępne teraz w naszych feedach."
@@ -1062,6 +1050,7 @@ export async function GET(request: NextRequest) {
         checkedAt: new Date().toISOString(),
         sourceCount: pool.length,
         partial: failedFeeds > 0 || esky.partial,
+        diagnostics,
         sourceStatus: { esky: eskyStatus, exim: feedStatus.exim, tui: feedStatus.tui, feedsFailed: failedFeeds },
         providers: Array.from(new Set(pool.map(offer => offer.provider))),
         coverage: "available_feed_results",
@@ -1192,6 +1181,7 @@ export async function GET(request: NextRequest) {
         checkedAt: new Date().toISOString(),
         sourceCount: selectedFallback.length,
         partial: true,
+        diagnostics,
         sourceStatus: { esky: eskyStatus, exim: feedStatus.exim, tui: feedStatus.tui },
         fallback: true,
         providers: Array.from(new Set(selectedFallback.map((offer) => offer.partner))),
