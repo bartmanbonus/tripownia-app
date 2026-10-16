@@ -78,6 +78,25 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "phu-quoc-la-paloma-resort-3739-2026": {
+    slug: "phu-quoc-la-paloma-resort-3739-2026",
+    city: "Phu Quoc",
+    country: "Wietnam",
+    price: 3739,
+    departure: "Warszawa–Chopina",
+    nights: 10,
+    dates: "28 października – 8 listopada 2026",
+    board: "Śniadania (BB)",
+    hotel: "La Paloma Resort 3★",
+    partner: "wakacje",
+    partnerLabel: "Wakacje.pl",
+    affiliateUrl: "https://www.wakacje.pl/oferty/wietnam/wyspa-phu-quoc/duong-dong/la-paloma-resort-718809.html?od-2026-10-28,10-dni,BB,z-warszawy&a_aid=3212&utm_source=travellead&utm_medium=cps&utm_campaign=3212-tripownia.pl&utm_content=widget-search",
+    imageSrc: "https://i.wakacje.pl/no-index/hotel/la-paloma-resort-obiekt-basen-1173213315-1200-800.jpg",
+    imageCountry: "Wietnam",
+    checkedAt: "2026-10-16T11:25:00+02:00",
+    status: "active",
+    included: ["Lot z Warszawy-Chopina", "10 noclegów", "Śniadania (BB)", "Organizator: Coral Travel"],
+  },
   "malaga-feel-hostels-619-styczen-2027": {
     slug: "malaga-feel-hostels-619-styczen-2027",
     city: "Malaga",
