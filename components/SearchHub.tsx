@@ -837,7 +837,7 @@ export default function SearchHub({
           const timer = window.setTimeout(abort, 55000);
           try {
             const data = provider === "esky"
-              ? await fetchEskyBrowserPackages({
+              ? await (async () => { const browser = await fetchEskyBrowserPackages({
                   query: target,
                   departure: relaxAirports ? "" : departures.join(","),
                   cityBreak: activeMode === "City break",
@@ -850,7 +850,19 @@ export default function SearchHub({
                   board: params.get("board") || undefined,
                   weekendOnly: params.get("weekend") === "1",
                   lastMinuteOnly: params.get("lastMinute") === "1",
-                }, timeout.signal)
+                }, timeout.signal);
+                  if (browser.offers.length) return browser;
+                  // If browser-side access is blocked, try the live server inventory.
+                  // Never label a published fallback price as a live offer.
+                  try {
+                    const response = await fetch(`/api/today-offers?${params}&fast=1`, { cache: "no-store", signal: timeout.signal });
+                    const payload = await response.json();
+                    if (response.ok && payload?.sourceType === "live" && Array.isArray(payload.offers)) {
+                      return { ...browser, offers: payload.offers, partial: Boolean(payload.partial) };
+                    }
+                  } catch { /* keep the browser result and report incomplete coverage */ }
+                  return browser;
+                })()
               : await (async () => {
                   const response = await fetch(`/api/today-offers?${params}`, { cache: "no-store", signal: timeout.signal });
                   const payload = await response.json();
