@@ -1,22 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Compass, PlaneTakeoff, ShieldCheck, SunMedium } from "lucide-react";
 import styles from "./WakacjePrimarySearch.module.css";
 
-type Props = { title?: string; description?: string; compact?: boolean; id?: string };
+type Props = { title?: string; description?: string; compact?: boolean; featured?: boolean; id?: string };
 
 export default function WakacjePrimarySearch({
   title = "Pełna oferta wakacji Tripowni",
   description = "Wakacje, All Inclusive, egzotyka i last minute. Znajdź wyjazd, a rezerwację dokończ bezpiecznie u partnera.",
   compact = false,
+  featured = false,
   id,
 }: Props) {
   const [expanded, setExpanded] = useState(!compact);
+  const [widgetHeight, setWidgetHeight] = useState(440);
+  const widgetRef = useRef<HTMLIFrameElement>(null);
+  useEffect(() => {
+    const onHeight = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.source !== widgetRef.current?.contentWindow) return;
+      if (event.data?.type !== "tripownia:wk-widget-height") return;
+      const measured = Number(event.data.height);
+      if (!Number.isFinite(measured) || measured < 150) return;
+      const next = Math.min(1600, Math.max(330, Math.ceil(measured) + 12));
+      setWidgetHeight(current => Math.abs(current - next) >= 12 ? next : current);
+    };
+    window.addEventListener("message", onHeight);
+    return () => window.removeEventListener("message", onHeight);
+  }, []);
 
   return (
-    <section id={id} className={`${styles.root} ${compact ? styles.compact : ""}`} aria-label="Wyszukiwarka wakacji Tripowni">
+    <section id={id} className={`${styles.root} ${compact ? styles.compact : ""} ${featured ? styles.featured : ""}`} aria-label="Wyszukiwarka wakacji Tripowni">
       <div className={styles.heading}>
         <div className={styles.headingCopy}>
           <span className={styles.eyebrow}>TRIPOWNIA · WAKACJE I EGZOTYKA</span>
@@ -32,6 +47,10 @@ export default function WakacjePrimarySearch({
           </Link>
         )}
       </div>
+      {featured && <div className={styles.partnerNotice} aria-label="Informacja o dostawcy wyszukiwarki">
+        <span><strong>Wybierz kierunek i termin w formularzu poniżej.</strong> Cenę i dostępność potwierdzisz przed rezerwacją.</span>
+        <small>Wyszukiwarka Wakacje.pl · afiliacja Tripowni 3212</small>
+      </div>}
       <div className={styles.steps} aria-label="Jak działa wyszukiwanie">
         <div className={styles.step}><span className={styles.stepIcon}><Compass size={23}/></span><span><b>1</b><strong>Znajdź wyjazd</strong><small>Wybierz kierunek, termin i lotnisko.</small></span></div>
         <div className={styles.step}><span className={styles.stepIcon}><CalendarDays size={23}/></span><span><b>2</b><strong>Wybierz ofertę</strong><small>Porównaj wyjazdy i dostępne warianty.</small></span></div>
@@ -52,11 +71,13 @@ export default function WakacjePrimarySearch({
       {expanded && (
         <div id={compact ? "wakacje-partner-search" : undefined} className={styles.frame}>
           <iframe
+            ref={widgetRef}
             title="Wyszukiwarka ofert wakacyjnych partnera rezerwacyjnego"
             src="/widgets/wakacje-search.html"
             loading={compact ? "lazy" : "eager"}
             referrerPolicy="strict-origin-when-cross-origin"
             className={styles.iframe}
+            style={{ height: widgetHeight, minHeight: widgetHeight }}
           />
         </div>
       )}
