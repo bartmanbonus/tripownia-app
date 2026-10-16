@@ -78,6 +78,25 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "malaga-feel-hostels-619-styczen-2027": {
+    slug: "malaga-feel-hostels-619-styczen-2027",
+    city: "Malaga",
+    country: "Hiszpania",
+    price: 619,
+    departure: "Warszawa–Chopina",
+    nights: 3,
+    dates: "15–18 stycznia 2027",
+    board: "Bez wyżywienia",
+    hotel: "Feel Hostels City Center – mały pokój, 2 łóżka pojedyncze",
+    partner: "esky",
+    partnerLabel: "eSky",
+    affiliateUrl: "https://www2.esky.pl/lot+hotel/portfolio/details/select-room?arrivalPlaces=co-ES&checkInDate=2027-01-15&checkOutDate=2027-01-18&context=pl-packages&datesTab=flexDates&departureCode=WAW&departurePlaces=ap-GDN,ap-KTW,ap-KRK,ap-WAW,ap-WMI,ap-WRO&destinationDepartureDate=2027-01-15&metaCode=374465&mustIncludeWeekend=true&partner_id=TRIPOWNIAPLPACKAGES&portfolioToken=90aa35b1-7bc5-4026-b250-f92fc858e4be&returnArrivalDate=2027-01-18&rooms%5B0%5D%5Badults%5D=2&sort%5BTotalPrice%5D=asc&stayLength=3:3&packageId=MjcwMTE1OjM6cGw6Mzc0NDY1&flightOptionId=V0FXQUdQMjcwMTE1Nzh8fEZSNTU4NzowOjAsQUdQV0FXMjcwMTE4NzhJfHxGUjEzOTY6MDox&arrivalCode=AGP&pricePresentation=perpax&selectedDeparturePlaces=ap-GDN,ap-KTW,ap-KRK,ap-WAW,ap-WMI,ap-WRO",
+    imageSrc: "/images/destinations/malaga.jpg",
+    imageCountry: "Hiszpania",
+    checkedAt: "2026-10-16T08:45:00+02:00",
+    status: "active",
+    included: ["Lot w obie strony", "3 noclegi", "Pokój dwuosobowy"],
+  },
   "fuerteventura-cotillo-house-1169": {
     slug: "fuerteventura-cotillo-house-1169",
     city: "Fuerteventura",
