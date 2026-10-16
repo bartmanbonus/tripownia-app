@@ -549,3 +549,116 @@
 @media(max-width:1200px){.skyline-main-row,.skyline-flights-page .skyline-main-row{grid-template-columns:repeat(2,minmax(0,1fr)) minmax(230px,1.3fr)}.skyline-swap{display:none}.skyline-submit{grid-column:span 2;min-height:54px}.skyline-travellers{grid-column:span 1}.skyline-dates{grid-column:span 1}}
 @media(max-width:760px){.search-v3-flights .search-v3-flight-center{padding:0 12px 18px}.skyline-main-row,.skyline-flights-page .skyline-main-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.skyline-origin,.skyline-destination{grid-column:span 1}.skyline-dates{grid-column:1/-1}.skyline-travellers{grid-column:span 1}.skyline-submit{grid-column:span 1;min-height:73px}.skyline-date-panel{position:fixed!important;left:12px!important;right:12px!important;top:auto!important;bottom:12px!important;width:auto!important;max-height:82dvh;overflow:auto}.skyline-calendar-pair{grid-template-columns:1fr;gap:16px}.skyline-field{border-radius:12px!important}.skyline-under-row>span{display:none}.skyline-search .flight-hunt-picker-menu{z-index:2500}}
 @media(max-width:440px){.skyline-origin,.skyline-destination{grid-column:1/-1}.skyline-search-top{flex-wrap:wrap}.skyline-date-field strong,.skyline-passenger-trigger strong{font-size:12px}.skyline-submit{font-size:12px}}
+
+
+/* Tripownia flight search: compact, accessible and responsive layout. */
+.search-v3-flights .skyline-search{padding:4px 0 0}
+.search-v3-flights .skyline-main-row,.skyline-flights-page .skyline-main-row{
+  display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.9fr) minmax(160px,.85fr) minmax(112px,.55fr);
+  align-items:stretch;gap:9px
+}
+.search-v3-flights .skyline-route,.skyline-flights-page .skyline-route{
+  position:relative;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0
+}
+.search-v3-flights .skyline-route .skyline-field,.skyline-flights-page .skyline-route .skyline-field{
+  border-radius:13px;min-width:0
+}
+.search-v3-flights .skyline-route .flight-hunt-field,.skyline-flights-page .skyline-route .flight-hunt-field{
+  padding:10px 13px;min-height:72px
+}
+.search-v3-flights .skyline-swap,.skyline-flights-page .skyline-swap{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:34px;height:34px;border:1px solid #dacbc1;border-radius:50%;
+  z-index:8;display:grid;place-items:center;background:#fff;color:#cf4a27;
+  box-shadow:0 2px 8px rgba(34,25,20,.08);cursor:pointer
+}
+.search-v3-flights .skyline-swap:disabled,.skyline-flights-page .skyline-swap:disabled{
+  color:#ad9c91;opacity:.62;cursor:not-allowed
+}
+.search-v3-flights .skyline-dates,.skyline-flights-page .skyline-dates{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));min-width:0;
+  border:1px solid #dccdc4;border-radius:13px;background:#fff
+}
+.search-v3-flights .skyline-date-field,.skyline-flights-page .skyline-date-field{
+  width:100%;height:100%;min-height:72px;padding:9px 12px
+}
+.search-v3-flights .skyline-duration-field,.skyline-flights-page .skyline-duration-field{
+  position:relative;min-width:0
+}
+.search-v3-flights .skyline-duration-field>.skyline-date-field,.skyline-flights-page .skyline-duration-field>.skyline-date-field{
+  border-left:1px solid #e4d9d1
+}
+.search-v3-flights .skyline-duration-field strong,.skyline-flights-page .skyline-duration-field strong{
+  display:flex;align-items:center;gap:5px
+}
+.search-v3-flights .skyline-duration-field .skyline-stay-menu,.skyline-flights-page .skyline-duration-field .skyline-stay-menu{
+  min-width:220px;max-width:min(280px,90vw);left:auto;right:0
+}
+.search-v3-flights .skyline-travellers,.skyline-flights-page .skyline-travellers{
+  min-height:72px;border-radius:13px
+}
+.search-v3-flights .skyline-submit,.skyline-flights-page .skyline-submit{
+  min-height:72px;border-radius:13px;white-space:nowrap;gap:7px
+}
+.search-v3-flights .skyline-under-row,.skyline-flights-page .skyline-under-row{
+  margin-top:12px;gap:8px 16px
+}
+.search-v3-flights .skyline-under-row>span,.skyline-flights-page .skyline-under-row>span{
+  margin-left:0;font-size:12px
+}
+.search-v3-flights .flight-hunt-shortcuts-clean{
+  margin-top:13px;padding-top:12px
+}
+.search-v3-flights .flight-hunt-helper{margin:9px 0 0}
+.search-v3-flights .skyline-date-panel,.skyline-flights-page .skyline-date-panel{
+  right:0;max-width:calc(100vw - 36px)
+}
+.search-v3-flights .skyline-main-row button:focus-visible,
+.skyline-flights-page .skyline-main-row button:focus-visible{
+  outline:3px solid rgba(233,87,48,.3);outline-offset:2px
+}
+@media(max-width:1250px){
+  .search-v3-flights .skyline-main-row,.skyline-flights-page .skyline-main-row{
+    grid-template-columns:minmax(0,1.5fr) minmax(0,1.4fr) minmax(110px,.65fr)
+  }
+  .search-v3-flights .skyline-submit,.skyline-flights-page .skyline-submit{
+    grid-column:1/-1;min-height:52px
+  }
+}
+@media(max-width:900px){
+  .search-v3-flights .skyline-main-row,.skyline-flights-page .skyline-main-row{
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:9px
+  }
+  .search-v3-flights .skyline-route,.skyline-flights-page .skyline-route{
+    grid-column:1/-1
+  }
+  .search-v3-flights .skyline-dates,.skyline-flights-page .skyline-dates{grid-column:1/-1}
+  .search-v3-flights .skyline-travellers,.skyline-flights-page .skyline-travellers{grid-column:1}
+  .search-v3-flights .skyline-submit,.skyline-flights-page .skyline-submit{grid-column:2;min-height:70px}
+}
+@media(max-width:530px){
+  .search-v3-flights .skyline-main-row,.skyline-flights-page .skyline-main-row{
+    grid-template-columns:1fr;gap:8px
+  }
+  .search-v3-flights .skyline-route,.skyline-flights-page .skyline-route{
+    grid-column:1;grid-template-columns:1fr;gap:7px
+  }
+  .search-v3-flights .skyline-swap,.skyline-flights-page .skyline-swap{
+    left:auto;right:16px;top:50%;transform:translateY(-50%) rotate(90deg)
+  }
+  .search-v3-flights .skyline-route .skyline-field,.skyline-flights-page .skyline-route .skyline-field{
+    grid-column:1
+  }
+  .search-v3-flights .skyline-dates,.skyline-flights-page .skyline-dates{
+    grid-column:1;grid-template-columns:1fr 1fr
+  }
+  .search-v3-flights .skyline-travellers,.skyline-flights-page .skyline-travellers{
+    grid-column:1
+  }
+  .search-v3-flights .skyline-submit,.skyline-flights-page .skyline-submit{
+    grid-column:1;min-height:53px
+  }
+  .search-v3-flights .skyline-under-row>span,.skyline-flights-page .skyline-under-row>span{
+    flex-basis:100%
+  }
+}
