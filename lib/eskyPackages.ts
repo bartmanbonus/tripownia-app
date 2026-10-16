@@ -1,4 +1,5 @@
 import type { Offer } from "@/lib/offers";
+import { hasEnoughDestinationDays } from "@/lib/tripDayQuality";
 import { buildEskyPackagesUrl } from "@/lib/partners";
 import { eskyArrivals, eskyInventoryUrl, eskyNights, eskySearchUrl, type EskySearch } from "@/lib/eskySearch";
 
@@ -44,6 +45,7 @@ export function normalizeEskyPackage(row: any): EskyPackage | null {
   if (row?.pricePerPax?.currency !== "PLN" || !Number.isFinite(price) || price <= 0 || !AIRPORTS[airportCode]) return null;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(start) || !/^\d{4}-\d{2}-\d{2}$/.test(end) || !Number.isInteger(nights) || nights <= 0) return null;
   if (Date.parse(end) - Date.parse(start) !== nights * 86400000 || start < new Date().toISOString().slice(0, 10)) return null;
+  if (!hasEnoughDestinationDays({ nights, startDateISO: start, endDateISO: end })) return null;
   let url: URL;
   try { url = new URL(row.variantsUrl); } catch { return null; }
   if (url.protocol !== "https:" || !["www2.esky.pl", "www.esky.pl"].includes(url.hostname)
