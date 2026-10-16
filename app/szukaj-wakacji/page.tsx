@@ -22,7 +22,7 @@ export default function PackageSearchPage() {
         <h1>Wyszukiwarka wycieczek: znajdź wakacje z biurem podróży</h1>
         <p>Wybierz kierunek, termin, lotnisko i uczestników. Wyniki i rezerwację otworzysz w serwisie rezerwacyjnym.</p>
       </div></div>
-      <WakacjePrimarySearch id="wyszukiwarka-wycieczek" title="Wyszukaj wycieczkę w pełnej ofercie" description="Wybierz dokąd, skąd i kiedy. Przeglądaj pakiety wielu organizatorów w głównej wyszukiwarce Tripowni." />
+      <WakacjePrimarySearch id="wyszukiwarka-wycieczek" title="Pełna oferta wakacji Tripowni" description="Znajdź wakacje, egzotykę lub All Inclusive. Wybierz kierunek i termin, a rezerwację dokończ bezpiecznie u partnera." />
       <p>Jeśli wyszukiwarka się nie wyświetla, <a href={`/sprawdz-oferte?${new URLSearchParams({ partner: 'wakacje', target: partners.wakacje.buildUrl(), source: 'wakacje_widget' })}`}>przejdź do wyszukiwania wycieczek</a>.</p>
     </section>
     <section className="section shell">
