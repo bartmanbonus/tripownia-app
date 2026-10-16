@@ -6,7 +6,6 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Sparkles, Trash2, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
-import WakacjePrimarySearch from "@/components/WakacjePrimarySearch";
 import HotelGuestsPicker, { type HotelGuestsValue } from "@/components/HotelGuestsPicker";
 import HotelStayPicker, { DEFAULT_HOTEL_DATE_PREFERENCES, type HotelDatePreferences } from "@/components/HotelStayPicker";
 import DresdenCityBreakOptions from "@/components/DresdenCityBreakOptions";
@@ -1883,7 +1882,10 @@ export default function SearchHub({
 
 
         {["Wakacje", "All Inclusive", "Last minute"].includes(activeTab) && !["/wakacje", "/last-minute", "/szukaj-wakacji"].includes(pathname || "") && (
-          <WakacjePrimarySearch compact title="Wakacje i egzotyka — pełna wyszukiwarka" description="Wycieczki wielu organizatorów, a pod spodem dodatkowe pakiety. Wybierz lotnisko, kierunek i termin bezpośrednio w wyszukiwarce." />
+          <div className="search-v3-partner-link">
+            <span>Więcej wycieczek i hoteli w jednym miejscu — bez powtarzania wyszukiwarki.</span>
+            <Link href="/szukaj-wakacji">Zobacz pełną ofertę wakacji <ArrowRight size={17} aria-hidden="true" /></Link>
+          </div>
         )}
 
         {searched && activeTab === "Hotele" && pathname === "/hotele" && hotelSearchDestination && (
