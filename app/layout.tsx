@@ -81,13 +81,13 @@ export const metadata: Metadata = {
     siteName: "Tripownia",
     title: HOME_TITLE,
     description: HOME_DESCRIPTION,
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Tripownia.pl — My szukamy. Ty lecisz." }],
+    images: [{ url: "/api/share-preview?design=logo-white-v1", width: 1200, height: 630, alt: "Tripownia.pl — My szukamy. Ty lecisz." }],
   },
   twitter: {
     card: "summary_large_image",
     title: HOME_TITLE,
     description: HOME_DESCRIPTION,
-    images: ["/opengraph-image"],
+    images: ["/api/share-preview?design=logo-white-v1"],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
 };
