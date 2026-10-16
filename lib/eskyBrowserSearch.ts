@@ -1,4 +1,5 @@
 import type { Offer } from "@/lib/offers";
+import { hasEnoughDestinationDays } from "@/lib/tripDayQuality";
 import { buildEskyPackagesUrl } from "@/lib/partners";
 import {
   eskyArrivals,
@@ -105,6 +106,7 @@ function normalizeEskyPackage(row: any): BrowserEskyPackage | null {
   if (row?.pricePerPax?.currency !== "PLN" || !Number.isFinite(price) || price <= 0 || !AIRPORTS[airportCode]) return null;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(start) || !/^\d{4}-\d{2}-\d{2}$/.test(end) || !Number.isInteger(nights) || nights <= 0) return null;
   if (Date.parse(end) - Date.parse(start) !== nights * 86_400_000 || start < new Date().toISOString().slice(0, 10)) return null;
+  if (!hasEnoughDestinationDays({ nights, startDateISO: start, endDateISO: end })) return null;
 
   let url: URL;
   try {
