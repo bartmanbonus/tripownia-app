@@ -359,7 +359,7 @@ export default function SearchHub({
   initialDuration = "all",
   initialBudget = "all",
   searchRequest = 0,
-  initialTab = "Lot + hotel",
+  initialTab = "Wszystkie",
   initialBoard = "all",
   initialDateMode = "any",
   initialDateFrom = "",
@@ -523,7 +523,7 @@ export default function SearchHub({
     if (resultSort === "recommended") {
       const priority = (offer: any) => {
         if (["Wakacje", "All Inclusive", "Last minute"].includes(activeTab)) return offer?.partner === "wakacje" ? 0 : offer?.partner === "esky" ? 1 : 2;
-        return offer?.partner === "esky" ? 0 : 1;
+        return offer?.partner === "esky" ? 0 : offer?.partner === "wakacje" ? 1 : 2;
       };
       return [...displayRows].sort((a, b) => searchTier(a) - searchTier(b) || priority(a) - priority(b) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
     }
@@ -754,7 +754,7 @@ export default function SearchHub({
     setResultLocation("");
     setResultQuery("");
     setResultPriceLimit("");
-    setResultSort("price");
+    setResultSort(activeMode === "Wszystkie" ? "recommended" : "price");
     setSuggestionsOpen(false);
     setDepartureOpen(false);
     setDateOpen(false);
@@ -1189,14 +1189,16 @@ export default function SearchHub({
     setDepartureOpen(false);
     setDateOpen(false);
     setDurationOpen(false);
-    setActiveTab(tab);
-    if (tab === "Hotele") { setDateMode("range"); setMonth(""); setSelectedDestinations((current) => current.slice(0, 1)); }
-    setDuration(tab === "City break" ? "3-4" : "all");
+    // Pressing the selected pill again removes the filter instead of forcing a category.
+    const nextTab = activeTab === tab ? "Wszystkie" : tab;
+    setActiveTab(nextTab);
+    if (nextTab === "Hotele") { setDateMode("range"); setMonth(""); setSelectedDestinations((current) => current.slice(0, 1)); }
+    setDuration(nextTab === "City break" ? "3-4" : "all");
     setBudget("all");
     setCustomBudgetMin("");
     setCustomBudgetMax("");
     setBoard("all");
-    setWeekendOnly(tab === "City break");
+    setWeekendOnly(nextTab === "City break");
     setSearched(false);
     setResults([]);
     setResultLocation("");
@@ -1239,6 +1241,7 @@ export default function SearchHub({
   }
 
   function resetSearch() {
+    const resetTab = embedded ? initialTab : "Wszystkie";
     setPartnerWidgetKey(key => key + 1);
     searchRunRef.current += 1;
     searchAbortRef.current?.abort();
@@ -1250,15 +1253,16 @@ export default function SearchHub({
     setDepartureOpen(false);
     setDateOpen(false);
     setDurationOpen(false);
+    setActiveTab(resetTab);
     setDateMode("any");
     setMonth("");
     setCalendarMonth("");
     setDateFrom("");
     setDateTo("");
-    setDuration(activeTab === "City break" ? "3-4" : "all");
+    setDuration(resetTab === "City break" ? "3-4" : "all");
     setBudget("all");
     setBoard("all");
-    setWeekendOnly(activeTab === "City break");
+    setWeekendOnly(resetTab === "City break");
     setFlightAdults(1);
     setHotelGuests({ adults: 2, rooms: 1, childAges: [] });
     setHotelDatePreferences(DEFAULT_HOTEL_DATE_PREFERENCES);
@@ -1357,6 +1361,19 @@ export default function SearchHub({
     ? ["Lot + hotel", "City break", "Last minute", "Wakacje", "All Inclusive", "Loty", "Hotele"]
     : ["Lot + hotel", "City break", "Last minute", "Wakacje", "Loty", "Hotele"];
 
+  const universalDestination = submittedSummary.destination === "Gdziekolwiek" ? "" : submittedSummary.destination.split(" + ")[0];
+  const universalFlightsParams = new URLSearchParams({
+    ...(universalDestination ? { destination: universalDestination } : {}),
+    ...(departures[0] ? { origin: departures[0] } : {}),
+    ...(dateFrom ? { outbound: dateFrom } : {}),
+    ...(dateTo && dateTo !== dateFrom ? { inbound: dateTo } : {}),
+  });
+  const universalHotelsParams = new URLSearchParams({
+    ...(universalDestination ? { q: universalDestination } : {}),
+    ...(dateFrom ? { from: dateFrom } : {}),
+    ...(dateTo && dateTo !== dateFrom ? { to: dateTo } : {}),
+  });
+
   return (
     <section className={embedded ? "search-v3-section search-v3-embedded" : "section shell search-v3-section"} id={embedded ? undefined : "wyszukiwarka"}>
       <div className={`search-v3${activeTab === "Loty" ? " search-v3-flights" : ""}${activeTab === "Hotele" ? " search-v3-hotels" : ""}${simpleHomePackage ? " search-v3-simple" : ""}`}>
@@ -1397,14 +1414,15 @@ export default function SearchHub({
           </div>
         )}
 
-        <div className="search-v3-tabs" role="group" aria-label="Rodzaj podróży">
+        <div className="search-v3-tabs" role="group" aria-label="Rodzaj podróży (opcjonalnie)">
           {visibleTabs.map((tab) => (
             <button key={tab} type="button" aria-pressed={activeTab === tab} className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
         {!embedded && !directHomeWakacje && activeTab !== "Loty" && activeTab !== "Hotele" && (
           <p className="search-v3-mode-hint" role="status" style={{ margin: "3px 22px 16px", padding: "10px 14px", color: "#56463e", background: "#fff8f3", border: "1px solid #f2ded0", borderRadius: 12, fontSize: 13, lineHeight: 1.5 }}>
-            {activeTab === "City break" ? "Krótki wyjazd: domyślnie 3–4 noce (minimum 2 dni między podróżami) i termin obejmujący weekend. Możesz wybrać także 5–7 nocy."
+            {activeTab === "Wszystkie" ? "Nie musisz wybierać kafla. Wpisz np. Wietnam, a pokażemy różne dostępne wyjazdy. Kafle służą wyłącznie do zawężania rodzaju podróży."
+              : activeTab === "City break" ? "Krótki wyjazd: domyślnie 3–4 noce (minimum 2 dni między podróżami) i termin obejmujący weekend. Możesz wybrać także 5–7 nocy."
               : activeTab === "Lot + hotel" ? "Lot i nocleg w jednym pakiecie — dowolna długość i elastyczne terminy."
               : activeTab === "Last minute" ? "Bliskie terminy i wycieczki z wielu biur — pełna wyszukiwarka poniżej."
               : "Wakacje i All Inclusive: pełna oferta wycieczek w wyszukiwarce poniżej."}
@@ -1887,6 +1905,21 @@ export default function SearchHub({
 
 
 
+        {searched && activeTab === "Wszystkie" && (
+          <div className="search-v3-universal-actions" role="region" aria-label="Dodatkowe formy podróży">
+            <div className="search-v3-universal-copy">
+              <small>WYSZUKIWANIE BEZ KATEGORII</small>
+              <strong>{universalDestination ? `Wszystkie możliwości: ${universalDestination}` : "Wszystkie możliwości podróży"}</strong>
+              <p>Oferty z dostępnych katalogów łączymy poniżej. Dodatkowo możesz przejrzeć pełną wyszukiwarkę wycieczek, same loty lub noclegi — bez wybierania kafla na starcie.</p>
+            </div>
+            <div className="search-v3-universal-links">
+              <Link href="/szukaj-wakacji">Więcej wycieczek <ArrowRight size={16} aria-hidden="true" /></Link>
+              <Link href={`/loty?${universalFlightsParams.toString()}`}>Same loty <ArrowRight size={16} aria-hidden="true" /></Link>
+              <Link href={`/hotele?${universalHotelsParams.toString()}`}>Same noclegi <ArrowRight size={16} aria-hidden="true" /></Link>
+            </div>
+          </div>
+        )}
+
         {!directHomeWakacje && ["Wakacje", "All Inclusive", "Last minute"].includes(activeTab) && !["/wakacje", "/last-minute", "/szukaj-wakacji"].includes(pathname || "") && (
           <div className="search-v3-partner-link">
             <span>Więcej wycieczek i hoteli w jednym miejscu — bez powtarzania wyszukiwarki.</span>
@@ -2132,7 +2165,7 @@ export default function SearchHub({
 
               </>
             )}
-            {!loading && !expanding && (
+            {!loading && !expanding && activeTab !== "Wszystkie" && (
               <HybridSearchLinks destination={submittedSummary.destination === "Gdziekolwiek" ? "" : submittedSummary.destination}
                 departure={departures.join(",")} month={dateMode === "month" ? month : ""}
                 start={dateMode === "exact" || dateMode === "range" ? dateFrom : ""} end={dateMode === "range" ? dateTo : ""}>

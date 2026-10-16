@@ -828,7 +828,7 @@ export default function Home() {
         </div>
       </section>
 
-      <SearchHub initialTab="Wakacje" />
+      <SearchHub />
       <TripowniaLive />
       <TripCommandCenter compact />
       <SocialOfferCatalog compact />

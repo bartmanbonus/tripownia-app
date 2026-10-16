@@ -38,7 +38,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const budget = typeof params.budget === "string" ? params.budget : "all";
   const duration = typeof params.duration === "string" ? params.duration : "all";
   const board = typeof params.board === "string" ? params.board : "all";
-  const tab = typeof params.tab === "string" ? params.tab : "Lot + hotel";
+  const tab = typeof params.tab === "string" ? params.tab : "Wszystkie";
   const from = typeof params.from === "string" ? params.from : "";
   const to = typeof params.to === "string" ? params.to : "";
   const month = typeof params.month === "string" ? params.month : "";

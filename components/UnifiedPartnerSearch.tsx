@@ -19,7 +19,7 @@ function tabForMode(mode: Mode) {
   if (mode === "city") return "City break";
   if (mode === "holiday") return "Wakacje";
   if (mode === "lastminute") return "Last minute";
-  return "Inspiracje";
+  return "Wszystkie";
 }
 
 function durationForDates(start?: string, end?: string) {
