@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Heart, Plane, Moon, Sun, ArrowRight, Clock3, Star, Zap, Utensils, CalendarDays, Scale, MapPinned, BadgePercent, Bell } from "lucide-react";
 import type { Offer } from "@/lib/offers";
+import { durationTruthLabel } from "@/lib/tripDayQuality";
 import { featuredOfferIds, publishedOfferOverrides, getLinkMatch, formatPriceCheckedAt } from "@/lib/offers";
 import TravelImage from "@/components/TravelImage";
 import { useEffect, useRef, useState } from "react";
@@ -397,6 +398,7 @@ export default function OfferCard({ offer, priceHighlight, sourceSurface, showIn
           <span><Utensils size={15} /> {offer.board}</span>
         </div>
 
+        {!offer.category.includes("flight") && <small className="offer-duration-truth">{durationTruthLabel(offer)}</small>}
         <div className="why-now"><span>DLACZEGO WARTO</span><strong>{customerReason}</strong></div>
 
         <Link
