@@ -218,6 +218,11 @@ function cheapestDirectionRows(rows: any[]) {
     .sort((a, b) => searchTier(a) - searchTier(b) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
 }
 
+function shiftISODate(value: string, days: number) {
+  const base = Date.parse(`${value}T00:00:00Z`);
+  return Number.isFinite(base) ? new Date(base + days * 86_400_000).toISOString().slice(0, 10) : "";
+}
+
 function isoMs(value: string) {
   if (!value) return Number.NaN;
   const ms = new Date(`${value}T00:00:00Z`).getTime();
@@ -416,7 +421,7 @@ export default function SearchHub({
   const [resultMatchScope, setResultMatchScope] = useState<"all" | "exact" | "alternatives">("all");
   const [packageSearchLink, setPackageSearchLink] = useState("");
   const [resultSort, setResultSort] = useState<"recommended" | "price" | "rating" | "nights">("price");
-  const [visibleCount, setVisibleCount] = useState(18);
+  const [visibleCount, setVisibleCount] = useState(8);
   const [loading, setLoading] = useState(false);
   const [expanding, setExpanding] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -748,7 +753,7 @@ export default function SearchHub({
     setResultView("all");
     setResultMatchScope("all");
     setResults([]);
-    setVisibleCount(18);
+    setVisibleCount(8);
     setResultLocation("");
     setResultQuery("");
     setResultPriceLimit("");
@@ -872,9 +877,18 @@ export default function SearchHub({
             if (data.partial) failedSources++;
             const found = cleanRows(Array.isArray(data.offers) ? data.offers : [], target)
               .filter((offer) => {
-                if (!relaxAirports || selectedDepartureCodes.size === 0) return true;
-                const code = inferredOfferAirport(offer);
-                return !code || !selectedDepartureCodes.has(code);
+                // An offer is a match only if its actual variant satisfies the
+                // submitted parameters. Do not trust a provider's search scope
+                // as proof that every row has the selected departure and date.
+                if (selectedDepartureCodes.size > 0 && !selectedDepartureCodes.has(inferredOfferAirport(offer))) return false;
+                const offerStart = String(offer?.startDateISO || "");
+                if ((apiDates.start || apiDates.end) && (
+                  !/^\d{4}-\d{2}-\d{2}$/.test(offerStart)
+                  || (apiDates.start && offerStart < apiDates.start)
+                  || (apiDates.end && offerStart > apiDates.end)
+                )) return false;
+                if (!durationMatchesNights(offer?.nights, activeDuration)) return false;
+                return true;
               })
               .map((offer) => {
                 const reasons = alternative ? [alternative] : [];
@@ -900,7 +914,6 @@ export default function SearchHub({
               });
             rows = rankSearchOffers([...rows, ...found]);
             setResults(rows);
-            if (rows.length) { setLoading(false); setExpanding(true); }
           } catch {
             if (!controller.signal.aborted) failedSources++;
           } finally {
@@ -914,29 +927,14 @@ export default function SearchHub({
     try {
       await fetchBatch();
       if (runId !== searchRunRef.current) return;
+      // Search results must honor the filters. Broader results require a
+      // deliberate user action; do not silently re-query other dates/airports.
       const exactCount = rows.filter((offer) => searchTier(offer) === 0).length;
-      setLoading(false);
-      const secondaryFilters = activeDuration !== "all" || activeWeekend || activeBoard !== "all";
-      const hasDates = Boolean(apiDates.start || apiDates.end);
-      // Alternatives keep the direction, departure airports and price ceiling.
-      // Different dates/board/duration are labelled on every affected card.
-      if (rows.length < 12 && (secondaryFilters || hasDates)) {
-        setExpanding(true);
-        setNotice("Sprawdzamy też oznaczone alternatywy z tych samych lotnisk i w Twoim budżecie.");
-        await fetchBatch(activeMode === "City break" ? 2 : 1, hasDates, secondaryFilters, false, "all");
-        if (runId !== searchRunRef.current) return;
-      }
-      if (rows.length === 0 && departures.length) {
-        setExpanding(true);
-        setNotice("Nie kończymy na pustej liście — sprawdzamy ten sam kierunek i budżet także z innych polskich lotnisk.");
-        await fetchBatch(activeMode === "City break" ? 3 : 2, hasDates, secondaryFilters, true, "all");
-        if (runId !== searchRunRef.current) return;
-      }
-      const alternatives = rows.filter((offer) => searchTier(offer) > 0).length;
       setNotice([
-        rows.length ? "Ceny za osobę. Najtańsze najpierw w każdej grupie dopasowania." : "Zmień termin lub sprawdź wyjazd w dodatkowej wyszukiwarce.",
-        alternatives > 0 ? `Dokładnych dopasowań: ${exactCount}. Alternatywy (${alternatives}) są oznaczone na kartach.` : "",
-        failedSources ? "Nie udało się sprawdzić wszystkich ofert. Lista może być niepełna." : "",
+        exactCount > 0
+          ? "Najtańsze oferty spełniające Twoje ustawienia."
+          : "Nie znaleźliśmy potwierdzonych wyjazdów spełniających wszystkie ustawienia w sprawdzonych źródłach. Nie zastępujemy ich innymi datami.",
+        failedSources ? "Nie wszystkie źródła odpowiedziały lub zwróciły pełną pulę — lista może być niepełna." : "",
         requestedRaw.some(item => /bergamo/i.test(item)) ? "Bergamo uwzględniamy razem z Mediolanem." : "",
       ].filter(Boolean).join(" "));
     } finally {
@@ -1142,6 +1140,21 @@ export default function SearchHub({
     void runSearch();
   }
 
+  function searchNearbyDates() {
+    const selected = dateFrom || dateTo;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(selected)) return;
+    const today = new Date();
+    const todayISO = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const earliest = shiftISODate(selected, -7);
+    const latest = shiftISODate(selected, 7);
+    const from = earliest < todayISO ? todayISO : earliest;
+    setDateMode("range");
+    setMonth("");
+    setDateFrom(from);
+    setDateTo(latest);
+    void runSearch(undefined, { dateMode: "range", month: "", dateFrom: from, dateTo: latest });
+  }
+
   function searchNearestDates() {
     setDateMode("any");
     setMonth("");
@@ -1151,15 +1164,12 @@ export default function SearchHub({
   }
 
   function relaxSearchFilters() {
+    // Keep the user's budget and airports while widening only non-price filters.
     setDuration("all");
-    setBudget("all");
-    setCustomBudgetMin("");
-    setCustomBudgetMax("");
     setBoard("all");
     setWeekendOnly(false);
     void runSearch(undefined, {
       duration: "all",
-      budget: "all",
       board: "all",
       weekendOnly: false,
     });
@@ -1203,7 +1213,7 @@ export default function SearchHub({
     setCustomBudgetMin("");
     setCustomBudgetMax("");
     setResultDestinationCount(0);
-    setVisibleCount(18);
+    setVisibleCount(8);
     setNotice("");
     setHotelError("");
   }
@@ -1274,7 +1284,7 @@ export default function SearchHub({
     setCustomBudgetMax("");
     setResultDestinationCount(0);
     setResultMatchScope("exact");
-    setVisibleCount(18);
+    setVisibleCount(8);
     setNotice("");
     setSearched(false);
     setLoading(false);
@@ -1685,7 +1695,7 @@ export default function SearchHub({
                     <div>
                       {(activeTab === "City break"
                         ? [["3-4", "2–4"], ["5-7", "5–7"], ["all", "Dowolnie"]]
-                        : [["all","Dowolnie"], ["3-4","3–4"], ["3-4","3–4"], ["5-7","5–7"], ["7-10","7–10"], ["11-14","11–14"], ["15+","15+"]]
+                        : [["all","Dowolnie"], ["3-4","3–4"], ["5-7","5–7"], ["7-10","7–10"], ["11-14","11–14"], ["15+","15+"]]
                       ).map(([value,label]) => (
                         <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label}</button>
                       ))}
@@ -1731,7 +1741,6 @@ export default function SearchHub({
                   <div className="search-v3-duration-presets" role="group" aria-label="Popularne długości wyjazdu">
                     {[
                       ["all","Dowolnie"],
-                      ["3-4","City break · 3–4"],
                       ["3-4","3–4 noce"],
                       ["5-7","5–7 nocy"],
                       ["7-10","7–10 nocy"],
@@ -1972,9 +1981,9 @@ export default function SearchHub({
                 <h3>{
                   loading && results.length === 0
                     ? "Sprawdzamy aktualne oferty…"
-                    : !results.length ? "Brak ofert dla tych ustawień"
+                    : !results.length ? "Brak ofert w wybranym terminie"
                     : resultMatchScope === "all"
-                      ? `Znalezione oferty: ${results.length} (${exactResultCount} zgodnych, ${alternativeResultCount} alternatywnych)`
+                      ? alternativeResultCount > 0 ? `Dopasowane: ${exactResultCount} · pozostałe: ${alternativeResultCount}` : `Oferty dla Twoich ustawień: ${exactResultCount}`
                       : resultMatchScope === "exact"
                         ? exactResultCount > 0 ? `Dokładnie w Twoich filtrach: ${exactResultCount}` : "Brak dokładnego dopasowania"
                         : `Alternatywy: ${alternativeResultCount}`
@@ -1983,6 +1992,33 @@ export default function SearchHub({
               {notice && <p>{notice}</p>}
             </div>
 
+
+
+            {!loading && !expanding && results.length === 0 && (
+              <div className="search-v3-no-results" role="region" aria-label="Dalsze możliwości wyszukiwania">
+                <strong>Sprawdźmy inne możliwości — tylko za Twoją zgodą.</strong>
+                <p>Twoja data, lotniska i długość pobytu nie zostały zmienione. Możesz poszerzyć wybrane kryterium:</p>
+                <div className="search-v3-no-results-actions">
+                  {(dateMode === "exact" || dateMode === "range") && dateFrom && (
+                    <button type="button" className="search-v3-no-results-primary" onClick={searchNearbyDates}>
+                      <CalendarDays size={17}/> Wylot ±7 dni
+                    </button>
+                  )}
+                  {dateMode !== "any" && (
+                    <button type="button" onClick={searchNearestDates}>
+                      <CalendarDays size={17}/> Dowolny termin
+                    </button>
+                  )}
+                  {(duration !== "all" || board !== "all" || weekendOnly) && (
+                    <button type="button" onClick={relaxSearchFilters}>
+                      <Sparkles size={17}/> Dowolna długość i wyżywienie
+                    </button>
+                  )}
+                  <Link href="/szukaj-wakacji">Pełna wyszukiwarka wycieczek <ArrowRight size={17}/></Link>
+                </div>
+                <small>Katalog wycieczek korzysta z osobnej wyszukiwarki partnera. Nie podajemy jej ofert jako dopasowań, których nie udało się sprawdzić.</small>
+              </div>
+            )}
 
             <DresdenCityBreakOptions
               destination={selectedDestinations[0] || destination}
@@ -1995,12 +2031,12 @@ export default function SearchHub({
 
             {!loading && results.length > 0 && (
               <>
-                <div className="search-v3-match-tabs" aria-label="Zakres dopasowania wyników">
+                {alternativeResultCount > 0 && <div className="search-v3-match-tabs" aria-label="Zakres dopasowania wyników">
                   <button
                     type="button"
                     className={resultMatchScope === "all" ? "active" : ""}
                     aria-pressed={resultMatchScope === "all"}
-                    onClick={() => { setResultMatchScope("all"); setResultLocation(""); setResultView("all"); setVisibleCount(18); }}
+                    onClick={() => { setResultMatchScope("all"); setResultLocation(""); setResultView("all"); setVisibleCount(8); }}
                   >
                     <span>Wszystkie oferty</span>
                     <b>{results.length}</b>
@@ -2014,7 +2050,7 @@ export default function SearchHub({
                       setResultMatchScope("exact");
                       setResultLocation("");
                       setResultView("all");
-                      setVisibleCount(18);
+                      setVisibleCount(8);
                     }}
                   >
                     <span>Twój termin i filtry</span>
@@ -2029,38 +2065,38 @@ export default function SearchHub({
                         setResultMatchScope("alternatives");
                         setResultLocation("");
                         setResultView("all");
-                        setVisibleCount(18);
+                        setVisibleCount(8);
                       }}
                     >
                       <span>Inne terminy / parametry</span>
                       <b>{alternativeResultCount}</b>
                     </button>
                   )}
-                </div>
+                </div>}
 
                 <div className="search-v3-refine">
                   <label>Hotel lub miejscowość
-                    <input type="search" value={resultQuery} placeholder="Szukaj w znalezionych ofertach" onChange={(event) => { setResultQuery(event.target.value); setVisibleCount(18); }}/>
+                    <input type="search" value={resultQuery} placeholder="Szukaj w znalezionych ofertach" onChange={(event) => { setResultQuery(event.target.value); setVisibleCount(8); }}/>
                   </label>
                   <label>Maksymalna cena za osobę
-                    <input type="number" min="0" step="50" inputMode="numeric" value={resultPriceLimit} placeholder="Bez limitu · zł" onChange={(event) => { setResultPriceLimit(event.target.value); setVisibleCount(18); }}/>
+                    <input type="number" min="0" step="50" inputMode="numeric" value={resultPriceLimit} placeholder="Bez limitu · zł" onChange={(event) => { setResultPriceLimit(event.target.value); setVisibleCount(8); }}/>
                   </label>
                   <span role="status" aria-live="polite">Widoczne: {visibleResults.length} z {scopedResults.length} ofert</span>
-                  {(resultQuery || resultPriceLimit || resultLocation) && <button type="button" onClick={() => { setResultQuery(""); setResultPriceLimit(""); setResultLocation(""); setVisibleCount(18); }}>Wyczyść zawężenie</button>}
+                  {(resultQuery || resultPriceLimit || resultLocation) && <button type="button" onClick={() => { setResultQuery(""); setResultPriceLimit(""); setResultLocation(""); setVisibleCount(8); }}>Wyczyść zawężenie</button>}
                 </div>
                 {visibleResults.length === 0 && <p role="status">Żadna oferta nie pasuje do tego zawężenia. Zmień nazwę lub cenę albo wyczyść zawężenie — Twój termin i lotniska zostaną zachowane.</p>}
                 <div className="search-v3-results-controls">
                   <div className="search-v3-sales-sort" aria-label="Szybkie sortowanie ofert">
-                    <button type="button" className={resultSort === "price" ? "active" : ""} onClick={() => { setResultSort("price"); setVisibleCount(18); }}>Najtańsze</button>
-                    <button type="button" className={resultSort === "recommended" ? "active" : ""} onClick={() => { setResultSort("recommended"); setVisibleCount(18); }}>Polecane</button>
-                    <button type="button" className={resultSort === "rating" ? "active" : ""} onClick={() => { setResultSort("rating"); setVisibleCount(18); }}>Ocena</button>
-                    <button type="button" className={resultSort === "nights" ? "active" : ""} onClick={() => { setResultSort("nights"); setVisibleCount(18); }}>Najkrótsze</button>
+                    <button type="button" className={resultSort === "price" ? "active" : ""} onClick={() => { setResultSort("price"); setVisibleCount(8); }}>Najtańsze</button>
+                    <button type="button" className={resultSort === "recommended" ? "active" : ""} onClick={() => { setResultSort("recommended"); setVisibleCount(8); }}>Polecane</button>
+                    <button type="button" className={resultSort === "rating" ? "active" : ""} onClick={() => { setResultSort("rating"); setVisibleCount(8); }}>Ocena</button>
+                    <button type="button" className={resultSort === "nights" ? "active" : ""} onClick={() => { setResultSort("nights"); setVisibleCount(8); }}>Najkrótsze</button>
                   </div>
                   <div className="search-v3-sales-sort search-v3-view-switch" aria-label="Widok wyników">
-                    <button type="button" className={resultView === "all" ? "active" : ""} onClick={() => { setResultView("all"); setVisibleCount(18); }}>
+                    <button type="button" className={resultView === "all" ? "active" : ""} onClick={() => { setResultView("all"); setVisibleCount(8); }}>
                       Wszystkie ({scopedResults.length})
                     </button>
-                    <button type="button" className={resultView === "destinations" ? "active" : ""} onClick={() => { setResultView("destinations"); setResultLocation(""); setVisibleCount(18); }}>
+                    <button type="button" className={resultView === "destinations" ? "active" : ""} onClick={() => { setResultView("destinations"); setResultLocation(""); setVisibleCount(8); }}>
                       1 na kierunek ({cheapestDirectionRows(scopedResults).length})
                     </button>
                   </div>
@@ -2070,7 +2106,7 @@ export default function SearchHub({
                   <div className="search-v3-results-toolbar">
                     <div className="search-v3-result-filters" aria-label="Filtruj wyniki po miejscowości">
                       <span>{resultMatchScope === "exact" ? "Miejsce w Twoim terminie" : "Miejsce w alternatywach"}</span>
-                      <button type="button" className={!resultLocation ? "active" : ""} onClick={() => { setResultLocation(""); setVisibleCount(18); }}>
+                      <button type="button" className={!resultLocation ? "active" : ""} onClick={() => { setResultLocation(""); setVisibleCount(8); }}>
                         Wszystkie <b>{scopedResults.length}</b>
                       </button>
                       {resultLocations.map(([location, count]) => (
@@ -2081,7 +2117,7 @@ export default function SearchHub({
                           onClick={() => {
                             setResultLocation(location);
                             setResultView("all");
-                            setVisibleCount(18);
+                            setVisibleCount(8);
                           }}
                         >
                           {location} <b>{count}</b>
@@ -2127,7 +2163,7 @@ export default function SearchHub({
 
               </>
             )}
-            {!loading && !expanding && (
+            {!loading && !expanding && results.length > 0 && (
               <HybridSearchLinks destination={submittedSummary.destination === "Gdziekolwiek" ? "" : submittedSummary.destination}
                 departure={departures.join(",")} month={dateMode === "month" ? month : ""}
                 start={dateMode === "exact" || dateMode === "range" ? dateFrom : ""} end={dateMode === "range" ? dateTo : ""}>
