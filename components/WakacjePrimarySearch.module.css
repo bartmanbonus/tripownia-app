@@ -1,22 +1,30 @@
-.root{width:100%;margin:16px auto 24px;padding:clamp(18px,2.5vw,28px);border:1px solid #e6dcd4;border-radius:22px;background:linear-gradient(135deg,#fffaf7,#fff 65%);box-shadow:0 12px 32px rgba(52,31,20,.055)}
-.heading{display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:16px 22px;margin-bottom:18px}
-.heading>div{flex:1 1 440px;min-width:0}
-.eyebrow{display:block;margin-bottom:10px;color:#db4c27;font-size:11px;letter-spacing:.12em;font-weight:900}
-.heading h2{margin:0 0 8px;color:#1c1815;font-size:clamp(23px,2.5vw,32px);letter-spacing:-.035em;line-height:1.18}
-.heading p{margin:0;max-width:790px;font-size:14px;line-height:1.6;color:#62564f}
-.fullView{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:10px 16px;border:1px solid #e0ccc0;border-radius:12px;color:#4a3025;background:#fff;font-size:13px;font-weight:800;text-decoration:none}
-.fullView:hover,.fullView:focus-visible{background:#fff2eb;border-color:#f4512c}
-.steps{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
-.steps span{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;background:#fff;border:1px solid #eee1d9;border-radius:999px;color:#4f4038;font-size:12px;font-weight:700}
-.steps b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#fae4da;color:#ac3a1b;font-size:11px}
-.reveal{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:15px 18px;border:0;border-radius:13px;background:#f4512c;color:#fff;font-size:15px;font-weight:800;cursor:pointer;text-align:left}
-.reveal:hover{background:#df4321}
-.reveal:focus-visible{outline:3px solid #4b2416;outline-offset:3px}
-.reveal span{font-size:20px}
-.frame{margin-top:14px;overflow:hidden;border:1px solid #e6dcd4;border-radius:14px;background:#fff}
+/* Tripownia holiday hub — visual refresh, underlying Wakacje.pl iframe stays intact. */
+.root{width:100%;margin:22px auto 30px;padding:clamp(20px,3vw,34px);border:1px solid #efe4df;border-radius:26px;background:linear-gradient(145deg,#fffaf6 0%,#fff 43%,#fff9f4 100%);box-shadow:0 20px 48px rgba(48,29,37,.065);overflow:hidden}
+.heading{position:relative;display:flex;flex-direction:column;align-items:stretch;min-height:244px;gap:12px;margin-bottom:24px;padding:0 0 4px}
+.headingCopy{position:relative;z-index:1;width:min(76%,820px);padding:10px 0 0}
+.eyebrow{display:block;margin-bottom:16px;color:#e94d2b;font-size:12px;letter-spacing:.13em;font-weight:900}
+.heading h2{margin:0 0 12px;color:#181722;font-size:clamp(27px,2.8vw,38px);letter-spacing:-.05em;line-height:1.12;max-width:850px}
+.heading p{margin:0;max-width:730px;font-size:15px;line-height:1.65;color:#676371}
+.scenic{position:absolute;z-index:0;right:-11px;top:-16px;width:34%;height:235px;border-radius:80px 23px 23px 80px;background-image:linear-gradient(105deg,rgba(255,250,246,.45),rgba(16,64,91,.06) 34%),url('/images/destinations/majorka.jpg');background-size:cover;background-position:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45)}
+.scenic span{position:absolute;right:18px;bottom:16px;display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:99px;color:#fff;font-weight:800;font-size:13px;background:rgba(17,48,66,.78);backdrop-filter:blur(7px)}
+.fullView{display:inline-flex;align-items:center;justify-content:center;gap:8px;align-self:flex-start;position:relative;z-index:1;min-height:44px;padding:10px 15px;border:1px solid #ead4c9;border-radius:14px;color:#a63e2e;background:#fff;font-size:13px;font-weight:800;text-decoration:none;transition:background .15s,border-color .15s}
+.fullView:hover,.fullView:focus-visible{background:#fff2ea;border-color:#fa7853}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:22px}
+.step{display:flex;align-items:center;gap:14px;min-width:0;padding:12px 10px;border-right:1px solid #f0e5df}
+.step:last-child{border-right:0}
+.stepIcon{display:grid;flex:0 0 52px;place-items:center;width:52px;height:52px;border-radius:50%;background:#fff0e9;color:#f26536}
+.step>span:last-child{display:grid;grid-template-columns:20px minmax(0,1fr);column-gap:8px;align-items:start}
+.step b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#ff9c7c;color:#fff;font-size:11px}
+.step strong{color:#2a2525;font-weight:800;font-size:13px;line-height:1.5}
+.step small{grid-column:2;color:#77717b;font-size:12px;line-height:1.5;margin-top:3px}
+.reveal{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:18px 22px;border:0;border-radius:15px;background:linear-gradient(95deg,#ff693f,#f2512c);color:#fff;font-size:16px;font-weight:850;cursor:pointer;text-align:left;box-shadow:0 9px 22px rgba(238,83,45,.13)}
+.reveal:hover{filter:brightness(.97)}.reveal:focus-visible{outline:3px solid #293752;outline-offset:3px}
+.frame{margin-top:18px;overflow:hidden;border:1px solid #ece7e2;border-radius:16px;background:#fff}
 .iframe{display:block;border:0;width:100%;height:800px;min-height:800px}
-.note{margin:13px 1px 0;font-size:12px;line-height:1.55;color:#6c5e56}
-.compact{margin:16px 0 20px}
-.compact .heading h2{font-size:clamp(21px,2.1vw,28px)}
+.note{display:flex;align-items:flex-start;gap:9px;margin:17px 1px 0;font-size:12px;line-height:1.65;color:#766e79}
+.note svg{flex:0 0 17px;color:#db633e;margin-top:1px}
+.compact{margin:16px 0 25px}
+.compact .heading h2{font-size:clamp(25px,2.6vw,34px)}
 .compact .iframe{height:740px;min-height:740px}
-@media(max-width:680px){.root{padding:16px;border-radius:17px}.heading{align-items:stretch}.heading>div{flex-basis:100%}.fullView{width:100%}.steps{gap:7px}.steps span{font-size:11px}.iframe,.compact .iframe{height:1050px;min-height:1050px}.reveal{font-size:14px}}
+@media(max-width:900px){.headingCopy{width:78%}.scenic{width:32%}.steps{gap:6px}.step{gap:8px}.stepIcon{flex-basis:42px;width:42px;height:42px}.step strong{font-size:12px}}
+@media(max-width:680px){.root{padding:18px;border-radius:18px}.heading{min-height:0;margin-bottom:16px;padding-top:154px}.headingCopy{width:100%}.scenic{top:-10px;right:-10px;left:-10px;width:auto;height:145px;border-radius:15px;background-position:center 58%}.scenic span{bottom:10px;right:10px;font-size:11px}.heading h2,.compact .heading h2{font-size:clamp(24px,7vw,30px)}.heading p{font-size:14px}.eyebrow{margin-bottom:9px}.fullView{width:100%}.steps{grid-template-columns:1fr;gap:2px}.step{border-right:0;border-bottom:1px solid #f0e5df;padding:9px 4px}.step:last-child{border-bottom:0}.stepIcon{flex-basis:38px;width:38px;height:38px}.step>span:last-child{grid-template-columns:20px 1fr}.step small{margin-top:0}.iframe,.compact .iframe{height:1050px;min-height:1050px}.reveal{padding:16px;font-size:14px}}
