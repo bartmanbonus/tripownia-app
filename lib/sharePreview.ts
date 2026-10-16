@@ -70,7 +70,7 @@ export function travelShareMetadata(input: TravelShareDetails): Metadata {
     city, country, departure, dates, hotel, board, kind, price, label: typeLabel,
   })) if (value) card.searchParams.set(key, value);
   const pageUrl = new URL(input.url, "https://tripownia.pl").toString();
-  const image = card.toString();
+  const image = "https://tripownia.pl/api/share-preview?design=logo-white-v1";
 
   return {
     title: { absolute: title },
