@@ -145,7 +145,7 @@ export function eskyDepartures(departure = "") {
 export function eskyNights(search: EskySearch) {
   const match = /^(\d+)(?:-(\d+)|(\+))?$/.exec(search.nights || "");
   const from = Math.max(1, search.minNights || (match ? Number(match[1]) : 1));
-  const to = Math.min(search.cityBreak ? 5 : 30, search.maxNights || (match ? Number(match[2] || (match[3] ? 30 : match[1])) : search.cityBreak ? 5 : 30));
+  const to = Math.min(search.cityBreak ? 7 : 30, search.maxNights || (match ? Number(match[2] || (match[3] ? 30 : match[1])) : search.cityBreak ? 7 : 30));
   return { from, to };
 }
 
