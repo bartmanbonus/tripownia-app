@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ArrowRight, CalendarDays, Compass, PlaneTakeoff, ShieldCheck, SunMedium } from "lucide-react";
 import styles from "./WakacjePrimarySearch.module.css";
 
 type Props = { title?: string; description?: string; compact?: boolean; id?: string };
@@ -17,21 +18,24 @@ export default function WakacjePrimarySearch({
   return (
     <section id={id} className={`${styles.root} ${compact ? styles.compact : ""}`} aria-label="Wyszukiwarka wakacji Tripowni">
       <div className={styles.heading}>
-        <div>
+        <div className={styles.headingCopy}>
           <span className={styles.eyebrow}>TRIPOWNIA · WAKACJE I EGZOTYKA</span>
           <h2>{title}</h2>
           <p>{description}</p>
         </div>
+        <div className={styles.scenic} role="img" aria-label="Majorka, turkusowe morze i śródziemnomorski krajobraz">
+          <span><SunMedium size={18}/> Słońce czeka!</span>
+        </div>
         {compact && (
           <Link href="/szukaj-wakacji" className={styles.fullView}>
-            Pełna wyszukiwarka <span aria-hidden="true">→</span>
+            Pełna wyszukiwarka <ArrowRight size={17} aria-hidden="true" />
           </Link>
         )}
       </div>
       <div className={styles.steps} aria-label="Jak działa wyszukiwanie">
-        <span><b>1</b> Znajdź wyjazd</span>
-        <span><b>2</b> Wybierz ofertę</span>
-        <span><b>3</b> Zarezerwuj u partnera</span>
+        <div className={styles.step}><span className={styles.stepIcon}><Compass size={23}/></span><span><b>1</b><strong>Znajdź wyjazd</strong><small>Wybierz kierunek, termin i lotnisko.</small></span></div>
+        <div className={styles.step}><span className={styles.stepIcon}><CalendarDays size={23}/></span><span><b>2</b><strong>Wybierz ofertę</strong><small>Porównaj wyjazdy i dostępne warianty.</small></span></div>
+        <div className={styles.step}><span className={styles.stepIcon}><PlaneTakeoff size={23}/></span><span><b>3</b><strong>Zarezerwuj u partnera</strong><small>Sprawdź cenę i dokończ rezerwację.</small></span></div>
       </div>
       {compact && (
         <button
@@ -42,7 +46,7 @@ export default function WakacjePrimarySearch({
           onClick={() => setExpanded(value => !value)}
         >
           {expanded ? "Zwiń dodatkową wyszukiwarkę" : "Przeszukaj więcej wakacji i ofert All Inclusive"}
-          <span aria-hidden="true">{expanded ? "−" : "→"}</span>
+          <ArrowRight size={22} aria-hidden="true" />
         </button>
       )}
       {expanded && (
@@ -56,8 +60,8 @@ export default function WakacjePrimarySearch({
           />
         </div>
       )}
-      <p className={styles.note}>
-        Oferty partnerskie dostępne przez Tripownię. Formularz i rezerwacja są obsługiwane przez zewnętrznego partnera; ceny i dostępność potwierdzisz przed zakupem.
+      <p className={styles.note}><ShieldCheck size={17} aria-hidden="true"/>
+        <span>Wyszukujesz w Tripowni, a finalizujesz rezerwację u sprawdzonego partnera. Cenę i dostępność potwierdzisz przed zakupem.</span>
       </p>
     </section>
   );
