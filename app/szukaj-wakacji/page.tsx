@@ -3,6 +3,7 @@ import Link from 'next/link';
 import ReadySearchGrid from '@/components/ReadySearchGrid';
 import SalesCollectionSchema from '@/components/SalesCollectionSchema';
 import SiteHeader from '@/components/SiteHeader';
+import WakacjePrimarySearch from '@/components/WakacjePrimarySearch';
 import { partners } from '@/lib/partners';
 import SiteFooter from '@/components/SiteFooter';
 
@@ -21,7 +22,7 @@ export default function PackageSearchPage() {
         <h1>Wyszukiwarka wycieczek: znajdź wakacje z biurem podróży</h1>
         <p>Wybierz kierunek, termin, lotnisko i uczestników. Wyniki i rezerwację otworzysz w serwisie rezerwacyjnym.</p>
       </div></div>
-      <iframe id="wyszukiwarka-wycieczek" src="/widgets/wakacje-search.html" title="Wyszukiwarka wycieczek" style={{ width: '100%', height: '850px', border: 0, borderRadius: '16px' }} />
+      <WakacjePrimarySearch id="wyszukiwarka-wycieczek" title="Wyszukaj wycieczkę w pełnej ofercie" description="Wybierz dokąd, skąd i kiedy. Przeglądaj pakiety wielu organizatorów w głównej wyszukiwarce Tripowni." />
       <p>Jeśli wyszukiwarka się nie wyświetla, <a href={`/sprawdz-oferte?${new URLSearchParams({ partner: 'wakacje', target: partners.wakacje.buildUrl(), source: 'wakacje_widget' })}`}>przejdź do wyszukiwania wycieczek</a>.</p>
     </section>
     <section className="section shell">

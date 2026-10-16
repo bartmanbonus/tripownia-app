@@ -198,8 +198,11 @@ export function matchesEskyBrowserSearch(offer: BrowserEskyPackage, search: Brow
   if (!boardMatches(offer.board, search.board)) return false;
 
   if (search.weekendOnly) {
-    const weekday = new Date(`${offer.startDateISO}T12:00:00Z`).getUTCDay();
-    if (![5, 6].includes(weekday) || offer.nights > 4) return false;
+    const start = new Date(`${offer.startDateISO}T12:00:00Z`);
+    const containsSaturday = Array.from({ length: offer.nights }, (_, offset) =>
+      (start.getUTCDay() + offset) % 7 === 6
+    ).some(Boolean);
+    if (!containsSaturday) return false;
   }
 
   if (search.lastMinuteOnly) {

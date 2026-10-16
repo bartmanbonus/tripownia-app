@@ -11,7 +11,7 @@ export default function WakacjeDiscovery() {
   const title = path.includes('last-minute') ? 'Sprawdź wycieczki last minute'
     : path.includes('all-inclusive') ? 'Więcej możliwości na All Inclusive'
     : /kierunki|dalekie|podroze/.test(path) ? 'Szukasz wycieczki w tym kierunku?'
-    : 'Jeszcze więcej wyjazdów do wyboru';
+    : 'Wyszukaj wycieczki z wielu biur podróży';
   return <section className="section shell" aria-label="Sprawdź wycieczkę">
     <div className="travel-discovery">
       <div className="kicker">ZAPLANUJ WYJAZD</div>

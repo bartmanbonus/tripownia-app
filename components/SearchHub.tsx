@@ -6,6 +6,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, MapPin, Plane, Search, Sparkles, Trash2, X } from "lucide-react";
 import OfferCard from "@/components/OfferCard";
+import WakacjePrimarySearch from "@/components/WakacjePrimarySearch";
 import HotelGuestsPicker, { type HotelGuestsValue } from "@/components/HotelGuestsPicker";
 import HotelStayPicker, { DEFAULT_HOTEL_DATE_PREFERENCES, type HotelDatePreferences } from "@/components/HotelStayPicker";
 import DresdenCityBreakOptions from "@/components/DresdenCityBreakOptions";
@@ -188,7 +189,7 @@ function standaloneHotelPartnerUrl(destinations: string[], from?: string, to?: s
 
 function cleanRows(rows: any[], query: string) {
   const cleaned = rows
-    .filter((o: any) => ["exim", "tui", "esky"].includes(String(o.partner || "").toLowerCase()))
+    .filter((o: any) => ["wakacje", "exim", "tui", "esky"].includes(String(o.partner || "").toLowerCase()))
     .filter((o: any) => isTravelDestinationAllowed(String(o.city || ""), String(o.country || "")))
     .filter(isSearchInventoryOffer)
     .sort((a: any, b: any) => Number(a.price || Infinity) - Number(b.price || Infinity));
@@ -386,7 +387,7 @@ export default function SearchHub({
   const [calendarView, setCalendarView] = useState<"calendar" | "months">("calendar");
   const [dateFrom, setDateFrom] = useState(initialDateFrom);
   const [dateTo, setDateTo] = useState(initialDateTo);
-  const [duration, setDuration] = useState(initialDuration || "all");
+  const [duration, setDuration] = useState(initialTab === "City break" && (initialDuration === "all" || !initialDuration) ? "2-4" : initialDuration || "all");
   const [durationOpen, setDurationOpen] = useState(false);
   const [durationDraftMin, setDurationDraftMin] = useState(() => durationPickerRange(initialDuration || "all").min);
   const [durationDraftMax, setDurationDraftMax] = useState(() => durationPickerRange(initialDuration || "all").max);
@@ -394,7 +395,7 @@ export default function SearchHub({
   const [customBudgetMin, setCustomBudgetMin] = useState("");
   const [customBudgetMax, setCustomBudgetMax] = useState("");
   const [board, setBoard] = useState(initialBoard);
-  const [weekendOnly, setWeekendOnly] = useState(initialWeekendOnly);
+  const [weekendOnly, setWeekendOnly] = useState(initialTab === "City break" || initialWeekendOnly);
   const [hotelGuests, setHotelGuests] = useState<HotelGuestsValue>({ adults: initialHotelAdults, rooms: initialHotelRooms, childAges: initialHotelChildAges });
   const [hotelError, setHotelError] = useState("");
   const [hotelDatePreferences, setHotelDatePreferences] = useState<HotelDatePreferences>(DEFAULT_HOTEL_DATE_PREFERENCES);
@@ -518,8 +519,15 @@ export default function SearchHub({
     if (resultSort === "price") return rankSearchOffers(displayRows);
     if (resultSort === "rating") return [...displayRows].sort((a, b) => searchTier(a) - searchTier(b) || Number(b?.score || 0) - Number(a?.score || 0) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
     if (resultSort === "nights") return [...displayRows].sort((a, b) => searchTier(a) - searchTier(b) || Number(a?.nights || Infinity) - Number(b?.nights || Infinity) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
+    if (resultSort === "recommended") {
+      const priority = (offer: any) => {
+        if (["Wakacje", "All Inclusive", "Last minute"].includes(activeTab)) return offer?.partner === "wakacje" ? 0 : offer?.partner === "esky" ? 1 : 2;
+        return offer?.partner === "esky" ? 0 : 1;
+      };
+      return [...displayRows].sort((a, b) => searchTier(a) - searchTier(b) || priority(a) - priority(b) || Number(a?.price || Infinity) - Number(b?.price || Infinity));
+    }
     return displayRows;
-  }, [scopedResults, resultLocation, resultSort, resultView, resultQuery, resultPriceLimit]);
+  }, [scopedResults, resultLocation, resultSort, resultView, resultQuery, resultPriceLimit, activeTab]);
 
   const exactVisibleResults = useMemo(
     () => visibleResults.filter((offer) => searchTier(offer) === 0),
@@ -534,7 +542,7 @@ export default function SearchHub({
     setDestination("");
     setSelectedDestinations(initialDestinations);
     setDepartures(initialAirports);
-    setDuration(initialDuration || "all");
+    setDuration(initialTab === "City break" && (initialDuration === "all" || !initialDuration) ? "2-4" : initialDuration || "all");
     setBudget(initialBudget || "all");
     setActiveTab(initialTab);
     setBoard(initialBoard);
@@ -543,7 +551,7 @@ export default function SearchHub({
     setDateTo(initialDateTo);
     setMonth(initialMonth);
     setCalendarMonth(initialMonth || initialDateFrom.slice(0, 7));
-    setWeekendOnly(initialWeekendOnly);
+    setWeekendOnly(initialTab === "City break" || initialWeekendOnly);
   }, [
     initialAirports.join("|"),
     initialDestinations.join("|"),
@@ -829,7 +837,7 @@ export default function SearchHub({
           const timer = window.setTimeout(abort, 55000);
           try {
             const data = provider === "esky"
-              ? await fetchEskyBrowserPackages({
+              ? await (async () => { const browser = await fetchEskyBrowserPackages({
                   query: target,
                   departure: relaxAirports ? "" : departures.join(","),
                   cityBreak: activeMode === "City break",
@@ -842,7 +850,19 @@ export default function SearchHub({
                   board: params.get("board") || undefined,
                   weekendOnly: params.get("weekend") === "1",
                   lastMinuteOnly: params.get("lastMinute") === "1",
-                }, timeout.signal)
+                }, timeout.signal);
+                  if (browser.offers.length) return browser;
+                  // If browser-side access is blocked, try the live server inventory.
+                  // Never label a published fallback price as a live offer.
+                  try {
+                    const response = await fetch(`/api/today-offers?${params}&fast=1`, { cache: "no-store", signal: timeout.signal });
+                    const payload = await response.json();
+                    if (response.ok && payload?.sourceType === "live" && Array.isArray(payload.offers)) {
+                      return { ...browser, offers: payload.offers, partial: Boolean(payload.partial) };
+                    }
+                  } catch { /* keep the browser result and report incomplete coverage */ }
+                  return browser;
+                })()
               : await (async () => {
                   const response = await fetch(`/api/today-offers?${params}`, { cache: "no-store", signal: timeout.signal });
                   const payload = await response.json();
@@ -1170,12 +1190,12 @@ export default function SearchHub({
     setDurationOpen(false);
     setActiveTab(tab);
     if (tab === "Hotele") { setDateMode("range"); setMonth(""); setSelectedDestinations((current) => current.slice(0, 1)); }
-    setDuration("all");
+    setDuration(tab === "City break" ? "2-4" : "all");
     setBudget("all");
     setCustomBudgetMin("");
     setCustomBudgetMax("");
     setBoard("all");
-    setWeekendOnly(false);
+    setWeekendOnly(tab === "City break");
     setSearched(false);
     setResults([]);
     setResultLocation("");
@@ -1190,10 +1210,10 @@ export default function SearchHub({
   }
 
   function quickSearch(label: string, overrides: SearchOverrides) {
-    const nextDuration = overrides.duration ?? "all";
+    const nextDuration = overrides.duration ?? ((overrides.tab || activeTab) === "City break" ? "2-4" : "all");
     const nextBudget = overrides.budget ?? "all";
     const nextBoard = overrides.board ?? "all";
-    const nextWeekend = overrides.weekendOnly ?? false;
+    const nextWeekend = overrides.weekendOnly ?? ((overrides.tab || activeTab) === "City break");
 
     const canonicalLabel = canonicalSearchDestination(label);
     setSuggestionsOpen(false);
@@ -1233,10 +1253,10 @@ export default function SearchHub({
     setCalendarMonth("");
     setDateFrom("");
     setDateTo("");
-    setDuration("all");
+    setDuration(activeTab === "City break" ? "2-4" : "all");
     setBudget("all");
     setBoard("all");
-    setWeekendOnly(false);
+    setWeekendOnly(activeTab === "City break");
     setFlightAdults(1);
     setHotelGuests({ adults: 2, rooms: 1, childAges: [] });
     setHotelDatePreferences(DEFAULT_HOTEL_DATE_PREFERENCES);
@@ -1379,6 +1399,14 @@ export default function SearchHub({
             <button key={tab} type="button" aria-pressed={activeTab === tab} className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
+        {!embedded && activeTab !== "Loty" && activeTab !== "Hotele" && (
+          <p className="search-v3-mode-hint" role="status">
+            {activeTab === "City break" ? "Krótki wyjazd: domyślnie 2–4 noce i termin obejmujący weekend. Możesz wybrać także 5–7 nocy."
+              : activeTab === "Lot + hotel" ? "Lot i nocleg w jednym pakiecie — dowolna długość i elastyczne terminy."
+              : activeTab === "Last minute" ? "Bliskie terminy i wycieczki z wielu biur — pełna wyszukiwarka poniżej."
+              : "Wakacje i All Inclusive: pełna oferta wycieczek w wyszukiwarce poniżej."}
+          </p>
+        )}
 
         {activeTab === "Loty" ? (
           <div className="search-v3-flight-center">
@@ -1557,8 +1585,6 @@ export default function SearchHub({
                       setMonth("");
                       setDateFrom("");
                       setDateTo("");
-                      setDuration("all");
-                      setWeekendOnly(false);
                     }}
                   ><Trash2 size={18}/></button>
                 </div>
@@ -1657,15 +1683,10 @@ export default function SearchHub({
                   <div className="search-v3-esky-nights">
                     <strong>Na jak długo?</strong>
                     <div>
-                      {[
-                        ["all","Dowolnie"],
-                        ["2-3","2–3"],
-                        ["3-4","3–4"],
-                        ["5-7","5–7"],
-                        ["7-10","7–10"],
-                        ["11-14","11–14"],
-                        ["15+","15+"],
-                      ].map(([value,label]) => (
+                      {(activeTab === "City break"
+                        ? [["2-4", "2–4"], ["5-7", "5–7"], ["all", "Dowolnie"]]
+                        : [["all","Dowolnie"], ["2-3","2–3"], ["3-4","3–4"], ["5-7","5–7"], ["7-10","7–10"], ["11-14","11–14"], ["15+","15+"]]
+                      ).map(([value,label]) => (
                         <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label}</button>
                       ))}
                     </div>
@@ -1860,6 +1881,10 @@ export default function SearchHub({
         )}
 
 
+
+        {["Wakacje", "All Inclusive", "Last minute"].includes(activeTab) && !["/wakacje", "/last-minute", "/szukaj-wakacji"].includes(pathname || "") && (
+          <WakacjePrimarySearch compact title="Wakacje i egzotyka — pełna wyszukiwarka" description="Wycieczki wielu organizatorów, a pod spodem dodatkowe pakiety. Wybierz lotnisko, kierunek i termin bezpośrednio w wyszukiwarce." />
+        )}
 
         {searched && activeTab === "Hotele" && pathname === "/hotele" && hotelSearchDestination && (
           <div className="hotel-search-ready" role="status" aria-live="polite">

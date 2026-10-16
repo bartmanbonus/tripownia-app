@@ -4,6 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
 import { partners } from "@/lib/partners";
+import WakacjePrimarySearch from "@/components/WakacjePrimarySearch";
 import { LONG_HAUL_IMAGES } from "@/lib/longHaulImages";
 
 export const revalidate = 86400;
@@ -167,6 +168,7 @@ export default function LongHaulPage() {
         </div>
       </section>
 
+      <section className="section shell"><WakacjePrimarySearch title="Egzotyka: znajdź gotową wycieczkę" description="Zanzibar, Malediwy, Tajlandia, Kenia, Mauritius i inne dalekie kierunki. Wyszukaj pakiet z lotem, hotelem i wyżywieniem; poniżej możesz również ułożyć wyjazd samodzielnie." /></section>
       <section className="section shell long-haul-intro">
         <div className="section-heading">
           <div><div className="kicker">WIĘKSZA PODRÓŻ</div><h2>Tu nie wybieramy tylko miasta.</h2><p>Przy dalekim wyjeździe liczy się sezon, długość pobytu, przesiadki i to, czy da się sensownie połączyć kilka miejsc.</p></div>

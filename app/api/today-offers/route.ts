@@ -1015,7 +1015,7 @@ export async function GET(request: NextRequest) {
     const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && isPromotableOffer(offer));
 
     // Short city breaks must remain affordable, even when a destination has only expensive stock.
-    const cityBreakPool = pool.filter(offer => offer.nights >= 1 && offer.nights <= 5 && hasConcreteDates(offer));
+    const cityBreakPool = pool.filter(offer => offer.nights >= 1 && offer.nights <= 7 && hasConcreteDates(offer));
     const selected = mode === "newyear"
       ? cheapestPerDestination(
           pool.filter((offer) => {
