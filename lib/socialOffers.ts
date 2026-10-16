@@ -78,6 +78,25 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "porto-star-inn-1609-swieta-2026": {
+    slug: "porto-star-inn-1609-swieta-2026",
+    city: "Porto",
+    country: "Portugalia",
+    price: 1609,
+    departure: "Warszawa–Chopina",
+    nights: 7,
+    dates: "24–31 grudnia 2026",
+    board: "Bez wyżywienia (własne)",
+    hotel: "Star Inn Porto 3★",
+    partner: "wakacje",
+    partnerLabel: "Wakacje.pl",
+    affiliateUrl: "https://www.wakacje.pl/oferty/portugalia/porto/porto/star-inn-porto-1166348.html?od-2026-12-24,7-dni,wlasne,z-warszawy&a_aid=3212&utm_source=travellead&utm_medium=cps&utm_campaign=3212-tripownia.pl&utm_content=widget-search",
+    imageSrc: "/images/destinations/porto.jpg",
+    imageCountry: "Portugalia",
+    checkedAt: "2026-10-16T15:38:00+02:00",
+    status: "active",
+    included: ["Przelot z Warszawy", "7 noclegów", "2 osoby dorosłe", "Organizator: Exim Tours"],
+  },
   "londyn-city-break-809-styczen-2027": {
     slug: "londyn-city-break-809-styczen-2027",
     city: "Londyn",
