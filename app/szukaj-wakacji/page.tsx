@@ -4,7 +4,7 @@ import { ShieldCheck, Sparkles, Search } from 'lucide-react';
 import ReadySearchGrid from '@/components/ReadySearchGrid';
 import SalesCollectionSchema from '@/components/SalesCollectionSchema';
 import SiteHeader from '@/components/SiteHeader';
-import WakacjePrimarySearch from '@/components/WakacjePrimarySearch';
+import SearchHub from '@/components/SearchHub';
 import { partners } from '@/lib/partners';
 import SiteFooter from '@/components/SiteFooter';
 
@@ -35,7 +35,7 @@ export default function PackageSearchPage() {
         </div>
       </div>
       <div className="shell holiday-landing-search">
-        <WakacjePrimarySearch featured id="wyszukiwarka-wycieczek" title="Wyszukaj wymarzone wakacje" description="Kierunek, termin, lotnisko i uczestnicy — zacznij od wyszukiwarki poniżej." />
+        <div id="wyszukiwarka-wycieczek" className="holiday-landing-native-search"><SearchHub embedded initialTab="Wakacje" /></div>
         <p className="holiday-landing-fallback">Jeśli wyszukiwarka nie działa, <a href={`/sprawdz-oferte?${new URLSearchParams({ partner: 'wakacje', target: partners.wakacje.buildUrl(), source: 'wakacje_widget' })}`}>otwórz pełne wyszukiwanie wycieczek</a>.</p>
       </div>
     </section>
@@ -78,6 +78,11 @@ export default function PackageSearchPage() {
       .holiday-landing-trust svg{color:#f0522b}
       .holiday-landing-hero-photo{min-height:285px;align-self:stretch;background:url('/images/destinations/majorka.jpg') center/cover;border-radius:90px 20px 90px 20px;box-shadow:0 14px 34px rgba(28,73,91,.16)}
       .holiday-landing-search{position:relative;z-index:2;margin-top:-67px}
+      .holiday-landing-native-search{padding:clamp(16px,2.5vw,28px);border:1px solid #ead8cc;border-radius:24px;background:#fff;box-shadow:0 16px 48px rgba(25,28,47,.10)}
+      .holiday-landing-native-search .search-v3-embedded .search-v3-head{padding:0 0 16px!important}
+      .holiday-landing-native-search .search-v3-embedded .search-v3-form{padding:0 0 18px!important}
+      .holiday-landing-native-search .search-v3-embedded .search-v3-tabs{padding:0 0 16px!important}
+      .holiday-landing-native-search .search-v3-embedded .search-v3-submit{background:#f4512c!important;color:#fff!important}
       .holiday-landing-fallback{padding:0 12px;font-size:12px;color:#727780}
       .holiday-landing-fallback a{color:#e64c2d;font-weight:800}
       @media(max-width:760px){.holiday-landing-hero-inner{grid-template-columns:1fr;padding:26px 0 72px;gap:16px}.holiday-landing-hero h1{font-size:clamp(34px,9vw,48px)}.holiday-landing-hero-photo{min-height:150px;max-height:190px;border-radius:20px}.holiday-landing-search{margin-top:-48px}.holiday-landing-trust{gap:10px}}
