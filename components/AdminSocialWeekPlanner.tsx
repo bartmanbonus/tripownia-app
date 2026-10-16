@@ -86,6 +86,8 @@ export default function AdminSocialWeekPlanner(){
   const [publishing,setPublishing]=useState<number|null>(null);
   const [linkPlacement,setLinkPlacement]=useState<"post"|"comment">("comment");
   const [liveOffers,setLiveOffers]=useState<Offer[]>([]);
+  const [canPublish,setCanPublish]=useState(false);
+  const [historyWarning,setHistoryWarning]=useState("");
   const [liveLoading,setLiveLoading]=useState(true);
   const [liveError,setLiveError]=useState("");
   const [recentDestinationKeys,setRecentDestinationKeys]=useState<string[]>([]);
@@ -97,12 +99,16 @@ export default function AdminSocialWeekPlanner(){
     Promise.all([
       fetch("/api/today-offers?mode=search&broad=1&fast=1",{cache:"no-store"}),
       adminFetch("/api/admin/social-publish?days=7"),
+      adminFetch("/api/admin/access?scope=social-review"),
     ])
-      .then(async([liveResponse,historyResponse])=>{
-        const [liveData,historyData]=await Promise.all([liveResponse.json(),historyResponse.json()]);
+      .then(async([liveResponse,historyResponse,accessResponse])=>{
+        const [liveData,historyData,accessData]=await Promise.all([liveResponse.json(),historyResponse.json(),accessResponse.json()]);
+        if(!accessResponse.ok||!accessData?.ok) throw new Error("Nie udało się potwierdzić dostępu do przeglądu");
         if(!liveResponse.ok||!liveData?.ok) throw new Error(liveData?.error||"Nie udało się pobrać dzisiejszych ofert");
         if(!historyResponse.ok||!historyData?.ok) throw new Error(historyData?.error||"Nie udało się pobrać historii publikacji");
         if(active){
+          setCanPublish(accessData.user?.role==="admin");
+          setHistoryWarning(historyData.historyUnavailable ? "Historia publikacji jest teraz niedostępna. Weryfikuj powtórki ręcznie przed publikacją." : "");
           const verifiedOffers=(Array.isArray(liveData.offers)?liveData.offers:[]).filter((offer:Offer)=>isPromotableOffer(offer));
           setLiveOffers(verifiedOffers);
           const rows=Array.isArray(historyData.rows)?historyData.rows:[];
@@ -135,7 +141,7 @@ export default function AdminSocialWeekPlanner(){
   }
 
   async function publish(item: ReturnType<typeof getSocialDailyPlan>["items"][number]){
-    if(statuses[item.offer.id]!=="approved") return;
+    if(!canPublish||statuses[item.offer.id]!=="approved") return;
     setPublishing(item.offer.id);
     try{
       const response=await adminFetch("/api/admin/social-publish",{
@@ -186,6 +192,7 @@ export default function AdminSocialWeekPlanner(){
           <div className="kicker">{plan.dayName.toLocaleUpperCase("pl")} · {selected}</div>
           {selected===key(today) && liveLoading && <p style={{margin:"6px 0 0"}}>Pobieram świeże oferty…</p>}
           {selected===key(today) && liveError && <p style={{margin:"6px 0 0"}}>Live feed: {liveError}</p>}
+          {selected===key(today) && historyWarning && <p style={{margin:"6px 0 0"}}>{historyWarning}</p>}
           <h2>{plan.theme}</h2>
           <p>{plan.description}</p>
           {selected===key(today) && <p style={{margin:"6px 0 0",fontSize:12}}>Wykluczono {Math.max(0,liveOffers.length-eligibleLiveOffers.length)} ofert przez historię kierunku/hotelu z ostatnich 7 dni.</p>}
@@ -209,6 +216,7 @@ export default function AdminSocialWeekPlanner(){
           const flight=item.kind==="flight";
           const hasPrice=item.offer.price>0;
           const manualFlight=flight&&!hasPrice;
+          const curated=findSocialOfferForCatalogOffer({affiliateUrl:item.offer.affiliateUrl,city:item.offer.city,hotel:item.offer.hotel,price:item.offer.price});
           return <article key={item.offer.id} className={styles.card}>
             <div className={styles.image} style={{backgroundImage:`url(${item.offer.image})`}}>
               <span className={styles.time}>{item.time}</span>
@@ -221,11 +229,13 @@ export default function AdminSocialWeekPlanner(){
               <p>📅 {item.offer.dates}<br/>✈️ {item.offer.departure}{flight?` → ${item.offer.city}`:` · ${item.offer.nights} nocy`}</p>
               <div className={styles.reason}>{item.priceGem.reason}</div>
               {index<2 && <details style={{marginTop:10}}><summary style={{cursor:"pointer",fontWeight:800}}>Podgląd treści posta</summary><pre style={{whiteSpace:"pre-wrap",fontFamily:"inherit",fontSize:12,lineHeight:1.5,margin:"8px 0 0"}}>{buildText(item,linkPlacement)}</pre></details>}
+              {curated ? <details style={{marginTop:10}}><summary style={{cursor:"pointer",fontWeight:800}}>Zobacz grafiki Tripowni (feed, Story, TikTok)</summary><div style={{display:"flex",gap:10,flexWrap:"wrap",marginTop:12}}>{(["feed","story","tiktok"] as const).map(format=><a key={format} href={`/api/social-card/${encodeURIComponent(curated.slug)}?format=${format}`} target="_blank" rel="noopener noreferrer" style={{display:"grid",gap:4,maxWidth:130,fontSize:12,fontWeight:700}}><img loading="lazy" src={`/api/social-card/${encodeURIComponent(curated.slug)}?format=${format}`} alt={`Grafika ${format} — ${item.offer.city}`} width={format==="feed"?120:76} height={120} style={{maxHeight:120,objectFit:"contain",borderRadius:9,background:"#eee"}}/><span>{format==="feed"?"Feed FB/IG":format==="story"?"Story":"TikTok"} ↗</span></a>)}</div></details> : <small style={{display:"block",marginTop:10}}>Brak gotowych grafik w zatwierdzonym szablonie dla tej oferty — nie publikuj bez przygotowania kreacji.</small>}
               <div className={styles.actions}>
-                {index<2 && status==="proposal" && <button onClick={()=>setStatuses((s)=>({...s,[item.offer.id]:"approved"}))}><Check size={15}/> {manualFlight?"Zatwierdź po sprawdzeniu":"Zatwierdź feed"}</button>}
-                {index<2 && status==="approved" && <button onClick={()=>publish(item)} disabled={publishing===item.offer.id}><Send size={15}/> {publishing===item.offer.id?"Publikuję…":"Publikuj FB + IG"}</button>}
-                {index<2 && status==="published" && <span>✓ Opublikowano</span>}
+                {index<2 && canPublish && status==="proposal" && <button onClick={()=>setStatuses((s)=>({...s,[item.offer.id]:"approved"}))}><Check size={15}/> {manualFlight?"Zatwierdź po sprawdzeniu":"Zatwierdź feed"}</button>}
+                {index<2 && canPublish && status==="approved" && <button onClick={()=>publish(item)} disabled={publishing===item.offer.id}><Send size={15}/> {publishing===item.offer.id?"Publikuję…":"Publikuj FB + IG"}</button>}
+                {index<2 && canPublish && status==="published" && <span>✓ Opublikowano</span>}
                 {index>=2 && <span>Story — kandydat do przygotowania</span>}
+                {!canPublish && index<2 && <span>Podgląd — publikacja zablokowana</span>}
                 <a href={item.offer.affiliateUrl} target="_blank" rel="sponsored noreferrer">{flight?"Sprawdź lot":"Sprawdź ofertę"} <ExternalLink size={14}/></a>
               </div>
             </div>

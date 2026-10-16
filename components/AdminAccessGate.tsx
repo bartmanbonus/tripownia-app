@@ -7,17 +7,19 @@ import { adminFetch } from "@/lib/adminClient";
 
 type State = "checking" | "allowed" | "signed_out" | "forbidden" | "error";
 
-export default function AdminAccessGate({ children }: { children: ReactNode }) {
+export default function AdminAccessGate({ children, allowReviewer = false }: { children: ReactNode; allowReviewer?: boolean }) {
   const [state, setState] = useState<State>("checking");
 
   useEffect(() => {
     let active = true;
 
-    void adminFetch("/api/admin/access")
-      .then((response) => {
+    void adminFetch(allowReviewer ? "/api/admin/access?scope=social-review" : "/api/admin/access")
+      .then(async (response) => {
         if (!active) return;
         if (response.ok) {
-          setState("allowed");
+          const body = await response.json() as { user?: { role?: string } };
+          if (!active) return;
+          setState(body.user?.role === "admin" || (allowReviewer && body.user?.role === "reviewer") ? "allowed" : "forbidden");
           return;
         }
         if (response.status === 401) setState("signed_out");
@@ -29,7 +31,7 @@ export default function AdminAccessGate({ children }: { children: ReactNode }) {
       });
 
     return () => { active = false; };
-  }, []);
+  }, [allowReviewer]);
 
   if (state === "checking") {
     return (
@@ -50,7 +52,7 @@ export default function AdminAccessGate({ children }: { children: ReactNode }) {
           <strong>{state === "forbidden" ? "To konto nie ma dostępu do panelu administratora." : "Panel administratora wymaga zalogowania."}</strong>
           <span>
             {state === "forbidden"
-              ? "Dostęp jest nadawany wyłącznie przez rolę admin w zabezpieczonych metadanych konta."
+              ? "To konto nie ma roli administratora ani dostępu do przeglądu Social Studio."
               : "Zaloguj się na konto administracyjne i wróć do panelu."}
           </span>
           <Link className="primary-cta" href="/konto">Przejdź do logowania →</Link>

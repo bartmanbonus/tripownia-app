@@ -20,10 +20,10 @@ function bearerToken(request: NextRequest) {
 }
 
 export type AdminAuthResult =
-  | { ok: true; token: string; user: { id: string; email?: string; app_metadata?: Record<string, unknown> } }
+  | { ok: true; token: string; role: "admin" | "reviewer"; user: { id: string; email?: string; app_metadata?: Record<string, unknown> } }
   | { ok: false; status: 401 | 403; error: string };
 
-export async function verifyAdminRequest(request: NextRequest): Promise<AdminAuthResult> {
+export async function verifyAdminRequest(request: NextRequest, allowReviewer = false): Promise<AdminAuthResult> {
   const token = bearerToken(request);
   if (!token) {
     return { ok: false, status: 401, error: "Brak sesji administratora." };
@@ -46,13 +46,26 @@ export async function verifyAdminRequest(request: NextRequest): Promise<AdminAut
     id: string;
     email?: string;
     app_metadata?: Record<string, unknown>;
+    email_confirmed_at?: string | null;
   };
 
-  if (user.app_metadata?.role !== "admin") {
-    return { ok: false, status: 403, error: "Konto nie ma uprawnień administratora." };
+  if (user.app_metadata?.role === "admin") {
+    return { ok: true, token, user, role: "admin" };
   }
 
-  return { ok: true, token, user };
+  // Reviewer rights are limited to explicit read-only routes. Never trust user_metadata.
+  const reviewers = new Set(
+    (process.env.TRIPOWNIA_REVIEWER_EMAILS || "")
+      .split(",")
+      .map((value) => value.trim().toLowerCase())
+      .filter(Boolean)
+  );
+  const verifiedEmail = typeof user.email_confirmed_at === "string" && Boolean(user.email_confirmed_at);
+  if (allowReviewer && verifiedEmail && user.email && reviewers.has(user.email.trim().toLowerCase())) {
+    return { ok: true, token, user, role: "reviewer" };
+  }
+
+  return { ok: false, status: 403, error: "Konto nie ma uprawnień do tego panelu." };
 }
 
 export function adminAuthError(result: Extract<AdminAuthResult, { ok: false }>) {

@@ -4,7 +4,8 @@ import { adminAuthError, verifyAdminRequest } from "@/lib/adminAuthServer";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
-  const auth = await verifyAdminRequest(request);
+  const socialReview = request.nextUrl.searchParams.get("scope") === "social-review";
+  const auth = await verifyAdminRequest(request, socialReview);
   if (!auth.ok) return adminAuthError(auth);
 
   return NextResponse.json(
@@ -13,7 +14,7 @@ export async function GET(request: NextRequest) {
       user: {
         id: auth.user.id,
         email: auth.user.email || null,
-        role: "admin",
+        role: auth.role,
       },
     },
     {
