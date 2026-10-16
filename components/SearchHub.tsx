@@ -1,6 +1,7 @@
 "use client";
 
 import HybridSearchLinks from "@/components/HybridSearchLinks";
+import WakacjePrimarySearch from "@/components/WakacjePrimarySearch";
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -373,6 +374,7 @@ export default function SearchHub({
 }: Props) {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [partnerWidgetKey, setPartnerWidgetKey] = useState(0);
   const [destination, setDestination] = useState("");
   const [anywhereSelected, setAnywhereSelected] = useState(false);
   const [selectedDestinations, setSelectedDestinations] = useState<string[]>(initialDestinations);
@@ -1237,6 +1239,7 @@ export default function SearchHub({
   }
 
   function resetSearch() {
+    setPartnerWidgetKey(key => key + 1);
     searchRunRef.current += 1;
     searchAbortRef.current?.abort();
     setDestination("");
@@ -1348,6 +1351,7 @@ export default function SearchHub({
       ? `od ${isoLabel(dateFrom)}`
       : "termin elastyczny";
 
+  const directHomeWakacje = !embedded && pathname === "/" && activeTab === "Wakacje";
   const simpleHomePackage = !embedded && activeTab !== "Loty" && activeTab !== "Hotele";
   const visibleTabs = embedded
     ? ["Lot + hotel", "City break", "Last minute", "Wakacje", "All Inclusive", "Loty", "Hotele"]
@@ -1398,7 +1402,7 @@ export default function SearchHub({
             <button key={tab} type="button" aria-pressed={activeTab === tab} className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
-        {!embedded && activeTab !== "Loty" && activeTab !== "Hotele" && (
+        {!embedded && !directHomeWakacje && activeTab !== "Loty" && activeTab !== "Hotele" && (
           <p className="search-v3-mode-hint" role="status" style={{ margin: "3px 22px 16px", padding: "10px 14px", color: "#56463e", background: "#fff8f3", border: "1px solid #f2ded0", borderRadius: 12, fontSize: 13, lineHeight: 1.5 }}>
             {activeTab === "City break" ? "Krótki wyjazd: domyślnie 3–4 noce (minimum 2 dni między podróżami) i termin obejmujący weekend. Możesz wybrać także 5–7 nocy."
               : activeTab === "Lot + hotel" ? "Lot i nocleg w jednym pakiecie — dowolna długość i elastyczne terminy."
@@ -1407,7 +1411,9 @@ export default function SearchHub({
           </p>
         )}
 
-        {activeTab === "Loty" ? (
+        {directHomeWakacje ? (
+          <WakacjePrimarySearch key={partnerWidgetKey} inline />
+        ) : activeTab === "Loty" ? (
           <div className="search-v3-flight-center">
             <FlexibleFlightsExplorer />
 
@@ -1881,7 +1887,7 @@ export default function SearchHub({
 
 
 
-        {["Wakacje", "All Inclusive", "Last minute"].includes(activeTab) && !["/wakacje", "/last-minute", "/szukaj-wakacji"].includes(pathname || "") && (
+        {!directHomeWakacje && ["Wakacje", "All Inclusive", "Last minute"].includes(activeTab) && !["/wakacje", "/last-minute", "/szukaj-wakacji"].includes(pathname || "") && (
           <div className="search-v3-partner-link">
             <span>Więcej wycieczek i hoteli w jednym miejscu — bez powtarzania wyszukiwarki.</span>
             <Link href="/szukaj-wakacji">Zobacz pełną ofertę wakacji <ArrowRight size={17} aria-hidden="true" /></Link>
@@ -1959,7 +1965,7 @@ export default function SearchHub({
           </div>
         )}
 
-        {searched && activeTab !== "Hotele" && (
+        {searched && activeTab !== "Hotele" && !directHomeWakacje && (
           <div className="search-v3-results">
             <div className="search-v3-active-summary">
               <strong>{submittedSummary.destination}</strong>
