@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { publishFacebook, publishInstagram } from "@/lib/social-automation";
 import { getSocialOfferById } from "@/lib/social-offer-pool";
 import { getLinkMatch, isOfferExpired, type Offer } from "@/lib/offers";
+import { hasEnoughDestinationDays } from "@/lib/tripDayQuality";
 import { adminAuthError, verifyAdminRequest } from "@/lib/adminAuthServer";
 import { getRecentSocialPublicationEvents, recordSocialPublicationEvents } from "@/lib/socialPublicationStore";
 
@@ -53,6 +54,10 @@ export async function POST(request: NextRequest) {
     const offer = getSocialOfferById(offerId) || suppliedOffer;
     if (!offer || isOfferExpired(offer) || getLinkMatch(offer) === "unsafe") {
       return NextResponse.json({ ok: false, error: "Oferta nie istnieje, wygasła lub ma niespójny link." }, { status: 404 });
+    }
+
+    if (!hasEnoughDestinationDays(offer)) {
+      return NextResponse.json({ ok: false, error: "Nie publikujemy wycieczek bez co najmniej 2 pelnych dni na miejscu. Sprawdz daty i godziny lotow." }, { status: 422 });
     }
 
     const channels = Array.isArray(body.channels) && body.channels.length
