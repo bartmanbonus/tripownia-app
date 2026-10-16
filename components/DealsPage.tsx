@@ -116,7 +116,8 @@ function salesSort(rows: DealsOffer[]) {
 }
 
 function diversifiedOfferRows(rows: DealsOffer[]) {
-  return diversifyDestinations(salesSort(dedupedOfferRows(rows)));
+  // Cheapest offers for each destination appear before repeats. Preserve all variants afterwards.
+  return diversifyDestinations(priceSort(dedupedOfferRows(rows)));
 }
 
 function allOfferRows(rows: DealsOffer[], sortMode: SortMode) {
@@ -428,7 +429,7 @@ export default function DealsPage({
       <div className="deals-simple-hero">
         <div>
           <div className="kicker">{kicker}</div>
-          <h1>{destination ? "Okazje: " + destination : "Najtańsze wyjazdy. Bez przekopywania się przez setki ofert."}</h1>
+          <h1>{destination ? "Okazje: " + destination : "Najlepsze okazje. Najpierw cena, potem kierunek."}</h1>
           <p className="deals-simple-lead">
             {loading
               ? "Sprawdzamy aktualne oferty. Zapisane wyniki mogą być widoczne podczas odświeżania."
@@ -438,17 +439,25 @@ export default function DealsPage({
                 ? (rows.length
                     ? "Pokazujemy pakiety zwrócone przez dostępne źródła. Cenę i dostępność potwierdź przed rezerwacją."
                     : "Jeśli źródła pakietów nie pokazują dobrej ceny, sprawdź również same loty lub inne terminy.")
-                : "Pokazujemy całą aktualną pulę bez sztucznego limitu. Domyślnie wyżej są oferty najbardziej gotowe do rezerwacji; możesz przełączyć sortowanie na samą cenę."}
+                : "Najtańsze propozycje z różnych kierunków pokazujemy na początku. Zachowujemy także droższe i dalsze wyjazdy — niczego nie usuwamy z pełnej listy."}
           </p>
         </div>
-        <Link className="primary-cta deals-simple-search" href="/#wyszukiwarka">
-          <Search size={16}/> Wyszukaj po swojemu
+        <Link className="primary-cta deals-simple-search" href="/szukaj-wakacji">
+          <Search size={16}/> Wyszukaj wycieczkę
         </Link>
       </div>
 
       {(dealType === "allinclusive" || Boolean(destination)) && (
         <WakacjePrimarySearch compact title={destination ? `Więcej wyjazdów: ${destination}` : "Porównaj pełną pulę All Inclusive"} description="Wybierz lotnisko, termin i wyżywienie w głównej wyszukiwarce wycieczek. Poniżej znajdziesz również oferty z dodatkowych źródeł." />
       )}
+
+      {!destination && !dealType && <div className="deals-search-spotlight">
+        <div><span className="deals-search-kicker">NIE WIDZISZ SWOJEJ OKAZJI?</span>
+          <strong>Wyszukaj wakacje i All Inclusive</strong>
+          <p>Wybierz termin, kierunek i lotnisko w pełnej wyszukiwarce. Zobacz dodatkowe oferty bez przeglądania przypadkowych kart.</p>
+        </div>
+        <Link href="/szukaj-wakacji" className="deals-search-spotlight-cta"><Search size={19}/> Otwórz wyszukiwarkę <ArrowRight size={18}/></Link>
+      </div>}
 
       {readySearchItems.length > 0 && (
         <section className="deals-ready-searches">
@@ -470,16 +479,16 @@ export default function DealsPage({
           </div>
         )}
         <div className="deals-direction-filter-heading">
-          <strong>Filtruj okazje</strong>
-          <span>Wybierz rodzaj wyjazdu, lotnisko i termin</span>
+          <strong>Znajdź naprawdę dobrą okazję</strong>
+          <span>City breaki, same loty, wakacje i egzotyka — wybierz, co Cię interesuje</span>
         </div>
         <div className="deals-simple-topline">
           <div className="deals-quick-filters" aria-label="Szybkie filtry okazji">
             {([
-              ["all", "Wszystkie"],
+              ["all", "Wszystkie okazje"],
               ["city", "City break"],
               ["allinclusive", "All inclusive"],
-              ["sun", "Ciepło"],
+              ["sun", "Słońce i egzotyka"],
               ["under2000", "Do 2000 zł"],
               ["flight", "Sam lot"],
               ["package", "Pakiety"],
@@ -503,7 +512,7 @@ export default function DealsPage({
               <span>Sortuj</span>
               <select value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)}>
                 <option value="sales">Największa szansa zakupu</option>
-                <option value="mix">Polecany miks</option>
+                <option value="mix">Najtańsze z różnych kierunków</option>
                 <option value="priceAsc">Cena: od najniższej</option>
                 <option value="priceDesc">Cena: od najwyższej</option>
                 <option value="shortest">Najkrótszy wyjazd</option>
@@ -704,6 +713,19 @@ export default function DealsPage({
     <SiteFooter/>
 
     <style jsx>{`
+      .deals-search-spotlight{display:flex;align-items:center;justify-content:space-between;gap:22px;margin:0 0 20px;padding:24px 27px;border:1px solid #f1d8c7;border-radius:21px;background:linear-gradient(115deg,#fff2e9 0%,#fffaf5 54%,#eaf5fa 100%);box-shadow:0 8px 22px rgba(60,38,23,.065)}
+      .deals-search-spotlight>div{max-width:740px}
+      .deals-search-kicker{display:block;color:#e9502d;letter-spacing:.12em;font-size:11px;font-weight:900;margin-bottom:8px}
+      .deals-search-spotlight strong{display:block;color:#1c2543;font-size:clamp(21px,2.5vw,30px);letter-spacing:-.04em;line-height:1.15}
+      .deals-search-spotlight p{margin:8px 0 0;color:#667081;font-size:13px;line-height:1.55}
+      .deals-search-spotlight-cta{display:inline-flex;align-items:center;justify-content:center;gap:11px;flex:0 0 auto;padding:17px 20px;border-radius:13px;background:#f4512c;color:white;font-size:14px;font-weight:850;text-decoration:none;box-shadow:0 10px 22px rgba(244,81,44,.2)}
+      .deals-search-spotlight-cta:hover{background:#df4321}
+      .deals-direction-filter-heading{display:flex;flex-direction:column;gap:4px;margin-bottom:13px}
+      .deals-direction-filter-heading strong{font-size:19px;letter-spacing:-.02em;color:#202537}
+      .deals-direction-filter-heading span{font-size:13px;color:#737885}
+      .deals-quick-filters button.active{background:#f4512c!important;border-color:#f4512c!important;color:#fff!important}
+      @media(max-width:820px){.deals-search-spotlight{display:grid;padding:18px;gap:13px}.deals-search-spotlight-cta{width:100%}}
+      
       .deals-simple-page {
         padding-top: 28px;
         padding-bottom: 36px;
