@@ -78,6 +78,24 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "londyn-city-break-809-styczen-2027": {
+    slug: "londyn-city-break-809-styczen-2027",
+    city: "Londyn",
+    country: "Wielka Brytania",
+    price: 809,
+    departure: "Warszawa–Chopina (WAW) → Londyn–Luton (LTN)",
+    nights: 2,
+    dates: "20–22 stycznia 2027",
+    board: "Śniadanie",
+    hotel: "Pakiet lot + nocleg – pokój standardowy z łóżkiem podwójnym, bez okien",
+    partner: "esky",
+    partnerLabel: "eSky",
+    affiliateUrl: "https://www2.esky.pl/lot+hotel/portfolio/details/select-room?rooms%5B0%5D%5Badults%5D=2&datesTab=flexDates&stayLength=2:4&departurePlaces=ap-WAW,ap-WMI&arrivalPlaces=ci-LON&context=pl-packages&sort%5BTotalPrice%5D=asc&fg_distance=3.8&partner_id=TRIPOWNIAPLPACKAGES&portfolioToken=09601cc8-e43c-4ba5-bcce-a6c56b973fee&fmg_filter=1ddt,2rdt,3rdt&packageId=MjcwMTIwOjI6cGw6NDQwNDY1&flightOptionId=V0FXTFROMjcwMTIwMjIzLjE3M3x8VzYxMzAxOjA6MCxMVE5XQVcyNzAxMjIyMjNJLjE3M3x8VzYxMzA0OjA6MQ&departureCode=WAW&arrivalCode=LTN&checkInDate=2027-01-20&checkOutDate=2027-01-22&destinationDepartureDate=2027-01-20&returnArrivalDate=2027-01-22&metaCode=440465&pricePresentation=perpax&selectedDeparturePlaces=ap-WAW,ap-WMI",
+    imageCountry: "Wielka Brytania",
+    checkedAt: "2026-10-16T12:03:00+02:00",
+    status: "active",
+    included: ["Lot w obie strony", "2 noclegi", "Śniadanie", "Pokój dla 2 osób, bez okien"],
+  },
   "phu-quoc-la-paloma-resort-3739-2026": {
     slug: "phu-quoc-la-paloma-resort-3739-2026",
     city: "Phu Quoc",
