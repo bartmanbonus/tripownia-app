@@ -279,13 +279,13 @@ export default function DealsPage({
 
     const stayVariants = primaryNights <= 3
       ? [
-          { minNights: 2, maxNights: 3, stayLabel: "2–3 noce" },
+          { minNights: 3, maxNights: 4, stayLabel: "3–4 noce" },
           { minNights: 4, maxNights: 5, stayLabel: "4–5 nocy" },
           { minNights: 6, maxNights: 7, stayLabel: "6–7 nocy" },
         ]
       : primaryNights <= 6
         ? [
-            { minNights: 2, maxNights: 3, stayLabel: "2–3 noce" },
+            { minNights: 3, maxNights: 4, stayLabel: "3–4 noce" },
             { minNights: 4, maxNights: 6, stayLabel: "4–6 nocy" },
             { minNights: 7, maxNights: 9, stayLabel: "7–9 nocy" },
           ]
