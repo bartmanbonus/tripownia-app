@@ -15,12 +15,17 @@
   function measure(){
     scheduled=false;
     var el=document.getElementById('search-widget89');
-    var h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight,el?el.getBoundingClientRect().bottom:0);
+    var dialogs=Array.from(document.querySelectorAll('[role="dialog"],[aria-modal="true"],[class*="modal"],[class*="Modal"],[class*="popover"],[class*="Popover"]')).filter(function(node){var r=node.getBoundingClientRect();var st=getComputedStyle(node);return r.width>150&&r.height>120&&st.display!=="none"&&st.visibility!=="hidden";});
+    var popupBottom=dialogs.reduce(function(max,node){return Math.max(max,node.getBoundingClientRect().bottom+window.scrollY+48);},0);
+    var h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight,el?el.getBoundingClientRect().bottom:0,popupBottom);
     window.parent.postMessage({type:'tripownia:wk-widget-height',height:Math.ceil(h)},window.location.origin);
   }
   function schedule(){if(scheduled)return;scheduled=true;requestAnimationFrame(measure);}
   if(window.ResizeObserver){new ResizeObserver(schedule).observe(document.body);}
-  if(window.MutationObserver){new MutationObserver(schedule).observe(document.getElementById('search-widget89'));}
+  if(window.MutationObserver){new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','style','aria-expanded','aria-hidden']});}
+  document.addEventListener('click',function(){setTimeout(schedule,60);setTimeout(schedule,250);},true);
+  document.addEventListener('focusin',schedule,true);
+  window.addEventListener('resize',schedule);
   window.addEventListener('load',schedule);
   setTimeout(schedule,350);setTimeout(schedule,1500);setTimeout(schedule,3500);
 })();
