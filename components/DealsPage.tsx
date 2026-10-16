@@ -1267,6 +1267,68 @@ export default function DealsPage({
       grid-template-columns:1fr;
     }
   }
+
+  /* Contrast and hierarchy for the Deals filter surface: warm container, white inputs. */
+  .deals-simple-page .deals-simple-controls.deals-direction-controls{
+    padding:23px;
+    border:1px solid #d9bfac;
+    border-radius:22px;
+    background:linear-gradient(145deg,#f6efe9 0%,#f1e6dc 100%);
+    box-shadow:0 22px 52px rgba(52,35,23,.12),0 5px 14px rgba(52,35,23,.05);
+  }
+  .deals-simple-page .deals-direction-controls .deals-direction-filter-heading{
+    margin:0;padding:0 3px;
+  }
+  .deals-simple-page .deals-direction-controls .deals-direction-filter-heading strong{
+    color:#29211c;font-size:18px;
+  }
+  .deals-simple-page .deals-direction-controls .deals-direction-filter-heading span{
+    color:#64574e;font-size:13px;
+  }
+  .deals-simple-page .deals-direction-controls .deals-quick-filters button:not(.active){
+    border-color:#d7c8bc;
+    background:#fff;
+    color:#332b26;
+    box-shadow:0 2px 5px rgba(52,35,23,.035);
+  }
+  .deals-simple-page .deals-direction-controls .deals-quick-filters button:not(.active):hover{
+    border-color:#f4512c;
+    background:#fff8f4;
+  }
+  .deals-simple-page .deals-direction-controls .deals-sort-control select,
+  .deals-simple-page .deals-direction-controls .deals-simple-filter-panel select{
+    min-height:46px;
+    border:1px solid #d5c6bb;
+    background:#fff;
+    color:#241e1a;
+  }
+  .deals-simple-page .deals-direction-controls .deals-simple-filter-panel{
+    margin:1px 0 0;
+    padding:16px;
+    border:1px solid #e3d4c7;
+    border-radius:16px;
+    background:rgba(255,255,255,.83);
+    box-shadow:0 3px 10px rgba(52,35,23,.035);
+  }
+  .deals-simple-page .deals-direction-controls .deals-simple-filter-panel label>span{
+    color:#6e5c4f;
+  }
+  .deals-simple-page .deals-direction-controls button:focus-visible,
+  .deals-simple-page .deals-direction-controls select:focus-visible{
+    outline:3px solid rgba(244,81,44,.45);
+    outline-offset:2px;
+  }
+  @media(max-width:820px){
+    .deals-simple-page .deals-simple-controls.deals-direction-controls{
+      padding:16px;
+      border-radius:18px;
+      box-shadow:0 12px 30px rgba(52,35,23,.12);
+    }
+    .deals-simple-page .deals-direction-controls .deals-simple-filter-panel{
+      padding:12px;
+    }
+  }
+
     `}</style>
   </main>;
 }
