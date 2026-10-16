@@ -1,4 +1,5 @@
 import type { Offer } from "@/lib/offers";
+import { hasEnoughDestinationDays } from "@/lib/tripDayQuality";
 
 type PricedTrip = Pick<Offer, "price" | "nights" | "country" | "city" | "board">;
 const LONG_HAUL = /zanzibar|tanzania|kenia|mauritius|malediw|seszel|tajland|wietnam|indonez|bali|sri lanka|dominik|meksyk|kuba|jamaj|japon|usa|stany zjednoczone|nowy jork|brazyl|kolumbi|peru|kostary|rpa|poludniowej afryki/i;
