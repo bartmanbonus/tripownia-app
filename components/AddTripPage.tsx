@@ -17,6 +17,8 @@ import {
   ParkingCircle,
   Sparkles,
   Ticket,
+  UsersRound,
+  Info,
 } from "lucide-react";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
@@ -205,21 +207,27 @@ function PieceToggle({
   );
 }
 
-export default function AddTripPage() {
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+type SportPrefill = {
+  city: string; country: string; start: string; end: string;
+  departure: string; match: string; venue: string; ticket: string;
+  flightUrl: string; hotelUrl: string; people: string; nights: string; kickoff: string;
+};
+
+export default function AddTripPage({ initialSport }: { initialSport?: SportPrefill } = {}) {
+  const [city, setCity] = useState(initialSport?.city || "");
+  const [country, setCountry] = useState(initialSport?.country || "");
+  const [startDate, setStartDate] = useState(initialSport?.start || "");
+  const [endDate, setEndDate] = useState(initialSport?.end || "");
   const [departureAt, setDepartureAt] = useState("");
-  const [departure, setDeparture] = useState("");
-  const [destinationMode, setDestinationMode] = useState<"open" | "known">("open");
+  const [departure, setDeparture] = useState(initialSport?.departure || "");
+  const [destinationMode, setDestinationMode] = useState<"open" | "known">(initialSport ? "known" : "open");
   const [skipDestinationChoice, setSkipDestinationChoice] = useState(false);
-  const [dateMode, setDateMode] = useState<"flexible" | "range" | "month">("flexible");
+  const [dateMode, setDateMode] = useState<"flexible" | "range" | "month">(initialSport ? "range" : "flexible");
   const [travelMonth, setTravelMonth] = useState("");
   const [flexNights, setFlexNights] = useState("3-7");
   const [weekendRequired, setWeekendRequired] = useState(false);
-  const [departureMode, setDepartureMode] = useState<"any" | "selected">("any");
-  const [departureOptions, setDepartureOptions] = useState<string[]>([]);
+  const [departureMode, setDepartureMode] = useState<"any" | "selected">(initialSport?.departure ? "selected" : "any");
+  const [departureOptions, setDepartureOptions] = useState<string[]>(initialSport?.departure ? [initialSport.departure] : []);
   const [flight, setFlight] = useState("");
   const [hotel, setHotel] = useState("");
   const [notes, setNotes] = useState("");
@@ -232,17 +240,24 @@ export default function AddTripPage() {
   const [session, setSession] = useState<AccountSession | null>(null);
   const [editingTrip, setEditingTrip] = useState<EditableTrip | null>(null);
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
-  const [sourceType, setSourceType] = useState("");
+  const [sourceType, setSourceType] = useState(initialSport ? "sport" : "");
   const [sourceKind, setSourceKind] = useState("");
   const [sourceBoard, setSourceBoard] = useState("");
-  const [sourceNights, setSourceNights] = useState(0);
-  const [sportMatch, setSportMatch] = useState("");
-  const [sportVenue, setSportVenue] = useState("");
-  const [sportTicket, setSportTicket] = useState("");
-  const [sportFlightUrl, setSportFlightUrl] = useState("");
-  const [sportHotelUrl, setSportHotelUrl] = useState("");
-  const [sportPeople, setSportPeople] = useState(2);
-  const [sportKickoff, setSportKickoff] = useState("");
+  const [sourceNights, setSourceNights] = useState(Number(initialSport?.nights || 0));
+  const [sportMatch, setSportMatch] = useState(initialSport?.match || "");
+  const [sportVenue, setSportVenue] = useState(initialSport?.venue || "");
+  const [sportTicket, setSportTicket] = useState(initialSport?.ticket || "");
+  const [sportFlightUrl, setSportFlightUrl] = useState(initialSport?.flightUrl || "");
+  const [sportHotelUrl, setSportHotelUrl] = useState(initialSport?.hotelUrl || "");
+  const [sportPeople, setSportPeople] = useState(Math.max(1, Math.min(4, Number(initialSport?.people || 2) || 2)));
+  const [sportKickoff, setSportKickoff] = useState(initialSport?.kickoff || "");
+  const [sportTicketOwned, setSportTicketOwned] = useState(false);
+  const [sportTicketReference, setSportTicketReference] = useState("");
+  const sportBookedCount = Number(pieces.flight) + Number(pieces.hotel) + Number(sportTicketOwned);
+  // WAWA currently maps to Chopin (WAW); Modlin (WMI) is a separate search.
+  const sportDepartureWarning = /modlin|wmi/i.test(departure)
+    && /chopin|waw/i.test(departure)
+    && /(?:[?&]|%26)from(?:=|%3D)WAW/i.test(sportFlightUrl);
 
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
   const suggestionStart = dateMode === "range" ? startDate : "";
@@ -602,9 +617,10 @@ export default function AddTripPage() {
 
   function markSportOwned(kind: "flight" | "hotel") {
     const partner = kind === "flight" ? "kiwi" : "booking";
-    setPieces((current) => ({ ...current, [kind]: true }));
-    setSelectedProvider((current) => ({ ...current, [kind]: partner }));
-    trackEvent("sports_planner_piece_owned", { piece: kind, partner, city });
+    const owned = !pieces[kind];
+    setPieces((current) => ({ ...current, [kind]: owned }));
+    setSelectedProvider((current) => ({ ...current, [kind]: owned ? partner : undefined }));
+    trackEvent("sports_planner_piece_owned", { piece: kind, partner, city, owned });
   }
 
   function moveToStep(next: 1 | 2 | 3 | 4) {
@@ -749,10 +765,14 @@ export default function AddTripPage() {
       offerId,
       offerSnapshot: snapshot,
       departureAt: departureAt || editingTrip?.departureAt || (startDate ? `${startDate}T08:00` : ""),
-      flight: pieces.flight ? flight.trim() : (editingTrip?.flight || ""),
-      hotel: pieces.hotel ? hotel.trim() : (editingTrip?.hotel || ""),
-      notes: notes.trim() || editingTrip?.notes || "",
-      checklist: editingTrip?.checklist || {
+      flight: (sourceType === "sport" || pieces.flight) ? flight.trim() : (editingTrip?.flight || ""),
+      hotel: (sourceType === "sport" || pieces.hotel) ? hotel.trim() : (editingTrip?.hotel || ""),
+      notes: sourceType === "sport"
+        ? [notes.trim(), sportTicket ? (sportTicketOwned ? "Bilet na mecz: kupiony (potwierdzenie użytkownika)" : "Bilet na mecz: niepotwierdzony") : "", sportTicketReference.trim() ? "Numer biletu: " + sportTicketReference.trim() : ""].filter(Boolean).join("\n")
+        : notes.trim() || editingTrip?.notes || "",
+      checklist: {
+        ...(editingTrip?.checklist || {}),
+        ...(sourceType === "sport" && sportTicket ? { "Kup bilet na mecz": sportTicketOwned } : {}),
         "Sprawdź transfer z lotniska i taxi na miejscu": pieces.transfer,
         "Zarezerwuj najważniejsze atrakcje": pieces.attractions,
         "Sprawdź internet / eSIM": pieces.esim,
@@ -798,6 +818,10 @@ export default function AddTripPage() {
   }
 
   if (quickSportFlow) {
+    const totalNights = sourceNights || nights;
+    const nightsText = totalNights === 1 ? "noc" : [2, 3, 4].includes(totalNights) ? "noce" : "nocy";
+    const peopleText = sportPeople === 1 ? "osoba" : [2, 3, 4].includes(sportPeople) ? "osoby" : "osób";
+
     return (
       <main>
         <SiteHeader />
@@ -805,113 +829,167 @@ export default function AddTripPage() {
           <button type="button" className={styles.mobileProcessBack} onClick={() => leavePlanner("/wydarzenia")}>
             <ArrowLeft size={15}/> Wstecz
           </button>
-          <span className={styles.mobileStepLabel}>Plan meczu</span>
-          <span className={styles.mobileFreeBadge}>0 zł</span>
+          <span className={styles.mobileStepLabel}>Wyjazd na mecz</span>
+          <span className={styles.mobileFreeBadge}>Plan 0 zł</span>
         </div>
-        <section className={"shell add-trip-page " + styles.confirmPage + " " + styles.sportPage}>
-          <form className={styles.confirmCard + " " + styles.sportCard} onSubmit={submit}>
-            <div className={styles.confirmMedia + " " + styles.sportMedia}>
-              <TravelImage
-                city={city}
-                country={country}
-                alt={[city, country].filter(Boolean).join(", ")}
-                overrideSrc={sportHeroImage || undefined}
-                searchQuery={[sportVenue || city, "football stadium exterior", country].filter(Boolean).join(" ")}
-                preferDynamic
-              />
-            </div>
 
-            <div className={styles.confirmContent + " " + styles.sportContent}>
-              <div className={styles.confirmEyebrow}>WYJAZD NA MECZ</div>
-              <h1>{sportMatch || `Mecz w ${city || country}`}</h1>
-              <div className={styles.confirmCountry}>{[city, country].filter(Boolean).join(", ")}</div>
+        <section className={"shell add-trip-page " + styles.sportPage}>
+          <form className={styles.sportPlanner} onSubmit={submit}>
+            <header className={styles.sportHero}>
+              <div className={styles.sportHeroCopy}>
+                <Link href="/wydarzenia" className={styles.sportBack}><ArrowLeft size={15}/> Wszystkie mecze</Link>
+                <div className={styles.sportStatusRow}>
+                  <div className={styles.sportStatus}><CheckCircle2 size={16}/> Kierunek i termin już ustawione</div>
+                  <span className={styles.sportBookingProgress}>{sportBookedCount}/{sportTicket ? 3 : 2} potwierdzone</span>
+                </div>
+                <div className={styles.sportEyebrow}>TWÓJ WYJAZD NA MECZ</div>
+                <h1>{sportMatch || "Mecz w " + (city || country)}</h1>
+                <div className={styles.sportFacts}>
+                  <span><CalendarDays size={17}/> {dateLabel(startDate, endDate)}</span>
+                  <span><MapPinned size={17}/> {city}{country ? ", " + country : ""}</span>
+                  <span><UsersRound size={17}/> {sportPeople} {peopleText}</span>
+                  <span><BedDouble size={17}/> {totalNights} {nightsText}</span>
+                </div>
+                {sportKickoff && <div className={styles.sportKickoff}><Ticket size={17}/> Mecz: {sportKickoff}</div>}
+              </div>
+              <div className={styles.sportHeroImage}>
+                <TravelImage
+                  city={city}
+                  country={country}
+                  alt={[city, country].filter(Boolean).join(", ")}
+                  overrideSrc={sportHeroImage || undefined}
+                  searchQuery={[sportVenue || city, "football stadium exterior", country].filter(Boolean).join(" ")}
+                  preferDynamic
+                />
+              </div>
+            </header>
 
-              <div className={styles.confirmIncluded}>
-                <span><CalendarDays size={16}/> {dateLabel(startDate, endDate)}</span>
-                {sportVenue && <span><MapPinned size={16}/> {sportVenue}</span>}
+            <div className={styles.sportBody}>
+              <div className={styles.sportSectionHeader}>
+                <div>
+                  <span className={styles.sportEyebrow}>KROK PO KROKU</span>
+                  <h2>Wybierz lot, nocleg i bilety</h2>
+                  <p><Plane size={15}/> {departure || "Wylot z Polski"} <ArrowRight size={14}/> {city || country}</p>
+                </div>
+                <span className={styles.sportFreeTag}><CheckCircle2 size={14}/> Planowanie bezpłatne</span>
               </div>
 
-              <div className={styles.sportReadySummary}>
-                <strong>Wyjazd jest już ustawiony.</strong>
-                <span>
-                  {departure || "Wylot z Polski"} → {city || country} · {sourceNights || nights} {sourceNights === 1 || nights === 1 ? "noc" : "noce/nocy"} · {sportPeople} os.
-                </span>
-                {sportKickoff && <small>Mecz: {sportKickoff}</small>}
-                <small>Nie wpisujesz ponownie miasta, lotniska ani dat — przechodzisz od razu do gotowych wyników.</small>
+              <div className={styles.sportAdvice} role="note">
+                <Info size={17}/>
+                <span>Najpierw upewnij się, że są dostępne bilety na mecz. Lot i hotel rezerwujesz bezpośrednio u partnerów.</span>
               </div>
 
-              <div className={styles.sportBuyFlow}>
+              <div className={sportTicket ? styles.sportBuyFlow : styles.sportBuyFlowTwo}>
                 <section className={styles.sportBuyCard}>
-                  <div className={styles.sportBuyHead}>
-                    <span className={styles.sportBuyNumber}>1</span>
-                    <div><strong>Lot</strong><small>{departure || "Polska"} → {city || country}</small></div>
+                  <div className={styles.sportBuyTop}>
+                    <span className={styles.sportBuyNumber}>01</span>
+                    <span className={pieces.flight ? styles.sportOwnedStatus : styles.sportToChoose}>{pieces.flight ? "Mam już lot" : "Do wyboru"}</span>
                   </div>
-                  <p>Trasa i daty są już wpisane. Wybierz tylko konkretny lot z gotowej listy.</p>
-                  <a
-                    className={styles.sportBuyCta}
-                    href={sportFlightHref}
-                    rel="nofollow sponsored"
-                    onClick={() => rememberSportPartnerClick("flight", "kiwi")}
-                  >
-                    <Plane size={17}/> Pokaż gotowe loty <ArrowRight size={16}/>
-                  </a>
-                  <button
-                    type="button"
-                    className={pieces.flight ? styles.sportOwnedButtonActive : styles.sportOwnedButton}
-                    onClick={() => markSportOwned("flight")}
-                  >
-                    {pieces.flight ? "✓ Lot dodany do planu" : "Mam już lot — oznacz w planie"}
-                  </button>
+                  <div className={styles.sportBuyIcon}><Plane size={23}/></div>
+                  <h3>Lot</h3>
+                  <p>Trasa i daty są gotowe. Wybierz połączenie, które Ci pasuje.</p>
+                  {sportDepartureWarning && (
+                    <div className={styles.sportWarning} role="note">
+                      Link Kiwi wyszukuje loty z Chopina (WAW), ale nie z Modlina (WMI). Porównaj oba lotniska.
+                    </div>
+                  )}
+                  <div className={styles.sportBuyActions}>
+                    <a
+                      className={styles.sportBuyCta}
+                      href={sportFlightHref}
+                      rel="nofollow sponsored"
+                      onClick={() => rememberSportPartnerClick("flight", "kiwi")}
+                    >
+                      Sprawdź loty <ArrowRight size={17}/>
+                    </a>
+                    <button
+                      type="button"
+                      aria-pressed={pieces.flight}
+                      className={pieces.flight ? styles.sportOwnedButtonActive : styles.sportOwnedButton}
+                      onClick={() => markSportOwned("flight")}
+                    >
+                      {pieces.flight ? "✓ Lot kupiony · Cofnij" : "Mam kupiony lot"}
+                    </button>
+                  </div>
                 </section>
 
                 <section className={styles.sportBuyCard}>
-                  <div className={styles.sportBuyHead}>
-                    <span className={styles.sportBuyNumber}>2</span>
-                    <div><strong>Nocleg</strong><small>{city || country} · {dateLabel(startDate, endDate)}</small></div>
+                  <div className={styles.sportBuyTop}>
+                    <span className={styles.sportBuyNumber}>02</span>
+                    <span className={pieces.hotel ? styles.sportOwnedStatus : styles.sportToChoose}>{pieces.hotel ? "Mam już nocleg" : "Do wyboru"}</span>
                   </div>
-                  <p>{sportHotelHint}</p>
-                  <a
-                    className={styles.sportBuyCta}
-                    href={sportHotelHref}
-                    rel="nofollow sponsored"
-                    onClick={() => rememberSportPartnerClick("hotel", "booking")}
-                  >
-                    <BedDouble size={17}/> Pokaż gotowe hotele <ArrowRight size={16}/>
-                  </a>
-                  <button
-                    type="button"
-                    className={pieces.hotel ? styles.sportOwnedButtonActive : styles.sportOwnedButton}
-                    onClick={() => markSportOwned("hotel")}
-                  >
-                    {pieces.hotel ? "✓ Hotel dodany do planu" : "Mam już hotel — oznacz w planie"}
-                  </button>
+                  <div className={styles.sportBuyIcon}><BedDouble size={23}/></div>
+                  <h3>Nocleg</h3>
+                  <p>{totalNights} {nightsText} w {city || country}. Wyniki Booking od najniższej ceny.</p>
+                  <div className={styles.sportBuyActions}>
+                    <a
+                      className={styles.sportBuyCta}
+                      href={sportHotelHref}
+                      rel="nofollow sponsored"
+                      onClick={() => rememberSportPartnerClick("hotel", "booking")}
+                    >
+                      Hotele od najtańszych <ArrowRight size={17}/>
+                    </a>
+                    <button
+                      type="button"
+                      aria-pressed={pieces.hotel}
+                      className={pieces.hotel ? styles.sportOwnedButtonActive : styles.sportOwnedButton}
+                      onClick={() => markSportOwned("hotel")}
+                    >
+                      {pieces.hotel ? "✓ Nocleg mam · Cofnij" : "Mam rezerwację hotelu"}
+                    </button>
+                  </div>
                 </section>
 
                 {sportTicket && (
                   <section className={styles.sportBuyCard}>
-                    <div className={styles.sportBuyHead}>
-                      <span className={styles.sportBuyNumber}>3</span>
-                      <div><strong>Bilet na mecz</strong><small>Oficjalny kanał klubu</small></div>
+                    <div className={styles.sportBuyTop}>
+                      <span className={styles.sportBuyNumber}>03</span>
+                      <span className={sportTicketOwned ? styles.sportOwnedStatus : styles.sportToChoose}>{sportTicketOwned ? "Bilet kupiony" : "Oficjalna sprzedaż"}</span>
                     </div>
-                    <p>Po locie i hotelu przejdź do oficjalnej sprzedaży biletów.</p>
-                    <a className={styles.sportBuyCta} href={sportTicket} rel="noopener noreferrer">
-                      <Ticket size={17}/> Oficjalne bilety <ArrowRight size={16}/>
-                    </a>
+                    <div className={styles.sportBuyIcon}><Ticket size={23}/></div>
+                    <h3>Bilet na mecz</h3>
+                    <p>Sprawdź dostępność i kup bilet u organizatora spotkania.</p>
+                    <div className={styles.sportBuyActions}>
+                      <a className={styles.sportBuyCta} href={sportTicket} rel="noopener noreferrer">
+                        Sprawdź bilety <ArrowRight size={17}/>
+                      </a>
+                      <button
+                        type="button"
+                        aria-pressed={sportTicketOwned}
+                        className={sportTicketOwned ? styles.sportOwnedButtonActive : styles.sportOwnedButton}
+                        onClick={() => setSportTicketOwned((current) => !current)}
+                      >
+                        {sportTicketOwned ? "✓ Bilet kupiony · Cofnij" : "Mam już bilet"}
+                      </button>
+                    </div>
                   </section>
                 )}
               </div>
 
-              <div className={styles.sportReturnHint}>
-                Partner otworzy się w tej samej karcie. Po wyborze lub zakupie wróć strzałką przeglądarki — ten mecz nadal będzie ustawiony.
-              </div>
+              <details className={styles.sportExtras}>
+                <summary>Masz potwierdzenia? Dopisz szczegóły rezerwacji (opcjonalnie)</summary>
+                <div className={styles.sportExtrasGrid}>
+                  <label>Numer lotu<input value={flight} onChange={(event) => setFlight(event.target.value)} placeholder="np. FR 1234" /></label>
+                  <label>Nazwa lub numer rezerwacji hotelu<input value={hotel} onChange={(event) => setHotel(event.target.value)} placeholder="np. nazwa hotelu" /></label>
+                  {sportTicket && <label>Numer biletu na mecz<input value={sportTicketReference} onChange={(event) => setSportTicketReference(event.target.value)} placeholder="Opcjonalnie" /></label>}
+                </div>
+              </details>
 
               {error && <div className="add-trip-error" role="alert">{error}</div>}
 
-              <button type="submit" className={"primary-cta " + styles.confirmPrimary}>
-                Dodaj cały wyjazd do planu <ArrowRight size={18}/>
-              </button>
-
-              <Link href="/wydarzenia" className={styles.confirmHint}>← Wróć do listy meczów</Link>
+              <div className={styles.sportSavePanel}>
+                <div className={styles.sportSaveCopy}>
+                  <strong>Zachowaj swój wyjazd w Tripowni</strong>
+                  <span>Zapisz plan bez kupowania. Wszystkie szczegóły będziesz mieć w „Mojej podróży”.</span>
+                </div>
+                <button type="submit" className={styles.sportSaveButton}>
+                  Zapisz plan wyjazdu <ArrowRight size={19}/>
+                </button>
+              </div>
+              <div className={styles.sportFootnote}>
+                <Info size={14}/> Po rezerwacji u partnera wróć strzałką przeglądarki i uzupełnij swój plan.
+              </div>
             </div>
           </form>
         </section>

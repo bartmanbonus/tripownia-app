@@ -376,6 +376,10 @@ export async function GET(request: NextRequest) {
   }
 
   const source = safeText(request.nextUrl.searchParams.get("source"), 80) || "live_offer";
+  // Preserve lowest-price sorting for older match URLs that did not include it.
+  if (partner === "booking" && (source === "sports_event_hotel" || source === "sports_planner_hotel")) {
+    target.searchParams.set("order", "price");
+  }
   const offer = safeText(request.nextUrl.searchParams.get("offer"), 80);
   const destination = safeText(request.nextUrl.searchParams.get("destination"), 160);
   const price = safeText(request.nextUrl.searchParams.get("price"), 40);
