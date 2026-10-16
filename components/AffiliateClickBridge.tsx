@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { getAnalyticsConsent, trackEvent } from "@/lib/analytics";
 import { trackMetaCustomEvent } from "@/lib/metaPixel";
 import { saveAffiliateReturnContext } from "@/lib/affiliateReturn";
+import { savePendingBooking } from "@/components/BookingInbox";
 
 import { partnerFromUrl } from "@/lib/affiliateJourney";
 import { usePathname } from "next/navigation";
@@ -279,6 +280,7 @@ function captureOutboundContext(anchor: HTMLAnchorElement, data: ProtectedLink) 
   const { partner, target, context } = data;
   const outboundHost = (() => { try { return new URL(target).hostname; } catch { return ""; } })();
   const destination = context.destination || destinationFor(anchor);
+  savePendingBooking({ partner, destination, clickId });
   saveAffiliateReturnContext({
     partner,
     destination,
