@@ -30,7 +30,7 @@ export async function generateMetadata({params}:{params:Promise<{id:string}>}):P
   const title = `${o.city} z ${o.departure}${priceOk ? ` — od ${o.price.toLocaleString("pl-PL")} zł/os.` : " — sprawdź aktualną cenę"}`;
   const socialTitle = `${title} | Tripownia.pl`;
   const description = `${o.city}, ${o.nights} nocy, ${o.board}, wylot z ${o.departure}. ${priceOk ? `Niedawno znaleźliśmy od ${o.price.toLocaleString("pl-PL")} zł/os.` : "Sprawdź aktualną cenę."} Dostępność potwierdź przed rezerwacją.`;
-  const socialImage = `/oferta/${o.id}/opengraph-image`;
+  const socialImage = "/api/share-preview?design=logo-white-v1";
   return {
     title,
     description,
