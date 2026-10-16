@@ -1,54 +1,22 @@
-.root {
-  width: 100%;
-  margin: 22px auto 30px;
-  padding: clamp(14px, 2.5vw, 30px);
-  border: 1px solid #d9e5ed;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #f5faff 0%, #ffffff 49%, #f7fcfa 100%);
-  box-shadow: 0 10px 32px rgba(16, 47, 75, .055);
-}
-.heading {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
-  justify-content: space-between;
-  gap: 16px 24px;
-  margin-bottom: 18px;
-}
-.heading > div { flex: 1 1 440px; min-width: 0; }
-.eyebrow { display: block; margin-bottom: 8px; color: #126c84; font-weight: 800; font-size: 11px; letter-spacing: .11em; }
-.heading h2 { margin: 0 0 10px; color: #142c40; font-size: clamp(23px, 2.5vw, 33px); line-height: 1.17; }
-.heading p { margin: 0; color: #526679; max-width: 780px; font-size: 15px; line-height: 1.6; }
-.fullView {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  flex-shrink: 0;
-  padding: 10px 16px;
-  border: 1px solid #bfd8e4;
-  border-radius: 12px;
-  color: #155b78;
-  background: #fff;
-  font-size: 13px;
-  font-weight: 750;
-  text-decoration: none;
-}
-.fullView:hover, .fullView:focus-visible { border-color: #147f9f; background: #ecf8fd; }
-.frame { overflow: hidden; border: 1px solid #e2e9ef; border-radius: 15px; background: #fff; }
-.iframe { display: block; border: 0; width: 100%; height: 800px; min-height: 800px; }
-.note { margin: 13px 2px 0; color: #647688; font-size: 12px; line-height: 1.55; }
-.compact { margin: 16px 0 24px; padding: 16px; }
-.compact .heading h2 { font-size: clamp(20px, 2vw, 26px); }
-.compact .iframe { height: 740px; min-height: 740px; }
-@media (max-width: 680px) {
-  .root { border-radius: 17px; padding: 13px; margin: 16px auto 22px; }
-  .heading { align-items: stretch; }
-  .heading > div { flex-basis: 100%; }
-  .heading h2 { font-size: 23px; }
-  .heading p { font-size: 14px; }
-  .fullView { width: 100%; }
-  .iframe, .compact .iframe { height: 1050px; min-height: 1050px; }
-  .frame { border-radius: 10px; }
-}
+.root{width:100%;margin:16px auto 24px;padding:clamp(18px,2.5vw,28px);border:1px solid #e6dcd4;border-radius:22px;background:linear-gradient(135deg,#fffaf7,#fff 65%);box-shadow:0 12px 32px rgba(52,31,20,.055)}
+.heading{display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:16px 22px;margin-bottom:18px}
+.heading>div{flex:1 1 440px;min-width:0}
+.eyebrow{display:block;margin-bottom:10px;color:#db4c27;font-size:11px;letter-spacing:.12em;font-weight:900}
+.heading h2{margin:0 0 8px;color:#1c1815;font-size:clamp(23px,2.5vw,32px);letter-spacing:-.035em;line-height:1.18}
+.heading p{margin:0;max-width:790px;font-size:14px;line-height:1.6;color:#62564f}
+.fullView{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:10px 16px;border:1px solid #e0ccc0;border-radius:12px;color:#4a3025;background:#fff;font-size:13px;font-weight:800;text-decoration:none}
+.fullView:hover,.fullView:focus-visible{background:#fff2eb;border-color:#f4512c}
+.steps{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.steps span{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;background:#fff;border:1px solid #eee1d9;border-radius:999px;color:#4f4038;font-size:12px;font-weight:700}
+.steps b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#fae4da;color:#ac3a1b;font-size:11px}
+.reveal{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:15px 18px;border:0;border-radius:13px;background:#f4512c;color:#fff;font-size:15px;font-weight:800;cursor:pointer;text-align:left}
+.reveal:hover{background:#df4321}
+.reveal:focus-visible{outline:3px solid #4b2416;outline-offset:3px}
+.reveal span{font-size:20px}
+.frame{margin-top:14px;overflow:hidden;border:1px solid #e6dcd4;border-radius:14px;background:#fff}
+.iframe{display:block;border:0;width:100%;height:800px;min-height:800px}
+.note{margin:13px 1px 0;font-size:12px;line-height:1.55;color:#6c5e56}
+.compact{margin:16px 0 20px}
+.compact .heading h2{font-size:clamp(21px,2.1vw,28px)}
+.compact .iframe{height:740px;min-height:740px}
+@media(max-width:680px){.root{padding:16px;border-radius:17px}.heading{align-items:stretch}.heading>div{flex-basis:100%}.fullView{width:100%}.steps{gap:7px}.steps span{font-size:11px}.iframe,.compact .iframe{height:1050px;min-height:1050px}.reveal{font-size:14px}}
