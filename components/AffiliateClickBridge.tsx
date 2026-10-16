@@ -329,13 +329,19 @@ export default function AffiliateClickBridge() {
       if (!data) return;
 
       if (event.type === "click" || event.type === "auxclick") {
-        if (data.mode === "exit") captureOutboundContext(anchor, data);
         if (!data.href) {
           event.preventDefault();
           void resolveProtectedLink(anchor, data).then((href) => {
-            if (href && protectedLinks.get(anchor) === data) window.location.assign(href);
-            else if (!href) window.alert("Nie udało się przygotować linku. Spróbuj ponownie.");
+            if (href && protectedLinks.get(anchor) === data) {
+              // Count only a validated partner-bound exit, never a failed link resolution.
+              if (data.mode === "exit") captureOutboundContext(anchor, data);
+              window.location.assign(href);
+            } else if (!href) {
+              window.alert("Nie udało się przygotować linku. Spróbuj ponownie.");
+            }
           });
+        } else if (data.mode === "exit") {
+          captureOutboundContext(anchor, data);
         }
       } else {
         // Prepare an opaque href on hover, focus or touch before navigation.
