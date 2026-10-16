@@ -186,7 +186,7 @@ const teamTravelData: Array<{ names: string[]; city: string; country: string; cr
   { names:["Udinese Calcio","Udinese"], city:"Udine", country:"Włochy", crest:"https://crests.football-data.org/115.png" },
   { names:["Parma Calcio 1913","Parma Calcio","Parma"], city:"Parma", country:"Włochy" },
   { names:["Club Brugge KV","Club Brugge"], city:"Brugia", country:"Belgia" },
-  { names:["FC Shakhtar Donetsk","Shakhtar Donetsk"], city:"Warszawa", country:"Polska" },
+  { names:["FC Shakhtar Donetsk","FK Shakhtar Donetsk","Shakhtar Donetsk","Shakhtar"], city:"Warszawa", country:"Polska" },
   { names:["VfB Stuttgart","Stuttgart"], city:"Stuttgart", country:"Niemcy" },
 ];
 
@@ -259,13 +259,17 @@ function canonicalTeamKey(name?: string | null) {
   const knownTeam = teamTravelData.find(item => matchesKnownTeamName(name, item.names));
   if (knownTeam) return `team:${normalize(knownTeam.names[0])}`;
 
-  return `name:${normalized}`;
+  // Football feeds use FC/FK prefixes interchangeably for many teams.
+  // Ignore those prefixes only after matching our exact club aliases.
+  return `name:${normalized.replace(/^(?:fc|fk)\s+/, "")}`;
 }
 
 export function sportsMatchKey(match: Pick<SportsTrip, "competitionCode" | "kickoff" | "homeTeam" | "awayTeam">) {
   return [
     match.competitionCode,
-    match.kickoff,
+    // A fixture may receive a new kickoff hour after the seed was published.
+    // On the same day, competition + both teams still identify one fixture.
+    match.kickoff.slice(0, 10),
     canonicalTeamKey(match.homeTeam),
     canonicalTeamKey(match.awayTeam),
   ].join("|");
@@ -459,15 +463,30 @@ export async function getSportsTrips(daysAhead = 365): Promise<SportsTrip[]> {
       .filter((trip): trip is SportsTrip => Boolean(trip))
   );
 
-  const deduped = new Map<string, SportsTrip>();
-  for (const trip of trips) {
-    deduped.set(`${trip.clubSlug}|${trip.kickoff}|${normalize(trip.opponent)}`, trip);
-  }
-
-  return [...deduped.values()]
+  return deduplicateSportsTrips(trips)
     .filter(trip => new Date(trip.kickoff).getTime() >= now.getTime())
     .sort((a, b) => new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime())
     .slice(0, 240);
+}
+
+/**
+ * Render a real football fixture once, even if two tracked clubs or a seed
+ * and the live feed returned it under different names / fixture IDs.
+ * Trust the live feed first, then the home club when two tracked clubs share
+ * a fixture (e.g. a Milan derby).
+ */
+export function deduplicateSportsTrips(trips: readonly SportsTrip[]): SportsTrip[] {
+  const result = new Map<string, SportsTrip>();
+  for (const trip of trips) {
+    const key = sportsMatchKey(trip);
+    const prior = result.get(key);
+    if (!prior
+      || (prior.source !== "football-data" && trip.source === "football-data")
+      || (prior.source === trip.source && trip.isHome && !prior.isHome)) {
+      result.set(key, trip);
+    }
+  }
+  return Array.from(result.values());
 }
 
 export function formatKickoff(iso: string) {
