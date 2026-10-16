@@ -1,0 +1,44 @@
+/* Desktop offer discovery layout. Uses real offer data and preserves existing search behavior. */
+@media (min-width: 1024px) {
+  body:has(.homepage-visual-v2) .homepage-visual-v2,
+  body:has(.homepage-visual-v2) .search-v3-section,
+  body:has(.homepage-visual-v2) .search-v3,
+  body:has(.homepage-visual-v2) .search-v3-results {
+    min-width: 0;
+    transform: none;
+    zoom: 1;
+  }
+  body:has(.homepage-visual-v2) .search-v3-section,
+  body:has(.homepage-visual-v2) .search-v3-section.shell {
+    width: min(1360px, calc(100vw - 64px)) !important;
+    max-width: 1360px !important;
+    margin-inline: auto !important;
+  }
+  body:has(.homepage-visual-v2) .search-v3,
+  body:has(.homepage-visual-v2) .search-v3-results {
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: auto !important;
+  }
+  body:has(.homepage-visual-v2) .search-v3-results-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-items: stretch;
+  }
+  body:has(.homepage-visual-v2) .search-v3-result-item { min-width: 0; }
+  body:has(.homepage-visual-v2) .search-v3-form { width: 100%; max-width: none; }
+  body:has(.homepage-visual-v2) .search-v3-results-head { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+}
+@media (min-width: 700px) and (max-width: 1023px) {
+  body:has(.homepage-visual-v2) .search-v3-results-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 699px) {
+  body:has(.homepage-visual-v2) .search-v3-results-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
