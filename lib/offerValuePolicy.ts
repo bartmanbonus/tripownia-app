@@ -23,7 +23,7 @@ export function isSearchInventoryOffer(offer: PricedTrip) {
 // Editorial price ceilings are deliberately separate from complete search inventory.
 // These are selection rules, not a claim to have compared the entire market.
 export function isPromotableOffer(offer: Offer) {
-  if (!isAffordableShortTrip(offer) || !offer.affiliateUrl || offer.linkType !== "exact"
+  if (!hasEnoughDestinationDays(offer) || !isAffordableShortTrip(offer) || !offer.affiliateUrl || offer.linkType !== "exact"
     || offer.availabilityStatus !== "available") return false;
   const checked = Date.parse(offer.priceCheckedAt || "");
   if (!Number.isFinite(checked) || Date.now() - checked > 6 * 60 * 60 * 1000 || checked > Date.now() + 60000) return false;
