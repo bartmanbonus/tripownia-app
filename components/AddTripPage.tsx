@@ -205,21 +205,22 @@ function PieceToggle({
   );
 }
 
-export default function AddTripPage() {
-  const [city, setCity] = useState("");
-  const [country, setCountry] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+type SportPrefill = { city: string; country: string; start: string; end: string; departure: string; match: string; venue: string; ticket: string; flightUrl: string; hotelUrl: string; people: string; nights: string; kickoff: string };
+export default function AddTripPage({ initialSport }: { initialSport?: SportPrefill } = {}) {
+  const [city, setCity] = useState(initialSport?.city || "");
+  const [country, setCountry] = useState(initialSport?.country || "");
+  const [startDate, setStartDate] = useState(initialSport?.start || "");
+  const [endDate, setEndDate] = useState(initialSport?.end || "");
   const [departureAt, setDepartureAt] = useState("");
-  const [departure, setDeparture] = useState("");
-  const [destinationMode, setDestinationMode] = useState<"open" | "known">("open");
+  const [departure, setDeparture] = useState(initialSport?.departure || "");
+  const [destinationMode, setDestinationMode] = useState<"open" | "known">(initialSport ? "known" : "open");
   const [skipDestinationChoice, setSkipDestinationChoice] = useState(false);
-  const [dateMode, setDateMode] = useState<"flexible" | "range" | "month">("flexible");
+  const [dateMode, setDateMode] = useState<"flexible" | "range" | "month">(initialSport ? "range" : "flexible");
   const [travelMonth, setTravelMonth] = useState("");
   const [flexNights, setFlexNights] = useState("3-7");
   const [weekendRequired, setWeekendRequired] = useState(false);
-  const [departureMode, setDepartureMode] = useState<"any" | "selected">("any");
-  const [departureOptions, setDepartureOptions] = useState<string[]>([]);
+  const [departureMode, setDepartureMode] = useState<"any" | "selected">(initialSport?.departure ? "selected" : "any");
+  const [departureOptions, setDepartureOptions] = useState<string[]>(initialSport?.departure ? [initialSport.departure] : []);
   const [flight, setFlight] = useState("");
   const [hotel, setHotel] = useState("");
   const [notes, setNotes] = useState("");
@@ -232,18 +233,22 @@ export default function AddTripPage() {
   const [session, setSession] = useState<AccountSession | null>(null);
   const [editingTrip, setEditingTrip] = useState<EditableTrip | null>(null);
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
-  const [sourceType, setSourceType] = useState("");
+  const [sourceType, setSourceType] = useState(initialSport ? "sport" : "");
   const [sourceKind, setSourceKind] = useState("");
   const [sourceBoard, setSourceBoard] = useState("");
-  const [sourceNights, setSourceNights] = useState(0);
-  const [sportMatch, setSportMatch] = useState("");
-  const [sportVenue, setSportVenue] = useState("");
-  const [sportTicket, setSportTicket] = useState("");
-  const [sportFlightUrl, setSportFlightUrl] = useState("");
-  const [sportHotelUrl, setSportHotelUrl] = useState("");
-  const [sportPeople, setSportPeople] = useState(2);
-  const [sportKickoff, setSportKickoff] = useState("");
+  const [sourceNights, setSourceNights] = useState(Number(initialSport?.nights || 0));
+  const [sportMatch, setSportMatch] = useState(initialSport?.match || "");
+  const [sportVenue, setSportVenue] = useState(initialSport?.venue || "");
+  const [sportTicket, setSportTicket] = useState(initialSport?.ticket || "");
+  const [sportFlightUrl, setSportFlightUrl] = useState(initialSport?.flightUrl || "");
+  const [sportHotelUrl, setSportHotelUrl] = useState(initialSport?.hotelUrl || "");
+  const [sportPeople, setSportPeople] = useState(Math.max(1, Math.min(4, Number(initialSport?.people || 2) || 2)));
+  const [sportKickoff, setSportKickoff] = useState(initialSport?.kickoff || "");
 
+  const [sportTicketOwned, setSportTicketOwned] = useState(false);
+  const [sportTicketReference, setSportTicketReference] = useState("");
+  const sportBookedCount = Number(pieces.flight) + Number(pieces.hotel) + Number(sportTicketOwned);
+  const sportDepartureWarning = /modlin|wmi/i.test(departure) && /chopin|waw/i.test(departure) && /(?:[?&]|%26)from(?:=|%3D)WAW/i.test(sportFlightUrl);
   const nights = useMemo(() => nightsBetween(startDate, endDate), [startDate, endDate]);
   const suggestionStart = dateMode === "range" ? startDate : "";
   const suggestionEnd = dateMode === "range" ? endDate : "";
@@ -602,7 +607,7 @@ export default function AddTripPage() {
 
   function markSportOwned(kind: "flight" | "hotel") {
     const partner = kind === "flight" ? "kiwi" : "booking";
-    setPieces((current) => ({ ...current, [kind]: true }));
+    setPieces((current) => ({ ...current, [kind]: !current[kind] }));
     setSelectedProvider((current) => ({ ...current, [kind]: partner }));
     trackEvent("sports_planner_piece_owned", { piece: kind, partner, city });
   }
@@ -751,8 +756,11 @@ export default function AddTripPage() {
       departureAt: departureAt || editingTrip?.departureAt || (startDate ? `${startDate}T08:00` : ""),
       flight: pieces.flight ? flight.trim() : (editingTrip?.flight || ""),
       hotel: pieces.hotel ? hotel.trim() : (editingTrip?.hotel || ""),
-      notes: notes.trim() || editingTrip?.notes || "",
+      notes: sourceType === "sport"
+        ? [notes.trim(), sportTicketOwned ? "Bilet na mecz: potwierdzony przez użytkownika" : "Bilet na mecz: do kupienia", sportTicketReference.trim() ? `Numer biletu / rezerwacji meczu: ${sportTicketReference.trim()}` : ""].filter(Boolean).join("\n")
+        : notes.trim() || editingTrip?.notes || "",
       checklist: editingTrip?.checklist || {
+        ...(sourceType === "sport" && sportTicket ? { "Kup bilet na mecz": sportTicketOwned } : {}),
         "Sprawdź transfer z lotniska i taxi na miejscu": pieces.transfer,
         "Zarezerwuj najważniejsze atrakcje": pieces.attractions,
         "Sprawdź internet / eSIM": pieces.esim,
@@ -832,21 +840,27 @@ export default function AddTripPage() {
               </div>
 
               <div className={styles.sportReadySummary}>
+                <div className={styles.sportSummaryHead}>
+                  <span className={styles.sportSummaryPill}><CheckCircle2 size={15}/> Wyjazd skonfigurowany</span>
+                  <span className={styles.sportSummaryProgress}>{sportBookedCount}/3 rezerwacje potwierdzone</span>
+                </div>
                 <strong>Wyjazd jest już ustawiony.</strong>
                 <span>
                   {departure || "Wylot z Polski"} → {city || country} · {sourceNights || nights} {sourceNights === 1 || nights === 1 ? "noc" : "noce/nocy"} · {sportPeople} os.
                 </span>
                 {sportKickoff && <small>Mecz: {sportKickoff}</small>}
-                <small>Nie wpisujesz ponownie miasta, lotniska ani dat — przechodzisz od razu do gotowych wyników.</small>
+                <small>Podróż jest przygotowana — poniżej dokończysz rezerwacje i zapiszesz wszystko w jednym miejscu.</small>
               </div>
 
+              <div className={styles.sportFlowLabel}>DOKOŃCZ WYJAZD <span>Rezerwacje realizujesz u partnerów</span></div>
               <div className={styles.sportBuyFlow}>
                 <section className={styles.sportBuyCard}>
                   <div className={styles.sportBuyHead}>
                     <span className={styles.sportBuyNumber}>1</span>
                     <div><strong>Lot</strong><small>{departure || "Polska"} → {city || country}</small></div>
                   </div>
-                  <p>Trasa i daty są już wpisane. Wybierz tylko konkretny lot z gotowej listy.</p>
+                  <p>Sprawdź dostępne loty i godzinę przylotu przed meczem. Ceny i dostępność potwierdzisz u partnera.</p>
+                  {sportDepartureWarning && <div className={styles.sportWarning} role="note">Uwaga: przy wyszukiwaniu uwzględniono Chopina, ale nie Modlin. Sprawdź oba lotniska w wynikach.</div>}
                   <a
                     className={styles.sportBuyCta}
                     href={sportFlightHref}
@@ -860,7 +874,7 @@ export default function AddTripPage() {
                     className={pieces.flight ? styles.sportOwnedButtonActive : styles.sportOwnedButton}
                     onClick={() => markSportOwned("flight")}
                   >
-                    {pieces.flight ? "✓ Lot dodany do planu" : "Mam już lot — oznacz w planie"}
+                    {pieces.flight ? "✓ Potwierdzam zakup lotu · Cofnij" : "Mam kupiony lot — potwierdź"}
                   </button>
                 </section>
 
@@ -883,7 +897,7 @@ export default function AddTripPage() {
                     className={pieces.hotel ? styles.sportOwnedButtonActive : styles.sportOwnedButton}
                     onClick={() => markSportOwned("hotel")}
                   >
-                    {pieces.hotel ? "✓ Hotel dodany do planu" : "Mam już hotel — oznacz w planie"}
+                    {pieces.hotel ? "✓ Potwierdzam rezerwację · Cofnij" : "Mam zarezerwowany hotel — potwierdź"}
                   </button>
                 </section>
 
@@ -893,24 +907,36 @@ export default function AddTripPage() {
                       <span className={styles.sportBuyNumber}>3</span>
                       <div><strong>Bilet na mecz</strong><small>Oficjalny kanał klubu</small></div>
                     </div>
-                    <p>Po locie i hotelu przejdź do oficjalnej sprzedaży biletów.</p>
+                    <p>Sprawdź dostępność biletów przed zakupem lotu i hotelu. Link prowadzi do oficjalnego serwisu klubu.</p>
                     <a className={styles.sportBuyCta} href={sportTicket} rel="noopener noreferrer">
-                      <Ticket size={17}/> Oficjalne bilety <ArrowRight size={16}/>
+                      <Ticket size={17}/> Sprawdź bilety na mecz <ArrowRight size={16}/>
                     </a>
+                    <button type="button" aria-pressed={sportTicketOwned} className={sportTicketOwned ? styles.sportOwnedButtonActive : styles.sportOwnedButton} onClick={() => setSportTicketOwned((v) => !v)}>
+                      {sportTicketOwned ? "✓ Bilet kupiony · Cofnij" : "Mam bilet na mecz — potwierdź"}
+                    </button>
                   </section>
                 )}
               </div>
 
               <div className={styles.sportReturnHint}>
-                Partner otworzy się w tej samej karcie. Po wyborze lub zakupie wróć strzałką przeglądarki — ten mecz nadal będzie ustawiony.
+Kliknięcie oferty nie oznacza zakupu. Po rezerwacji wróć do Tripowni i zaznacz, co zostało naprawdę kupione.
               </div>
 
+              <details className={styles.sportExtras}>
+                <summary>Dodaj numery rezerwacji lub zmień szczegóły</summary>
+                <div className={styles.sportExtrasGrid}>
+                  <label>Numer lotu<input value={flight} onChange={(e) => setFlight(e.target.value)} placeholder="np. FR 1234" /></label>
+                  <label>Hotel / numer rezerwacji<input value={hotel} onChange={(e) => setHotel(e.target.value)} placeholder="Nazwa hotelu lub numer" /></label>
+                  <label>Numer biletu na mecz<input value={sportTicketReference} onChange={(e) => setSportTicketReference(e.target.value)} placeholder="Opcjonalnie" /></label>
+                </div>
+              </details>
               {error && <div className="add-trip-error" role="alert">{error}</div>}
 
               <button type="submit" className={"primary-cta " + styles.confirmPrimary}>
-                Dodaj cały wyjazd do planu <ArrowRight size={18}/>
+                Zapisz wyjazd w Mojej podróży <ArrowRight size={18}/>
               </button>
 
+              <p className={styles.sportSaveHint}>Planowanie jest bezpłatne. Zapisanie planu nie oznacza zakupu lotu, hotelu ani biletu.</p>
               <Link href="/wydarzenia" className={styles.confirmHint}>← Wróć do listy meczów</Link>
             </div>
           </form>
