@@ -28,3 +28,27 @@
 .compact .iframe{height:740px;min-height:740px}
 @media(max-width:900px){.headingCopy{width:78%}.scenic{width:32%}.steps{gap:6px}.step{gap:8px}.stepIcon{flex-basis:42px;width:42px;height:42px}.step strong{font-size:12px}}
 @media(max-width:680px){.root{padding:18px;border-radius:18px}.heading{min-height:0;margin-bottom:16px;padding-top:154px}.headingCopy{width:100%}.scenic{top:-10px;right:-10px;left:-10px;width:auto;height:145px;border-radius:15px;background-position:center 58%}.scenic span{bottom:10px;right:10px;font-size:11px}.heading h2,.compact .heading h2{font-size:clamp(24px,7vw,30px)}.heading p{font-size:14px}.eyebrow{margin-bottom:9px}.fullView{width:100%}.steps{grid-template-columns:1fr;gap:2px}.step{border-right:0;border-bottom:1px solid #f0e5df;padding:9px 4px}.step:last-child{border-bottom:0}.stepIcon{flex-basis:38px;width:38px;height:38px}.step>span:last-child{grid-template-columns:20px 1fr}.step small{margin-top:0}.iframe,.compact .iframe{height:1050px;min-height:1050px}.reveal{padding:16px;font-size:14px}}
+
+/* Full /szukaj-wakacji page: search above instructions, no duplicated scenic tile */
+.featured{padding:clamp(18px,2.7vw,30px);margin:0;border-color:#f1dfd2;box-shadow:0 16px 48px rgba(25,28,47,.12);background:#fff;display:flex;flex-direction:column}
+.featured .heading{order:0;min-height:0;margin:0 0 7px;padding:0}
+.featured .headingCopy{width:100%;padding:0}
+.featured .eyebrow{font-size:11px;margin-bottom:5px}
+.featured .heading h2{font-size:clamp(23px,2.7vw,32px);margin-bottom:5px;color:#1b2444}
+.featured .heading p{max-width:none;color:#626b78}
+.featured .scenic{display:none}
+.featured .partnerNotice{order:1;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:2px 0 15px;font-size:12px;color:#5f6977}
+.featured .partnerNotice strong{color:#23314b}
+.featured .partnerNotice small{color:#838999;font-size:11px}
+.featured .frame{order:2;margin:0;border:1px solid #e1e7ed;border-radius:16px;background:#fff;overflow:hidden;box-shadow:0 6px 18px rgba(22,49,87,.065)}
+.featured .steps{order:3;margin:18px 0 0;gap:10px}
+.featured .step{padding:10px 12px;border-radius:12px;border:1px solid #f1e6de;background:#fffaf7}
+.featured .stepIcon{flex:0 0 44px;width:44px;height:44px}
+.featured .note{order:4;margin:13px 0 0}
+@media(max-width:680px){
+  .featured{padding:15px}
+  .featured .heading{padding:0}
+  .featured .steps{margin-top:12px;gap:7px}
+  .featured .step{border:1px solid #f1e6de;padding:10px}
+  .featured .partnerNotice{margin-top:6px}
+}
