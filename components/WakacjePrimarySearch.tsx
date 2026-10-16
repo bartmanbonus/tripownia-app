@@ -24,7 +24,7 @@ export default function WakacjePrimarySearch({
       if (event.data?.type !== "tripownia:wk-widget-height") return;
       const measured = Number(event.data.height);
       if (!Number.isFinite(measured) || measured < 150) return;
-      const next = Math.min(1600, Math.max(330, Math.ceil(measured) + 12));
+      const next = Math.min(2600, Math.max(420, Math.ceil(measured) + 64));
       setWidgetHeight(current => Math.abs(current - next) >= 12 ? next : current);
     };
     window.addEventListener("message", onHeight);
