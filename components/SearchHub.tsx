@@ -387,7 +387,7 @@ export default function SearchHub({
   const [calendarView, setCalendarView] = useState<"calendar" | "months">("calendar");
   const [dateFrom, setDateFrom] = useState(initialDateFrom);
   const [dateTo, setDateTo] = useState(initialDateTo);
-  const [duration, setDuration] = useState(initialTab === "City break" && (initialDuration === "all" || !initialDuration) ? "2-4" : initialDuration || "all");
+  const [duration, setDuration] = useState(initialTab === "City break" && (initialDuration === "all" || !initialDuration) ? "3-4" : initialDuration || "all");
   const [durationOpen, setDurationOpen] = useState(false);
   const [durationDraftMin, setDurationDraftMin] = useState(() => durationPickerRange(initialDuration || "all").min);
   const [durationDraftMax, setDurationDraftMax] = useState(() => durationPickerRange(initialDuration || "all").max);
@@ -542,7 +542,7 @@ export default function SearchHub({
     setDestination("");
     setSelectedDestinations(initialDestinations);
     setDepartures(initialAirports);
-    setDuration(initialTab === "City break" && (initialDuration === "all" || !initialDuration) ? "2-4" : initialDuration || "all");
+    setDuration(initialTab === "City break" && (initialDuration === "all" || !initialDuration) ? "3-4" : initialDuration || "all");
     setBudget(initialBudget || "all");
     setActiveTab(initialTab);
     setBoard(initialBoard);
@@ -1190,7 +1190,7 @@ export default function SearchHub({
     setDurationOpen(false);
     setActiveTab(tab);
     if (tab === "Hotele") { setDateMode("range"); setMonth(""); setSelectedDestinations((current) => current.slice(0, 1)); }
-    setDuration(tab === "City break" ? "2-4" : "all");
+    setDuration(tab === "City break" ? "3-4" : "all");
     setBudget("all");
     setCustomBudgetMin("");
     setCustomBudgetMax("");
@@ -1210,7 +1210,7 @@ export default function SearchHub({
   }
 
   function quickSearch(label: string, overrides: SearchOverrides) {
-    const nextDuration = overrides.duration ?? ((overrides.tab || activeTab) === "City break" ? "2-4" : "all");
+    const nextDuration = overrides.duration ?? ((overrides.tab || activeTab) === "City break" ? "3-4" : "all");
     const nextBudget = overrides.budget ?? "all";
     const nextBoard = overrides.board ?? "all";
     const nextWeekend = overrides.weekendOnly ?? ((overrides.tab || activeTab) === "City break");
@@ -1253,7 +1253,7 @@ export default function SearchHub({
     setCalendarMonth("");
     setDateFrom("");
     setDateTo("");
-    setDuration(activeTab === "City break" ? "2-4" : "all");
+    setDuration(activeTab === "City break" ? "3-4" : "all");
     setBudget("all");
     setBoard("all");
     setWeekendOnly(activeTab === "City break");
@@ -1401,7 +1401,7 @@ export default function SearchHub({
         </div>
         {!embedded && activeTab !== "Loty" && activeTab !== "Hotele" && (
           <p className="search-v3-mode-hint" role="status" style={{ margin: "3px 22px 16px", padding: "10px 14px", color: "#56463e", background: "#fff8f3", border: "1px solid #f2ded0", borderRadius: 12, fontSize: 13, lineHeight: 1.5 }}>
-            {activeTab === "City break" ? "Krótki wyjazd: domyślnie 2–4 noce i termin obejmujący weekend. Możesz wybrać także 5–7 nocy."
+            {activeTab === "City break" ? "Krótki wyjazd: domyślnie 3–4 noce (minimum 2 dni między podróżami) i termin obejmujący weekend. Możesz wybrać także 5–7 nocy."
               : activeTab === "Lot + hotel" ? "Lot i nocleg w jednym pakiecie — dowolna długość i elastyczne terminy."
               : activeTab === "Last minute" ? "Bliskie terminy i wycieczki z wielu biur — pełna wyszukiwarka poniżej."
               : "Wakacje i All Inclusive: pełna oferta wycieczek w wyszukiwarce poniżej."}
@@ -1684,8 +1684,8 @@ export default function SearchHub({
                     <strong>Na jak długo?</strong>
                     <div>
                       {(activeTab === "City break"
-                        ? [["2-4", "2–4"], ["5-7", "5–7"], ["all", "Dowolnie"]]
-                        : [["all","Dowolnie"], ["2-3","2–3"], ["3-4","3–4"], ["5-7","5–7"], ["7-10","7–10"], ["11-14","11–14"], ["15+","15+"]]
+                        ? [["3-4", "2–4"], ["5-7", "5–7"], ["all", "Dowolnie"]]
+                        : [["all","Dowolnie"], ["3-4","3–4"], ["3-4","3–4"], ["5-7","5–7"], ["7-10","7–10"], ["11-14","11–14"], ["15+","15+"]]
                       ).map(([value,label]) => (
                         <button type="button" key={value} className={duration === value ? "active" : ""} onClick={() => setDuration(value)}>{label}</button>
                       ))}
@@ -1731,7 +1731,7 @@ export default function SearchHub({
                   <div className="search-v3-duration-presets" role="group" aria-label="Popularne długości wyjazdu">
                     {[
                       ["all","Dowolnie"],
-                      ["2-3","Weekend · 2–3"],
+                      ["3-4","City break · 3–4"],
                       ["3-4","3–4 noce"],
                       ["5-7","5–7 nocy"],
                       ["7-10","7–10 nocy"],
