@@ -2,6 +2,7 @@ import { readProductFeed } from "@/lib/productFeed";
 import { NextRequest, NextResponse } from "next/server";
 import { fetchEskyPackages } from "@/lib/eskyPackages";
 import { isAffordableShortTrip, isPromotableOffer, isSearchInventoryOffer } from "@/lib/offerValuePolicy";
+import { hasEnoughDestinationDays } from "@/lib/tripDayQuality";
 import { rankSearchOffers } from "@/lib/searchOfferRanking";
 import { destinationQueryMatches } from "@/lib/destinationAliases";
 
@@ -851,6 +852,7 @@ export async function GET(request: NextRequest) {
     }
 
     const rawCandidates = Array.from(unique.values()).filter(mode === "search" || mode === "citybreak" ? isSearchInventoryOffer : isAffordableShortTrip)
+      .filter(hasEnoughDestinationDays)
       .filter(offer => isTravelDestinationAllowed(offer.city, offer.country));
     const allCandidates = query && (mode === "search" || mode === "citybreak")
       ? rawCandidates.filter((offer) => candidateMatchesQuery(offer, query))
@@ -1015,7 +1017,7 @@ export async function GET(request: NextRequest) {
     const dailyLengthPool = cheapestDestinations.filter((offer) => hasConcreteDates(offer) && isPromotableOffer(offer));
 
     // Short city breaks must remain affordable, even when a destination has only expensive stock.
-    const cityBreakPool = pool.filter(offer => offer.nights >= 1 && offer.nights <= 7 && hasConcreteDates(offer));
+    const cityBreakPool = pool.filter(offer => hasEnoughDestinationDays(offer) && offer.nights <= 7 && hasConcreteDates(offer));
     const selected = mode === "newyear"
       ? cheapestPerDestination(
           pool.filter((offer) => {
@@ -1138,6 +1140,7 @@ export async function GET(request: NextRequest) {
       ? []
       : homepageFallbackOffers
           .filter((offer) => !isOfferExpired(offer))
+          .filter(hasEnoughDestinationDays)
           .filter(mode === "search" || mode === "citybreak" ? isSearchInventoryOffer : isAffordableShortTrip)
           .filter((offer) => Boolean(offer.affiliateUrl))
           .filter((offer) => offer.linkMatch !== "unsafe")
@@ -1152,7 +1155,7 @@ export async function GET(request: NextRequest) {
           .filter((offer) => (!minPrice || offer.price >= minPrice) && (!maxPrice || offer.price <= maxPrice));
 
     if (mode === "citybreak") {
-      fallbackOffers = fallbackOffers.filter((offer) => offer.nights >= 1 && offer.nights <= 5);
+      fallbackOffers = fallbackOffers.filter((offer) => hasEnoughDestinationDays(offer) && offer.nights <= 5);
     }
     if (mode === "surprise") {
       fallbackOffers = fallbackOffers.filter((offer) => offer.price <= budget);
