@@ -1400,7 +1400,7 @@ export default function SearchHub({
           ))}
         </div>
         {!embedded && activeTab !== "Loty" && activeTab !== "Hotele" && (
-          <p className="search-v3-mode-hint" role="status">
+          <p className="search-v3-mode-hint" role="status" style={{ margin: "3px 22px 16px", padding: "10px 14px", color: "#56463e", background: "#fff8f3", border: "1px solid #f2ded0", borderRadius: 12, fontSize: 13, lineHeight: 1.5 }}>
             {activeTab === "City break" ? "Krótki wyjazd: domyślnie 2–4 noce i termin obejmujący weekend. Możesz wybrać także 5–7 nocy."
               : activeTab === "Lot + hotel" ? "Lot i nocleg w jednym pakiecie — dowolna długość i elastyczne terminy."
               : activeTab === "Last minute" ? "Bliskie terminy i wycieczki z wielu biur — pełna wyszukiwarka poniżej."
