@@ -1,0 +1,5 @@
+/* One primary search on homepage; partner search lives on /szukaj-wakacji. */
+.search-v3-partner-link{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:18px 0;padding:18px 22px;border:1px solid #eaded7;border-radius:16px;background:#fffaf6;color:#554842;font-size:14px}
+.search-v3-partner-link a{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:11px 16px;border-radius:12px;background:#fa5633;color:white;text-decoration:none;font-weight:800}
+.search-v3-partner-link a:hover{background:#d94727}
+@media(max-width:640px){.search-v3-partner-link{padding:16px}.search-v3-partner-link a{width:100%}}
