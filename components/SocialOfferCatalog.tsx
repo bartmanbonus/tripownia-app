@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { isSocialOfferExpired } from "@/lib/socialOffers";
 import { getSocialOfferCatalogEntries } from "@/lib/socialOfferCatalogEntries";
+import { UNPRICED_SOCIAL_OFFERS } from "@/lib/unpricedSocialOffers";
 import { trackEvent } from "@/lib/analytics";
 import TravelImage from "@/components/TravelImage";
 import styles from "./SocialOfferCatalog.module.css";
@@ -14,8 +15,13 @@ export default function SocialOfferCatalog({ compact = false }: { compact?: bool
   const [query, setQuery] = useState("");
   const [now, setNow] = useState<Date | null>(null);
   useEffect(() => { setNow(new Date()); }, []);
-  const entries = useMemo(() => getSocialOfferCatalogEntries(), []);
-  const matches = entries.filter(offer => normalize(`${offer.city} ${offer.country} ${offer.hotel} ${offer.departure} ${offer.price}`).includes(normalize(query.trim())));
+  const entries = useMemo(() => {
+    const priced = getSocialOfferCatalogEntries();
+    const pricedSlugs = new Set(priced.map(offer => offer.slug));
+    return [...priced, ...UNPRICED_SOCIAL_OFFERS.filter(offer => !pricedSlugs.has(offer.slug))]
+      .sort((a, b) => Date.parse(b.checkedAt) - Date.parse(a.checkedAt));
+  }, []);
+  const matches = entries.filter(offer => normalize(`${offer.city} ${offer.country} ${offer.hotel} ${offer.departure} ${offer.price ?? ""}`).includes(normalize(query.trim())));
   const visible = compact ? matches.slice(0, 4) : matches;
 
   return <section className={`section shell ${styles.section}`} aria-labelledby="social-offers-title" id="oferty-z-postow">
@@ -33,16 +39,22 @@ export default function SocialOfferCatalog({ compact = false }: { compact?: bool
     </div>}
     <div className={styles.grid}>
       {visible.map(offer => {
-        const expired = offer.status === "expired" || (now ? isSocialOfferExpired(offer, now) : false);
+        const expired = offer.status === "expired" || (now
+          ? "departureDateISO" in offer
+            ? offer.departureDateISO < new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw" }).format(now)
+            : isSocialOfferExpired(offer, now)
+          : false);
         return <article className={styles.card} key={offer.slug}>
           <TravelImage city={offer.city} country={offer.country} overrideSrc={offer.imageSrc} alt={`${offer.city}, ${offer.country} — ilustracja kierunku lub oferty`} className={styles.image} />
           <div className={styles.body}>
             <span className={styles.status}>{expired ? "Archiwalna propozycja" : "Sprawdź dostępność"}</span>
             <h3>{offer.city}</h3><p className={styles.hotel}>{offer.hotel}</p>
             <p>{offer.dates}<br />{offer.departure} · {offer.nights} {offer.nights === 1 ? "noc" : offer.nights >= 2 && offer.nights <= 4 ? "noce" : "nocy"}<br />{offer.board}</p>
-            <p className={styles.price}><small>Ostatnia zapisana cena od</small><strong>{offer.price.toLocaleString("pl-PL")} zł <span>/ os.</span></strong></p>
+            {offer.price === null
+              ? <p className={styles.price}><strong>Sprawdź aktualną cenę</strong></p>
+              : <p className={styles.price}><small>Ostatnia zapisana cena od</small><strong>{offer.price.toLocaleString("pl-PL")} zł <span>/ os.</span></strong></p>}
             <p className={styles.checked}>Zapisano {new Intl.DateTimeFormat("pl-PL", { timeZone: "Europe/Warsaw", day: "numeric", month: "long", year: "numeric" }).format(new Date(offer.checkedAt))}</p>
-            <Link href={`/o/${offer.slug}`} className={styles.cta} onClick={() => trackEvent("social_offer_catalog_click", { offer_id: offer.slug, destination: offer.city, partner: offer.partner, placement: compact ? "homepage" : "social_catalog", price: offer.price })}>Zobacz szczegóły</Link>
+            <Link href={`/o/${offer.slug}`} className={styles.cta} onClick={() => trackEvent("social_offer_catalog_click", { offer_id: offer.slug, destination: offer.city, partner: offer.partner, placement: compact ? "homepage" : "social_catalog", ...(offer.price === null ? {} : { price: offer.price }) })}>Zobacz szczegóły</Link>
           </div>
         </article>;
       })}
