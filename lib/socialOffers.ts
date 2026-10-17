@@ -78,6 +78,25 @@ function validImageCountry(offer: SocialOffer) {
  * 4) social posts link to /o/<slug>, never directly to the partner.
  */
 const SOCIAL_OFFERS: Record<string, SocialOffer> = {
+  "gran-canaria-koala-garden-1449-kwiecien-2027": {
+    slug: "gran-canaria-koala-garden-1449-kwiecien-2027",
+    city: "Gran Canaria · Maspalomas",
+    country: "Hiszpania",
+    price: 1449,
+    departure: "Wrocław",
+    nights: 3,
+    dates: "9–13 kwietnia 2027",
+    board: "Bez wyżywienia",
+    hotel: "Hotel & Apartments LIVVO Koala Garden 4★",
+    partner: "exim",
+    partnerLabel: "EXIM Tours",
+    affiliateUrl: "https://www.exim.pl/kierunki/hiszpania/gran-canaria/maspalomas/hotel-a-apartments-livvo-koala-garden?KEY=MjIxNDg2OHwzMjA0OTE1MTc0fDEyNjM2MzQ&DS=1024&GIATA=677801&D=74460&HID=463121&MT=6&DI=GT06-AO&NN=3&MNN=0%7C1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7C10%7C11%7C12%7C13%7C14%7C15%7C16%7C17%7C18%7C19%7C20%7C21&NNM=0%7C1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7C10%7C11%7C12%7C13%7C14%7C15%7C16%7C17%7C18%7C19%7C20%7C21&DF=2027-04-02%7C2027-04-27&RD=2027-04-13&DD=2027-04-09&ERM=0&AC1=2&KC1=0&IC1=0&TO=3911&TT=1&PID=463121&DPR=EXIM+TOURS+POLAND&PC=3-2027-04-09&IFC=VzZ8MTg4NHwyMDI3LTA0LTEyVDE4OjQw&OFC=VzZ8MTg4M3wyMDI3LTA0LTA5VDEzOjI1&utm_term=feed&tduid=c7d243284e2e1a9f478e3768f8d89c2b&utm_source=Tradedoubler_3487177&utm_medium=Affiliate&utm_campaign=Ongoing_P_TD",
+    imageSrc: "https://img.exim.pl/hotels/300/spanelsko/gran-canaria/maspalomas/hotel-a-apartments-livvo-koala-garden/b31768cc3d672eccc0c98.jpg",
+    imageCountry: "Hiszpania",
+    checkedAt: "2026-10-17T11:57:00+02:00",
+    status: "active",
+    included: ["Przelot w obie strony", "3 noclegi", "Transfer lotnisko–hotel–lotnisko w cenie", "Oferta dla 2 osób"],
+  },
   "porto-star-inn-1609-swieta-2026": {
     slug: "porto-star-inn-1609-swieta-2026",
     city: "Porto",
