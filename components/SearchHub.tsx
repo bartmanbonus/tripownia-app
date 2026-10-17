@@ -1,7 +1,6 @@
 "use client";
 
 import { destinationCountryMatches } from "@/lib/destinationAliases";
-import WakacjePrimarySearch from "@/components/WakacjePrimarySearch";
 import HybridSearchLinks from "@/components/HybridSearchLinks";
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
@@ -378,7 +377,6 @@ export default function SearchHub({
   const resultsPanelRef = useRef<HTMLDivElement>(null);
   const [editingSearch, setEditingSearch] = useState(false);
   const [moreFilters, setMoreFilters] = useState(initialBudget !== "all" || initialBoard !== "all");
-  const [comparePackages, setComparePackages] = useState(searchRequest > 0);
   const [activeTab, setActiveTab] = useState(initialTab);
   const [destination, setDestination] = useState("");
   const [anywhereSelected, setAnywhereSelected] = useState(false);
@@ -1212,6 +1210,15 @@ export default function SearchHub({
     setVisibleCount(18);
     setNotice("");
     setHotelError("");
+    if (tab !== "Loty" && tab !== "Hotele") {
+      void runSearch(undefined, {
+        tab,
+        duration: tab === "City break" ? "3-4" : "all",
+        budget: "all",
+        board: "all",
+        weekendOnly: tab === "City break",
+      });
+    }
   }
 
   function quickSearch(label: string, overrides: SearchOverrides) {
@@ -1356,7 +1363,6 @@ export default function SearchHub({
       : "termin elastyczny";
 
   const simpleHomePackage = !moreFilters && activeTab !== "Loty" && activeTab !== "Hotele";
-  const holidayMode = ["Wakacje", "All Inclusive", "Last minute"].includes(activeTab);
   const visibleTabs = embedded
     ? ["Lot + hotel", "City break", "Last minute", "Wakacje", "All Inclusive", "Loty", "Hotele"]
     : ["Lot + hotel", "City break", "Last minute", "Wakacje", "Loty", "Hotele"];
@@ -1403,19 +1409,13 @@ export default function SearchHub({
         <div className="search-v3-tabs" role="group" aria-label="Rodzaj podróży">
           <button type="button" aria-pressed={!activeTab || activeTab === "Inspiracje"} className={!activeTab || activeTab === "Inspiracje" ? "active" : ""} onClick={() => chooseTab("")}>Wszystkie wyjazdy</button>
           {visibleTabs.map((tab) => (
-            <button key={tab} type="button" aria-pressed={activeTab === tab} className={activeTab === tab ? "active" : ""} onClick={() => { setComparePackages(false); chooseTab(tab); }}>{tab}</button>
+            <button key={tab} type="button" aria-pressed={activeTab === tab} className={activeTab === tab ? "active" : ""} onClick={() => chooseTab(tab)}>{tab}</button>
           ))}
         </div>
-        {holidayMode && <>
-          {!comparePackages && <WakacjePrimarySearch inline />}
-          <button type="button" className="search-v3-more-filters" aria-expanded={comparePackages} onClick={() => setComparePackages(value => !value)}>
-            {comparePackages ? "Wróć do pełnej wyszukiwarki wakacji" : "Porównaj także pakiety lot + hotel"}
-          </button>
-        </>}
-        <div hidden={(holidayMode && !comparePackages) || (searched && !editingSearch && activeTab !== "Hotele" && activeTab !== "Loty")}>
+        <div hidden={searched && !editingSearch && activeTab !== "Hotele" && activeTab !== "Loty"}>
         {activeTab === "Loty" ? (
           <div className="search-v3-flight-center">
-            <FlexibleFlightsExplorer />
+            <FlexibleFlightsExplorer autoSearch />
 
           </div>
         ) : (
@@ -1962,7 +1962,7 @@ export default function SearchHub({
           </div>
         )}
 
-        {searched && activeTab !== "Hotele" && (!holidayMode || comparePackages) && (
+        {searched && activeTab !== "Hotele" && activeTab !== "Loty" && (
           <div className="search-v3-results" ref={resultsPanelRef}>
             <div className="search-v3-active-summary">
               <strong>{submittedSummary.destination}</strong>

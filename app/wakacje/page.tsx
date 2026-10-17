@@ -5,7 +5,6 @@ import SiteFooter from "@/components/SiteFooter";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
-import WakacjePrimarySearch from "@/components/WakacjePrimarySearch";
 import { homepageFallbackOffers } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ReadySearchGrid from "@/components/ReadySearchGrid";
@@ -36,12 +35,11 @@ export default function WakacjePage() {
       <p>Porównaj All Inclusive, rodzinne wakacje, plażę, egzotykę i klasyczne pakiety. Tripownia pokazuje wybrane oferty i pozwala przejść do aktualnej dostępności — bez przekopywania wielu osobnych serwisów.</p>
     </section>
     <section className="section shell">
-      <WakacjePrimarySearch title="Pełna oferta wakacji Tripowni" description="Wakacje, egzotyka i All Inclusive w jednym miejscu. Sprawdź terminy i ceny, a rezerwację dokończ u partnera." />
+      <SearchHub embedded initialTab="Wakacje" searchRequest={1} />
     </section>
     <section className="section shell">
       <div className="section-heading"><div><div className="kicker">WYBRANE PRZEZ NAS</div><h2>Aktualne wakacje warte sprawdzenia</h2><p>Porównuj nie tylko cenę startową, ale też termin, liczbę nocy, wyżywienie i koszt całej podróży.</p></div></div>
       <LiveSalesRail mode="vacation" limit={10} initialOffers={homepageFallbackOffers}/>
-      <p><Link href="/szukaj-wakacji">Sprawdź wycieczkę →</Link></p>
 
     </section>
     <section className="section shell"><FacebookFollowCTA placement="wakacje_after_offers" compact /></section>

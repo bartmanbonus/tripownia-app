@@ -5,7 +5,6 @@ import SiteFooter from "@/components/SiteFooter";
 import SalesCollectionSchema from "@/components/SalesCollectionSchema";
 import SearchHub from "@/components/SearchHub";
 import LiveSalesRail from "@/components/LiveSalesRail";
-import WakacjePrimarySearch from "@/components/WakacjePrimarySearch";
 import { homepageFallbackOffers } from "@/lib/offers";
 import FacebookFollowCTA from "@/components/FacebookFollowCTA";
 import ReadySearchGrid from "@/components/ReadySearchGrid";
@@ -40,7 +39,7 @@ export default function LastMinuteOffersPage() {
       <Link className="editorial-link" href="/magazyn-podrozniczy/last-minute-2026">📚 Jak kupować last minute — poradnik →</Link>
     </section>
 
-    <section className="section shell"><WakacjePrimarySearch title="Porównaj pełną pulę wycieczek last minute" description="Najpierw sprawdź wyjazdy z różnych biur, lotniska i daty. Poniżej pozostawiamy wyselekcjonowane oferty Tripowni z dodatkowymi źródłami." /></section>
+    <section className="section shell"><SearchHub embedded initialTab="Last minute" searchRequest={1} /></section>
     <section className="section shell last-minute-live-section">
       <div className="section-heading"><div><div className="kicker">WYBRANE PRZEZ TRIPOWNIĘ</div><h2>Aktualne oferty Last Minute</h2><p>Sortujemy od najniższej ceny. Sprawdź termin, liczbę nocy, wyżywienie i lotnisko wylotu przed przejściem do rezerwacji.</p></div></div>
       <LiveSalesRail mode="lastminute" limit={10} initialOffers={homepageFallbackOffers}/>
@@ -57,10 +56,6 @@ export default function LastMinuteOffersPage() {
         { href: "/szukaj?destination=Egipt&budget=3000&duration=7&board=all%20inclusive&tab=Last%20minute", eyebrow: "EGIPT · 7 NOCY · DO 3 000 ZŁ", title: "Egipt All Inclusive Last Minute", meta: "Pełne wyżywienie · różne lotniska wylotu" },
         { href: "/szukaj?budget=2000&duration=5-9&tab=Last%20minute", eyebrow: "DO 2 000 ZŁ · 5–9 NOCY", title: "Najtańsze Last Minute", meta: "Bez wskazywania kierunku · sortowanie od najniższej ceny" },
       ]} />
-    </section>
-
-    <section className="section shell partner-search-shopping">
-      <SearchHub embedded initialTab="Last minute" />
     </section>
 
     <section className="section shell">

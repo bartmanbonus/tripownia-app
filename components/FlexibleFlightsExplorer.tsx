@@ -422,7 +422,7 @@ export default function FlexibleFlightsExplorer({
   const [calendarResults, setCalendarResults] = useState<Array<{ destinationCode:string; price:number; departDate:string; returnDate:string; outboundStops:number; returnStops:number; affiliateUrl:string }>>([]);
   const [calendarLoading, setCalendarLoading] = useState(false);
   const [activeRouteKey, setActiveRouteKey] = useState("");
-  const [submitted, setSubmitted] = useState(autoSearch && /^[A-Z]{3}$/.test(initialDestinationCode));
+  const [submitted, setSubmitted] = useState(autoSearch && (!initialDestination.trim() || /^[A-Z]{3}$/.test(initialDestinationCode)));
   const [deals, setDeals] = useState<FlightDeal[]>([]);
   const [dealsLoading, setDealsLoading] = useState(false);
   const [dealsSort, setDealsSort] = useState<"price" | "name">("price");
