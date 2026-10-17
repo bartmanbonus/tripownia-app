@@ -73,3 +73,12 @@ export function destinationQueryMatches(query: string, ...values: Array<string |
 }
 
 export { normalizeDestination };
+
+// Country queries must match geography, never a hotel name (e.g. Hotel Malta in Italy).
+// Leave city/region queries to provider matching, preserving region and airport aliases.
+export function destinationCountryMatches(query: string, country: string | undefined | null) {
+  const key = normalizeDestination(query);
+  if (!Object.prototype.hasOwnProperty.call(DESTINATION_EQUIVALENTS, key)) return true;
+  const actual = normalizeDestination(country || "");
+  return Boolean(actual) && destinationEquivalentTerms(query).some(term => actual === term);
+}

@@ -42,7 +42,7 @@ export default function WakacjePage() {
       <div className="section-heading"><div><div className="kicker">WYBRANE PRZEZ NAS</div><h2>Aktualne wakacje warte sprawdzenia</h2><p>Porównuj nie tylko cenę startową, ale też termin, liczbę nocy, wyżywienie i koszt całej podróży.</p></div></div>
       <LiveSalesRail mode="vacation" limit={10} initialOffers={homepageFallbackOffers}/>
       <p><Link href="/szukaj-wakacji">Sprawdź wycieczkę →</Link></p>
-      <div className="single-partner-search-wrap"><SearchHub embedded initialTab="Wakacje" /></div>
+
     </section>
     <section className="section shell"><FacebookFollowCTA placement="wakacje_after_offers" compact /></section>
     <section className="section shell">

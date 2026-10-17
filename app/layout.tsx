@@ -45,6 +45,7 @@ import "./hotel-search-polish.css";
 import "./travel-ux-cleanup.css";
 import "./search-desktop-layout-fix.css";
 import "./search-partner-link.css";
+import "./search-clarity.css";
 import PWARegister from "@/components/PWARegister";
 import LegacyHomeAnchorBridge from "@/components/LegacyHomeAnchorBridge";
 import OfferRailDeduper from "@/components/OfferRailDeduper";

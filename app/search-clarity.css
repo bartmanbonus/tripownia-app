@@ -1,0 +1,62 @@
+/* Shared form geometry, loaded after legacy homepage overrides. */
+body :is(#wyszukiwarka, .search-v3-section) .search-v3 { overflow:visible!important; background:#fff!important; }
+body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 .search-v3-form {
+  display:grid!important; grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:12px!important; padding:16px 22px!important; overflow:visible!important;
+  background:#faf7f4!important; border-block:1px solid #e5d9d0;
+}
+body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 .search-v3-form > .search-v3-field {
+  grid-area:auto!important; min-width:0!important; width:100%!important;
+  height:auto!important; min-height:76px!important; background:#fff!important;
+  border:1px solid #cdbfb5!important; border-radius:14px!important; box-shadow:none!important;
+}
+body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 .search-v3-form > .search-v3-submit {
+  grid-area:auto!important; grid-column:1/-1!important; position:relative!important;
+  width:100%!important; min-height:56px!important; height:auto!important;
+  margin:4px 0 0!important; padding:16px!important; white-space:normal!important;
+  background:#e84a27!important; color:#fff!important; border:0!important;
+  border-radius:14px!important; font-size:16px!important; box-shadow:none!important;
+}
+body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 .search-v3-form > .search-v3-submit:disabled { opacity:.65; }
+body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 .search-v3-more-filters {
+  grid-column:1/-1!important; display:flex; align-items:center; gap:8px;
+  min-height:44px; padding:12px 16px; margin:8px 0; border:1px solid #d5c6bb;
+  border-radius:12px; background:#fff; color:#623b2d; font-size:14px; font-weight:700;
+  cursor:pointer; text-align:left;
+}
+body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 .search-v3-options-row { grid-column:1/-1!important; margin:0!important; padding:12px!important; background:white; border:1px solid #d5c6bb; border-radius:12px; }
+body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 .search-v3-tabs { display:flex!important; flex-wrap:wrap!important; overflow:visible!important; gap:8px!important; }
+body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 .search-v3-tabs button { white-space:normal!important; min-height:44px!important; }
+.search-v3-priority-actions { display:flex; flex-wrap:wrap; gap:12px; padding:16px; margin-bottom:18px; border:1px solid #e9d4c5; background:#fff8f2; border-radius:16px; }
+.search-v3-priority-actions a { display:flex; gap:8px; align-items:center; justify-content:center; flex:1; min-width:200px; min-height:48px; padding:12px; border-radius:12px; background:#e84a27; color:#fff; font-weight:750; text-decoration:none; }
+.search-v3-priority-actions small { flex-basis:100%; color:#655448; }
+body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 button:focus-visible, .search-v3-priority-actions a:focus-visible { outline:3px solid #6e3291; outline-offset:3px; }
+@media(max-width:1000px) { body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 .search-v3-form { grid-template-columns:repeat(2,minmax(0,1fr))!important; } }
+@media(max-width:600px) {
+  body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 .search-v3-form { grid-template-columns:minmax(0,1fr)!important; padding:12px!important; }
+  body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 .search-v3-form > .search-v3-field { grid-column:1/-1!important; }
+  body:has(main) :is(#wyszukiwarka, .search-v3-section) .search-v3 .search-v3-tabs { padding:12px!important; }
+  .search-v3-priority-actions a { min-width:0; flex-basis:100%; }
+}
+/* Results sit directly under a compact summary; secondary refinements are optional. */
+body:has(main) :is(#wyszukiwarka,.search-v3-section) .search-v3-results { scroll-margin-top:110px; padding:20px!important; }
+body:has(main) :is(#wyszukiwarka,.search-v3-section) .search-v3-results-head h3 { font-size:24px!important; line-height:1.25!important; margin:8px 0!important; }
+.search-v3-active-summary { flex-wrap:wrap; gap:10px; }
+.search-v3-edit { margin-left:auto; padding:10px 14px; min-height:44px; border:1px solid #d8c7bb; background:white; color:#6b3e2c; border-radius:10px; cursor:pointer; }
+.search-v3-compact-toolbar { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-start; margin:12px 0 18px; }
+.search-v3-compact-toolbar label { display:flex; gap:8px; align-items:center; color:#56473e; font-size:14px; }
+.search-v3-compact-toolbar select,.search-v3-compact-toolbar input { min-height:44px; max-width:100%; padding:10px; border:1px solid #d2c4bb; border-radius:10px; background:#fff; color:#25201c; font-size:16px; }
+.search-v3-refinements { flex:1; min-width:200px; }
+.search-v3-refinements summary { width:fit-content; padding:12px 16px; min-height:44px; cursor:pointer; border:1px solid #d2c4bb; border-radius:10px; background:white; color:#56473e; }
+.search-v3-refinements .search-v3-refine { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:12px; padding:14px; background:#f8f5f2; }
+.search-v3-refinements .search-v3-refine label { display:grid; min-width:0; }
+.search-v3-results .offer-story-hook,.search-v3-results .why-now,.search-v3-results .offer-card-purchase-note { display:none!important; }
+body:has(main) :is(#wyszukiwarka,.search-v3-section) .search-v3-results-grid { display:grid!important; grid-template-columns:repeat(3,minmax(0,1fr))!important; overflow:visible!important; gap:16px!important; }
+body:has(main) :is(#wyszukiwarka,.search-v3-section) .search-v3-result-item { width:auto!important; min-width:0!important; }
+@media(max-width:1000px){body:has(main) :is(#wyszukiwarka,.search-v3-section) .search-v3-results-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:600px){
+ body:has(main) :is(#wyszukiwarka,.search-v3-section) .search-v3-results{padding:12px!important}
+ body:has(main) :is(#wyszukiwarka,.search-v3-section) .search-v3-results-grid{grid-template-columns:minmax(0,1fr)!important}
+ .search-v3-refinements .search-v3-refine{grid-template-columns:minmax(0,1fr)}
+ .search-v3-active-summary span{flex-basis:100%}.search-v3-edit{margin-left:0}
+}

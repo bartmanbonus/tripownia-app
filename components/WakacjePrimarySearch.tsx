@@ -24,7 +24,7 @@ export default function WakacjePrimarySearch({
       if (event.data?.type !== "tripownia:wk-widget-height") return;
       const measured = Number(event.data.height);
       if (!Number.isFinite(measured) || measured < 150) return;
-      const next = Math.min(2600, Math.max(420, Math.ceil(measured) + 64));
+      const next = Math.max(420, Math.ceil(measured) + 32);
       setWidgetHeight(current => Math.abs(current - next) >= 12 ? next : current);
     };
     window.addEventListener("message", onHeight);
@@ -37,8 +37,8 @@ export default function WakacjePrimarySearch({
         <div className={styles.inlineHeading}>
           <div>
             <span className={styles.eyebrow}>TRIPOWNIA · WAKACJE I EGZOTYKA</span>
-            <h3>Znajdź wyjazd w pełnej wyszukiwarce</h3>
-            <p>Wybierz kierunek, lotnisko, termin oraz uczestników. Bez przechodzenia do drugiego formularza.</p>
+            <h3>Wakacje i wycieczki</h3>
+
           </div>
           <span className={styles.inlineTrust}><ShieldCheck size={17} aria-hidden="true"/> Rezerwacja u partnera</span>
         </div>
@@ -59,15 +59,6 @@ export default function WakacjePrimarySearch({
         )}
       </div>
       )}
-      {featured && !inline && <div className={styles.partnerNotice} aria-label="Informacja o dostawcy wyszukiwarki">
-        <span><strong>Wybierz kierunek i termin w formularzu poniżej.</strong> Cenę i dostępność potwierdzisz przed rezerwacją.</span>
-        <small>Wyszukiwarka Wakacje.pl · afiliacja Tripowni 3212</small>
-      </div>}
-      {!inline && <div className={styles.steps} aria-label="Jak działa wyszukiwanie">
-        <div className={styles.step}><span className={styles.stepIcon}><Compass size={23}/></span><span><b>1</b><strong>Znajdź wyjazd</strong><small>Wybierz kierunek, termin i lotnisko.</small></span></div>
-        <div className={styles.step}><span className={styles.stepIcon}><CalendarDays size={23}/></span><span><b>2</b><strong>Wybierz ofertę</strong><small>Porównaj wyjazdy i dostępne warianty.</small></span></div>
-        <div className={styles.step}><span className={styles.stepIcon}><PlaneTakeoff size={23}/></span><span><b>3</b><strong>Zarezerwuj u partnera</strong><small>Sprawdź cenę i dokończ rezerwację.</small></span></div>
-      </div>}
       {compact && !inline && (
         <button
           type="button"
@@ -94,7 +85,7 @@ export default function WakacjePrimarySearch({
         </div>
       )}
       <p className={styles.note}><ShieldCheck size={17} aria-hidden="true"/>
-        <span>Wyszukujesz w Tripowni, a finalizujesz rezerwację u sprawdzonego partnera. Cenę i dostępność potwierdzisz przed zakupem.</span>
+        <span>Cenę i dostępność potwierdzisz u partnera przed rezerwacją.</span>
       </p>
     </section>
   );

@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation';
 export default function WakacjeDiscovery() {
   const path = usePathname() || '/';
   const eligible = path === '/' || /^\/(okazje|kierunki|wakacje|last-minute|tanie-all-inclusive|lot-hotel|city-break|dalekie-podroze|podroze|inspiracje|ferie|majowka|z-)/.test(path);
-  if (!eligible) return null;
+  if (!eligible || ['/', '/wakacje', '/last-minute', '/lot-hotel', '/city-break'].includes(path)) return null;
   const title = path.includes('last-minute') ? 'Sprawdź wycieczki last minute'
     : path.includes('all-inclusive') ? 'Więcej możliwości na All Inclusive'
     : /kierunki|dalekie|podroze/.test(path) ? 'Szukasz wycieczki w tym kierunku?'
